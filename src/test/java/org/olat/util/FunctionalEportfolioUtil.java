@@ -19,12 +19,10 @@
  */
 package org.olat.util;
 
-import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URI;
 
 import org.olat.util.FunctionalHomeSiteUtil.EPortfolioAction;
-import org.olat.util.FunctionalHomeSiteUtil.HomeSiteAction;
 import org.olat.util.FunctionalUtil.OlatSite;
 
 import com.thoughtworks.selenium.Selenium;
@@ -35,19 +33,48 @@ import com.thoughtworks.selenium.Selenium;
  */
 public class FunctionalEportfolioUtil {
 	
+	public final static String EPORTFOLIO_CSS = "b_eportfolio";
+	public final static String EPORTFOLIO_MAP_CSS = "b_eportfolio_map";
+	
 	public final static String HOME_PORTAL_EDIT_LINK_CSS = "o_sel_add_artfeact";
 	public final static String ADD_TEXT_ARTEFACT_CSS = "o_sel_add_text_artfeact";
 	public final static String UPLOAD_FILE_ARTEFACT_CSS = "o_sel_add_upload_artfeact";
 	public final static String CREATE_LEARNING_JOURNAL_CSS = "o_sel_add_liveblog_artfeact";
 	
-	public final static String CREATE_FOLDER_CSS = "b_ep_add_artefact";
+	public final static String ADD_BINDER_BOX_CSS = "o_addMapBox";
+	public final static String CREATE_BINDER_CSS = "o_sel_create_map";
+	public final static String CREATE_DEFAULT_BINDER_CSS = "o_sel_create_default_map";
+	public final static String CREATE_TEMPLATE_BINDER_CSS = "o_sel_create_template_map";
+	public final static String OPEN_BINDER_ICON_CSS = "b_open_icon";
+	
+	public final static String EPORTFOLIO_TABLE_OF_CONTENTS = "b_portfolio_toc";
+	
+	public final static String ADD_PAGE_CSS = "b_eportfolio_add_link";
+	public final static String PAGE_TABS_CSS = "b_pagination";
+	
+	public enum ArtefactDisplay {
+		TABLE,
+		THUMBNAILS,
+	}
+	
+	private String eportfolioCss;
+	private String eportfolioMapCss;
 	
 	private String homePortalEditLinkCss;
 	private String addTextArtefactCss;
 	private String uploadFileArtefactCss;
 	private String createLearningJournalCss;
 	
-	private String createFolderCss;
+	private String addBinderBoxCss;
+	private String createBinderCss;
+	private String createDefaultBinderCss;
+	private String createTemplateBinderCss;
+	private String openBinderCss;
+	
+	private String eportfolioTableOfContents;
+	
+	private String addPageCss;
+	private String pageTabsCss;
 	
 	private FunctionalUtil functionalUtil;
 	private FunctionalHomeSiteUtil functionalHomeSiteUtil;
@@ -56,98 +83,353 @@ public class FunctionalEportfolioUtil {
 		this.functionalUtil = functionalUtil;
 		this.functionalHomeSiteUtil = functionalHomeSiteUtil;
 		
+		setEPortfolioCss(EPORTFOLIO_CSS);
+		setEPortfolioMapCss(EPORTFOLIO_MAP_CSS);
+		
 		setHomePortalEditLinkCss(HOME_PORTAL_EDIT_LINK_CSS);
 		setAddTextArtefactCss(ADD_TEXT_ARTEFACT_CSS);
 		setUploadFileArtefactCss(UPLOAD_FILE_ARTEFACT_CSS);
 		setCreateLearningJournalCss(CREATE_LEARNING_JOURNAL_CSS);
 		
-		setCreateFolderCss(CREATE_FOLDER_CSS);
+		setAddBinderBoxCss(ADD_BINDER_BOX_CSS);
+		setCreateBinderCss(CREATE_BINDER_CSS);
+		setCreateDefaultBinderCss(CREATE_DEFAULT_BINDER_CSS);
+		setCreateTemplateBinderCss(CREATE_TEMPLATE_BINDER_CSS);
+		setOpenBinderCss(OPEN_BINDER_ICON_CSS);
+		
+		setAddPageCss(ADD_PAGE_CSS);
+		setPageTabsCss(PAGE_TABS_CSS);
 	}
 
+
 	/**
-	 * @param binderPath
+	 * @param binder
+	 * @param page
+	 * @param structure
 	 * @return
 	 * 
-	 * Creates an xpath expression of a slash separated path to
-	 * select a tree item.
+	 * Creates an xpath selector of specified binder, page and structure.
 	 */
-	public String createSelectorOfBinderPath(String binderPath){
-		if(binderPath == null)
+	public String createSelector(String binder, String page, String structure){
+		if(binder == null || binder.isEmpty() || page == null || page.isEmpty())
 			return(null);
-		
-		if(!binderPath.startsWith("/")){
-			binderPath = "/" + binderPath;
-		}
 		
 		StringBuffer selectorBuffer = new StringBuffer();
 		
 		selectorBuffer.append("xpath=");
+		selectorBuffer.append("//ul//li//a//span[text()='")
+		.append(binder)
+		.append("']/../..//ul//li//a//span[text()='")
+		.append(page)
+		.append("']");
 		
-		int prevSeparator = 0;
-		int currentSeparator = -1;
-		
-		while(prevSeparator != binderPath.length() && (currentSeparator = binderPath.indexOf('/', prevSeparator + 1)) != -1){
-			selectorBuffer.append("//ul//li//a//span[text()=")
-			.append(binderPath.substring(prevSeparator + 1, currentSeparator))
-			.append("]");
-			
-			
-			prevSeparator = currentSeparator;
+		if(structure != null && !structure.isEmpty()){
+			selectorBuffer.append("/../..//ul//li//a//span[text()='")
+			.append(structure)
+			.append("']");
 		}
 		
-		if(prevSeparator > 0){
-			selectorBuffer.append("/..");
-				
-			return(selectorBuffer.toString());
+		selectorBuffer.append("/..");
+		
+		return(selectorBuffer.toString());
+	}
+	
+	/**
+	 * @param browser
+	 * @param binder
+	 * @param page
+	 * @param structure
+	 * @return true on success
+	 * 
+	 * Creates the specified elements (binder, page, structure) 
+	 */
+	public boolean createElements(Selenium browser, String binder, String page, String structure){
+		if(!binderExists(browser, binder)){
+			createDefaultBinder(browser, binder, null);
+			
+			createPage(browser, binder, page, ArtefactDisplay.THUMBNAILS, null);
+			
+			createStructure(browser, binder, page, structure, null);
 		}else{
-			return(null);
+			if(!pageExists(browser, binder, page)){
+				createPage(browser, binder, page, ArtefactDisplay.THUMBNAILS, null);
+				
+				createStructure(browser, binder, page, structure, null);
+			}else{
+				if(!structureExists(browser, binder, page, structure) && structure != null){
+					createStructure(browser, binder, page, structure, null);
+				}
+			}
+		}
+		
+		return(true);
+	}
+	
+	/**
+	 * @param browser
+	 * @param title
+	 * @return true if binder containing title exists else false.
+	 * 
+	 * Checks if binder containing title exists.
+	 */
+	public boolean binderExists(Selenium browser, String title){
+		if(!functionalUtil.openSite(browser, OlatSite.HOME))
+			return(false);
+		
+		if(!functionalHomeSiteUtil.openActionByMenuTree(browser, EPortfolioAction.MY_BINDERS))
+			return(false);
+		
+		StringBuffer selectorBuffer = new StringBuffer();
+		
+		selectorBuffer.append("xpath=//h4[text()='")
+		.append(title)
+		.append("']/..//a[contains(@class, '")
+		.append(getOpenBinderCss())
+		.append("')]");
+		
+		if(browser.isElementPresent(selectorBuffer.toString())){
+			return(true);
+		}else{
+			return(false);
 		}
 	}
 	
 	/**
 	 * @param browser
-	 * @param binderPath
-	 * @return the xpath selector
+	 * @param title
+	 * @return true on success
 	 * 
-	 * Create a binder of given path.
+	 * Opens a specified binder.
 	 */
-	public String createBinderPath(Selenium browser, String binderPath){
-		if(binderPath == null)
-			return(null);
+	public boolean openBinder(Selenium browser, String title){
+		if(!functionalUtil.openSite(browser, OlatSite.HOME))
+			return(false);
 		
-		if(!binderPath.startsWith("/")){
-			binderPath = "/" + binderPath;
-		}
+		if(!functionalHomeSiteUtil.openActionByMenuTree(browser, EPortfolioAction.MY_BINDERS))
+			return(false);
 		
 		StringBuffer selectorBuffer = new StringBuffer();
 		
-		selectorBuffer.append("xpath=");
+		selectorBuffer.append("xpath=//h4[text()='")
+		.append(title)
+		.append("']/..//a[contains(@class, '")
+		.append(getOpenBinderCss())
+		.append("')]");
 		
-		int prevSeparator = 0;
-		int currentSeparator = -1;
+		browser.click(selectorBuffer.toString());
 		
-		while(prevSeparator != binderPath.length() && (currentSeparator = binderPath.indexOf('/', prevSeparator + 1)) != -1){
-			String current = binderPath.substring(prevSeparator + 1, currentSeparator);
-			
-			selectorBuffer.append("//ul//li//a//span[text()=")
-			.append(current)
-			.append("]");
-			
-			
-			
-			
-			
-			
-			prevSeparator = currentSeparator;
-		}
+		browser.waitForPageToLoad(functionalUtil.getWaitLimit());
 		
-		if(prevSeparator > 0){
-			selectorBuffer.append("/..");
-				
-			return(selectorBuffer.toString());
+		return(true);
+	}
+	
+	/**
+	 * @param browser
+	 * @param title
+	 * @param description
+	 * @return true on success
+	 * 
+	 * Creates a binder.
+	 */
+	public boolean createDefaultBinder(Selenium browser, String title, String description){
+		if(!functionalUtil.openSite(browser, OlatSite.HOME))
+			return(false);
+		
+		if(!functionalHomeSiteUtil.openActionByMenuTree(browser, EPortfolioAction.MY_BINDERS))
+			return(false);
+		
+		/* open add binder dialog */
+		StringBuffer selectorBuffer = new StringBuffer();
+		
+		selectorBuffer.append("xpath=//a[contains(@class, '")
+		.append(getCreateBinderCss())
+		.append("')]");
+		
+		browser.click(selectorBuffer.toString());
+		
+		browser.waitForPageToLoad(functionalUtil.getWaitLimit());
+		
+		selectorBuffer.append("//a[contains(@class, '")
+		.append(getCreateDefaultBinderCss())
+		.append("')]");
+
+		browser.click(selectorBuffer.toString());
+		
+		browser.waitForPageToLoad(functionalUtil.getWaitLimit());
+	
+		/* fill in dialog - title */
+		selectorBuffer = new StringBuffer();
+		
+		selectorBuffer.append("xpath=//div[contains(@class, '")
+		.append(getAddBinderBoxCss())
+		.append("')]");
+		
+		browser.type(selectorBuffer.toString(), title);
+		
+		/* fill in dialog - description */
+		functionalUtil.typeMCE(browser, description);
+		
+		
+		/* fill in dialog - save */
+		selectorBuffer = new StringBuffer();
+		
+		selectorBuffer.append("xpath=//div[contains(@class, '")
+		.append(getAddBinderBoxCss())
+		.append("')]//button[last()]");
+		
+		browser.click(selectorBuffer.toString());
+		
+		browser.waitForPageToLoad(functionalUtil.getWaitLimit());
+		
+		return(true);
+	}
+	
+	public boolean pageExists(Selenium browser, String binder, String title){
+		if(!openBinder(browser, binder))
+			return(false);
+			
+		StringBuffer selectorBuffer = new StringBuffer();
+		
+		selectorBuffer.append("xpath=//div[contains(@class, '")
+		.append(getEPortfolioTableOfContents())
+		.append("')]//ul//li//a//span[contains(text(), '")
+		.append(title)
+		.append("')]");
+		
+		if(browser.isElementPresent(selectorBuffer.toString())){
+			return(true);
 		}else{
-			return(null);
+			return(false);
 		}
+	}
+	
+	/**
+	 * @param browser
+	 * @param binder
+	 * @param title
+	 * @param display
+	 * @param description
+	 * @return true on success
+	 * 
+	 * Create a page in the specified binder.
+	 */
+	public boolean createPage(Selenium browser, String binder, String title, ArtefactDisplay display, String description){
+		if(!openBinder(browser, binder))
+			return(false);
+		
+		/* click add */
+		StringBuffer selectorBuffer = new StringBuffer();
+		
+		selectorBuffer.append("xpath=//a[contains(@class, '")
+		.append(getAddPageCss())
+		.append("')]");
+		
+		browser.click(selectorBuffer.toString());
+		
+		browser.waitForPageToLoad(functionalUtil.getWaitLimit());
+		
+		/* fill in wizard - title */
+		selectorBuffer = new StringBuffer();
+		
+		selectorBuffer.append("xpath=//div[contains(@class, '")
+		.append(getEPortfolioMapCss())
+		.append("')]//form//input[@type='text']");
+		
+		browser.type(selectorBuffer.toString(), title);
+		
+		/* fill in wizard - display */
+		selectorBuffer = new StringBuffer();
+		
+		selectorBuffer.append("xpath=//div[contains(@class, '")
+		.append(getEPortfolioMapCss())
+		.append("')]//form//input[@type='radio' and position='")
+		.append(display.ordinal() + 1)
+		.append("']");
+		
+		browser.click(selectorBuffer.toString());
+		
+		/* fill in wizard - description */
+		functionalUtil.typeMCE(browser, description);
+		
+		/* fill in wizard - save */
+		selectorBuffer = new StringBuffer();
+
+		selectorBuffer.append("xpath=//div[contains(@class, '")
+		.append(getEPortfolioMapCss())
+		.append("')]//form//button[last()]");
+		
+		browser.click(selectorBuffer.toString());
+		
+		return(true);
+	}
+	
+	/**
+	 * @param browser
+	 * @param binder
+	 * @param page
+	 * @param title
+	 * @return true if structural element exists otherwise false
+	 * 
+	 * Checks if structural element exists.
+	 */
+	public boolean structureExists(Selenium browser, String binder, String page, String title){
+		StringBuffer selectorBuffer = new StringBuffer();
+
+		//TODO:JK: implement me
+		
+		if(browser.isElementPresent(selectorBuffer.toString())){
+			return(true);
+		}else{
+			return(false);
+		}
+	}
+	
+	/**
+	 * @param browser
+	 * @param binder
+	 * @param page
+	 * @param title
+	 * @param description
+	 * @return true on success
+	 * 
+	 * Creates the specified structural element.
+	 */
+	public boolean createStructure(Selenium browser, String binder, String page,
+			String title, String description){
+		if(!openBinder(browser, binder))
+			return(false);
+		
+		//TODO:JK: implement me
+		
+		/* open editor */
+		
+		
+		/* click create structure */
+		
+		
+		/* fill in wizard - title */
+		StringBuffer selectorBuffer = new StringBuffer();
+		
+		selectorBuffer.append("xpath=//div[contains(@class, '")
+		.append(getEPortfolioMapCss())
+		.append("')]//form//input[@type='text']");
+		
+		browser.type(selectorBuffer.toString(), title);
+		
+		/* fill in wizard - description */
+		functionalUtil.typeMCE(browser, description);
+		
+		/* fill in wizard - save */
+		selectorBuffer = new StringBuffer();
+
+		selectorBuffer.append("xpath=//div[contains(@class, '")
+		.append(getEPortfolioMapCss())
+		.append("')]//form//button[last()]");
+		
+		browser.click(selectorBuffer.toString());
+		
+		
+		return(true);
 	}
 	
 	/**
@@ -221,12 +503,15 @@ public class FunctionalEportfolioUtil {
 	 * @param title
 	 * @param description
 	 * @param tags
-	 * @param binderPath
 	 * @return
 	 * 
 	 * Add a text artefact to a e-portfolio.
 	 */
-	public boolean addTextArtefact(Selenium browser, String content, String title, String description, String tags, String binderPath){
+	public boolean addTextArtefact(Selenium browser, String binder, String page, String structure,
+			String content, String title, String description, String tags){
+		
+		
+		/* add text artefact */
 		if(!functionalUtil.openSite(browser, OlatSite.HOME))
 			return(false);
 		
@@ -235,6 +520,7 @@ public class FunctionalEportfolioUtil {
 		
 		/* open wizard */
 		openEditLink(browser);
+		browser.waitForPageToLoad(functionalUtil.getWaitLimit());
 		
 		StringBuffer locatorBuffer = new StringBuffer();
 		
@@ -243,9 +529,10 @@ public class FunctionalEportfolioUtil {
 		.append("')]");
 		
 		browser.click(locatorBuffer.toString());
+		browser.waitForPageToLoad(functionalUtil.getWaitLimit());
 		
 		/* fill in wizard - content */
-		functionalUtil.typeMCE(browser, description);
+		functionalUtil.typeMCE(browser, content);
 		
 		functionalUtil.clickWizardNext(browser);
 		
@@ -255,8 +542,11 @@ public class FunctionalEportfolioUtil {
 		/* fill in wizard - tags */
 		fillInTags(browser, tags);
 		
-		/* fill in wizard - select binder path */
-		browser.click(createSelectorOfBinderPath(binderPath));
+		/* fill in wizard - select destination and create it if doesn't exist */
+		if(!createElements(browser, binder, page, structure))
+			return(false);
+		
+		browser.click(createSelector(binder, page, structure));
 		
 		/* click finish */
 		functionalUtil.clickWizardFinish(browser);
@@ -276,7 +566,8 @@ public class FunctionalEportfolioUtil {
 	 * 
 	 * Upload a file artefact to a e-portfolio.
 	 */
-	public boolean uploadFileArtefact(Selenium browser, URI file, String title, String description, String tags, String binderPath) throws MalformedURLException{
+	public boolean uploadFileArtefact(Selenium browser, String binder, String page, String structure,
+			URI file, String title, String description, String tags) throws MalformedURLException{
 		if(!functionalUtil.openSite(browser, OlatSite.HOME))
 			return(false);
 		
@@ -285,6 +576,7 @@ public class FunctionalEportfolioUtil {
 		
 		/* open wizard */
 		openEditLink(browser);
+		browser.waitForPageToLoad(functionalUtil.getWaitLimit());
 		
 		StringBuffer locatorBuffer = new StringBuffer();
 		
@@ -293,6 +585,7 @@ public class FunctionalEportfolioUtil {
 		.append("')]");
 		
 		browser.click(locatorBuffer.toString());
+		browser.waitForPageToLoad(functionalUtil.getWaitLimit());
 		
 		/* fill in wizard - file */
 		locatorBuffer = new StringBuffer();
@@ -312,7 +605,10 @@ public class FunctionalEportfolioUtil {
 		fillInTags(browser, tags);
 		
 		/* fill in wizard - select binder path */
-		browser.click(createSelectorOfBinderPath(binderPath));
+		if(!createElements(browser, binder, page, structure))
+			return(false);
+		
+		browser.click(createSelector(binder, page, structure));
 		
 		/* click finish */
 		functionalUtil.clickWizardFinish(browser);
@@ -326,26 +622,13 @@ public class FunctionalEportfolioUtil {
 	 * @param description
 	 * @param tags
 	 * @param binderPath
-	 * @return
-	 * 
-	 * Create a learnig journal for a e-portfolio.
-	 */
-	public boolean createLearningJournal(Selenium browser, String title, String description, String tags, String binderPath){
-		return(createLearningJournal(browser, title, description, tags, binderPath, true));
-	}
-	
-	/**
-	 * @param browser
-	 * @param title
-	 * @param description
-	 * @param tags
-	 * @param binderPath
 	 * @param create
 	 * @return
 	 * 
 	 * Create a learnig journal for a e-portfolio.
 	 */
-	public boolean createLearningJournal(Selenium browser, String title, String description, String tags, String binderPath, boolean create){
+	public boolean createLearningJournal(Selenium browser, String binder, String page, String structure,
+			String title, String description, String tags){
 		if(!functionalUtil.openSite(browser, OlatSite.HOME))
 			return(false);
 		
@@ -354,6 +637,7 @@ public class FunctionalEportfolioUtil {
 		
 		/* open wizard */
 		openEditLink(browser);
+		browser.waitForPageToLoad(functionalUtil.getWaitLimit());
 		
 		StringBuffer locatorBuffer = new StringBuffer();
 		
@@ -372,15 +656,10 @@ public class FunctionalEportfolioUtil {
 		fillInTags(browser, tags);
 		
 		/* fill in wizard - select binder path */
-		String selector = createSelectorOfBinderPath(binderPath);
+		if(!createElements(browser, binder, page, structure))
+			return(false);
 		
-		if(selector == null){
-			selector = createBinderPath(browser, binderPath);
-			
-			browser.click(selector);
-		}else{
-			browser.click(selector);
-		}
+		browser.click(createSelector(binder, page, structure));
 		
 		/* click finish */
 		functionalUtil.clickWizardFinish(browser);
@@ -403,6 +682,22 @@ public class FunctionalEportfolioUtil {
 	public void setFunctionalHomeSiteUtil(
 			FunctionalHomeSiteUtil functionalHomeSiteUtil) {
 		this.functionalHomeSiteUtil = functionalHomeSiteUtil;
+	}
+	
+	public String getEPortfolioCss() {
+		return eportfolioCss;
+	}
+
+	public void setEPortfolioCss(String eportfolioCss) {
+		this.eportfolioCss = eportfolioCss;
+	}
+
+	public String getEPortfolioMapCss() {
+		return eportfolioMapCss;
+	}
+	
+	public void setEPortfolioMapCss(String eportfolioMapCss) {
+		this.eportfolioMapCss = eportfolioMapCss;
 	}
 	
 	public String getHomePortalEditLinkCss() {
@@ -437,11 +732,73 @@ public class FunctionalEportfolioUtil {
 		this.createLearningJournalCss = createLearningJournalCss;
 	}
 
-	public String getCreateFolderCss() {
-		return createFolderCss;
+	public String getAddBinderBoxCss() {
+		return addBinderBoxCss;
 	}
 
-	public void setCreateFolderCss(String createFolderCss) {
-		this.createFolderCss = createFolderCss;
+	public void setAddBinderBoxCss(String addBinderBoxCss) {
+		this.addBinderBoxCss = addBinderBoxCss;
+	}
+
+	public String getCreateBinderCss() {
+		return createBinderCss;
+	}
+
+	public void setCreateBinderCss(String createBinderCss) {
+		this.createBinderCss = createBinderCss;
+	}
+
+	public String getCreateDefaultBinderCss() {
+		return createDefaultBinderCss;
+	}
+
+	public void setCreateDefaultBinderCss(String createDefaultBinderCss) {
+		this.createDefaultBinderCss = createDefaultBinderCss;
+	}
+
+	public String getCreateTemplateBinderCss() {
+		return createTemplateBinderCss;
+	}
+
+	public void setCreateTemplateBinderCss(String createTemplateBinderCss) {
+		this.createTemplateBinderCss = createTemplateBinderCss;
+	}
+
+	public String getOpenBinderCss() {
+		return openBinderCss;
+	}
+
+
+	public void setOpenBinderCss(String openBinderCss) {
+		this.openBinderCss = openBinderCss;
+	}
+
+
+	public String getEPortfolioTableOfContents() {
+		return eportfolioTableOfContents;
+	}
+
+
+	public void setEPortfolioTableOfContents(String eportfolioTableOfContents) {
+		this.eportfolioTableOfContents = eportfolioTableOfContents;
+	}
+
+
+	public String getAddPageCss() {
+		return addPageCss;
+	}
+
+	public void setAddPageCss(String addPageCss) {
+		this.addPageCss = addPageCss;
+	}
+
+
+	public String getPageTabsCss() {
+		return pageTabsCss;
+	}
+
+
+	public void setPageTabsCss(String pageTabsCss) {
+		this.pageTabsCss = pageTabsCss;
 	}
 }
