@@ -273,7 +273,7 @@ public class RichTextConfiguration implements Disposable {
 		}
 		
 		// Allow editing of all kind of HTML elements and attributes
-		setQuotedConfigValue(EXTENDED_VALID_ELEMENTS, EXTENDED_VALID_ELEMENTS_VALUE_FULL);
+		setQuotedConfigValue(EXTENDED_VALID_ELEMENTS, EXTENDED_VALID_ELEMENTS_VALUE_FULL + "," + MATHML_VALID_ELEMENTS);
 		setQuotedConfigValue(INVALID_ELEMENTS, INVALID_ELEMENTS_FILE_FULL_VALUE_UNSAVE);
 		
 		setNonQuotedConfigValue(PASTE_DATA_IMAGES, "true");

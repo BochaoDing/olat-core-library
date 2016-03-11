@@ -114,6 +114,16 @@ function o_start(){
 			window.location.href = e.originalEvent.state.businessPath;
 		}
 	});
+## same configuration in 
+	MathJax.Hub.Config({
+		extensions: ["jsMath2jax.js"],
+		jsMath2jax: {
+			preview: "none"
+		},
+		tex2jax: {
+			ignoreClass: "math"
+		}
+	});
 /* ]]> */
 </script>
 
