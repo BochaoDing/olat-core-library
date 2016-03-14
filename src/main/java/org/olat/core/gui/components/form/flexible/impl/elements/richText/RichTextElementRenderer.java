@@ -106,6 +106,9 @@ class RichTextElementRenderer extends DefaultComponentRenderer {
 		renderTextarea(sb, domID, teC);
 		
 		sb.append("<script type='text/javascript'>/* <![CDATA[ */\n");
+		if(config.isMathEnabled()) {
+			sb.append("  o_mathjax();\n");
+		}
 		//file browser url
 		sb.append("  BTinyHelper.editorMediaUris.put('").append(domID).append("','");
 		ubu.buildURI(sb, null, null);

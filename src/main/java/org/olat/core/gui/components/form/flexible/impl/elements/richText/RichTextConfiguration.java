@@ -684,6 +684,10 @@ public class RichTextConfiguration implements Disposable {
 		setQuotedConfigValue(RichTextConfiguration.EXTENDED_VALID_ELEMENTS, elements);
 	}
 	
+	public boolean isMathEnabled() {
+		return tinyConfig.isMathEnabled();
+	}
+	
 	public void enableCode() {
 		tinyConfig = tinyConfig.enableCode();
 	}
