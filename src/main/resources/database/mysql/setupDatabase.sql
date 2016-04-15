@@ -2135,6 +2135,229 @@ create index log_gptarget_resid_idx on o_loggingtable(grandparentresid);
 create index log_ggptarget_resid_idx on o_loggingtable(greatgrandparentresid);
 create index log_creationdate_idx on o_loggingtable(creationdate);
 
+-- tables for campuskurs
+create table if not exists ck_export (
+	id bigint not null,
+	file_name varchar(255) not null,
+	timestamp datetime not null,
+	export_date datetime not null,
+	primary key (id)
+)engine InnoDB;
+
+create table if not exists ck_course (
+	id bigint not null,
+	olat_id bigint,
+	title varchar(255) not null,
+	short_title varchar(255) not null,
+	e_learning_supported char(1),
+	language varchar(255) not null,
+	category varchar(255) not null,
+	lv_nr varchar(255) not null,
+	start_date date,
+	end_date date,
+	vvz_link varchar(255) not null,
+	semester char(255),
+	short_semester char(4),
+	ipz char(1),
+	enabled char(1)  NOT NULL default '0',
+	synchronizable TINYINT(1) NOT NULL default 1,
+	modified_date datetime,
+	primary key (id)
+)engine InnoDB;
+
+create table if not exists ck_lecturer (
+	id bigint not null,
+	first_name varchar(255) not null,
+	last_name varchar(255) not null,
+	email varchar(255) not null,
+	additionalPersonalNrs varchar(255),
+	modified_date datetime,
+	primary key (id)
+)engine InnoDB;
+
+create table if not exists ck_lecturer_course (
+	course_id bigint not null,
+	lecturer_id bigint not null,
+	modified_date datetime,
+	primary key (course_id, lecturer_id)
+)engine InnoDB;
+
+create table if not exists ck_student (
+	id bigint not null,
+	registration_nr varchar(255) not null,
+	first_name varchar(255) not null,
+	last_name varchar(255) not null,
+	email varchar(255) not null,
+	modified_date datetime,
+	primary key (id)
+)engine InnoDB;
+
+create table if not exists ck_student_course (
+	course_id bigint not null,
+	student_id bigint not null,
+	modified_date datetime,
+	primary key (course_id, student_id)
+)engine InnoDB;
+
+create table if not exists ck_event (
+	id bigint not null,
+	course_id bigint not null,
+	date date not null,
+	start time not null,
+	end time not null,
+	modified_date datetime,
+	primary key (id)
+)engine InnoDB;
+
+create table if not exists ck_text (
+	id bigint not null,
+	course_id bigint not null,
+	type varchar(255) not null,
+	line_seq bigint not null,
+	line varchar(255) not null,
+	modified_date datetime,
+	primary key (id)
+)engine InnoDB;
+
+create table if not exists ck_org (
+	id bigint not null,
+	short_name varchar(50) not null,
+	name varchar(255) not null,
+	modified_date datetime,
+	primary key (id)
+)engine InnoDB;
+
+create table if not exists ck_import_statistic (
+    id bigint not null,
+    step_id int,
+    step_name varchar(255) not null,
+    status varchar(255) not null,
+    start_time datetime,
+    end_time datetime,
+    read_count bigint not null,
+    write_count bigint not null,
+    read_skip_count bigint,
+    write_skip_count bigint,
+    process_skip_count bigint,
+    commit_count bigint,
+    rollback_count bigint,
+    primary key (id)
+)engine InnoDB;
+
+create table if not exists ck_skip_item (
+    id bigint not null,
+    job_execution_id INT,
+    job_name VARCHAR(100),
+    step_execution_id INT,
+    step_name VARCHAR(100),
+    step_start_time datetime,
+    type VARCHAR(100),
+    item VARCHAR(2000),
+    msg VARCHAR(2000),
+     primary key (id)
+)engine InnoDB;
+
+create table if not exists ck_olat_user (
+    sap_user_id bigint not null,
+ 	olat_user_name VARCHAR(100),
+ 	sap_user_type VARCHAR(100),
+ 	kind_of_mapping VARCHAR(6) NOT NULL default 'MANUAL',
+ 	mapping_timestamp timestamp default  CURRENT_TIMESTAMP,
+    primary key (sap_user_id)
+)engine InnoDB;
+
+create table if not exists ck_delegation (
+  	id bigint not null  AUTO_INCREMENT,
+	delegator VARCHAR(100) not null,
+	delegatee VARCHAR(100) not null,
+	modified_date timestamp default  CURRENT_TIMESTAMP,
+	primary key (id)
+)engine InnoDB;
+        
+alter table ck_lecturer_course add constraint ck_lecturer_course_f01 foreign key (course_id) references ck_course (id);
+alter table ck_lecturer_course add constraint ck_lecturer_course_f02 foreign key (lecturer_id) references ck_lecturer (id);
+alter table ck_student_course add constraint ck_student_course_f01 foreign key (course_id) references ck_course (id);
+alter table ck_student_course add constraint ck_student_course_f02 foreign key (student_id) references ck_student (id);
+alter table ck_event add constraint ck_event_f01 foreign key (course_id) references ck_course (id);
+alter table ck_text add constraint ck_text_f01 foreign key (course_id) references ck_course (id);
+
+alter table ck_student_course add unique (student_id, course_id);
+alter table ck_lecturer_course add unique (lecturer_id, course_id);
+alter table ck_delegation add unique (delegator,delegatee);
+
+
+create or replace view ck_not_mapped_students as 
+select * from ck_student s where s.id in
+(select sc.student_id from ck_student_course sc, ck_course c  
+where sc.course_id = c.id  and c.enabled='1')
+and s.id not in(select sap_user_id from ck_olat_user ou where ou.sap_user_type= 'STUDENT'); 
+
+create or replace view ck_not_mapped_lecturers as 
+select * from ck_lecturer l where l.id in
+(select lc.lecturer_id from ck_lecturer_course lc, ck_course c  
+where lc.course_id = c.id  and c.enabled='1')
+and l.id not in(select sap_user_id from ck_olat_user ou where ou.sap_user_type= 'LECTURER'); 
+
+create or replace view ck_horizontal_userproperty as
+select u.fk_user_id, i.status,
+        max(case when u.propname = 'firstname' then u.propvalue end) as first_name,
+        max(case when u.propname = 'lastname'  then u.propvalue end) as last_name,
+        max(case when u.propname = 'email'     then u.propvalue end) as email,
+        max(case when u.propname = 'institutionaluseridentifier' then u.propvalue end) as useridentifier
+    from o_userproperty u, o_bs_identity i
+    where u.fk_user_id=i.fk_user_id
+    and i.status<>199
+    group by u.fk_user_id;
+    
+create or replace view ck_horizontal_student_userproperty as
+select u.fk_user_id, i.status,
+        max(case when u.propname = 'firstname' then u.propvalue end) as first_name,
+        max(case when u.propname = 'lastname'  then u.propvalue end) as last_name,
+        max(case when u.propname = 'email'     then u.propvalue end) as email,
+        max(case when u.propname = 'institutionalMatriculationNumber' then u.propvalue end) as useridentifier
+    from o_userproperty u, o_bs_identity i
+    where u.fk_user_id=i.fk_user_id
+    and i.status<>199
+    group by u.fk_user_id;
+    
+create or replace view ck_horizontal_lecturer_userproperty as
+select u.fk_user_id, i.status,
+        max(case when u.propname = 'firstname' then u.propvalue end) as first_name,
+        max(case when u.propname = 'lastname'  then u.propvalue end) as last_name,
+        max(case when u.propname = 'email'     then u.propvalue end) as email,
+        max(case when u.propname = 'institutionalEmployeeNumber' then u.propvalue end) as useridentifier
+    from o_userproperty u, o_bs_identity i
+    where u.fk_user_id=i.fk_user_id
+    and i.status<>199
+    group by u.fk_user_id;
+    
+create or replace view ck_students_to_be_mapped_manually as 
+select count(sub.id) as count, 
+ sub.registration_nr as sap_matrikelnr, sub2.useridentifier as olat_matrikelnr,
+ sub.first_name as  sap_firstname, sub2.first_name as  olat_firstname,
+ sub.last_name as  sap_lastname, sub2.last_name as  olat_lastname,
+ sub.email as  sap_email, sub2.email as  olat_email
+ from ck_not_mapped_students sub, 
+ ck_horizontal_student_userproperty sub2
+ where sub.registration_nr=sub2.useridentifier
+or sub.email=sub2.email
+or(sub.first_name=sub2.first_name and sub.last_name=sub2.last_name)
+group by sub.id;
+
+create or replace view ck_lecturers_to_be_mapped_manually as 
+select count(sub.id) as count, 
+ sub.id as sap_personalnr, sub2.useridentifier as olat_personalnr,
+ sub.first_name as  sap_firstname, sub2.first_name as  olat_firstname,
+ sub.last_name as  sap_lastname, sub2.last_name as  olat_lastname,
+ sub.email as  sap_email, sub2.email as  olat_email
+ from ck_not_mapped_lecturers sub, 
+ ck_horizontal_lecturer_userproperty sub2
+ where sub.id=sub2.useridentifier
+or sub.email=sub2.email
+or(sub.first_name=sub2.first_name and sub.last_name=sub2.last_name)
+group by sub.id;
+
+
 
 insert into hibernate_unique_key values ( 0 );
 SET FOREIGN_KEY_CHECKS = 1;
