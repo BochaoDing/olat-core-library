@@ -32,6 +32,8 @@ import javax.annotation.PreDestroy;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
+import org.olat.core.logging.OLog;
+import org.olat.core.logging.Tracing;
 import org.olat.data.course.campus.Course;
 import org.olat.data.course.campus.DaoManager;
 import org.olat.system.logging.log4j.LoggerHelper;
@@ -47,7 +49,7 @@ import org.springframework.beans.factory.annotation.Autowired;
  * @author aabouc
  */
 public class CourseProcessor implements ItemProcessor<Course, Course> {
-    private static final Logger LOG = LoggerHelper.getLogger();
+	private static final OLog LOG = Tracing.createLoggerFor(CourseProcessor.class);
 
     @Autowired
     DaoManager daoManager;

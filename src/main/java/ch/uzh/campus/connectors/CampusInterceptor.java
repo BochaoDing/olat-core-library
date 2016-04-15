@@ -23,6 +23,8 @@ package ch.uzh.campus.connectors;
 import java.util.List;
 
 import org.apache.log4j.Logger;
+import org.olat.core.logging.OLog;
+import org.olat.core.logging.Tracing;
 import org.olat.data.course.campus.DaoManager;
 import org.olat.data.course.campus.ImportStatistic;
 import org.olat.data.course.campus.ImportStatisticDao;
@@ -61,7 +63,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 public class CampusInterceptor<T, S> implements StepExecutionListener, ItemWriteListener<S>, SkipListener<T, S>, ChunkListener {
 
-    private static final Logger LOG = LoggerHelper.getLogger();
+	private static final OLog LOG = Tracing.createLoggerFor(CampusInterceptor.class);
 
     @Autowired
     protected ImportStatisticDao statisticDao;

@@ -23,7 +23,7 @@ package ch.uzh.campus.connectors;
 import java.util.Date;
 
 import org.olat.data.course.campus.Export;
-import org.olat.lms.core.course.campus.CampusConfiguration;
+import ch.uzh.campus.CampusConfiguration;
 import org.olat.system.commons.date.DateUtil;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.beans.factory.annotation.Autowired;
