@@ -108,9 +108,6 @@ class RichTextElementComponent extends FormBaseComponentImpl {
 		super.validate(ureq, vr);
 		JSAndCSSAdder jsa = vr.getJsAndCSSAdder();
 		jsa.addRequiredStaticJsFile("js/tinymce4/BTinyHelper.js");
-		if(element.getEditorConfiguration().isMathEnabled()) {
-			jsa.addRequiredStaticJsFile(WebappHelper.getMathJaxCdn() + "2.6-latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML");
-		}
 	}
 
 	@Override
