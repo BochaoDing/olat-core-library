@@ -31,19 +31,19 @@
 	</licenses>
 	<distributionManagement>
 		<repository>
-			<id>nexus.openolat</id>
-			<name>OpenOLAT Internal Nexus Release Repository</name>
-			<url>http://nexus.openolat.org/nexus/content/repositories/openolat</url>
+			<id>releases</id>
+			<name>OLAT Internal Nexus Release Repository</name>
+			<url>http://repo.olat.uzh.ch/nexus/content/repositories/releases</url>
 		</repository>
 		<snapshotRepository>
-			<id>nexus.openolat</id>
-			<name>OpenOLAT Internal Nexus Snapshot Repository</name>
-			<url>http://nexus.openolat.org/nexus/content/repositories/openolat-snapshots</url>
+			<id>snapshots</id>
+			<name>OLAT Internal Nexus Snapshot Repository</name>
+			<url>http://repo.olat.uzh.ch/nexus/content/repositories/snapshots</url>
 		</snapshotRepository>
 	</distributionManagement>
 	<issueManagement>
 		<system>JIRA</system>
-		<url>http://jira.openolat.org</url>
+		<url>http://bugs.olat.org/jira/secure/Dashboard.jspa</url>
 	</issueManagement>
 	<scm>
 		<connection>scm:hg:http://hg.openolat.org</connection>
