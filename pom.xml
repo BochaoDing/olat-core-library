@@ -692,7 +692,7 @@
 						<!-- common configuration shared by all executions -->
 						<configuration>
 							<driver>com.mysql.jdbc.Driver</driver>
-							<url>jdbc:mysql://localhost:${test.env.db.host.port}/${test.env.db.name}</url>
+							<url>jdbc:mysql://${test.env.db.host.name}:${test.env.db.host.port}/${test.env.db.name}</url>
 							<username>${test.env.db.user}</username>
 							<password>${test.env.db.pass}</password>
 						</configuration>
@@ -706,7 +706,7 @@
 								</goals>
 								<configuration>
 									<!-- need another database to drop the targeted one -->
-									<url>jdbc:mysql://localhost:${test.env.db.host.port}/olat</url>
+									<url>jdbc:mysql://${test.env.db.host.name}:${test.env.db.host.port}/${test.env.db.name}</url>
 									<autocommit>true</autocommit>
 									<sqlCommand>drop database if exists ${test.env.db.name}</sqlCommand>
 									<!-- ignore error when database is not avaiable -->
@@ -721,7 +721,7 @@
 									<goal>execute</goal>
 								</goals>
 								<configuration>
-									<url>jdbc:mysql://localhost:${test.env.db.host.port}/olat</url>
+									<url>jdbc:mysql://${test.env.db.host.name}:${test.env.db.host.port}/${test.env.db.name}</url>
 									<!-- no transaction -->
 									<autocommit>true</autocommit>
 									<sqlCommand>create database ${test.env.db.name} default character set utf8</sqlCommand>
@@ -767,7 +767,7 @@
 								</goals>
 								<configuration>
 									<!-- need another database to drop the targeted one -->
-									<url>jdbc:mysql://localhost:${test.env.db.host.port}/olat</url>
+									<url>jdbc:mysql://${test.env.db.host.name}:${test.env.db.host.port}/${test.env.db.name}</url>
 									<autocommit>true</autocommit>
 									<sqlCommand>drop database if exists ${test.env.db.name}</sqlCommand>
 									<!-- ignore error when database is not avaiable -->
@@ -781,7 +781,7 @@
 									<goal>execute</goal>
 								</goals>
 								<configuration>
-									<url>jdbc:mysql://localhost:${test.env.db.host.port}/olat</url>
+									<url>jdbc:mysql://${test.env.db.host.name}:${test.env.db.host.port}/${test.env.db.name}</url>
 									<!-- no transaction -->
 									<autocommit>true</autocommit>
 									<sqlCommand>create database ${test.env.db.name} default character set utf8</sqlCommand>
