@@ -49,6 +49,7 @@ import org.springframework.beans.factory.annotation.Autowired;
  * @author aabouc
  */
 public class CourseProcessor implements ItemProcessor<Course, Course> {
+	
 	private static final OLog LOG = Tracing.createLoggerFor(CourseProcessor.class);
 
     @Autowired

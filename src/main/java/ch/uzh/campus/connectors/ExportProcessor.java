@@ -22,9 +22,9 @@ package ch.uzh.campus.connectors;
 
 import java.util.Date;
 
-import org.olat.data.course.campus.Export;
+import ch.uzh.campus.data.Export;
 import ch.uzh.campus.CampusConfiguration;
-import org.olat.system.commons.date.DateUtil;
+import ch.uzh.campus.utils.DateUtil;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.beans.factory.annotation.Autowired;
 
