@@ -20,10 +20,10 @@
  */
 package ch.uzh.campus.connectors;
 
-import java.util.Date;
+import ch.uzh.campus.data.Text;
 
+import java.util.Date;
 import org.apache.commons.lang.StringUtils;
-import org.olat.data.course.campus.Text;
 import org.springframework.batch.item.ItemProcessor;
 
 /**

@@ -34,9 +34,8 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.olat.core.logging.OLog;
 import org.olat.core.logging.Tracing;
-import org.olat.data.course.campus.Course;
-import org.olat.data.course.campus.DaoManager;
-import org.olat.system.logging.log4j.LoggerHelper;
+import ch.uzh.campus.data.Course;
+
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.beans.factory.annotation.Autowired;
 

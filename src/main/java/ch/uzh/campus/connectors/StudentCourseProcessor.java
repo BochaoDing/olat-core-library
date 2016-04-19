@@ -22,8 +22,8 @@ package ch.uzh.campus.connectors;
 
 import java.util.Date;
 
-import org.olat.data.course.campus.StudentCourse;
-import org.olat.data.course.campus.StudentCoursePK;
+import ch.uzh.campus.data.StudentCourse;
+import ch.uzh.campus.data.StudentCoursePK;
 import org.springframework.batch.item.ItemProcessor;
 
 /**

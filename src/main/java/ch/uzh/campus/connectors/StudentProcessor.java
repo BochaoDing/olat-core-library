@@ -27,13 +27,11 @@ import java.util.Set;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 
-import org.apache.log4j.Logger;
 import org.olat.core.logging.OLog;
 import org.olat.core.logging.Tracing;
-import org.olat.data.course.campus.Student;
-import org.olat.system.logging.log4j.LoggerHelper;
 import org.springframework.batch.item.ItemProcessor;
 
+import ch.uzh.campus.data.Student;
 /**
  * This is an implementation of {@link ItemProcessor} that validates the input Student item, <br>
  * modifies it according to some criteria and returns it as output Student item. <br>

@@ -28,11 +28,11 @@ import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
+
 import org.olat.core.logging.OLog;
 import org.olat.core.logging.Tracing;
-import org.olat.data.course.campus.Lecturer;
-import org.olat.system.logging.log4j.LoggerHelper;
+import ch.uzh.campus.data.Lecturer;
+
 import org.springframework.batch.item.ItemProcessor;
 
 /**

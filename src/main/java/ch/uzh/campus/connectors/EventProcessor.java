@@ -22,7 +22,7 @@ package ch.uzh.campus.connectors;
 
 import java.util.Date;
 
-import org.olat.data.course.campus.Event;
+import ch.uzh.campus.data.Event;
 import org.springframework.batch.item.ItemProcessor;
 
 /**
