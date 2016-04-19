@@ -22,7 +22,7 @@ package ch.uzh.campus.connectors;
 
 import java.util.List;
 
-import org.olat.data.course.campus.CampusDao;
+import ch.uzh.campus.data.CampusDao;
 import org.springframework.batch.item.ItemWriter;
 
 /**
@@ -65,7 +65,7 @@ public class CampusWriter<T> implements ItemWriter<T> {
      */
     @SuppressWarnings({ "unchecked", "rawtypes" })
     public void write(List<? extends T> items) throws Exception {
-        campuskursDao.saveOrUpdate((List) items);
+        campuskursDao.save((List) items);
     }
 
 }

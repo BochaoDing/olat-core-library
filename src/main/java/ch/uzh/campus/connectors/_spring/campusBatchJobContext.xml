@@ -155,11 +155,11 @@
 		<property name="campuskursDao" ref="exportDao" />
 	</bean>
 	
-	<bean id="exportProcessor" class="org.olat.connectors.campus.ExportProcessor" scope="step"/>
+	<bean id="exportProcessor" class="ch.uzh.campus.connectors.ExportProcessor" scope="step"/>
 	
-	<bean id="exportDao" class="org.olat.data.course.campus.ExportDao"/>
+	<bean id="exportDao" class="ch.uzh.campus.data.ExportDao"/>
 	
-	<bean id='export' class ='org.olat.data.course.campus.Export' scope="prototype" />
+	<bean id='export' class ='ch.uzh.campus.data.Export' scope="prototype" />
 	
 	<!-- ======================================================================================= -->
 	<!-- ==============STUDENT(Reader, Writer, Processor, Entity, Dao)================== -->  
@@ -186,11 +186,11 @@
 		<property name="campuskursDao" ref="studentDao" />
 	</bean>
 	
-	<bean id="studentProcessor" class="org.olat.connectors.campus.StudentProcessor" scope="step"/>
+	<bean id="studentProcessor" class="ch.uzh.campus.connectors.StudentProcessor" scope="step"/>
 
-	<bean id="studentDao" class="org.olat.data.course.campus.StudentDao"/>
+	<bean id="studentDao" class="ch.uzh.campus.data.StudentDao"/>
 	
-	<bean id='student' class ='org.olat.data.course.campus.Student' scope="prototype" />
+	<bean id='student' class ='ch.uzh.campus.data.Student' scope="prototype" />
 	
 	<!-- ======================================================================================= -->
 	<!-- ==============lecturer(Reader, Writer, Processor, Entity, Dao)================== -->  
@@ -214,15 +214,15 @@
 		</property>
 	</bean>
  
-	<bean id="lecturerWriter" class="org.olat.connectors.campus.CampusWriter" scope="step">
+	<bean id="lecturerWriter" class="ch.uzh.campus.connectors.CampusWriter" scope="step">
 		<property name="campuskursDao" ref="lecturerDao" />
 	</bean>
 	
-	<bean id="lecturerProcessor" class="org.olat.connectors.campus.LecturerProcessor" scope="step"/>
+	<bean id="lecturerProcessor" class="ch.uzh.campus.connectors.LecturerProcessor" scope="step"/>
 
-	<bean id="lecturerDao" class="org.olat.data.course.campus.LecturerDao"/>
+	<bean id="lecturerDao" class="ch.uzh.campus.data.LecturerDao"/>
 	
-	<bean id='lecturer' class ='org.olat.data.course.campus.Lecturer' scope="prototype" />
+	<bean id='lecturer' class ='ch.uzh.campus.data.Lecturer' scope="prototype" />
 	
 	<!-- ======================================================================================= -->
 	<!-- ==============LEHRVERANSTALTUNG(Reader, Writer, Processor, Entity, Dao)================== -->  
@@ -246,11 +246,11 @@
 		</property>
 	</bean>
  
-	<bean id="courseWriter" class="org.olat.connectors.campus.CampusWriter" scope="step">
+	<bean id="courseWriter" class="ch.uzh.campus.connectors.CampusWriter" scope="step">
 		<property name="campuskursDao" ref="courseDao" />
 	</bean>
 
-	<bean id="courseProcessor" class="org.olat.connectors.campus.CourseProcessor" scope="step">
+	<bean id="courseProcessor" class="ch.uzh.campus.connectors.CourseProcessor" scope="step">
 	 	<property name="semesterMap">
         	<map>
 	           <entry key="H" value="HS"/>
@@ -259,9 +259,9 @@
       	</property>
 	</bean>
 	
-	<bean id="courseDao" class="org.olat.data.course.campus.CourseDao"/>
+	<bean id="courseDao" class="ch.uzh.campus.data.CourseDao"/>
 	
-	<bean id='course' class ='org.olat.data.course.campus.Course' scope="prototype" />
+	<bean id='course' class ='ch.uzh.campus.data.Course' scope="prototype" />
 	
 	<!-- ======================================================================================= -->
 	<!-- ==============BUCHUNG:STUDENT-KURS(Reader, Writer, Processor, Entity, Dao)================== -->  
@@ -284,15 +284,15 @@
 		</property>
 	</bean>
  
-	<bean id="studentCourseWriter" class="org.olat.connectors.campus.CampusWriter" scope="step">
+	<bean id="studentCourseWriter" class="ch.uzh.campus.connectors.CampusWriter" scope="step">
 		<property name="campuskursDao" ref="studentCourseDao" />
 	</bean>
 
-	<bean id="studentCourseProcessor" class="org.olat.connectors.campus.StudentCourseProcessor" scope="step"/>
+	<bean id="studentCourseProcessor" class="ch.uzh.campus.connectors.StudentCourseProcessor" scope="step"/>
 	
-	<bean id="studentCourseDao" class="org.olat.data.course.campus.StudentCourseDao"/>
+	<bean id="studentCourseDao" class="ch.uzh.campus.data.StudentCourseDao"/>
 	
-	<bean id='studentCoursePK' class ='org.olat.data.course.campus.StudentCoursePK'  scope="prototype" />
+	<bean id='studentCoursePK' class ='ch.uzh.campus.data.StudentCoursePK'  scope="prototype" />
 	
 	<!-- ======================================================================================= -->
 	<!-- ==============BUCHUNG:lecturer-KURS(Reader, Writer, Processor, Entity, Dao)================== -->  
@@ -315,15 +315,15 @@
 		</property>
 	</bean>
  
-	<bean id="lecturerCourseWriter" class="org.olat.connectors.campus.CampusWriter" scope="step">
+	<bean id="lecturerCourseWriter" class="ch.uzh.campus.connectors.CampusWriter" scope="step">
 		<property name="campuskursDao" ref="lecturerCourseDao" />
 	</bean>
 
-	<bean id="lecturerCourseProcessor" class="org.olat.connectors.campus.LecturerCourseProcessor" scope="step"/>
+	<bean id="lecturerCourseProcessor" class="ch.uzh.campus.connectors.LecturerCourseProcessor" scope="step"/>
 	
-	<bean id="lecturerCourseDao" class="org.olat.data.course.campus.LecturerCourseDao"/>
+	<bean id="lecturerCourseDao" class="ch.uzh.campus.data.LecturerCourseDao"/>
 	
-	<bean id='lecturerCoursePK' class ='org.olat.data.course.campus.LecturerCoursePK'  scope="prototype" />
+	<bean id='lecturerCoursePK' class ='ch.uzh.campus.data.LecturerCoursePK'  scope="prototype" />
 	
 	<!-- ======================================================================================= -->
 	<!-- ==============BUCHUNG:KURS-TEXTE(Reader, Writer, Processor, Entity, Dao)================== -->  
@@ -346,15 +346,15 @@
 		</property>
 	</bean>
  
-	<bean id="textWriter" class="org.olat.connectors.campus.CampusWriter" scope="step">
+	<bean id="textWriter" class="ch.uzh.campus.connectors.CampusWriter" scope="step">
 		<property name="campuskursDao" ref="textDao" />
 	</bean>
 	
-	<bean id="textProcessor" class="org.olat.connectors.campus.TextProcessor" scope="step"/>
+	<bean id="textProcessor" class="ch.uzh.campus.connectors.TextProcessor" scope="step"/>
 
-	<bean id="textDao" class="org.olat.data.course.campus.TextDao"/>
+	<bean id="textDao" class="ch.uzh.campus.data.TextDao"/>
 	
-	<bean id='text' class ='org.olat.data.course.campus.Text' scope="prototype" />
+	<bean id='text' class ='ch.uzh.campus.data.Text' scope="prototype" />
 	
 	<!-- ======================================================================================= -->
 	<!-- ==============BUCHUNG:KURS-EVENTS(Reader, Writer, Processor, Entity, Dao)================== -->  
@@ -379,15 +379,15 @@
 		</property>
 	</bean>
  
-	<bean id="eventWriter" class="org.olat.connectors.campus.CampusWriter" scope="step">
+	<bean id="eventWriter" class="ch.uzh.campus.connectors.CampusWriter" scope="step">
 		<property name="campuskursDao" ref="eventDao" />
 	</bean>
 	
-	<bean id="eventProcessor" class="org.olat.connectors.campus.EventProcessor" scope="step"/>
+	<bean id="eventProcessor" class="ch.uzh.campus.connectors.EventProcessor" scope="step"/>
 
-	<bean id="eventDao" class="org.olat.data.course.campus.EventDao"/>
+	<bean id="eventDao" class="ch.uzh.campus.data.EventDao"/>
 	
-	<bean id='event' class ='org.olat.data.course.campus.Event' scope="prototype" />
+	<bean id='event' class ='ch.uzh.campus.data.Event' scope="prototype" />
 	--> 
 	
 	<!-- ======================================================================================= -->
@@ -411,15 +411,15 @@
 		</property>
 	</bean>
  
-	<bean id="orgWriter" class="org.olat.connectors.campus.CampusWriter" scope="step">
+	<bean id="orgWriter" class="ch.uzh.campus.connectors.CampusWriter" scope="step">
 		<property name="campuskursDao" ref="orgDao" />
 	</bean>
 	
-	<bean id="orgProcessor" class="org.olat.connectors.campus.OrgProcessor" scope="step"/>
+	<bean id="orgProcessor" class="ch.uzh.campus.connectors.OrgProcessor" scope="step"/>
 
-	<bean id="orgDao" class="org.olat.data.course.campus.OrgDao"/>
+	<bean id="orgDao" class="ch.uzh.campus.data.OrgDao"/>
 	
-	<bean id='org' class ='org.olat.data.course.campus.Org' scope="prototype" />
+	<bean id='org' class ='ch.uzh.campus.data.Org' scope="prototype" />
 	
 	<!-- ======================================================================================= -->
 	<!-- ============== ABGLEICH(Reader, Writer, Processor)================== -->  
@@ -471,7 +471,7 @@
 					<batch:include 
 						class="org.hibernate.exception.ConstraintViolationException" />
 					<batch:include 
-						class="org.olat.connectors.campus.CampusException" />
+						class="ch.uzh.campus.connectors.CampusException" />
 					<batch:include 
 						class="org.hibernate.LazyInitializationException" />
 					<batch:include 
@@ -486,17 +486,17 @@
 		</batch:listeners>
 	</batch:step>
 
-	<bean id="campusInterceptor" class="org.olat.connectors.campus.CampusInterceptor" scope="step">
+	<bean id="campusInterceptor" class="ch.uzh.campus.connectors.CampusInterceptor" scope="step">
 		<property name="fixedNumberOfFilesToBeExported" value="8" />
 	</bean>
 	
-	<bean id="campusJobInterceptor" class="org.olat.connectors.campus.CampusJobInterceptor" scope="prototype"/>	
+	<bean id="campusJobInterceptor" class="ch.uzh.campus.connectors.CampusJobInterceptor" scope="prototype"/>	
 	
-	<bean id="statisticDao" class="org.olat.data.course.campus.ImportStatisticDao"/>
+	<bean id="statisticDao" class="ch.uzh.campus.data.ImportStatisticDao"/>
 	
-	<bean id="skipItemDao" class="org.olat.data.course.campus.SkipItemDao"/>
+	<bean id="skipItemDao" class="ch.uzh.campus.data.SkipItemDao"/>
 	
-	<bean id="campusWriter" class="org.olat.connectors.campus.CampusWriter"  />
+	<bean id="campusWriter" class="ch.uzh.campus.connectors.CampusWriter"  />
 	
 	<bean id="campusReader" class="org.springframework.batch.item.file.FlatFileItemReader" abstract="true" >  
 		<property name="encoding" value="UTF-8"/>

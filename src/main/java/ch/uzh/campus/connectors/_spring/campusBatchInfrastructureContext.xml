@@ -11,8 +11,7 @@
 	http://www.springframework.org/schema/batch/spring-batch-2.1.xsd
 	http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-2.5.xsd">
 
-	<context:annotation-config />
-	<context:component-scan base-package="ch.uzh.campus.connectors" />	
+	
 		
 		
 	<!-- ======================================================================================= -->

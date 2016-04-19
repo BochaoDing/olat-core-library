@@ -26,7 +26,7 @@ import ch.uzh.campus.connectors.CampusProcess;
  * @author aabouc
  */
 @Repository
-public class OrgDao {
+public class OrgDao implements CampusDao<Org> {
 	
 	private static final OLog LOG = Tracing.createLoggerFor(CampusProcess.class);
 
