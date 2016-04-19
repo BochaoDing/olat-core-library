@@ -56,7 +56,7 @@
 	
 	<import resource="classpath:/ch/uzh/campus/connectors/_spring/campusBatchInfrastructureContext.xml"/>
 	 <import resource="classpath:/ch/uzh/campus/connectors/_spring/campusJobSchedulerContext.xml"/>
-	 <!--
+	 <!-- //TODO: olatng
 	<import resource="classpath:/ch/uzh/campus/connectors/_spring/campusBatchJobContext.xml"/>
 	-->
 </beans>

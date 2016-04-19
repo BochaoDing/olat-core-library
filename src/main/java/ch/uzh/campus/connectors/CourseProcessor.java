@@ -51,8 +51,9 @@ public class CourseProcessor implements ItemProcessor<Course, Course> {
 	
 	private static final OLog LOG = Tracing.createLoggerFor(CourseProcessor.class);
 
-    @Autowired
-    DaoManager daoManager;
+	//TODO: olatng
+    //@Autowired
+	//DaoManager daoManager;
 
     private Set<Long> processedIdsSet;
 
@@ -65,7 +66,8 @@ public class CourseProcessor implements ItemProcessor<Course, Course> {
     @PostConstruct
     public void init() {
         processedIdsSet = new HashSet<Long>();
-        enabledOrgs = daoManager.getIdsOfAllEnabledOrgs();
+        //TODO: olatng
+        //enabledOrgs = daoManager.getIdsOfAllEnabledOrgs();
     }
 
     @PreDestroy

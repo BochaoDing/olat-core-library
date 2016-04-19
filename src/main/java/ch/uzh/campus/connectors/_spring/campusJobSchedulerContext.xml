@@ -18,7 +18,9 @@
 	   <property name="triggers">
 	  		<list>
             	<ref bean="enabled.importProcessTrigger" />
-				<!--<ref bean="disabled.userMappingProcessTrigger" />-->
+				<!--//TODO: olatng
+				<ref bean="disabled.userMappingProcessTrigger" />
+				-->
         	</list>
 		</property>
 	</bean>
@@ -109,7 +111,7 @@
     <!-- ======================================================================================= -->
 	<!-- ==============JOB STARTER FOR USERMAPPING PROCESS================== -->  
 	<!-- ======================================================================================= -->
-	<!--
+	<!-- //TODO: olatng
 	<bean id="enabled.userMappingProcessTrigger" class="org.springframework.scheduling.quartz.CronTriggerBean">
 		<property name="jobDetail" ref="userMappingProcessJobDetail" />
 		<property name="cronExpression" value="${campus.userMapping.process.cron.expression}" />

@@ -36,13 +36,13 @@ public class CampusJobInterceptor implements JobExecutionListener {
 	
 	private static final OLog LOG = Tracing.createLoggerFor(CampusJobInterceptor.class);
 
-	//TODO: LD
+	//TODO: olatng
     //@Autowired
     //private CampusNotifier campusNotifier;
 
     @Override
     public void afterJob(JobExecution je) {
-    	//TODO: LD
+    	//TODO: olatng
         //campusNotifier.notifyJobExecution(je);
     	LOG.info("afterJob - notifyJobExecution");
     }
