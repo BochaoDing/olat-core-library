@@ -30,14 +30,14 @@ create table if not exists o_bs_secgroup (
    primary key (id)
 );
 
-create table o_bs_group (
+create table if not exists o_bs_group (
    id bigint not null,
    creationdate datetime not null,
    g_name varchar(36),
    primary key (id)
 );
 
-create table o_bs_group_member (
+create table if not exists o_bs_group_member (
    id bigint not null,
    creationdate datetime not null,
    lastmodified datetime not null,
@@ -47,7 +47,7 @@ create table o_bs_group_member (
    primary key (id)
 );
 
-create table o_bs_grant (
+create table if not exists o_bs_grant (
    id bigint not null,
    creationdate datetime not null,
    g_role varchar(32) not null,
@@ -331,7 +331,7 @@ create table if not exists o_repositoryentry (
    canreference bit not null,
    primary key (repositoryentry_id)
 );
-create table o_re_to_group (
+create table if not exists o_re_to_group (
    id bigint not null,
    creationdate datetime not null,
    r_defgroup boolean not null,
@@ -339,7 +339,7 @@ create table o_re_to_group (
    fk_entry_id bigint not null,
    primary key (id)
 );
-create table o_repositoryentry_cycle (
+create table if not exists o_repositoryentry_cycle (
    id bigint not null,
    creationdate datetime not null,
    lastmodified datetime not null,
@@ -350,7 +350,7 @@ create table o_repositoryentry_cycle (
    r_validto datetime,
    primary key (id)
 );
-create table o_repositoryentry_stats (
+create table if not exists o_repositoryentry_stats (
    id bigint not null,
    creationdate datetime not null,
    lastmodified datetime not null,
@@ -541,17 +541,17 @@ create table if not exists o_userrating (
 	primary key (rating_id)
 );
 
-create table o_co_db_entry (
-   id int8 not null,
-   version int8 not null,
-   lastmodified timestamp,
-   creationdate timestamp,
-   courseid int8,
-   identity int8,
+create table if not exists o_co_db_entry (
+   id bigint not null,
+   version mediumint unsigned not null,
+   lastmodified datetime,
+   creationdate datetime,
+   courseid bigint,
+   identity bigint,
    category varchar(32),
    name varchar(255) not null,
    floatvalue decimal(65,30),
-   longvalue int8,
+   longvalue bigint,
    stringvalue varchar(255),
    textvalue TEXT,
    primary key (id)
@@ -808,7 +808,7 @@ create table if not exists o_ep_struct_artefact_link (
   fk_artefact_id bigint not null,
   primary key (link_id)
 );
-create table o_ep_struct_to_group (
+create table if not exists o_ep_struct_to_group (
    id bigint not null,
    creationdate datetime not null,
    r_defgroup boolean not null,
@@ -858,7 +858,7 @@ create table if not exists o_mail_recipient (
 );
 
 -- mail attachments
-create table o_mail_attachment (
+create table if not exists o_mail_attachment (
    attachment_id bigint NOT NULL,
    creationdate datetime,
    datas mediumblob,
@@ -989,18 +989,18 @@ create table  if not exists o_ac_reservation (
 );
 
 create table if not exists o_ac_paypal_transaction (
-   transaction_id int8 not null,
-   version int8 not null,
-   creationdate timestamp,
+   transaction_id bigint not null,
+   version mediumint unsigned not null,
+   creationdate datetime,
    ref_no varchar(255),
-   order_id int8 not null,
-   order_part_id int8 not null,
-   method_id int8 not null,
+   order_id bigint not null,
+   order_part_id bigint not null,
+   method_id bigint not null,
    success_uuid varchar(32) not null,
 	 cancel_uuid varchar(32) not null,
 	 amount_amount DECIMAL(12,4),
 	 amount_currency_code VARCHAR(3),
-   pay_response_date timestamp,
+   pay_response_date datetime,
    pay_key varchar(255),
 	 ack varchar(255),
 	 build varchar(255),
@@ -1041,7 +1041,7 @@ create table if not exists o_as_eff_statement (
    version mediumint unsigned not null,
    lastmodified datetime,
    creationdate datetime,
-   passed bit(0),
+   passed bit(1),
    score float(65,30),
    total_nodes mediumint,
    attempted_nodes mediumint,
@@ -1056,7 +1056,7 @@ create table if not exists o_as_eff_statement (
 );
 
 -- user to course informations (was property initial and recent launch dates)
-create table o_as_user_course_infos (
+create table if not exists o_as_user_course_infos (
    id bigint not null,
    version mediumint unsigned not null,
    creationdate datetime,
@@ -1070,7 +1070,7 @@ create table o_as_user_course_infos (
    primary key (id)
 );
 
-create table o_as_mode_course (
+create table if not exists o_as_mode_course (
    id bigint not null,
    creationdate datetime not null,
    lastmodified datetime not null,
@@ -1098,21 +1098,21 @@ create table o_as_mode_course (
    primary key (id)
 );
 
-create table o_as_mode_course_to_group (
+create table if not exists o_as_mode_course_to_group (
    id bigint not null,
    fk_assessment_mode_id bigint not null,
    fk_group_id bigint not null,
    primary key (id)
 );
 
-create table o_as_mode_course_to_area (
+create table if not exists o_as_mode_course_to_area (
    id bigint not null,
    fk_assessment_mode_id bigint not null,
    fk_area_id bigint not null,
    primary key (id)
 );
 
-create table o_cer_template (
+create table if not exists o_cer_template (
    id bigint not null,
    creationdate datetime not null,
    lastmodified datetime not null,
@@ -1124,7 +1124,7 @@ create table o_cer_template (
    primary key (id)
 );
 
-create table o_cer_certificate (
+create table if not exists o_cer_certificate (
    id bigint not null,
    creationdate datetime not null,
    lastmodified datetime not null,
@@ -1141,7 +1141,7 @@ create table o_cer_certificate (
 );
 
 -- calendar
-create table o_cal_use_config (
+create table if not exists o_cal_use_config (
    id bigint not null,
    creationdate datetime not null,
    lastmodified datetime not null,
@@ -1156,7 +1156,7 @@ create table o_cal_use_config (
    unique (c_calendar_id, c_calendar_type, fk_identity)
 );
 
-create table o_cal_import (
+create table if not exists o_cal_import (
    id bigint not null,
    creationdate datetime not null,
    lastmodified datetime not null,
@@ -1169,7 +1169,7 @@ create table o_cal_import (
    primary key (id)
 );
 
-create table o_cal_import_to (
+create table if not exists o_cal_import_to (
    id bigint not null,
    creationdate datetime not null,
    lastmodified datetime not null,
@@ -1226,10 +1226,10 @@ create table if not exists o_im_preferences (
 );
 
 -- add mapper table
-create table o_mapper (
-   id int8 not null,
-   lastmodified timestamp,
-   creationdate timestamp,
+create table if not exists o_mapper (
+   id bigint not null,
+   lastmodified datetime,
+   creationdate datetime,
    expirationdate datetime,
    mapper_uuid varchar(64),
    orig_session_id varchar(64),
@@ -1238,7 +1238,7 @@ create table o_mapper (
 );
 
 -- question item
-create table o_qp_pool (
+create table if not exists o_qp_pool (
    id bigint not null,
    creationdate datetime not null,
    lastmodified datetime not null,
@@ -1248,7 +1248,7 @@ create table o_qp_pool (
    primary key (id)
 );
 
-create table o_qp_taxonomy_level (
+create table if not exists o_qp_taxonomy_level (
    id bigint not null,
    creationdate datetime not null,
    lastmodified datetime not null,
@@ -1259,7 +1259,7 @@ create table o_qp_taxonomy_level (
    primary key (id)
 );
 
-create table o_qp_item (
+create table if not exists o_qp_item (
    id bigint not null,
    q_identifier varchar(36) not null,
    q_master_identifier varchar(36),
@@ -1293,7 +1293,7 @@ create table o_qp_item (
    primary key (id)
 );
 
-create table o_qp_pool_2_item (
+create table if not exists o_qp_pool_2_item (
    id bigint not null,
    creationdate datetime not null,
    q_editable bit default 0,
@@ -1302,7 +1302,7 @@ create table o_qp_pool_2_item (
    primary key (id)
 );
 
-create table o_qp_share_item (
+create table if not exists o_qp_share_item (
    id bigint not null,
    creationdate datetime not null,
    q_editable bit default 0,
@@ -1311,7 +1311,7 @@ create table o_qp_share_item (
    primary key (id)
 );
 
-create table o_qp_item_collection (
+create table if not exists o_qp_item_collection (
    id bigint not null,
    creationdate datetime not null,
    lastmodified datetime not null,
@@ -1320,7 +1320,7 @@ create table o_qp_item_collection (
    primary key (id)
 );
 
-create table o_qp_collection_2_item (
+create table if not exists o_qp_collection_2_item (
    id bigint not null,
    creationdate datetime not null,
    fk_collection_id bigint not null,
@@ -1328,7 +1328,7 @@ create table o_qp_collection_2_item (
    primary key (id)
 );
 
-create table o_qp_edu_context (
+create table if not exists o_qp_edu_context (
    id bigint not null,
    creationdate datetime not null,
    q_level varchar(256) not null,
@@ -1353,7 +1353,7 @@ create table if not exists o_qp_license (
    primary key (id)
 );
 
-create table o_lti_outcome (
+create table if not exists o_lti_outcome (
    id bigint not null,
    creationdate datetime not null,
    lastmodified datetime not null,
@@ -1366,7 +1366,7 @@ create table o_lti_outcome (
    primary key (id)
 );
 
-create table o_cl_checkbox (
+create table if not exists o_cl_checkbox (
    id bigint not null,
    creationdate datetime not null,
    lastmodified datetime not null,
@@ -1377,18 +1377,18 @@ create table o_cl_checkbox (
    primary key (id)
 );
 
-create table o_cl_check (
+create table if not exists o_cl_check (
    id bigint not null,
    creationdate datetime not null,
    lastmodified datetime not null,
    c_score float(65,30),
-   c_checked bit(0),
+   c_checked bit(1),
    fk_identity_id bigint not null,
    fk_checkbox_id bigint not null,
    primary key (id)
 );
 
-create table o_gta_task_list (
+create table if not exists o_gta_task_list (
    id bigint not null,
    creationdate datetime not null,
    lastmodified datetime not null,
@@ -1397,7 +1397,7 @@ create table o_gta_task_list (
    primary key (id)
 );
 
-create table o_gta_task (
+create table if not exists o_gta_task (
    id bigint not null,
    creationdate datetime not null,
    lastmodified datetime not null,
@@ -1411,7 +1411,7 @@ create table o_gta_task (
    primary key (id)
 );
 
-create table o_rem_reminder (
+create table if not exists o_rem_reminder (
    id bigint not null,
    creationdate datetime not null,
    lastmodified datetime not null,
@@ -1425,7 +1425,7 @@ create table o_rem_reminder (
    primary key (id)
 );
 
-create table o_rem_sent_reminder (
+create table if not exists o_rem_sent_reminder (
    id bigint not null,
    creationdate datetime not null,
    r_status varchar(16),
@@ -1434,7 +1434,7 @@ create table o_rem_sent_reminder (
    primary key (id)
 );
 
-create table o_ex_task (
+create table if not exists o_ex_task (
    id bigint not null,
    creationdate datetime not null,
    lastmodified datetime not null,
@@ -1451,7 +1451,7 @@ create table o_ex_task (
    primary key (id)
 );
 
-create table o_ex_task_modifier (
+create table if not exists o_ex_task_modifier (
    id bigint not null,
    creationdate datetime not null,
    fk_task_id bigint not null,
@@ -1460,7 +1460,7 @@ create table o_ex_task_modifier (
 );
 
 -- user view
-create view o_bs_identity_short_v as (
+create or replace view o_bs_identity_short_v as (
    select
       ident.id as id_id,
       ident.name as id_name,
@@ -1544,7 +1544,7 @@ create or replace view o_ep_notifications_comment_v as (
    left join o_ep_struct_el as page on (page.fk_struct_root_map_id = map.structure_id and page.structure_id = ucomment.ressubpath)
 );
 
-create view o_gp_business_to_repository_v as (
+create or replace view o_gp_business_to_repository_v as (
 	select 
 		grp.group_id as grp_id,
 		repoentry.repositoryentry_id as re_id,
@@ -1554,7 +1554,7 @@ create view o_gp_business_to_repository_v as (
 	inner join o_repositoryentry as repoentry on (repoentry.repositoryentry_id = relation.fk_entry_id)
 );
 
-create view o_bs_gp_membership_v as (
+create or replace view o_bs_gp_membership_v as (
    select
       membership.id as membership_id,
       membership.fk_identity_id as fk_identity_id,
@@ -1580,7 +1580,7 @@ create or replace view o_re_membership_v as (
 );
   
 -- contacts
-create view o_gp_contactkey_v as (
+create or replace view o_gp_contactkey_v as (
    select
       bg_member.id as membership_id,
       bg_member.fk_identity_id as member_id,
@@ -1596,7 +1596,7 @@ create view o_gp_contactkey_v as (
       (bgroup.participantsintern=true and bg_member.g_role='participant')
 );
 
-create view o_gp_contactext_v as (
+create or replace view o_gp_contactext_v as (
    select
       bg_member.id as membership_id,
       bg_member.fk_identity_id as member_id,
