@@ -1,6 +1,7 @@
 package ch.uzh.campus.data;
 
 import org.junit.Before;
+import org.junit.After;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -38,13 +39,20 @@ public class OrgDaoTest extends OlatTestCase {
     @Before
     public void setup() {
     	orgs = mockDataGenerator.getOrgs();
-    	assertEquals(2, orgs.size());
+    	assertTrue(orgs.size()>=2);
+    	assertEquals(0, orgs.size()%2);
+    }
+    
+    @After
+    public void after() {
+    	System.out.println("Call after");
     }
 
     
     @Test
     public void testGetIdsOfAllEnabledOrgs_notFound() {
-        assertTrue(orgDao.getIdsOfAllEnabledOrgs().isEmpty());
+        //assertTrue(orgDao.getIdsOfAllEnabledOrgs().isEmpty());
+    	assertEquals(0,orgDao.getIdsOfAllEnabledOrgs().size());
     }
 
     
@@ -53,13 +61,14 @@ public class OrgDaoTest extends OlatTestCase {
         orgs = mockDataGenerator.getOrgs();
         orgDao.save(orgs);
 
-        assertEquals(orgDao.getIdsOfAllEnabledOrgs().size(), 2);
+        assertEquals(2, orgDao.getIdsOfAllEnabledOrgs().size());
     }
 
     
     @Test
     public void testGetAllNotUpdatedOrgs_notFound() {
-        assertTrue(orgDao.getAllNotUpdatedOrgs(new Date()).isEmpty());
+        //assertTrue(orgDao.getAllNotUpdatedOrgs(new Date()).isEmpty());
+    	assertEquals(0,orgDao.getAllNotUpdatedOrgs(new Date()).size());
     }
 
     @Ignore
@@ -93,6 +102,8 @@ public class OrgDaoTest extends OlatTestCase {
 //        assertEquals(orgDao.getIdsOfAllEnabledOrgs().size(), 0);
 
     }
+    
+    
 
 
 }
