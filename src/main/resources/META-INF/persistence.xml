@@ -158,6 +158,10 @@
 		<class>org.olat.ims.lti.model.LTIOutcomeImpl</class>
 		<class>org.olat.portfolio.model.InvitationImpl</class>
 		<class>org.olat.portfolio.model.structel.EPStructureElementToGroupRelation</class>
+		
+		<!-- campuskurs hibernate entities -->
+		<class>ch.uzh.campus.data.Org</class>
+		
 		<properties>
 			<property name="hibernate.generate_statistics" value="true"/>
 			<property name="hibernate.archive.autodetection" value=""/>

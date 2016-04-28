@@ -1,8 +1,11 @@
 package ch.uzh.campus.data;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.olat.core.commons.persistence.DB;
+import org.olat.test.OlatTestCase;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.AbstractTransactionalJUnit4SpringContextTests;
@@ -17,10 +20,12 @@ import static org.junit.Assert.*;
 /**
  * @author Martin Schraner
  */
-@RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = { "classpath:ch/uzh/campus/data/_spring/campusContextTest.xml",
-        "classpath:ch/uzh/campus/data/_spring/mockDataContext.xml" })
-public class OrgDaoTest extends AbstractTransactionalJUnit4SpringContextTests {
+
+@ContextConfiguration(locations = {"classpath:ch/uzh/campus/data/_spring/mockDataContext.xml" })
+public class OrgDaoTest extends OlatTestCase {
+	
+	@Autowired
+	private DB dbInstance;
 
     @Autowired
     private OrgDao orgDao;
@@ -32,13 +37,17 @@ public class OrgDaoTest extends AbstractTransactionalJUnit4SpringContextTests {
 
     @Before
     public void setup() {
+    	orgs = mockDataGenerator.getOrgs();
+    	assertEquals(2, orgs.size());
     }
 
+    
     @Test
     public void testGetIdsOfAllEnabledOrgs_notFound() {
         assertTrue(orgDao.getIdsOfAllEnabledOrgs().isEmpty());
     }
 
+    
     @Test
     public void testGetIdsOfAllEnabledOrgs_foundTwoOrgs() {
         orgs = mockDataGenerator.getOrgs();
@@ -47,11 +56,13 @@ public class OrgDaoTest extends AbstractTransactionalJUnit4SpringContextTests {
         assertEquals(orgDao.getIdsOfAllEnabledOrgs().size(), 2);
     }
 
+    
     @Test
     public void testGetAllNotUpdatedOrgs_notFound() {
         assertTrue(orgDao.getAllNotUpdatedOrgs(new Date()).isEmpty());
     }
 
+    @Ignore
     @Test
     public void testGetAllNotUpdatedOrgs_foundOneOrg() {
 //        orgs = mockDataGenerator.getOrgs();
@@ -65,6 +76,7 @@ public class OrgDaoTest extends AbstractTransactionalJUnit4SpringContextTests {
 //        assertEquals(orgDao.getAllNotUpdatedOrgs(now).size(), 1);
     }
 
+    @Ignore
     @Test
     public void testDeleteByOrgIds() {
 //        orgs = mockDataGenerator.getOrgs();
