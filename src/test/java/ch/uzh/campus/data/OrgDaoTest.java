@@ -1,22 +1,17 @@
 package ch.uzh.campus.data;
 
-import org.junit.Before;
 import org.junit.After;
-import org.junit.Ignore;
+import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.olat.core.commons.persistence.DB;
 import org.olat.test.OlatTestCase;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.AbstractTransactionalJUnit4SpringContextTests;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import java.util.Date;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 /**
  * @author Martin Schraner
@@ -39,68 +34,63 @@ public class OrgDaoTest extends OlatTestCase {
     @Before
     public void setup() {
     	orgs = mockDataGenerator.getOrgs();
-    	assertTrue(orgs.size()>=2);
+    	assertTrue(orgs.size() >= 2);
     	assertEquals(0, orgs.size()%2);
     }
     
     @After
     public void after() {
-    	System.out.println("Call after");
+    	dbInstance.rollback();
     }
 
-    
     @Test
     public void testGetIdsOfAllEnabledOrgs_notFound() {
-        //assertTrue(orgDao.getIdsOfAllEnabledOrgs().isEmpty());
-    	assertEquals(0,orgDao.getIdsOfAllEnabledOrgs().size());
+    	assertEquals(0, orgDao.getIdsOfAllEnabledOrgs().size());
     }
 
-    
     @Test
     public void testGetIdsOfAllEnabledOrgs_foundTwoOrgs() {
         orgs = mockDataGenerator.getOrgs();
         orgDao.save(orgs);
-
+        dbInstance.flush();
         assertEquals(2, orgDao.getIdsOfAllEnabledOrgs().size());
     }
 
-    
     @Test
     public void testGetAllNotUpdatedOrgs_notFound() {
-        //assertTrue(orgDao.getAllNotUpdatedOrgs(new Date()).isEmpty());
-    	assertEquals(0,orgDao.getAllNotUpdatedOrgs(new Date()).size());
+    	assertEquals(0, orgDao.getAllNotUpdatedOrgs(new Date()).size());
     }
 
-    @Ignore
     @Test
     public void testGetAllNotUpdatedOrgs_foundOneOrg() {
-//        orgs = mockDataGenerator.getOrgs();
-//        orgDao.saveOrUpdate(orgs);
-//
-//        Date now = new Date();
-//
-//        orgs.get(0).setModifiedDate(now);
-//        orgDao.saveOrUpdate(orgs);
-//
-//        assertEquals(orgDao.getAllNotUpdatedOrgs(now).size(), 1);
+        orgs = mockDataGenerator.getOrgs();
+        orgDao.save(orgs);
+        dbInstance.flush();
+
+        Calendar now = new GregorianCalendar();
+        // To avoid rounding problems
+        Calendar nowMinusOneSecond = (Calendar) now.clone();
+        nowMinusOneSecond.add(Calendar.SECOND, -1);
+
+        orgs.get(0).setModifiedDate(now.getTime());
+        dbInstance.flush();
+        assertEquals(1, orgDao.getAllNotUpdatedOrgs(nowMinusOneSecond.getTime()).size());
     }
 
-    @Ignore
     @Test
     public void testDeleteByOrgIds() {
-//        orgs = mockDataGenerator.getOrgs();
-//        orgDao.saveOrUpdate(orgs);
-//
-//        assertEquals(orgDao.getIdsOfAllEnabledOrgs().size(), 2);
-//
-//        List<Long> orgIds = new LinkedList<Long>();
-//        orgIds.add(100L);
-//        orgIds.add(200L);
-//
-//        orgDao.deleteByOrgIds(orgIds);
-//
-//        assertEquals(orgDao.getIdsOfAllEnabledOrgs().size(), 0);
+        orgs = mockDataGenerator.getOrgs();
+        orgDao.save(orgs);
+        dbInstance.flush();
+        assertEquals(2, orgDao.getIdsOfAllEnabledOrgs().size());
 
+        List<Long> orgIds = new LinkedList<>();
+        orgIds.add(100L);
+        orgIds.add(200L);
+
+        orgDao.deleteByOrgIds(orgIds);
+        dbInstance.flush();
+        assertEquals(0, orgDao.getIdsOfAllEnabledOrgs().size());
     }
     
     
