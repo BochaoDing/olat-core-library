@@ -17,7 +17,7 @@ import static org.junit.Assert.assertTrue;
  * @author Martin Schraner
  */
 
-@ContextConfiguration(locations = {"classpath:ch/uzh/campus/data/_spring/mockDataContext.xml" })
+@ContextConfiguration(locations = {"classpath:ch/uzh/campus/data/_spring/mockDataContext.xml"})
 public class OrgDaoTest extends OlatTestCase {
 	
 	@Autowired

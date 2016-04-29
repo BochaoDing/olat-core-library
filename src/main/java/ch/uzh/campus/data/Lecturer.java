@@ -3,32 +3,25 @@ package ch.uzh.campus.data;
 import java.util.Date;
 import java.util.Set;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.OneToMany;
-import javax.persistence.Table;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
-import javax.persistence.Transient;
+import javax.persistence.*;
 
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
-import org.hibernate.annotations.NamedQueries;
-import org.hibernate.annotations.NamedQuery;
 
 /**
  * Initial Date: 04.06.2012 <br>
  * 
  * @author aabouc
+ * @author Martin Schraner
  */
 @Entity
 @Table(name = "ck_lecturer")
 @NamedQueries({
-        @NamedQuery(name = Lecturer.GET_ALL_PILOT_LECTURERS, query = "select distinct l from Lecturer l left join l.courseLecturerSet cl where cl.course.enabled = '1' "),
-        @NamedQuery(name = Lecturer.GET_ALL_NOT_UPDATED_LECTURERS, query = "select personalNr from Lecturer l where l.modifiedDate < :lastImportDate"),
-        @NamedQuery(name = Lecturer.DELETE_BY_LECTURER_IDS, query = "delete from Lecturer l where l.personalNr in ( :lecturerIds) ") })
+        @NamedQuery(name = Lecturer.GET_LECTURER_BY_EMAIL, query = "select l from Lecturer l where l.email = :email"),
+        //@NamedQuery(name = Lecturer.GET_ALL_PILOT_LECTURERS, query = "select distinct l from Lecturer l left join l.courseLecturerSet cl where cl.course.enabled = '1' "),
+        @NamedQuery(name = Lecturer.GET_ALL_NOT_UPDATED_LECTURERS, query = "select l.personalNr from Lecturer l where l.modifiedDate < :lastImportDate"),
+        @NamedQuery(name = Lecturer.DELETE_BY_LECTURER_IDS, query = "delete from Lecturer l where l.personalNr in :lecturerIds") })
 public class Lecturer {
     @Id
     @Column(name = "ID")
@@ -36,8 +29,10 @@ public class Lecturer {
 
     @Column(name = "first_name")
     private String firstName;
+
     @Column(name = "last_name")
     private String lastName;
+
     @Column(name = "email")
     private String email;
 
@@ -51,9 +46,10 @@ public class Lecturer {
     @Column(name = "modified_date")
     private Date modifiedDate;
 
-    @OneToMany(mappedBy = "lecturer")
-    private Set<CourseLecturer> courseLecturerSet;
+//    @OneToMany(mappedBy = "lecturer")
+//    private Set<CourseLecturer> courseLecturerSet;
 
+    public static final String GET_LECTURER_BY_EMAIL = "getLecturerByEmail";
     public static final String GET_ALL_PILOT_LECTURERS = "getAllPilotLecturers";
     public static final String GET_ALL_NOT_UPDATED_LECTURERS = "getAllNotUpdatedLecturers";
     public static final String DELETE_BY_LECTURER_IDS = "deleteByLecturerIds";
@@ -121,13 +117,13 @@ public class Lecturer {
         this.additionalPersonalNrs = additionalPersonalNrs;
     }
 
-    public Set<CourseLecturer> getCourseLecturerSet() {
-        return courseLecturerSet;
-    }
-
-    public void setCourseLecturerSet(Set<CourseLecturer> courseLecturerSet) {
-        this.courseLecturerSet = courseLecturerSet;
-    }
+//    public Set<CourseLecturer> getCourseLecturerSet() {
+//        return courseLecturerSet;
+//    }
+//
+//    public void setCourseLecturerSet(Set<CourseLecturer> courseLecturerSet) {
+//        this.courseLecturerSet = courseLecturerSet;
+//    }
 
     @Override
     public String toString() {

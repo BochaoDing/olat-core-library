@@ -18,7 +18,7 @@ import java.util.Date;
 @NamedQueries({ @NamedQuery(name = Org.GET_IDS_OF_ALL_ENABLED_ORGS, query = "select id from Org"),
         @NamedQuery(name = Org.GET_ALL_NOT_UPDATED_ORGS, query = "select o.id from Org o where o.modifiedDate < :lastImportDate"),
         @NamedQuery(name = Org.DELETE_ALL_NOT_UPDATED_ORGS, query = "delete from Org o where o.modifiedDate < :lastImportDate"),
-        @NamedQuery(name = Org.DELETE_BY_ORG_IDS, query = "delete from Org o where o.id in ( :orgIds)") })
+        @NamedQuery(name = Org.DELETE_BY_ORG_IDS, query = "delete from Org o where o.id in :orgIds") })
 public class Org {
     @Id
     private Long id;

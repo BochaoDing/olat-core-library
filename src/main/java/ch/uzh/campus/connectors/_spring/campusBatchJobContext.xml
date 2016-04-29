@@ -323,7 +323,7 @@
 	
 	<bean id="lecturerCourseDao" class="ch.uzh.campus.data.LecturerCourseDao"/>
 	
-	<bean id='lecturerCoursePK' class ='ch.uzh.campus.data.LecturerCoursePK'  scope="prototype" />
+	<bean id='lecturerCoursePK' class ='ch.uzh.campus.data.LecturerCourseId' scope="prototype" />
 	
 	<!-- ======================================================================================= -->
 	<!-- ==============BUCHUNG:KURS-TEXTE(Reader, Writer, Processor, Entity, Dao)================== -->  

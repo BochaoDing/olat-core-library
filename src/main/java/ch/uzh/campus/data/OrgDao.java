@@ -27,20 +27,23 @@ public class OrgDao implements CampusDao<Org> {
     }
 
     public List<Long> getIdsOfAllEnabledOrgs() {
-        return dbInstance.getCurrentEntityManager().createNamedQuery(Org.GET_IDS_OF_ALL_ENABLED_ORGS, Long.class)
+        return dbInstance.getCurrentEntityManager()
+                .createNamedQuery(Org.GET_IDS_OF_ALL_ENABLED_ORGS, Long.class)
                 .getResultList();
     }
 
     public List<Long> getAllNotUpdatedOrgs(Date date) {
-        return dbInstance.getCurrentEntityManager().createNamedQuery(Org.GET_ALL_NOT_UPDATED_ORGS, Long.class)
+        return dbInstance.getCurrentEntityManager()
+                .createNamedQuery(Org.GET_ALL_NOT_UPDATED_ORGS, Long.class)
                 .setParameter("lastImportDate", date)
                 .getResultList();
     }
 
     public int deleteByOrgIds(List<Long> orgIds) {
-        Query query = dbInstance.getCurrentEntityManager().createNamedQuery(Org.DELETE_BY_ORG_IDS);
-        query.setParameter("orgIds", orgIds);
-        return query.executeUpdate();
+        return dbInstance.getCurrentEntityManager()
+                .createNamedQuery(Org.DELETE_BY_ORG_IDS)
+                .setParameter("orgIds", orgIds)
+                .executeUpdate();
     }
 
 }

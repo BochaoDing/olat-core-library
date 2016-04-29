@@ -16,9 +16,7 @@ import javax.persistence.Transient;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
-import org.hibernate.annotations.Cascade;
-import org.hibernate.annotations.NamedQueries;
-import org.hibernate.annotations.NamedQuery;
+
 
 /**
  * Initial Date: 04.06.2012 <br>
@@ -26,29 +24,28 @@ import org.hibernate.annotations.NamedQuery;
  * @author aabouc
  */
 @Entity
-@NamedQueries({
-        @NamedQuery(name = Course.GET_ALL_CREATED_COURSES, query = "select c from Course c  where c.resourceableId is not null and c.shortSemester= (select max(c2.shortSemester) from Course c2)"),
-        @NamedQuery(name = Course.GET_IDS_OF_ALL_CREATED_COURSES, query = "select id from Course c where c.resourceableId is not null and c.synchronizable = true and c.shortSemester= (select max(c2.shortSemester) from Course c2)"),
-        @NamedQuery(name = Course.GET_RESOURCEABLEIDS_OF_ALL_CREATED_COURSES, query = "select resourceableId from Course c where c.resourceableId is not null"),
-        @NamedQuery(name = Course.GET_IDS_OF_ALL_NOT_CREATED_COURSES, query = "select id from Course c where c.resourceableId is null and c.enabled = '1' and c.shortSemester= (select max(c2.shortSemester) from Course c2)"),
-        @NamedQuery(name = Course.DELETE_RESOURCEABLE_ID, query = "update Course c set c.resourceableId = null where c.resourceableId= :resId"),
-        @NamedQuery(name = Course.DELETE_BY_COURSE_ID, query = "delete from Course c where c.id = :courseId"),
-        @NamedQuery(name = Course.DELETE_BY_COURSE_IDS, query = "delete from Course c where c.id in ( :courseIds)"),
-        @NamedQuery(name = Course.SAVE_RESOURCEABLE_ID, query = "update Course c set c.resourceableId = :resId where c.id= :courseId"),
-
-        @NamedQuery(name = Course.DISABLE_SYNCHRONIZATION, query = "update Course c set c.synchronizable = false where c.id= :courseId"),
-
-        @NamedQuery(name = Course.GET_PILOT_COURSES_BY_LECTURER_ID, query = "select c from Course c left join c.courseLecturerSet cl where cl.lecturer.id = :lecturerId and c.enabled = '1' and c.shortSemester= (select max(c2.shortSemester) from Course c2) "),
-        @NamedQuery(name = Course.GET_CREATED_COURSES_BY_LECTURER_IDS, query = "select c from Course c left join c.courseLecturerSet cl where cl.lecturer.id in (:lecturerIds) and c.resourceableId is not null and c.enabled = '1' and c.shortSemester= (select max(c2.shortSemester) from Course c2) "),
-        @NamedQuery(name = Course.GET_NOT_CREATED_COURSES_BY_LECTURER_IDS, query = "select c from Course c left join c.courseLecturerSet cl where cl.lecturer.id in( :lecturerIds) and c.resourceableId is null and c.enabled = '1' and c.shortSemester= (select max(c2.shortSemester) from Course c2) "),
-
-        @NamedQuery(name = Course.GET_PILOT_COURSES_BY_STUDENT_ID, query = "select c from Course c left join c.courseStudentSet cs where cs.student.id = :studentId and c.enabled = '1' and c.shortSemester= (select max(c2.shortSemester) from Course c2)"),
-        @NamedQuery(name = Course.GET_CREATED_COURSES_BY_STUDENT_ID, query = "select c from Course c left join c.courseStudentSet cs where cs.student.id = :studentId and c.resourceableId is not null and  c.enabled = '1' and c.shortSemester= (select max(c2.shortSemester) from Course c2)"),
-        @NamedQuery(name = Course.GET_NOT_CREATED_COURSES_BY_STUDENT_ID, query = "select c from Course c left join c.courseStudentSet cs where cs.student.id = :studentId and c.resourceableId is null and c.enabled = '1' and c.shortSemester= (select max(c2.shortSemester) from Course c2)"),
-
-        @NamedQuery(name = Course.GET_ALL_NOT_UPDATED_COURSES, query = "select id from Course c where c.resourceableId is null and c.modifiedDate < :lastImportDate") })
+//@NamedQueries({
+//        @NamedQuery(name = Course.GET_ALL_CREATED_COURSES, query = "select c from Course c  where c.resourceableId is not null and c.shortSemester= (select max(c2.shortSemester) from Course c2)"),
+//        @NamedQuery(name = Course.GET_IDS_OF_ALL_CREATED_COURSES, query = "select id from Course c where c.resourceableId is not null and c.synchronizable = true and c.shortSemester= (select max(c2.shortSemester) from Course c2)"),
+//        @NamedQuery(name = Course.GET_RESOURCEABLEIDS_OF_ALL_CREATED_COURSES, query = "select resourceableId from Course c where c.resourceableId is not null"),
+//        @NamedQuery(name = Course.GET_IDS_OF_ALL_NOT_CREATED_COURSES, query = "select id from Course c where c.resourceableId is null and c.enabled = '1' and c.shortSemester= (select max(c2.shortSemester) from Course c2)"),
+//        @NamedQuery(name = Course.DELETE_RESOURCEABLE_ID, query = "update Course c set c.resourceableId = null where c.resourceableId= :resId"),
+//        @NamedQuery(name = Course.DELETE_BY_COURSE_ID, query = "delete from Course c where c.id = :courseId"),
+//        @NamedQuery(name = Course.DELETE_BY_COURSE_IDS, query = "delete from Course c where c.id in ( :courseIds)"),
+//        @NamedQuery(name = Course.SAVE_RESOURCEABLE_ID, query = "update Course c set c.resourceableId = :resId where c.id= :courseId"),
+//
+//        @NamedQuery(name = Course.DISABLE_SYNCHRONIZATION, query = "update Course c set c.synchronizable = false where c.id= :courseId"),
+//
+//        @NamedQuery(name = Course.GET_PILOT_COURSES_BY_LECTURER_ID, query = "select c from Course c left join c.courseLecturerSet cl where cl.lecturer.id = :lecturerId and c.enabled = '1' and c.shortSemester= (select max(c2.shortSemester) from Course c2) "),
+//        @NamedQuery(name = Course.GET_CREATED_COURSES_BY_LECTURER_IDS, query = "select c from Course c left join c.courseLecturerSet cl where cl.lecturer.id in (:lecturerIds) and c.resourceableId is not null and c.enabled = '1' and c.shortSemester= (select max(c2.shortSemester) from Course c2) "),
+//        @NamedQuery(name = Course.GET_NOT_CREATED_COURSES_BY_LECTURER_IDS, query = "select c from Course c left join c.courseLecturerSet cl where cl.lecturer.id in( :lecturerIds) and c.resourceableId is null and c.enabled = '1' and c.shortSemester= (select max(c2.shortSemester) from Course c2) "),
+//
+//        @NamedQuery(name = Course.GET_PILOT_COURSES_BY_STUDENT_ID, query = "select c from Course c left join c.courseStudentSet cs where cs.student.id = :studentId and c.enabled = '1' and c.shortSemester= (select max(c2.shortSemester) from Course c2)"),
+//        @NamedQuery(name = Course.GET_CREATED_COURSES_BY_STUDENT_ID, query = "select c from Course c left join c.courseStudentSet cs where cs.student.id = :studentId and c.resourceableId is not null and  c.enabled = '1' and c.shortSemester= (select max(c2.shortSemester) from Course c2)"),
+//        @NamedQuery(name = Course.GET_NOT_CREATED_COURSES_BY_STUDENT_ID, query = "select c from Course c left join c.courseStudentSet cs where cs.student.id = :studentId and c.resourceableId is null and c.enabled = '1' and c.shortSemester= (select max(c2.shortSemester) from Course c2)"),
+//
+//        @NamedQuery(name = Course.GET_ALL_NOT_UPDATED_COURSES, query = "select id from Course c where c.resourceableId is null and c.modifiedDate < :lastImportDate") })
 @Table(name = "ck_course")
-@org.hibernate.annotations.Entity(dynamicUpdate = true)
 public class Course {
 
     private static final String WHITESPACE = " ";
@@ -104,19 +101,19 @@ public class Course {
     @Column(name = "modified_date")
     private Date modifiedDate;
 
-    @Cascade({ org.hibernate.annotations.CascadeType.DELETE })
-    @OneToMany(mappedBy = "course")
-    private Set<CourseLecturer> courseLecturerSet;
+//    @Cascade({ org.hibernate.annotations.CascadeType.DELETE })
+//    @OneToMany(mappedBy = "course")
+//    private Set<CourseLecturer> courseLecturerSet;
 
-    @Cascade({ org.hibernate.annotations.CascadeType.DELETE })
-    @OneToMany(mappedBy = "course")
-    private Set<CourseStudent> courseStudentSet;
+//    @Cascade({ org.hibernate.annotations.CascadeType.DELETE })
+//    @OneToMany(mappedBy = "course")
+//    private Set<CourseStudent> courseStudentSet;
 
-    @Cascade({ org.hibernate.annotations.CascadeType.DELETE })
-    @OneToMany(mappedBy = "course")
-    private Set<Event> events = new HashSet<Event>(0);
+//    @Cascade({ org.hibernate.annotations.CascadeType.DELETE })
+//    @OneToMany(mappedBy = "course")
+//    private Set<Event> events = new HashSet<Event>(0);
 
-    @Cascade({ org.hibernate.annotations.CascadeType.DELETE })
+    //    @Cascade({ org.hibernate.annotations.CascadeType.DELETE })
     @OneToMany(mappedBy = "course")
     private Set<Text> texts = new HashSet<Text>(0);
 
@@ -316,60 +313,60 @@ public class Course {
         this.modifiedDate = modifiedDate;
     }
 
-    public Set<CourseLecturer> getCourseLecturerSet() {
-        return courseLecturerSet;
-    }
+//    public Set<CourseLecturer> getCourseLecturerSet() {
+//        return courseLecturerSet;
+//    }
 
-    public void setCourseLecturerSet(Set<CourseLecturer> courseLecturerSet) {
-        this.courseLecturerSet = courseLecturerSet;
-    }
+//    public void setCourseLecturerSet(Set<CourseLecturer> courseLecturerSet) {
+//        this.courseLecturerSet = courseLecturerSet;
+//    }
 
-    public Set<CourseStudent> getCourseStudentSet() {
-        return courseStudentSet;
-    }
+//    public Set<CourseStudent> getCourseStudentSet() {
+//        return courseStudentSet;
+//    }
+//
+//    public void setCourseStudentSet(Set<CourseStudent> courseStudentSet) {
+//        this.courseStudentSet = courseStudentSet;
+//    }
+//
+//    public Set<Event> getEvents() {
+//        return events;
+//    }
+//
+//    public void setEvents(Set<Event> events) {
+//        this.events = events;
+//    }
+//
+//    public Set<Text> getTexts() {
+//        return texts;
+//    }
+//
+//    public void setTexts(Set<Text> texts) {
+//        this.texts = texts;
+//    }
 
-    public void setCourseStudentSet(Set<CourseStudent> courseStudentSet) {
-        this.courseStudentSet = courseStudentSet;
-    }
+//    public String getContents() {
+//        return buildText(Text.CONTENTS);
+//    }
+//
+//    public String getInfos() {
+//        return buildText(Text.INFOS);
+//    }
+//
+//    public String getMaterials() {
+//        return buildText(Text.MATERIALS);
+//    }
 
-    public Set<Event> getEvents() {
-        return events;
-    }
-
-    public void setEvents(Set<Event> events) {
-        this.events = events;
-    }
-
-    public Set<Text> getTexts() {
-        return texts;
-    }
-
-    public void setTexts(Set<Text> texts) {
-        this.texts = texts;
-    }
-
-    public String getContents() {
-        return buildText(Text.CONTENTS);
-    }
-
-    public String getInfos() {
-        return buildText(Text.INFOS);
-    }
-
-    public String getMaterials() {
-        return buildText(Text.MATERIALS);
-    }
-
-    private String buildText(String type) {
-        StringBuilder content = new StringBuilder();
-        for (Text text : this.getTexts()) {
-            if (type.equalsIgnoreCase(text.getType())) {
-                content.append(text.getLine());
-                content.append(Text.BREAK_TAG);
-            }
-        }
-        return content.toString();
-    }
+//    private String buildText(String type) {
+//        StringBuilder content = new StringBuilder();
+//        for (Text text : this.getTexts()) {
+//            if (type.equalsIgnoreCase(text.getType())) {
+//                content.append(text.getLine());
+//                content.append(Text.BREAK_TAG);
+//            }
+//        }
+//        return content.toString();
+//    }
 
     @Transient
     public String getTitleToBeDisplayed(String shortTitleActivated) {

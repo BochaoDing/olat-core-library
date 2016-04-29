@@ -23,31 +23,33 @@ package ch.uzh.campus.connectors;
 import java.util.Date;
 
 import ch.uzh.campus.data.LecturerCourse;
-import ch.uzh.campus.data.LecturerCoursePK;
+import ch.uzh.campus.data.LecturerCourseId;
 import org.springframework.batch.item.ItemProcessor;
 
 /**
- * This is an implementation of {@link ItemProcessor} that converts the input LecturerCoursePK item <br>
+ * This is an implementation of {@link ItemProcessor} that converts the input LecturerCourseId item <br>
  * to the output LecturerCourse item. <br>
  * 
  * Initial Date: 11.06.2012 <br>
  * 
  * @author aabouc
  */
-public class LecturerCourseProcessor implements ItemProcessor<LecturerCoursePK, LecturerCourse> {
+public class LecturerCourseProcessor implements ItemProcessor<LecturerCourseId, LecturerCourse> {
 
     /**
-     * Converts the input item LecturerCoursePK to the output item LecturerCourse
+     * Converts the input item LecturerCourseId to the output item LecturerCourse
      * 
      * @param pk
-     *            the LecturerCoursePK
+     *            the LecturerCourseId
      * 
      * @return the LecturerCourse
      */
-    public LecturerCourse process(LecturerCoursePK pk) throws Exception {
-        LecturerCourse lecturerCourse = new LecturerCourse(pk);
-        lecturerCourse.setModifiedDate(new Date());
-        return lecturerCourse;
+    public LecturerCourse process(LecturerCourseId pk) throws Exception {
+        //TODO
+        return null;
+//        LecturerCourse lecturerCourse = new LecturerCourse(pk);
+//        lecturerCourse.setModifiedDate(new Date());
+//        return lecturerCourse;
     }
 
 }
