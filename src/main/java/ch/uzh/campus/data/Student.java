@@ -14,8 +14,8 @@ import javax.persistence.TemporalType;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
-import org.hibernate.annotations.NamedQueries;
-import org.hibernate.annotations.NamedQuery;
+import javax.persistence.NamedQueries;
+import javax.persistence.NamedQuery;
 
 /**
  * Initial Date: 04.06.2012 <br>
@@ -27,7 +27,8 @@ import org.hibernate.annotations.NamedQuery;
 @NamedQueries({
         @NamedQuery(name = Student.GET_ALL_PILOT_STUDENTS, query = "select distinct s from Student s left join s.courseStudentSet cs where cs.course.enabled = '1' "),
         @NamedQuery(name = Student.GET_ALL_NOT_UPDATED_STUDENTS, query = "select id from Student s where s.modifiedDate < :lastImportDate"),
-        @NamedQuery(name = Student.DELETE_BY_STUDENT_IDS, query = "delete from Student s where s.id in ( :studentIds) ") })
+        @NamedQuery(name = Student.DELETE_BY_STUDENT_IDS, query = "delete from Student s where s.id in ( :studentIds) "),
+        @NamedQuery(name = Student.GET_STUDENTS_WITH_EMAIL, query = "select s from Student s where s.email=:emailValue")})
 @Table(name = "ck_student")
 public class Student {
     @Id
@@ -52,6 +53,7 @@ public class Student {
     public static final String GET_ALL_PILOT_STUDENTS = "getAllPilotStudents";
     public static final String GET_ALL_NOT_UPDATED_STUDENTS = "getAllNotUpdatedStudents";
     public static final String DELETE_BY_STUDENT_IDS = "deleteByStudentIds";
+    public static final String GET_STUDENTS_WITH_EMAIL = "getStudentsWithEmail";
 
     public Student() {
     }
