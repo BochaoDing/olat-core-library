@@ -34,11 +34,11 @@ public class StudentDaoTest extends OlatTestCase {
     @Autowired
 	private DB dbInstance;
 
-    //@Autowired
-    //private CourseDao courseDao;
+    @Autowired
+    private CourseDao courseDao;
 
-    //@Autowired
-    //private StudentCourseDao studentCourseDao;
+    @Autowired
+    private StudentCourseDao studentCourseDao;
 
     @Autowired
     private MockDataGenerator mockDataGenerator;
@@ -136,13 +136,12 @@ public class StudentDaoTest extends OlatTestCase {
         assertNull(studentDao.getStudentById(100L));
         assertNull(studentDao.getStudentById(200L));
     }
-    
-    /*
+      
 
     @Test
     public void testGetAllPilotStudents() {
-        courseDao.saveOrUpdate(mockDataGenerator.getCourses());
-        studentCourseDao.saveOrUpdate(mockDataGenerator.getStudentCourses());
+        courseDao.save(mockDataGenerator.getCourses());    	
+        studentCourseDao.save(mockDataGenerator.getStudentCourses());
         assertEquals(studentDao.getAllPilotStudents().size(), 2);
-    }*/
+    }
 }

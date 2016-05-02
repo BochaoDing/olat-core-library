@@ -27,8 +27,7 @@ import javax.persistence.NamedQuery;
 @NamedQueries({
         @NamedQuery(name = Student.GET_ALL_PILOT_STUDENTS, query = "select distinct s from Student s left join s.courseStudentSet cs where cs.course.enabled = '1' "),
         @NamedQuery(name = Student.GET_ALL_NOT_UPDATED_STUDENTS, query = "select id from Student s where s.modifiedDate < :lastImportDate"),
-        @NamedQuery(name = Student.DELETE_BY_STUDENT_IDS, query = "delete from Student s where s.id in ( :studentIds) "),
-        //@NamedQuery(name = Student.DELETE_BY_STUDENT_IDS, query = " from Student as s where s.id = ?"),
+        @NamedQuery(name = Student.DELETE_BY_STUDENT_IDS, query = "delete from Student s where s.id in ( :studentIds) "),        
         @NamedQuery(name = Student.GET_STUDENTS_WITH_EMAIL, query = "select s from Student s where s.email=:emailValue"),
         @NamedQuery(name = Student.GET_STUDENTS_WITH_REGISTRATION_NUMBER, query = "select s from Student s where s.registrationNr=:registrationNrValue")})
 @Table(name = "ck_student")

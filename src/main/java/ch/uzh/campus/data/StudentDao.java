@@ -107,6 +107,17 @@ public class StudentDao implements CampusDao<Student> {
                  .setParameter("studentIds", studentIds)
                  .executeUpdate();
     }
+    
+    public List<Student> getAllPilotStudents() {
+        /*Map<String, Object> parameters = new HashMap<String, Object>();
+        return genericDao.getNamedQueryListResult(Student.GET_ALL_PILOT_STUDENTS, parameters);*/
+        
+        return dbInstance.getCurrentEntityManager()
+                .createNamedQuery(Student.GET_ALL_PILOT_STUDENTS, Student.class)                		
+                .getResultList();
+    }
+    
+    
 
     /*
     public List<Student> getAllStudents() {
@@ -114,12 +125,5 @@ public class StudentDao implements CampusDao<Student> {
         return getAllPilotStudents();
     }
 
-    public List<Student> getAllPilotStudents() {
-        Map<String, Object> parameters = new HashMap<String, Object>();
-        return genericDao.getNamedQueryListResult(Student.GET_ALL_PILOT_STUDENTS, parameters);
-    }
-    
-
-    
 */
 }
