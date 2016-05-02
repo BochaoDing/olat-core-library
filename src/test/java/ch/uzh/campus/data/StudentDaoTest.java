@@ -10,6 +10,7 @@ import java.util.List;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.olat.core.commons.persistence.DB;
 import org.olat.test.OlatTestCase;
@@ -49,6 +50,7 @@ public class StudentDaoTest extends OlatTestCase {
     public void setup() {
         students = mockDataGenerator.getStudents();
         studentDao.save(students);
+        dbInstance.flush();
     }
     
     @After
@@ -57,58 +59,67 @@ public class StudentDaoTest extends OlatTestCase {
     }
     
 
+    
     @Test
     public void testGetStudentById_Null() {
         assertNull(studentDao.getStudentById(999L));
     }
 
+    
     @Test
     public void testGetStudentById_NotNull() {
         assertNotNull(studentDao.getStudentById(100L));
     }
 
+    
     @Test
     public void testGetStudentByEmail_Null() {
         assertNull(studentDao.getStudentByEmail("wrongEmail"));
     }
 
     @Test
-    public void testlGetStudentByEmail_NotNul() {
+    public void testlGetStudentByEmail_NotNull() {
         assertNotNull(studentDao.getStudentByEmail("email1"));
     }
 
+    
     @Test
     public void testGetStudentByRegistrationNr_Null() {
-        //assertNull(studentDao.getStudentByEmail("999L"));
+        assertNull(studentDao.getStudentByEmail("999L"));
     }
 
-    /*@Test
-    public void testNotNullGetStudentByRegistrationNr() {
+    
+    @Test
+    public void testGetStudentByRegistrationNr_NotNull() {
         assertNotNull(studentDao.getStudentByRegistrationNr("1000"));
     }
-
+   
+   
     @Test
     public void testGetAllNotUpdatedStudents_foundTwoStudents() {
         assertEquals(studentDao.getAllNotUpdatedStudents(new Date()).size(), 2);
     }
 
+    
     @Test
     public void testGetAllNotUpdatedStudents_foundOneStudent() throws InterruptedException {
         Date now = new Date();
 
         students.get(0).setModifiedDate(now);
-        studentDao.saveOrUpdate(students);
+        studentDao.save(students);
 
         assertEquals(studentDao.getAllNotUpdatedStudents(now).size(), 1);
     }
-
+    
+    
     @Test
     public void testDelete() {
         assertNotNull(studentDao.getStudentById(100L));
         studentDao.delete(students.get(0));
         assertNull(studentDao.getStudentById(100L));
     }
-
+   
+    
     @Test
     public void testDeleteByStudentIds() {
         assertNotNull(studentDao.getStudentById(100L));
@@ -119,11 +130,14 @@ public class StudentDaoTest extends OlatTestCase {
         studentIds.add(200L);
 
         studentDao.deleteByStudentIds(studentIds);
-        transactionManager.getSessionFactory().getCurrentSession().clear();
-
+        //transactionManager.getSessionFactory().getCurrentSession().clear();
+        dbInstance.getCurrentEntityManager().clear();
+        
         assertNull(studentDao.getStudentById(100L));
         assertNull(studentDao.getStudentById(200L));
     }
+    
+    /*
 
     @Test
     public void testGetAllPilotStudents() {

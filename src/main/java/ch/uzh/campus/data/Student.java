@@ -28,18 +28,24 @@ import javax.persistence.NamedQuery;
         @NamedQuery(name = Student.GET_ALL_PILOT_STUDENTS, query = "select distinct s from Student s left join s.courseStudentSet cs where cs.course.enabled = '1' "),
         @NamedQuery(name = Student.GET_ALL_NOT_UPDATED_STUDENTS, query = "select id from Student s where s.modifiedDate < :lastImportDate"),
         @NamedQuery(name = Student.DELETE_BY_STUDENT_IDS, query = "delete from Student s where s.id in ( :studentIds) "),
-        @NamedQuery(name = Student.GET_STUDENTS_WITH_EMAIL, query = "select s from Student s where s.email=:emailValue")})
+        //@NamedQuery(name = Student.DELETE_BY_STUDENT_IDS, query = " from Student as s where s.id = ?"),
+        @NamedQuery(name = Student.GET_STUDENTS_WITH_EMAIL, query = "select s from Student s where s.email=:emailValue"),
+        @NamedQuery(name = Student.GET_STUDENTS_WITH_REGISTRATION_NUMBER, query = "select s from Student s where s.registrationNr=:registrationNrValue")})
 @Table(name = "ck_student")
 public class Student {
-    @Id
+	
+    @Id    
     private Long id;
 
     @Column(name = "registration_nr")
     private String registrationNr;
+    
     @Column(name = "first_name")
     private String firstName;
+    
     @Column(name = "last_name")
     private String lastName;
+    
     @Column(name = "email")
     private String email;
 
@@ -54,6 +60,7 @@ public class Student {
     public static final String GET_ALL_NOT_UPDATED_STUDENTS = "getAllNotUpdatedStudents";
     public static final String DELETE_BY_STUDENT_IDS = "deleteByStudentIds";
     public static final String GET_STUDENTS_WITH_EMAIL = "getStudentsWithEmail";
+    public static final String GET_STUDENTS_WITH_REGISTRATION_NUMBER = "getStudentsWithRegistrationNr";
 
     public Student() {
     }
