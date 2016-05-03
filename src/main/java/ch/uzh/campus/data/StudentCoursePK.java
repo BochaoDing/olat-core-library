@@ -16,13 +16,10 @@ import org.apache.commons.lang.builder.ToStringBuilder;
  * @author aabouc
  */
 @SuppressWarnings("serial")
-@Embeddable
 public class StudentCoursePK implements Serializable {
-    @Basic(optional = false)
-    @Column(name = "student_id")
+    
     private long studentId;
-    @Basic(optional = false)
-    @Column(name = "course_id")
+    
     private long courseId;
 
     public StudentCoursePK() {

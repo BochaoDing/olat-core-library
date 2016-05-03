@@ -56,10 +56,10 @@
     <!-- ===============StudentCourse================= -->
     <!-- ======================================================================================= -->
     <util:list id = 'studentCourses'>
-        <bean class="ch.uzh.campus.data.StudentCourse" p:pk-ref = "studentCoursePK1" p:modifiedDate="10.10.2014 10:10" />
-        <bean class="ch.uzh.campus.data.StudentCourse" p:pk-ref = "studentCoursePK2" p:modifiedDate="10.10.2014 10:10" />
-        <bean class="ch.uzh.campus.data.StudentCourse" p:pk-ref = "studentCoursePK3" p:modifiedDate="10.10.2014 10:10" />
-        <bean class="ch.uzh.campus.data.StudentCourse" p:pk-ref = "studentCoursePK4" p:modifiedDate="10.10.2014 10:10" />
+        <bean class="ch.uzh.campus.data.StudentCourse" p:studentId="100" p:courseId="100" p:modifiedDate="10.10.2014 10:10" />
+        <bean class="ch.uzh.campus.data.StudentCourse" p:studentId="100" p:courseId="200" p:modifiedDate="10.10.2014 10:10" />
+        <bean class="ch.uzh.campus.data.StudentCourse" p:studentId="200" p:courseId="100" p:modifiedDate="10.10.2014 10:10" />
+        <bean class="ch.uzh.campus.data.StudentCourse" p:studentId="200" p:courseId="200" p:modifiedDate="10.10.2014 10:10" />
     </util:list>
 
     <!-- ======================================================================================= -->

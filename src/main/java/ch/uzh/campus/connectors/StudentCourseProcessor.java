@@ -45,7 +45,7 @@ public class StudentCourseProcessor implements ItemProcessor<StudentCoursePK, St
      * @return the StudentCourse
      */
     public StudentCourse process(StudentCoursePK pk) throws Exception {
-        StudentCourse studentCourse = new StudentCourse(pk);
+        StudentCourse studentCourse = new StudentCourse(pk.getStudentId(), pk.getCourseId());
         studentCourse.setModifiedDate(new Date());
         return studentCourse;
     }

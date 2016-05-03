@@ -53,7 +53,7 @@ public class Student {
     private Date modifiedDate;
 
     @OneToMany(mappedBy = "student")
-    private Set<CourseStudent> courseStudentSet;
+    private Set<StudentCourse> courseStudentSet;
 
     public static final String GET_ALL_PILOT_STUDENTS = "getAllPilotStudents";
     public static final String GET_ALL_NOT_UPDATED_STUDENTS = "getAllNotUpdatedStudents";
@@ -116,13 +116,13 @@ public class Student {
         this.modifiedDate = modifiedDate;
     }
 
-    public Set<CourseStudent> getCourseStudentSet() {
+    /*public Set<CourseStudent> getCourseStudentSet() {
         return courseStudentSet;
     }
 
     public void setCourseStudentSet(Set<CourseStudent> courseStudentSet) {
         this.courseStudentSet = courseStudentSet;
-    }
+    }*/
 
     @Override
     public String toString() {

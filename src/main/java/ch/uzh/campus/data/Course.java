@@ -107,7 +107,7 @@ public class Course {
 
     //@Cascade({ org.hibernate.annotations.CascadeType.DELETE })
     @OneToMany(mappedBy = "course")
-    private Set<CourseStudent> courseStudentSet;
+    private Set<StudentCourse> courseStudentSet;
 
 //    @Cascade({ org.hibernate.annotations.CascadeType.DELETE })
 //    @OneToMany(mappedBy = "course")
@@ -321,13 +321,13 @@ public class Course {
 //        this.courseLecturerSet = courseLecturerSet;
 //    }
 
-    public Set<CourseStudent> getCourseStudentSet() {
+    /*public Set<CourseStudent> getCourseStudentSet() {
        return courseStudentSet;
     }
 
     public void setCourseStudentSet(Set<CourseStudent> courseStudentSet) {
         this.courseStudentSet = courseStudentSet;
-    }
+    }*/
 //
 //    public Set<Event> getEvents() {
 //        return events;

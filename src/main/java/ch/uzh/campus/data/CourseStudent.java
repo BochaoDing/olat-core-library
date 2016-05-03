@@ -2,6 +2,7 @@ package ch.uzh.campus.data;
 
 import javax.persistence.*;
 
+@Deprecated
 @Entity
 @IdClass(CourseStudentPK.class)
 @Table(name = "ck_student_course")
