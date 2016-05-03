@@ -1,18 +1,8 @@
 package ch.uzh.campus.data;
 
-
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-
-import org.hibernate.type.StandardBasicTypes;
-import org.hibernate.type.Type;
 import org.olat.core.commons.persistence.DB;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
@@ -24,12 +14,10 @@ import org.springframework.stereotype.Repository;
  * @author lavinia
  */
 @Repository
-public class StudentDao implements CampusDao<Student> {
-  
+public class StudentDao implements CampusDao<Student> {  
 	
 	@Autowired
-    private DB dbInstance;
-   
+    private DB dbInstance;   
 
     @Override
     public void save(List<Student> students) {
@@ -54,14 +42,9 @@ public class StudentDao implements CampusDao<Student> {
             return students.get(0);
         }
         return null;
-    }
-    
+    }    
 
-    public Student getStudentByRegistrationNr(String registrationNr) {
-        /*Map<String, Object> restrictionMap = new HashMap<String, Object>();
-        restrictionMap.put("registrationNr", registrationNr);
-        List<Student> students = genericDao.findByCriteria(restrictionMap);*/
-    	
+    public Student getStudentByRegistrationNr(String registrationNr) {        
     	List<Student> students = dbInstance.getCurrentEntityManager()
 				.createNamedQuery(Student.GET_STUDENTS_WITH_REGISTRATION_NUMBER, Student.class)
 				.setParameter("registrationNrValue", registrationNr)				
@@ -73,11 +56,7 @@ public class StudentDao implements CampusDao<Student> {
         return null;
     }
     
-    public List<Long> getAllNotUpdatedStudents(Date date) {
-        /*Map<String, Object> parameters = new HashMap<String, Object>();
-        parameters.put("lastImportDate", date);
-        return genericDao.getNamedQueryEntityIds(Student.GET_ALL_NOT_UPDATED_STUDENTS, parameters);*/
-        
+    public List<Long> getAllNotUpdatedStudents(Date date) {                
         return dbInstance.getCurrentEntityManager()
         .createNamedQuery(Student.GET_ALL_NOT_UPDATED_STUDENTS, Long.class)
         .setParameter("lastImportDate", date)			
@@ -89,41 +68,23 @@ public class StudentDao implements CampusDao<Student> {
     	dbInstance.deleteObject(student);
     }
 
-    public void deleteByStudentIds(List<Long> studentIds) {
-        /*Query query = genericDao.getNamedQuery(Student.DELETE_BY_STUDENT_IDS);
-        query.setParameterList("studentIds", studentIds);
-        query.executeUpdate();*/
-    	
-    	/*List<Object> values = new ArrayList<Object>();
-    	values.addAll(studentIds);
-    	
-    	Type[] types = new Type[values.size()];
-    	Arrays.fill(types, StandardBasicTypes.LONG);
-    	
-    	dbInstance.delete(Student.DELETE_BY_STUDENT_IDS, values.toArray(), types);    */
-    	
+    public void deleteByStudentIds(List<Long> studentIds) {           	
     	 dbInstance.getCurrentEntityManager()
                  .createNamedQuery(Student.DELETE_BY_STUDENT_IDS)
                  .setParameter("studentIds", studentIds)
                  .executeUpdate();
     }
     
-    public List<Student> getAllPilotStudents() {
-        /*Map<String, Object> parameters = new HashMap<String, Object>();
-        return genericDao.getNamedQueryListResult(Student.GET_ALL_PILOT_STUDENTS, parameters);*/
-        
+    public List<Student> getAllPilotStudents() {               
         return dbInstance.getCurrentEntityManager()
                 .createNamedQuery(Student.GET_ALL_PILOT_STUDENTS, Student.class)                		
                 .getResultList();
     }
+      
     
-    
-
-    /*
     public List<Student> getAllStudents() {
         // return genericDao.findAll();
         return getAllPilotStudents();
     }
 
-*/
 }
