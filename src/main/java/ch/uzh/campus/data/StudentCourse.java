@@ -12,8 +12,8 @@ import javax.persistence.TemporalType;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
-import org.hibernate.annotations.NamedQueries;
-import org.hibernate.annotations.NamedQuery;
+import javax.persistence.NamedQueries;
+import javax.persistence.NamedQuery;
 
 /**
  * Initial Date: 04.06.2012 <br>
@@ -35,14 +35,14 @@ public class StudentCourse {
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "modified_date")
     private Date modifiedDate;
-
+    
     public static final String DELETE_STUDENT_BY_COURSE_ID = "deleteStudentByCourseId";
     public static final String DELETE_STUDENTS_BY_COURSE_IDS = "deleteStudentsByCourseIds";
 
     public static final String DELETE_STUDENT_BY_STUDENT_ID = "deleteStudentByStudentId";
     public static final String DELETE_STUDENTS_BY_STUDENT_IDS = "deleteStudentsByStudentIds";
     public static final String DELETE_ALL_NOT_UPDATED_SC_BOOKING = "deleteAllNotUpdatedSCBooking";
-
+    
     public StudentCourse() {
     }
 

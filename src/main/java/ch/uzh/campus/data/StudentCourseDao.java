@@ -3,9 +3,7 @@ package ch.uzh.campus.data;
 import java.util.Date;
 import java.util.List;
 
-import javax.annotation.PostConstruct;
 
-import org.hibernate.Query;
 import org.olat.core.commons.persistence.DB;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,16 +27,18 @@ public class StudentCourseDao implements CampusDao<StudentCourse> {
 	     dbInstance.saveObject(studentCourse);
 	  }
     }
-
-    /*
+   
     public List<StudentCourse> getAllSudentCourses() {
-        return genericDao.findAll();
+        //return genericDao.findAll();
+    	return (List<StudentCourse>)dbInstance.find("from StudentCourse");
     }
-
+    
     public void delete(StudentCourse studentCourse) {
-        genericDao.delete(studentCourse);
+        //genericDao.delete(studentCourse);
+    	dbInstance.deleteObject(studentCourse);
     }
-
+    
+    /*
     public void deleteByCourseId(Long courseId) {
         Query query = genericDao.getNamedQuery(StudentCourse.DELETE_STUDENT_BY_COURSE_ID);
         query.setParameter("courseId", courseId);
