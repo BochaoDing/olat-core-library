@@ -56,10 +56,10 @@
     <!-- ===============StudentCourse================= -->
     <!-- ======================================================================================= -->
     <util:list id = 'studentCourses'>
-        <bean class="ch.uzh.campus.data.StudentCourse" p:studentId="100" p:courseId="100" p:modifiedDate="10.10.2014 10:10" />
-        <bean class="ch.uzh.campus.data.StudentCourse" p:studentId="100" p:courseId="200" p:modifiedDate="10.10.2014 10:10" />
-        <bean class="ch.uzh.campus.data.StudentCourse" p:studentId="200" p:courseId="100" p:modifiedDate="10.10.2014 10:10" />
-        <bean class="ch.uzh.campus.data.StudentCourse" p:studentId="200" p:courseId="200" p:modifiedDate="10.10.2014 10:10" />
+        <bean class="ch.uzh.campus.data.StudentCourse" p:course="#{courses[0]}" p:student="#{students[0]}" p:modifiedDate="10.10.2014 10:10" />
+        <bean class="ch.uzh.campus.data.StudentCourse" p:course="#{courses[0]}" p:student="#{students[1]}" p:modifiedDate="10.10.2014 10:10" />
+        <bean class="ch.uzh.campus.data.StudentCourse" p:course="#{courses[1]}" p:student="#{students[0]}" p:modifiedDate="10.10.2014 10:10" />
+        <bean class="ch.uzh.campus.data.StudentCourse" p:course="#{courses[1]}" p:student="#{students[1]}" p:modifiedDate="10.10.2014 10:10" />
     </util:list>
 
     <!-- ======================================================================================= -->
@@ -81,10 +81,10 @@
     <!-- ======================================================================================= -->
     <!-- ===============StudentCoursePK================= -->
     <!-- ======================================================================================= -->
-    <bean id="studentCoursePK1" class="ch.uzh.campus.data.StudentCoursePK" p:studentId="100" p:courseId="100" />
-    <bean id="studentCoursePK2" class="ch.uzh.campus.data.StudentCoursePK" p:studentId="100" p:courseId="200" />
-    <bean id="studentCoursePK3" class="ch.uzh.campus.data.StudentCoursePK" p:studentId="200" p:courseId="100" />
-    <bean id="studentCoursePK4" class="ch.uzh.campus.data.StudentCoursePK" p:studentId="200" p:courseId="200" />
+    <bean id="studentCoursePK1" class="ch.uzh.campus.data.StudentCoursePK" p:student="100" p:course="100" />
+    <bean id="studentCoursePK2" class="ch.uzh.campus.data.StudentCoursePK" p:student="100" p:course="200" />
+    <bean id="studentCoursePK3" class="ch.uzh.campus.data.StudentCoursePK" p:student="200" p:course="100" />
+    <bean id="studentCoursePK4" class="ch.uzh.campus.data.StudentCoursePK" p:student="200" p:course="200" />
 
     <!-- ======================================================================================= -->
     <!-- ===============LecturerCourse================= -->

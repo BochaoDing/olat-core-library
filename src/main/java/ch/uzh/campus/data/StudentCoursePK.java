@@ -14,51 +14,51 @@ import org.apache.commons.lang.builder.ToStringBuilder;
  * Initial Date: 04.06.2012 <br>
  * 
  * @author aabouc
+ * @author lavinia
  */
 @SuppressWarnings("serial")
 public class StudentCoursePK implements Serializable {
     
-    private long studentId;
-    
-    private long courseId;
+    private Long student;    
+    private Long course;
 
     public StudentCoursePK() {
     }
 
-    public StudentCoursePK(long studentId, long courseId) {
-        this.studentId = studentId;
-        this.courseId = courseId;
+    public StudentCoursePK(Long student, Long course) {
+        this.student = student;
+        this.course = course;
     }
 
-    public long getStudentId() {
-        return studentId;
-    }
+    public Long getStudent() {
+		return student;
+	}
 
-    public void setStudentId(long studentId) {
-        this.studentId = studentId;
-    }
+	public void setStudent(Long student) {
+		this.student = student;
+	}
 
-    public long getCourseId() {
-        return courseId;
-    }
+	public Long getCourse() {
+		return course;
+	}
 
-    public void setCourseId(long courseId) {
-        this.courseId = courseId;
-    }
+	public void setCourse(Long course) {
+		this.course = course;
+	}
 
-    @Override
+	@Override
     public String toString() {
         ToStringBuilder builder = new ToStringBuilder(this);
-        builder.append("studentId", getStudentId());
-        builder.append("courseId", getCourseId());
+        builder.append("student", getStudent());
+        builder.append("course", getCourse());
         return builder.toString();
     }
 
     @Override
     public int hashCode() {
         HashCodeBuilder builder = new HashCodeBuilder(1239, 5475);
-        builder.append(studentId);
-        builder.append(courseId);
+        builder.append(student);
+        builder.append(course);
 
         return builder.toHashCode();
     }
@@ -72,8 +72,8 @@ public class StudentCoursePK implements Serializable {
             return false;
         StudentCoursePK theOther = (StudentCoursePK) obj;
         EqualsBuilder builder = new EqualsBuilder();
-        builder.append(this.studentId, theOther.studentId);
-        builder.append(this.courseId, theOther.courseId);
+        builder.append(this.student, theOther.student);
+        builder.append(this.course, theOther.course);
 
         return builder.isEquals();
     }

@@ -24,6 +24,7 @@ import javax.persistence.PrimaryKeyJoinColumn;
  * Initial Date: 04.06.2012 <br>
  * 
  * @author aabouc
+ * @author lavinia
  */
 @Entity
 @Table(name = "ck_student_course")
@@ -36,20 +37,22 @@ import javax.persistence.PrimaryKeyJoinColumn;
 	@NamedQuery(name = StudentCourse.DELETE_ALL_NOT_UPDATED_SC_BOOKING, query = "delete from StudentCourse sc where sc.modifiedDate is not null and sc.modifiedDate < :lastImportDate") })
 public class StudentCourse {
 	
-	@Id
-	private long studentId;
+	//@Id //the @Id could be either on this or on student field.
+	//private long studentId;
 	
-	@Id
-	private long courseId;
+	//@Id
+	//private long courseId;
 
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "modified_date")
     private Date modifiedDate;
     
+    @Id
     @ManyToOne
     @PrimaryKeyJoinColumn(name="student_id", referencedColumnName="id")    
     private Student student;
     
+    @Id
     @ManyToOne
     @PrimaryKeyJoinColumn(name="course_id", referencedColumnName="id")    
     private Course course;
@@ -61,9 +64,10 @@ public class StudentCourse {
     public static final String DELETE_STUDENTS_BY_STUDENT_IDS = "deleteStudentsByStudentIds";
     public static final String DELETE_ALL_NOT_UPDATED_SC_BOOKING = "deleteAllNotUpdatedSCBooking";
     
-    public StudentCourse(long studentId, long courseId) {
-    	this.studentId = studentId;
-    	this.courseId = courseId;
+        
+    public StudentCourse(Student student, Course course) {
+    	this.student = student;
+    	this.course = course;
     }
     
     public StudentCourse() {    	
@@ -76,37 +80,39 @@ public class StudentCourse {
     public void setModifiedDate(Date modifiedDate) {
         this.modifiedDate = modifiedDate;
     }      
-
-    public long getStudentId() {
-		return studentId;
+   
+	
+	public Student getStudent() {
+		return student;
 	}
 
-	public void setStudentId(long studentId) {
-		this.studentId = studentId;
+	public void setStudent(Student student) {
+		this.student = student;
 	}
 
-	public long getCourseId() {
-		return courseId;
+	public Course getCourse() {
+		return course;
 	}
 
-	public void setCourseId(long courseId) {
-		this.courseId = courseId;
+	public void setCourse(Course course) {
+		this.course = course;
 	}
 
 	@Override
     public String toString() {
         ToStringBuilder builder = new ToStringBuilder(this);
-        builder.append("studentId", getStudentId());
-        builder.append("courseId", getCourseId());
-
+        
+        builder.append("student", getStudent());
+        builder.append("course", getCourse());
         return builder.toString();
     }
 
     @Override
     public int hashCode() {
         HashCodeBuilder builder = new HashCodeBuilder(1239, 5475);
-        builder.append(studentId);
-        builder.append(courseId);
+        
+        builder.append(student.hashCode());
+        builder.append(course.hashCode());
         builder.append(modifiedDate);
 
         return builder.toHashCode();
@@ -121,8 +127,9 @@ public class StudentCourse {
             return false;
         StudentCourse theOther = (StudentCourse) obj;
         EqualsBuilder builder = new EqualsBuilder();
-        builder.append(this.studentId, theOther.studentId);
-        builder.append(this.courseId, theOther.courseId);
+                
+        builder.append(this.student.getId(), theOther.student.getId());
+        builder.append(this.course.getId(), theOther.course.getId());
         builder.append(this.modifiedDate, theOther.modifiedDate);
 
         return builder.isEquals();

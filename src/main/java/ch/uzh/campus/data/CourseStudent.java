@@ -2,7 +2,7 @@ package ch.uzh.campus.data;
 
 import javax.persistence.*;
 
-@Deprecated
+@Deprecated //deprecated because it maps to the same DB table as StudentCourse
 @Entity
 @IdClass(CourseStudentPK.class)
 @Table(name = "ck_student_course")
