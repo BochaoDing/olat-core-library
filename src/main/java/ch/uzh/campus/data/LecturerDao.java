@@ -60,13 +60,24 @@ public class LecturerDao implements CampusDao<Lecturer> {
     }
 
     public void delete(Lecturer lecturer) {
+        // http://stackoverflow.com/questions/1082095/how-to-remove-entity-with-manytomany-relationship-in-jpa-and-corresponding-join
         dbInstance.deleteObject(lecturer);
+        deleteJoinTableEntries(lecturer);
     }
 
     public int deleteByLecturerIds(List<Long> lecturerIds) {
+        for (Long lecturerId : lecturerIds) {
+            deleteJoinTableEntries(dbInstance.getCurrentEntityManager().getReference(Lecturer.class, lecturerId));
+        }
         return dbInstance.getCurrentEntityManager()
                 .createNamedQuery(Lecturer.DELETE_BY_LECTURER_IDS)
                 .setParameter("lecturerIds", lecturerIds)
                 .executeUpdate();
+    }
+
+    private void deleteJoinTableEntries(Lecturer lecturer) {
+        for (Course course : lecturer.getCourses()) {
+            course.getLecturers().remove(lecturer);
+        }
     }
 }

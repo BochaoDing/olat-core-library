@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Set;
 
 /**
+ * @author aabouc
  * @author Martin Schraner
  */
 public class MockDataGenerator {
@@ -22,7 +23,8 @@ public class MockDataGenerator {
     private List<ImportStatistic> importStatistics;
 
     private Set<CourseStudent> courseStudents;
-    private Set<CourseLecturer> courseLecturers;
+    private List<Long[]> courseIdsLecturerIds;
+//    private Set<CourseLecturer> courseLecturers;
 
     public List<Delegation> getDelegations() {
         return delegations;
@@ -120,11 +122,11 @@ public class MockDataGenerator {
         this.courseStudents = courseStudents;
     }
 
-    public Set<CourseLecturer> getCourseLecturers() {
-        return courseLecturers;
+    public List<Long[]> getCourseIdsLecturerIds() {
+        return courseIdsLecturerIds;
     }
 
-    public void setCourseLecturers(Set<CourseLecturer> courseLecturers) {
-        this.courseLecturers = courseLecturers;
+    public void setCourseIdsLecturerIds(List<Long[]> courseIdsLecturerIds) {
+        this.courseIdsLecturerIds = courseIdsLecturerIds;
     }
 }

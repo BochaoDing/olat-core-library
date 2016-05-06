@@ -162,7 +162,6 @@
 		<!-- campuskurs hibernate entities -->
 		<class>ch.uzh.campus.data.Org</class>
 		<class>ch.uzh.campus.data.Text</class>
-		<class>ch.uzh.campus.data.LecturerCourse</class>
 		<class>ch.uzh.campus.data.Course</class>
 		<class>ch.uzh.campus.data.Student</class>
 		<class>ch.uzh.campus.data.CourseStudent</class>

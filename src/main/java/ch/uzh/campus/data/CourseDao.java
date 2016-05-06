@@ -1,9 +1,6 @@
 package ch.uzh.campus.data;
 
-import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.olat.core.commons.persistence.DB;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,6 +22,20 @@ public class CourseDao implements CampusDao<Course> {
     public void save(List<Course> courses) {
     	for (Course course : courses) {
             dbInstance.saveObject(course);
+        }
+    }
+
+    public void addLecturerById(Long courseId, Long lecturerId) {
+        Course course = dbInstance.getCurrentEntityManager().getReference(Course.class, courseId);
+        Lecturer lecturer = dbInstance.getCurrentEntityManager().getReference(Lecturer.class, lecturerId);
+        course.getLecturers().add(lecturer);
+        lecturer.getCourses().add(course);
+        dbInstance.saveObject(course);
+    }
+
+    public void addLecturersById(List<Long[]> courseIdsLecturerIds) {
+        for (Long[] courseIdLecturerId : courseIdsLecturerIds) {
+            addLecturerById(courseIdLecturerId[0], courseIdLecturerId[1]);
         }
     }
 
