@@ -1,39 +1,29 @@
 package ch.uzh.campus.data;
 
-import java.io.Serializable;
-
 /**
  * Initial Date: 04.06.2012 <br>
  * 
  * @author aabouc
  * @author Martin Schraner
  */
-public class LecturerIdCourseId implements Serializable {
+public class LecturerIdCourseId {
 
-    private Long lecturer;
-    private Long course;
+    private Long lecturerId;
+    private Long courseId;
 
-    public LecturerIdCourseId() {
+    public Long getLecturerId() {
+        return lecturerId;
     }
 
-    public LecturerIdCourseId(Long lecturer, Long course) {
-        this.lecturer = lecturer;
-        this.course = course;
+    public void setLecturerId(Long lecturerId) {
+        this.lecturerId = lecturerId;
     }
 
-    public Long getLecturer() {
-        return lecturer;
+    public Long getCourseId() {
+        return courseId;
     }
 
-    public void setLecturer(Long lecturer) {
-        this.lecturer = lecturer;
-    }
-
-    public Long getCourse() {
-        return course;
-    }
-
-    public void setCourse(Long course) {
-        this.course = course;
+    public void setCourseId(Long courseId) {
+        this.courseId = courseId;
     }
 }
