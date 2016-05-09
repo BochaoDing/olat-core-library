@@ -21,7 +21,10 @@ import javax.persistence.NamedQuery;
 import javax.persistence.PrimaryKeyJoinColumn;
 
 /**
- * Initial Date: 04.06.2012 <br>
+ * Initial Date: 04.06.2012 <p>
+ * 
+ * The Student and Course have a ManyToMany relationship, the relational join table (ck_student_course) has additional data (modifiedDate).
+ * @link https://en.wikibooks.org/wiki/Java_Persistence/ManyToMany#Example_of_a_ManyToMany_relationship_database 
  * 
  * @author aabouc
  * @author lavinia
