@@ -10,29 +10,35 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 import org.hibernate.annotations.GenericGenerator;
 
 
+
 /**
  * Initial Date: 04.06.2012 <br>
  * 
  * @author aabouc
+ * @author lavinia
  */
 @Entity
 @Table(name = "ck_text")
 @NamedQueries({ @NamedQuery(name = Text.DELETE_ALL_TEXTS, query = "delete from Text"),
         @NamedQuery(name = Text.GET_TEXTS, query = "select t from Text t where t.courseId = :courseId and t.type = :type order by t.id, t.lineSeq asc"),
         @NamedQuery(name = Text.DELETE_TEXTS_BY_COURSE_ID, query = "delete from Text t where t.courseId = :courseId"),
+        @NamedQuery(name = Text.GET_TEXTS_BY_COURSE_ID, query = "select t from Text t where t.courseId = :courseId"),
         @NamedQuery(name = Text.DELETE_TEXTS_BY_COURSE_IDS, query = "delete from Text t where t.courseId in ( :courseIds)") })
 public class Text {
-    @Id
+    @Id   
     @GeneratedValue(generator = "system-uuid")
-    @GenericGenerator(name = "system-uuid", strategy = "hilo")
+	@GenericGenerator(name = "system-uuid", strategy = "hilo")
     private Long id;
 
     @Column(name = "course_id")
     private long courseId;
+    
     @Column(name = "type")
     private String type;
+    
     @Column(name = "line_seq")
     private int lineSeq;
+    
     @Column(name = "line")
     private String line;
 
@@ -53,6 +59,7 @@ public class Text {
     public static final String DELETE_TEXTS_BY_COURSE_ID = "deleteTextsByCourseId";
     public static final String DELETE_TEXTS_BY_COURSE_IDS = "deleteTextsByCourseIds";
     public static final String GET_TEXTS = "getTexts";
+    public static final String GET_TEXTS_BY_COURSE_ID ="getTextsByCourseId";
 
     public Long getId() {
         return id;
