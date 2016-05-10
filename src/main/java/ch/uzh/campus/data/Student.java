@@ -1,11 +1,13 @@
 package ch.uzh.campus.data;
 
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Set;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
@@ -25,7 +27,7 @@ import javax.persistence.NamedQuery;
  */
 @Entity
 @NamedQueries({
-        @NamedQuery(name = Student.GET_ALL_PILOT_STUDENTS, query = "select distinct s from Student s left join s.courseStudentSet cs where cs.course.enabled = '1' "),
+        @NamedQuery(name = Student.GET_ALL_PILOT_STUDENTS, query = "select distinct s from Student s left join s.courses cs where cs.enabled = '1' "),
         @NamedQuery(name = Student.GET_ALL_NOT_UPDATED_STUDENTS, query = "select id from Student s where s.modifiedDate < :lastImportDate"),
         @NamedQuery(name = Student.DELETE_BY_STUDENT_IDS, query = "delete from Student s where s.id in ( :studentIds) "),        
         @NamedQuery(name = Student.GET_STUDENTS_WITH_EMAIL, query = "select s from Student s where s.email=:emailValue"),
@@ -52,8 +54,10 @@ public class Student {
     @Column(name = "modified_date")
     private Date modifiedDate;
 
-    @OneToMany(mappedBy = "student")
-    private Set<StudentCourse> courseStudentSet;
+    //@OneToMany(mappedBy = "student")
+    //private Set<StudentCourse> courseStudentSet;
+    @ManyToMany(mappedBy = "students")
+    private Set<Course> courses = new HashSet<>();
 
     public static final String GET_ALL_PILOT_STUDENTS = "getAllPilotStudents";
     public static final String GET_ALL_NOT_UPDATED_STUDENTS = "getAllNotUpdatedStudents";
@@ -116,13 +120,13 @@ public class Student {
         this.modifiedDate = modifiedDate;
     }
 
-    /*public Set<CourseStudent> getCourseStudentSet() {
-        return courseStudentSet;
+    public Set<Course> getCourses() {
+        return courses;
     }
 
-    public void setCourseStudentSet(Set<CourseStudent> courseStudentSet) {
-        this.courseStudentSet = courseStudentSet;
-    }*/
+    public void addCourse(Course course) {
+        courses.add(course);
+    }
 
     @Override
     public String toString() {

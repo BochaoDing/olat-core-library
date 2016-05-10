@@ -57,10 +57,10 @@
     <!-- ===============StudentCourse================= -->
     <!-- ======================================================================================= -->
     <util:list id = 'studentCourses' scope="prototype" >
-        <bean class="ch.uzh.campus.data.StudentCourse" p:course="#{courses[0]}" p:student="#{students[0]}" p:modifiedDate="10.10.2014 10:10" scope="prototype" />
-        <bean class="ch.uzh.campus.data.StudentCourse" p:course="#{courses[0]}" p:student="#{students[1]}" p:modifiedDate="10.10.2014 10:10" scope="prototype" />
-        <bean class="ch.uzh.campus.data.StudentCourse" p:course="#{courses[1]}" p:student="#{students[0]}" p:modifiedDate="10.10.2014 10:10" scope="prototype" />
-        <bean class="ch.uzh.campus.data.StudentCourse" p:course="#{courses[1]}" p:student="#{students[1]}" p:modifiedDate="10.10.2014 10:10" scope="prototype" />
+        <bean class="ch.uzh.campus.data.StudentCourse" p:courseId="100" p:studentId="100" scope="prototype" />
+        <bean class="ch.uzh.campus.data.StudentCourse"  p:courseId="100" p:studentId="200" scope="prototype" />
+        <bean class="ch.uzh.campus.data.StudentCourse"  p:courseId="200" p:studentId="100" scope="prototype" />
+        <bean class="ch.uzh.campus.data.StudentCourse"  p:courseId="200" p:studentId="200" scope="prototype" />
     </util:list>
 
     <!-- ======================================================================================= -->

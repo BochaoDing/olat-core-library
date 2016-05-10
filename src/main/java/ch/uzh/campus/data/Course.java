@@ -101,8 +101,14 @@ public class Course {
     private Set<Lecturer> lecturers = new HashSet<>();
 
     //@Cascade({ org.hibernate.annotations.CascadeType.DELETE })
-    @OneToMany(mappedBy = "course")
-    private Set<StudentCourse> courseStudentSet;
+    //@OneToMany(mappedBy = "course")
+    //private Set<StudentCourse> courseStudentSet;
+    
+    @ManyToMany(cascade = CascadeType.PERSIST)
+    @JoinTable(name = "ck_student_course",
+            joinColumns = {@JoinColumn(name = "course_id")},
+            inverseJoinColumns = {@JoinColumn(name = "student_id")})
+    private Set<Student> students = new HashSet<>();
 
 //    @Cascade({ org.hibernate.annotations.CascadeType.DELETE })
 //    @OneToMany(mappedBy = "course")
@@ -312,10 +318,11 @@ public class Course {
         return lecturers;
     }
 
-    /*public Set<CourseStudent> getCourseStudentSet() {
-       return courseStudentSet;
+    public Set<Student> getStudents() {
+       return students;
     }
-
+    
+    /*
     public void setCourseStudentSet(Set<CourseStudent> courseStudentSet) {
         this.courseStudentSet = courseStudentSet;
     }*/
