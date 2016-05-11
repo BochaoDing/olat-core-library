@@ -42,9 +42,9 @@ public class LecturerIdCourseIdWriter implements ItemWriter<LecturerIdCourseId> 
     public CourseDao courseDao;
 
     @Override
-    public void write(List<? extends LecturerIdCourseId> lecturerIdsCourseIds) throws Exception {
-        for (LecturerIdCourseId lecturerIdCourseId : lecturerIdsCourseIds) {
-            courseDao.addLecturerById(lecturerIdCourseId.getCourseId(), lecturerIdCourseId.getLecturerId());
+    public void write(List<? extends LecturerIdCourseId> lecturerIdCourseIds) throws Exception {
+        for (LecturerIdCourseId lecturerIdCourseId : lecturerIdCourseIds) {
+            courseDao.addLecturerById(lecturerIdCourseId);
         }
     }
 }

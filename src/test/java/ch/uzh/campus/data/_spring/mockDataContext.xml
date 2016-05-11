@@ -24,9 +24,7 @@
         <property name="importStatistics" ref="importStatistics" />
         <property name="studentCourses" ref="studentCourses" />
         <property name="courseStudents" ref="courseStudents" />
-        <property name="courseIdsLecturerIds" ref="courseIdsLecturerIds"/>
-        <!--property name="lecturerCourses" ref="lecturerCourses" /-->
-        <!--property name="courseLecturers" ref="courseLecturers" /-->
+        <property name="lecturerIdCourseIds" ref="lecturerIdCourseIds"/>
     </bean>
 
     <!-- ======================================================================================= -->
@@ -72,14 +70,6 @@
     </util:set>
 
     <!-- ======================================================================================= -->
-    <!-- ===============CourseLecturer================= -->
-    <!-- ======================================================================================= -->
-    <!-- util:set id = 'courseLecturers'>
-        <bean class="ch.uzh.campus.data.CourseLecturer" p:course="#{courses[0]}" p:lecturer="#{lecturers[0]}"/>
-        <bean class="ch.uzh.campus.data.CourseLecturer" p:course="#{courses[0]}" p:lecturer="#{lecturers[1]}"/>
-    </util:set -->
-
-    <!-- ======================================================================================= -->
     <!-- ===============StudentCoursePK================= -->
     <!-- ======================================================================================= -->
     <bean id="studentCoursePK1" class="ch.uzh.campus.data.StudentCoursePK" p:student="100" p:course="100" scope="prototype" />
@@ -88,45 +78,14 @@
     <bean id="studentCoursePK4" class="ch.uzh.campus.data.StudentCoursePK" p:student="200" p:course="200" scope="prototype" />
 
     <!-- ======================================================================================= -->
-    <!-- ===============CourseIdsLecturerIds================= -->
+    <!-- ===============LecturerIdCourseIds================= -->
     <!-- ======================================================================================= -->
-    <util:list id="courseIdsLecturerIds" scope="prototype" >
-        <util:list scope="prototype" >
-            <value>100</value>
-            <value>1100</value>
-        </util:list>
-        <util:list scope="prototype" >
-            <value>100</value>
-            <value>1200</value>
-        </util:list>
-        <util:list scope="prototype" >
-            <value>200</value>
-            <value>1100</value>
-        </util:list>
-        <util:list scope="prototype" >
-            <value>200</value>
-            <value>1200</value>
-        </util:list>
+    <util:list id="lecturerIdCourseIds" scope="prototype" >
+        <bean id="lecturerIdCourseId1" class="ch.uzh.campus.data.LecturerIdCourseId" p:courseId="100" p:lecturerId="1100" scope="prototype" />
+        <bean id="lecturerIdCourseId2" class="ch.uzh.campus.data.LecturerIdCourseId" p:courseId="100" p:lecturerId="1200" scope="prototype" />
+        <bean id="lecturerIdCourseId3" class="ch.uzh.campus.data.LecturerIdCourseId" p:courseId="200" p:lecturerId="1100" scope="prototype" />
+        <bean id="lecturerIdCourseId4" class="ch.uzh.campus.data.LecturerIdCourseId" p:courseId="200" p:lecturerId="1200" scope="prototype" />
     </util:list>
-
-
-    <!-- ======================================================================================= -->
-    <!-- ===============LecturerCourse================= -->
-    <!-- ======================================================================================= -->
-    <!--util:list id = 'lecturerCourses'>
-        <bean class="ch.uzh.campus.data.LecturerCourse" p:pk-ref = "lecturerCoursePK1" p:modifiedDate="10.10.2014 10:10" />
-        <bean class="ch.uzh.campus.data.LecturerCourse" p:pk-ref = "lecturerCoursePK2" p:modifiedDate="10.10.2014 10:10" />
-        <bean class="ch.uzh.campus.data.LecturerCourse" p:pk-ref = "lecturerCoursePK3" p:modifiedDate="10.10.2014 10:10" />
-        <bean class="ch.uzh.campus.data.LecturerCourse" p:pk-ref = "lecturerCoursePK4" p:modifiedDate="10.10.2014 10:10" />
-    </util:list-->
-
-    <!-- ======================================================================================= -->
-    <!-- ===============LecturerIdCourseId================= -->
-    <!-- ======================================================================================= -->
-    <!--bean id="lecturerCoursePK1" class="ch.uzh.campus.data.LecturerIdCourseIdId" p:lecturerId="100" p:courseId="100" />
-    <bean id="lecturerCoursePK2" class="ch.uzh.campus.data.LecturerIdCourseIdId" p:lecturerId="100" p:courseId="200" />
-    <bean id="lecturerCoursePK3" class="ch.uzh.campus.data.LecturerIdCourseIdId" p:lecturerId="200" p:courseId="100" />
-    <bean id="lecturerCoursePK4" class="ch.uzh.campus.data.LecturerIdCourseIdId" p:lecturerId="200" p:courseId="200" /-->
 
     <!-- ======================================================================================= -->
     <!-- ===============Text================= -->

@@ -23,7 +23,7 @@ public class MockDataGenerator {
     private List<ImportStatistic> importStatistics;
 
     private Set<CourseStudent> courseStudents;
-    private List<Long[]> courseIdsLecturerIds;
+    private List<LecturerIdCourseId> lecturerIdCourseIds;
 //    private Set<CourseLecturer> courseLecturers;
 
     public List<Delegation> getDelegations() {
@@ -122,11 +122,11 @@ public class MockDataGenerator {
         this.courseStudents = courseStudents;
     }
 
-    public List<Long[]> getCourseIdsLecturerIds() {
-        return courseIdsLecturerIds;
+    public List<LecturerIdCourseId> getLecturerIdCourseIds() {
+        return lecturerIdCourseIds;
     }
 
-    public void setCourseIdsLecturerIds(List<Long[]> courseIdsLecturerIds) {
-        this.courseIdsLecturerIds = courseIdsLecturerIds;
+    public void setLecturerIdCourseIds(List<LecturerIdCourseId> lecturerIdCourseIds) {
+        this.lecturerIdCourseIds = lecturerIdCourseIds;
     }
 }
