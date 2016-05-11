@@ -39,8 +39,19 @@ public class LecturerDaoTest extends OlatTestCase {
 
     @Before
     public void setup() {
+        // Insert some lecturers
         lecturers = mockDataGeneratorProvider.get().getLecturers();
         lecturerDao.save(lecturers);
+        dbInstance.flush();
+
+        // Insert some courses
+        List<Course> courses = mockDataGeneratorProvider.get().getCourses();
+        courseDao.save(courses);
+        dbInstance.flush();
+
+        // Add the lecturers to these courses
+        List<LecturerIdCourseId> lecturerIdCourseIds = mockDataGeneratorProvider.get().getLecturerIdCourseIds();
+        courseDao.addLecturersById(lecturerIdCourseIds);
         dbInstance.flush();
     }
 
@@ -92,6 +103,11 @@ public class LecturerDaoTest extends OlatTestCase {
         lecturerDao.delete(lecturers.get(0));
         dbInstance.flush();
         assertNull(lecturerDao.getLecturerById(1100L));
+
+        // Check bidirectional deletion
+        Course course = courseDao.getCourseById(100L);
+        assertNotNull(course);
+        assertEquals(1, course.getLecturers().size());
     }
 
     @Test
@@ -99,17 +115,9 @@ public class LecturerDaoTest extends OlatTestCase {
         assertNotNull(lecturerDao.getLecturerById(1100L));
         assertNotNull(lecturerDao.getLecturerById(1200L));
 
-        // Add join table entries
-        List<Course> courses = mockDataGeneratorProvider.get().getCourses();
-        courseDao.save(courses);
-        dbInstance.flush();
-
-        List<LecturerIdCourseId> lecturerIdCourseIds = mockDataGeneratorProvider.get().getLecturerIdCourseIds();
-        courseDao.addLecturersById(lecturerIdCourseIds);
-        dbInstance.flush();
-
-        //TODO
-        //CourseDao.getCourse.getLectures...
+        Course course = courseDao.getCourseById(100L);
+        assertNotNull(course);
+        assertEquals(2, course.getLecturers().size());
 
         List<Long> lecturerIds = new LinkedList<>();
         lecturerIds.add(1100L);
@@ -121,18 +129,13 @@ public class LecturerDaoTest extends OlatTestCase {
 
         assertNull(lecturerDao.getLecturerById(1100L));
         assertNull(lecturerDao.getLecturerById(1200L));
+
+        // Check bidirectional deletion
+        assertEquals(0, course.getLecturers().size());
     }
 
     @Test
     public void testGetAllPilotLecturers() {
-        List<Course> courses = mockDataGeneratorProvider.get().getCourses();
-        courseDao.save(courses);
-        dbInstance.flush();
-
-        List<LecturerIdCourseId> lecturerIdCourseIds = mockDataGeneratorProvider.get().getLecturerIdCourseIds();
-        courseDao.addLecturersById(lecturerIdCourseIds);
-        dbInstance.flush();
-
         assertEquals(2, lecturerDao.getAllPilotLecturers().size());
     }
 
