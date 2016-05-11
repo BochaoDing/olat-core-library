@@ -9,7 +9,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 
 import javax.inject.Provider;
-import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -29,6 +28,9 @@ public class CourseDaoTest extends OlatTestCase {
 
     @Autowired
     private CourseDao courseDao;
+
+    @Autowired
+    private LecturerDao lecturerDao;
 
     @Autowired
     private Provider<MockDataGenerator> mockDataGeneratorProvider;
@@ -57,20 +59,112 @@ public class CourseDaoTest extends OlatTestCase {
         assertNotNull(courseDao.getCourseById(100L));
     }
 
-//    @Test
-//    public void testDelete() {
-//        assertNotNull(courseDao.getCourseById(100L));
-//        courseDao.delete(courses.get(0));
-//        assertNull(courseDao.getCourseById(100L));
-//    }
-//
-//    @Test
-//    public void testDeleteByCourseId() {
-//        assertNotNull(courseDao.getCourseById(100L));
-//        courseDao.deleteByCourseId(100L);
-//        transactionManager.getSessionFactory().getCurrentSession().clear();
-//        assertNull(courseDao.getCourseById(100L));
-//    }
+    @Test
+    public void testAddLecturerById() {
+        Course course = courseDao.getCourseById(100L);
+        assertNotNull(course);
+        assertEquals(0, course.getLecturers().size());
+
+        // Insert some lecturers
+        List<Lecturer> lecturers = mockDataGeneratorProvider.get().getLecturers();
+        lecturerDao.save(lecturers);
+        dbInstance.flush();
+        assertNotNull(lecturerDao.getLecturerById(1100L));
+
+        courseDao.addLecturerById(1100L, 100L);
+        dbInstance.flush();
+        dbInstance.getCurrentEntityManager().clear();
+
+        course = courseDao.getCourseById(100L);
+        assertEquals(1, course.getLecturers().size());
+    }
+
+    @Test
+    public void testAddLecturersById() {
+        Course course = courseDao.getCourseById(200L);
+        assertNotNull(course);
+        assertEquals(0, course.getLecturers().size());
+
+        addLecturersToCourses();
+        dbInstance.getCurrentEntityManager().clear();
+
+        course = courseDao.getCourseById(200L);
+        assertEquals(2, course.getLecturers().size());
+    }
+
+    @Test
+    public void testGetPilotCoursesByLecturerId() {
+        addLecturersToCourses();
+
+        List<Course> courses = courseDao.getPilotCoursesByLecturerId(1100L);
+
+        assertNotNull(courses);
+        assertEquals(3, courses.size());
+    }
+
+    @Test
+    public void testGetCreatedCoursesByLecturerIds() {
+        addLecturersToCourses();
+
+        List<Long> lecturerIds = new LinkedList<>();
+        lecturerIds.add(1100L);
+        lecturerIds.add(1200L);
+        List<Course> courses = courseDao.getCreatedCoursesByLecturerIds(lecturerIds);
+
+        assertNotNull(courses);
+        assertEquals(2, courses.size());
+    }
+
+    @Test
+    public void testGetNotCreatedCoursesByLecturerIds() {
+        addLecturersToCourses();
+
+        List<Long> lecturerIds = new LinkedList<>();
+        lecturerIds.add(1100L);
+        List<Course> courses = courseDao.getNotCreatedCoursesByLecturerIds(lecturerIds);
+
+        assertNotNull(courses);
+        assertEquals(1, courses.size());
+
+        // Ditto for lecturer 1200
+        lecturerIds = new LinkedList<>();
+        lecturerIds.add(1200L);
+        courses = courseDao.getNotCreatedCoursesByLecturerIds(lecturerIds);
+
+        assertTrue(courses.isEmpty());
+    }
+
+    @Test
+    public void testDelete() {
+        assertNotNull(courseDao.getCourseById(100L));
+
+        courseDao.delete(courses.get(0));
+        dbInstance.flush();
+        dbInstance.getCurrentEntityManager().clear();
+
+        assertNull(courseDao.getCourseById(100L));
+    }
+
+    @Test
+    public void testDeleteByCourseId() {
+        assertNotNull(courseDao.getCourseById(100L));
+
+        // Add lecturers to courses to check bidirectional deletion
+        addLecturersToCourses();
+        Lecturer lecturer = lecturerDao.getLecturerById(1100L);
+        assertNotNull(lecturer);
+        assertEquals(3, lecturer.getCourses().size());
+
+        courseDao.deleteByCourseId(100L);
+        dbInstance.flush();
+        dbInstance.getCurrentEntityManager().clear();
+
+        assertNull(courseDao.getCourseById(100L));
+        lecturer = lecturerDao.getLecturerById(1100L);
+        assertNotNull(lecturer);
+        assertEquals(2, lecturer.getCourses().size());
+    }
+
 //
 //    @Test
 //    public void testSaveResourceableId() {
@@ -102,16 +196,19 @@ public class CourseDaoTest extends OlatTestCase {
 //        assertNull(updatedCourse.getResourceableId());
 //    }
 //
-//    @Test
-//    public void testDeleteByCourseIds() {
-//        assertEquals(courseDao.getAllCreatedCourses().size(), 2);
-//        List<Long> courseIds = new LinkedList<Long>();
-//        courseIds.add(100L);
-//        courseIds.add(200L);
-//        courseDao.deleteByCourseIds(courseIds);
-//        transactionManager.getSessionFactory().getCurrentSession().clear();
-//        assertEquals(courseDao.getAllCreatedCourses().size(), 0);
-//    }
+    @Test
+    public void testDeleteByCourseIds() {
+        assertEquals(courseDao.getAllCreatedCourses().size(), 2);
+
+        List<Long> courseIds = new LinkedList<>();
+        courseIds.add(100L);
+        courseIds.add(200L);
+        courseDao.deleteByCourseIds(courseIds);
+        dbInstance.flush();
+        dbInstance.getCurrentEntityManager().clear();
+
+        assertEquals(courseDao.getAllCreatedCourses().size(), 0);
+    }
 //
 //    @Test
 //    public void testGetResourceableIdsOfAllCreatedCourses() {
@@ -136,13 +233,14 @@ public class CourseDaoTest extends OlatTestCase {
 //        assertEquals(courseDao.getIdsOfAllNotCreatedCourses().size(), 1);
 //    }
 //
-//    @Test
-//    public void testGetAllCreatedCourses() {
-//        assertEquals(courseDao.getAllCreatedCourses().size(), 2);
-//        courseDao.deleteResourceableId(100L);
-//        transactionManager.getSessionFactory().getCurrentSession().clear();
-//        assertEquals(courseDao.getAllCreatedCourses().size(), 1);
-//    }
+    @Test
+    public void testGetAllCreatedCourses() {
+        assertEquals(courseDao.getAllCreatedCourses().size(), 2);
+        courseDao.deleteByCourseId(100L);
+        dbInstance.flush();
+        dbInstance.getCurrentEntityManager().clear();
+        assertEquals(courseDao.getAllCreatedCourses().size(), 1);
+    }
 //
 //    @Test
 //    public void tesGetAllNotUpdatedCourses() {
@@ -172,5 +270,16 @@ public class CourseDaoTest extends OlatTestCase {
 //
 //    }
 
+    private void addLecturersToCourses() {
+        // Insert some lecturers
+        List<Lecturer> lecturers = mockDataGeneratorProvider.get().getLecturers();
+        lecturerDao.save(lecturers);
+        dbInstance.flush();
+
+        // Add lecturers to courses
+        List<LecturerIdCourseId> lecturerIdCourseIds = mockDataGeneratorProvider.get().getLecturerIdCourseIds();
+        courseDao.addLecturersById(lecturerIdCourseIds);
+        dbInstance.flush();
+    }
 
 }

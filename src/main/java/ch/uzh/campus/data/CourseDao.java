@@ -1,10 +1,10 @@
 package ch.uzh.campus.data;
 
-import java.util.List;
-
 import org.olat.core.commons.persistence.DB;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
+
+import java.util.List;
 
 /**
  * Initial Date: 04.06.2012 <br>
@@ -48,29 +48,26 @@ public class CourseDao implements CampusDao<Course> {
         }
     }
 
-//    public Course updateCourse(Course course) {
-//        return genericDao.update(course);
-//    }
-//
+    public List<Course> getPilotCoursesByLecturerId(Long lecturerId) {
+        return dbInstance.getCurrentEntityManager()
+                .createNamedQuery(Course.GET_PILOT_COURSES_BY_LECTURER_ID, Course.class)
+                .setParameter("lecturerId", lecturerId)
+                .getResultList();
+    }
 
+    public List<Course> getCreatedCoursesByLecturerIds(List<Long> lecturerIds) {
+        return dbInstance.getCurrentEntityManager()
+                .createNamedQuery(Course.GET_CREATED_COURSES_BY_LECTURER_IDS, Course.class)
+                .setParameter("lecturerIds", lecturerIds)
+                .getResultList();
+    }
 
-//    public List<Course> getPilotCoursesByLecturerId(Long lecturerId) {
-//        Map<String, Object> parameters = new HashMap<String, Object>();
-//        parameters.put("lecturerId", lecturerId);
-//        return genericDao.getNamedQueryListResult(Course.GET_PILOT_COURSES_BY_LECTURER_ID, parameters);
-//    }
-//
-//    public List<Course> getCreatedCoursesByLecturerIds(List<Long> lecturerIds) {
-//        Map<String, Object> parameters = new HashMap<String, Object>();
-//        parameters.put("lecturerIds", lecturerIds);
-//        return genericDao.getNamedQueryListResult(Course.GET_CREATED_COURSES_BY_LECTURER_IDS, parameters);
-//    }
-//
-//    public List<Course> getNotCreatedCoursesByLecturerIds(List<Long> lecturerIds) {
-//        Map<String, Object> parameters = new HashMap<String, Object>();
-//        parameters.put("lecturerIds", lecturerIds);
-//        return genericDao.getNamedQueryListResult(Course.GET_NOT_CREATED_COURSES_BY_LECTURER_IDS, parameters);
-//    }
+    public List<Course> getNotCreatedCoursesByLecturerIds(List<Long> lecturerIds) {
+        return dbInstance.getCurrentEntityManager()
+                .createNamedQuery(Course.GET_NOT_CREATED_COURSES_BY_LECTURER_IDS, Course.class)
+                .setParameter("lecturerIds", lecturerIds)
+                .getResultList();
+    }
 //
 //    public List<Course> getPilotCoursesByStudentId(Long studentId) {
 //        Map<String, Object> parameters = new HashMap<String, Object>();
@@ -90,9 +87,9 @@ public class CourseDao implements CampusDao<Course> {
 //        return genericDao.getNamedQueryListResult(Course.GET_NOT_CREATED_COURSES_BY_STUDENT_ID, parameters);
 //    }
 //
-//    public void delete(Course course) {
-//        genericDao.delete(course);
-//    }
+    public void delete(Course course) {
+        dbInstance.deleteObject(course);
+    }
 //
 //    public void saveResourceableId(Long courseId, Long resourceableId) {
 //        Query query = genericDao.getNamedQuery(Course.SAVE_RESOURCEABLE_ID);
@@ -113,18 +110,19 @@ public class CourseDao implements CampusDao<Course> {
 //        query.executeUpdate();
 //    }
 //
-//    public void deleteByCourseId(Long courseId) {
-//        Query query = genericDao.getNamedQuery(Course.DELETE_BY_COURSE_ID);
-//        query.setParameter("courseId", courseId);
-//        query.executeUpdate();
-//    }
-//
-//    public void deleteByCourseIds(List<Long> courseIds) {
-//        Query query = genericDao.getNamedQuery(Course.DELETE_BY_COURSE_IDS);
-//        query.setParameterList("courseIds", courseIds);
-//        query.executeUpdate();
-//    }
-//
+    public int deleteByCourseId(Long courseId) {
+        return dbInstance.getCurrentEntityManager()
+                .createNamedQuery(Course.DELETE_BY_COURSE_ID)
+                .setParameter("courseId", courseId)
+                .executeUpdate();
+    }
+
+    public int deleteByCourseIds(List<Long> courseIds) {
+        return dbInstance.getCurrentEntityManager()
+                .createNamedQuery(Course.DELETE_BY_COURSE_IDS)
+                .setParameter("courseIds", courseIds)
+                .executeUpdate();
+    }
 //    public List<Long> getIdsOfAllCreatedCourses() {
 //        Map<String, Object> parameters = new HashMap<String, Object>();
 //        return genericDao.getNamedQueryEntityIds(Course.GET_IDS_OF_ALL_CREATED_COURSES, parameters);
@@ -140,10 +138,11 @@ public class CourseDao implements CampusDao<Course> {
 //        return genericDao.getNamedQueryEntityIds(Course.GET_IDS_OF_ALL_NOT_CREATED_COURSES, parameters);
 //    }
 //
-//    public List<Course> getAllCreatedCourses() {
-//        Map<String, Object> parameters = new HashMap<String, Object>();
-//        return genericDao.getNamedQueryListResult(Course.GET_ALL_CREATED_COURSES, parameters);
-//    }
+    public List<Course> getAllCreatedCourses() {
+        return dbInstance.getCurrentEntityManager()
+                .createNamedQuery(Course.GET_ALL_CREATED_COURSES, Course.class)
+                .getResultList();
+    }
 //
 //    public List<Long> getAllNotUpdatedCourses(Date date) {
 //        Map<String, Object> parameters = new HashMap<String, Object>();

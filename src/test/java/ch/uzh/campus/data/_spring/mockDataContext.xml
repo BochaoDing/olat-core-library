@@ -49,6 +49,9 @@
     <util:list id = 'courses' scope="prototype" >
         <bean class="ch.uzh.campus.data.Course" p:id="100" p:resourceableId="100" p:shortTitle="shortTitle1" p:title="title1" p:vstNr="vstNr1" p:category="Seminar" p:language="EN" p:vvzLink="link" p:semester="hs" p:shortSemester="HS" p:enabled="1" p:synchronizable="true" p:modifiedDate="10.10.2014 10:10" scope="prototype" />
         <bean class="ch.uzh.campus.data.Course" p:id="200" p:resourceableId="200" p:shortTitle="shortTitle2" p:title="title2" p:vstNr="vstNr2" p:category="Seminar" p:language="EN" p:vvzLink="link" p:semester="hs" p:shortSemester="HS" p:enabled="1" p:synchronizable="true" p:modifiedDate="10.10.2014 10:10" scope="prototype" />
+        <bean class="ch.uzh.campus.data.Course" p:id="300" p:shortTitle="shortTitle3" p:title="title3" p:vstNr="vstNr3" p:category="Seminar" p:language="EN" p:vvzLink="link" p:semester="hs" p:shortSemester="HS" p:enabled="1" p:synchronizable="true" p:modifiedDate="10.10.2014 10:10" scope="prototype">
+            <property name="resourceableId"><null/></property>
+        </bean>
     </util:list>
 
     <!-- ======================================================================================= -->
@@ -82,9 +85,9 @@
     <!-- ======================================================================================= -->
     <util:list id="lecturerIdCourseIds" scope="prototype" >
         <bean id="lecturerIdCourseId1" class="ch.uzh.campus.data.LecturerIdCourseId" p:courseId="100" p:lecturerId="1100" scope="prototype" />
-        <bean id="lecturerIdCourseId2" class="ch.uzh.campus.data.LecturerIdCourseId" p:courseId="100" p:lecturerId="1200" scope="prototype" />
-        <bean id="lecturerIdCourseId3" class="ch.uzh.campus.data.LecturerIdCourseId" p:courseId="200" p:lecturerId="1100" scope="prototype" />
-        <bean id="lecturerIdCourseId4" class="ch.uzh.campus.data.LecturerIdCourseId" p:courseId="200" p:lecturerId="1200" scope="prototype" />
+        <bean id="lecturerIdCourseId2" class="ch.uzh.campus.data.LecturerIdCourseId" p:courseId="200" p:lecturerId="1100" scope="prototype" />
+        <bean id="lecturerIdCourseId3" class="ch.uzh.campus.data.LecturerIdCourseId" p:courseId="200" p:lecturerId="1200" scope="prototype" />
+        <bean id="lecturerIdCourseId4" class="ch.uzh.campus.data.LecturerIdCourseId" p:courseId="300" p:lecturerId="1100" scope="prototype" />
     </util:list>
 
     <!-- ======================================================================================= -->
