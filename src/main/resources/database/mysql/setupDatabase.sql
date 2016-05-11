@@ -2161,7 +2161,7 @@ create table if not exists ck_course (
 	ipz char(1),
 	enabled char(1)  NOT NULL default '0',
 	synchronizable TINYINT(1) NOT NULL default 1,
-	modified_date datetime,
+	modified_date timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 	primary key (id)
 )engine InnoDB;
 
@@ -2171,14 +2171,14 @@ create table if not exists ck_lecturer (
 	last_name varchar(255) not null,
 	email varchar(255) not null,
 	additionalPersonalNrs varchar(255),
-	modified_date datetime,
+	modified_date timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 	primary key (id)
 )engine InnoDB;
 
 create table if not exists ck_lecturer_course (
 	course_id bigint not null,
 	lecturer_id bigint not null,
-	modified_date datetime,
+	modified_date timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 	primary key (course_id, lecturer_id)
 )engine InnoDB;
 
@@ -2188,14 +2188,14 @@ create table if not exists ck_student (
 	first_name varchar(255) not null,
 	last_name varchar(255) not null,
 	email varchar(255) not null,
-	modified_date datetime,
+	modified_date timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 	primary key (id)
 )engine InnoDB;
 
 create table if not exists ck_student_course (
 	course_id bigint not null,
 	student_id bigint not null,
-	modified_date datetime,
+	modified_date timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 	primary key (course_id, student_id)
 )engine InnoDB;
 
@@ -2205,7 +2205,7 @@ create table if not exists ck_event (
 	date date not null,
 	start time not null,
 	end time not null,
-	modified_date datetime,
+	modified_date timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 	primary key (id)
 )engine InnoDB;
 
@@ -2215,7 +2215,7 @@ create table if not exists ck_text (
 	type varchar(255) not null,
 	line_seq bigint not null,
 	line varchar(255) not null,
-	modified_date datetime,
+	modified_date timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 	primary key (id)
 )engine InnoDB;
 
@@ -2223,7 +2223,7 @@ create table if not exists ck_org (
 	id bigint not null,
 	short_name varchar(50) not null,
 	name varchar(255) not null,
-	modified_date datetime,
+	modified_date timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 	primary key (id)
 )engine InnoDB;
 
@@ -2262,7 +2262,7 @@ create table if not exists ck_olat_user (
  	olat_user_name VARCHAR(100),
  	sap_user_type VARCHAR(100),
  	kind_of_mapping VARCHAR(6) NOT NULL default 'MANUAL',
- 	mapping_timestamp timestamp default  CURRENT_TIMESTAMP,
+ 	mapping_timestamp timestamp DEFAULT CURRENT_TIMESTAMP,
     primary key (sap_user_id)
 )engine InnoDB;
 
@@ -2270,7 +2270,7 @@ create table if not exists ck_delegation (
   	id bigint not null  AUTO_INCREMENT,
 	delegator VARCHAR(100) not null,
 	delegatee VARCHAR(100) not null,
-	modified_date timestamp default  CURRENT_TIMESTAMP,
+	modified_date timestamp DEFAULT CURRENT_TIMESTAMP,
 	primary key (id)
 )engine InnoDB;
         

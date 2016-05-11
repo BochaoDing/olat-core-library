@@ -13,9 +13,14 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 /**
  * Initial Date: 04.06.2012 <br>
  * 
+ * The Student and Course have a ManyToMany relationship, this is the composite primary key.
+ * 
+ * @link https://en.wikibooks.org/wiki/Java_Persistence/ManyToMany#Example_of_a_ManyToMany_relationship_database 
+ *  
  * @author aabouc
  * @author lavinia
  */
+@Deprecated//this no more needed since the Course and Student have a @ManyToMany relation
 @SuppressWarnings("serial")
 public class StudentCoursePK implements Serializable {
     

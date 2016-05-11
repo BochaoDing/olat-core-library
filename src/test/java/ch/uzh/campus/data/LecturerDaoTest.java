@@ -8,9 +8,8 @@ import org.olat.test.OlatTestCase;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 
-import java.util.Date;
-import java.util.LinkedList;
-import java.util.List;
+import javax.inject.Provider;
+import java.util.*;
 
 import static org.junit.Assert.*;
 
@@ -30,21 +29,17 @@ public class LecturerDaoTest extends OlatTestCase {
     @Autowired
     private LecturerDao lecturerDao;
 
-    //TODO
-//    @Autowired
-//    private CourseDao courseDao;
-//
-//    @Autowired
-//    private LecturerCourseDao lecturerCourseDao;
+    @Autowired
+    private CourseDao courseDao;
 
     @Autowired
-    private MockDataGenerator mockDataGenerator;
+    private Provider<MockDataGenerator> mockDataGeneratorProvider;
 
     private List<Lecturer> lecturers;
 
     @Before
     public void setup() {
-        lecturers = mockDataGenerator.getLecturers();
+        lecturers = mockDataGeneratorProvider.get().getLecturers();
         lecturerDao.save(lecturers);
         dbInstance.flush();
     }
@@ -56,12 +51,12 @@ public class LecturerDaoTest extends OlatTestCase {
 
     @Test
     public void testNullGetLecturerById() {
-        assertNull(lecturerDao.getLecturerById(999L));
+        assertNull(lecturerDao.getLecturerById(1999L));
     }
 
     @Test
     public void testNotNullGetLecturerById() {
-        assertNotNull(lecturerDao.getLecturerById(100L));
+        assertNotNull(lecturerDao.getLecturerById(1100L));
     }
 
     @Test
@@ -76,48 +71,57 @@ public class LecturerDaoTest extends OlatTestCase {
 
     @Test
     public void testGetAllNotUpdatedLecturers_foundTwoLecturers() {
-        assertEquals(lecturerDao.getAllNotUpdatedLecturers(new Date()).size(), 2);
+        assertEquals(2, lecturerDao.getAllNotUpdatedLecturers(new Date()).size());
     }
 
-//    @Test
-//    public void testGetAllNotUpdatedLecturers_foundOneLecturer() throws InterruptedException {
-//        Date now = new Date();
-//
-//        lecturers.get(0).setModifiedDate(now);
-//        lecturerDao.saveOrUpdate(lecturers);
-//
-//        assertEquals(lecturerDao.getAllNotUpdatedLecturers(now).size(), 1);
-//    }
+    @Test
+    public void testGetAllNotUpdatedLecturers_foundOneLecturer() throws InterruptedException {
+        Calendar now = new GregorianCalendar();
+        // To avoid rounding problems
+        Calendar nowMinusOneSecond = (Calendar) now.clone();
+        nowMinusOneSecond.add(Calendar.SECOND, -1);
+
+        lecturers.get(0).setModifiedDate(now.getTime());
+        dbInstance.flush();
+        assertEquals(1, lecturerDao.getAllNotUpdatedLecturers(nowMinusOneSecond.getTime()).size());
+    }
 
     @Test
     public void testDelete() {
-        assertNotNull(lecturerDao.getLecturerById(100L));
+        assertNotNull(lecturerDao.getLecturerById(1100L));
         lecturerDao.delete(lecturers.get(0));
         dbInstance.flush();
-        assertNull(lecturerDao.getLecturerById(100L));
+        assertNull(lecturerDao.getLecturerById(1100L));
     }
 
-//    @Test
-//    public void testDeleteByLecturerIds() {
-//        assertNotNull(lecturerDao.getLecturerById(100L));
-//        assertNotNull(lecturerDao.getLecturerById(200L));
-//
-//        List<Long> lecturerIds = new LinkedList<Long>();
-//        lecturerIds.add(100L);
-//        lecturerIds.add(200L);
-//
-//        lecturerDao.deleteByLecturerIds(lecturerIds);
-//        transactionManager.getSessionFactory().getCurrentSession().clear();
-//
-//        assertNull(lecturerDao.getLecturerById(100L));
-//        assertNull(lecturerDao.getLecturerById(200L));
-//    }
-//
-//    @Test
-//    public void testGetAllPilotLecturers() {
-//        courseDao.saveOrUpdate(mockDataGenerator.getCourses());
-//        lecturerCourseDao.saveOrUpdate(mockDataGenerator.getLecturerCourses());
-//        assertEquals(lecturerDao.getAllPilotLecturers().size(), 2);
-//    }
+    @Test
+    public void testDeleteByLecturerIds() {
+        assertNotNull(lecturerDao.getLecturerById(1100L));
+        assertNotNull(lecturerDao.getLecturerById(1200L));
+
+        List<Long> lecturerIds = new LinkedList<>();
+        lecturerIds.add(1100L);
+        lecturerIds.add(1200L);
+
+        lecturerDao.deleteByLecturerIds(lecturerIds);
+        dbInstance.flush();
+        dbInstance.getCurrentEntityManager().clear();
+
+        assertNull(lecturerDao.getLecturerById(1100L));
+        assertNull(lecturerDao.getLecturerById(1200L));
+    }
+
+    @Test
+    public void testGetAllPilotLecturers() {
+        List<Course> courses = mockDataGeneratorProvider.get().getCourses();
+        courseDao.save(courses);
+        dbInstance.flush();
+
+        List<Long[]> courseIdsLecturerIds = mockDataGeneratorProvider.get().getCourseIdsLecturerIds();
+        courseDao.addLecturersById(courseIdsLecturerIds);
+        dbInstance.flush();
+
+        assertEquals(2, lecturerDao.getAllPilotLecturers().size());
+    }
 
 }

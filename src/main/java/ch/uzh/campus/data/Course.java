@@ -4,14 +4,7 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.OneToMany;
-import javax.persistence.Table;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
-import javax.persistence.Transient;
+import javax.persistence.*;
 
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
@@ -101,13 +94,21 @@ public class Course {
     @Column(name = "modified_date")
     private Date modifiedDate;
 
-//    @Cascade({ org.hibernate.annotations.CascadeType.DELETE })
-//    @OneToMany(mappedBy = "course")
-//    private Set<CourseLecturer> courseLecturerSet;
+    @ManyToMany(cascade = CascadeType.PERSIST)
+    @JoinTable(name = "ck_lecturer_course",
+            joinColumns = {@JoinColumn(name = "course_id")},
+            inverseJoinColumns = {@JoinColumn(name = "lecturer_id")})
+    private Set<Lecturer> lecturers = new HashSet<>();
 
     //@Cascade({ org.hibernate.annotations.CascadeType.DELETE })
-    @OneToMany(mappedBy = "course")
-    private Set<StudentCourse> courseStudentSet;
+    //@OneToMany(mappedBy = "course")
+    //private Set<StudentCourse> courseStudentSet;
+    
+    @ManyToMany(cascade = CascadeType.PERSIST)
+    @JoinTable(name = "ck_student_course",
+            joinColumns = {@JoinColumn(name = "course_id")},
+            inverseJoinColumns = {@JoinColumn(name = "student_id")})
+    private Set<Student> students = new HashSet<>();
 
 //    @Cascade({ org.hibernate.annotations.CascadeType.DELETE })
 //    @OneToMany(mappedBy = "course")
@@ -313,18 +314,15 @@ public class Course {
         this.modifiedDate = modifiedDate;
     }
 
-//    public Set<CourseLecturer> getCourseLecturerSet() {
-//        return courseLecturerSet;
-//    }
-
-//    public void setCourseLecturerSet(Set<CourseLecturer> courseLecturerSet) {
-//        this.courseLecturerSet = courseLecturerSet;
-//    }
-
-    /*public Set<CourseStudent> getCourseStudentSet() {
-       return courseStudentSet;
+    public Set<Lecturer> getLecturers() {
+        return lecturers;
     }
 
+    public Set<Student> getStudents() {
+       return students;
+    }
+    
+    /*
     public void setCourseStudentSet(Set<CourseStudent> courseStudentSet) {
         this.courseStudentSet = courseStudentSet;
     }*/

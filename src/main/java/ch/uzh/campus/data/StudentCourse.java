@@ -8,6 +8,7 @@ import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.IdClass;
+import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
@@ -21,89 +22,85 @@ import javax.persistence.NamedQuery;
 import javax.persistence.PrimaryKeyJoinColumn;
 
 /**
- * Initial Date: 04.06.2012 <br>
+ * Initial Date: 04.06.2012 <p>
+ * 
+ * The Student and Course have a ManyToMany relationship, the relational join table (ck_student_course) has additional data (modifiedDate).
+ * @link https://en.wikibooks.org/wiki/Java_Persistence/ManyToMany#Example_of_a_ManyToMany_relationship_database 
  * 
  * @author aabouc
  * @author lavinia
  */
-@Entity
-@Table(name = "ck_student_course")
-@IdClass(StudentCoursePK.class)
-@NamedQueries({
+
+//@Entity
+//@Table(name = "ck_student_course")
+//@IdClass(StudentCoursePK.class)
+//@NamedQueries({
         //@NamedQuery(name = StudentCourse.DELETE_STUDENT_BY_COURSE_ID, query = "delete from StudentCourse sc where sc.pk.courseId = :courseId "),
 	//@NamedQuery(name = StudentCourse.DELETE_STUDENTS_BY_COURSE_IDS, query = "delete from StudentCourse sc where sc.pk.courseId in ( :courseIds) "),
 	//@NamedQuery(name = StudentCourse.DELETE_STUDENT_BY_STUDENT_ID, query = "delete from StudentCourse sc where sc.pk.studentId = :studentId "),
 	//@NamedQuery(name = StudentCourse.DELETE_STUDENTS_BY_STUDENT_IDS, query = "delete from StudentCourse sc where sc.pk.studentId in ( :studentIds) "),
-	@NamedQuery(name = StudentCourse.DELETE_ALL_NOT_UPDATED_SC_BOOKING, query = "delete from StudentCourse sc where sc.modifiedDate is not null and sc.modifiedDate < :lastImportDate") })
+//	@NamedQuery(name = StudentCourse.DELETE_ALL_NOT_UPDATED_SC_BOOKING, query = "delete from StudentCourse sc where sc.modifiedDate is not null and sc.modifiedDate < :lastImportDate") })
 public class StudentCourse {
 	
 	//@Id //the @Id could be either on this or on student field.
-	//private long studentId;
+	private Long studentId;
 	
 	//@Id
-	//private long courseId;
+	private Long courseId;
 
-    @Temporal(TemporalType.TIMESTAMP)
-    @Column(name = "modified_date")
-    private Date modifiedDate;
+	//@Temporal(TemporalType.TIMESTAMP)
+	//@Column(name = "modified_date")
+	//private Date modifiedDate;
     
-    @Id
-    @ManyToOne
-    @PrimaryKeyJoinColumn(name="student_id", referencedColumnName="id")    
-    private Student student;
+	//@Id
+	//@ManyToOne
+	//@PrimaryKeyJoinColumn(name="student_id", referencedColumnName="id")    
+	//private Student student;
     
-    @Id
-    @ManyToOne
-    @PrimaryKeyJoinColumn(name="course_id", referencedColumnName="id")    
-    private Course course;
+	//@Id
+	//@ManyToOne
+	//@PrimaryKeyJoinColumn(name="course_id", referencedColumnName="id")    
+	//private Course course;
     
-    public static final String DELETE_STUDENT_BY_COURSE_ID = "deleteStudentByCourseId";
-    public static final String DELETE_STUDENTS_BY_COURSE_IDS = "deleteStudentsByCourseIds";
+	//public static final String DELETE_STUDENT_BY_COURSE_ID = "deleteStudentByCourseId";
+	//public static final String DELETE_STUDENTS_BY_COURSE_IDS = "deleteStudentsByCourseIds";
 
-    public static final String DELETE_STUDENT_BY_STUDENT_ID = "deleteStudentByStudentId";
-    public static final String DELETE_STUDENTS_BY_STUDENT_IDS = "deleteStudentsByStudentIds";
-    public static final String DELETE_ALL_NOT_UPDATED_SC_BOOKING = "deleteAllNotUpdatedSCBooking";
+	//public static final String DELETE_STUDENT_BY_STUDENT_ID = "deleteStudentByStudentId";
+	//public static final String DELETE_STUDENTS_BY_STUDENT_IDS = "deleteStudentsByStudentIds";
+	//public static final String DELETE_ALL_NOT_UPDATED_SC_BOOKING = "deleteAllNotUpdatedSCBooking";
     
         
-    public StudentCourse(Student student, Course course) {
-    	this.student = student;
-    	this.course = course;
+    public StudentCourse(Long studentId, Long courseId) {
+    	this.studentId = studentId;
+    	this.courseId = courseId;
     }
     
     public StudentCourse() {    	
     }
     
-    public Date getModifiedDate() {
-        return modifiedDate;
-    }
-
-    public void setModifiedDate(Date modifiedDate) {
-        this.modifiedDate = modifiedDate;
-    }      
-   
-	
-	public Student getStudent() {
-		return student;
+    
+	public Long getStudentId() {
+		return studentId;
 	}
 
-	public void setStudent(Student student) {
-		this.student = student;
+	public void setStudentId(Long studentId) {
+		this.studentId = studentId;
 	}
 
-	public Course getCourse() {
-		return course;
+	public Long getCourseId() {
+		return courseId;
 	}
 
-	public void setCourse(Course course) {
-		this.course = course;
+	public void setCourseId(Long courseId) {
+		this.courseId = courseId;
 	}
 
 	@Override
     public String toString() {
         ToStringBuilder builder = new ToStringBuilder(this);
         
-        builder.append("student", getStudent());
-        builder.append("course", getCourse());
+        builder.append("studentId", studentId);
+        builder.append("courseId", courseId);
         return builder.toString();
     }
 
@@ -111,10 +108,9 @@ public class StudentCourse {
     public int hashCode() {
         HashCodeBuilder builder = new HashCodeBuilder(1239, 5475);
         
-        builder.append(student.hashCode());
-        builder.append(course.hashCode());
-        builder.append(modifiedDate);
-
+        builder.append(studentId);
+        builder.append(courseId);
+        
         return builder.toHashCode();
     }
 
@@ -128,10 +124,9 @@ public class StudentCourse {
         StudentCourse theOther = (StudentCourse) obj;
         EqualsBuilder builder = new EqualsBuilder();
                 
-        builder.append(this.student.getId(), theOther.student.getId());
-        builder.append(this.course.getId(), theOther.course.getId());
-        builder.append(this.modifiedDate, theOther.modifiedDate);
-
+        builder.append(this.studentId, theOther.studentId);
+        builder.append(this.courseId, theOther.courseId);
+       
         return builder.isEquals();
     }
 

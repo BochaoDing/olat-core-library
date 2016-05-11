@@ -193,7 +193,7 @@
 	<bean id='student' class ='ch.uzh.campus.data.Student' scope="prototype" />
 	
 	<!-- ======================================================================================= -->
-	<!-- ==============lecturer(Reader, Writer, Processor, Entity, Dao)================== -->  
+	<!-- ==============lecturer(Reader, Writer, Processor, Entity, Dao)================== -->
 	<!-- ======================================================================================= -->  
 	<bean id="lecturerReader" parent="campusReader" scope="step">
 		<property name="resource" value="#{jobParameters['lecturerResource']}" />
@@ -277,7 +277,7 @@
 				</property>
 				<property name="fieldSetMapper" >
 					<bean parent="fieldSetMapper">
-						<property name="prototypeBeanName" value="studentCoursePK" />
+						<property name="prototypeBeanName" value="studentCourse" />
 					</bean>
 				</property>
 			</bean>
@@ -292,10 +292,10 @@
 	
 	<bean id="studentCourseDao" class="ch.uzh.campus.data.StudentCourseDao"/>
 	
-	<bean id='studentCoursePK' class ='ch.uzh.campus.data.StudentCoursePK'  scope="prototype" />
+	<bean id='studentCourse' class ='ch.uzh.campus.data.StudentCourse'  scope="prototype" />
 	
 	<!-- ======================================================================================= -->
-	<!-- ==============BUCHUNG:lecturer-KURS(Reader, Writer, Processor, Entity, Dao)================== -->  
+	<!-- ==============BUCHUNG:lecturer-KURS(Reader, Writer, Processor, Entity, Dao)================== -->
 	<!-- ======================================================================================= -->  	
 	<bean id="lecturerCourseReader" parent="campusReader" scope="step">
 		<property name="resource" value="#{jobParameters['lecturerCourseResource']}" />
@@ -308,22 +308,18 @@
 				</property>
 				<property name="fieldSetMapper" >
 					<bean parent="fieldSetMapper">
-						<property name="prototypeBeanName" value="lecturerCoursePK" />
+						<property name="prototypeBeanName" value="lecturerIdCourseId" />
 					</bean>
 				</property>
 			</bean>
 		</property>
 	</bean>
  
-	<bean id="lecturerCourseWriter" class="ch.uzh.campus.connectors.CampusWriter" scope="step">
-		<property name="campuskursDao" ref="lecturerCourseDao" />
-	</bean>
+	<bean id="lecturerCourseWriter" class="ch.uzh.campus.connectors.LecturerIdCourseIdWriter" scope="step"/>
 
 	<bean id="lecturerCourseProcessor" class="ch.uzh.campus.connectors.LecturerCourseProcessor" scope="step"/>
 	
-	<bean id="lecturerCourseDao" class="ch.uzh.campus.data.LecturerCourseDao"/>
-	
-	<bean id='lecturerCoursePK' class ='ch.uzh.campus.data.LecturerCourseId' scope="prototype" />
+	<bean id='lecturerIdCourseId' class ='ch.uzh.campus.data.LecturerIdCourseId' scope="prototype" />
 	
 	<!-- ======================================================================================= -->
 	<!-- ==============BUCHUNG:KURS-TEXTE(Reader, Writer, Processor, Entity, Dao)================== -->  

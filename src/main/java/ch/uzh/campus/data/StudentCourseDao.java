@@ -15,6 +15,7 @@ import org.springframework.stereotype.Repository;
  * @author aabouc
  * @author lavinia
  */
+
 @Repository
 public class StudentCourseDao implements CampusDao<StudentCourse> {
 
@@ -24,18 +25,20 @@ public class StudentCourseDao implements CampusDao<StudentCourse> {
     @Override
     public void save(List<StudentCourse> studentCourses) {
       for (StudentCourse studentCourse : studentCourses) {
-	     dbInstance.saveObject(studentCourse);
+    	  Course course = dbInstance.getCurrentEntityManager().getReference(Course.class, studentCourse.getCourseId());
+          Student student = dbInstance.getCurrentEntityManager().getReference(Student.class, studentCourse.getStudentId());
+          course.getStudents().add(student);
+          student.getCourses().add(course);
+          dbInstance.saveObject(course);   	 
 	  }
     }
    
-    public List<StudentCourse> getAllSudentCourses() {
-        //return genericDao.findAll();
-    	return (List<StudentCourse>)dbInstance.find("from StudentCourse");
-    }
-    
-    public void delete(StudentCourse studentCourse) {
-        //genericDao.delete(studentCourse);
-    	dbInstance.deleteObject(studentCourse);
+       
+    public void delete(StudentCourse studentCourse) {           	
+    	Course course = dbInstance.getCurrentEntityManager().getReference(Course.class, studentCourse.getCourseId());
+        Student student = dbInstance.getCurrentEntityManager().getReference(Student.class, studentCourse.getStudentId());
+        course.getStudents().remove(student);
+        student.getCourses().remove(course);
     }
     
     /*

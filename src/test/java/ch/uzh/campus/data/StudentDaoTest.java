@@ -8,6 +8,8 @@ import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 
+import javax.inject.Provider;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -41,14 +43,14 @@ public class StudentDaoTest extends OlatTestCase {
     private StudentCourseDao studentCourseDao;
 
     @Autowired
-    private MockDataGenerator mockDataGenerator;
+    private Provider<MockDataGenerator> mockDataGeneratorProvider;
 
     private List<Student> students;
     
 
     @Before
     public void setup() {
-        students = mockDataGenerator.getStudents();
+        students = mockDataGeneratorProvider.get().getStudents();
         studentDao.save(students);
         dbInstance.flush();
     }
@@ -139,9 +141,9 @@ public class StudentDaoTest extends OlatTestCase {
       
 
     @Test
-    public void testGetAllPilotStudents() {
-        courseDao.save(mockDataGenerator.getCourses());    	
-        studentCourseDao.save(mockDataGenerator.getStudentCourses());
+    public void testGetAllPilotStudents() {    	
+        courseDao.save(mockDataGeneratorProvider.get().getCourses());    	
+        studentCourseDao.save(mockDataGeneratorProvider.get().getStudentCourses());
         assertEquals(studentDao.getAllPilotStudents().size(), 2);
     }
 }

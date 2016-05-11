@@ -8,6 +8,7 @@ import org.olat.test.OlatTestCase;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 
+import javax.inject.Provider;
 import java.util.*;
 
 import static org.junit.Assert.assertEquals;
@@ -27,13 +28,13 @@ public class OrgDaoTest extends OlatTestCase {
     private OrgDao orgDao;
 
     @Autowired
-    private MockDataGenerator mockDataGenerator;
+    private Provider<MockDataGenerator> mockDataGeneratorProvider;
 
     private List<Org> orgs;
 
     @Before
     public void setup() {
-    	orgs = mockDataGenerator.getOrgs();
+    	orgs = mockDataGeneratorProvider.get().getOrgs();
     	assertTrue(orgs.size() >= 2);
     	assertEquals(0, orgs.size()%2);
     }
@@ -50,7 +51,6 @@ public class OrgDaoTest extends OlatTestCase {
 
     @Test
     public void testGetIdsOfAllEnabledOrgs_foundTwoOrgs() {
-        orgs = mockDataGenerator.getOrgs();
         orgDao.save(orgs);
         dbInstance.flush();
         assertEquals(2, orgDao.getIdsOfAllEnabledOrgs().size());
@@ -63,7 +63,6 @@ public class OrgDaoTest extends OlatTestCase {
 
     @Test
     public void testGetAllNotUpdatedOrgs_foundOneOrg() {
-        orgs = mockDataGenerator.getOrgs();
         orgDao.save(orgs);
         dbInstance.flush();
 
@@ -79,7 +78,6 @@ public class OrgDaoTest extends OlatTestCase {
 
     @Test
     public void testDeleteByOrgIds() {
-        orgs = mockDataGenerator.getOrgs();
         orgDao.save(orgs);
         dbInstance.flush();
         assertEquals(2, orgDao.getIdsOfAllEnabledOrgs().size());

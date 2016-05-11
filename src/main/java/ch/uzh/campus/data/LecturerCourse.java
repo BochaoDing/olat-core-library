@@ -4,8 +4,6 @@ import java.util.Date;
 
 import javax.persistence.*;
 
-import org.apache.commons.lang.builder.EqualsBuilder;
-import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 
 
@@ -14,35 +12,38 @@ import org.apache.commons.lang.builder.ToStringBuilder;
  * 
  * @author aabouc
  */
+@Deprecated
 @Entity
 @Table(name = "ck_lecturer_course")
-@IdClass(LecturerCourseId.class)
-//@NamedQueries({ @NamedQuery(name = LecturerCourse.DELETE_LECTURER_BY_COURSE_ID, query = "delete from LecturerCourse lc where lc.pk.courseId = :courseId "),
-//        @NamedQuery(name = LecturerCourse.DELETE_LECTURERS_BY_COURSE_IDS, query = "delete from LecturerCourse lc where lc.pk.courseId in :courseIds"),
-//        @NamedQuery(name = LecturerCourse.DELETE_LECTURER_BY_LECTURER_ID, query = "delete from LecturerCourse lc where lc.pk.lecturerId = :lecturerId "),
-//        @NamedQuery(name = LecturerCourse.DELETE_LECTURERS_BY_LECTURER_IDS, query = "delete from LecturerCourse lc where lc.pk.lecturerId in :lecturerIds"),
-//        @NamedQuery(name = LecturerCourse.DELETE_ALL_NOT_UPDATED_LC_BOOKING, query = "delete from LecturerCourse lc where lc.modifiedDate < :lastImportDate") })
+@IdClass(LecturerIdCourseId.class)
+@NamedQueries({
+        @NamedQuery(name = LecturerCourse.GET_ALL_LECTURER_COURSES, query = "select lc from LecturerCourse lc"),
+        @NamedQuery(name = LecturerCourse.DELETE_LECTURER_COURSE_BY_COURSE_ID, query = "delete from LecturerCourse lc where lc.course.id = :courseId "),
+        @NamedQuery(name = LecturerCourse.DELETE_LECTURER_COURSES_BY_COURSE_IDS, query = "delete from LecturerCourse lc where lc.course.id in :courseIds"),
+        @NamedQuery(name = LecturerCourse.DELETE_LECTURER_COURSE_BY_LECTURER_ID, query = "delete from LecturerCourse lc where lc.lecturer.personalNr = :lecturerId "),
+        @NamedQuery(name = LecturerCourse.DELETE_LECTURER_COURSES_BY_LECTURER_IDS, query = "delete from LecturerCourse lc where lc.lecturer.personalNr in :lecturerIds"),
+        @NamedQuery(name = LecturerCourse.DELETE_ALL_NOT_UPDATED_LC_BOOKING, query = "delete from LecturerCourse lc where lc.modifiedDate < :lastImportDate") })
 public class LecturerCourse {
 
     @Id
     @ManyToOne(optional = false)
-    @JoinColumn(name = "lecturer_id")
+    @PrimaryKeyJoinColumn(name="lecturer_id", referencedColumnName="id")
     private Lecturer lecturer;
 
     @Id
     @ManyToOne(optional = false)
-    @JoinColumn(name = "course_id")
+    @PrimaryKeyJoinColumn(name="course_id", referencedColumnName="id")
     private Course course;
 
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "modified_date")
     private Date modifiedDate;
 
-    public static final String DELETE_LECTURER_BY_COURSE_ID = "deleteLecturerByCourseId";
-    public static final String DELETE_LECTURERS_BY_COURSE_IDS = "deleteLecturersByCourseIds";
-
-    public static final String DELETE_LECTURER_BY_LECTURER_ID = "deleteLecturerByLecturerId";
-    public static final String DELETE_LECTURERS_BY_LECTURER_IDS = "deleteLecturersByLecturerIds";
+    public static final String GET_ALL_LECTURER_COURSES ="getAllLecturerCourses";
+    public static final String DELETE_LECTURER_COURSE_BY_COURSE_ID = "deleteLecturerCourseByCourseId";
+    public static final String DELETE_LECTURER_COURSES_BY_COURSE_IDS = "deleteLecturerCoursesByCourseIds";
+    public static final String DELETE_LECTURER_COURSE_BY_LECTURER_ID = "deleteLecturerCourseByLecturerId";
+    public static final String DELETE_LECTURER_COURSES_BY_LECTURER_IDS = "deleteLecturerCoursesByLecturerIds";
     public static final String DELETE_ALL_NOT_UPDATED_LC_BOOKING = "deleteAllNotUpdatedLCBooking";
 
     public LecturerCourse() {
