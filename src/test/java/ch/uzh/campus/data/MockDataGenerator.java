@@ -1,5 +1,8 @@
 package ch.uzh.campus.data;
 
+import org.springframework.stereotype.Component;
+import org.springframework.test.context.ContextConfiguration;
+
 import java.util.List;
 import java.util.Set;
 
@@ -7,6 +10,7 @@ import java.util.Set;
  * @author aabouc
  * @author Martin Schraner
  */
+@ContextConfiguration(locations = {"classpath:ch/uzh/campus/data/_spring/mockDataContext.xml"})
 public class MockDataGenerator {
 
     private List<Org> orgs;
