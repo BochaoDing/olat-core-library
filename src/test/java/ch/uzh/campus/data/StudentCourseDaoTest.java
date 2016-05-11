@@ -52,18 +52,21 @@ public class StudentCourseDaoTest extends OlatTestCase {
     public void after() {
     	dbInstance.rollback();
     }
-
-    @Test
-    public void testGetAllSudentCourses() {
-        assertEquals( 4, studentCourseDao.getAllSudentCourses().size());
-    }
+    
     
     @Test
-    public void testDelete() {
-        List<StudentCourse> studentCourses = studentCourseDao.getAllSudentCourses();
+    public void testDelete() {        
         assertEquals(studentCourses.size(), 4);
-        studentCourseDao.delete(studentCourses.get(0));
-        assertEquals(studentCourseDao.getAllSudentCourses().size(), 3);
+               
+        List<Student> students = mockDataGenerator.getStudents();
+        Student student = students.get(0);
+        assertEquals(2,student.getCourses().size());
+        for(StudentCourse studentCourse:studentCourses) {
+        	if(student.getId().equals(studentCourse.getStudentId())) {
+        	  studentCourseDao.delete(studentCourse);
+        	}
+        }
+        assertEquals(0,student.getCourses().size());        
     }
     /*
     @Test

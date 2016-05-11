@@ -20,10 +20,8 @@
  */
 package ch.uzh.campus.connectors;
 
-import java.util.Date;
-
 import ch.uzh.campus.data.StudentCourse;
-import ch.uzh.campus.data.StudentCoursePK;
+
 import org.springframework.batch.item.ItemProcessor;
 
 /**
@@ -34,22 +32,13 @@ import org.springframework.batch.item.ItemProcessor;
  * 
  * @author aabouc
  */
-public class StudentCourseProcessor implements ItemProcessor<StudentCoursePK, StudentCourse> {
+public class StudentCourseProcessor implements ItemProcessor<StudentCourse, StudentCourse> {
 
     /**
-     * Converts the input item StudentCoursePK to the output item StudentCourse
-     * 
-     * @param pk
-     *            the StudentCoursePK
-     * 
-     * @return the StudentCourse
+     * No need to do anything.
      */
-    public StudentCourse process(StudentCoursePK pk) throws Exception {
-    	//TODO: Course course = entityManager.getReference(Course.class, pk.getStudentId()); //TODO: move this to a DAO
-    	//StudentCourse studentCourse = new StudentCourse(pk.getStudentId(), pk.getCourseId());
-    	//studentCourse.setModifiedDate(new Date());
-    	//return studentCourse;
-    	return new StudentCourse();
+    public StudentCourse process(StudentCourse studentCourse) throws Exception {    	
+    	return studentCourse;    	
     }
 
 }

@@ -277,7 +277,7 @@
 				</property>
 				<property name="fieldSetMapper" >
 					<bean parent="fieldSetMapper">
-						<property name="prototypeBeanName" value="studentCoursePK" />
+						<property name="prototypeBeanName" value="studentCourse" />
 					</bean>
 				</property>
 			</bean>
@@ -292,7 +292,7 @@
 	
 	<bean id="studentCourseDao" class="ch.uzh.campus.data.StudentCourseDao"/>
 	
-	<bean id='studentCoursePK' class ='ch.uzh.campus.data.StudentCoursePK'  scope="prototype" />
+	<bean id='studentCourse' class ='ch.uzh.campus.data.StudentCourse'  scope="prototype" />
 	
 	<!-- ======================================================================================= -->
 	<!-- ==============BUCHUNG:lecturer-KURS(Reader, Writer, Processor, Entity, Dao)================== -->
