@@ -112,12 +112,12 @@ public class CourseDao implements CampusDao<Course> {
 		.executeUpdate();
     }
 
-//    public void deleteResourceableId(Long resourceableId) {
-//        Query query = genericDao.getNamedQuery(Course.DELETE_RESOURCEABLE_ID);
-//        query.setParameter("resId", resourceableId);
-//        query.executeUpdate();
-//    }
-//
+    public void deleteResourceableId(Long resourceableId) {                
+        dbInstance.getCurrentEntityManager().createNamedQuery(Course.DELETE_RESOURCEABLE_ID)
+		.setParameter("resId", resourceableId)		
+		.executeUpdate();
+    }
+
     public int deleteByCourseId(Long courseId) {
         return dbInstance.getCurrentEntityManager()
                 .createNamedQuery(Course.DELETE_BY_COURSE_ID)
@@ -131,16 +131,19 @@ public class CourseDao implements CampusDao<Course> {
                 .setParameter("courseIds", courseIds)
                 .executeUpdate();
     }
-//    public List<Long> getIdsOfAllCreatedCourses() {
-//        Map<String, Object> parameters = new HashMap<String, Object>();
-//        return genericDao.getNamedQueryEntityIds(Course.GET_IDS_OF_ALL_CREATED_COURSES, parameters);
-//    }
-//
-//    public List<Long> getResourceableIdsOfAllCreatedCourses() {
-//        Map<String, Object> parameters = new HashMap<String, Object>();
-//        return genericDao.getNamedQueryEntityIds(Course.GET_RESOURCEABLEIDS_OF_ALL_CREATED_COURSES, parameters);
-//    }
-//
+    
+    public List<Long> getIdsOfAllCreatedCourses() {               
+        return dbInstance.getCurrentEntityManager()
+                .createNamedQuery(Course.GET_IDS_OF_ALL_CREATED_COURSES, Long.class)                			
+                .getResultList();
+    }
+
+    public List<Long> getResourceableIdsOfAllCreatedCourses() {  
+        return dbInstance.getCurrentEntityManager()
+                .createNamedQuery(Course.GET_RESOURCEABLEIDS_OF_ALL_CREATED_COURSES, Long.class)                			
+                .getResultList();
+    }
+
 //    public List<Long> getIdsOfAllNotCreatedCourses() {
 //        Map<String, Object> parameters = new HashMap<String, Object>();
 //        return genericDao.getNamedQueryEntityIds(Course.GET_IDS_OF_ALL_NOT_CREATED_COURSES, parameters);

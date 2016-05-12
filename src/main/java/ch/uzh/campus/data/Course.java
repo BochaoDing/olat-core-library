@@ -15,14 +15,15 @@ import org.apache.commons.lang.builder.ToStringBuilder;
  * Initial Date: 04.06.2012 <br>
  * 
  * @author aabouc
+ * @author lavinia
  */
 @Entity
 @NamedQueries({
         @NamedQuery(name = Course.GET_ALL_CREATED_COURSES, query = "select c from Course c  where c.resourceableId is not null and c.shortSemester= (select max(c2.shortSemester) from Course c2)"),
-//        @NamedQuery(name = Course.GET_IDS_OF_ALL_CREATED_COURSES, query = "select id from Course c where c.resourceableId is not null and c.synchronizable = true and c.shortSemester= (select max(c2.shortSemester) from Course c2)"),
-//        @NamedQuery(name = Course.GET_RESOURCEABLEIDS_OF_ALL_CREATED_COURSES, query = "select resourceableId from Course c where c.resourceableId is not null"),
+        @NamedQuery(name = Course.GET_IDS_OF_ALL_CREATED_COURSES, query = "select distinct id from Course c where c.resourceableId is not null and c.synchronizable = true and c.shortSemester= (select max(c2.shortSemester) from Course c2)"),
+        @NamedQuery(name = Course.GET_RESOURCEABLEIDS_OF_ALL_CREATED_COURSES, query = "select distinct resourceableId from Course c where c.resourceableId is not null"),
 //        @NamedQuery(name = Course.GET_IDS_OF_ALL_NOT_CREATED_COURSES, query = "select id from Course c where c.resourceableId is null and c.enabled = '1' and c.shortSemester= (select max(c2.shortSemester) from Course c2)"),
-//        @NamedQuery(name = Course.DELETE_RESOURCEABLE_ID, query = "update Course c set c.resourceableId = null where c.resourceableId= :resId"),
+        @NamedQuery(name = Course.DELETE_RESOURCEABLE_ID, query = "update Course c set c.resourceableId = null where c.resourceableId= :resId"),
         @NamedQuery(name = Course.DELETE_BY_COURSE_ID, query = "delete from Course c where c.id = :courseId"),
         @NamedQuery(name = Course.DELETE_BY_COURSE_IDS, query = "delete from Course c where c.id in :courseIds"),
         @NamedQuery(name = Course.SAVE_RESOURCEABLE_ID, query = "update Course c set c.resourceableId = :resId where c.id= :courseId"),
@@ -100,11 +101,7 @@ public class Course {
             joinColumns = {@JoinColumn(name = "course_id")},
             inverseJoinColumns = {@JoinColumn(name = "lecturer_id")})
     private Set<Lecturer> lecturers = new HashSet<>();
-
-    //@Cascade({ org.hibernate.annotations.CascadeType.DELETE })
-    //@OneToMany(mappedBy = "course")
-    //private Set<StudentCourse> courseStudentSet;
-    
+  
     @ManyToMany(cascade = CascadeType.PERSIST)
     @JoinTable(name = "ck_student_course",
             joinColumns = {@JoinColumn(name = "course_id")},
@@ -323,10 +320,7 @@ public class Course {
        return students;
     }
     
-    /*
-    public void setCourseStudentSet(Set<CourseStudent> courseStudentSet) {
-        this.courseStudentSet = courseStudentSet;
-    }*/
+   
 //
 //    public Set<Event> getEvents() {
 //        return events;

@@ -19,6 +19,7 @@ import static org.junit.Assert.*;
  *
  * @author aabouc
  * @author Martin Schraner
+ * @author lavinia
  */
 @ContextConfiguration(locations = {"classpath:ch/uzh/campus/data/_spring/mockDataContext.xml"})
 public class CourseDaoTest extends OlatTestCase {
@@ -196,16 +197,18 @@ public class CourseDaoTest extends OlatTestCase {
         assertFalse(updatedCourse.isSynchronizable());
     }
 
-//    @Test
-//    public void testDeleteResourceableId() {
-//        Course course = courseDao.getCourseById(100L);
-//        assertEquals(course.getResourceableId().longValue(), 100L);
-//        courseDao.deleteResourceableId(100L);
-//        transactionManager.getSessionFactory().getCurrentSession().clear();
-//        Course updatedCourse = courseDao.getCourseById(100L);
-//        assertNull(updatedCourse.getResourceableId());
-//    }
-//
+    @Test
+    public void testDeleteResourceableId() {
+        Course course = courseDao.getCourseById(100L);
+        assertEquals(course.getResourceableId().longValue(), 100L);
+        
+        courseDao.deleteResourceableId(100L);
+        dbInstance.getCurrentEntityManager().clear();
+        
+        Course updatedCourse = courseDao.getCourseById(100L);
+        assertNull(updatedCourse.getResourceableId());
+    }
+
     @Test
     public void testDeleteByCourseIds() {
         assertEquals(courseDao.getAllCreatedCourses().size(), 2);
@@ -219,22 +222,24 @@ public class CourseDaoTest extends OlatTestCase {
 
         assertEquals(courseDao.getAllCreatedCourses().size(), 0);
     }
-//
-//    @Test
-//    public void testGetResourceableIdsOfAllCreatedCourses() {
-//        List<Long> resourceableIdsOfAllCreatedCourses = courseDao.getResourceableIdsOfAllCreatedCourses();
-//        assertTrue(resourceableIdsOfAllCreatedCourses.contains(100L));
-//        assertFalse(resourceableIdsOfAllCreatedCourses.contains(999L));
-//    }
-//
-//    @Test
-//    public void testGetIdsOfAllCreatedCourses() {
-//        assertEquals(courseDao.getAllCreatedCourses().size(), 2);
-//        courseDao.deleteResourceableId(100L);
-//        transactionManager.getSessionFactory().getCurrentSession().clear();
-//        assertEquals(courseDao.getAllCreatedCourses().size(), 1);
-//    }
-//
+
+    @Test
+    public void testGetResourceableIdsOfAllCreatedCourses() {
+        List<Long> resourceableIdsOfAllCreatedCourses = courseDao.getResourceableIdsOfAllCreatedCourses();
+        assertTrue(resourceableIdsOfAllCreatedCourses.contains(100L));
+        assertFalse(resourceableIdsOfAllCreatedCourses.contains(999L));
+    }
+
+    @Test
+    public void testGetIdsOfAllCreatedCourses() {
+        assertEquals(courseDao.getAllCreatedCourses().size(), 2);
+        courseDao.deleteResourceableId(100L);
+        
+        dbInstance.getCurrentEntityManager().clear();
+        
+        assertEquals(courseDao.getAllCreatedCourses().size(), 1);
+    }
+
 //    @Test
 //    public void testGetIdsOfAllNotCreatedCourses() {
 //        assertEquals(courseDao.getIdsOfAllNotCreatedCourses().size(), 0);
