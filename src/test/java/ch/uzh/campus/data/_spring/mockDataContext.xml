@@ -61,6 +61,7 @@
         <bean class="ch.uzh.campus.data.StudentCourse"  p:courseId="100" p:studentId="200" scope="prototype" />
         <bean class="ch.uzh.campus.data.StudentCourse"  p:courseId="200" p:studentId="100" scope="prototype" />
         <bean class="ch.uzh.campus.data.StudentCourse"  p:courseId="200" p:studentId="200" scope="prototype" />
+        <bean class="ch.uzh.campus.data.StudentCourse"  p:courseId="300" p:studentId="100" scope="prototype" />
     </util:list>
       
 

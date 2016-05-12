@@ -88,12 +88,13 @@ public class CourseDao implements CampusDao<Course> {
                 .getResultList(); 
     }
 
-//    public List<Course> getNotCreatedCoursesByStudentId(Long studentId) {
-//        Map<String, Object> parameters = new HashMap<String, Object>();
-//        parameters.put("studentId", studentId);
-//        return genericDao.getNamedQueryListResult(Course.GET_NOT_CREATED_COURSES_BY_STUDENT_ID, parameters);
-//    }
-//
+    public List<Course> getNotCreatedCoursesByStudentId(Long studentId) {       
+        return dbInstance.getCurrentEntityManager()
+                .createNamedQuery(Course.GET_NOT_CREATED_COURSES_BY_STUDENT_ID, Course.class)
+                .setParameter("studentId", studentId)
+                .getResultList(); 
+    }
+
     public void delete(Course course) {
         dbInstance.deleteObject(course);
     }

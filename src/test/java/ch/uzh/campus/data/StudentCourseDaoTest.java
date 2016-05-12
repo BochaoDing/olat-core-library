@@ -56,11 +56,12 @@ public class StudentCourseDaoTest extends OlatTestCase {
     
     @Test
     public void testDelete() {        
-        assertEquals(studentCourses.size(), 4);
+        assertEquals(studentCourses.size(), 5);
                
         List<Student> students = mockDataGenerator.getStudents();
-        Student student = students.get(0);
-        assertEquals(2,student.getCourses().size());
+        Student student = students.get(0);//with id 100
+        assertEquals(3,student.getCourses().size());
+        
         for(StudentCourse studentCourse:studentCourses) {
         	if(student.getId().equals(studentCourse.getStudentId())) {
         	  studentCourseDao.delete(studentCourse);

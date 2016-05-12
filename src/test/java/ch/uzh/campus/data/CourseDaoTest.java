@@ -307,4 +307,18 @@ public class CourseDaoTest extends OlatTestCase {
     	List<Course> courses = courseDao.getCreatedCoursesByStudentId(100L);
     	assertEquals(2, courses.size());
     }
+    
+    @Test
+    public void testGetNotCreatedCoursesByStudentId_noneFound() {
+    	MockDataGenerator mockDataGenerator = mockDataGeneratorProvider.get();
+    	
+    	List<Student> students = mockDataGenerator.getStudents();
+    	studentDao.save(students);
+    	
+    	List<StudentCourse> studentCourses = mockDataGenerator.getStudentCourses();
+    	studentCourseDao.save(studentCourses);
+    	    	
+    	List<Course> courses = courseDao.getNotCreatedCoursesByStudentId(100L);
+    	assertEquals(1, courses.size());
+    }
 }
