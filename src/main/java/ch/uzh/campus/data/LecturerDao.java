@@ -26,6 +26,24 @@ public class LecturerDao implements CampusDao<Lecturer> {
         }
     }
 
+    public void addLecturerToCourse(Long lecturerId, Long courseId) {
+        Lecturer lecturer = dbInstance.getCurrentEntityManager().getReference(Lecturer.class, lecturerId);
+        Course course = dbInstance.getCurrentEntityManager().getReference(Course.class, courseId);
+        lecturer.getCourses().add(course);
+        course.getLecturers().add(lecturer);
+        dbInstance.saveObject(course);
+    }
+
+    public void addLecturerToCourse(LecturerIdCourseId lecturerIdCourseId) {
+        addLecturerToCourse(lecturerIdCourseId.getLecturerId(), lecturerIdCourseId.getCourseId());
+    }
+
+    public void addLecturersToCourse(List<LecturerIdCourseId> lecturerIdCourseIds) {
+        for (LecturerIdCourseId lecturerIdCourseId : lecturerIdCourseIds) {
+            addLecturerToCourse(lecturerIdCourseId.getLecturerId(), lecturerIdCourseId.getCourseId());
+        }
+    }
+
     public Lecturer getLecturerById(Long id) {
         return dbInstance.findObject(Lecturer.class, id);
     }

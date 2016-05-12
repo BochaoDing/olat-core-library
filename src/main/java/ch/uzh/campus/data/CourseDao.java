@@ -31,24 +31,6 @@ public class CourseDao implements CampusDao<Course> {
         return dbInstance.findObject(Course.class, id);
     }
 
-    public void addLecturerById(Long lecturerId, Long courseId) {
-        Lecturer lecturer = dbInstance.getCurrentEntityManager().getReference(Lecturer.class, lecturerId);
-        Course course = dbInstance.getCurrentEntityManager().getReference(Course.class, courseId);
-        lecturer.getCourses().add(course);
-        course.getLecturers().add(lecturer);
-        dbInstance.saveObject(course);
-    }
-
-    public void addLecturerById(LecturerIdCourseId lecturerIdCourseId) {
-        addLecturerById(lecturerIdCourseId.getLecturerId(), lecturerIdCourseId.getCourseId());
-    }
-
-    public void addLecturersById(List<LecturerIdCourseId> lecturerIdCourseIds) {
-        for (LecturerIdCourseId lecturerIdCourseId : lecturerIdCourseIds) {
-            addLecturerById(lecturerIdCourseId.getLecturerId(), lecturerIdCourseId.getCourseId());
-        }
-    }
-
     public List<Course> getPilotCoursesByLecturerId(Long lecturerId) {
         return dbInstance.getCurrentEntityManager()
                 .createNamedQuery(Course.GET_PILOT_COURSES_BY_LECTURER_ID, Course.class)

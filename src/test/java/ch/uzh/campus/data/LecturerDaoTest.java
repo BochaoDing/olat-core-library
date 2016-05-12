@@ -48,16 +48,40 @@ public class LecturerDaoTest extends OlatTestCase {
         List<Course> courses = mockDataGeneratorProvider.get().getCourses();
         courseDao.save(courses);
         dbInstance.flush();
-
-        // Add the lecturers to these courses
-        List<LecturerIdCourseId> lecturerIdCourseIds = mockDataGeneratorProvider.get().getLecturerIdCourseIds();
-        courseDao.addLecturersById(lecturerIdCourseIds);
-        dbInstance.flush();
     }
 
     @After
     public void after() {
         dbInstance.rollback();
+    }
+
+    @Test
+    public void testAddLecturerToCourse() {
+        Course course = courseDao.getCourseById(100L);
+        assertNotNull(course);
+        assertEquals(0, course.getLecturers().size());
+        assertNotNull(lecturerDao.getLecturerById(1100L));
+
+        // Add a lecturer
+        lecturerDao.addLecturerToCourse(1100L, 100L);
+        dbInstance.flush();
+        dbInstance.getCurrentEntityManager().clear();
+
+        course = courseDao.getCourseById(100L);
+        assertEquals(1, course.getLecturers().size());
+    }
+
+    @Test
+    public void testAddLecturersToCourse() {
+        Course course = courseDao.getCourseById(200L);
+        assertNotNull(course);
+        assertEquals(0, course.getLecturers().size());
+
+        addLecturersToCourses();
+        dbInstance.getCurrentEntityManager().clear();
+
+        course = courseDao.getCourseById(200L);
+        assertEquals(2, course.getLecturers().size());
     }
 
     @Test
@@ -100,6 +124,8 @@ public class LecturerDaoTest extends OlatTestCase {
 
     @Test
     public void testDelete() {
+        addLecturersToCourses();
+
         assertNotNull(lecturerDao.getLecturerById(1100L));
 
         lecturerDao.delete(lecturers.get(0));
@@ -116,6 +142,8 @@ public class LecturerDaoTest extends OlatTestCase {
 
     @Test
     public void testDeleteByLecturerIds() {
+        addLecturersToCourses();
+
         assertNotNull(lecturerDao.getLecturerById(1100L));
         assertNotNull(lecturerDao.getLecturerById(1200L));
 
@@ -140,7 +168,14 @@ public class LecturerDaoTest extends OlatTestCase {
 
     @Test
     public void testGetAllPilotLecturers() {
+        addLecturersToCourses();
         assertEquals(2, lecturerDao.getAllPilotLecturers().size());
+    }
+
+    private void addLecturersToCourses() {
+        List<LecturerIdCourseId> lecturerIdCourseIds = mockDataGeneratorProvider.get().getLecturerIdCourseIds();
+        lecturerDao.addLecturersToCourse(lecturerIdCourseIds);
+        dbInstance.flush();
     }
 
 }
