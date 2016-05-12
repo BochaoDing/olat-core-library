@@ -26,7 +26,7 @@ public class MockDataGenerator {
     private List<Event> events;
     private List<ImportStatistic> importStatistics;
 
-    private Set<CourseStudent> courseStudents;
+    
     private List<LecturerIdCourseId> lecturerIdCourseIds;
 //    private Set<CourseLecturer> courseLecturers;
 
@@ -118,14 +118,7 @@ public class MockDataGenerator {
         this.lecturerCourses = lecturerCourses;
     }
 
-    public Set<CourseStudent> getCourseStudents() {
-        return courseStudents;
-    }
-
-    public void setCourseStudents(Set<CourseStudent> courseStudents) {
-        this.courseStudents = courseStudents;
-    }
-
+    
     public List<LecturerIdCourseId> getLecturerIdCourseIds() {
         return lecturerIdCourseIds;
     }

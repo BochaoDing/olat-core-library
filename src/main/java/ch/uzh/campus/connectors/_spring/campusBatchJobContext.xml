@@ -101,6 +101,7 @@
 	<!-- ======================================================================================= -->
 	<!-- ==============USERMAPPING/ABGLEICH JOB================== -->  
 	<!-- ======================================================================================= -->
+	<!--  
 	<batch:job id="userMappingJob">
 		<batch:listeners>
 			<batch:listener ref="campusJobInterceptor" />
@@ -129,6 +130,7 @@
 			</batch:tasklet>
 		</batch:step>  
 	</batch:job>
+	-->
 	
 	<!-- ======================================================================================= -->
 	<!-- ==============Export(Reader, Writer, Processor, Entity, Dao)================== -->  
@@ -420,17 +422,19 @@
 	<!-- ======================================================================================= -->
 	<!-- ============== ABGLEICH(Reader, Writer, Processor)================== -->  
 	<!-- ======================================================================================= -->  
+	<!--  
 	<bean id="synchronizationReader" class="org.olat.lms.core.course.campus.impl.syncer.SynchronizationReader" scope="step"/>
 	<bean id="synchronizationWriter" class="org.olat.lms.core.course.campus.impl.syncer.SynchronizationWriter" scope="step">
 		<property name="synchronizeStatistic" ref="synchronizeStatistic" />
 	</bean>
 	
 	<bean id="synchronizeStatistic" class= 'org.olat.lms.core.course.campus.impl.syncer.statistic.OverallSynchronizeStatistic' scope='prototype'/>
-	
+	-->
 	
 	<!-- ======================================================================================= -->
 	<!-- ============== USERMAPPING(Reader, Writer)================== -->  
 	<!-- ======================================================================================= -->  
+	<!-- 
 	<bean id="studentMappingReader" class="org.olat.lms.core.course.campus.impl.mapper.StudentMappingReader" scope="step"/>
 	<bean id="studentMappingWriter" class="org.olat.lms.core.course.campus.impl.mapper.StudentMappingWriter" scope="step">
 		<property name="mappingStatistic" ref="mappingStatistic" />
@@ -442,7 +446,7 @@
 	</bean>
 	
 	<bean id="mappingStatistic" class= 'org.olat.lms.core.course.campus.impl.mapper.MappingStatistic' scope='prototype'/>
-	
+	 -->
 	<!-- ======================================================================================= -->
 	<!-- ==============GENERIC STUFF: READER, WRITER, STEP, INTERCEPTOR================== -->  
 	<!-- ======================================================================================= --> 
@@ -473,7 +477,7 @@
 					<batch:include 
 						class="java.lang.NullPointerException" />		
 					<batch:include 
-						class="org.olat.system.exception.AssertException" />		
+						class="org.olat.core.logging.AssertException" />		
 				</batch:skippable-exception-classes>		
 			</batch:chunk>
 		</batch:tasklet>
@@ -488,9 +492,11 @@
 	
 	<bean id="campusJobInterceptor" class="ch.uzh.campus.connectors.CampusJobInterceptor" scope="prototype"/>	
 	
+	<!-- 
 	<bean id="statisticDao" class="ch.uzh.campus.data.ImportStatisticDao"/>
 	
 	<bean id="skipItemDao" class="ch.uzh.campus.data.SkipItemDao"/>
+	 -->
 	
 	<bean id="campusWriter" class="ch.uzh.campus.connectors.CampusWriter"  />
 	
