@@ -20,13 +20,11 @@ public class MockDataGenerator {
     private List<Lecturer> lecturers;
     private List<Course> courses;
     private List<StudentCourse> studentCourses;
-
-    private List<LecturerCourse> lecturerCourses;
     private List<Text> texts;
     private List<Event> events;
     private List<ImportStatistic> importStatistics;
 
-    
+
     private List<LecturerIdCourseId> lecturerIdCourseIds;
 //    private Set<CourseLecturer> courseLecturers;
 
@@ -110,15 +108,6 @@ public class MockDataGenerator {
         this.studentCourses = studentCourses;
     }
 
-    public List<LecturerCourse> getLecturerCourses() {
-        return lecturerCourses;
-    }
-
-    public void setLecturerCourses(List<LecturerCourse> lecturerCourses) {
-        this.lecturerCourses = lecturerCourses;
-    }
-
-    
     public List<LecturerIdCourseId> getLecturerIdCourseIds() {
         return lecturerIdCourseIds;
     }
