@@ -30,8 +30,10 @@ import org.springframework.batch.item.ItemProcessor;
  */
 public class LecturerCourseProcessor implements ItemProcessor<LecturerIdCourseId, LecturerIdCourseId> {
 
+    /**
+     * No need to do anything.
+     */
     public LecturerIdCourseId process(LecturerIdCourseId lecturerIdCourseId) throws Exception {
-        // No transformations necessary
         return lecturerIdCourseId;
     }
 

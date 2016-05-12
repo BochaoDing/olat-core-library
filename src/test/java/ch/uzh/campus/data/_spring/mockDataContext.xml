@@ -22,7 +22,7 @@
         <property name="textCourseIds" ref="textCourseIds" />
         <property name="events" ref="events" />
         <property name="importStatistics" ref="importStatistics" />
-        <property name="studentCourses" ref="studentCourses" />        
+        <property name="studentIdCourseIds" ref="studentIdCourseIds" />
         <property name="lecturerIdCourseIds" ref="lecturerIdCourseIds"/>
     </bean>
 
@@ -54,14 +54,14 @@
     </util:list>
 
     <!-- ======================================================================================= -->
-    <!-- ===============StudentCourse================= -->
+    <!-- ===============StudentIdCourseIds================= -->
     <!-- ======================================================================================= -->
-    <util:list id = 'studentCourses' scope="prototype" >
-        <bean class="ch.uzh.campus.data.StudentCourse" p:courseId="100" p:studentId="100" scope="prototype" />
-        <bean class="ch.uzh.campus.data.StudentCourse"  p:courseId="100" p:studentId="200" scope="prototype" />
-        <bean class="ch.uzh.campus.data.StudentCourse"  p:courseId="200" p:studentId="100" scope="prototype" />
-        <bean class="ch.uzh.campus.data.StudentCourse"  p:courseId="200" p:studentId="200" scope="prototype" />
-        <bean class="ch.uzh.campus.data.StudentCourse"  p:courseId="300" p:studentId="100" scope="prototype" />
+    <util:list id = 'studentIdCourseIds' scope="prototype" >
+        <bean class="ch.uzh.campus.data.StudentIdCourseId" p:courseId="100" p:studentId="100" scope="prototype" />
+        <bean class="ch.uzh.campus.data.StudentIdCourseId" p:courseId="100" p:studentId="200" scope="prototype" />
+        <bean class="ch.uzh.campus.data.StudentIdCourseId" p:courseId="200" p:studentId="100" scope="prototype" />
+        <bean class="ch.uzh.campus.data.StudentIdCourseId" p:courseId="200" p:studentId="200" scope="prototype" />
+        <bean class="ch.uzh.campus.data.StudentIdCourseId" p:courseId="300" p:studentId="100" scope="prototype" />
     </util:list>
       
 

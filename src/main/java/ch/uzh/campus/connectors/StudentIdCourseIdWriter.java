@@ -20,25 +20,33 @@
  */
 package ch.uzh.campus.connectors;
 
+import ch.uzh.campus.data.LecturerDao;
+import ch.uzh.campus.data.LecturerIdCourseId;
+import ch.uzh.campus.data.StudentDao;
 import ch.uzh.campus.data.StudentIdCourseId;
+import org.springframework.batch.item.ItemWriter;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
-import org.springframework.batch.item.ItemProcessor;
+import java.util.List;
 
 /**
- * This is an implementation of {@link ItemProcessor} that converts the input StudentCoursePK item <br>
- * to the output StudentIdCourseId item. <br>
  * 
  * Initial Date: 11.06.2012 <br>
  * 
  * @author aabouc
+ * @author Martin Schraner
  */
-public class StudentCourseProcessor implements ItemProcessor<StudentIdCourseId, StudentIdCourseId> {
+@Component
+public class StudentIdCourseIdWriter implements ItemWriter<StudentIdCourseId> {
 
-    /**
-     * No need to do anything.
-     */
-    public StudentIdCourseId process(StudentIdCourseId studentIdCourseId) throws Exception {
-    	return studentIdCourseId;
+    @Autowired
+    public StudentDao studentDao;
+
+    @Override
+    public void write(List<? extends StudentIdCourseId> studentIdCourseIds) throws Exception {
+        for (StudentIdCourseId studentIdCourseId : studentIdCourseIds) {
+            studentDao.addStudentToCourse(studentIdCourseId);
+        }
     }
-
 }

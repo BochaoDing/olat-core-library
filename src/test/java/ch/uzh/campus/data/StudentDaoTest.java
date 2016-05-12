@@ -12,7 +12,6 @@ import javax.inject.Provider;
 
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.olat.core.commons.persistence.DB;
 import org.olat.test.OlatTestCase;
@@ -31,27 +30,29 @@ import org.springframework.test.context.ContextConfiguration;
 public class StudentDaoTest extends OlatTestCase {
 
     @Autowired
-    private StudentDao studentDao;
-    
+    private DB dbInstance;
+
     @Autowired
-	private DB dbInstance;
+    private StudentDao studentDao;
 
     @Autowired
     private CourseDao courseDao;
 
     @Autowired
-    private StudentCourseDao studentCourseDao;
-
-    @Autowired
     private Provider<MockDataGenerator> mockDataGeneratorProvider;
 
     private List<Student> students;
-    
 
     @Before
     public void setup() {
+        // Insert some students
         students = mockDataGeneratorProvider.get().getStudents();
         studentDao.save(students);
+        dbInstance.flush();
+
+        // Insert some courses
+        List<Course> courses = mockDataGeneratorProvider.get().getCourses();
+        courseDao.save(courses);
         dbInstance.flush();
     }
     
@@ -59,9 +60,7 @@ public class StudentDaoTest extends OlatTestCase {
     public void after() {
     	dbInstance.rollback();
     }
-    
 
-    
     @Test
     public void testGetStudentById_Null() {
         assertNull(studentDao.getStudentById(999L));
@@ -141,9 +140,14 @@ public class StudentDaoTest extends OlatTestCase {
       
 
     @Test
-    public void testGetAllPilotStudents() {    	
-        courseDao.save(mockDataGeneratorProvider.get().getCourses());    	
-        studentCourseDao.save(mockDataGeneratorProvider.get().getStudentCourses());
+    public void testGetAllPilotStudents() {
+        addStudentsToCourses();
         assertEquals(studentDao.getAllPilotStudents().size(), 2);
+    }
+
+    private void addStudentsToCourses() {
+        List<StudentIdCourseId> studentIdCourseIds = mockDataGeneratorProvider.get().getStudentIdCourseIds();
+        studentDao.addStudentsToCourse(studentIdCourseIds);
+        dbInstance.flush();
     }
 }

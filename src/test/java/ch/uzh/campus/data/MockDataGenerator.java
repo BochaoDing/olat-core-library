@@ -1,10 +1,8 @@
 package ch.uzh.campus.data;
 
-import org.springframework.stereotype.Component;
 import org.springframework.test.context.ContextConfiguration;
 
 import java.util.List;
-import java.util.Set;
 
 /**
  * @author aabouc
@@ -19,14 +17,11 @@ public class MockDataGenerator {
     private List<Student> students;
     private List<Lecturer> lecturers;
     private List<Course> courses;
-    private List<StudentCourse> studentCourses;
+    private List<LecturerIdCourseId> lecturerIdCourseIds;
+    private List<StudentIdCourseId> studentIdCourseIds;
     private List<TextCourseId> textCourseIds;
     private List<Event> events;
     private List<ImportStatistic> importStatistics;
-
-
-    private List<LecturerIdCourseId> lecturerIdCourseIds;
-//    private Set<CourseLecturer> courseLecturers;
 
     public List<Delegation> getDelegations() {
         return delegations;
@@ -92,12 +87,12 @@ public class MockDataGenerator {
         this.importStatistics = importStatistics;
     }
 
-    public List<StudentCourse> getStudentCourses() {
-        return studentCourses;
+    public List<StudentIdCourseId> getStudentIdCourseIds() {
+        return studentIdCourseIds;
     }
 
-    public void setStudentCourses(List<StudentCourse> studentCourses) {
-        this.studentCourses = studentCourses;
+    public void setStudentIdCourseIds(List<StudentIdCourseId> studentIdCourseIds) {
+        this.studentIdCourseIds = studentIdCourseIds;
     }
 
     public List<TextCourseId> getTextCourseIds() {

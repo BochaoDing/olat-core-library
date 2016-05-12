@@ -279,22 +279,18 @@
 				</property>
 				<property name="fieldSetMapper" >
 					<bean parent="fieldSetMapper">
-						<property name="prototypeBeanName" value="studentCourse" />
+						<property name="prototypeBeanName" value="studentIdCourseId" />
 					</bean>
 				</property>
 			</bean>
 		</property>
 	</bean>
  
-	<bean id="studentCourseWriter" class="ch.uzh.campus.connectors.CampusWriter" scope="step">
-		<property name="campuskursDao" ref="studentCourseDao" />
-	</bean>
+	<bean id="studentCourseWriter" class="ch.uzh.campus.connectors.StudentIdCourseIdWriter" scope="step" />
 
 	<bean id="studentCourseProcessor" class="ch.uzh.campus.connectors.StudentCourseProcessor" scope="step"/>
 	
-	<bean id="studentCourseDao" class="ch.uzh.campus.data.StudentCourseDao"/>
-	
-	<bean id='studentCourse' class ='ch.uzh.campus.data.StudentCourse'  scope="prototype" />
+	<bean id='studentCourse' class ='ch.uzh.campus.data.StudentIdCourseId' scope="prototype" />
 	
 	<!-- ======================================================================================= -->
 	<!-- ==============BUCHUNG:lecturer-KURS(Reader, Writer, Processor, Entity, Dao)================== -->
