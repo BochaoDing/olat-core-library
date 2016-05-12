@@ -21,31 +21,26 @@
 package ch.uzh.campus.connectors;
 
 import ch.uzh.campus.data.TextCourseId;
-import org.apache.commons.lang.StringUtils;
-import org.springframework.batch.item.ItemProcessor;
+import ch.uzh.campus.data.TextDao;
+import org.springframework.batch.item.ItemWriter;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
-import java.util.Date;
+import java.util.List;
 
 /**
- * This is an implementation of {@link ItemProcessor} that modifies the input Text item <br>
- * according to some criteria and returns it as output Text item. <br>
- * 
- * Initial Date: 11.06.2012 <br>
- * 
- * @author aabouc
+ * @author Martin Schraner
  */
-public class TextProcessor implements ItemProcessor<TextCourseId, TextCourseId> {
+@Component
+public class TextWriter implements ItemWriter<TextCourseId> {
 
-    /**
-     * Modifies the input text and returns it as output
-     * 
-     * @param text
-     *            the Text to be processed
-     * 
-     */
-    public TextCourseId process(TextCourseId text) throws Exception {
-        text.setLine(StringUtils.replace(text.getLine(), CampusUtils.SEMICOLON_REPLACEMENT, CampusUtils.SEMICOLON));
-        text.setModifiedDate(new Date());
-        return text;
+    @Autowired
+    public TextDao textDao;
+
+    @Override
+    public void write(List<? extends TextCourseId> textCourseIds) throws Exception {
+        for (TextCourseId textCourseId : textCourseIds) {
+            textDao.addTextToCourse(textCourseId);
+        }
     }
 }

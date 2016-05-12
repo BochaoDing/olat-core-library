@@ -1,8 +1,6 @@
 package ch.uzh.campus.data;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.olat.core.commons.persistence.DB;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,19 +11,29 @@ import org.springframework.stereotype.Repository;
  * 
  * @author aabouc
  * @author lavinia
+ * @author Martin Schraner
  */
 @Repository
-public class TextDao implements CampusDao<Text> {
+public class TextDao {
 
 	@Autowired
     private DB dbInstance;
 
-    @Override
-    public void save(List<Text> texts) {
-        //genericDao.save(texts);
-    	for(Text text:texts) {
-    		dbInstance.saveObject(text);
-    	}        
+    public void addTextToCourse(Text text, Long courseId) {
+        Course course = dbInstance.getCurrentEntityManager().getReference(Course.class, courseId);
+        text.setCourse(course);
+        course.getTexts().add(text);
+        dbInstance.saveObject(course);
+    }
+
+    public void addTextToCourse(TextCourseId textCourseId) {
+        addTextToCourse(textCourseId, textCourseId.getCourseId());
+    }
+
+    public void addTextsToCourse(List<TextCourseId> textCourseIds) {
+        for (TextCourseId textCourseId : textCourseIds) {
+            addTextToCourse(textCourseId);
+        }
     }
 
     public List<Text> getTextsByCourseId(Long courseId) {        
@@ -52,7 +60,7 @@ public class TextDao implements CampusDao<Text> {
 
     private List<Text> getTextsByCourseIdAndType(Long courseId, String type) {               
         return dbInstance.getCurrentEntityManager()
-                .createNamedQuery(Text.GET_TEXTS, Text.class) 
+                .createNamedQuery(Text.GET_TEXTS_BY_COURSE_ID_AND_TYPE, Text.class)
                 .setParameter("courseId", courseId)		
                 .setParameter("type", type)		
                 .getResultList();

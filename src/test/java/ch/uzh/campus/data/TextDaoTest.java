@@ -2,6 +2,7 @@ package ch.uzh.campus.data;
 
 import static org.junit.Assert.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.After;
@@ -12,11 +13,14 @@ import org.olat.test.OlatTestCase;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 
+import javax.inject.Provider;
+
 /**
  * Initial Date: Oct 27, 2014 <br>
  * 
  * @author aabouc
  * @author lavinia
+ * @author Martin Schraner
  */
 @ContextConfiguration(locations = {"classpath:ch/uzh/campus/data/_spring/mockDataContext.xml" })
 public class TextDaoTest extends OlatTestCase {
@@ -31,15 +35,16 @@ public class TextDaoTest extends OlatTestCase {
  	private CourseDao courseDao;
 
 	@Autowired
-	private MockDataGenerator mockDataGenerator;
+    private Provider<MockDataGenerator> mockDataGeneratorProvider;
 
-	private List<Text> texts;
+	private List<TextCourseId> textCourseIds;
 
 	@Before
 	public void setup() {
-	  courseDao.save(mockDataGenerator.getCourses());
-	  texts = mockDataGenerator.getTexts();
-	  textDao.save(texts);
+        // Insert some courses
+        List<Course> courses = mockDataGeneratorProvider.get().getCourses();
+        courseDao.save(courses);
+        dbInstance.flush();
 	}
 	    
 	@After
@@ -49,13 +54,48 @@ public class TextDaoTest extends OlatTestCase {
 
 	@Test
 	public void testGetTextsByCourseId_notFound() {
-	     assertTrue(textDao.getTextsByCourseId(999L).isEmpty());
+        addTextsToCourses();
+        assertTrue(textDao.getTextsByCourseId(999L).isEmpty());
 	}
 
 	@Test
 	public void testGetTextsByCourseId_foundTowTexts() {
-	     assertEquals(textDao.getTextsByCourseId(100L).size(), 6);
+	    addTextsToCourses();
+        assertEquals(textDao.getTextsByCourseId(100L).size(), 6);
 	}
+
+    @Test
+    public void testAddTextToTCourse() {
+        Course course = courseDao.getCourseById(100L);
+        assertNotNull(course);
+        assertEquals(0, course.getTexts().size());
+        assertTrue(textDao.getTextsByCourseId(100L).isEmpty());
+
+        // Add a text
+        Text text = mockDataGeneratorProvider.get().getTextCourseIds().get(0);
+        textDao.addTextToCourse(text, 100L);
+        dbInstance.flush();
+        dbInstance.getCurrentEntityManager().clear();
+
+        course = courseDao.getCourseById(100L);
+        assertEquals(1, course.getTexts().size());
+        assertEquals(textDao.getTextsByCourseId(100L).size(), 1);
+    }
+
+    @Test
+    public void testAddTextsToTCourse() {
+        Course course = courseDao.getCourseById(100L);
+        assertNotNull(course);
+        assertEquals(0, course.getTexts().size());
+        assertTrue(textDao.getTextsByCourseId(100L).isEmpty());
+
+        addTextsToCourses();
+        dbInstance.getCurrentEntityManager().clear();
+
+        course = courseDao.getCourseById(100L);
+        assertEquals(6, course.getTexts().size());
+        assertEquals(textDao.getTextsByCourseId(100L).size(), 6);
+    }
 
 	    /*
 	    @Test
@@ -129,4 +169,9 @@ public class TextDaoTest extends OlatTestCase {
 	        assertEquals(textDao.getTextsByCourseId(200L).size(), 0);
 	    }
 */
+    private void addTextsToCourses() {
+        textCourseIds = mockDataGeneratorProvider.get().getTextCourseIds();
+        textDao.addTextsToCourse(textCourseIds);
+        dbInstance.flush();
+    }
 }

@@ -344,15 +344,11 @@
 		</property>
 	</bean>
  
-	<bean id="textWriter" class="ch.uzh.campus.connectors.CampusWriter" scope="step">
-		<property name="campuskursDao" ref="textDao" />
-	</bean>
+	<bean id="textWriter" class="ch.uzh.campus.connectors.TextWriter" scope="step" />
 	
 	<bean id="textProcessor" class="ch.uzh.campus.connectors.TextProcessor" scope="step"/>
-
-	<bean id="textDao" class="ch.uzh.campus.data.TextDao"/>
 	
-	<bean id='text' class ='ch.uzh.campus.data.Text' scope="prototype" />
+	<bean id='text' class ='ch.uzh.campus.data.TextCourseId' scope="prototype" />
 	
 	<!-- ======================================================================================= -->
 	<!-- ==============BUCHUNG:KURS-EVENTS(Reader, Writer, Processor, Entity, Dao)================== -->  

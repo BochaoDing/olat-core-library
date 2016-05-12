@@ -113,8 +113,8 @@ public class Course {
 //    private Set<Event> events = new HashSet<Event>(0);
 
     //    @Cascade({ org.hibernate.annotations.CascadeType.DELETE })
-    @OneToMany(mappedBy = "course")
-    private Set<Text> texts = new HashSet<Text>(0);
+    @OneToMany(mappedBy = "course", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<Text> texts = new HashSet<>();
 
     public static final String GET_IDS_OF_ALL_CREATED_COURSES = "getIdsOfAllCreatedCourses";
     public static final String GET_RESOURCEABLEIDS_OF_ALL_CREATED_COURSES = "getResourceableIdsOfAllCreatedCourses";
@@ -330,9 +330,9 @@ public class Course {
 //        this.events = events;
 //    }
 //
-//    public Set<Text> getTexts() {
-//        return texts;
-//    }
+    public Set<Text> getTexts() {
+        return texts;
+    }
 //
 //    public void setTexts(Set<Text> texts) {
 //        this.texts = texts;
