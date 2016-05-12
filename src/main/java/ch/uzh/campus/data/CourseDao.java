@@ -98,20 +98,20 @@ public class CourseDao implements CampusDao<Course> {
     public void delete(Course course) {
         dbInstance.deleteObject(course);
     }
-//
-//    public void saveResourceableId(Long courseId, Long resourceableId) {
-//        Query query = genericDao.getNamedQuery(Course.SAVE_RESOURCEABLE_ID);
-//        query.setParameter("courseId", courseId);
-//        query.setParameter("resId", resourceableId);
-//        query.executeUpdate();
-//    }
-//
-//    public void disableSynchronization(Long courseId) {
-//        Query query = genericDao.getNamedQuery(Course.DISABLE_SYNCHRONIZATION);
-//        query.setParameter("courseId", courseId);
-//        query.executeUpdate();
-//    }
-//
+
+    public void saveResourceableId(Long courseId, Long resourceableId) {  
+        dbInstance.getCurrentEntityManager().createNamedQuery(Course.SAVE_RESOURCEABLE_ID)
+				.setParameter("courseId", courseId)
+				.setParameter("resId", resourceableId)
+				.executeUpdate();
+    }
+
+    public void disableSynchronization(Long courseId) {               
+        dbInstance.getCurrentEntityManager().createNamedQuery(Course.DISABLE_SYNCHRONIZATION)
+		.setParameter("courseId", courseId)		
+		.executeUpdate();
+    }
+
 //    public void deleteResourceableId(Long resourceableId) {
 //        Query query = genericDao.getNamedQuery(Course.DELETE_RESOURCEABLE_ID);
 //        query.setParameter("resId", resourceableId);

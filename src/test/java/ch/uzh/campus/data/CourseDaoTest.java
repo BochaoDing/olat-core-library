@@ -171,27 +171,31 @@ public class CourseDaoTest extends OlatTestCase {
         assertEquals(2, lecturer.getCourses().size());
     }
 
-//
-//    @Test
-//    public void testSaveResourceableId() {
-//        Course course = courseDao.getCourseById(100L);
-//        assertEquals(course.getResourceableId().longValue(), 100L);
-//        courseDao.saveResourceableId(100L, 1000L);
-//        transactionManager.getSessionFactory().getCurrentSession().clear();
-//        Course updatedCourse = courseDao.getCourseById(100L);
-//        assertEquals(updatedCourse.getResourceableId().longValue(), 1000L);
-//    }
-//
-//    @Test
-//    public void testDisableSynchronization() {
-//        Course course = courseDao.getCourseById(100L);
-//        assertTrue(course.isSynchronizable());
-//        courseDao.disableSynchronization(100L);
-//        transactionManager.getSessionFactory().getCurrentSession().clear();
-//        Course updatedCourse = courseDao.getCourseById(100L);
-//        assertFalse(updatedCourse.isSynchronizable());
-//    }
-//
+
+    @Test
+    public void testSaveResourceableId() {
+        Course course = courseDao.getCourseById(100L);
+        assertEquals(course.getResourceableId().longValue(), 100L);
+        
+        courseDao.saveResourceableId(100L, 1000L);        
+        dbInstance.getCurrentEntityManager().clear();
+        
+        Course updatedCourse = courseDao.getCourseById(100L);
+        assertEquals(updatedCourse.getResourceableId().longValue(), 1000L);
+    }
+
+    @Test
+    public void testDisableSynchronization() {
+        Course course = courseDao.getCourseById(100L);
+        assertTrue(course.isSynchronizable());
+        
+        courseDao.disableSynchronization(100L);
+        dbInstance.getCurrentEntityManager().clear();
+        
+        Course updatedCourse = courseDao.getCourseById(100L);
+        assertFalse(updatedCourse.isSynchronizable());
+    }
+
 //    @Test
 //    public void testDeleteResourceableId() {
 //        Course course = courseDao.getCourseById(100L);
