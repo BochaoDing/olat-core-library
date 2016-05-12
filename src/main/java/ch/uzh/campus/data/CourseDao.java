@@ -4,6 +4,7 @@ import org.olat.core.commons.persistence.DB;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -144,23 +145,25 @@ public class CourseDao implements CampusDao<Course> {
                 .getResultList();
     }
 
-//    public List<Long> getIdsOfAllNotCreatedCourses() {
-//        Map<String, Object> parameters = new HashMap<String, Object>();
-//        return genericDao.getNamedQueryEntityIds(Course.GET_IDS_OF_ALL_NOT_CREATED_COURSES, parameters);
-//    }
-//
+    public List<Long> getIdsOfAllNotCreatedCourses() {     
+        return dbInstance.getCurrentEntityManager()
+                .createNamedQuery(Course.GET_IDS_OF_ALL_NOT_CREATED_COURSES, Long.class)                			
+                .getResultList();
+    }
+
     public List<Course> getAllCreatedCourses() {
         return dbInstance.getCurrentEntityManager()
                 .createNamedQuery(Course.GET_ALL_CREATED_COURSES, Course.class)
                 .getResultList();
     }
-//
-//    public List<Long> getAllNotUpdatedCourses(Date date) {
-//        Map<String, Object> parameters = new HashMap<String, Object>();
-//        parameters.put("lastImportDate", date);
-//        return genericDao.getNamedQueryEntityIds(Course.GET_ALL_NOT_UPDATED_COURSES, parameters);
-//    }
-//
+
+    public List<Long> getAllNotUpdatedCourses(Date date) {                
+        return dbInstance.getCurrentEntityManager()
+                .createNamedQuery(Course.GET_ALL_NOT_UPDATED_COURSES, Long.class)  
+                .setParameter("lastImportDate", date)
+                .getResultList();
+    }
+
 //    public boolean existResourceableId(Long resourceableId) {
 //        Map<String, Object> restrictionMap = new HashMap<String, Object>();
 //        restrictionMap.put("resourceableId", resourceableId);

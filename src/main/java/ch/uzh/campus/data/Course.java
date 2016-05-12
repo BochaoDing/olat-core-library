@@ -20,9 +20,9 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 @Entity
 @NamedQueries({
         @NamedQuery(name = Course.GET_ALL_CREATED_COURSES, query = "select c from Course c  where c.resourceableId is not null and c.shortSemester= (select max(c2.shortSemester) from Course c2)"),
-        @NamedQuery(name = Course.GET_IDS_OF_ALL_CREATED_COURSES, query = "select distinct id from Course c where c.resourceableId is not null and c.synchronizable = true and c.shortSemester= (select max(c2.shortSemester) from Course c2)"),
-        @NamedQuery(name = Course.GET_RESOURCEABLEIDS_OF_ALL_CREATED_COURSES, query = "select distinct resourceableId from Course c where c.resourceableId is not null"),
-//        @NamedQuery(name = Course.GET_IDS_OF_ALL_NOT_CREATED_COURSES, query = "select id from Course c where c.resourceableId is null and c.enabled = '1' and c.shortSemester= (select max(c2.shortSemester) from Course c2)"),
+        @NamedQuery(name = Course.GET_IDS_OF_ALL_CREATED_COURSES, query = "select id from Course c where c.resourceableId is not null and c.synchronizable = true and c.shortSemester= (select max(c2.shortSemester) from Course c2)"),
+        @NamedQuery(name = Course.GET_RESOURCEABLEIDS_OF_ALL_CREATED_COURSES, query = "select resourceableId from Course c where c.resourceableId is not null"),
+        @NamedQuery(name = Course.GET_IDS_OF_ALL_NOT_CREATED_COURSES, query = "select distinct id from Course c where c.resourceableId is null and c.enabled = '1' and c.shortSemester= (select max(c2.shortSemester) from Course c2)"),
         @NamedQuery(name = Course.DELETE_RESOURCEABLE_ID, query = "update Course c set c.resourceableId = null where c.resourceableId= :resId"),
         @NamedQuery(name = Course.DELETE_BY_COURSE_ID, query = "delete from Course c where c.id = :courseId"),
         @NamedQuery(name = Course.DELETE_BY_COURSE_IDS, query = "delete from Course c where c.id in :courseIds"),
@@ -38,7 +38,7 @@ import org.apache.commons.lang.builder.ToStringBuilder;
         @NamedQuery(name = Course.GET_CREATED_COURSES_BY_STUDENT_ID, query = "select distinct c from Course c join c.students s where s.id = :studentId and c.resourceableId is not null and  c.enabled = '1' and c.shortSemester= (select max(c2.shortSemester) from Course c2)"),
         @NamedQuery(name = Course.GET_NOT_CREATED_COURSES_BY_STUDENT_ID, query = "select distinct c from Course c join c.students s where s.id = :studentId and c.resourceableId is null and c.enabled = '1' and c.shortSemester= (select max(c2.shortSemester) from Course c2)"),
 
-//        @NamedQuery(name = Course.GET_ALL_NOT_UPDATED_COURSES, query = "select id from Course c where c.resourceableId is null and c.modifiedDate < :lastImportDate")
+        @NamedQuery(name = Course.GET_ALL_NOT_UPDATED_COURSES, query = "select id from Course c where c.resourceableId is null and c.modifiedDate < :lastImportDate")
 })
 @Table(name = "ck_course")
 public class Course {
