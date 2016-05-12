@@ -68,19 +68,26 @@ public class CourseDao implements CampusDao<Course> {
                 .setParameter("lecturerIds", lecturerIds)
                 .getResultList();
     }
-//
-//    public List<Course> getPilotCoursesByStudentId(Long studentId) {
-//        Map<String, Object> parameters = new HashMap<String, Object>();
-//        parameters.put("studentId", studentId);
-//        return genericDao.getNamedQueryListResult(Course.GET_PILOT_COURSES_BY_STUDENT_ID, parameters);
-//    }
-//
-//    public List<Course> getCreatedCoursesByStudentId(Long studentId) {
-//        Map<String, Object> parameters = new HashMap<String, Object>();
-//        parameters.put("studentId", studentId);
-//        return genericDao.getNamedQueryListResult(Course.GET_CREATED_COURSES_BY_STUDENT_ID, parameters);
-//    }
-//
+
+    /**
+     * TODO: check if used, if not used remove it
+     * @param studentId
+     * @return
+     */
+    public List<Course> getPilotCoursesByStudentId(Long studentId) {               
+        return dbInstance.getCurrentEntityManager()
+                .createNamedQuery(Course.GET_PILOT_COURSES_BY_STUDENT_ID, Course.class)
+                .setParameter("studentId", studentId)
+                .getResultList(); 
+    }
+
+    public List<Course> getCreatedCoursesByStudentId(Long studentId) {               
+        return dbInstance.getCurrentEntityManager()
+                .createNamedQuery(Course.GET_CREATED_COURSES_BY_STUDENT_ID, Course.class)
+                .setParameter("studentId", studentId)
+                .getResultList(); 
+    }
+
 //    public List<Course> getNotCreatedCoursesByStudentId(Long studentId) {
 //        Map<String, Object> parameters = new HashMap<String, Object>();
 //        parameters.put("studentId", studentId);

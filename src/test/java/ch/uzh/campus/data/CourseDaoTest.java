@@ -31,6 +31,12 @@ public class CourseDaoTest extends OlatTestCase {
 
     @Autowired
     private LecturerDao lecturerDao;
+    
+    @Autowired
+    private StudentDao studentDao;
+    
+    @Autowired
+    private StudentCourseDao studentCourseDao;
 
     @Autowired
     private Provider<MockDataGenerator> mockDataGeneratorProvider;
@@ -282,4 +288,23 @@ public class CourseDaoTest extends OlatTestCase {
         dbInstance.flush();
     }
 
+    @Test
+    public void testGetCreatedCoursesByStudentId_noneFound() {
+    	List<Course> courses = courseDao.getCreatedCoursesByStudentId(100L);
+    	assertEquals(0, courses.size());
+    }
+    
+    @Test
+    public void testGetCreatedCoursesByStudentId_twoFound() {
+    	MockDataGenerator mockDataGenerator = mockDataGeneratorProvider.get();
+    	
+    	List<Student> students = mockDataGenerator.getStudents();
+    	studentDao.save(students);
+    	
+    	List<StudentCourse> studentCourses = mockDataGenerator.getStudentCourses();
+    	studentCourseDao.save(studentCourses);
+    	    	
+    	List<Course> courses = courseDao.getCreatedCoursesByStudentId(100L);
+    	assertEquals(2, courses.size());
+    }
 }

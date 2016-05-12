@@ -29,12 +29,12 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 //
 //        @NamedQuery(name = Course.DISABLE_SYNCHRONIZATION, query = "update Course c set c.synchronizable = false where c.id= :courseId"),
 //
-        @NamedQuery(name = Course.GET_PILOT_COURSES_BY_LECTURER_ID, query = "select c from Course c join c.lecturers l where l.personalNr = :lecturerId and c.enabled = '1' and c.shortSemester= (select max(c2.shortSemester) from Course c2) "),
+        @NamedQuery(name = Course.GET_PILOT_COURSES_BY_LECTURER_ID, query = "select distinct c from Course c join c.lecturers l where l.personalNr = :lecturerId and c.enabled = '1' and c.shortSemester= (select max(c2.shortSemester) from Course c2) "),
         @NamedQuery(name = Course.GET_CREATED_COURSES_BY_LECTURER_IDS, query = "select distinct c from Course c join c.lecturers l where l.personalNr in :lecturerIds and c.resourceableId is not null and c.enabled = '1' and c.shortSemester= (select max(c2.shortSemester) from Course c2) "),
         @NamedQuery(name = Course.GET_NOT_CREATED_COURSES_BY_LECTURER_IDS, query = "select distinct c from Course c join c.lecturers l where l.personalNr in :lecturerIds and c.resourceableId is null and c.enabled = '1' and c.shortSemester= (select max(c2.shortSemester) from Course c2) "),
-//
-//        @NamedQuery(name = Course.GET_PILOT_COURSES_BY_STUDENT_ID, query = "select c from Course c left join c.courseStudentSet cs where cs.student.id = :studentId and c.enabled = '1' and c.shortSemester= (select max(c2.shortSemester) from Course c2)"),
-//        @NamedQuery(name = Course.GET_CREATED_COURSES_BY_STUDENT_ID, query = "select c from Course c left join c.courseStudentSet cs where cs.student.id = :studentId and c.resourceableId is not null and  c.enabled = '1' and c.shortSemester= (select max(c2.shortSemester) from Course c2)"),
+
+        @NamedQuery(name = Course.GET_PILOT_COURSES_BY_STUDENT_ID, query = "select distinct c from Course c join c.students s where s.id = :studentId and c.enabled = '1' and c.shortSemester= (select max(c2.shortSemester) from Course c2)"),
+        @NamedQuery(name = Course.GET_CREATED_COURSES_BY_STUDENT_ID, query = "select distinct c from Course c join c.students s where s.id = :studentId and c.resourceableId is not null and  c.enabled = '1' and c.shortSemester= (select max(c2.shortSemester) from Course c2)"),
 //        @NamedQuery(name = Course.GET_NOT_CREATED_COURSES_BY_STUDENT_ID, query = "select c from Course c left join c.courseStudentSet cs where cs.student.id = :studentId and c.resourceableId is null and c.enabled = '1' and c.shortSemester= (select max(c2.shortSemester) from Course c2)"),
 //
 //        @NamedQuery(name = Course.GET_ALL_NOT_UPDATED_COURSES, query = "select id from Course c where c.resourceableId is null and c.modifiedDate < :lastImportDate")
