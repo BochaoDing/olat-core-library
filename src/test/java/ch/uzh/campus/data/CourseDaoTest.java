@@ -297,13 +297,13 @@ public class CourseDaoTest extends OlatTestCase {
     
     @Test
     public void testGetCreatedCoursesByStudentId_twoFound() {
-    	List<Course> courses = courseDao.getCreatedCoursesByStudentId(100L);
+    	List<Course> courses = courseDao.getCreatedCoursesByStudentId(2100L);
     	assertEquals(2, courses.size());
     }
     
     @Test
     public void testGetNotCreatedCoursesByStudentId_noneFound() {
-    	List<Course> courses = courseDao.getNotCreatedCoursesByStudentId(100L);
+    	List<Course> courses = courseDao.getNotCreatedCoursesByStudentId(2100L);
     	assertEquals(1, courses.size());
     }
 }

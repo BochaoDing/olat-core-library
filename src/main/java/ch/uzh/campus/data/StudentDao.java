@@ -14,6 +14,7 @@ import java.util.List;
  * @author lavinia
  * @author Martin Schraner
  */
+
 @Repository
 public class StudentDao implements CampusDao<Student> {  
 	
@@ -65,7 +66,6 @@ public class StudentDao implements CampusDao<Student> {
 				.createNamedQuery(Student.GET_STUDENTS_WITH_REGISTRATION_NUMBER, Student.class)
 				.setParameter("registrationNr", registrationNr)
 				.getResultList();
-    	    	
         if (students != null && !students.isEmpty()) {
             return students.get(0);
         }
