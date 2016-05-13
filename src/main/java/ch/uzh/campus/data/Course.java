@@ -1,14 +1,13 @@
 package ch.uzh.campus.data;
 
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Set;
-
-import javax.persistence.*;
-
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
+
+import javax.persistence.*;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
 
 
 /**
@@ -16,6 +15,7 @@ import org.apache.commons.lang.builder.ToStringBuilder;
  * 
  * @author aabouc
  * @author lavinia
+ * @author Martin Schraner
  */
 @Entity
 @NamedQueries({
@@ -30,11 +30,8 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 
         @NamedQuery(name = Course.DISABLE_SYNCHRONIZATION, query = "update Course c set c.synchronizable = false where c.id = :courseId"),
 
-        @NamedQuery(name = Course.GET_PILOT_COURSES_BY_LECTURER_ID, query = "select distinct c from Course c join c.lecturers l where l.personalNr = :lecturerId and c.enabled = '1' and c.shortSemester= (select max(c2.shortSemester) from Course c2) "),
         @NamedQuery(name = Course.GET_CREATED_COURSES_BY_LECTURER_IDS, query = "select distinct c from Course c join c.lecturers l where l.personalNr in :lecturerIds and c.resourceableId is not null and c.enabled = '1' and c.shortSemester= (select max(c2.shortSemester) from Course c2) "),
         @NamedQuery(name = Course.GET_NOT_CREATED_COURSES_BY_LECTURER_IDS, query = "select distinct c from Course c join c.lecturers l where l.personalNr in :lecturerIds and c.resourceableId is null and c.enabled = '1' and c.shortSemester= (select max(c2.shortSemester) from Course c2) "),
-
-        @NamedQuery(name = Course.GET_PILOT_COURSES_BY_STUDENT_ID, query = "select distinct c from Course c join c.students s where s.id = :studentId and c.enabled = '1' and c.shortSemester= (select max(c2.shortSemester) from Course c2)"),
         @NamedQuery(name = Course.GET_CREATED_COURSES_BY_STUDENT_ID, query = "select distinct c from Course c join c.students s where s.id = :studentId and c.resourceableId is not null and  c.enabled = '1' and c.shortSemester= (select max(c2.shortSemester) from Course c2)"),
         @NamedQuery(name = Course.GET_NOT_CREATED_COURSES_BY_STUDENT_ID, query = "select distinct c from Course c join c.students s where s.id = :studentId and c.resourceableId is null and c.enabled = '1' and c.shortSemester= (select max(c2.shortSemester) from Course c2)"),
 
@@ -126,11 +123,8 @@ public class Course {
     public static final String SAVE_RESOURCEABLE_ID = "saveResourceableId";
     public static final String DISABLE_SYNCHRONIZATION = "disableSynchronization";
 
-    public static final String GET_PILOT_COURSES_BY_LECTURER_ID = "getPilotCoursesByLecturerId";
     public static final String GET_CREATED_COURSES_BY_LECTURER_IDS = "getCreatedCoursesByLecturerIds";
     public static final String GET_NOT_CREATED_COURSES_BY_LECTURER_IDS = "getNotCreatedCoursesByLecturerIds";
-
-    public static final String GET_PILOT_COURSES_BY_STUDENT_ID = "getPilotCoursesByStudentId";
     public static final String GET_CREATED_COURSES_BY_STUDENT_ID = "getCreatedCoursesByStudentId";
     public static final String GET_NOT_CREATED_COURSES_BY_STUDENT_ID = "getNotCreatedCoursesByStudentId";
 

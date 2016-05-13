@@ -88,14 +88,6 @@ public class CourseDaoTest extends OlatTestCase {
     }
 
     @Test
-    public void testGetPilotCoursesByLecturerId() {
-        List<Course> courses = courseDao.getPilotCoursesByLecturerId(1100L);
-
-        assertNotNull(courses);
-        assertEquals(3, courses.size());
-    }
-
-    @Test
     public void testGetCreatedCoursesByLecturerIds() {
         List<Long> lecturerIds = new LinkedList<>();
         lecturerIds.add(1100L);

@@ -31,13 +31,6 @@ public class CourseDao implements CampusDao<Course> {
         return dbInstance.findObject(Course.class, id);
     }
 
-    public List<Course> getPilotCoursesByLecturerId(Long lecturerId) {
-        return dbInstance.getCurrentEntityManager()
-                .createNamedQuery(Course.GET_PILOT_COURSES_BY_LECTURER_ID, Course.class)
-                .setParameter("lecturerId", lecturerId)
-                .getResultList();
-    }
-
     public List<Course> getCreatedCoursesByLecturerIds(List<Long> lecturerIds) {
         return dbInstance.getCurrentEntityManager()
                 .createNamedQuery(Course.GET_CREATED_COURSES_BY_LECTURER_IDS, Course.class)
@@ -50,18 +43,6 @@ public class CourseDao implements CampusDao<Course> {
                 .createNamedQuery(Course.GET_NOT_CREATED_COURSES_BY_LECTURER_IDS, Course.class)
                 .setParameter("lecturerIds", lecturerIds)
                 .getResultList();
-    }
-
-    /**
-     * TODO: check if used, if not used remove it
-     * @param studentId
-     * @return
-     */
-    public List<Course> getPilotCoursesByStudentId(Long studentId) {               
-        return dbInstance.getCurrentEntityManager()
-                .createNamedQuery(Course.GET_PILOT_COURSES_BY_STUDENT_ID, Course.class)
-                .setParameter("studentId", studentId)
-                .getResultList(); 
     }
 
     public List<Course> getCreatedCoursesByStudentId(Long studentId) {               
