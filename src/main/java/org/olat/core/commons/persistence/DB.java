@@ -225,4 +225,6 @@ public interface DB {
 	public EntityManager getCurrentEntityManager();
 
 	void flush();
+
+	void clear();
 }

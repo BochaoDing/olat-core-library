@@ -837,4 +837,9 @@ public class DBImpl implements DB, Destroyable {
 	public void flush() {
 		getCurrentEntityManager().flush();
 	}
+
+	@Override
+	public void clear() {
+		getCurrentEntityManager().clear();
+	}
 }
