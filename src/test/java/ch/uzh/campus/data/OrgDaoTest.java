@@ -12,7 +12,6 @@ import javax.inject.Provider;
 import java.util.*;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 /**
  * @author Martin Schraner
@@ -34,9 +33,10 @@ public class OrgDaoTest extends OlatTestCase {
 
     @Before
     public void setup() {
+        // Insert some orgs
     	orgs = mockDataGeneratorProvider.get().getOrgs();
-    	assertTrue(orgs.size() >= 2);
-    	assertEquals(0, orgs.size()%2);
+        orgDao.save(orgs);
+        dbInstance.flush();
     }
     
     @After
@@ -45,41 +45,28 @@ public class OrgDaoTest extends OlatTestCase {
     }
 
     @Test
-    public void testGetIdsOfAllEnabledOrgs_notFound() {
-    	assertEquals(0, orgDao.getIdsOfAllEnabledOrgs().size());
-    }
-
-    @Test
     public void testGetIdsOfAllEnabledOrgs_foundTwoOrgs() {
-        orgDao.save(orgs);
-        dbInstance.flush();
         assertEquals(2, orgDao.getIdsOfAllEnabledOrgs().size());
     }
 
     @Test
-    public void testGetAllNotUpdatedOrgs_notFound() {
-    	assertEquals(0, orgDao.getAllNotUpdatedOrgs(new Date()).size());
-    }
-
-    @Test
     public void testGetAllNotUpdatedOrgs_foundOneOrg() {
-        orgDao.save(orgs);
-        dbInstance.flush();
-
         Calendar now = new GregorianCalendar();
         // To avoid rounding problems
         Calendar nowMinusOneSecond = (Calendar) now.clone();
         nowMinusOneSecond.add(Calendar.SECOND, -1);
 
+        assertEquals(2, orgDao.getAllNotUpdatedOrgs(nowMinusOneSecond.getTime()).size());
+
         orgs.get(0).setModifiedDate(now.getTime());
         dbInstance.flush();
+        dbInstance.clear();
+
         assertEquals(1, orgDao.getAllNotUpdatedOrgs(nowMinusOneSecond.getTime()).size());
     }
 
     @Test
     public void testDeleteByOrgIds() {
-        orgDao.save(orgs);
-        dbInstance.flush();
         assertEquals(2, orgDao.getIdsOfAllEnabledOrgs().size());
 
         List<Long> orgIds = new LinkedList<>();
@@ -88,6 +75,8 @@ public class OrgDaoTest extends OlatTestCase {
 
         orgDao.deleteByOrgIds(orgIds);
         dbInstance.flush();
+        dbInstance.clear();
+
         assertEquals(0, orgDao.getIdsOfAllEnabledOrgs().size());
     }
     
