@@ -129,7 +129,7 @@ public class CourseDaoTest extends OlatTestCase {
 
         courseDao.delete(courses.get(0));
         dbInstance.flush();
-        dbInstance.getCurrentEntityManager().clear();
+        dbInstance.clear();
 
         assertNull(courseDao.getCourseById(100L));
     }
@@ -142,28 +142,50 @@ public class CourseDaoTest extends OlatTestCase {
         Lecturer lecturer = lecturerDao.getLecturerById(1100L);
         assertNotNull(lecturer);
         assertEquals(3, lecturer.getCourses().size());
+        Student student = studentDao.getStudentById(2100L);
+        assertNotNull(student);
+        assertEquals(3, student.getCourses().size());
 
         courseDao.deleteByCourseId(100L);
         dbInstance.flush();
-        dbInstance.getCurrentEntityManager().clear();
+        dbInstance.clear();
 
         assertNull(courseDao.getCourseById(100L));
+
         lecturer = lecturerDao.getLecturerById(1100L);
         assertNotNull(lecturer);
         assertEquals(2, lecturer.getCourses().size());
+        student = studentDao.getStudentById(2100L);
+        assertNotNull(student);
+        assertEquals(2, student.getCourses().size());
     }
 
+    @Test
+    public void testDeleteByCourseIds() {
+        assertEquals(2, courseDao.getAllCreatedCourses().size());
+
+        List<Long> courseIds = new LinkedList<>();
+        courseIds.add(100L);
+        courseIds.add(200L);
+
+        courseDao.deleteByCourseIds(courseIds);
+        dbInstance.flush();
+        dbInstance.clear();
+
+        assertEquals(0, courseDao.getAllCreatedCourses().size());
+    }
 
     @Test
     public void testSaveResourceableId() {
         Course course = courseDao.getCourseById(100L);
-        assertEquals(course.getResourceableId().longValue(), 100L);
+        assertEquals(100L, course.getResourceableId().longValue());
         
-        courseDao.saveResourceableId(100L, 1000L);        
-        dbInstance.getCurrentEntityManager().clear();
+        courseDao.saveResourceableId(100L, 1000L);
+        dbInstance.flush();
+        dbInstance.clear();
         
         Course updatedCourse = courseDao.getCourseById(100L);
-        assertEquals(updatedCourse.getResourceableId().longValue(), 1000L);
+        assertEquals(1000L, updatedCourse.getResourceableId().longValue());
     }
 
     @Test
@@ -172,7 +194,8 @@ public class CourseDaoTest extends OlatTestCase {
         assertTrue(course.isSynchronizable());
         
         courseDao.disableSynchronization(100L);
-        dbInstance.getCurrentEntityManager().clear();
+        dbInstance.flush();
+        dbInstance.clear();
         
         Course updatedCourse = courseDao.getCourseById(100L);
         assertFalse(updatedCourse.isSynchronizable());
@@ -181,27 +204,14 @@ public class CourseDaoTest extends OlatTestCase {
     @Test
     public void testDeleteResourceableId() {
         Course course = courseDao.getCourseById(100L);
-        assertEquals(course.getResourceableId().longValue(), 100L);
+        assertEquals(100L, course.getResourceableId().longValue());
         
         courseDao.deleteResourceableId(100L);
-        dbInstance.getCurrentEntityManager().clear();
+        dbInstance.flush();
+        dbInstance.clear();
         
         Course updatedCourse = courseDao.getCourseById(100L);
         assertNull(updatedCourse.getResourceableId());
-    }
-
-    @Test
-    public void testDeleteByCourseIds() {
-        assertEquals(courseDao.getAllCreatedCourses().size(), 2);
-
-        List<Long> courseIds = new LinkedList<>();
-        courseIds.add(100L);
-        courseIds.add(200L);
-        courseDao.deleteByCourseIds(courseIds);
-        dbInstance.flush();
-        dbInstance.getCurrentEntityManager().clear();
-
-        assertEquals(courseDao.getAllCreatedCourses().size(), 0);
     }
 
     @Test
@@ -213,31 +223,35 @@ public class CourseDaoTest extends OlatTestCase {
 
     @Test
     public void testGetIdsOfAllCreatedCourses() {
-        assertEquals(courseDao.getAllCreatedCourses().size(), 2);
+        assertEquals(2, courseDao.getAllCreatedCourses().size());
+
         courseDao.deleteResourceableId(100L);
+        dbInstance.flush();
+        dbInstance.clear();
         
-        dbInstance.getCurrentEntityManager().clear();
-        
-        assertEquals(courseDao.getAllCreatedCourses().size(), 1);
+        assertEquals(1, courseDao.getAllCreatedCourses().size());
     }
 
     @Test
     public void testGetIdsOfAllNotCreatedCourses() {
-        assertEquals(courseDao.getIdsOfAllNotCreatedCourses().size(), 1);
+        assertEquals(1, courseDao.getIdsOfAllNotCreatedCourses().size());
         
         courseDao.deleteResourceableId(100L);
-        dbInstance.getCurrentEntityManager().clear();
+        dbInstance.flush();
+        dbInstance.clear();
         
-        assertEquals(courseDao.getIdsOfAllNotCreatedCourses().size(), 2);
+        assertEquals(2, courseDao.getIdsOfAllNotCreatedCourses().size());
     }
 
     @Test
     public void testGetAllCreatedCourses() {
-        assertEquals(courseDao.getAllCreatedCourses().size(), 2);
+        assertEquals(2, courseDao.getAllCreatedCourses().size());
+
         courseDao.deleteByCourseId(100L);
         dbInstance.flush();
-        dbInstance.getCurrentEntityManager().clear();
-        assertEquals(courseDao.getAllCreatedCourses().size(), 1);
+        dbInstance.clear();
+
+        assertEquals(1, courseDao.getAllCreatedCourses().size());
     }
 
     @Ignore
@@ -248,7 +262,8 @@ public class CourseDaoTest extends OlatTestCase {
     	
         courseDao.deleteResourceableId(100L);
         courseDao.deleteResourceableId(200L);
-        dbInstance.getCurrentEntityManager().clear();
+        dbInstance.flush();
+        dbInstance.clear();
         try {
 			Thread.sleep(1000);
 		} catch (InterruptedException e) {
@@ -264,7 +279,8 @@ public class CourseDaoTest extends OlatTestCase {
 
         courses.get(0).setModifiedDate(now);
         courseDao.save(courses);
-        dbInstance.getCurrentEntityManager().clear();
+        dbInstance.flush();
+        dbInstance.clear();
         
         try {
 			Thread.sleep(2000);
@@ -287,13 +303,11 @@ public class CourseDaoTest extends OlatTestCase {
 //
 //    }
 
-
-//TODO Martin fixen!
-//    @Test
-//    public void testGetCreatedCoursesByStudentId_noneFound() {
-//    	List<Course> courses = courseDao.getCreatedCoursesByStudentId(100L);
-//    	assertEquals(0, courses.size());
-//    }
+    @Test
+    public void testGetCreatedCoursesByStudentId_noneFound() {
+    	List<Course> courses = courseDao.getCreatedCoursesByStudentId(2300L);
+    	assertEquals(0, courses.size());
+    }
     
     @Test
     public void testGetCreatedCoursesByStudentId_twoFound() {

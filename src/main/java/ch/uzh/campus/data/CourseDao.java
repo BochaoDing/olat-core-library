@@ -91,14 +91,14 @@ public class CourseDao implements CampusDao<Course> {
 
     public void disableSynchronization(Long courseId) {               
         dbInstance.getCurrentEntityManager().createNamedQuery(Course.DISABLE_SYNCHRONIZATION)
-		.setParameter("courseId", courseId)		
-		.executeUpdate();
+		        .setParameter("courseId", courseId)
+		        .executeUpdate();
     }
 
     public void deleteResourceableId(Long resourceableId) {                
         dbInstance.getCurrentEntityManager().createNamedQuery(Course.DELETE_RESOURCEABLE_ID)
-		.setParameter("resId", resourceableId)		
-		.executeUpdate();
+                .setParameter("resId", resourceableId)
+		        .executeUpdate();
     }
 
     public int deleteByCourseId(Long courseId) {

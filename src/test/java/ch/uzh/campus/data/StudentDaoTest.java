@@ -121,12 +121,12 @@ public class StudentDaoTest extends OlatTestCase {
     }
 
     @Test
-    public void testGetAllNotUpdatedStudents_foundTwoStudents() {
-        assertEquals(2, studentDao.getAllNotUpdatedStudents(new Date()).size());
+    public void testGetAllNotUpdatedStudents_foundThreeStudents() {
+        assertEquals(3, studentDao.getAllNotUpdatedStudents(new Date()).size());
     }
     
     @Test
-    public void testGetAllNotUpdatedStudents_foundOneStudent() throws InterruptedException {
+    public void testGetAllNotUpdatedStudents_foundTwoStudent() throws InterruptedException {
         Calendar now = new GregorianCalendar();
         // To avoid rounding problems
         Calendar nowMinusOneSecond = (Calendar) now.clone();
@@ -135,7 +135,7 @@ public class StudentDaoTest extends OlatTestCase {
         students.get(0).setModifiedDate(now.getTime());
         dbInstance.flush();
 
-        assertEquals(1, studentDao.getAllNotUpdatedStudents(nowMinusOneSecond.getTime()).size());
+        assertEquals(2, studentDao.getAllNotUpdatedStudents(nowMinusOneSecond.getTime()).size());
     }
 
     @Test
