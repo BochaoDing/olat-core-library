@@ -65,7 +65,7 @@ public class LecturerDaoTest extends OlatTestCase {
         // Add a lecturer
         lecturerDao.addLecturerToCourse(1100L, 100L);
         dbInstance.flush();
-        dbInstance.getCurrentEntityManager().clear();
+        dbInstance.clear();
 
         course = courseDao.getCourseById(100L);
         assertEquals(1, course.getLecturers().size());
@@ -78,7 +78,7 @@ public class LecturerDaoTest extends OlatTestCase {
         assertEquals(0, course.getLecturers().size());
 
         addLecturersToCourses();
-        dbInstance.getCurrentEntityManager().clear();
+        dbInstance.clear();
 
         course = courseDao.getCourseById(200L);
         assertEquals(2, course.getLecturers().size());
@@ -134,7 +134,7 @@ public class LecturerDaoTest extends OlatTestCase {
 
         lecturerDao.delete(lecturers.get(0));
         dbInstance.flush();
-        dbInstance.getCurrentEntityManager().clear();
+        dbInstance.clear();
 
         assertNull(lecturerDao.getLecturerById(1100L));
         assertEquals(1, course.getLecturers().size());
@@ -157,7 +157,7 @@ public class LecturerDaoTest extends OlatTestCase {
 
         lecturerDao.deleteByLecturerIds(lecturerIds);
         dbInstance.flush();
-        dbInstance.getCurrentEntityManager().clear();
+        dbInstance.clear();
 
         assertNull(lecturerDao.getLecturerById(1100L));
         assertNull(lecturerDao.getLecturerById(1200L));
