@@ -122,7 +122,7 @@ public class TextDaoTest extends OlatTestCase {
     public void testNotBlankGetMaterialsByCourseId() {
         addTextsToCourses();
         assertTrue(StringUtils.isNotBlank(textDao.getMaterialsByCourseId(100L)));
-        assertEquals(textDao.getMaterialsByCourseId(100L), "Versuchsanleitungen,<br>download von homepage (s. link)<br>");
+        assertEquals("Versuchsanleitungen,<br>download von homepage (s. link)<br>", textDao.getMaterialsByCourseId(100L));
     }
 
     @Test
@@ -135,7 +135,7 @@ public class TextDaoTest extends OlatTestCase {
     public void testNotBlankGetInfosByCourseId() {
         addTextsToCourses();
         assertTrue(StringUtils.isNotBlank(textDao.getInfosByCourseId(100L)));
-        assertEquals(textDao.getInfosByCourseId(100L), "Selbsttestfragen:<br>Zugriff über www.vetpharm.uzh.ch/cyberpharm<br>");
+        assertEquals("Selbsttestfragen:<br>Zugriff über www.vetpharm.uzh.ch/cyberpharm<br>", textDao.getInfosByCourseId(100L));
     }
 
     @Test
