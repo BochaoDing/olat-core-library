@@ -28,7 +28,6 @@ import javax.persistence.NamedQuery;
 @NamedQueries({
         @NamedQuery(name = Student.GET_ALL_PILOT_STUDENTS, query = "select distinct s from Student s left join s.courses cs where cs.enabled = '1' "),
         @NamedQuery(name = Student.GET_ALL_NOT_UPDATED_STUDENTS, query = "select s.id from Student s where s.modifiedDate < :lastImportDate"),
-        @NamedQuery(name = Student.DELETE_BY_STUDENT_IDS, query = "delete from Student s where s.id in :studentIds"),
         @NamedQuery(name = Student.GET_STUDENTS_BY_EMAIL, query = "select s from Student s where s.email = :email"),
         @NamedQuery(name = Student.GET_STUDENTS_WITH_REGISTRATION_NUMBER, query = "select s from Student s where s.registrationNr = :registrationNr")})
 @Table(name = "ck_student")
@@ -53,14 +52,11 @@ public class Student {
     @Column(name = "modified_date")
     private Date modifiedDate;
 
-    //@OneToMany(mappedBy = "student")
-    //private Set<StudentIdCourseId> courseStudentSet;
     @ManyToMany(mappedBy = "students")
     private Set<Course> courses = new HashSet<>();
 
     public static final String GET_ALL_PILOT_STUDENTS = "getAllPilotStudents";
     public static final String GET_ALL_NOT_UPDATED_STUDENTS = "getAllNotUpdatedStudents";
-    public static final String DELETE_BY_STUDENT_IDS = "deleteByStudentIds";
     public static final String GET_STUDENTS_BY_EMAIL = "getStudentsWithEmail";
     public static final String GET_STUDENTS_WITH_REGISTRATION_NUMBER = "getStudentsWithRegistrationNr";
 

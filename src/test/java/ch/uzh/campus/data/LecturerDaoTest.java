@@ -57,16 +57,25 @@ public class LecturerDaoTest extends OlatTestCase {
 
     @Test
     public void testAddLecturerToCourse() {
+        Lecturer lecturer = lecturerDao.getLecturerById(1100L);
+        assertNotNull(lecturer);
+        assertEquals(0, lecturer.getCourses().size());
         Course course = courseDao.getCourseById(100L);
         assertNotNull(course);
         assertEquals(0, course.getLecturers().size());
-        assertNotNull(lecturerDao.getLecturerById(1100L));
 
         // Add a lecturer
         lecturerDao.addLecturerToCourse(1100L, 100L);
+
+        // Check before flush
+        assertEquals(1, lecturer.getCourses().size());
+        assertEquals(1, course.getLecturers().size());
+
         dbInstance.flush();
         dbInstance.clear();
 
+        lecturer = lecturerDao.getLecturerById(1100L);
+        assertEquals(1, lecturer.getCourses().size());
         course = courseDao.getCourseById(100L);
         assertEquals(1, course.getLecturers().size());
     }
@@ -133,6 +142,10 @@ public class LecturerDaoTest extends OlatTestCase {
         assertEquals(2, course.getLecturers().size());
 
         lecturerDao.delete(lecturers.get(0));
+
+        // Check before flush
+        assertEquals(1, course.getLecturers().size());
+
         dbInstance.flush();
         dbInstance.clear();
 
@@ -156,6 +169,10 @@ public class LecturerDaoTest extends OlatTestCase {
         lecturerIds.add(1200L);
 
         lecturerDao.deleteByLecturerIds(lecturerIds);
+
+        // Check before flush
+        assertEquals(0, course.getLecturers().size());
+
         dbInstance.flush();
         dbInstance.clear();
 

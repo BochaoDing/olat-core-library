@@ -24,8 +24,6 @@ import java.util.Set;
         @NamedQuery(name = Course.GET_RESOURCEABLEIDS_OF_ALL_CREATED_COURSES, query = "select c.resourceableId from Course c where c.resourceableId is not null"),
         @NamedQuery(name = Course.GET_IDS_OF_ALL_NOT_CREATED_COURSES, query = "select c.id from Course c where c.resourceableId is null and c.enabled = '1' and c.shortSemester= (select max(c2.shortSemester) from Course c2)"),
         @NamedQuery(name = Course.DELETE_RESOURCEABLE_ID, query = "update Course c set c.resourceableId = null where c.resourceableId = :resId"),
-        @NamedQuery(name = Course.DELETE_BY_COURSE_ID, query = "delete from Course c where c.id = :courseId"),
-        @NamedQuery(name = Course.DELETE_BY_COURSE_IDS, query = "delete from Course c where c.id in :courseIds"),
         @NamedQuery(name = Course.SAVE_RESOURCEABLE_ID, query = "update Course c set c.resourceableId = :resId where c.id = :courseId"),
 
         @NamedQuery(name = Course.DISABLE_SYNCHRONIZATION, query = "update Course c set c.synchronizable = false where c.id = :courseId"),
@@ -110,7 +108,6 @@ public class Course {
 //    @OneToMany(mappedBy = "course")
 //    private Set<Event> events = new HashSet<Event>(0);
 
-    //    @Cascade({ org.hibernate.annotations.CascadeType.DELETE })
     @OneToMany(mappedBy = "course", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Text> texts = new HashSet<>();
 
@@ -119,8 +116,6 @@ public class Course {
     public static final String GET_IDS_OF_ALL_NOT_CREATED_COURSES = "getIdsOfAllNotCreatedCourses";
     public static final String GET_ALL_CREATED_COURSES = "getAllCreatedCourses";
     public static final String DELETE_RESOURCEABLE_ID = "deleteResourceableId";
-    public static final String DELETE_BY_COURSE_ID = "deleteByCourseId";
-    public static final String DELETE_BY_COURSE_IDS = "deleteByCourseIds";
     public static final String SAVE_RESOURCEABLE_ID = "saveResourceableId";
     public static final String DISABLE_SYNCHRONIZATION = "disableSynchronization";
 
@@ -315,47 +310,41 @@ public class Course {
     public Set<Student> getStudents() {
        return students;
     }
-    
-   
 //
 //    public Set<Event> getEvents() {
 //        return events;
 //    }
-//
-//    public void setEvents(Set<Event> events) {
-//        this.events = events;
-//    }
-//
+
     public Set<Text> getTexts() {
         return texts;
     }
-//
-//    public void setTexts(Set<Text> texts) {
-//        this.texts = texts;
-//    }
 
-//    public String getContents() {
-//        return buildText(Text.CONTENTS);
-//    }
-//
-//    public String getInfos() {
-//        return buildText(Text.INFOS);
-//    }
-//
-//    public String getMaterials() {
-//        return buildText(Text.MATERIALS);
-//    }
+    @Transient
+    public String getContents() {
+        return buildText(Text.CONTENTS);
+    }
 
-//    private String buildText(String type) {
-//        StringBuilder content = new StringBuilder();
-//        for (Text text : this.getTexts()) {
-//            if (type.equalsIgnoreCase(text.getType())) {
-//                content.append(text.getLine());
-//                content.append(Text.BREAK_TAG);
-//            }
-//        }
-//        return content.toString();
-//    }
+    @Transient
+    public String getInfos() {
+        return buildText(Text.INFOS);
+    }
+
+    @Transient
+    public String getMaterials() {
+        return buildText(Text.MATERIALS);
+    }
+
+    @Transient
+    private String buildText(String type) {
+        StringBuilder content = new StringBuilder();
+        for (Text text : this.getTexts()) {
+            if (type.equalsIgnoreCase(text.getType())) {
+                content.append(text.getLine());
+                content.append(Text.BREAK_TAG);
+            }
+        }
+        return content.toString();
+    }
 
     @Transient
     public String getTitleToBeDisplayed(String shortTitleActivated) {

@@ -22,6 +22,7 @@ import org.springframework.test.context.ContextConfiguration;
  * 
  * @author aabouc
  * @author lavinia
+ * @author Martin Schraner
  */
 
 @ContextConfiguration(locations = {"classpath:ch/uzh/campus/data/_spring/mockDataContext.xml" })
@@ -61,16 +62,25 @@ public class StudentDaoTest extends OlatTestCase {
 
     @Test
     public void testAddStudentToCourse() {
+        Student student = studentDao.getStudentById(2100L);
+        assertNotNull(student);
+        assertEquals(0, student.getCourses().size());
         Course course = courseDao.getCourseById(100L);
         assertNotNull(course);
         assertEquals(0, course.getStudents().size());
-        assertNotNull(studentDao.getStudentById(2100L));
 
         // Add a student
         studentDao.addStudentToCourse(2100L, 100L);
+
+        // Check before flush
+        assertEquals(1, student.getCourses().size());
+        assertEquals(1, course.getStudents().size());
+
         dbInstance.flush();
         dbInstance.clear();
 
+        student = studentDao.getStudentById(2100L);
+        assertEquals(1, student.getCourses().size());
         course = courseDao.getCourseById(100L);
         assertEquals(1, course.getStudents().size());
     }
@@ -149,6 +159,10 @@ public class StudentDaoTest extends OlatTestCase {
         assertEquals(2, course.getStudents().size());
 
         studentDao.delete(students.get(0));
+
+        // Check before flush
+        assertEquals(1, course.getStudents().size());
+
         dbInstance.flush();
         dbInstance.clear();
 
@@ -172,6 +186,10 @@ public class StudentDaoTest extends OlatTestCase {
         studentIds.add(2200L);
 
         studentDao.deleteByStudentIds(studentIds);
+
+        // Check before flush
+        assertEquals(0, course.getStudents().size());
+
         dbInstance.flush();
         dbInstance.clear();
 

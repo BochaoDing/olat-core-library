@@ -85,19 +85,13 @@ public class StudentDao implements CampusDao<Student> {
     }
     
     public void delete(Student student) {
-        // http://stackoverflow.com/questions/1082095/how-to-remove-entity-with-manytomany-relationship-in-jpa-and-corresponding-join
-    	dbInstance.deleteObject(student);
-        deleteJoinTableEntries(student);
+        deleteStudentBidirectionally(student);
     }
 
     public void deleteByStudentIds(List<Long> studentIds) {
         for (Long studentId : studentIds) {
-            deleteJoinTableEntries(dbInstance.getCurrentEntityManager().getReference(Student.class, studentId));
+            deleteStudentBidirectionally(dbInstance.getCurrentEntityManager().getReference(Student.class, studentId));
         }
-    	 dbInstance.getCurrentEntityManager()
-                 .createNamedQuery(Student.DELETE_BY_STUDENT_IDS)
-                 .setParameter("studentIds", studentIds)
-                 .executeUpdate();
     }
     
     public List<Student> getAllPilotStudents() {               
@@ -106,10 +100,11 @@ public class StudentDao implements CampusDao<Student> {
                 .getResultList();
     }
 
-    private void deleteJoinTableEntries(Student student) {
+    private void deleteStudentBidirectionally(Student student) {
         for (Course course : student.getCourses()) {
             course.getStudents().remove(student);
         }
+        dbInstance.deleteObject(student);
     }
 
 }

@@ -60,7 +60,7 @@ public class CourseDao implements CampusDao<Course> {
     }
 
     public void delete(Course course) {
-        dbInstance.deleteObject(course);
+        deleteCourseBidirectionally(course);
     }
 
     public void saveResourceableId(Long courseId, Long resourceableId) {  
@@ -82,18 +82,14 @@ public class CourseDao implements CampusDao<Course> {
 		        .executeUpdate();
     }
 
-    public int deleteByCourseId(Long courseId) {
-        return dbInstance.getCurrentEntityManager()
-                .createNamedQuery(Course.DELETE_BY_COURSE_ID)
-                .setParameter("courseId", courseId)
-                .executeUpdate();
+    public void deleteByCourseId(Long courseId) {
+        deleteCourseBidirectionally(dbInstance.getCurrentEntityManager().getReference(Course.class, courseId));
     }
 
-    public int deleteByCourseIds(List<Long> courseIds) {
-        return dbInstance.getCurrentEntityManager()
-                .createNamedQuery(Course.DELETE_BY_COURSE_IDS)
-                .setParameter("courseIds", courseIds)
-                .executeUpdate();
+    public void deleteByCourseIds(List<Long> courseIds) {
+        for (Long courseId : courseIds) {
+            deleteCourseBidirectionally(dbInstance.getCurrentEntityManager().getReference(Course.class, courseId));
+        }
     }
     
     public List<Long> getIdsOfAllCreatedCourses() {               
@@ -135,4 +131,14 @@ public class CourseDao implements CampusDao<Course> {
         return !courseIds.isEmpty();
     }
 
+    private void deleteCourseBidirectionally(Course course) {
+        // Update ManyToMany associations
+        for (Lecturer lecturer : course.getLecturers()) {
+            lecturer.getCourses().remove(course);
+        }
+        for (Student student : course.getStudents()) {
+            student.getCourses().remove(course);
+        }
+        dbInstance.deleteObject(course);
+    }
 }
