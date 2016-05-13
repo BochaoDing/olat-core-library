@@ -127,15 +127,12 @@ public class CourseDao implements CampusDao<Course> {
                 .getResultList();
     }
 
-//    public boolean existResourceableId(Long resourceableId) {
-//        Map<String, Object> restrictionMap = new HashMap<String, Object>();
-//        restrictionMap.put("resourceableId", resourceableId);
-//        List<Course> courses = genericDao.findByCriteria(restrictionMap);
-//
-//        if (!courses.isEmpty()) {
-//            return true;
-//        }
-//        return false;
-//    }
+    public boolean existResourceableId(Long resourceableId) {
+        List<Long> courseIds = dbInstance.getCurrentEntityManager()
+                .createNamedQuery(Course.GET_COURSE_IDS_BY_RESOURCEABLE_ID, Long.class)
+                .setParameter("resourceableId", resourceableId)
+                .getResultList();
+        return !courseIds.isEmpty();
+    }
 
 }

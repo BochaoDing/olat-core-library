@@ -2,7 +2,6 @@ package ch.uzh.campus.data;
 
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.olat.core.commons.persistence.DB;
 import org.olat.test.OlatTestCase;
@@ -10,8 +9,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 
 import javax.inject.Provider;
-
-import java.util.Date;
+import java.util.Calendar;
+import java.util.GregorianCalendar;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -215,13 +214,13 @@ public class CourseDaoTest extends OlatTestCase {
 
     @Test
     public void testGetIdsOfAllCreatedCourses() {
-        assertEquals(2, courseDao.getAllCreatedCourses().size());
+        assertEquals(2, courseDao.getIdsOfAllCreatedCourses().size());
 
         courseDao.deleteResourceableId(100L);
         dbInstance.flush();
         dbInstance.clear();
         
-        assertEquals(1, courseDao.getAllCreatedCourses().size());
+        assertEquals(1, courseDao.getIdsOfAllCreatedCourses().size());
     }
 
     @Test
@@ -246,54 +245,36 @@ public class CourseDaoTest extends OlatTestCase {
         assertEquals(1, courseDao.getAllCreatedCourses().size());
     }
 
-    @Ignore
     @Test
     public void tesGetAllNotUpdatedCourses() {
-    	List<Long> courseIds = courseDao.getAllNotUpdatedCourses(new Date());
+        Calendar now = new GregorianCalendar();
+        // To avoid rounding problems
+        Calendar nowMinusOneSecond = (Calendar) now.clone();
+        nowMinusOneSecond.add(Calendar.SECOND, -1);
+
+    	List<Long> courseIds = courseDao.getAllNotUpdatedCourses(nowMinusOneSecond.getTime());
+        // Only courses with resourceableId = null
     	assertEquals(1, courseIds.size());
-    	
-        courseDao.deleteResourceableId(100L);
-        courseDao.deleteResourceableId(200L);
+
+        assertNull(courses.get(2).getResourceableId());
+        courses.get(2).setModifiedDate(now.getTime());
         dbInstance.flush();
         dbInstance.clear();
-        try {
-			Thread.sleep(1000);
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
 
-        courseIds = courseDao.getAllNotUpdatedCourses(new Date());
-        
-        assertEquals( 3, courseIds.size());
-
-        Date now = new Date();
-
-        courses.get(0).setModifiedDate(now);
-        courseDao.save(courses);
-        dbInstance.flush();
-        dbInstance.clear();
-        
-        try {
-			Thread.sleep(2000);
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-
-        assertEquals(2, courseDao.getAllNotUpdatedCourses(new Date()).size());
+        courseIds = courseDao.getAllNotUpdatedCourses(nowMinusOneSecond.getTime());
+        assertEquals(0, courseIds.size());
     }
 
-//    @Test
-//    public void testExistResourceableId() {
-//        assertTrue(courseDao.existResourceableId(100L));
-//
-//        courseDao.deleteResourceableId(100L);
-//        transactionManager.getSessionFactory().getCurrentSession().clear();
-//
-//        assertFalse(courseDao.existResourceableId(100L));
-//
-//    }
+    @Test
+    public void testExistResourceableId() {
+        assertTrue(courseDao.existResourceableId(100L));
+
+        courseDao.deleteResourceableId(100L);
+        dbInstance.flush();
+        dbInstance.clear();
+
+        assertFalse(courseDao.existResourceableId(100L));
+    }
 
     @Test
     public void testGetCreatedCoursesByStudentId_noneFound() {
