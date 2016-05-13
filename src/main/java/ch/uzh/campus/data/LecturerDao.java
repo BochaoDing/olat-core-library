@@ -31,7 +31,6 @@ public class LecturerDao implements CampusDao<Lecturer> {
         Course course = dbInstance.getCurrentEntityManager().getReference(Course.class, courseId);
         lecturer.getCourses().add(course);
         course.getLecturers().add(lecturer);
-        dbInstance.saveObject(course);
     }
 
     public void addLecturerToCourse(LecturerIdCourseId lecturerIdCourseId) {

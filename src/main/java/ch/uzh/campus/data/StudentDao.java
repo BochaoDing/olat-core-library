@@ -33,7 +33,6 @@ public class StudentDao implements CampusDao<Student> {
         Course course = dbInstance.getCurrentEntityManager().getReference(Course.class, courseId);
         student.getCourses().add(course);
         course.getStudents().add(student);
-        dbInstance.saveObject(course);
     }
 
     public void addStudentToCourse(StudentIdCourseId studentIdCourseId) {

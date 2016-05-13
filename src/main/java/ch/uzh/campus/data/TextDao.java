@@ -23,7 +23,6 @@ public class TextDao {
         Course course = dbInstance.getCurrentEntityManager().getReference(Course.class, courseId);
         text.setCourse(course);
         course.getTexts().add(text);
-        dbInstance.saveObject(course);
     }
 
     public void addTextToCourse(TextCourseId textCourseId) {
@@ -106,7 +105,6 @@ public class TextDao {
             Text text = dbInstance.getCurrentEntityManager().getReference(Text.class, id);
             Course course = text.getCourse();
             course.getTexts().remove(text);
-            dbInstance.saveObject(course);
         }
     }
 }
