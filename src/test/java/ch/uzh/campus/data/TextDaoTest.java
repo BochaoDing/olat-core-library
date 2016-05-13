@@ -1,10 +1,6 @@
 package ch.uzh.campus.data;
 
-import static org.junit.Assert.*;
-
-import java.util.ArrayList;
-import java.util.List;
-
+import org.apache.commons.lang.StringUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -14,6 +10,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 
 import javax.inject.Provider;
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.junit.Assert.*;
 
 /**
  * Initial Date: Oct 27, 2014 <br>
@@ -37,9 +37,7 @@ public class TextDaoTest extends OlatTestCase {
 	@Autowired
     private Provider<MockDataGenerator> mockDataGeneratorProvider;
 
-	private List<TextCourseId> textCourseIds;
-
-	@Before
+    @Before
 	public void setup() {
         // Insert some courses
         List<Course> courses = mockDataGeneratorProvider.get().getCourses();
@@ -61,7 +59,7 @@ public class TextDaoTest extends OlatTestCase {
 	@Test
 	public void testGetTextsByCourseId_foundTowTexts() {
 	    addTextsToCourses();
-        assertEquals(textDao.getTextsByCourseId(100L).size(), 6);
+        assertEquals(6, textDao.getTextsByCourseId(100L).size());
 	}
 
     @Test
@@ -74,12 +72,16 @@ public class TextDaoTest extends OlatTestCase {
         // Add a text
         Text text = mockDataGeneratorProvider.get().getTextCourseIds().get(0);
         textDao.addTextToCourse(text, 100L);
+
+        // Check before flush
+        assertEquals(1, course.getTexts().size());
+
         dbInstance.flush();
         dbInstance.getCurrentEntityManager().clear();
 
         course = courseDao.getCourseById(100L);
         assertEquals(1, course.getTexts().size());
-        assertEquals(textDao.getTextsByCourseId(100L).size(), 1);
+        assertEquals(1, textDao.getTextsByCourseId(100L).size());
     }
 
     @Test
@@ -94,83 +96,120 @@ public class TextDaoTest extends OlatTestCase {
 
         course = courseDao.getCourseById(100L);
         assertEquals(6, course.getTexts().size());
-        assertEquals(textDao.getTextsByCourseId(100L).size(), 6);
+        assertEquals(6, textDao.getTextsByCourseId(100L).size());
     }
 
-	    /*
-	    @Test
-	    public void testBlankGetContentsByCourseId() {
-	        assertTrue(StringUtils.isBlank(textDao.getContentsByCourseId(999L)));
-	    }
+    @Test
+    public void testBlankGetContentsByCourseId() {
+        addTextsToCourses();
+        assertTrue(StringUtils.isBlank(textDao.getContentsByCourseId(999L)));
+    }
 
-	    @Test
-	    public void testNotBlankGetContentsByCourseId() {
-	        assertTrue(StringUtils.isNotBlank(textDao.getContentsByCourseId(100L)));
-	        assertEquals(textDao.getContentsByCourseId(100L),
-	                "- praktische Tätigkeiten im chemischen Labor<br>- Herstellung von Lösungen unterschiedlicher Konzentration<br>");
-	    }
+    @Test
+    public void testNotBlankGetContentsByCourseId() {
+        addTextsToCourses();
+        assertTrue(StringUtils.isNotBlank(textDao.getContentsByCourseId(100L)));
+        assertEquals("- praktische Tätigkeiten im chemischen Labor<br>- Herstellung von Lösungen unterschiedlicher Konzentration<br>", textDao.getContentsByCourseId(100L));
+    }
 
-	    @Test
-	    public void testBlankGetMaterialsByCourseId() {
-	        assertTrue(StringUtils.isBlank(textDao.getMaterialsByCourseId(999L)));
-	    }
+    @Test
+    public void testBlankGetMaterialsByCourseId() {
+        addTextsToCourses();
+        assertTrue(StringUtils.isBlank(textDao.getMaterialsByCourseId(999L)));
+    }
 
-	    @Test
-	    public void testNotBlankGetMaterialsByCourseId() {
-	        assertTrue(StringUtils.isNotBlank(textDao.getMaterialsByCourseId(100L)));
-	        assertEquals(textDao.getMaterialsByCourseId(100L), "Versuchsanleitungen,<br>download von homepage (s. link)<br>");
-	    }
+    @Test
+    public void testNotBlankGetMaterialsByCourseId() {
+        addTextsToCourses();
+        assertTrue(StringUtils.isNotBlank(textDao.getMaterialsByCourseId(100L)));
+        assertEquals(textDao.getMaterialsByCourseId(100L), "Versuchsanleitungen,<br>download von homepage (s. link)<br>");
+    }
 
-	    @Test
-	    public void testBlankGetInfosByCourseId() {
-	        assertTrue(StringUtils.isBlank(textDao.getInfosByCourseId(999L)));
-	    }
+    @Test
+    public void testBlankGetInfosByCourseId() {
+        addTextsToCourses();
+        assertTrue(StringUtils.isBlank(textDao.getInfosByCourseId(999L)));
+    }
 
-	    @Test
-	    public void testNotBlankGetInfosByCourseId() {
-	        assertTrue(StringUtils.isNotBlank(textDao.getInfosByCourseId(100L)));
-	        assertEquals(textDao.getInfosByCourseId(100L), "Selbsttestfragen:<br>Zugriff über www.vetpharm.uzh.ch/cyberpharm<br>");
-	    }
+    @Test
+    public void testNotBlankGetInfosByCourseId() {
+        addTextsToCourses();
+        assertTrue(StringUtils.isNotBlank(textDao.getInfosByCourseId(100L)));
+        assertEquals(textDao.getInfosByCourseId(100L), "Selbsttestfragen:<br>Zugriff über www.vetpharm.uzh.ch/cyberpharm<br>");
+    }
 
-	    @Test
-	    public void testDeleteAllTexts() {
-	        assertEquals(textDao.getTextsByCourseId(100L).size(), 6);
-	        assertEquals(textDao.getTextsByCourseId(200L).size(), 2);
+    @Test
+    public void testDeleteAllTexts() {
+        addTextsToCourses();
+        assertEquals(6, textDao.getTextsByCourseId(100L).size());
+        assertEquals(2, textDao.getTextsByCourseId(200L).size());
+        Course course = courseDao.getCourseById(100L);
+        assertEquals(6, course.getTexts().size());
 
-	        textDao.deleteAllTexts();
+        textDao.deleteAllTexts();
 
-	        assertEquals(textDao.getTextsByCourseId(100L).size(), 0);
-	        assertEquals(textDao.getTextsByCourseId(200L).size(), 0);
-	    }
+        // Check before flush
+        assertEquals(0, course.getTexts().size());
 
-	    @Test
-	    public void testDeleteTextsByCourseId() {
-	        assertEquals(textDao.getTextsByCourseId(100L).size(), 6);
-	        assertEquals(textDao.getTextsByCourseId(200L).size(), 2);
+        dbInstance.flush();
+        dbInstance.clear();
 
-	        textDao.deleteTextsByCourseId(100L);
+        assertEquals(0, textDao.getTextsByCourseId(100L).size());
+        assertEquals(0, textDao.getTextsByCourseId(200L).size());
+        course = courseDao.getCourseById(100L);
+        assertEquals(0, course.getTexts().size());
+    }
 
-	        assertEquals(textDao.getTextsByCourseId(100L).size(), 0);
-	        assertEquals(textDao.getTextsByCourseId(200L).size(), 2);
-	    }
+    @Test
+    public void testDeleteTextsByCourseId() {
+        addTextsToCourses();
+        assertEquals(6, textDao.getTextsByCourseId(100L).size());
+        assertEquals(2, textDao.getTextsByCourseId(200L).size());
+        Course course = courseDao.getCourseById(100L);
+        assertEquals(6, course.getTexts().size());
 
-	    @Test
-	    public void testDeleteTextsByCourseIds() {
-	        assertEquals(textDao.getTextsByCourseId(100L).size(), 6);
-	        assertEquals(textDao.getTextsByCourseId(200L).size(), 2);
+        textDao.deleteTextsByCourseId(100L);
 
-	        List<Long> courseIds = new LinkedList<Long>();
-	        courseIds.add(100L);
-	        courseIds.add(200L);
+        // Check before flush
+        assertEquals(0, course.getTexts().size());
 
-	        textDao.deleteTextsByCourseIds(courseIds);
+        dbInstance.flush();
+        dbInstance.clear();
 
-	        assertEquals(textDao.getTextsByCourseId(100L).size(), 0);
-	        assertEquals(textDao.getTextsByCourseId(200L).size(), 0);
-	    }
-*/
+        assertEquals(0, textDao.getTextsByCourseId(100L).size());
+        assertEquals(2, textDao.getTextsByCourseId(200L).size());
+        course = courseDao.getCourseById(100L);
+        assertEquals(0, course.getTexts().size());
+    }
+
+    @Test
+    public void testDeleteTextsByCourseIds() {
+        addTextsToCourses();
+        assertEquals(6, textDao.getTextsByCourseId(100L).size());
+        assertEquals(2, textDao.getTextsByCourseId(200L).size());
+        Course course = courseDao.getCourseById(100L);
+        assertEquals(6, course.getTexts().size());
+
+        List<Long> courseIds = new ArrayList<>();
+        courseIds.add(100L);
+        courseIds.add(200L);
+
+        textDao.deleteTextsByCourseIds(courseIds);
+
+        // Check before flush
+        assertEquals(0, course.getTexts().size());
+
+        dbInstance.flush();
+        dbInstance.clear();
+
+        assertEquals(0, textDao.getTextsByCourseId(100L).size());
+        assertEquals(0, textDao.getTextsByCourseId(200L).size());
+        course = courseDao.getCourseById(100L);
+        assertEquals(0, course.getTexts().size());
+    }
+
     private void addTextsToCourses() {
-        textCourseIds = mockDataGeneratorProvider.get().getTextCourseIds();
+        List<TextCourseId> textCourseIds = mockDataGeneratorProvider.get().getTextCourseIds();
         textDao.addTextsToCourse(textCourseIds);
         dbInstance.flush();
     }
