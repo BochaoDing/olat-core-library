@@ -20,9 +20,9 @@
  */
 package ch.uzh.campus.data;
 
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
+import ch.uzh.campus.CampusCourseImportTO;
 import ch.uzh.campus.DataConverter;
 import ch.uzh.campus.utils.ListUtil;
 import org.olat.core.id.Identity;
@@ -128,10 +128,10 @@ public class DaoManager {
         return courseDao.existResourceableId(resourceableId);
     }
 
-//    public void delete(Course course) {
-//        courseDao.delete(course);
-//    }
-//
+    public void deleteCourse(Course course) {
+        courseDao.delete(course);
+    }
+
     public void deleteCourseById(Long courseId) {
         courseDao.deleteByCourseId(courseId);
     }
@@ -181,7 +181,7 @@ public class DaoManager {
 //        }
 //    }
 
-    public void delete(Student student) {
+    public void deleteStudent(Student student) {
         studentDao.delete(student);
     }
 
@@ -201,16 +201,17 @@ public class DaoManager {
 //        return studentCourseDao.deleteAllNotUpdatedSCBooking(date);
 //    }
 //
-//    public void deleteLecturersAndBookingsByLecturerIds(List<Long> lecturerIds) {
-//        List<List<Long>> listSplit = ListUtil.split(lecturerIds, campusConfiguration.getEntitiesSublistMaxSize());
-//        for (List<Long> subList : listSplit) {
-//            if (!subList.isEmpty()) {
+    public void deleteLecturersAndBookingsByLecturerIds(List<Long> lecturerIds) {
+        List<List<Long>> listSplit = ListUtil.split(lecturerIds, campusConfiguration.getEntitiesSublistMaxSize());
+        for (List<Long> subList : listSplit) {
+            if (!subList.isEmpty()) {
+                // TODO check whether lecturer course records get deleted with the lecturer himself
 //                lecturerCourseDao.deleteByLecturerIds(subList);
-//                sapOlatUserDao.deleteMappingBySapLecturerIds(subList);
-//                lecturerDao.deleteByLecturerIds(subList);
-//            }
-//        }
-//    }
+                sapOlatUserDao.deleteMappingBySapLecturerIds(subList);
+                lecturerDao.deleteByLecturerIds(subList);
+            }
+        }
+    }
 
     public void delete(Lecturer lecturer) {
         lecturerDao.delete(lecturer);
@@ -312,74 +313,74 @@ public class DaoManager {
 //        return courseDao.getPilotCoursesByStudentId(id);
 //    }
 //
-//    public List<Course> getCreatedCoursesByStudentId(Long id) {
-//        return courseDao.getCreatedCoursesByStudentId(id);
-//    }
-//
-//    public List<Course> getNotCreatedCoursesByStudentId(Long id) {
-//        return courseDao.getNotCreatedCoursesByStudentId(id);
-//    }
-//
+    public List<Course> getCreatedCoursesByStudentId(Long id) {
+        return courseDao.getCreatedCoursesByStudentId(id);
+    }
+
+    public List<Course> getNotCreatedCoursesByStudentId(Long id) {
+        return courseDao.getNotCreatedCoursesByStudentId(id);
+    }
+
 //    public List<Course> getPilotCoursesByLecturerId(Long id) {
 //        return courseDao.getPilotCoursesByLecturerId(id);
 //    }
 //
-//    public List<Course> getCreatedCoursesByLecturerIds(List<Long> ids) {
-//        return courseDao.getCreatedCoursesByLecturerIds(ids);
-//    }
-//
-//    public List<Course> getNotCreatedCoursesByLecturerIds(List<Long> ids) {
-//        return courseDao.getNotCreatedCoursesByLecturerIds(ids);
-//    }
+    public List<Course> getCreatedCoursesByLecturerIds(List<Long> ids) {
+        return courseDao.getCreatedCoursesByLecturerIds(ids);
+    }
 
-//    public Set<Course> getCampusCoursesWithoutResourceableId(Identity identity, SapOlatUser.SapUserType userType) {
-//        Set<Course> coursesWithoutResourceableId = new HashSet<Course>();
-//        coursesWithoutResourceableId.addAll(getCourses(identity.getName(), userType, false));// false --- > notCreatedCourses
-//        // THE CASE OF LECTURER, ADD THE APPRORIATE DELEGATEES
-//        if (userType.equals(SapOlatUser.SapUserType.LECTURER)) {
-//            List<Delegation> delegations = delegationDao.getDelegationByDelegatee(identity.getName());
-//            for (Delegation delegation : delegations) {
-//                coursesWithoutResourceableId.addAll(getCourses(delegation.getDelegator(), userType, false));// false --- > notCreatedCourses
-//            }
-//        }
-//        return coursesWithoutResourceableId;
-//    }
-//
-//    public Set<Course> getCampusCoursesWithResourceableId(Identity identity, SapOlatUser.SapUserType userType) {
-//        Set<Course> coursesWithResourceableId = new HashSet<Course>();
-//        coursesWithResourceableId.addAll(getCourses(identity.getName(), userType, true));// true --- > CreatedCourses
-//        // THE CASE OF LECTURER, ADD THE APPRORIATE DELEGATEES
-//        if (userType.equals(SapOlatUser.SapUserType.LECTURER)) {
-//            List<Delegation> delegations = delegationDao.getDelegationByDelegatee(identity.getName());
-//            for (Delegation delegation : delegations) {
-//                coursesWithResourceableId.addAll(getCourses(delegation.getDelegator(), userType, true));// true --- > CreatedCourses
-//            }
-//        }
-//        return coursesWithResourceableId;
-//    }
+    public List<Course> getNotCreatedCoursesByLecturerIds(List<Long> ids) {
+        return courseDao.getNotCreatedCoursesByLecturerIds(ids);
+    }
 
-//    public List<Course> getCourses(String olatUserName, SapOlatUser.SapUserType userType, boolean created) {
-//        if (userType.equals(SapOlatUser.SapUserType.LECTURER)) {
-//            List<SapOlatUser> sapOlatUsers = getLecturerSapOlatUsersByOlatUserName(olatUserName);
-//            if (sapOlatUsers.isEmpty()) {
-//                return Collections.<Course> emptyList();
-//            } else {
-//                List<Long> sapUserIds = new ArrayList<Long>();
-//                for (SapOlatUser sapOlatUser : sapOlatUsers) {
-//                    sapUserIds.add(sapOlatUser.getSapUserId());
-//                }
-//                return (created) ? getCreatedCoursesByLecturerIds(sapUserIds) : getNotCreatedCoursesByLecturerIds(sapUserIds);
-//            }
-//        } else {
-//            SapOlatUser sapOlatUser = getStudentSapOlatUserByOlatUserName(olatUserName);
-//            if (sapOlatUser == null) {
-//                return Collections.<Course> emptyList();
-//            } else {
-//                return (created) ? getCreatedCoursesByStudentId(sapOlatUser.getSapUserId()) : getNotCreatedCoursesByStudentId(sapOlatUser.getSapUserId());
-//            }
-//        }
-//    }
-//
+    public Set<Course> getCampusCoursesWithoutResourceableId(Identity identity, SapOlatUser.SapUserType userType) {
+        Set<Course> coursesWithoutResourceableId = new HashSet<Course>();
+        coursesWithoutResourceableId.addAll(getCourses(identity.getName(), userType, false));// false --- > notCreatedCourses
+        // THE CASE OF LECTURER, ADD THE APPRORIATE DELEGATEES
+        if (userType.equals(SapOlatUser.SapUserType.LECTURER)) {
+            List<Delegation> delegations = delegationDao.getDelegationByDelegatee(identity.getName());
+            for (Delegation delegation : delegations) {
+                coursesWithoutResourceableId.addAll(getCourses(delegation.getDelegator(), userType, false));// false --- > notCreatedCourses
+            }
+        }
+        return coursesWithoutResourceableId;
+    }
+
+    public Set<Course> getCampusCoursesWithResourceableId(Identity identity, SapOlatUser.SapUserType userType) {
+        Set<Course> coursesWithResourceableId = new HashSet<Course>();
+        coursesWithResourceableId.addAll(getCourses(identity.getName(), userType, true));// true --- > CreatedCourses
+        // THE CASE OF LECTURER, ADD THE APPRORIATE DELEGATEES
+        if (userType.equals(SapOlatUser.SapUserType.LECTURER)) {
+            List<Delegation> delegations = delegationDao.getDelegationByDelegatee(identity.getName());
+            for (Delegation delegation : delegations) {
+                coursesWithResourceableId.addAll(getCourses(delegation.getDelegator(), userType, true));// true --- > CreatedCourses
+            }
+        }
+        return coursesWithResourceableId;
+    }
+
+    public List<Course> getCourses(String olatUserName, SapOlatUser.SapUserType userType, boolean created) {
+        if (userType.equals(SapOlatUser.SapUserType.LECTURER)) {
+            List<SapOlatUser> sapOlatUsers = getLecturerSapOlatUsersByOlatUserName(olatUserName);
+            if (sapOlatUsers.isEmpty()) {
+                return Collections.<Course> emptyList();
+            } else {
+                List<Long> sapUserIds = new ArrayList<Long>();
+                for (SapOlatUser sapOlatUser : sapOlatUsers) {
+                    sapUserIds.add(sapOlatUser.getSapUserId());
+                }
+                return (created) ? getCreatedCoursesByLecturerIds(sapUserIds) : getNotCreatedCoursesByLecturerIds(sapUserIds);
+            }
+        } else {
+            SapOlatUser sapOlatUser = getStudentSapOlatUserByOlatUserName(olatUserName);
+            if (sapOlatUser == null) {
+                return Collections.<Course> emptyList();
+            } else {
+                return (created) ? getCreatedCoursesByStudentId(sapOlatUser.getSapUserId()) : getNotCreatedCoursesByStudentId(sapOlatUser.getSapUserId());
+            }
+        }
+    }
+
 //    @Transactional(propagation = Propagation.REQUIRES_NEW)
 //    public void saveCampusCourseResoureableId(Long courseId, Long resourceableId) {
 //        courseDao.saveResourceableId(courseId, resourceableId);
@@ -396,44 +397,44 @@ public class DaoManager {
 //        courseDao.deleteResourceableId(resourceableId);
 //    }
 //
-//    public List<Long> getAllCreatedSapCourcesIds() {
-//        return courseDao.getIdsOfAllCreatedCourses();
-//    }
-//
-//    public List<Long> getAllCreatedSapCourcesResourceableIds() {
-//        return courseDao.getResourceableIdsOfAllCreatedCourses();
-//    }
-//
-//    public List<Long> getAllNotCreatedSapCourcesIds() {
-//        return courseDao.getIdsOfAllNotCreatedCourses();
-//    }
+    public List<Long> getAllCreatedSapCourcesIds() {
+        return courseDao.getIdsOfAllCreatedCourses();
+    }
+
+    public List<Long> getAllCreatedSapCourcesResourceableIds() {
+        return courseDao.getResourceableIdsOfAllCreatedCourses();
+    }
+
+    public List<Long> getAllNotCreatedSapCourcesIds() {
+        return courseDao.getIdsOfAllNotCreatedCourses();
+    }
 
     public List<Long> getIdsOfAllEnabledOrgs() {
         return orgDao.getIdsOfAllEnabledOrgs();
     }
 
-//    public List<Course> getAllCreatedSapCources() {
-//        return courseDao.getAllCreatedCourses();
-//    }
-//
-//    public CampusCourseImportTO getSapCampusCourse(long courseId) {
-//        Course course = getCourseById(courseId);
-//        if (course == null) {
-//            return null;
-//        }
-//        return new CampusCourseImportTO(course.getTitle(), course.getSemester(), dataConverter.convertLecturersToIdentities(course.getCourseLecturerSet()),
-//                dataConverter.convertDelegateesToIdentities(course.getCourseLecturerSet()), dataConverter.convertStudentsToIdentities(course.getCourseStudentSet()),
-//                textDao.getContentsByCourseId(course.getId()), course.getResourceableId(), course.getId(), course.getLanguage());
-//    }
-//
-//    public CampusCourseImportTO getSapCampusCourse(Course course) {
-//        if (course == null) {
-//            return null;
-//        }
-//        return new CampusCourseImportTO(course.getTitle(), course.getSemester(), dataConverter.convertLecturersToIdentities(course.getCourseLecturerSet()),
-//                dataConverter.convertDelegateesToIdentities(course.getCourseLecturerSet()), dataConverter.convertStudentsToIdentities(course.getCourseStudentSet()),
-//                textDao.getContentsByCourseId(course.getId()), course.getResourceableId(), course.getId(), course.getLanguage());
-//    }
+    public List<Course> getAllCreatedSapCources() {
+        return courseDao.getAllCreatedCourses();
+    }
+
+    public CampusCourseImportTO getSapCampusCourse(long courseId) {
+        Course course = getCourseById(courseId);
+        if (course == null) {
+            return null;
+        }
+        return new CampusCourseImportTO(course.getTitle(), course.getSemester(), dataConverter.convertLecturersToIdentities(course.getLecturers()),
+                dataConverter.convertDelegateesToIdentities(course.getLecturers()), dataConverter.convertStudentsToIdentities(course.getStudents()),
+                textDao.getContentsByCourseId(course.getId()), course.getResourceableId(), course.getId(), course.getLanguage());
+    }
+
+    public CampusCourseImportTO getSapCampusCourse(Course course) {
+        if (course == null) {
+            return null;
+        }
+        return new CampusCourseImportTO(course.getTitle(), course.getSemester(), dataConverter.convertLecturersToIdentities(course.getLecturers()),
+                dataConverter.convertDelegateesToIdentities(course.getLecturers()), dataConverter.convertStudentsToIdentities(course.getStudents()),
+                textDao.getContentsByCourseId(course.getId()), course.getResourceableId(), course.getId(), course.getLanguage());
+    }
 
     public List getDelegatees(Identity delegator) {
         return dataConverter.getDelegatees(delegator);
@@ -447,12 +448,12 @@ public class DaoManager {
         return (statisticDao.getLastCompletedImportedStatistic().size() == campusConfiguration.getMustCompletedImportedFiles());
     }
 
-//    public void deleteOldLecturerMapping() {
-//        sapOlatUserDao.deleteOldLecturerMapping();
-//    }
-//
-//    public void deleteOldStudentMapping() {
-//        sapOlatUserDao.deleteOldStudentMapping();
-//    }
+    public void deleteOldLecturerMapping() {
+        sapOlatUserDao.deleteOldLecturerMapping();
+    }
+
+    public void deleteOldStudentMapping() {
+        sapOlatUserDao.deleteOldStudentMapping();
+    }
 
 }
