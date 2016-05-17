@@ -17,10 +17,8 @@ public class ExportDao implements CampusDao<Export> {
 	@Autowired
     private DB dbInstance;
     
-
     @Override
     public void save(List<Export> exports) {
-        //genericDao.save(exports);
     	for(Export export: exports) {
     		dbInstance.saveObject(export);
     	}
