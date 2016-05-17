@@ -168,12 +168,9 @@
 		<class>ch.uzh.campus.data.Event</class>
 		<class>ch.uzh.campus.data.Export</class>
 		<class>ch.uzh.campus.data.SapOlatUser</class>	
-
-		<!-- OUTCOMMENTED	
-		<class>ch.uzh.campus.data.SkipItem</class>			
 		<class>ch.uzh.campus.data.Delegation</class>
-		-->
-		
+		<class>ch.uzh.campus.data.SkipItem</class>
+
 		<properties>
 			<property name="hibernate.generate_statistics" value="true"/>
 			<property name="hibernate.archive.autodetection" value=""/>
