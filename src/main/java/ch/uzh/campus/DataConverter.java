@@ -35,8 +35,8 @@ import org.springframework.stereotype.Component;
 @Component
 public class DataConverter {
 
-//    @Autowired
-//    SapOlatUserDao sapOlatUserDao;
+    @Autowired
+    SapOlatUserDao sapOlatUserDao;
 
     @Autowired
     DelegationDao delegationDao;
@@ -54,19 +54,19 @@ public class DataConverter {
         this.baseSecurity = baseSecurity;
     }
 
-    public List<Identity> convertStudentsToIdentities(Set<CourseStudent> courseStudents) {
+    public List<Identity> convertStudentsToIdentities(Set<Student> students) {
         List<Identity> identitiesOfparticipant = new ArrayList<Identity>();
         SapOlatUser sapOlatUser = null;
-//        for (CourseStudent courseStudent : courseStudents) {
-//            sapOlatUser = sapOlatUserDao.getSapOlatUserBySapUserId(courseStudent.getStudent().getId());
-//            if (sapOlatUser == null) {
-//                continue;
-//            }
-//            Identity identity = findIdentity(sapOlatUser.getOlatUserName());
-//            if (identity != null) {
-//                identitiesOfparticipant.add(identity);
-//            }
-//        }
+        for (Student student : students) {
+            sapOlatUser = sapOlatUserDao.getSapOlatUserBySapUserId(student.getId());
+            if (sapOlatUser == null) {
+                continue;
+            }
+            Identity identity = findIdentity(sapOlatUser.getOlatUserName());
+            if (identity != null) {
+                identitiesOfparticipant.add(identity);
+            }
+        }
         return identitiesOfparticipant;
     }
 
@@ -74,22 +74,22 @@ public class DataConverter {
         List<Identity> identitiesOfLecturers = new ArrayList<Identity>();
         SapOlatUser sapOlatUser = null;
         for (Lecturer lecturer : lecturers) {
-//            sapOlatUser = sapOlatUserDao.getSapOlatUserBySapUserId(lecturer.getPersonalNr());
-//            if (sapOlatUser == null) {
-//                continue;
-//            }
-//            Identity identity = findIdentity(sapOlatUser.getOlatUserName());
-//            if (identity != null) {
-//                identitiesOfLecturers.add(identity);
-//            }
-//
-//            List<Delegation> delegations = delegationDao.getDelegationByDelegator(sapOlatUser.getOlatUserName());
-//            for (Delegation delegation : delegations) {
-//                Identity delegatee = findIdentity(delegation.getDelegatee());
-//                if (delegatee != null) {
-//                    identitiesOfLecturers.add(delegatee);
-//                }
-//            }
+            sapOlatUser = sapOlatUserDao.getSapOlatUserBySapUserId(lecturer.getPersonalNr());
+            if (sapOlatUser == null) {
+                continue;
+            }
+            Identity identity = findIdentity(sapOlatUser.getOlatUserName());
+            if (identity != null) {
+                identitiesOfLecturers.add(identity);
+            }
+
+            List<Delegation> delegations = delegationDao.getDelegationByDelegator(sapOlatUser.getOlatUserName());
+            for (Delegation delegation : delegations) {
+                Identity delegatee = findIdentity(delegation.getDelegatee());
+                if (delegatee != null) {
+                    identitiesOfLecturers.add(delegatee);
+                }
+            }
         }
         return identitiesOfLecturers;
     }
@@ -98,17 +98,17 @@ public class DataConverter {
         List<Identity> identitiesOfLecturers = new ArrayList<Identity>();
         SapOlatUser sapOlatUser = null;
         for (Lecturer lecturer : lecturers) {
-//            sapOlatUser = sapOlatUserDao.getSapOlatUserBySapUserId(lecturer.getPersonalNr());
-//            if (sapOlatUser == null) {
-//                continue;
-//            }
-//            List<Delegation> delegations = delegationDao.getDelegationByDelegator(sapOlatUser.getOlatUserName());
-//            for (Delegation delegation : delegations) {
-//                Identity delegatee = findIdentity(delegation.getDelegatee());
-//                if (delegatee != null) {
-//                    identitiesOfLecturers.add(delegatee);
-//                }
-//            }
+            sapOlatUser = sapOlatUserDao.getSapOlatUserBySapUserId(lecturer.getPersonalNr());
+            if (sapOlatUser == null) {
+                continue;
+            }
+            List<Delegation> delegations = delegationDao.getDelegationByDelegator(sapOlatUser.getOlatUserName());
+            for (Delegation delegation : delegations) {
+                Identity delegatee = findIdentity(delegation.getDelegatee());
+                if (delegatee != null) {
+                    identitiesOfLecturers.add(delegatee);
+                }
+            }
         }
         return identitiesOfLecturers;
     }
