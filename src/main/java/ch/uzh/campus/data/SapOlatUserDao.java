@@ -94,31 +94,32 @@ public class SapOlatUserDao {
         }
     }
 
-    /*
-    public void deleteMapping(SapOlatUser sapUser) {
-        genericDao.delete(sapUser);
+   
+    public void deleteMapping(SapOlatUser sapUser) {        
+        dbInstance.deleteObject(sapUser);
+    }
+    
+    public void deleteMappingBySapLecturerIds(List<Long> sapIds) { 
+        dbInstance.getCurrentEntityManager().createNamedQuery(SapOlatUser.DELETE_SAP_OLAT_LECTURERS_BY_SAP_IDS)        
+		.setParameter("sapIds", sapIds)		
+		.executeUpdate();
+    }
+    
+    public void deleteMappingBySapStudentIds(List<Long> sapIds) { 
+        dbInstance.getCurrentEntityManager().createNamedQuery(SapOlatUser.DELETE_SAP_OLAT_STUDENTS_BY_SAP_IDS)        
+		.setParameter("sapIds", sapIds)		
+		.executeUpdate();
+    }
+    
+    
+    public void deleteOldLecturerMapping() {  
+        dbInstance.getCurrentEntityManager().createNamedQuery(SapOlatUser.DELETE_SAP_OLAT_LECTURERS) 
+		.executeUpdate();
+    }
+    
+    public void deleteOldStudentMapping() {   
+        dbInstance.getCurrentEntityManager().createNamedQuery(SapOlatUser.DELETE_SAP_OLAT_STUDENTS) 
+		.executeUpdate();
     }
 
-    public void deleteMappingBySapLecturerIds(List<Long> sapIds) {
-        Query query = genericDao.getNamedQuery(SapOlatUser.DELETE_SAP_OLAT_LECTURERS_BY_SAP_IDS);
-        query.setParameterList("sapIds", sapIds);
-        query.executeUpdate();
-    }
-
-    public void deleteMappingBySapStudentIds(List<Long> sapIds) {
-        Query query = genericDao.getNamedQuery(SapOlatUser.DELETE_SAP_OLAT_STUDENTS_BY_SAP_IDS);
-        query.setParameterList("sapIds", sapIds);
-        query.executeUpdate();
-    }
-
-    public void deleteOldLecturerMapping() {
-        Query query = genericDao.getNamedQuery(SapOlatUser.DELETE_SAP_OLAT_LECTURERS);
-        query.executeUpdate();
-    }
-
-    public void deleteOldStudentMapping() {
-        Query query = genericDao.getNamedQuery(SapOlatUser.DELETE_SAP_OLAT_STUDENTS);
-        query.executeUpdate();
-    }
-*/
 }
