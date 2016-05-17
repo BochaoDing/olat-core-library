@@ -7,10 +7,12 @@ import java.util.Map;
 import java.util.Set;
 
 import org.olat.core.commons.persistence.DB;
-//import org.olat.data.basesecurity.Identity;
+import org.olat.core.id.Identity;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
+
+import ch.uzh.campus.data.SapOlatUser.SapUserType;
 
 /**
  * Initial Date: 04.06.2012 <br>
@@ -53,33 +55,34 @@ public class SapOlatUserDao {
         return null;
     }
 
-    /*
+    
     public List<SapOlatUser> getSapOlatUsersByOlatUserNameAndSapUserType(String olatUserName, SapOlatUser.SapUserType sapUserType) {
-        Map<String, Object> restrictionMap = new HashMap<String, Object>();
-        restrictionMap.put("olatUserName", olatUserName);
-        restrictionMap.put("sapUserType", sapUserType);
-        List<SapOlatUser> sapOlatUsers = genericDao.findByCriteria(restrictionMap);
-
-        return sapOlatUsers;
+        return dbInstance.getCurrentEntityManager()
+        		.createNamedQuery(SapOlatUser.GET_SAP_OLAT_USER_BY_OLAT_USERNAME_AND_TYPE, SapOlatUser.class)
+        		.setParameter("olatUserName", olatUserName)
+        		.setParameter("sapUserType", sapUserType)
+        		.getResultList();
     }
-
+    
+    
     public List<SapOlatUser> getSapOlatUsersBySapIds(Set<Long> sapUserIds) {
         if (sapUserIds == null || sapUserIds.isEmpty()) {
             return new ArrayList<SapOlatUser>();
-        }
-        Map<String, Object> parameters = new HashMap<String, Object>();
-        parameters.put(SapOlatUser.SAP_IDS_PARAM, sapUserIds);
-        return genericDao.getNamedQueryListResult(SapOlatUser.GET_SAP_OLAT_USERS_BY_SAP_IDS, parameters);
+        }                
+        return dbInstance.getCurrentEntityManager()
+        		.createNamedQuery(SapOlatUser.GET_SAP_OLAT_USERS_BY_SAP_IDS, SapOlatUser.class)
+        		.setParameter(SapOlatUser.SAP_IDS_PARAM, sapUserIds)        		
+        		.getResultList();
     }
-
+    
     public void saveMapping(Student student, Identity mappedIdentity) {
-        SapOlatUser sapOlatUser = new SapOlatUser(student.getId(), mappedIdentity.getName(), SapUserType.STUDENT);
-        genericDao.saveOrUpdate(sapOlatUser);
+        SapOlatUser sapOlatUser = new SapOlatUser(student.getId(), mappedIdentity.getName(), SapUserType.STUDENT);        
+        dbInstance.saveObject(sapOlatUser);
     }
-
+    
     public void saveMapping(Lecturer lecturer, Identity mappedIdentity) {
         SapOlatUser sapOlatUser = new SapOlatUser(lecturer.getPersonalNr(), mappedIdentity.getName(), SapUserType.LECTURER);
-        genericDao.saveOrUpdate(sapOlatUser);
+        dbInstance.saveObject(sapOlatUser);
     }
 
     public boolean existsMappingForSapUserId(Long sapUserId) {
@@ -91,6 +94,7 @@ public class SapOlatUserDao {
         }
     }
 
+    /*
     public void deleteMapping(SapOlatUser sapUser) {
         genericDao.delete(sapUser);
     }

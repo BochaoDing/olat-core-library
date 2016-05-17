@@ -2,7 +2,13 @@ package ch.uzh.campus.data;
 
 import static org.junit.Assert.*;
 
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import javax.inject.Provider;
 
@@ -10,6 +16,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.olat.core.commons.persistence.DB;
+import org.olat.core.id.Identity;
 import org.olat.test.OlatTestCase;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
@@ -73,7 +80,7 @@ public class SapOlatUserDaoTest  extends OlatTestCase {
     @Test
     public void testGetSapOlatUserListByOlatUserName_NotEmpty() {
         assertFalse(sapOlatUserDao.getSapOlatUserListByOlatUserName("olatUserName1").isEmpty());
-        assertEquals(sapOlatUserDao.getSapOlatUserListByOlatUserName("olatUserName1").size(), 1);
+        assertEquals( 1, sapOlatUserDao.getSapOlatUserListByOlatUserName("olatUserName1").size());
     }
 
     @Test
@@ -87,22 +94,21 @@ public class SapOlatUserDaoTest  extends OlatTestCase {
         assertNotNull(sapOlatUserDao.getSapOlatUserByOlatUserNameAndSapUserType("olatUserName2", SapOlatUser.SapUserType.LECTURER));
         assertNotNull(sapOlatUserDao.getSapOlatUserByOlatUserNameAndSapUserType("olatUserName1", SapOlatUser.SapUserType.STUDENT));
     }
-
-    /*
+    
     @Test
-    public void testEmptyGetSapOlatUsersByOlatUserNameAndSapUserType() {
+    public void testGetSapOlatUsersByOlatUserNameAndSapUserType_Empty() {
         assertTrue(sapOlatUserDao.getSapOlatUsersByOlatUserNameAndSapUserType("olatUserName500", SapOlatUser.SapUserType.LECTURER).isEmpty());
         assertTrue(sapOlatUserDao.getSapOlatUsersByOlatUserNameAndSapUserType("olatUserName500", SapOlatUser.SapUserType.STUDENT).isEmpty());
     }
 
     @Test
-    public void testNotEmptyGetSapOlatUsersByOlatUserNameAndSapUserType() {
+    public void testGetSapOlatUsersByOlatUserNameAndSapUserType_NotEmpty() {
         assertFalse(sapOlatUserDao.getSapOlatUsersByOlatUserNameAndSapUserType("olatUserName2", SapOlatUser.SapUserType.LECTURER).isEmpty());
         assertFalse(sapOlatUserDao.getSapOlatUsersByOlatUserNameAndSapUserType("olatUserName1", SapOlatUser.SapUserType.STUDENT).isEmpty());
     }
-
+   
     @Test
-    public void testEmptyGetSapOlatUsersBySapIds() {
+    public void testGetSapOlatUsersBySapIds_Empty() {
         assertTrue(sapOlatUserDao.getSapOlatUsersBySapIds(Collections.<Long> emptySet()).isEmpty());
     }
 
@@ -112,9 +118,9 @@ public class SapOlatUserDaoTest  extends OlatTestCase {
         sapIds.add(100L);
         sapIds.add(200L);
         assertFalse(sapOlatUserDao.getSapOlatUsersBySapIds(sapIds).isEmpty());
-        assertEquals(sapOlatUserDao.getSapOlatUsersBySapIds(sapIds).size(), 2);
+        assertEquals(2, sapOlatUserDao.getSapOlatUsersBySapIds(sapIds).size());
     }
-
+    
     @Test
     public void testNotExistsMappingForSapUserId() {
         assertFalse(sapOlatUserDao.existsMappingForSapUserId(500L));
@@ -138,6 +144,7 @@ public class SapOlatUserDaoTest  extends OlatTestCase {
 
         assertTrue(sapOlatUserDao.existsMappingForSapUserId(901L));
     }
+    /*
 
     @Test
     public void testSaveMappingForLecturer() {
