@@ -24,8 +24,10 @@ import org.hibernate.annotations.NamedQuery;
  */
 @Entity
 @Table(name = "ck_import_statistic")
-@NamedQueries({ @NamedQuery(name = ImportStatistic.GET_LAST_COMPLETED_IMPORT_STATISTIC, query = "select s from ImportStatistic s where s.stepName like 'import_%' and s.status='COMPLETED'"
-        + " and s.startTime >=(select max(s2.startTime) from ImportStatistic s2 where s2.stepName='import_controlFile')") })
+@NamedQueries({
+        @NamedQuery(name = ImportStatistic.GET_LAST_COMPLETED_IMPORT_STATISTIC, query = "select s from ImportStatistic s where s.stepName like 'import_%' and s.status='COMPLETED'"
+        + " and s.startTime >=(select max(s2.startTime) from ImportStatistic s2 where s2.stepName='import_controlFile')")
+})
 public class ImportStatistic {
 
     @Id

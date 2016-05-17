@@ -43,7 +43,12 @@ import org.hibernate.annotations.NamedQuery;
  */
 @Entity
 @Table(name = "ck_delegation")
-@NamedQueries({ @NamedQuery(name = Delegation.DELETE_BY_DELEGATOR_AND_DELEGATEE, query = "delete from Delegation d where d.delegator = :delegator and d.delegatee = :delegatee") })
+@NamedQueries({
+        @NamedQuery(name = Delegation.DELETE_BY_DELEGATOR_AND_DELEGATEE, query = "delete from Delegation d where d.delegator = :delegator and d.delegatee = :delegatee"),
+        @NamedQuery(name = Delegation.GET_BY_DELEGATOR_AND_DELEGATEE, query = "select Delegation d where d.delegator = :delegator and d.delegatee = :delegatee"),
+        @NamedQuery(name = Delegation.GET_BY_DELEGATOR, query = "select Delegation d where d.delegator = :delegator"),
+        @NamedQuery(name = Delegation.GET_BY_DELEGATEE, query = "select Delegation d where d.delegatee = :delegatee")
+})
 public class Delegation {
 
     @Id
@@ -61,6 +66,9 @@ public class Delegation {
     private String delegatee;
 
     public static final String DELETE_BY_DELEGATOR_AND_DELEGATEE = "deleteByDelegatorAndDelegatee";
+    public static final String GET_BY_DELEGATOR_AND_DELEGATEE = "getByDelegatorAndDelegatee";
+    public static final String GET_BY_DELEGATOR = "deleteByDelegator";
+    public static final String GET_BY_DELEGATEE = "deleteByDelegatee";
 
     public Long getId() {
         return id;
