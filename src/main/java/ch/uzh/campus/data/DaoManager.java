@@ -20,24 +20,16 @@
  */
 package ch.uzh.campus.data;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import ch.uzh.campus.DataConverter;
-import ch.uzh.campus.utils.ListUtil;
 import org.olat.core.id.Identity;
 
 import ch.uzh.campus.CampusConfiguration;
-import ch.uzh.campus.CampusCourseImportTO;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 
 @Repository
 public class DaoManager {
@@ -51,8 +43,6 @@ public class DaoManager {
 //    private SapOlatUserDao sapOlatUserDao;
     @Autowired
     private DelegationDao delegationDao;
-    @Autowired
-    private StudentCourseDao studentCourseDao;
 //    @Autowired
 //    private LecturerCourseDao lecturerCourseDao;
     @Autowired
@@ -85,13 +75,29 @@ public class DaoManager {
         lecturerDao.save(lecturers);
     }
 
-    public void saveStudentCourses(List<StudentCourse> studentCourses) {
-        studentCourseDao.save(studentCourses);
+    public void saveStudentCourses(Student student, List<Course> courses) {
+        for(Course course : courses) {
+            studentDao.addStudentToCourse(student.getId(), course.getId());
+        }
     }
 
-//    public void saveLecturerCourses(List<LecturerCourse> lecturercourses) {
-//        lecturerCourseDao.save(lecturercourses);
-//    }
+    public void saveCourseStudents(Course course, List<Student> students) {
+        for(Student student : students) {
+            studentDao.addStudentToCourse(student.getId(), course.getId());
+        }
+    }
+
+    public void saveLecturerCourses(Lecturer lecturer, List<Course> courses) {
+        for(Course course : courses) {
+            lecturerDao.addLecturerToCourse(lecturer.getPersonalNr(), course.getId());
+        }
+    }
+
+    public void saveCourseLecturers(Course course, List<Lecturer> lecturers) {
+        for(Lecturer lecturer : lecturers) {
+            lecturerDao.addLecturerToCourse(lecturer.getPersonalNr(), course.getId());
+        }
+    }
 
     public void saveTexts(List<Text> texts) {
         textDao.save(texts);
@@ -157,10 +163,6 @@ public class DaoManager {
 //    public int deleteAllEvents() {
 //        return eventDao.deleteAllEvents();
 //    }
-
-    public void delete(StudentCourse studentCourse) {
-        studentCourseDao.delete(studentCourse);
-    }
 
 //    public void deleteStudentCourseByCoruseId(Long courseId) {
 //        studentCourseDao.deleteByCourseId(courseId);

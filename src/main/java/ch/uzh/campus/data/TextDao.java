@@ -14,10 +14,21 @@ import java.util.List;
  * @author Martin Schraner
  */
 @Repository
-public class TextDao {
+public class TextDao implements CampusDao<Text> {
 
 	@Autowired
     private DB dbInstance;
+
+    @Override
+    public void save(List<Text> texts) {
+        for(Text text : texts) {
+            dbInstance.saveObject(text);
+        }
+    }
+
+    public void save(Text text) {
+        dbInstance.saveObject(text);
+    }
 
     public void addTextToCourse(Text text, Long courseId) {
         Course course = dbInstance.getCurrentEntityManager().getReference(Course.class, courseId);
