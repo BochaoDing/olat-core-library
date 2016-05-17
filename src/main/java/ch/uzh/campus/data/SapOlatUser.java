@@ -7,15 +7,16 @@ import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.Id;
+import javax.persistence.NamedQuery;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import javax.persistence.NamedQueries;
 
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
-import org.hibernate.annotations.NamedQueries;
-import org.hibernate.annotations.NamedQuery;
+
 
 /**
  * Initial Date: 27.06.2012 <br>
@@ -24,7 +25,9 @@ import org.hibernate.annotations.NamedQuery;
  */
 @Entity
 @NamedQueries({
-        @NamedQuery(name = SapOlatUser.GET_SAP_OLAT_USERS_BY_SAP_IDS, query = "from  SapOlatUser m  " + " where m.sapUserId in (:" + SapOlatUser.SAP_IDS_PARAM + ")"),
+        @NamedQuery(name = SapOlatUser.GET_SAP_OLAT_USERS_BY_SAP_IDS, query = "from SapOlatUser m  " + " where m.sapUserId in (:" + SapOlatUser.SAP_IDS_PARAM + ")"),
+        @NamedQuery(name = SapOlatUser.GET_SAP_OLAT_USER_BY_OLAT_USERNAME, query = "from SapOlatUser s " + " where s.olatUserName = :olatUserName"),
+        @NamedQuery(name = SapOlatUser.GET_SAP_OLAT_USER_BY_OLAT_USERNAME_AND_TYPE, query = "from SapOlatUser s " + " where s.olatUserName = :olatUserName and s.sapUserType = :sapUserType"),
         @NamedQuery(name = SapOlatUser.DELETE_SAP_OLAT_LECTURERS_BY_SAP_IDS, query = "delete from SapOlatUser m where m.sapUserType = 'LECTURER' and m.sapUserId in ( :sapIds) "),
         @NamedQuery(name = SapOlatUser.DELETE_SAP_OLAT_STUDENTS_BY_SAP_IDS, query = "delete from SapOlatUser m where m.sapUserType = 'STUDENT' and m.sapUserId in ( :sapIds) "),
         @NamedQuery(name = SapOlatUser.DELETE_SAP_OLAT_STUDENTS, query = "delete from SapOlatUser m where m.sapUserType = 'STUDENT' and m.sapUserId not in (select id from Student) "),
@@ -55,6 +58,8 @@ public class SapOlatUser {
     private SapUserType sapUserType;
 
     public static final String GET_SAP_OLAT_USERS_BY_SAP_IDS = "selectSapOlatUsersBySapIds";
+    public static final String GET_SAP_OLAT_USER_BY_OLAT_USERNAME = "getSapOlatUserByOlatUsername";
+    public static final String GET_SAP_OLAT_USER_BY_OLAT_USERNAME_AND_TYPE = "getSapOlatUserByOlatUsernameAndType";
     public static final String SAP_IDS_PARAM = "sapUserIds";
     public static final String DELETE_SAP_OLAT_LECTURERS_BY_SAP_IDS = "deleteSapOlatLecturersBySapIds";
     public static final String DELETE_SAP_OLAT_STUDENTS_BY_SAP_IDS = "deleteSapOlatStudentsBySapIds";

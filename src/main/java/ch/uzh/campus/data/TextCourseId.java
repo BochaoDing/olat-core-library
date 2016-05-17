@@ -1,10 +1,5 @@
 package ch.uzh.campus.data;
 
-import org.apache.commons.lang.builder.ToStringBuilder;
-import org.hibernate.annotations.GenericGenerator;
-
-import javax.persistence.*;
-import java.util.Date;
 
 
 public class TextCourseId extends Text {
