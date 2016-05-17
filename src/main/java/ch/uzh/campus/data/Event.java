@@ -28,20 +28,20 @@ import org.hibernate.annotations.NamedQuery;
 @Entity
 @Table(name = "ck_event")
 @NamedQueries({ @NamedQuery(name = Event.DELETE_ALL_EVENTS, query = "delete from Event"),
-        @NamedQuery(name = Event.DELETE_EVENTS_BY_COURSE_ID, query = "delete from Event e where e.courseId = :courseId"),
-        @NamedQuery(name = Event.DELETE_EVENTS_BY_COURSE_IDS, query = "delete from Event e where e.courseId in( :courseIds)") })
+        @NamedQuery(name = Event.DELETE_EVENTS_BY_COURSE_ID, query = "delete from Event e where e.course.id = :courseId"),
+        @NamedQuery(name = Event.DELETE_EVENTS_BY_COURSE_IDS, query = "delete from Event e where e.course.id in( :courseIds)") })
 public class Event {
     @Id
     @GeneratedValue(generator = "system-uuid")
     @GenericGenerator(name = "system-uuid", strategy = "hilo")
     private Long id;
-
-    @Column(name = "course_id")
-    private long courseId;
+    
     @Column(name = "date")
     private Date date;
+    
     @Column(name = "start")
     private String start;
+    
     @Column(name = "end")
     private String end;
 
@@ -64,15 +64,7 @@ public class Event {
     public void setId(Long id) {
         this.id = id;
     }
-
-    public long getCourseId() {
-        return courseId;
-    }
-
-    public void setCourseId(long courseId) {
-        this.courseId = courseId;
-    }
-
+    
     public Date getDate() {
         return date;
     }
@@ -117,7 +109,7 @@ public class Event {
     public String toString() {
         ToStringBuilder builder = new ToStringBuilder(this);
         builder.append("id", getId());
-        builder.append("courseId", getCourseId());
+        builder.append("courseId", course.getId());
         builder.append("date", getDate());
         builder.append("start", getStart());
         builder.append("end", getEnd());
@@ -134,7 +126,7 @@ public class Event {
             return false;
         Event theOther = (Event) obj;
         EqualsBuilder builder = new EqualsBuilder();
-        builder.append(this.getCourseId(), theOther.getCourseId());
+        builder.append(this.course.getId(), theOther.course.getId());
         builder.append(this.getDate(), theOther.getDate());
         builder.append(this.getStart(), theOther.getStart());
         builder.append(this.getEnd(), theOther.getEnd());
@@ -145,7 +137,7 @@ public class Event {
     @Override
     public int hashCode() {
         HashCodeBuilder builder = new HashCodeBuilder(1239, 5475);
-        builder.append(this.getCourseId());
+        builder.append(this.course.getId());
         builder.append(this.getDate());
         builder.append(this.getStart());
         builder.append(this.getEnd());
