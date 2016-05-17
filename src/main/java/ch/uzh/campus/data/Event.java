@@ -28,7 +28,7 @@ import org.hibernate.annotations.NamedQuery;
 @Entity
 @Table(name = "ck_event")
 @NamedQueries({ @NamedQuery(name = Event.DELETE_ALL_EVENTS, query = "delete from Event"),
-        @NamedQuery(name = Event.GET_EVENTS_BY_COURSE_ID, query = "select from Event e where e.course.id = :courseId"),
+        @NamedQuery(name = Event.GET_EVENTS_BY_COURSE_ID, query = "select e from Event e where e.course.id = :courseId"),
         @NamedQuery(name = Event.GET_EVENT_IDS_BY_COURSE_ID, query = "select e.id from Event e where e.course.id = :courseId"),
         @NamedQuery(name = Event.DELETE_EVENTS_BY_COURSE_ID, query = "delete from Event e where e.course.id = :courseId"),
         @NamedQuery(name = Event.GET_EVENT_IDS_BY_COURSE_IDS, query = "select e.id from Event e where e.course.id in :courseId"),
