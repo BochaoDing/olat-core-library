@@ -46,12 +46,15 @@
     <!-- ======================================================================================= -->
     <!-- ===============Course================= -->
     <!-- ======================================================================================= -->
+    <bean id="course_1" class="ch.uzh.campus.data.Course" p:id="100" p:resourceableId="100" p:shortTitle="shortTitle1" p:title="title1" p:vstNr="vstNr1" p:category="Seminar" p:language="EN" p:vvzLink="link" p:semester="hs" p:shortSemester="HS" p:enabled="1" p:synchronizable="true" p:modifiedDate="10.10.2014 10:10" scope="prototype" />
+    <bean id="course_2" class="ch.uzh.campus.data.Course" p:id="200" p:resourceableId="200" p:shortTitle="shortTitle2" p:title="title2" p:vstNr="vstNr2" p:category="Seminar" p:language="EN" p:vvzLink="link" p:semester="hs" p:shortSemester="HS" p:enabled="1" p:synchronizable="true" p:modifiedDate="10.10.2014 10:10" scope="prototype" />
+    <bean id="course_3" class="ch.uzh.campus.data.Course" p:id="300" p:shortTitle="shortTitle3" p:title="title3" p:vstNr="vstNr3" p:category="Seminar" p:language="EN" p:vvzLink="link" p:semester="hs" p:shortSemester="HS" p:enabled="1" p:synchronizable="true" p:modifiedDate="10.10.2014 10:10" scope="prototype">
+        <property name="resourceableId"><null/></property>
+    </bean>
     <util:list id = 'courses' scope="prototype" >
-        <bean id="course_1" class="ch.uzh.campus.data.Course" p:id="100" p:resourceableId="100" p:shortTitle="shortTitle1" p:title="title1" p:vstNr="vstNr1" p:category="Seminar" p:language="EN" p:vvzLink="link" p:semester="hs" p:shortSemester="HS" p:enabled="1" p:synchronizable="true" p:modifiedDate="10.10.2014 10:10" scope="prototype" />
-        <bean id="course_2" class="ch.uzh.campus.data.Course" p:id="200" p:resourceableId="200" p:shortTitle="shortTitle2" p:title="title2" p:vstNr="vstNr2" p:category="Seminar" p:language="EN" p:vvzLink="link" p:semester="hs" p:shortSemester="HS" p:enabled="1" p:synchronizable="true" p:modifiedDate="10.10.2014 10:10" scope="prototype" />
-        <bean id="course_3" class="ch.uzh.campus.data.Course" p:id="300" p:shortTitle="shortTitle3" p:title="title3" p:vstNr="vstNr3" p:category="Seminar" p:language="EN" p:vvzLink="link" p:semester="hs" p:shortSemester="HS" p:enabled="1" p:synchronizable="true" p:modifiedDate="10.10.2014 10:10" scope="prototype">
-            <property name="resourceableId"><null/></property>
-        </bean>
+        <ref bean="course_1"/>
+        <ref bean="course_2"/>
+        <ref bean="course_3"/>
     </util:list>
 
     <!-- ======================================================================================= -->
@@ -103,12 +106,10 @@
     <!-- ===============Event================= -->
     <!-- ======================================================================================= -->
    <util:list id = 'events' scope="prototype" >
-         <!--<bean class="ch.uzh.campus.data.Event" p:course-ref="course_1" p:date-ref="newDate" p:start="10:00" p:end="11:30" p:modifiedDate="10.10.2014 10:10" scope="prototype" />
+        <bean class="ch.uzh.campus.data.Event" p:course-ref="course_1" p:date-ref="newDate" p:start="10:00" p:end="11:30" p:modifiedDate="10.10.2014 10:10" scope="prototype" />
         <bean class="ch.uzh.campus.data.Event" p:course-ref="course_1" p:date-ref="newDate" p:start="16:00" p:end="17:30" p:modifiedDate="10.10.2014 10:10" scope="prototype" />
-
         <bean class="ch.uzh.campus.data.Event" p:course-ref="course_2" p:date-ref="newDate" p:start="09:00" p:end="10:30" p:modifiedDate="10.10.2014 10:10" scope="prototype" />
         <bean class="ch.uzh.campus.data.Event" p:course-ref="course_2" p:date-ref="newDate" p:start="14:00" p:end="15:30" p:modifiedDate="10.10.2014 10:10" scope="prototype" />
-        -->
     </util:list>
 	
     <!-- ======================================================================================= -->

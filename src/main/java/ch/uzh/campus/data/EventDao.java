@@ -59,6 +59,7 @@ public class EventDao implements CampusDao<Event> {
             Event event = dbInstance.getCurrentEntityManager().getReference(Event.class, id);
             Course course = event.getCourse();
             course.getEvents().remove(event);
+            dbInstance.deleteObject(event);
         }
     }
 

@@ -31,7 +31,7 @@ import org.hibernate.annotations.NamedQuery;
         @NamedQuery(name = Event.GET_EVENTS_BY_COURSE_ID, query = "select e from Event e where e.course.id = :courseId"),
         @NamedQuery(name = Event.GET_EVENT_IDS_BY_COURSE_ID, query = "select e.id from Event e where e.course.id = :courseId"),
         @NamedQuery(name = Event.DELETE_EVENTS_BY_COURSE_ID, query = "delete from Event e where e.course.id = :courseId"),
-        @NamedQuery(name = Event.GET_EVENT_IDS_BY_COURSE_IDS, query = "select e.id from Event e where e.course.id in :courseId"),
+        @NamedQuery(name = Event.GET_EVENT_IDS_BY_COURSE_IDS, query = "select e.id from Event e where e.course.id in :courseIds"),
         @NamedQuery(name = Event.DELETE_EVENTS_BY_COURSE_IDS, query = "delete from Event e where e.course.id in :courseIds") })
 public class Event {
     @Id
@@ -53,7 +53,7 @@ public class Event {
     private Date modifiedDate;
 
     @ManyToOne
-    @JoinColumn(name = "course_id", nullable = false, insertable = false, updatable = false)
+    @JoinColumn(name = "course_id", nullable = false)
     private Course course;
 
     public static final String DELETE_ALL_EVENTS = "deleteAllEvents";
