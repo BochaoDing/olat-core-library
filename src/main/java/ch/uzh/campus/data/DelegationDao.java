@@ -74,10 +74,11 @@ public class DelegationDao implements CampusDao<Delegation> {
 
     public boolean existDelegation(String delegator, String delegatee) {
         boolean isEmpty = dbInstance.getCurrentEntityManager()
-                .createNamedQuery(Delegation.DELETE_BY_DELEGATOR_AND_DELEGATEE)
+                .createNamedQuery(Delegation.GET_BY_DELEGATOR_AND_DELEGATEE)
                 .setParameter("delegator", delegator)
                 .setParameter("delegatee", delegatee)
-                .getResultList().isEmpty();
+                .getResultList()
+                .isEmpty();
 
         return !isEmpty;
     }

@@ -45,9 +45,9 @@ import org.hibernate.annotations.NamedQuery;
 @Table(name = "ck_delegation")
 @NamedQueries({
         @NamedQuery(name = Delegation.DELETE_BY_DELEGATOR_AND_DELEGATEE, query = "delete from Delegation d where d.delegator = :delegator and d.delegatee = :delegatee"),
-        @NamedQuery(name = Delegation.GET_BY_DELEGATOR_AND_DELEGATEE, query = "select Delegation d where d.delegator = :delegator and d.delegatee = :delegatee"),
-        @NamedQuery(name = Delegation.GET_BY_DELEGATOR, query = "select Delegation d where d.delegator = :delegator"),
-        @NamedQuery(name = Delegation.GET_BY_DELEGATEE, query = "select Delegation d where d.delegatee = :delegatee")
+        @NamedQuery(name = Delegation.GET_BY_DELEGATOR_AND_DELEGATEE, query = "select d from Delegation d where d.delegator = :delegator and d.delegatee = :delegatee"),
+        @NamedQuery(name = Delegation.GET_BY_DELEGATOR, query = "select d from Delegation d where d.delegator = :delegator"),
+        @NamedQuery(name = Delegation.GET_BY_DELEGATEE, query = "select d from Delegation d where d.delegatee = :delegatee")
 })
 public class Delegation {
 
