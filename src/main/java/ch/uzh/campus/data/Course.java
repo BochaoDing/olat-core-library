@@ -1,43 +1,41 @@
 package ch.uzh.campus.data;
 
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Set;
-
-import javax.persistence.*;
-
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
+
+import javax.persistence.*;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
 
 
 /**
  * Initial Date: 04.06.2012 <br>
  * 
  * @author aabouc
+ * @author lavinia
+ * @author Martin Schraner
  */
 @Entity
-//@NamedQueries({
-//        @NamedQuery(name = Course.GET_ALL_CREATED_COURSES, query = "select c from Course c  where c.resourceableId is not null and c.shortSemester= (select max(c2.shortSemester) from Course c2)"),
-//        @NamedQuery(name = Course.GET_IDS_OF_ALL_CREATED_COURSES, query = "select id from Course c where c.resourceableId is not null and c.synchronizable = true and c.shortSemester= (select max(c2.shortSemester) from Course c2)"),
-//        @NamedQuery(name = Course.GET_RESOURCEABLEIDS_OF_ALL_CREATED_COURSES, query = "select resourceableId from Course c where c.resourceableId is not null"),
-//        @NamedQuery(name = Course.GET_IDS_OF_ALL_NOT_CREATED_COURSES, query = "select id from Course c where c.resourceableId is null and c.enabled = '1' and c.shortSemester= (select max(c2.shortSemester) from Course c2)"),
-//        @NamedQuery(name = Course.DELETE_RESOURCEABLE_ID, query = "update Course c set c.resourceableId = null where c.resourceableId= :resId"),
-//        @NamedQuery(name = Course.DELETE_BY_COURSE_ID, query = "delete from Course c where c.id = :courseId"),
-//        @NamedQuery(name = Course.DELETE_BY_COURSE_IDS, query = "delete from Course c where c.id in ( :courseIds)"),
-//        @NamedQuery(name = Course.SAVE_RESOURCEABLE_ID, query = "update Course c set c.resourceableId = :resId where c.id= :courseId"),
-//
-//        @NamedQuery(name = Course.DISABLE_SYNCHRONIZATION, query = "update Course c set c.synchronizable = false where c.id= :courseId"),
-//
-//        @NamedQuery(name = Course.GET_PILOT_COURSES_BY_LECTURER_ID, query = "select c from Course c left join c.courseLecturerSet cl where cl.lecturer.id = :lecturerId and c.enabled = '1' and c.shortSemester= (select max(c2.shortSemester) from Course c2) "),
-//        @NamedQuery(name = Course.GET_CREATED_COURSES_BY_LECTURER_IDS, query = "select c from Course c left join c.courseLecturerSet cl where cl.lecturer.id in (:lecturerIds) and c.resourceableId is not null and c.enabled = '1' and c.shortSemester= (select max(c2.shortSemester) from Course c2) "),
-//        @NamedQuery(name = Course.GET_NOT_CREATED_COURSES_BY_LECTURER_IDS, query = "select c from Course c left join c.courseLecturerSet cl where cl.lecturer.id in( :lecturerIds) and c.resourceableId is null and c.enabled = '1' and c.shortSemester= (select max(c2.shortSemester) from Course c2) "),
-//
-//        @NamedQuery(name = Course.GET_PILOT_COURSES_BY_STUDENT_ID, query = "select c from Course c left join c.courseStudentSet cs where cs.student.id = :studentId and c.enabled = '1' and c.shortSemester= (select max(c2.shortSemester) from Course c2)"),
-//        @NamedQuery(name = Course.GET_CREATED_COURSES_BY_STUDENT_ID, query = "select c from Course c left join c.courseStudentSet cs where cs.student.id = :studentId and c.resourceableId is not null and  c.enabled = '1' and c.shortSemester= (select max(c2.shortSemester) from Course c2)"),
-//        @NamedQuery(name = Course.GET_NOT_CREATED_COURSES_BY_STUDENT_ID, query = "select c from Course c left join c.courseStudentSet cs where cs.student.id = :studentId and c.resourceableId is null and c.enabled = '1' and c.shortSemester= (select max(c2.shortSemester) from Course c2)"),
-//
-//        @NamedQuery(name = Course.GET_ALL_NOT_UPDATED_COURSES, query = "select id from Course c where c.resourceableId is null and c.modifiedDate < :lastImportDate") })
+@NamedQueries({
+        @NamedQuery(name = Course.GET_ALL_CREATED_COURSES, query = "select c from Course c  where c.resourceableId is not null and c.shortSemester= (select max(c2.shortSemester) from Course c2)"),
+        @NamedQuery(name = Course.GET_IDS_OF_ALL_CREATED_COURSES, query = "select c.id from Course c where c.resourceableId is not null and c.synchronizable = true and c.shortSemester= (select max(c2.shortSemester) from Course c2)"),
+        @NamedQuery(name = Course.GET_RESOURCEABLEIDS_OF_ALL_CREATED_COURSES, query = "select c.resourceableId from Course c where c.resourceableId is not null"),
+        @NamedQuery(name = Course.GET_IDS_OF_ALL_NOT_CREATED_COURSES, query = "select c.id from Course c where c.resourceableId is null and c.enabled = '1' and c.shortSemester= (select max(c2.shortSemester) from Course c2)"),
+        @NamedQuery(name = Course.DELETE_RESOURCEABLE_ID, query = "update Course c set c.resourceableId = null where c.resourceableId = :resId"),
+        @NamedQuery(name = Course.SAVE_RESOURCEABLE_ID, query = "update Course c set c.resourceableId = :resId where c.id = :courseId"),
+
+        @NamedQuery(name = Course.DISABLE_SYNCHRONIZATION, query = "update Course c set c.synchronizable = false where c.id = :courseId"),
+
+        @NamedQuery(name = Course.GET_CREATED_COURSES_BY_LECTURER_IDS, query = "select distinct c from Course c join c.lecturers l where l.personalNr in :lecturerIds and c.resourceableId is not null and c.enabled = '1' and c.shortSemester= (select max(c2.shortSemester) from Course c2) "),
+        @NamedQuery(name = Course.GET_NOT_CREATED_COURSES_BY_LECTURER_IDS, query = "select distinct c from Course c join c.lecturers l where l.personalNr in :lecturerIds and c.resourceableId is null and c.enabled = '1' and c.shortSemester= (select max(c2.shortSemester) from Course c2) "),
+        @NamedQuery(name = Course.GET_CREATED_COURSES_BY_STUDENT_ID, query = "select distinct c from Course c join c.students s where s.id = :studentId and c.resourceableId is not null and  c.enabled = '1' and c.shortSemester= (select max(c2.shortSemester) from Course c2)"),
+        @NamedQuery(name = Course.GET_NOT_CREATED_COURSES_BY_STUDENT_ID, query = "select distinct c from Course c join c.students s where s.id = :studentId and c.resourceableId is null and c.enabled = '1' and c.shortSemester= (select max(c2.shortSemester) from Course c2)"),
+
+        @NamedQuery(name = Course.GET_ALL_NOT_UPDATED_COURSES, query = "select c.id from Course c where c.resourceableId is null and c.modifiedDate < :lastImportDate"),
+        @NamedQuery(name = Course.GET_COURSE_IDS_BY_RESOURCEABLE_ID, query = "select c.id from Course c where c.resourceableId = :resourceableId")
+})
 @Table(name = "ck_course")
 public class Course {
 
@@ -99,11 +97,7 @@ public class Course {
             joinColumns = {@JoinColumn(name = "course_id")},
             inverseJoinColumns = {@JoinColumn(name = "lecturer_id")})
     private Set<Lecturer> lecturers = new HashSet<>();
-
-    //@Cascade({ org.hibernate.annotations.CascadeType.DELETE })
-    //@OneToMany(mappedBy = "course")
-    //private Set<StudentCourse> courseStudentSet;
-    
+  
     @ManyToMany(cascade = CascadeType.PERSIST)
     @JoinTable(name = "ck_student_course",
             joinColumns = {@JoinColumn(name = "course_id")},
@@ -114,29 +108,24 @@ public class Course {
 //    @OneToMany(mappedBy = "course")
 //    private Set<Event> events = new HashSet<Event>(0);
 
-    //    @Cascade({ org.hibernate.annotations.CascadeType.DELETE })
-    @OneToMany(mappedBy = "course")
-    private Set<Text> texts = new HashSet<Text>(0);
+    @OneToMany(mappedBy = "course", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<Text> texts = new HashSet<>();
 
     public static final String GET_IDS_OF_ALL_CREATED_COURSES = "getIdsOfAllCreatedCourses";
     public static final String GET_RESOURCEABLEIDS_OF_ALL_CREATED_COURSES = "getResourceableIdsOfAllCreatedCourses";
     public static final String GET_IDS_OF_ALL_NOT_CREATED_COURSES = "getIdsOfAllNotCreatedCourses";
     public static final String GET_ALL_CREATED_COURSES = "getAllCreatedCourses";
     public static final String DELETE_RESOURCEABLE_ID = "deleteResourceableId";
-    public static final String DELETE_BY_COURSE_ID = "deleteByCourseId";
-    public static final String DELETE_BY_COURSE_IDS = "deleteByCourseIds";
     public static final String SAVE_RESOURCEABLE_ID = "saveResourceableId";
     public static final String DISABLE_SYNCHRONIZATION = "disableSynchronization";
 
-    public static final String GET_PILOT_COURSES_BY_LECTURER_ID = "getPilotCoursesByLecturerId";
     public static final String GET_CREATED_COURSES_BY_LECTURER_IDS = "getCreatedCoursesByLecturerIds";
     public static final String GET_NOT_CREATED_COURSES_BY_LECTURER_IDS = "getNotCreatedCoursesByLecturerIds";
-
-    public static final String GET_PILOT_COURSES_BY_STUDENT_ID = "getPilotCoursesByStudentId";
     public static final String GET_CREATED_COURSES_BY_STUDENT_ID = "getCreatedCoursesByStudentId";
     public static final String GET_NOT_CREATED_COURSES_BY_STUDENT_ID = "getNotCreatedCoursesByStudentId";
 
     public static final String GET_ALL_NOT_UPDATED_COURSES = "getAllNotUpdatedCourses";
+    public static final String GET_COURSE_IDS_BY_RESOURCEABLE_ID = "getCourseIdsByResourceableId";
 
     public Long getId() {
         return id;
@@ -321,50 +310,41 @@ public class Course {
     public Set<Student> getStudents() {
        return students;
     }
-    
-    /*
-    public void setCourseStudentSet(Set<CourseStudent> courseStudentSet) {
-        this.courseStudentSet = courseStudentSet;
-    }*/
 //
 //    public Set<Event> getEvents() {
 //        return events;
 //    }
-//
-//    public void setEvents(Set<Event> events) {
-//        this.events = events;
-//    }
-//
-//    public Set<Text> getTexts() {
-//        return texts;
-//    }
-//
-//    public void setTexts(Set<Text> texts) {
-//        this.texts = texts;
-//    }
 
-//    public String getContents() {
-//        return buildText(Text.CONTENTS);
-//    }
-//
-//    public String getInfos() {
-//        return buildText(Text.INFOS);
-//    }
-//
-//    public String getMaterials() {
-//        return buildText(Text.MATERIALS);
-//    }
+    public Set<Text> getTexts() {
+        return texts;
+    }
 
-//    private String buildText(String type) {
-//        StringBuilder content = new StringBuilder();
-//        for (Text text : this.getTexts()) {
-//            if (type.equalsIgnoreCase(text.getType())) {
-//                content.append(text.getLine());
-//                content.append(Text.BREAK_TAG);
-//            }
-//        }
-//        return content.toString();
-//    }
+    @Transient
+    public String getContents() {
+        return buildText(Text.CONTENTS);
+    }
+
+    @Transient
+    public String getInfos() {
+        return buildText(Text.INFOS);
+    }
+
+    @Transient
+    public String getMaterials() {
+        return buildText(Text.MATERIALS);
+    }
+
+    @Transient
+    private String buildText(String type) {
+        StringBuilder content = new StringBuilder();
+        for (Text text : this.getTexts()) {
+            if (type.equalsIgnoreCase(text.getType())) {
+                content.append(text.getLine());
+                content.append(Text.BREAK_TAG);
+            }
+        }
+        return content.toString();
+    }
 
     @Transient
     public String getTitleToBeDisplayed(String shortTitleActivated) {

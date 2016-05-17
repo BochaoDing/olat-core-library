@@ -21,8 +21,7 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 @NamedQueries({
         @NamedQuery(name = Lecturer.GET_LECTURER_BY_EMAIL, query = "select l from Lecturer l where l.email = :email"),
         @NamedQuery(name = Lecturer.GET_ALL_PILOT_LECTURERS, query = "select distinct l from Lecturer l left join l.courses c where c.enabled = '1' "),
-        @NamedQuery(name = Lecturer.GET_ALL_NOT_UPDATED_LECTURERS, query = "select l.personalNr from Lecturer l where l.modifiedDate < :lastImportDate"),
-        @NamedQuery(name = Lecturer.DELETE_BY_LECTURER_IDS, query = "delete from Lecturer l where l.personalNr in :lecturerIds") })
+        @NamedQuery(name = Lecturer.GET_ALL_NOT_UPDATED_LECTURERS, query = "select l.personalNr from Lecturer l where l.modifiedDate < :lastImportDate")})
 public class Lecturer {
     @Id
     @Column(name = "ID")
@@ -53,7 +52,6 @@ public class Lecturer {
     public static final String GET_LECTURER_BY_EMAIL = "getLecturerByEmail";
     public static final String GET_ALL_PILOT_LECTURERS = "getAllPilotLecturers";
     public static final String GET_ALL_NOT_UPDATED_LECTURERS = "getAllNotUpdatedLecturers";
-    public static final String DELETE_BY_LECTURER_IDS = "deleteByLecturerIds";
 
     public Lecturer() {
     }

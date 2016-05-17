@@ -1,12 +1,14 @@
 package ch.uzh.campus.data;
 
+import org.springframework.test.context.ContextConfiguration;
+
 import java.util.List;
-import java.util.Set;
 
 /**
  * @author aabouc
  * @author Martin Schraner
  */
+@ContextConfiguration(locations = {"classpath:ch/uzh/campus/data/_spring/mockDataContext.xml"})
 public class MockDataGenerator {
 
     private List<Org> orgs;
@@ -15,16 +17,11 @@ public class MockDataGenerator {
     private List<Student> students;
     private List<Lecturer> lecturers;
     private List<Course> courses;
-    private List<StudentCourse> studentCourses;
-
-    private List<LecturerCourse> lecturerCourses;
-    private List<Text> texts;
+    private List<LecturerIdCourseId> lecturerIdCourseIds;
+    private List<StudentIdCourseId> studentIdCourseIds;
+    private List<TextCourseId> textCourseIds;
     private List<Event> events;
     private List<ImportStatistic> importStatistics;
-
-    private Set<CourseStudent> courseStudents;
-    private List<Long[]> courseIdsLecturerIds;
-//    private Set<CourseLecturer> courseLecturers;
 
     public List<Delegation> getDelegations() {
         return delegations;
@@ -74,14 +71,6 @@ public class MockDataGenerator {
         this.courses = courses;
     }
 
-    public List<Text> getTexts() {
-        return texts;
-    }
-
-    public void setTexts(List<Text> texts) {
-        this.texts = texts;
-    }
-
     public List<Event> getEvents() {
         return events;
     }
@@ -98,35 +87,27 @@ public class MockDataGenerator {
         this.importStatistics = importStatistics;
     }
 
-    public List<StudentCourse> getStudentCourses() {
-        return studentCourses;
+    public List<StudentIdCourseId> getStudentIdCourseIds() {
+        return studentIdCourseIds;
     }
 
-    public void setStudentCourses(List<StudentCourse> studentCourses) {
-        this.studentCourses = studentCourses;
+    public void setStudentIdCourseIds(List<StudentIdCourseId> studentIdCourseIds) {
+        this.studentIdCourseIds = studentIdCourseIds;
     }
 
-    public List<LecturerCourse> getLecturerCourses() {
-        return lecturerCourses;
+    public List<TextCourseId> getTextCourseIds() {
+        return textCourseIds;
     }
 
-    public void setLecturerCourses(List<LecturerCourse> lecturerCourses) {
-        this.lecturerCourses = lecturerCourses;
+    public void setTextCourseIds(List<TextCourseId> textCourseIds) {
+        this.textCourseIds = textCourseIds;
     }
 
-    public Set<CourseStudent> getCourseStudents() {
-        return courseStudents;
+    public List<LecturerIdCourseId> getLecturerIdCourseIds() {
+        return lecturerIdCourseIds;
     }
 
-    public void setCourseStudents(Set<CourseStudent> courseStudents) {
-        this.courseStudents = courseStudents;
-    }
-
-    public List<Long[]> getCourseIdsLecturerIds() {
-        return courseIdsLecturerIds;
-    }
-
-    public void setCourseIdsLecturerIds(List<Long[]> courseIdsLecturerIds) {
-        this.courseIdsLecturerIds = courseIdsLecturerIds;
+    public void setLecturerIdCourseIds(List<LecturerIdCourseId> lecturerIdCourseIds) {
+        this.lecturerIdCourseIds = lecturerIdCourseIds;
     }
 }

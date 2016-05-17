@@ -26,6 +26,23 @@ public class LecturerDao implements CampusDao<Lecturer> {
         }
     }
 
+    public void addLecturerToCourse(Long lecturerId, Long courseId) {
+        Lecturer lecturer = dbInstance.getCurrentEntityManager().getReference(Lecturer.class, lecturerId);
+        Course course = dbInstance.getCurrentEntityManager().getReference(Course.class, courseId);
+        lecturer.getCourses().add(course);
+        course.getLecturers().add(lecturer);
+    }
+
+    public void addLecturerToCourse(LecturerIdCourseId lecturerIdCourseId) {
+        addLecturerToCourse(lecturerIdCourseId.getLecturerId(), lecturerIdCourseId.getCourseId());
+    }
+
+    public void addLecturersToCourse(List<LecturerIdCourseId> lecturerIdCourseIds) {
+        for (LecturerIdCourseId lecturerIdCourseId : lecturerIdCourseIds) {
+            addLecturerToCourse(lecturerIdCourseId.getLecturerId(), lecturerIdCourseId.getCourseId());
+        }
+    }
+
     public Lecturer getLecturerById(Long id) {
         return dbInstance.findObject(Lecturer.class, id);
     }
@@ -60,24 +77,19 @@ public class LecturerDao implements CampusDao<Lecturer> {
     }
 
     public void delete(Lecturer lecturer) {
-        // http://stackoverflow.com/questions/1082095/how-to-remove-entity-with-manytomany-relationship-in-jpa-and-corresponding-join
-        dbInstance.deleteObject(lecturer);
-        deleteJoinTableEntries(lecturer);
+        deleteLecturerBidirectionally(lecturer);
     }
 
-    public int deleteByLecturerIds(List<Long> lecturerIds) {
+    public void deleteByLecturerIds(List<Long> lecturerIds) {
         for (Long lecturerId : lecturerIds) {
-            deleteJoinTableEntries(dbInstance.getCurrentEntityManager().getReference(Lecturer.class, lecturerId));
+            deleteLecturerBidirectionally(dbInstance.getCurrentEntityManager().getReference(Lecturer.class, lecturerId));
         }
-        return dbInstance.getCurrentEntityManager()
-                .createNamedQuery(Lecturer.DELETE_BY_LECTURER_IDS)
-                .setParameter("lecturerIds", lecturerIds)
-                .executeUpdate();
     }
 
-    private void deleteJoinTableEntries(Lecturer lecturer) {
+    private void deleteLecturerBidirectionally(Lecturer lecturer) {
         for (Course course : lecturer.getCourses()) {
             course.getLecturers().remove(lecturer);
         }
+        dbInstance.deleteObject(lecturer);
     }
 }

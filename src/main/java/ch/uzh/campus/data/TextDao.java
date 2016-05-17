@@ -1,38 +1,45 @@
 package ch.uzh.campus.data;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import org.olat.core.commons.persistence.DB;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
+
+import java.util.List;
 
 /**
  * Initial Date: 04.06.2012 <br>
  * 
  * @author aabouc
  * @author lavinia
+ * @author Martin Schraner
  */
 @Repository
-public class TextDao implements CampusDao<Text> {
+public class TextDao {
 
 	@Autowired
     private DB dbInstance;
 
-    @Override
-    public void save(List<Text> texts) {
-        //genericDao.save(texts);
-    	for(Text text:texts) {
-    		dbInstance.saveObject(text);
-    	}        
+    public void addTextToCourse(Text text, Long courseId) {
+        Course course = dbInstance.getCurrentEntityManager().getReference(Course.class, courseId);
+        text.setCourse(course);
+        course.getTexts().add(text);
+    }
+
+    public void addTextToCourse(TextCourseId textCourseId) {
+        addTextToCourse(textCourseId, textCourseId.getCourseId());
+    }
+
+    public void addTextsToCourse(List<TextCourseId> textCourseIds) {
+        for (TextCourseId textCourseId : textCourseIds) {
+            addTextToCourse(textCourseId);
+        }
     }
 
     public List<Text> getTextsByCourseId(Long courseId) {        
         return dbInstance.getCurrentEntityManager()
-        .createNamedQuery(Text.GET_TEXTS_BY_COURSE_ID, Text.class)
-        .setParameter("courseId", courseId)
-        .getResultList();
+                .createNamedQuery(Text.GET_TEXTS_BY_COURSE_ID, Text.class)
+                .setParameter("courseId", courseId)
+                .getResultList();
     }
 
     public String getContentsByCourseId(Long courseId) {
@@ -52,7 +59,7 @@ public class TextDao implements CampusDao<Text> {
 
     private List<Text> getTextsByCourseIdAndType(Long courseId, String type) {               
         return dbInstance.getCurrentEntityManager()
-                .createNamedQuery(Text.GET_TEXTS, Text.class) 
+                .createNamedQuery(Text.GET_TEXTS_BY_COURSE_ID_AND_TYPE, Text.class)
                 .setParameter("courseId", courseId)		
                 .setParameter("type", type)		
                 .getResultList();
@@ -67,21 +74,38 @@ public class TextDao implements CampusDao<Text> {
         return content.toString();
     }
 
-    /*public int deleteAllTexts() {
-        return genericDao.getNamedQuery(Text.DELETE_ALL_TEXTS).executeUpdate();
+    public int deleteAllTexts() {
+        List<Long> idsOfTextsToBeDeleted = dbInstance.getCurrentEntityManager()
+                .createNamedQuery(Text.GET_IDS_OF_ALL_TEXT, Long.class)
+                .getResultList();
+        deleteTextsBidirectionally(idsOfTextsToBeDeleted);
+        return idsOfTextsToBeDeleted.size();
     }
 
-    public void deleteTextsByCourseId(Long courseId) {
-        Query query = genericDao.getNamedQuery(Text.DELETE_TEXTS_BY_COURSE_ID);
-        query.setParameter("courseId", courseId);
-        query.executeUpdate();
+    public int deleteTextsByCourseId(Long courseId) {
+        List<Long> idsOfTextsToBeDeleted = dbInstance.getCurrentEntityManager()
+                .createNamedQuery(Text.GET_TEXT_IDS_BY_COURSE_ID, Long.class)
+                .setParameter("courseId", courseId)
+                .getResultList();
+        deleteTextsBidirectionally(idsOfTextsToBeDeleted);
+        return idsOfTextsToBeDeleted.size();
     }
 
-    public void deleteTextsByCourseIds(List<Long> courseIds) {
-        Query query = genericDao.getNamedQuery(Text.DELETE_TEXTS_BY_COURSE_IDS);
-        query.setParameterList("courseIds", courseIds);
-        query.executeUpdate();
+    public int deleteTextsByCourseIds(List<Long> courseIds) {
+        List<Long> idsOfTextsToBeDeleted = dbInstance.getCurrentEntityManager()
+                .createNamedQuery(Text.GET_TEXT_IDS_BY_COURSE_IDS, Long.class)
+                .setParameter("courseIds", courseIds)
+                .getResultList();
+        deleteTextsBidirectionally(idsOfTextsToBeDeleted);
+        return idsOfTextsToBeDeleted.size();
     }
-*/
+
+    private void deleteTextsBidirectionally(List<Long> idsOfTextsToBeDeleted) {
+        for (Long id : idsOfTextsToBeDeleted) {
+            Text text = dbInstance.getCurrentEntityManager().getReference(Text.class, id);
+            Course course = text.getCourse();
+            course.getTexts().remove(text);
+        }
+    }
 }
 

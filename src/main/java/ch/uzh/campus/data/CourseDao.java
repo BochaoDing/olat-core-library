@@ -1,16 +1,18 @@
 package ch.uzh.campus.data;
 
-import java.util.List;
-
 import org.olat.core.commons.persistence.DB;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
+
+import java.util.Date;
+import java.util.List;
 
 /**
  * Initial Date: 04.06.2012 <br>
  * 
  * @author aabouc
  * @author lavinia
+ * @author Martin Schraner
  */
 @Repository
 public class CourseDao implements CampusDao<Course> {
@@ -25,134 +27,118 @@ public class CourseDao implements CampusDao<Course> {
         }
     }
 
-    public void addLecturerById(Long courseId, Long lecturerId) {
-        Course course = dbInstance.getCurrentEntityManager().getReference(Course.class, courseId);
-        Lecturer lecturer = dbInstance.getCurrentEntityManager().getReference(Lecturer.class, lecturerId);
-        course.getLecturers().add(lecturer);
-        lecturer.getCourses().add(course);
-        dbInstance.saveObject(course);
-    }
-
-    public void addLecturersById(List<Long[]> courseIdsLecturerIds) {
-        for (Long[] courseIdLecturerId : courseIdsLecturerIds) {
-            addLecturerById(courseIdLecturerId[0], courseIdLecturerId[1]);
-        }
-    }
-
-    /*public Course updateCourse(Course course) {
-        return genericDao.update(course);
-    }
-
     public Course getCourseById(Long id) {
-        return genericDao.findById(id);
-    }
-
-    public List<Course> getPilotCoursesByLecturerId(Long lecturerId) {
-        Map<String, Object> parameters = new HashMap<String, Object>();
-        parameters.put("lecturerId", lecturerId);
-        return genericDao.getNamedQueryListResult(Course.GET_PILOT_COURSES_BY_LECTURER_ID, parameters);
+        return dbInstance.findObject(Course.class, id);
     }
 
     public List<Course> getCreatedCoursesByLecturerIds(List<Long> lecturerIds) {
-        Map<String, Object> parameters = new HashMap<String, Object>();
-        parameters.put("lecturerIds", lecturerIds);
-        return genericDao.getNamedQueryListResult(Course.GET_CREATED_COURSES_BY_LECTURER_IDS, parameters);
+        return dbInstance.getCurrentEntityManager()
+                .createNamedQuery(Course.GET_CREATED_COURSES_BY_LECTURER_IDS, Course.class)
+                .setParameter("lecturerIds", lecturerIds)
+                .getResultList();
     }
 
     public List<Course> getNotCreatedCoursesByLecturerIds(List<Long> lecturerIds) {
-        Map<String, Object> parameters = new HashMap<String, Object>();
-        parameters.put("lecturerIds", lecturerIds);
-        return genericDao.getNamedQueryListResult(Course.GET_NOT_CREATED_COURSES_BY_LECTURER_IDS, parameters);
+        return dbInstance.getCurrentEntityManager()
+                .createNamedQuery(Course.GET_NOT_CREATED_COURSES_BY_LECTURER_IDS, Course.class)
+                .setParameter("lecturerIds", lecturerIds)
+                .getResultList();
     }
 
-    public List<Course> getPilotCoursesByStudentId(Long studentId) {
-        Map<String, Object> parameters = new HashMap<String, Object>();
-        parameters.put("studentId", studentId);
-        return genericDao.getNamedQueryListResult(Course.GET_PILOT_COURSES_BY_STUDENT_ID, parameters);
+    public List<Course> getCreatedCoursesByStudentId(Long studentId) {               
+        return dbInstance.getCurrentEntityManager()
+                .createNamedQuery(Course.GET_CREATED_COURSES_BY_STUDENT_ID, Course.class)
+                .setParameter("studentId", studentId)
+                .getResultList(); 
     }
 
-    public List<Course> getCreatedCoursesByStudentId(Long studentId) {
-        Map<String, Object> parameters = new HashMap<String, Object>();
-        parameters.put("studentId", studentId);
-        return genericDao.getNamedQueryListResult(Course.GET_CREATED_COURSES_BY_STUDENT_ID, parameters);
-    }
-
-    public List<Course> getNotCreatedCoursesByStudentId(Long studentId) {
-        Map<String, Object> parameters = new HashMap<String, Object>();
-        parameters.put("studentId", studentId);
-        return genericDao.getNamedQueryListResult(Course.GET_NOT_CREATED_COURSES_BY_STUDENT_ID, parameters);
+    public List<Course> getNotCreatedCoursesByStudentId(Long studentId) {       
+        return dbInstance.getCurrentEntityManager()
+                .createNamedQuery(Course.GET_NOT_CREATED_COURSES_BY_STUDENT_ID, Course.class)
+                .setParameter("studentId", studentId)
+                .getResultList(); 
     }
 
     public void delete(Course course) {
-        genericDao.delete(course);
+        deleteCourseBidirectionally(course);
     }
 
-    public void saveResourceableId(Long courseId, Long resourceableId) {
-        Query query = genericDao.getNamedQuery(Course.SAVE_RESOURCEABLE_ID);
-        query.setParameter("courseId", courseId);
-        query.setParameter("resId", resourceableId);
-        query.executeUpdate();
+    public void saveResourceableId(Long courseId, Long resourceableId) {  
+        dbInstance.getCurrentEntityManager().createNamedQuery(Course.SAVE_RESOURCEABLE_ID)
+				.setParameter("courseId", courseId)
+				.setParameter("resId", resourceableId)
+				.executeUpdate();
     }
 
-    public void disableSynchronization(Long courseId) {
-        Query query = genericDao.getNamedQuery(Course.DISABLE_SYNCHRONIZATION);
-        query.setParameter("courseId", courseId);
-        query.executeUpdate();
+    public void disableSynchronization(Long courseId) {               
+        dbInstance.getCurrentEntityManager().createNamedQuery(Course.DISABLE_SYNCHRONIZATION)
+		        .setParameter("courseId", courseId)
+		        .executeUpdate();
     }
 
-    public void deleteResourceableId(Long resourceableId) {
-        Query query = genericDao.getNamedQuery(Course.DELETE_RESOURCEABLE_ID);
-        query.setParameter("resId", resourceableId);
-        query.executeUpdate();
+    public void deleteResourceableId(Long resourceableId) {                
+        dbInstance.getCurrentEntityManager().createNamedQuery(Course.DELETE_RESOURCEABLE_ID)
+                .setParameter("resId", resourceableId)
+		        .executeUpdate();
     }
 
     public void deleteByCourseId(Long courseId) {
-        Query query = genericDao.getNamedQuery(Course.DELETE_BY_COURSE_ID);
-        query.setParameter("courseId", courseId);
-        query.executeUpdate();
+        deleteCourseBidirectionally(dbInstance.getCurrentEntityManager().getReference(Course.class, courseId));
     }
 
     public void deleteByCourseIds(List<Long> courseIds) {
-        Query query = genericDao.getNamedQuery(Course.DELETE_BY_COURSE_IDS);
-        query.setParameterList("courseIds", courseIds);
-        query.executeUpdate();
+        for (Long courseId : courseIds) {
+            deleteCourseBidirectionally(dbInstance.getCurrentEntityManager().getReference(Course.class, courseId));
+        }
+    }
+    
+    public List<Long> getIdsOfAllCreatedCourses() {               
+        return dbInstance.getCurrentEntityManager()
+                .createNamedQuery(Course.GET_IDS_OF_ALL_CREATED_COURSES, Long.class)                			
+                .getResultList();
     }
 
-    public List<Long> getIdsOfAllCreatedCourses() {
-        Map<String, Object> parameters = new HashMap<String, Object>();
-        return genericDao.getNamedQueryEntityIds(Course.GET_IDS_OF_ALL_CREATED_COURSES, parameters);
+    public List<Long> getResourceableIdsOfAllCreatedCourses() {  
+        return dbInstance.getCurrentEntityManager()
+                .createNamedQuery(Course.GET_RESOURCEABLEIDS_OF_ALL_CREATED_COURSES, Long.class)                			
+                .getResultList();
     }
 
-    public List<Long> getResourceableIdsOfAllCreatedCourses() {
-        Map<String, Object> parameters = new HashMap<String, Object>();
-        return genericDao.getNamedQueryEntityIds(Course.GET_RESOURCEABLEIDS_OF_ALL_CREATED_COURSES, parameters);
-    }
-
-    public List<Long> getIdsOfAllNotCreatedCourses() {
-        Map<String, Object> parameters = new HashMap<String, Object>();
-        return genericDao.getNamedQueryEntityIds(Course.GET_IDS_OF_ALL_NOT_CREATED_COURSES, parameters);
+    public List<Long> getIdsOfAllNotCreatedCourses() {     
+        return dbInstance.getCurrentEntityManager()
+                .createNamedQuery(Course.GET_IDS_OF_ALL_NOT_CREATED_COURSES, Long.class)                			
+                .getResultList();
     }
 
     public List<Course> getAllCreatedCourses() {
-        Map<String, Object> parameters = new HashMap<String, Object>();
-        return genericDao.getNamedQueryListResult(Course.GET_ALL_CREATED_COURSES, parameters);
+        return dbInstance.getCurrentEntityManager()
+                .createNamedQuery(Course.GET_ALL_CREATED_COURSES, Course.class)
+                .getResultList();
     }
 
-    public List<Long> getAllNotUpdatedCourses(Date date) {
-        Map<String, Object> parameters = new HashMap<String, Object>();
-        parameters.put("lastImportDate", date);
-        return genericDao.getNamedQueryEntityIds(Course.GET_ALL_NOT_UPDATED_COURSES, parameters);
+    public List<Long> getAllNotUpdatedCourses(Date date) {                
+        return dbInstance.getCurrentEntityManager()
+                .createNamedQuery(Course.GET_ALL_NOT_UPDATED_COURSES, Long.class)  
+                .setParameter("lastImportDate", date)
+                .getResultList();
     }
 
     public boolean existResourceableId(Long resourceableId) {
-        Map<String, Object> restrictionMap = new HashMap<String, Object>();
-        restrictionMap.put("resourceableId", resourceableId);
-        List<Course> courses = genericDao.findByCriteria(restrictionMap);
-
-        if (!courses.isEmpty()) {
-            return true;
-        }
-        return false;
+        List<Long> courseIds = dbInstance.getCurrentEntityManager()
+                .createNamedQuery(Course.GET_COURSE_IDS_BY_RESOURCEABLE_ID, Long.class)
+                .setParameter("resourceableId", resourceableId)
+                .getResultList();
+        return !courseIds.isEmpty();
     }
-*/
+
+    private void deleteCourseBidirectionally(Course course) {
+        // Update ManyToMany associations
+        for (Lecturer lecturer : course.getLecturers()) {
+            lecturer.getCourses().remove(course);
+        }
+        for (Student student : course.getStudents()) {
+            student.getCourses().remove(course);
+        }
+        dbInstance.deleteObject(course);
+    }
 }

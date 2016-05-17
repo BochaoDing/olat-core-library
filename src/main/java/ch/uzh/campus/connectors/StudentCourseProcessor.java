@@ -20,25 +20,25 @@
  */
 package ch.uzh.campus.connectors;
 
-import ch.uzh.campus.data.StudentCourse;
+import ch.uzh.campus.data.StudentIdCourseId;
 
 import org.springframework.batch.item.ItemProcessor;
 
 /**
  * This is an implementation of {@link ItemProcessor} that converts the input StudentCoursePK item <br>
- * to the output StudentCourse item. <br>
+ * to the output StudentIdCourseId item. <br>
  * 
  * Initial Date: 11.06.2012 <br>
  * 
  * @author aabouc
  */
-public class StudentCourseProcessor implements ItemProcessor<StudentCourse, StudentCourse> {
+public class StudentCourseProcessor implements ItemProcessor<StudentIdCourseId, StudentIdCourseId> {
 
     /**
      * No need to do anything.
      */
-    public StudentCourse process(StudentCourse studentCourse) throws Exception {    	
-    	return studentCourse;    	
+    public StudentIdCourseId process(StudentIdCourseId studentIdCourseId) throws Exception {
+    	return studentIdCourseId;
     }
 
 }

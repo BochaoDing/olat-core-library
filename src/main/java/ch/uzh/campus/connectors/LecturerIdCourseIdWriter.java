@@ -20,7 +20,7 @@
  */
 package ch.uzh.campus.connectors;
 
-import ch.uzh.campus.data.CourseDao;
+import ch.uzh.campus.data.LecturerDao;
 import ch.uzh.campus.data.LecturerIdCourseId;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,12 +39,12 @@ import java.util.List;
 public class LecturerIdCourseIdWriter implements ItemWriter<LecturerIdCourseId> {
 
     @Autowired
-    public CourseDao courseDao;
+    public LecturerDao lecturerDao;
 
     @Override
-    public void write(List<? extends LecturerIdCourseId> lecturerIdsCourseIds) throws Exception {
-        for (LecturerIdCourseId lecturerIdCourseId : lecturerIdsCourseIds) {
-            courseDao.addLecturerById(lecturerIdCourseId.getCourseId(), lecturerIdCourseId.getLecturerId());
+    public void write(List<? extends LecturerIdCourseId> lecturerIdCourseIds) throws Exception {
+        for (LecturerIdCourseId lecturerIdCourseId : lecturerIdCourseIds) {
+            lecturerDao.addLecturerToCourse(lecturerIdCourseId);
         }
     }
 }

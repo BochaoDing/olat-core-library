@@ -19,22 +19,20 @@
         <property name="students" ref="students" />
         <property name="lecturers" ref="lecturers" />
         <property name="courses" ref="courses" />
-        <property name="texts" ref="texts" />
+        <property name="textCourseIds" ref="textCourseIds" />
         <property name="events" ref="events" />
         <property name="importStatistics" ref="importStatistics" />
-        <property name="studentCourses" ref="studentCourses" />
-        <property name="courseStudents" ref="courseStudents" />
-        <property name="courseIdsLecturerIds" ref="courseIdsLecturerIds"/>
-        <!--property name="lecturerCourses" ref="lecturerCourses" /-->
-        <!--property name="courseLecturers" ref="courseLecturers" /-->
+        <property name="studentIdCourseIds" ref="studentIdCourseIds" />
+        <property name="lecturerIdCourseIds" ref="lecturerIdCourseIds"/>
     </bean>
 
     <!-- ======================================================================================= -->
     <!-- ===============Student================= -->
     <!-- ======================================================================================= -->
     <util:list id = 'students' scope="prototype" >
-        <bean class="ch.uzh.campus.data.Student" p:id="100" p:registrationNr="1000" p:firstName="firstName1" p:lastName="lastName1" p:email="email1" p:modifiedDate="10.10.2014 10:10" scope="prototype" />
-        <bean class="ch.uzh.campus.data.Student" p:id="200" p:registrationNr="2000" p:firstName="firstName2" p:lastName="lastName2" p:email="email2" p:modifiedDate="10.10.2014 10:10" scope="prototype" />
+        <bean class="ch.uzh.campus.data.Student" p:id="2100" p:registrationNr="1000" p:firstName="firstName1" p:lastName="lastName1" p:email="email1" p:modifiedDate="10.10.2014 10:10" scope="prototype" />
+        <bean class="ch.uzh.campus.data.Student" p:id="2200" p:registrationNr="2000" p:firstName="firstName2" p:lastName="lastName2" p:email="email2" p:modifiedDate="10.10.2014 10:10" scope="prototype" />
+        <bean class="ch.uzh.campus.data.Student" p:id="2300" p:registrationNr="3000" p:firstName="firstName3" p:lastName="lastName3" p:email="email3" p:modifiedDate="10.10.2014 10:10" scope="prototype" />
     </util:list>
 
     <!-- ======================================================================================= -->
@@ -49,99 +47,48 @@
     <!-- ===============Course================= -->
     <!-- ======================================================================================= -->
     <util:list id = 'courses' scope="prototype" >
-        <bean class="ch.uzh.campus.data.Course" p:id="100" p:resourceableId="100" p:shortTitle="shortTitle1" p:title="title1" p:vstNr="vstNr1" p:category="Seminar" p:language="EN" p:vvzLink="link" p:semester="hs" p:shortSemester="HS" p:enabled="1" p:synchronizable="true" p:modifiedDate="10.10.2014 10:10" scope="prototype" />
-        <bean class="ch.uzh.campus.data.Course" p:id="200" p:resourceableId="200" p:shortTitle="shortTitle2" p:title="title2" p:vstNr="vstNr2" p:category="Seminar" p:language="EN" p:vvzLink="link" p:semester="hs" p:shortSemester="HS" p:enabled="1" p:synchronizable="true" p:modifiedDate="10.10.2014 10:10" scope="prototype" />
+        <bean id="course_1" class="ch.uzh.campus.data.Course" p:id="100" p:resourceableId="100" p:shortTitle="shortTitle1" p:title="title1" p:vstNr="vstNr1" p:category="Seminar" p:language="EN" p:vvzLink="link" p:semester="hs" p:shortSemester="HS" p:enabled="1" p:synchronizable="true" p:modifiedDate="10.10.2014 10:10" scope="prototype" />
+        <bean id="course_2" class="ch.uzh.campus.data.Course" p:id="200" p:resourceableId="200" p:shortTitle="shortTitle2" p:title="title2" p:vstNr="vstNr2" p:category="Seminar" p:language="EN" p:vvzLink="link" p:semester="hs" p:shortSemester="HS" p:enabled="1" p:synchronizable="true" p:modifiedDate="10.10.2014 10:10" scope="prototype" />
+        <bean id="course_3" class="ch.uzh.campus.data.Course" p:id="300" p:shortTitle="shortTitle3" p:title="title3" p:vstNr="vstNr3" p:category="Seminar" p:language="EN" p:vvzLink="link" p:semester="hs" p:shortSemester="HS" p:enabled="1" p:synchronizable="true" p:modifiedDate="10.10.2014 10:10" scope="prototype">
+            <property name="resourceableId"><null/></property>
+        </bean>
     </util:list>
 
     <!-- ======================================================================================= -->
-    <!-- ===============StudentCourse================= -->
+    <!-- ===============StudentIdCourseIds================= -->
     <!-- ======================================================================================= -->
-    <util:list id = 'studentCourses' scope="prototype" >
-        <bean class="ch.uzh.campus.data.StudentCourse" p:courseId="100" p:studentId="100" scope="prototype" />
-        <bean class="ch.uzh.campus.data.StudentCourse"  p:courseId="100" p:studentId="200" scope="prototype" />
-        <bean class="ch.uzh.campus.data.StudentCourse"  p:courseId="200" p:studentId="100" scope="prototype" />
-        <bean class="ch.uzh.campus.data.StudentCourse"  p:courseId="200" p:studentId="200" scope="prototype" />
+    <util:list id = 'studentIdCourseIds' scope="prototype" >
+        <bean class="ch.uzh.campus.data.StudentIdCourseId" p:courseId="100" p:studentId="2100" scope="prototype" />
+        <bean class="ch.uzh.campus.data.StudentIdCourseId" p:courseId="100" p:studentId="2200" scope="prototype" />
+        <bean class="ch.uzh.campus.data.StudentIdCourseId" p:courseId="200" p:studentId="2100" scope="prototype" />
+        <bean class="ch.uzh.campus.data.StudentIdCourseId" p:courseId="200" p:studentId="2200" scope="prototype" />
+        <bean class="ch.uzh.campus.data.StudentIdCourseId" p:courseId="300" p:studentId="2100" scope="prototype" />
+    </util:list>
+      
+
+    <!-- ======================================================================================= -->
+    <!-- ===============LecturerIdCourseIds================= -->
+    <!-- ======================================================================================= -->
+    <util:list id="lecturerIdCourseIds" scope="prototype" >
+        <bean id="lecturerIdCourseId1" class="ch.uzh.campus.data.LecturerIdCourseId" p:courseId="100" p:lecturerId="1100" scope="prototype" />
+        <bean id="lecturerIdCourseId2" class="ch.uzh.campus.data.LecturerIdCourseId" p:courseId="200" p:lecturerId="1100" scope="prototype" />
+        <bean id="lecturerIdCourseId3" class="ch.uzh.campus.data.LecturerIdCourseId" p:courseId="200" p:lecturerId="1200" scope="prototype" />
+        <bean id="lecturerIdCourseId4" class="ch.uzh.campus.data.LecturerIdCourseId" p:courseId="300" p:lecturerId="1100" scope="prototype" />
     </util:list>
 
     <!-- ======================================================================================= -->
-    <!-- ===============CourseStudent================= -->
+    <!-- ===============TextCourseIds================= -->
     <!-- ======================================================================================= -->
-    <util:set id = 'courseStudents' scope="prototype" >
-        <bean class="ch.uzh.campus.data.CourseStudent" p:course="#{courses[0]}" p:student="#{students[0]}" scope="prototype" />
-        <bean class="ch.uzh.campus.data.CourseStudent" p:course="#{courses[0]}" p:student="#{students[1]}" scope="prototype" />
-    </util:set>
+    <util:list id = 'textCourseIds' scope="prototype" >
+        <bean class="ch.uzh.campus.data.TextCourseId" p:courseId="100" p:type="Veranstaltungsinhalt" p:lineSeq="1" p:line="- praktische Tätigkeiten im chemischen Labor" p:modifiedDate="10.10.2014 10:10" scope="prototype" />
+        <bean class="ch.uzh.campus.data.TextCourseId" p:courseId="100" p:type="Veranstaltungsinhalt" p:lineSeq="2" p:line="- Herstellung von Lösungen unterschiedlicher Konzentration" p:modifiedDate="10.10.2014 10:10" scope="prototype" />
+        <bean class="ch.uzh.campus.data.TextCourseId" p:courseId="100" p:type="Unterrichtsmaterialien" p:lineSeq="1" p:line="Versuchsanleitungen," p:modifiedDate="10.10.2014 10:10" scope="prototype" />
+        <bean class="ch.uzh.campus.data.TextCourseId" p:courseId="100" p:type="Unterrichtsmaterialien" p:lineSeq="2" p:line="download von homepage (s. link)" p:modifiedDate="10.10.2014 10:10" scope="prototype" />
+        <bean class="ch.uzh.campus.data.TextCourseId" p:courseId="100" p:type="Hinweise" p:lineSeq="1" p:line="Selbsttestfragen:" p:modifiedDate="10.10.2014 10:10" scope="prototype" />
+        <bean class="ch.uzh.campus.data.TextCourseId" p:courseId="100" p:type="Hinweise" p:lineSeq="2" p:line="Zugriff über www.vetpharm.uzh.ch/cyberpharm" p:modifiedDate="10.10.2014 10:10" scope="prototype" />
 
-    <!-- ======================================================================================= -->
-    <!-- ===============CourseLecturer================= -->
-    <!-- ======================================================================================= -->
-    <!-- util:set id = 'courseLecturers'>
-        <bean class="ch.uzh.campus.data.CourseLecturer" p:course="#{courses[0]}" p:lecturer="#{lecturers[0]}"/>
-        <bean class="ch.uzh.campus.data.CourseLecturer" p:course="#{courses[0]}" p:lecturer="#{lecturers[1]}"/>
-    </util:set -->
-
-    <!-- ======================================================================================= -->
-    <!-- ===============StudentCoursePK================= -->
-    <!-- ======================================================================================= -->
-    <bean id="studentCoursePK1" class="ch.uzh.campus.data.StudentCoursePK" p:student="100" p:course="100" scope="prototype" />
-    <bean id="studentCoursePK2" class="ch.uzh.campus.data.StudentCoursePK" p:student="100" p:course="200" scope="prototype" />
-    <bean id="studentCoursePK3" class="ch.uzh.campus.data.StudentCoursePK" p:student="200" p:course="100" scope="prototype" />
-    <bean id="studentCoursePK4" class="ch.uzh.campus.data.StudentCoursePK" p:student="200" p:course="200" scope="prototype" />
-
-    <!-- ======================================================================================= -->
-    <!-- ===============CourseIdsLecturerIds================= -->
-    <!-- ======================================================================================= -->
-    <util:list id="courseIdsLecturerIds" scope="prototype" >
-        <util:list scope="prototype" >
-            <value>100</value>
-            <value>1100</value>
-        </util:list>
-        <util:list scope="prototype" >
-            <value>100</value>
-            <value>1200</value>
-        </util:list>
-        <util:list scope="prototype" >
-            <value>200</value>
-            <value>1100</value>
-        </util:list>
-        <util:list scope="prototype" >
-            <value>200</value>
-            <value>1200</value>
-        </util:list>
-    </util:list>
-
-
-    <!-- ======================================================================================= -->
-    <!-- ===============LecturerCourse================= -->
-    <!-- ======================================================================================= -->
-    <!--util:list id = 'lecturerCourses'>
-        <bean class="ch.uzh.campus.data.LecturerCourse" p:pk-ref = "lecturerCoursePK1" p:modifiedDate="10.10.2014 10:10" />
-        <bean class="ch.uzh.campus.data.LecturerCourse" p:pk-ref = "lecturerCoursePK2" p:modifiedDate="10.10.2014 10:10" />
-        <bean class="ch.uzh.campus.data.LecturerCourse" p:pk-ref = "lecturerCoursePK3" p:modifiedDate="10.10.2014 10:10" />
-        <bean class="ch.uzh.campus.data.LecturerCourse" p:pk-ref = "lecturerCoursePK4" p:modifiedDate="10.10.2014 10:10" />
-    </util:list-->
-
-    <!-- ======================================================================================= -->
-    <!-- ===============LecturerIdCourseId================= -->
-    <!-- ======================================================================================= -->
-    <!--bean id="lecturerCoursePK1" class="ch.uzh.campus.data.LecturerIdCourseIdId" p:lecturerId="100" p:courseId="100" />
-    <bean id="lecturerCoursePK2" class="ch.uzh.campus.data.LecturerIdCourseIdId" p:lecturerId="100" p:courseId="200" />
-    <bean id="lecturerCoursePK3" class="ch.uzh.campus.data.LecturerIdCourseIdId" p:lecturerId="200" p:courseId="100" />
-    <bean id="lecturerCoursePK4" class="ch.uzh.campus.data.LecturerIdCourseIdId" p:lecturerId="200" p:courseId="200" /-->
-
-    <!-- ======================================================================================= -->
-    <!-- ===============Text================= -->
-    <!-- ======================================================================================= -->
-    <util:list id = 'texts' scope="prototype" >
-        <bean class="ch.uzh.campus.data.Text" p:courseId="100" p:type="Veranstaltungsinhalt" p:lineSeq="1" p:line="- praktische Tätigkeiten im chemischen Labor" p:modifiedDate="10.10.2014 10:10" scope="prototype" />
-        <bean class="ch.uzh.campus.data.Text" p:courseId="100" p:type="Veranstaltungsinhalt" p:lineSeq="2" p:line="- Herstellung von Lösungen unterschiedlicher Konzentration" p:modifiedDate="10.10.2014 10:10" scope="prototype" />
-        <bean class="ch.uzh.campus.data.Text" p:courseId="100" p:type="Unterrichtsmaterialien" p:lineSeq="1" p:line="Versuchsanleitungen," p:modifiedDate="10.10.2014 10:10" scope="prototype" />
-        <bean class="ch.uzh.campus.data.Text" p:courseId="100" p:type="Unterrichtsmaterialien" p:lineSeq="2" p:line="download von homepage (s. link)" p:modifiedDate="10.10.2014 10:10" scope="prototype" />
-        <bean class="ch.uzh.campus.data.Text" p:courseId="100" p:type="Hinweise" p:lineSeq="1" p:line="Selbsttestfragen:" p:modifiedDate="10.10.2014 10:10" scope="prototype" />
-        <bean class="ch.uzh.campus.data.Text" p:courseId="100" p:type="Hinweise" p:lineSeq="2" p:line="Zugriff über www.vetpharm.uzh.ch/cyberpharm" p:modifiedDate="10.10.2014 10:10" scope="prototype" />
-
-        <bean class="ch.uzh.campus.data.Text" p:courseId="200" p:type="Veranstaltungsinhalt" p:lineSeq="1" p:line="- praktische Tätigkeiten im chemischen Labor2" p:modifiedDate="10.10.2014 10:10" scope="prototype" />
-        <bean class="ch.uzh.campus.data.Text" p:courseId="200" p:type="Veranstaltungsinhalt" p:lineSeq="2" p:line="- Herstellung von Lösungen unterschiedlicher Konzentration2" p:modifiedDate="10.10.2014 10:10" scope="prototype" />
-
+        <bean class="ch.uzh.campus.data.TextCourseId" p:courseId="200" p:type="Veranstaltungsinhalt" p:lineSeq="1" p:line="- praktische Tätigkeiten im chemischen Labor2" p:modifiedDate="10.10.2014 10:10" scope="prototype" />
+        <bean class="ch.uzh.campus.data.TextCourseId" p:courseId="200" p:type="Veranstaltungsinhalt" p:lineSeq="2" p:line="- Herstellung von Lösungen unterschiedlicher Konzentration2" p:modifiedDate="10.10.2014 10:10" scope="prototype" />
     </util:list>
 
     <!-- ======================================================================================= -->
@@ -155,14 +102,15 @@
     <!-- ======================================================================================= -->
     <!-- ===============Event================= -->
     <!-- ======================================================================================= -->
-    <util:list id = 'events' scope="prototype" >
-        <bean class="ch.uzh.campus.data.Event" p:courseId="100" p:date-ref="newDate" p:start="10:00" p:end="11:30" p:modifiedDate="10.10.2014 10:10" scope="prototype" />
-        <bean class="ch.uzh.campus.data.Event" p:courseId="100" p:date-ref="newDate" p:start="16:00" p:end="17:30" p:modifiedDate="10.10.2014 10:10" scope="prototype" />
+   <util:list id = 'events' scope="prototype" >
+         <!--<bean class="ch.uzh.campus.data.Event" p:course-ref="course_1" p:date-ref="newDate" p:start="10:00" p:end="11:30" p:modifiedDate="10.10.2014 10:10" scope="prototype" />
+        <bean class="ch.uzh.campus.data.Event" p:course-ref="course_1" p:date-ref="newDate" p:start="16:00" p:end="17:30" p:modifiedDate="10.10.2014 10:10" scope="prototype" />
 
-        <bean class="ch.uzh.campus.data.Event" p:courseId="200" p:date-ref="newDate" p:start="09:00" p:end="10:30" p:modifiedDate="10.10.2014 10:10" scope="prototype" />
-        <bean class="ch.uzh.campus.data.Event" p:courseId="200" p:date-ref="newDate" p:start="14:00" p:end="15:30" p:modifiedDate="10.10.2014 10:10" scope="prototype" />
+        <bean class="ch.uzh.campus.data.Event" p:course-ref="course_2" p:date-ref="newDate" p:start="09:00" p:end="10:30" p:modifiedDate="10.10.2014 10:10" scope="prototype" />
+        <bean class="ch.uzh.campus.data.Event" p:course-ref="course_2" p:date-ref="newDate" p:start="14:00" p:end="15:30" p:modifiedDate="10.10.2014 10:10" scope="prototype" />
+        -->
     </util:list>
-
+	
     <!-- ======================================================================================= -->
     <!-- ===============SapOlatUser================= -->
     <!-- ======================================================================================= -->

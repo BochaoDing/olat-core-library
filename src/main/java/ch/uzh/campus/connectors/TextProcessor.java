@@ -20,11 +20,11 @@
  */
 package ch.uzh.campus.connectors;
 
-import ch.uzh.campus.data.Text;
-
-import java.util.Date;
+import ch.uzh.campus.data.TextCourseId;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.batch.item.ItemProcessor;
+
+import java.util.Date;
 
 /**
  * This is an implementation of {@link ItemProcessor} that modifies the input Text item <br>
@@ -34,7 +34,7 @@ import org.springframework.batch.item.ItemProcessor;
  * 
  * @author aabouc
  */
-public class TextProcessor implements ItemProcessor<Text, Text> {
+public class TextProcessor implements ItemProcessor<TextCourseId, TextCourseId> {
 
     /**
      * Modifies the input text and returns it as output
@@ -43,7 +43,7 @@ public class TextProcessor implements ItemProcessor<Text, Text> {
      *            the Text to be processed
      * 
      */
-    public Text process(Text text) throws Exception {
+    public TextCourseId process(TextCourseId text) throws Exception {
         text.setLine(StringUtils.replace(text.getLine(), CampusUtils.SEMICOLON_REPLACEMENT, CampusUtils.SEMICOLON));
         text.setModifiedDate(new Date());
         return text;
