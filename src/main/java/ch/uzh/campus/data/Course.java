@@ -104,9 +104,8 @@ public class Course {
             inverseJoinColumns = {@JoinColumn(name = "student_id")})
     private Set<Student> students = new HashSet<>();
 
-//    @Cascade({ org.hibernate.annotations.CascadeType.DELETE })
-//    @OneToMany(mappedBy = "course")
-//    private Set<Event> events = new HashSet<Event>(0);
+    @OneToMany(mappedBy = "course", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<Event> events = new HashSet<>();
 
     @OneToMany(mappedBy = "course", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Text> texts = new HashSet<>();
@@ -310,10 +309,10 @@ public class Course {
     public Set<Student> getStudents() {
        return students;
     }
-//
-//    public Set<Event> getEvents() {
-//        return events;
-//    }
+
+    public Set<Event> getEvents() {
+        return events;
+    }
 
     public Set<Text> getTexts() {
         return texts;

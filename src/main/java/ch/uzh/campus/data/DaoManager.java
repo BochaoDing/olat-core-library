@@ -24,6 +24,7 @@ import java.util.Date;
 import java.util.List;
 
 import ch.uzh.campus.DataConverter;
+import ch.uzh.campus.utils.ListUtil;
 import org.olat.core.id.Identity;
 
 import ch.uzh.campus.CampusConfiguration;
@@ -39,16 +40,16 @@ public class DaoManager {
     private StudentDao studentDao;
     @Autowired
     private LecturerDao lecturerDao;
-//    @Autowired
-//    private SapOlatUserDao sapOlatUserDao;
+    @Autowired
+    private SapOlatUserDao sapOlatUserDao;
     @Autowired
     private DelegationDao delegationDao;
 //    @Autowired
 //    private LecturerCourseDao lecturerCourseDao;
     @Autowired
     private TextDao textDao;
-//    @Autowired
-//    private EventDao eventDao;
+    @Autowired
+    private EventDao eventDao;
     @Autowired
     private OrgDao orgDao;
     @Autowired
@@ -103,13 +104,13 @@ public class DaoManager {
         textDao.save(texts);
     }
 
-//    public void saveEvents(List<Event> events) {
-//        eventDao.save(events);
-//    }
+    public void saveEvents(List<Event> events) {
+        eventDao.save(events);
+    }
 
-//    public void saveSapOlatUsers(List<SapOlatUser> sapOlatUsers) {
-//        sapOlatUserDao.save(sapOlatUsers);
-//    }
+    public void saveSapOlatUsers(List<SapOlatUser> sapOlatUsers) {
+        sapOlatUserDao.save(sapOlatUsers);
+    }
 
     public void saveDelegation(Identity delegator, Identity delegatee) {
         Delegation delegation = new Delegation();
@@ -123,46 +124,47 @@ public class DaoManager {
         return delegationDao.existDelegation(delegator.getName(), delegatee.getName());
     }
 
-//    public boolean existResourceableId(Long resourceableId) {
-//        return courseDao.existResourceableId(resourceableId);
-//    }
-//
+    public boolean existResourceableId(Long resourceableId) {
+        return courseDao.existResourceableId(resourceableId);
+    }
+
 //    public void delete(Course course) {
 //        courseDao.delete(course);
 //    }
 //
-//    public void deleteByCourseId(Long courseId) {
-//        courseDao.deleteByCourseId(courseId);
-//    }
-//
-//    public void deleteCoursesAndBookingsByCourseIds(List<Long> courseIds) {
-//        List<List<Long>> listSplit = ListUtil.split(courseIds, campusConfiguration.getEntitiesSublistMaxSize());
-//        for (List<Long> subList : listSplit) {
-//            if (!subList.isEmpty()) {
+    public void deleteCourseById(Long courseId) {
+        courseDao.deleteByCourseId(courseId);
+    }
+
+    public void deleteCoursesAndBookingsByCourseIds(List<Long> courseIds) {
+        List<List<Long>> listSplit = ListUtil.split(courseIds, campusConfiguration.getEntitiesSublistMaxSize());
+        for (List<Long> subList : listSplit) {
+            if (!subList.isEmpty()) {
+                // TODO check whether student course and lecturer course records are deleted from crosstables
 //                studentCourseDao.deleteByCourseIds(subList);
 //                lecturerCourseDao.deleteByCourseIds(subList);
-//                eventDao.deleteEventsByCourseIds(subList);
-//                textDao.deleteTextsByCourseIds(subList);
-//                courseDao.deleteByCourseIds(subList);
-//            }
-//        }
-//    }
+                eventDao.deleteEventsByCourseIds(subList);
+                textDao.deleteTextsByCourseIds(subList);
+                courseDao.deleteByCourseIds(subList);
+            }
+        }
+    }
 
-//    public List<Long> getAllCoursesToBeDeleted(Date date) {
-//        return courseDao.getAllNotUpdatedCourses(date);
-//    }
-//
-//    public Course getCourseById(Long id) {
-//        return courseDao.getCourseById(id);
-//    }
-//
-//    public int deleteAllTexts() {
-//        return textDao.deleteAllTexts();
-//    }
-//
-//    public int deleteAllEvents() {
-//        return eventDao.deleteAllEvents();
-//    }
+    public List<Long> getAllCoursesToBeDeleted(Date date) {
+        return courseDao.getAllNotUpdatedCourses(date);
+    }
+
+    public Course getCourseById(Long id) {
+        return courseDao.getCourseById(id);
+    }
+
+    public int deleteAllTexts() {
+        return textDao.deleteAllTexts();
+    }
+
+    public int deleteAllEvents() {
+        return eventDao.deleteAllEvents();
+    }
 
 //    public void deleteStudentCourseByCoruseId(Long courseId) {
 //        studentCourseDao.deleteByCourseId(courseId);
@@ -238,13 +240,13 @@ public class DaoManager {
         return studentDao.getAllNotUpdatedStudents(date);
     }
 
-//    public void deleteEventsByCourseId(Long courseId) {
-//        eventDao.deleteEventsByCourseId(courseId);
-//    }
-//
-//    public void deleteTextsByCourseId(Long courseId) {
-//        textDao.deleteTextsByCourseId(courseId);
-//    }
+    public void deleteEventsByCourseId(Long courseId) {
+        eventDao.deleteEventsByCourseId(courseId);
+    }
+
+    public void deleteTextsByCourseId(Long courseId) {
+        textDao.deleteTextsByCourseId(courseId);
+    }
 
     public Lecturer getLecturerById(Long id) {
         return lecturerDao.getLecturerById(id);
@@ -274,21 +276,21 @@ public class DaoManager {
         return orgDao.deleteByOrgIds(orgIds);
     }
 
-//    public SapOlatUser getStudentSapOlatUserByOlatUserName(String olatUserName) {
-//        return sapOlatUserDao.getSapOlatUserByOlatUserNameAndSapUserType(olatUserName, SapOlatUser.SapUserType.STUDENT);
-//    }
-//
-//    public List<SapOlatUser> getLecturerSapOlatUsersByOlatUserName(String olatUserName) {
-//        return sapOlatUserDao.getSapOlatUsersByOlatUserNameAndSapUserType(olatUserName, SapOlatUser.SapUserType.LECTURER);
-//    }
-//
-//    public List<SapOlatUser> getSapOlatUserListByOlatUserName(String olatUserName) {
-//        return sapOlatUserDao.getSapOlatUserListByOlatUserName(olatUserName);
-//    }
-//
-//    public SapOlatUser getSapOlatUserBySapUserId(Long sapUserId) {
-//        return sapOlatUserDao.getSapOlatUserBySapUserId(sapUserId);
-//    }
+    public SapOlatUser getStudentSapOlatUserByOlatUserName(String olatUserName) {
+        return sapOlatUserDao.getSapOlatUserByOlatUserNameAndSapUserType(olatUserName, SapOlatUser.SapUserType.STUDENT);
+    }
+
+    public List<SapOlatUser> getLecturerSapOlatUsersByOlatUserName(String olatUserName) {
+        return sapOlatUserDao.getSapOlatUsersByOlatUserNameAndSapUserType(olatUserName, SapOlatUser.SapUserType.LECTURER);
+    }
+
+    public List<SapOlatUser> getSapOlatUserListByOlatUserName(String olatUserName) {
+        return sapOlatUserDao.getSapOlatUserListByOlatUserName(olatUserName);
+    }
+
+    public SapOlatUser getSapOlatUserBySapUserId(Long sapUserId) {
+        return sapOlatUserDao.getSapOlatUserBySapUserId(sapUserId);
+    }
 
     public List<Text> getTextByCourseId(Long id) {
         return textDao.getTextsByCourseId(id);

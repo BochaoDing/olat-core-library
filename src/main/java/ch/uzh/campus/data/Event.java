@@ -28,8 +28,11 @@ import org.hibernate.annotations.NamedQuery;
 @Entity
 @Table(name = "ck_event")
 @NamedQueries({ @NamedQuery(name = Event.DELETE_ALL_EVENTS, query = "delete from Event"),
+        @NamedQuery(name = Event.GET_EVENTS_BY_COURSE_ID, query = "select from Event e where e.course.id = :courseId"),
+        @NamedQuery(name = Event.GET_EVENT_IDS_BY_COURSE_ID, query = "select e.id from Event e where e.course.id = :courseId"),
         @NamedQuery(name = Event.DELETE_EVENTS_BY_COURSE_ID, query = "delete from Event e where e.course.id = :courseId"),
-        @NamedQuery(name = Event.DELETE_EVENTS_BY_COURSE_IDS, query = "delete from Event e where e.course.id in( :courseIds)") })
+        @NamedQuery(name = Event.GET_EVENT_IDS_BY_COURSE_IDS, query = "select e.id from Event e where e.course.id in :courseId"),
+        @NamedQuery(name = Event.DELETE_EVENTS_BY_COURSE_IDS, query = "delete from Event e where e.course.id in :courseIds") })
 public class Event {
     @Id
     @GeneratedValue(generator = "system-uuid")
@@ -54,6 +57,9 @@ public class Event {
     private Course course;
 
     public static final String DELETE_ALL_EVENTS = "deleteAllEvents";
+    public static final String GET_EVENT_IDS_BY_COURSE_ID = "getEventIdsByCourseId";
+    public static final String GET_EVENT_IDS_BY_COURSE_IDS = "getEventIdsByCourseIds";
+    public static final String GET_EVENTS_BY_COURSE_ID = "getEventsByCourseId";
     public static final String DELETE_EVENTS_BY_COURSE_ID = "deleteEventsByCourseId";
     public static final String DELETE_EVENTS_BY_COURSE_IDS = "deleteEventsByCourseIds";
 
