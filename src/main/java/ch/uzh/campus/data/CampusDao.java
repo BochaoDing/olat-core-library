@@ -8,6 +8,6 @@ import java.util.List;
  * @author aabouc
  */
 public interface CampusDao<T> {
-    void save(List<T> iterms);
+    void save(List<T> items);
 
 }

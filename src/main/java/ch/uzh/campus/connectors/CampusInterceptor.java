@@ -22,13 +22,12 @@ package ch.uzh.campus.connectors;
 
 import java.util.List;
 
+import ch.uzh.campus.data.*;
 import org.apache.log4j.Logger;
 import org.olat.core.logging.OLog;
 import org.olat.core.logging.Tracing;
 //import org.olat.data.course.campus.DaoManager;
-import ch.uzh.campus.data.ImportStatistic;
 //import org.olat.data.course.campus.ImportStatisticDao;
-import ch.uzh.campus.data.SkipItem;
 //import org.olat.data.course.campus.SkipItemDao;
 //import org.olat.lms.core.course.campus.impl.metric.CampusNotifier;
 //import org.olat.lms.core.course.campus.impl.metric.CampusStatistics;
@@ -66,12 +65,12 @@ public class CampusInterceptor<T, S> implements StepExecutionListener, ItemWrite
 	private static final OLog LOG = Tracing.createLoggerFor(CampusInterceptor.class);
 
 	//TODO: olatng
-    //@Autowired
-	//protected ImportStatisticDao statisticDao;
-	//@Autowired
-	//protected SkipItemDao skipItemDao;
-	//@Autowired
-	//private DaoManager daoManager;
+    @Autowired
+	protected ImportStatisticDao statisticDao;
+	@Autowired
+	protected SkipItemDao skipItemDao;
+	@Autowired
+	private DaoManager daoManager;
 	//@Autowired
 	//private CampusNotifier campusNotifier;
 
@@ -272,10 +271,7 @@ public class CampusInterceptor<T, S> implements StepExecutionListener, ItemWrite
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void onSkipInProcess(T item, Throwable ex) {
         LOG.debug("onSkipInWrite: " + item);
-        //TODO: olatng
-        /*
         skipItemDao.save(createSkipItem("PROCESS", item.toString(), ex.getMessage()));
-        */
     }
 
     /**
@@ -288,10 +284,7 @@ public class CampusInterceptor<T, S> implements StepExecutionListener, ItemWrite
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void onSkipInRead(Throwable ex) {
         LOG.debug("onSkipInRead: ");
-        //TODO: olatng
-        /*
         skipItemDao.save(createSkipItem("READ", null, ex.getMessage()));
-        */
     }
 
     /**

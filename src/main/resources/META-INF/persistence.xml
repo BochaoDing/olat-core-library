@@ -170,6 +170,8 @@
 		<class>ch.uzh.campus.data.SapOlatUser</class>	
 		<class>ch.uzh.campus.data.Delegation</class>
 		<class>ch.uzh.campus.data.SkipItem</class>
+		<class>ch.uzh.campus.data.DaoManager</class>
+		<class>ch.uzh.campus.data.ImportStatistic</class>
 
 		<properties>
 			<property name="hibernate.generate_statistics" value="true"/>
