@@ -23,7 +23,7 @@ package ch.uzh.campus.connectors;
 import java.util.List;
 
 import ch.uzh.campus.data.*;
-import org.apache.log4j.Logger;
+import org.olat.core.CoreSpringFactory;
 import org.olat.core.logging.OLog;
 import org.olat.core.logging.Tracing;
 //import org.olat.data.course.campus.DaoManager;
@@ -34,7 +34,6 @@ import org.olat.core.logging.Tracing;
 //import org.olat.system.commons.configuration.PropertyLocator;
 //import org.olat.system.commons.configuration.SystemPropertiesService;
 
-import org.olat.core.CoreSpringFactory;
 import org.springframework.batch.core.BatchStatus;
 import org.springframework.batch.core.ChunkListener;
 import org.springframework.batch.core.ExitStatus;
@@ -64,7 +63,6 @@ public class CampusInterceptor<T, S> implements StepExecutionListener, ItemWrite
 
 	private static final OLog LOG = Tracing.createLoggerFor(CampusInterceptor.class);
 
-	//TODO: olatng
     @Autowired
 	protected ImportStatisticDao statisticDao;
 	@Autowired
@@ -92,20 +90,15 @@ public class CampusInterceptor<T, S> implements StepExecutionListener, ItemWrite
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void beforeStep(StepExecution se) {
         LOG.info(se.toString());
-
         setStepExecution(se);
-
-        //TODO: olatng
-        /*
-        // chunk count and duration is beeing logged for sync step since this may be slow and potentially break timeout
+        // Chunk count and duration is being logged for sync step since this may be slow and potentially break timeout
         if (CampusProcessStep.CAMPUSSYNCHRONISATION.name().equalsIgnoreCase(se.getStepName())) {
             chunkCount = 0;
         }
-
-        if (CampusProcessStep.IMPORT_TEXTS.name().equalsIgnoreCase(se.getStepName())) {        	
+        // Before importing Texts, delete all old ones
+        if (CampusProcessStep.IMPORT_TEXTS.name().equalsIgnoreCase(se.getStepName())) {
             daoManager.deleteAllTexts();
-        }  
-        */      
+        }
     }
 
     /**
@@ -120,20 +113,18 @@ public class CampusInterceptor<T, S> implements StepExecutionListener, ItemWrite
     public ExitStatus afterStep(StepExecution se) {
         LOG.info(se.toString());
 
-        //TODO: olatng
-        /*statisticDao.save(createImportStatistic(se));
+        //TODO: olatng - Find out if we still need notifyMetrics
+        statisticDao.save(createImportStatistic(se));
 
         if (CampusProcessStep.IMPORT_CONTROLFILE.name().equalsIgnoreCase(se.getStepName())) {
             if (se.getWriteCount() != getFixedNumberOfFilesToBeExported()) {
-                // if (se.getReadCount() != getFixedNumberOfFilesToBeExported() || se.getWriteCount() != getFixedNumberOfFilesToBeExported()) {
-                notifyMetrics(se);
+//                notifyMetrics(se);
                 return ExitStatus.FAILED;
             }
         }
 
         removeOldDataIfExist(se);
-        notifyMetrics(se);
-		*/
+//        notifyMetrics(se);
         return null;
     }
 
@@ -143,33 +134,32 @@ public class CampusInterceptor<T, S> implements StepExecutionListener, ItemWrite
      * @param se
      *            the StepExecution
      */
-    private void notifyMetrics(StepExecution se) {
-    	//TODO: olatng
-        /*if (CampusProcessStep.IMPORT_CONTROLFILE.name().equalsIgnoreCase(se.getStepName())) {
-            campusNotifier.notifyStartOfImportProcess();
-            CampusStatistics.EXPORT_STATUS exportStatus = CampusStatistics.EXPORT_STATUS.OK;
-
-            if (se.getReadCount() != getFixedNumberOfFilesToBeExported() && se.getReadCount() != 2 * getFixedNumberOfFilesToBeExported()) {
-                // THE CASE THAT THE EXPORT FILE (CONTROL FILE) HASN'T BEEN CREATED YET
-                if (se.getReadCount() == 0) {
-                    exportStatus = CampusStatistics.EXPORT_STATUS.NO_EXPORT;
-                }
-                // THE CASE OF EXPORTING LESS THAN THE EXPECTED FILES (LESS THAN 8(ONLY CURRENT) OR LESS THAN 16 (CURRENT AND NEXT)
-                else {
-                    exportStatus = CampusStatistics.EXPORT_STATUS.INCOMPLETE_EXPORT;
-                }
-            }
-            // THE CASE OF EXPORTING THE OLD FILES
-            if (se.getWriteCount() != getFixedNumberOfFilesToBeExported()) {
-                exportStatus = CampusStatistics.EXPORT_STATUS.NO_EXPORT;
-            }
-
-            campusNotifier.notifyExportStatus(exportStatus);
-        }
-
-        campusNotifier.notifyStepExecution(se);
-		*/
-    }
+//    private void notifyMetrics(StepExecution se) {
+//    	//TODO: olatng
+//        if (CampusProcessStep.IMPORT_CONTROLFILE.name().equalsIgnoreCase(se.getStepName())) {
+//            campusNotifier.notifyStartOfImportProcess();
+//            CampusStatistics.EXPORT_STATUS exportStatus = CampusStatistics.EXPORT_STATUS.OK;
+//
+//            if (se.getReadCount() != getFixedNumberOfFilesToBeExported() && se.getReadCount() != 2 * getFixedNumberOfFilesToBeExported()) {
+//                // THE CASE THAT THE EXPORT FILE (CONTROL FILE) HASN'T BEEN CREATED YET
+//                if (se.getReadCount() == 0) {
+//                    exportStatus = CampusStatistics.EXPORT_STATUS.NO_EXPORT;
+//                }
+//                // THE CASE OF EXPORTING LESS THAN THE EXPECTED FILES (LESS THAN 8(ONLY CURRENT) OR LESS THAN 16 (CURRENT AND NEXT)
+//                else {
+//                    exportStatus = CampusStatistics.EXPORT_STATUS.INCOMPLETE_EXPORT;
+//                }
+//            }
+//            // THE CASE OF EXPORTING THE OLD FILES
+//            if (se.getWriteCount() != getFixedNumberOfFilesToBeExported()) {
+//                exportStatus = CampusStatistics.EXPORT_STATUS.NO_EXPORT;
+//            }
+//
+//            campusNotifier.notifyExportStatus(exportStatus);
+//        }
+//
+//        campusNotifier.notifyStepExecution(se);
+//    }
 
     /**
      * Delegates the actual deletion of old data to the {@link DaoManager} in the case of a successful batch processing.
@@ -179,7 +169,6 @@ public class CampusInterceptor<T, S> implements StepExecutionListener, ItemWrite
      */
     private void removeOldDataIfExist(StepExecution se) {
     	//TODO: olatng
-        /*
         if (!BatchStatus.COMPLETED.equals(se.getStatus())) {
             return;
         }
@@ -188,7 +177,7 @@ public class CampusInterceptor<T, S> implements StepExecutionListener, ItemWrite
             List<Long> orgsToBeRemoved = daoManager.getAllOrgsToBeDeleted(se.getStartTime());
             LOG.info("ORGS TO BE REMOVED [" + orgsToBeRemoved.size() + "]");
             if (!orgsToBeRemoved.isEmpty()) {
-                daoManager.deleteByOrgIds(orgsToBeRemoved);
+                daoManager.deleteOrgByIds(orgsToBeRemoved);
             }
             return;
         }
@@ -220,17 +209,16 @@ public class CampusInterceptor<T, S> implements StepExecutionListener, ItemWrite
             return;
         }
 
-        if (CampusProcessStep.IMPORT_LECTURERS_COURSES.name().equalsIgnoreCase(se.getStepName())) {
-            int stornos = daoManager.deleteAllNotUpdatedLCBooking(se.getStartTime());
-            LOG.info("STORNOS(LECTURER_COURSE): " + stornos);
-            return;
-        }
-        if (CampusProcessStep.IMPORT_STUDENTS_COURSES.name().equalsIgnoreCase(se.getStepName())) {
-            int stornos = daoManager.deleteAllNotUpdatedSCBooking(se.getStartTime());
-            LOG.info("STORNOS(STUDENT_COURSE): " + stornos);
-            return;
-        }
-		*/
+//        if (CampusProcessStep.IMPORT_LECTURERS_COURSES.name().equalsIgnoreCase(se.getStepName())) {
+//            int stornos = daoManager.deleteAllNotUpdatedLCBooking(se.getStartTime());
+//            LOG.info("STORNOS(LECTURER_COURSE): " + stornos);
+//            return;
+//        }
+//        if (CampusProcessStep.IMPORT_STUDENTS_COURSES.name().equalsIgnoreCase(se.getStepName())) {
+//            int stornos = daoManager.deleteAllNotUpdatedSCBooking(se.getStartTime());
+//            LOG.info("STORNOS(STUDENT_COURSE): " + stornos);
+//            return;
+//        }
     }
 
     /**
@@ -299,10 +287,7 @@ public class CampusInterceptor<T, S> implements StepExecutionListener, ItemWrite
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void onSkipInWrite(S item, Throwable ex) {
         LOG.debug("onSkipInWrite: " + item);
-        //TODO: olatng
-        /*
         skipItemDao.save(createSkipItem("WRITE", item.toString(), ex.getMessage()));
-        */
     }
 
     /**
@@ -396,26 +381,26 @@ public class CampusInterceptor<T, S> implements StepExecutionListener, ItemWrite
 
     @Override
     public void afterChunk() {
-        // chunk count and duration is beeing logged for sync step since this may be slow and potentially break timeout
+        // chunk count and duration is being logged for sync step since this may be slow and potentially break timeout
     	//TODO: olatng
-    	/*final int timeout = CoreSpringFactory.getBean(SystemPropertiesService.class).getIntProperty(PropertyLocator.DB_HIBERNATE_C3P0_UNRETURNEDCONNECTIONTIMEOUT);
-        if (CampusProcessStep.CAMPUSSYNCHRONISATION.name().equalsIgnoreCase(getStepExecution().getStepName())) {
-            chunkCount++;
-            long chunkProcessingDuration = System.currentTimeMillis() - chunkStartTime;
-            if (((float) (chunkProcessingDuration / 1000)) / timeout > 0.9) {
-                LOG.warn("Chunk no "
-                        + chunkCount
-                        + " for campus synchronisation took "
-                        + chunkProcessingDuration
-                        + " ms which is more than 90% of configured database connection pool timeout of "
-                        + timeout
-                        + " sec. Please consider to take action in order to avoid a timeout (increase parameter 'db.hibernate.c3p0.unreturnedConnectionTimeout' or decrease chunk size).");
-            } else {
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug("Chunk no " + chunkCount + " for campus synchronisation took " + chunkProcessingDuration + " ms (timeout is " + timeout + " s).");
-                }
-            }
-        }*/
+//    	final int timeout = CoreSpringFactory.getBean(SystemPropertiesService.class).getIntProperty(PropertyLocator.DB_HIBERNATE_C3P0_UNRETURNEDCONNECTIONTIMEOUT);
+//        if (CampusProcessStep.CAMPUSSYNCHRONISATION.name().equalsIgnoreCase(getStepExecution().getStepName())) {
+//            chunkCount++;
+//            long chunkProcessingDuration = System.currentTimeMillis() - chunkStartTime;
+//            if (((float) (chunkProcessingDuration / 1000)) / timeout > 0.9) {
+//                LOG.warn("Chunk no "
+//                        + chunkCount
+//                        + " for campus synchronisation took "
+//                        + chunkProcessingDuration
+//                        + " ms which is more than 90% of configured database connection pool timeout of "
+//                        + timeout
+//                        + " sec. Please consider to take action in order to avoid a timeout (increase parameter 'db.hibernate.c3p0.unreturnedConnectionTimeout' or decrease chunk size).");
+//            } else {
+//                if (LOG.isDebugEnabled()) {
+//                    LOG.debug("Chunk no " + chunkCount + " for campus synchronisation took " + chunkProcessingDuration + " ms (timeout is " + timeout + " s).");
+//                }
+//            }
+//        }
     }
 
 }
