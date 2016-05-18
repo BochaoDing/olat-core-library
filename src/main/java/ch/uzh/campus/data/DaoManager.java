@@ -170,16 +170,17 @@ public class DaoManager {
 //        studentCourseDao.deleteByCourseId(courseId);
 //    }
 //
-//    public void deleteStudentsAndBookingsByStudentIds(List<Long> studentIds) {
-//        List<List<Long>> listSplit = ListUtil.split(studentIds, campusConfiguration.getEntitiesSublistMaxSize());
-//        for (List<Long> subList : listSplit) {
-//            if (!subList.isEmpty()) {
+    public void deleteStudentsAndBookingsByStudentIds(List<Long> studentIds) {
+        List<List<Long>> listSplit = ListUtil.split(studentIds, campusConfiguration.getEntitiesSublistMaxSize());
+        for (List<Long> subList : listSplit) {
+            if (!subList.isEmpty()) {
+                // TODO check whether student course records are deleted from crosstables
 //                studentCourseDao.deleteByStudentIds(subList);
-//                sapOlatUserDao.deleteMappingBySapStudentIds(subList);
-//                studentDao.deleteByStudentIds(subList);
-//            }
-//        }
-//    }
+                sapOlatUserDao.deleteMappingBySapStudentIds(subList);
+                studentDao.deleteByStudentIds(subList);
+            }
+        }
+    }
 
     public void deleteStudent(Student student) {
         studentDao.delete(student);
@@ -188,19 +189,19 @@ public class DaoManager {
 //    public void delete(LecturerCourse lecturerCourse) {
 //        lecturerCourseDao.delete(lecturerCourse);
 //    }
-//
+
 //    public void deleteLecturerCourseByCoruseId(Long courseId) {
 //        lecturerCourseDao.deleteByCourseId(courseId);
 //    }
-//
+
 //    public int deleteAllNotUpdatedLCBooking(Date date) {
-//        return lecturerCourseDao.deleteAllNotUpdatedLCBooking(date);
+//        return lecturerDao.deleteAllNotUpdatedLCBooking(date);
 //    }
-//
+
 //    public int deleteAllNotUpdatedSCBooking(Date date) {
-//        return studentCourseDao.deleteAllNotUpdatedSCBooking(date);
+//        return studentDao.deleteAllNotUpdatedSCBooking(date);
 //    }
-//
+
     public void deleteLecturersAndBookingsByLecturerIds(List<Long> lecturerIds) {
         List<List<Long>> listSplit = ListUtil.split(lecturerIds, campusConfiguration.getEntitiesSublistMaxSize());
         for (List<Long> subList : listSplit) {
@@ -273,7 +274,7 @@ public class DaoManager {
         return orgDao.getAllNotUpdatedOrgs(date);
     }
 
-    public int deleteByOrgIds(List<Long> orgIds) {
+    public int deleteOrgByIds(List<Long> orgIds) {
         return orgDao.deleteByOrgIds(orgIds);
     }
 
@@ -309,10 +310,10 @@ public class DaoManager {
         return textDao.getMaterialsByCourseId(id);
     }
 
-//    public List<Course> getPilotCoursesByStudentId(Long id) {
-//        return courseDao.getPilotCoursesByStudentId(id);
-//    }
-//
+    public List<Course> getPilotCoursesByStudentId(Long id) {
+        return courseDao.getPilotCoursesByStudentId(id);
+    }
+
     public List<Course> getCreatedCoursesByStudentId(Long id) {
         return courseDao.getCreatedCoursesByStudentId(id);
     }
@@ -321,10 +322,10 @@ public class DaoManager {
         return courseDao.getNotCreatedCoursesByStudentId(id);
     }
 
-//    public List<Course> getPilotCoursesByLecturerId(Long id) {
-//        return courseDao.getPilotCoursesByLecturerId(id);
-//    }
-//
+    public List<Course> getPilotCoursesByLecturerId(Long id) {
+        return courseDao.getPilotCoursesByLecturerId(id);
+    }
+
     public List<Course> getCreatedCoursesByLecturerIds(List<Long> ids) {
         return courseDao.getCreatedCoursesByLecturerIds(ids);
     }

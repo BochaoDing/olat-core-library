@@ -5,10 +5,15 @@ import java.util.HashSet;
 import java.util.Set;
 
 import javax.persistence.*;
+import javax.persistence.Entity;
+import javax.persistence.NamedQueries;
+import javax.persistence.NamedQuery;
+import javax.persistence.Table;
 
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
+import org.hibernate.annotations.*;
 
 /**
  * Initial Date: 04.06.2012 <br>
@@ -19,9 +24,11 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 @Entity
 @Table(name = "ck_lecturer")
 @NamedQueries({
-        @NamedQuery(name = Lecturer.GET_LECTURER_BY_EMAIL, query = "select l from Lecturer l where l.email = :email"),
-        @NamedQuery(name = Lecturer.GET_ALL_PILOT_LECTURERS, query = "select distinct l from Lecturer l left join l.courses c where c.enabled = '1' "),
-        @NamedQuery(name = Lecturer.GET_ALL_NOT_UPDATED_LECTURERS, query = "select l.personalNr from Lecturer l where l.modifiedDate < :lastImportDate")})
+        @NamedQuery(name = Lecturer.GET_LECTURER_BY_EMAIL, query = "select l from Lecturer l where l.email = :email")
+        , @NamedQuery(name = Lecturer.GET_ALL_PILOT_LECTURERS, query = "select distinct l from Lecturer l left join l.courses c where c.enabled = '1' ")
+        , @NamedQuery(name = Lecturer.GET_ALL_NOT_UPDATED_LECTURERS, query = "select l.personalNr from Lecturer l where l.modifiedDate < :lastImportDate")
+//        , @NamedQuery(name = Lecturer.GET_ALL_NOT_UPDATED_LC_BOOKINGS, query = "select lc from Lecturer.courses lc where lc.modifiedDate < :lastImportDate")
+})
 public class Lecturer {
     @Id
     @Column(name = "ID")
@@ -52,6 +59,7 @@ public class Lecturer {
     public static final String GET_LECTURER_BY_EMAIL = "getLecturerByEmail";
     public static final String GET_ALL_PILOT_LECTURERS = "getAllPilotLecturers";
     public static final String GET_ALL_NOT_UPDATED_LECTURERS = "getAllNotUpdatedLecturers";
+    public static final String GET_ALL_NOT_UPDATED_LC_BOOKINGS = "getAllNotUpdatedLecturerCourseBookings";
 
     public Lecturer() {
     }

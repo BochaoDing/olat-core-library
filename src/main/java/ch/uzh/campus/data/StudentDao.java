@@ -9,23 +9,23 @@ import java.util.List;
 
 /**
  * Initial Date: 04.06.2012 <br>
- * 
+ *
  * @author aabouc
  * @author lavinia
  * @author Martin Schraner
  */
 
 @Repository
-public class StudentDao implements CampusDao<Student> {  
-	
-	@Autowired
-    private DB dbInstance;   
+public class StudentDao implements CampusDao<Student> {
+
+    @Autowired
+    private DB dbInstance;
 
     @Override
     public void save(List<Student> students) {
-    	for(Student student:students) {
-    		dbInstance.saveObject(student);
-    	}        
+        for (Student student : students) {
+            dbInstance.saveObject(student);
+        }
     }
 
     public void addStudentToCourse(Long studentId, Long courseId) {
@@ -46,25 +46,25 @@ public class StudentDao implements CampusDao<Student> {
     }
 
     public Student getStudentById(Long id) {
-    	return dbInstance.findObject(Student.class, id);
+        return dbInstance.findObject(Student.class, id);
     }
 
-    public Student getStudentByEmail(String email) {        
-    	List<Student> students = dbInstance.getCurrentEntityManager()
-				.createNamedQuery(Student.GET_STUDENTS_BY_EMAIL, Student.class)
-				.setParameter("email", email)
-				.getResultList();
-    	if (students != null && !students.isEmpty()) {
+    public Student getStudentByEmail(String email) {
+        List<Student> students = dbInstance.getCurrentEntityManager()
+                .createNamedQuery(Student.GET_STUDENTS_BY_EMAIL, Student.class)
+                .setParameter("email", email)
+                .getResultList();
+        if (students != null && !students.isEmpty()) {
             return students.get(0);
         }
         return null;
-    }    
+    }
 
-    public Student getStudentByRegistrationNr(String registrationNr) {        
-    	List<Student> students = dbInstance.getCurrentEntityManager()
-				.createNamedQuery(Student.GET_STUDENTS_WITH_REGISTRATION_NUMBER, Student.class)
-				.setParameter("registrationNr", registrationNr)
-				.getResultList();
+    public Student getStudentByRegistrationNr(String registrationNr) {
+        List<Student> students = dbInstance.getCurrentEntityManager()
+                .createNamedQuery(Student.GET_STUDENTS_WITH_REGISTRATION_NUMBER, Student.class)
+                .setParameter("registrationNr", registrationNr)
+                .getResultList();
         if (students != null && !students.isEmpty()) {
             return students.get(0);
         }
@@ -75,14 +75,14 @@ public class StudentDao implements CampusDao<Student> {
         // return genericDao.findAll();
         return getAllPilotStudents();
     }
-    
-    public List<Long> getAllNotUpdatedStudents(Date date) {                
+
+    public List<Long> getAllNotUpdatedStudents(Date date) {
         return dbInstance.getCurrentEntityManager()
                 .createNamedQuery(Student.GET_ALL_NOT_UPDATED_STUDENTS, Long.class)
                 .setParameter("lastImportDate", date)
                 .getResultList();
     }
-    
+
     public void delete(Student student) {
         deleteStudentBidirectionally(student);
     }
@@ -92,10 +92,10 @@ public class StudentDao implements CampusDao<Student> {
             deleteStudentBidirectionally(dbInstance.getCurrentEntityManager().getReference(Student.class, studentId));
         }
     }
-    
-    public List<Student> getAllPilotStudents() {               
+
+    public List<Student> getAllPilotStudents() {
         return dbInstance.getCurrentEntityManager()
-                .createNamedQuery(Student.GET_ALL_PILOT_STUDENTS, Student.class)                		
+                .createNamedQuery(Student.GET_ALL_PILOT_STUDENTS, Student.class)
                 .getResultList();
     }
 

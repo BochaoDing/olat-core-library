@@ -33,6 +33,9 @@ import java.util.Set;
         @NamedQuery(name = Course.GET_CREATED_COURSES_BY_STUDENT_ID, query = "select distinct c from Course c join c.students s where s.id = :studentId and c.resourceableId is not null and  c.enabled = '1' and c.shortSemester= (select max(c2.shortSemester) from Course c2)"),
         @NamedQuery(name = Course.GET_NOT_CREATED_COURSES_BY_STUDENT_ID, query = "select distinct c from Course c join c.students s where s.id = :studentId and c.resourceableId is null and c.enabled = '1' and c.shortSemester= (select max(c2.shortSemester) from Course c2)"),
 
+        @NamedQuery(name = Course.GET_PILOT_COURSES_BY_STUDENT_ID, query = "select c from Course c left join c.students cs where cs.id = :studentId and c.enabled = '1' and c.shortSemester= (select max(c2.shortSemester) from Course c2)"),
+        @NamedQuery(name = Course.GET_PILOT_COURSES_BY_LECTURER_ID, query = "select c from Course c left join c.lecturers cl where cl.personalNr = :lecturerId and c.enabled = '1' and c.shortSemester= (select max(c2.shortSemester) from Course c2) "),
+
         @NamedQuery(name = Course.GET_ALL_NOT_UPDATED_COURSES, query = "select c.id from Course c where c.resourceableId is null and c.modifiedDate < :lastImportDate"),
         @NamedQuery(name = Course.GET_COURSE_IDS_BY_RESOURCEABLE_ID, query = "select c.id from Course c where c.resourceableId = :resourceableId")
 })
@@ -125,6 +128,9 @@ public class Course {
 
     public static final String GET_ALL_NOT_UPDATED_COURSES = "getAllNotUpdatedCourses";
     public static final String GET_COURSE_IDS_BY_RESOURCEABLE_ID = "getCourseIdsByResourceableId";
+
+    public static final String GET_PILOT_COURSES_BY_LECTURER_ID = "getPilotCoursesByLecturerId";
+    public static final String GET_PILOT_COURSES_BY_STUDENT_ID = "getPilotCoursesByStudentId";
 
     public Long getId() {
         return id;

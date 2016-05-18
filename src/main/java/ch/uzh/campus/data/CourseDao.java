@@ -5,7 +5,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Initial Date: 04.06.2012 <br>
@@ -141,4 +143,20 @@ public class CourseDao implements CampusDao<Course> {
         }
         dbInstance.deleteObject(course);
     }
+
+    public List<Course> getPilotCoursesByLecturerId(Long lecturerId) {
+        return dbInstance.getCurrentEntityManager()
+                .createNamedQuery(Course.GET_PILOT_COURSES_BY_LECTURER_ID, Course.class)
+                .setParameter("lecturerId", lecturerId)
+                .getResultList();
+    }
+
+    public List<Course> getPilotCoursesByStudentId(Long studentId) {
+        return dbInstance.getCurrentEntityManager()
+                .createNamedQuery(Course.GET_PILOT_COURSES_BY_STUDENT_ID, Course.class)
+                .setParameter("studentId", studentId)
+                .getResultList();
+    }
+
+
 }

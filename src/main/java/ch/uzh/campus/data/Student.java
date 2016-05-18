@@ -26,10 +26,12 @@ import javax.persistence.NamedQuery;
  */
 @Entity
 @NamedQueries({
-        @NamedQuery(name = Student.GET_ALL_PILOT_STUDENTS, query = "select distinct s from Student s left join s.courses cs where cs.enabled = '1' "),
-        @NamedQuery(name = Student.GET_ALL_NOT_UPDATED_STUDENTS, query = "select s.id from Student s where s.modifiedDate < :lastImportDate"),
-        @NamedQuery(name = Student.GET_STUDENTS_BY_EMAIL, query = "select s from Student s where s.email = :email"),
-        @NamedQuery(name = Student.GET_STUDENTS_WITH_REGISTRATION_NUMBER, query = "select s from Student s where s.registrationNr = :registrationNr")})
+        @NamedQuery(name = Student.GET_ALL_PILOT_STUDENTS, query = "select distinct s from Student s left join s.courses cs where cs.enabled = '1' ")
+        , @NamedQuery(name = Student.GET_ALL_NOT_UPDATED_STUDENTS, query = "select s.id from Student s where s.modifiedDate < :lastImportDate")
+        , @NamedQuery(name = Student.GET_STUDENTS_BY_EMAIL, query = "select s from Student s where s.email = :email")
+        , @NamedQuery(name = Student.GET_STUDENTS_WITH_REGISTRATION_NUMBER, query = "select s from Student s where s.registrationNr = :registrationNr")
+//        , @NamedQuery(name = Student.GET_ALL_NOT_UPDATED_SC_BOOKING, query = "select sc from Student.courses sc where sc.modifiedDate is not null and sc.modifiedDate < :lastImportDate")
+})
 @Table(name = "ck_student")
 public class Student {
 	
@@ -59,6 +61,7 @@ public class Student {
     public static final String GET_ALL_NOT_UPDATED_STUDENTS = "getAllNotUpdatedStudents";
     public static final String GET_STUDENTS_BY_EMAIL = "getStudentsWithEmail";
     public static final String GET_STUDENTS_WITH_REGISTRATION_NUMBER = "getStudentsWithRegistrationNr";
+    public static final String GET_ALL_NOT_UPDATED_SC_BOOKING = "getAllNotUpdatedStudentCourseBookings";
 
     public Student() {
     }
