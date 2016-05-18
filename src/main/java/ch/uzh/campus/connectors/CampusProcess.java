@@ -104,9 +104,15 @@ public class CampusProcess {
         LOG.info("THE " + campusProcess + " IS: [" + status + "]");
 
         if (PROCESS_DISABLED.equalsIgnoreCase(status)) {
+            LOG.warn("Job is disabled! Check campusJobSchedulerContext.xml");
             return;
         }
         parameters.put("run.ts", new JobParameter(System.currentTimeMillis()));
+
+        if (job == null) {
+            LOG.warn("Job is not set! Check campusJobSchedulerContext.xml");
+            return;
+        }
 
         jobLauncher.run(job, new JobParameters(parameters));
 
