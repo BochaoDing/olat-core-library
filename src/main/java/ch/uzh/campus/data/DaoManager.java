@@ -142,9 +142,6 @@ public class DaoManager {
         List<List<Long>> listSplit = ListUtil.split(courseIds, campusConfiguration.getEntitiesSublistMaxSize());
         for (List<Long> subList : listSplit) {
             if (!subList.isEmpty()) {
-                // TODO check whether student course and lecturer course records are deleted from crosstables
-//                studentCourseDao.deleteByCourseIds(subList);
-//                lecturerCourseDao.deleteByCourseIds(subList);
                 eventDao.deleteEventsByCourseIds(subList);
                 textDao.deleteTextsByCourseIds(subList);
                 courseDao.deleteByCourseIds(subList);
@@ -172,8 +169,6 @@ public class DaoManager {
         List<List<Long>> listSplit = ListUtil.split(studentIds, campusConfiguration.getEntitiesSublistMaxSize());
         for (List<Long> subList : listSplit) {
             if (!subList.isEmpty()) {
-                // TODO check whether student course records are deleted from crosstables
-//                studentCourseDao.deleteByStudentIds(subList);
                 sapOlatUserDao.deleteMappingBySapStudentIds(subList);
                 studentDao.deleteByStudentIds(subList);
             }
@@ -196,8 +191,6 @@ public class DaoManager {
         List<List<Long>> listSplit = ListUtil.split(lecturerIds, campusConfiguration.getEntitiesSublistMaxSize());
         for (List<Long> subList : listSplit) {
             if (!subList.isEmpty()) {
-                // TODO check whether lecturer course records get deleted with the lecturer himself
-//                lecturerCourseDao.deleteByLecturerIds(subList);
                 sapOlatUserDao.deleteMappingBySapLecturerIds(subList);
                 lecturerDao.deleteByLecturerIds(subList);
             }
