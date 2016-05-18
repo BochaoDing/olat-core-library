@@ -31,6 +31,8 @@ import ch.uzh.campus.CampusConfiguration;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 @Repository
 public class DaoManager {
@@ -166,10 +168,6 @@ public class DaoManager {
         return eventDao.deleteAllEvents();
     }
 
-//    public void deleteStudentCourseByCoruseId(Long courseId) {
-//        studentCourseDao.deleteByCourseId(courseId);
-//    }
-//
     public void deleteStudentsAndBookingsByStudentIds(List<Long> studentIds) {
         List<List<Long>> listSplit = ListUtil.split(studentIds, campusConfiguration.getEntitiesSublistMaxSize());
         for (List<Long> subList : listSplit) {
@@ -185,14 +183,6 @@ public class DaoManager {
     public void deleteStudent(Student student) {
         studentDao.delete(student);
     }
-
-//    public void delete(LecturerCourse lecturerCourse) {
-//        lecturerCourseDao.delete(lecturerCourse);
-//    }
-
-//    public void deleteLecturerCourseByCoruseId(Long courseId) {
-//        lecturerCourseDao.deleteByCourseId(courseId);
-//    }
 
 //    public int deleteAllNotUpdatedLCBooking(Date date) {
 //        return lecturerDao.deleteAllNotUpdatedLCBooking(date);
@@ -382,22 +372,22 @@ public class DaoManager {
         }
     }
 
-//    @Transactional(propagation = Propagation.REQUIRES_NEW)
-//    public void saveCampusCourseResoureableId(Long courseId, Long resourceableId) {
-//        courseDao.saveResourceableId(courseId, resourceableId);
-//    }
-//
-//    @Transactional(propagation = Propagation.REQUIRES_NEW)
-//    public void saveCampusCourseResoureableIdAndDisableSynchronization(Long courseId, Long resourceableId) {
-//        courseDao.saveResourceableId(courseId, resourceableId);
-//        courseDao.disableSynchronization(courseId);
-//    }
-//
-//    @Transactional(propagation = Propagation.REQUIRES_NEW)
-//    public void deleteResourceableId(Long resourceableId) {
-//        courseDao.deleteResourceableId(resourceableId);
-//    }
-//
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void saveCampusCourseResoureableId(Long courseId, Long resourceableId) {
+        courseDao.saveResourceableId(courseId, resourceableId);
+    }
+
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void saveCampusCourseResoureableIdAndDisableSynchronization(Long courseId, Long resourceableId) {
+        courseDao.saveResourceableId(courseId, resourceableId);
+        courseDao.disableSynchronization(courseId);
+    }
+
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void deleteResourceableId(Long resourceableId) {
+        courseDao.deleteResourceableId(resourceableId);
+    }
+
     public List<Long> getAllCreatedSapCourcesIds() {
         return courseDao.getIdsOfAllCreatedCourses();
     }
