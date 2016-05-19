@@ -126,10 +126,9 @@ public class EventDaoTest extends OlatTestCase {
         eventDao.deleteEventsByCourseIds(courseIds);
         dbInstance.flush();
         dbInstance.clear();
-
-        // TODO
-//        assertEquals(eventDao.getEventsByCourseId(100L).size(), 0);
-//        assertEquals(eventDao.getEventsByCourseId(200L).size(), 0);
+        
+        assertEquals(eventDao.getEventsByCourseId(100L).size(), 0);
+        assertEquals(eventDao.getEventsByCourseId(200L).size(), 0);
     }
 
 }

@@ -1,6 +1,6 @@
 package ch.uzh.campus.data;
 
-import org.hibernate.Query;
+
 import org.olat.core.commons.persistence.DB;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
