@@ -172,60 +172,71 @@ public class DataConverterTest extends OlatTestCase {
         assertTrue(dataConverterTestObject.convertLecturersToIdentities(course.getLecturers()).isEmpty());
     }
 
-    /*
+    
     @Test
-    public void testNotEmptyConvertLecturersToIdentities() {
-        when(mockSapOlatUserDao.getSapOlatUserBySapUserId(100L)).thenReturn(null);
-        when(mockSapOlatUserDao.getSapOlatUserBySapUserId(200L)).thenReturn(dataGenerator.getSapOlatUsers().get(1));
+    public void testConvertLecturersToIdentities_NotEmpty() {        
+        when(mockSapOlatUserDao.getSapOlatUserBySapUserId(1100L)).thenReturn(dataGenerator.getSapOlatUsers().get(1));
         when(mockDelegationDao.getDelegationByDelegator("olatUserName2")).thenReturn(dataGenerator.getDelegations());
         when(mockBaseSecurity.findIdentityByName(dataGenerator.getDelegations().get(0).getDelegatee())).thenReturn(id3);
-        assertFalse(dataConverterTestObject.convertLecturersToIdentities(dataGenerator.getCourseLecturers()).isEmpty());
-        assertEquals(dataConverterTestObject.convertLecturersToIdentities(dataGenerator.getCourseLecturers()).size(), 2);
+        
+        Course course = getCourseWithLecturers();
+        
+        assertFalse(dataConverterTestObject.convertLecturersToIdentities(course.getLecturers()).isEmpty());
+        assertEquals(dataConverterTestObject.convertLecturersToIdentities(course.getLecturers()).size(), 2);
+        
         when(id3.getStatus()).thenReturn(Identity.STATUS_DELETED);
-        assertEquals(dataConverterTestObject.convertLecturersToIdentities(dataGenerator.getCourseLecturers()).size(), 1);
-        assertEquals(dataConverterTestObject.convertLecturersToIdentities(dataGenerator.getCourseLecturers()).get(0), id2);
+        assertEquals(dataConverterTestObject.convertLecturersToIdentities(course.getLecturers()).size(), 1);
+        assertEquals(dataConverterTestObject.convertLecturersToIdentities(course.getLecturers()).get(0), id2);
     }
 
     @Test
-    public void testEmptyDelegateesToIdentitie() {
+    public void testconvertDelegateesToIdentities_Empty() {
         when(mockSapOlatUserDao.getSapOlatUserBySapUserId(100L)).thenReturn(null);
         when(mockSapOlatUserDao.getSapOlatUserBySapUserId(200L)).thenReturn(null);
-        assertTrue(dataConverterTestObject.convertDelegateesToIdentities(dataGenerator.getCourseLecturers()).isEmpty());
+        
+        Course course = getCourseWithLecturers();
+        
+        assertTrue(dataConverterTestObject.convertDelegateesToIdentities(course.getLecturers()).isEmpty());
     }
 
     @Test
-    public void testEmptyGetDelegatees() {
+    public void testGetDelegatees_Empty() {
         when(mockDelegationDao.getDelegationByDelegator(id1.getName())).thenReturn(dataGenerator.getDelegations());
         when(mockBaseSecurity.findIdentityByName(dataGenerator.getDelegations().get(0).getDelegatee())).thenReturn(null);
         assertTrue(dataConverterTestObject.getDelegatees(id1).isEmpty());
     }
 
     @Test
-    public void testNotEmptyGetDelegatees() {
+    public void testGetDelegatees_NotEmpty() {
         when(mockDelegationDao.getDelegationByDelegator(id1.getName())).thenReturn(dataGenerator.getDelegations());
         when(mockBaseSecurity.findIdentityByName(dataGenerator.getDelegations().get(0).getDelegatee())).thenReturn(id1);
         assertFalse(dataConverterTestObject.getDelegatees(id1).isEmpty());
     }
-
+     
     @Test
-    public void testEmptyConvertDelegateesToIdentities() {
-        when(mockSapOlatUserDao.getSapOlatUserBySapUserId(100L)).thenReturn(dataGenerator.getSapOlatUsers().get(0));
+    public void testConvertDelegateesToIdentities_Empty() {
+        when(mockSapOlatUserDao.getSapOlatUserBySapUserId(1100L)).thenReturn(dataGenerator.getSapOlatUsers().get(0));
         when(mockDelegationDao.getDelegationByDelegator("olatUserName1")).thenReturn(dataGenerator.getDelegations());
         when(mockBaseSecurity.findIdentityByName(dataGenerator.getDelegations().get(0).getDelegatee())).thenReturn(null);
         when(mockBaseSecurity.findIdentityByName(dataGenerator.getDelegations().get(1).getDelegatee())).thenReturn(null);
-        assertTrue(dataConverterTestObject.convertDelegateesToIdentities(dataGenerator.getCourseLecturers()).isEmpty());
+        
+        Course course = getCourseWithLecturers();
+        
+        assertTrue(dataConverterTestObject.convertDelegateesToIdentities(course.getLecturers()).isEmpty());
     }
-
+   
     @Test
-    public void testNotEmptyConvertDelegateesToIdentities() {
-        when(mockSapOlatUserDao.getSapOlatUserBySapUserId(100L)).thenReturn(dataGenerator.getSapOlatUsers().get(0));
+    public void testConvertDelegateesToIdentities_NotEmpty() {
+        when(mockSapOlatUserDao.getSapOlatUserBySapUserId(1100L)).thenReturn(dataGenerator.getSapOlatUsers().get(0));
         when(mockDelegationDao.getDelegationByDelegator("olatUserName1")).thenReturn(dataGenerator.getDelegations());
         when(mockBaseSecurity.findIdentityByName(dataGenerator.getDelegations().get(0).getDelegatee())).thenReturn(id1);
         when(mockBaseSecurity.findIdentityByName(dataGenerator.getDelegations().get(1).getDelegatee())).thenReturn(id2);
 
-        assertFalse(dataConverterTestObject.convertDelegateesToIdentities(dataGenerator.getCourseLecturers()).isEmpty());
-        assertEquals(dataConverterTestObject.convertDelegateesToIdentities(dataGenerator.getCourseLecturers()).size(), 2);
-        assertEquals(dataConverterTestObject.convertDelegateesToIdentities(dataGenerator.getCourseLecturers()).get(0), id1);
-    }*/
+        Course course = getCourseWithLecturers();
+        
+        assertFalse(dataConverterTestObject.convertDelegateesToIdentities(course.getLecturers()).isEmpty());
+        assertEquals(dataConverterTestObject.convertDelegateesToIdentities(course.getLecturers()).size(), 2);
+        assertEquals(dataConverterTestObject.convertDelegateesToIdentities(course.getLecturers()).get(0), id1);
+    }
 }
 
