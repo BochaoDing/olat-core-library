@@ -23,7 +23,6 @@ package ch.uzh.campus.data;
 import java.util.*;
 
 import ch.uzh.campus.CampusCourseImportTO;
-import ch.uzh.campus.DataConverter;
 import ch.uzh.campus.utils.ListUtil;
 import org.olat.core.id.Identity;
 

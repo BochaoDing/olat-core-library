@@ -18,7 +18,7 @@
  * University of Zurich, Switzerland.
  * <p>
  */
-package ch.uzh.campus;
+package ch.uzh.campus.data;
 
 import java.util.ArrayList;
 import java.util.List;
