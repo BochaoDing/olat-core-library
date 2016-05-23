@@ -12,16 +12,6 @@ import ch.uzh.campus.data.Course;
 import ch.uzh.campus.data.SapOlatUser;
 import ch.uzh.campus.service.CampusCourse;
 
-/*import org.olat.data.basesecurity.Identity;
-import org.olat.data.course.campus.Course;
-import org.olat.data.course.campus.SapOlatUser;
-import org.olat.data.repository.RepositoryEntry;
-import org.olat.lms.core.CoreService;
-import org.olat.lms.core.course.campus.CampusCourseImportTO;
-import org.olat.lms.core.course.campus.impl.creator.CampusCourse;
-import org.olat.system.commons.resource.OLATResourceable;
-*/
-
 /**
  * Initial Date: 16.07.2012 <br>
  * 

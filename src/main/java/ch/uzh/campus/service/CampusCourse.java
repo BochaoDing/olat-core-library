@@ -1,31 +1,13 @@
 package ch.uzh.campus.service;
 
-import java.util.List;
-
-import org.apache.log4j.Logger;
 import org.olat.core.gui.translator.Translator;
 import org.olat.core.logging.OLog;
 import org.olat.core.logging.Tracing;
-
-/*import org.olat.data.basesecurity.Identity;
-import org.olat.data.group.BusinessGroup;
-import org.olat.data.group.area.BGArea;
-import org.olat.data.group.area.BGAreaDao;
-import org.olat.data.group.area.BGAreaDaoImpl;
-import org.olat.data.group.context.BGContext;
-import org.olat.data.repository.RepositoryEntry;
-import org.olat.lms.course.CourseTitleHelper;
-import org.olat.lms.course.ICourse;
-import org.olat.lms.group.BusinessGroupService;
-import org.olat.lms.group.learn.CourseGroupManager;
-import org.olat.presentation.framework.core.translator.Translator;
-import org.olat.system.commons.Formatter;
-import org.olat.system.commons.Settings;
-import org.olat.system.logging.log4j.LoggerHelper;
-import org.olat.system.spring.CoreSpringFactory;
-*/
+import org.olat.core.util.Formatter;
 import org.olat.course.ICourse;
 import org.olat.repository.RepositoryEntry;
+import org.olat.core.helpers.Settings;
+import org.olat.core.id.Identity;
 
 
 /**
@@ -34,6 +16,8 @@ import org.olat.repository.RepositoryEntry;
  * @author cg
  */
 public class CampusCourse {
+	
+	public static final int MAX_DISPLAYNAME_LENGTH = 140;
     
 	private static final OLog log = Tracing.createLoggerFor(CampusCourse.class);
 
@@ -71,7 +55,7 @@ public class CampusCourse {
         repositoryEntry.setDescription(eventDescription);
     }
 
-    /*public void setTitle(String title) {
+    public void setTitle(String title) {
         log.debug("set title=" + title);
         String trimedTitle = getTrimedTitle(title);
         repositoryEntry.setDisplayname(trimedTitle);
@@ -80,13 +64,20 @@ public class CampusCourse {
     public void setCourseTitleAndLearningObjectivesInCourseModel(String title, String vvzLink) {
         String trimedTitle = getTrimedTitle(title);
         String externalLink = Settings.getServerContextPathURI() + "/url/RepositoryEntry/" + repositoryEntry.getKey();
-        String sentFromCourse = Formatter.getHtmlHref(externalLink, title);
+        String sentFromCourse = getHtmlHref(externalLink, title);
         CourseTitleHelper.saveCourseTitleInCourseModel(course, trimedTitle, translator, defaultTemplate, vvzLink, sentFromCourse);
-    }*/
+    }
+    
+    /**
+     * @return an HTML href string.
+     */
+    public static String getHtmlHref(String url, String title) {
+        return "<a href=\"" + url + "\">" + title + "</a>";
+    }
 
-    /*public void SetBusinessGroups(Identity identity) {
-
-        BGContext defaultBGContext = getDefaultBGContext(getCourse());
+    public void SetBusinessGroups(Identity identity) {
+    	//TODO: olatng
+    	/*BGContext defaultBGContext = getDefaultBGContext(getCourse());
 
         BGAreaDao areaManager = BGAreaDaoImpl.getInstance();
         BGArea campusLernArea = areaManager.findBGArea(translator.translate("campus.course.learningArea.name"), defaultBGContext);
@@ -119,11 +110,12 @@ public class CampusCourse {
         // }
         if (bgB != null) {
             areaManager.addBGToBGArea(businessGroupService.loadBusinessGroup(bgB), campusLernArea);
-        }
-    }*/
+        }*/
+    }
 
     /*private BGContext getDefaultBGContext(ICourse course) {
-        CourseGroupManager courseGroupManager = course.getCourseEnvironment().getCourseGroupManager();
+     
+    	CourseGroupManager courseGroupManager = course.getCourseEnvironment().getCourseGroupManager();
         List<BGContext> courseLGContextes = courseGroupManager.getLearningGroupContexts(course.getCourseEnvironment().getCourseOLATResourceable());
 
         for (BGContext bctxt : courseLGContextes) {
@@ -132,7 +124,7 @@ public class CampusCourse {
             }
         }
         return null;
-
+    	 
     }*/
 
     public ICourse getCourse() {
@@ -158,7 +150,7 @@ public class CampusCourse {
         return !repositoryEntry.getDescription().equals(newDescription);
     }
 
-    /*public boolean titleChanged(String newTitle) {
+    public boolean titleChanged(String newTitle) {
         if (repositoryEntry.getDisplayname() == null && newTitle != null) {
             return true;
         }
@@ -166,7 +158,7 @@ public class CampusCourse {
     }
 
     private String getTrimedTitle(String title) {
-        return Formatter.truncate(title, RepositoryEntry.MAX_DISPLAYNAME_LENGTH);
-    }*/
+        return Formatter.truncate(title, MAX_DISPLAYNAME_LENGTH);
+    }
 
 }
