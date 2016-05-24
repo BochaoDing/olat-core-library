@@ -17,8 +17,8 @@
 	<bean id="campusSchedulerFactoryBean" class="org.springframework.scheduling.quartz.SchedulerFactoryBean" depends-on="userModule">
 	   <property name="triggers">
 	  		<list>
-            	<ref bean="enabled.importProcessTrigger" />
 				<!--//TODO: olatng
+            	<ref bean="enabled.importProcessTrigger" />
 				<ref bean="disabled.userMappingProcessTrigger" />
 				-->
         	</list>
@@ -26,7 +26,7 @@
 	</bean>
 	
 	<!-- ======================================================================================= -->
-	<!-- ==============JOB STARTER FOR IMPORT PROCESS================== -->  
+	<!-- ==============JOB STARTER FOR IMPORT PROCESS================== -->
 	<!-- ======================================================================================= -->
 	<bean id="enabled.importProcessTrigger" class="org.springframework.scheduling.quartz.CronTriggerBean">
 		<property name="jobDetail" ref="importProcessJobDetail" />
@@ -54,7 +54,7 @@
 	</bean>
   
 	<bean id="importProcess" class="ch.uzh.campus.connectors.CampusProcess">
-		<!--   <property name="job" ref="importJob" /> -->
+		<property name="job" ref="importJob" />
 		<property name="jobLauncher" ref="jobLauncher" />
 		<property name="parameters">
 			<map>

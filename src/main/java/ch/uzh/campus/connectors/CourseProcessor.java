@@ -30,6 +30,7 @@ import java.util.Set;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 
+import ch.uzh.campus.data.DaoManager;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.olat.core.logging.OLog;
@@ -51,9 +52,8 @@ public class CourseProcessor implements ItemProcessor<Course, Course> {
 	
 	private static final OLog LOG = Tracing.createLoggerFor(CourseProcessor.class);
 
-	//TODO: olatng
-    //@Autowired
-	//DaoManager daoManager;
+    @Autowired
+    DaoManager daoManager;
 
     private Set<Long> processedIdsSet;
 
@@ -66,8 +66,7 @@ public class CourseProcessor implements ItemProcessor<Course, Course> {
     @PostConstruct
     public void init() {
         processedIdsSet = new HashSet<Long>();
-        //TODO: olatng
-        //enabledOrgs = daoManager.getIdsOfAllEnabledOrgs();
+        enabledOrgs = daoManager.getIdsOfAllEnabledOrgs();
     }
 
     @PreDestroy

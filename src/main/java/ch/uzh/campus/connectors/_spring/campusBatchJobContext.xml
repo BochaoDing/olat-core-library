@@ -3,6 +3,7 @@
 	xmlns:context="http://www.springframework.org/schema/context" 
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:util="http://www.springframework.org/schema/util"
 	xmlns:batch="http://www.springframework.org/schema/batch"
+	xmlns:tx="http://www.springframework.org/schema/tx"
 	xsi:schemaLocation="http://www.springframework.org/schema/beans
 	http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
 	 http://www.springframework.org/schema/context 
@@ -31,36 +32,36 @@
 			<batch:tasklet>
 				<batch:chunk reader="orgReader" processor="orgProcessor" writer="orgWriter" skip-limit="100" retry-limit="5"/>
 			</batch:tasklet>
-			 <batch:next on="COMPLETED" to="importStammDaten"/>
+			<batch:next on="COMPLETED" to="importStammDaten"/>
 		    <batch:fail on="FAILED" exit-code="EARLY TERMINATION"/>
 		</batch:step>
-		 
+
 		<batch:split id="importStammDaten" task-executor="splitTaskExecutor">
 			<batch:next on="COMPLETED" to="importBooking" />
 			<batch:fail on="FAILED" exit-code="EARLY TERMINATION"/>
 			<batch:flow>
 				<batch:step id="import_students" parent="campusStep">
 					<batch:tasklet>
-						<batch:chunk reader="studentReader" processor="studentProcessor" writer="studentWriter" skip-limit="1000" retry-limit="5"/>
+						<batch:chunk reader="studentReader" processor="studentProcessor" writer="studentWriter" skip-limit="1000" retry-limit="5" commit-interval="10"/>
 					</batch:tasklet>
 				</batch:step>
 			</batch:flow>
 			<batch:flow>
 				<batch:step id="import_lecturers" parent="campusStep">
 					<batch:tasklet>
-						<batch:chunk reader="lecturerReader" processor="lecturerProcessor" writer="lecturerWriter"  skip-limit="500" retry-limit="5"/>
+						<batch:chunk reader="lecturerReader" processor="lecturerProcessor" writer="lecturerWriter" skip-limit="500" retry-limit="5" commit-interval="10"/>
 					</batch:tasklet>
 				</batch:step>
 			</batch:flow>
 			<batch:flow>
 				<batch:step id="import_courses" parent="campusStep">
 					<batch:tasklet>
-						<batch:chunk reader="courseReader" processor="courseProcessor" writer="courseWriter" skip-limit="100" retry-limit="5"/>
+						<batch:chunk reader="courseReader" processor="courseProcessor" writer="courseWriter" skip-limit="100" retry-limit="5" commit-interval="10"/>
 					</batch:tasklet>
 				</batch:step>
 			</batch:flow>
 		</batch:split>
-		
+
 		<batch:split id="importBooking" task-executor="splitTaskExecutor">
 			<batch:flow>
 				<batch:step id="import_students_Courses" parent="campusStep">
@@ -407,7 +408,7 @@
 	
 	<bean id="orgProcessor" class="ch.uzh.campus.connectors.OrgProcessor" scope="step"/>
 
-	<bean id="orgDao" class="ch.uzh.campus.data.OrgDao"/>
+	<bean id="orgDao" class="ch.uzh.campus.data.OrgDao" />
 	
 	<bean id='org' class ='ch.uzh.campus.data.Org' scope="prototype" />
 	
@@ -574,5 +575,16 @@
 		<property name="corePoolSize" value="3" />
 		<property name="maxPoolSize" value="3" />
 	</bean>
-	
+
+	<!--<tx:annotation-driven transaction-manager="transactionManager"/>-->
+	<bean id="transactionManager" class="org.springframework.orm.jpa.JpaTransactionManager">
+		<property name="entityManagerFactory" ref="entityManagerFactory"/>
+	</bean>
+	<bean id="entityManagerFactory" class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean">
+		<property name="persistenceUnitName" value="default"/>
+		<property name="dataSource">
+			<ref bean="${db.vendor}_${db.source}_DataSource"/>
+		</property>
+	</bean>
+
 </beans>
