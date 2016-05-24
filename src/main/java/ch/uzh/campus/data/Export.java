@@ -13,7 +13,7 @@ import javax.persistence.TemporalType;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
-
+import org.hibernate.annotations.GenericGenerator;
 
 /**
  * Initial Date: 04.06.2012 <br>
@@ -24,7 +24,9 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 @Entity
 @Table(name = "ck_export")
 public class Export {
-    @Id      
+    @Id
+    @GeneratedValue(generator = "system-uuid")
+    @GenericGenerator(name = "system-uuid", strategy = "hilo")
     private Long id;
 
     @Column(name = "file_name")
