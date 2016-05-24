@@ -25,13 +25,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
-/*import org.olat.data.basesecurity.Identity;
-import org.olat.lms.commons.tree.INode;
-import org.olat.lms.course.ICourse;
-import org.olat.lms.course.tree.CourseEditorTreeModel;
-import org.olat.lms.course.tree.CourseEditorTreeNode;
-import org.olat.lms.course.wizard.create.CoursePublishHelper;
-*/
+import org.olat.core.id.Identity;
+import org.olat.core.util.nodes.INode;
+import org.olat.course.ICourse;
+import org.olat.course.tree.CourseEditorTreeModel;
+import org.olat.course.tree.CourseEditorTreeNode;
 import org.springframework.stereotype.Component;
 
 /**
@@ -42,7 +40,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class CoursePublisher {
 
-    /*public void publish(ICourse course, Identity publisherIdentity) {
+    public void publish(ICourse course, Identity publisherIdentity) {
         Locale locale = new Locale("de");// needed to re-use code in CourseCreationHelper
         CoursePublishHelper.publish(course, locale, publisherIdentity, getAllPublishNodeIds(course.getEditorTreeModel()));
     }
@@ -67,6 +65,6 @@ public class CoursePublisher {
                 addChildNodeIdRecursive(nodeIds, node.getChildAt(i));
             }
         }
-    }*/
+    }
 
 }
