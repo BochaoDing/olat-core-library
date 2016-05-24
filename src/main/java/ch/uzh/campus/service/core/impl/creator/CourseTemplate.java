@@ -25,17 +25,8 @@ import org.olat.core.id.OLATResourceable;
 import org.olat.course.CourseFactory;
 import org.olat.course.ICourse;
 import org.olat.repository.RepositoryEntry;
+import org.olat.repository.RepositoryManager;
 import org.olat.repository.RepositoryService;
-import org.olat.resource.OLATResourceManager;
-/*import org.olat.data.basesecurity.Identity;
-import org.olat.data.repository.RepositoryEntry;
-import org.olat.data.resource.OLATResourceManager;
-import org.olat.lms.course.CourseFactory;
-import org.olat.lms.course.ICourse;
-import org.olat.lms.repository.RepositoryEBL;
-import org.olat.lms.repository.RepositoryEntryInputData;
-import org.olat.lms.repository.RepositoryService;
-import org.olat.system.commons.resource.OLATResourceable;*/
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -48,32 +39,25 @@ import ch.uzh.campus.service.CampusCourse;
  */
 @Component
 public class CourseTemplate {
-
-    //@Autowired
-	//RepositoryEBL repositoryEBL;
+    
+	@Autowired
+	private RepositoryManager repositoryManager;   
+    
     @Autowired
     RepositoryService repositoryService;
-    @Autowired
-    private OLATResourceManager olatResourceManager;
 
-    /*public CampusCourse createCampusCourseFromTemplate(Long templateCourseResourceableId, Identity owner) {
+    public CampusCourse createCampusCourseFromTemplate(Long templateCourseResourceableId, Identity owner) {
         // 1. Lookup template
         OLATResourceable templateCourse = CourseFactory.loadCourse(templateCourseResourceableId);
-        RepositoryEntry sourceRepositoryEntry = repositoryService.lookupRepositoryEntry(templateCourse, true);
-        // 2. Copy Course
-        OLATResourceable copyCourseOlatResourcable = CourseFactory.copyCourse(templateCourse, owner);
-        olatResourceManager.findOrPersistResourceable(copyCourseOlatResourcable);
-
+        RepositoryEntry sourceRepositoryEntry = repositoryManager.lookupRepositoryEntry(templateCourse, true);
+             
+        // 2. Copy RepositoryEntry and implicit the Course
+        RepositoryEntry copyOfRepositoryEntry = repositoryService.copy(sourceRepositoryEntry, owner, sourceRepositoryEntry.getDisplayname());
+        OLATResourceable copyCourseOlatResourcable = repositoryService.loadRepositoryEntryResource(copyOfRepositoryEntry.getKey());
         ICourse copyCourse = CourseFactory.loadCourse(copyCourseOlatResourcable.getResourceableId());
-        // 3. Copy RepositoryEntry
-        RepositoryEntry copyOfRepositoryEntry = copyRepositoryEntry(sourceRepositoryEntry, copyCourseOlatResourcable, owner);
+        
         return new CampusCourse(copyCourse, copyOfRepositoryEntry);
     }
-
-    private RepositoryEntry copyRepositoryEntry(RepositoryEntry sourceRepositoryEntry, OLATResourceable copyOfCourse, Identity owner) {
-        RepositoryEntryInputData repositoryEntryInputData = new RepositoryEntryInputData(owner, sourceRepositoryEntry.getResourcename(),
-                sourceRepositoryEntry.getDisplayname(), copyOfCourse);
-        return repositoryEBL.copyRepositoryEntry(sourceRepositoryEntry, repositoryEntryInputData);
-    }*/
+  
 
 }
