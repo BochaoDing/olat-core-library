@@ -23,13 +23,12 @@ package ch.uzh.campus.data;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
+
 import org.olat.core.commons.persistence.DB;
 import org.olat.test.OlatTestCase;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.AbstractTransactionalJUnit4SpringContextTests;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+
 
 import java.util.List;
 
@@ -61,21 +60,19 @@ public class ImportStatisticDaoTest extends OlatTestCase {
     }
 
     @Test
-    public void getLastCompletedImportedStatistic_notFound() {
-        // TODO
-//        importStatisticDao.save(importStatistics.get(2));
+    public void getLastCompletedImportedStatistic_notFound() {        
+    	importStatisticDao.save(importStatistics.get(2));
         dbInstance.flush();
         assertTrue(importStatisticDao.getLastCompletedImportedStatistic().isEmpty());
     }
 
     @Test
-    public void getLastCompletedImportedStatistic_found() {
-        // TODO
-//        importStatisticDao.save(importStatistics.get(0));
-//        importStatisticDao.save(importStatistics.get(1));
-        dbInstance.flush();
-//        assertEquals(importStatisticDao.getLastCompletedImportedStatistic().size(), 1);
-//        assertEquals(importStatisticDao.getLastCompletedImportedStatistic().get(0).getStepId(), 20L);
+    public void getLastCompletedImportedStatistic_found() {        
+       importStatisticDao.save(importStatistics.get(0));
+       importStatisticDao.save(importStatistics.get(1));
+       dbInstance.flush();
+       assertEquals(1, importStatisticDao.getLastCompletedImportedStatistic().size());
+       assertEquals(20L, importStatisticDao.getLastCompletedImportedStatistic().get(0).getStepId());
     }
 
 }
