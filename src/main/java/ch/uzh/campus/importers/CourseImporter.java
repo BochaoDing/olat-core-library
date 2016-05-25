@@ -91,12 +91,6 @@ public class CourseImporter extends Importer {
     }
 
     @Override
-    void skipEntry(String[] entry, String reason) {
-        LOG.info("Skipped entry(" + reason + "):" + String.join(";", entry));
-        cntSkipped++;
-    }
-
-    @Override
     int getEntryFieldCount() {
         return 21;
     }
@@ -138,6 +132,15 @@ public class CourseImporter extends Importer {
         }
 
         return title;
+    }
+
+    // TODO find the right place to use. In CampusInterceptor old data is used in afterStep() - why?
+    private void deleteOldRecords() {
+        List<Long> coursesToBeRemoved = daoManager.getAllCoursesToBeDeleted(this.startTime);
+        LOG.info("COURSES TO BE REMOVED[" + coursesToBeRemoved.size() + "]");
+        if (!coursesToBeRemoved.isEmpty()) {
+            daoManager.deleteCoursesAndBookingsByCourseIds(coursesToBeRemoved);
+        }
     }
 
 }

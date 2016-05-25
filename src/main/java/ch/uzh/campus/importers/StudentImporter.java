@@ -18,6 +18,9 @@ public class StudentImporter extends Importer {
     @Autowired
     private StudentDao studentDao;
 
+    @Autowired
+    private DaoManager daoManager;
+
     @PostConstruct
     public void init() {
         processedIdsSet = new HashSet<Long>();
@@ -57,12 +60,6 @@ public class StudentImporter extends Importer {
     }
 
     @Override
-    void skipEntry(String[] entry, String reason) {
-        LOG.info("Skipped entry (" + reason + "):" + String.join(";", entry));
-        cntSkipped++;
-    }
-
-    @Override
     int getEntryFieldCount() {
         return 6;
     }
@@ -71,4 +68,14 @@ public class StudentImporter extends Importer {
     void persist() {
         persistList(students, studentDao);
     }
+
+    // TODO find the right place to use. In CampusInterceptor old data is used in afterStep() - why?
+    private void deleteOldRecords() {
+        List<Long> studentsToBeRemoved = daoManager.getAllStudentsToBeDeleted(this.startTime);
+        LOG.info("STUDENTS TO BE REMOVED [" + studentsToBeRemoved.size() + "]");
+        if (!studentsToBeRemoved.isEmpty()) {
+            daoManager.deleteStudentsAndBookingsByStudentIds(studentsToBeRemoved);
+        }
+    }
+
 }
