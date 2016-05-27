@@ -29,6 +29,7 @@ import org.olat.core.id.Identity;
 import ch.uzh.campus.CampusConfiguration;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -45,8 +46,7 @@ public class DaoManager {
     private SapOlatUserDao sapOlatUserDao;
     @Autowired
     private DelegationDao delegationDao;
-//    @Autowired
-//    private LecturerCourseDao lecturerCourseDao;
+
     @Autowired
     private TextDao textDao;
     @Autowired
@@ -60,6 +60,10 @@ public class DaoManager {
 
     @Autowired
     private CampusConfiguration campusConfiguration;
+    
+    @Value("${campus.lv_kuerzel.activated}")
+    private String shortTitleActivated;
+    
 
     public void saveCourses(List<Course> courses) {
         courseDao.save(courses);
@@ -405,18 +409,18 @@ public class DaoManager {
         if (course == null) {
             return null;
         }
-        return new CampusCourseImportTO(course.getTitle(), course.getSemester(), dataConverter.convertLecturersToIdentities(course.getLecturers()),
+        return new CampusCourseImportTO(course.getTitleToBeDisplayed(shortTitleActivated), course.getSemester(), dataConverter.convertLecturersToIdentities(course.getLecturers()),
                 dataConverter.convertDelegateesToIdentities(course.getLecturers()), dataConverter.convertStudentsToIdentities(course.getStudents()),
-                textDao.getContentsByCourseId(course.getId()), course.getResourceableId(), course.getId(), course.getLanguage());
+                textDao.getContentsByCourseId(course.getId()), course.getResourceableId(), course.getId(), course.getLanguage(), course.getVvzLink());
     }
 
     public CampusCourseImportTO getSapCampusCourse(Course course) {
         if (course == null) {
             return null;
         }
-        return new CampusCourseImportTO(course.getTitle(), course.getSemester(), dataConverter.convertLecturersToIdentities(course.getLecturers()),
+        return new CampusCourseImportTO(course.getTitleToBeDisplayed(shortTitleActivated), course.getSemester(), dataConverter.convertLecturersToIdentities(course.getLecturers()),
                 dataConverter.convertDelegateesToIdentities(course.getLecturers()), dataConverter.convertStudentsToIdentities(course.getStudents()),
-                textDao.getContentsByCourseId(course.getId()), course.getResourceableId(), course.getId(), course.getLanguage());
+                textDao.getContentsByCourseId(course.getId()), course.getResourceableId(), course.getId(), course.getLanguage(), course.getVvzLink());
     }
 
     public List getDelegatees(Identity delegator) {

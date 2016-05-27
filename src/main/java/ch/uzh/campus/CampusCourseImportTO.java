@@ -20,9 +20,11 @@
  */
 package ch.uzh.campus;
 
+import java.util.List;
+
 import org.olat.core.id.Identity;
 
-import java.util.List;
+
 
 /**
  * Initial Date: 31.05.2012 <br>
@@ -40,7 +42,18 @@ public class CampusCourseImportTO {
     private String eventDescription;
     private Long resourceableId;
     private Long sapCourseId;
+    private final String vvzLink;
 
+    /**
+     * just for testing
+     * 
+     * @param title
+     * @param semester
+     * @param lecturers
+     * @param participants
+     * @param eventDescription
+     * @param resourceableId
+     */
     public CampusCourseImportTO(String title, String semester, List<Identity> lecturers, List<Identity> participants, String eventDescription, Long resourceableId) {
         this.title = title;
         this.semester = semester;
@@ -48,9 +61,20 @@ public class CampusCourseImportTO {
         this.participants = participants;
         this.eventDescription = eventDescription;
         this.resourceableId = resourceableId;
-
+        this.vvzLink = "";
     }
 
+    /**
+     * just for testing
+     * 
+     * @param title
+     * @param semester
+     * @param lecturers
+     * @param participants
+     * @param eventDescription
+     * @param resourceableId
+     * @param language
+     */
     public CampusCourseImportTO(String title, String semester, List<Identity> lecturers, List<Identity> participants, String eventDescription, Long resourceableId,
             String language) {
         this.title = title;
@@ -60,10 +84,11 @@ public class CampusCourseImportTO {
         this.eventDescription = eventDescription;
         this.resourceableId = resourceableId;
         this.language = language;
+        this.vvzLink = "";
     }
 
     public CampusCourseImportTO(String title, String semester, List<Identity> lecturers, List<Identity> delegatees, List<Identity> participants, String eventDescription,
-            Long resourceableId, Long sapCourseId, String language) {
+            Long resourceableId, Long sapCourseId, String language, String vvzLink) {
         this.title = title;
         this.semester = semester;
         this.lecturers = lecturers;
@@ -73,6 +98,7 @@ public class CampusCourseImportTO {
         this.resourceableId = resourceableId;
         this.sapCourseId = sapCourseId;
         this.language = language;
+        this.vvzLink = vvzLink;
 
     }
 
@@ -120,6 +146,10 @@ public class CampusCourseImportTO {
         List<Identity> lecturersAndDelegatees = getLecturers();
         lecturersAndDelegatees.addAll(getDelegatees());
         return lecturersAndDelegatees;
+    }
+
+    public String getVvzLink() {
+        return vvzLink;
     }
 
 }
