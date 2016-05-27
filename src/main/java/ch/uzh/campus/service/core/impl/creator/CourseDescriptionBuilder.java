@@ -24,13 +24,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
+import org.olat.core.util.Util;
+import org.olat.core.gui.translator.Translator;
 import org.olat.core.id.Identity;
-/*import org.olat.data.basesecurity.Identity;
-import org.olat.lms.core.course.campus.CampusCourseImportTO;
-import org.olat.presentation.framework.core.translator.PackageUtil;
-import org.olat.presentation.framework.core.translator.Translator;*/
+import org.olat.core.id.UserConstants;
 import org.springframework.stereotype.Component;
-
 import ch.uzh.campus.CampusCourseImportTO;
 
 /**
@@ -44,10 +42,10 @@ public class CourseDescriptionBuilder {
     protected static final String KEY_DESCRIPTION_TEMPLATE = "campus.course.description.template";
     protected static final String KEY_DESCRIPTION_MULTI_SEMESTER_TEMPLATE = "campus.course.multisemester.description.template";
 
-    /*protected Translator translator;
+    protected Translator translator;
 
     public CourseDescriptionBuilder() {
-        translator = PackageUtil.createPackageTranslator(CourseDescriptionBuilder.class, new Locale("de"));
+        translator = Util.createPackageTranslator(CourseDescriptionBuilder.class, new Locale("de"));
     }
 
     public String buildDescriptionFrom(CampusCourseImportTO campusCourseData, String language) {
@@ -82,12 +80,14 @@ public class CourseDescriptionBuilder {
             if (!firstEntry) {
                 builder.append(", ");
             }
-            builder.append(lecture.getAttributes().getFirstName());
+            String firstName = lecture.getUser().getProperty(UserConstants.FIRSTNAME, null);
+            String lastName = lecture.getUser().getProperty(UserConstants.LASTNAME, null);
+            builder.append(firstName);
             builder.append(" ");
-            builder.append(lecture.getAttributes().getLastName());
+            builder.append(lastName);
             firstEntry = false;
         }
         return builder.toString();
-    }*/
+    }
 
 }

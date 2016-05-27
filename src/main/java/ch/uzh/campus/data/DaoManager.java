@@ -179,11 +179,11 @@ public class DaoManager {
     }
 
 //    public int deleteAllNotUpdatedLCBooking(Date date) {
-//        return lecturerDao.deleteAllNotUpdatedLCBooking(date);
+//        return lecturerCourseDao.deleteAllNotUpdatedLCBooking(date);
 //    }
 
 //    public int deleteAllNotUpdatedSCBooking(Date date) {
-//        return studentDao.deleteAllNotUpdatedSCBooking(date);
+//        return studentCourseDao.deleteAllNotUpdatedSCBooking(date);
 //    }
 
     public void deleteLecturersAndBookingsByLecturerIds(List<Long> lecturerIds) {
