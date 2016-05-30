@@ -9,37 +9,31 @@ import static org.mockito.Mockito.when;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.log4j.Logger;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.olat.basesecurity.BaseSecurity;
+import org.olat.basesecurity.Group;
+import org.olat.basesecurity.manager.GroupDAO;
+import org.olat.core.commons.persistence.DBFactory;
 import org.olat.core.id.Identity;
+import org.olat.core.id.UserConstants;
 import org.olat.core.logging.OLog;
 import org.olat.core.logging.Tracing;
+import org.olat.course.CourseFactory;
 import org.olat.course.ICourse;
 import org.olat.group.BusinessGroupService;
 import org.olat.repository.RepositoryEntry;
-/*import org.olat.data.basesecurity.BaseSecurity;
-import org.olat.data.basesecurity.Identity;
-import org.olat.data.basesecurity.SecurityGroup;
-import org.olat.data.commons.database.DB;
-import org.olat.data.commons.database.DBFactory;
-import org.olat.data.group.BusinessGroup;
-import org.olat.data.repository.RepositoryEntry;
-import org.olat.lms.core.course.campus.CampusConfiguration;
-import org.olat.lms.core.course.campus.CampusCourseImportTO;
-import org.olat.lms.core.course.campus.impl.syncer.CampusGroupHelper;
-import org.olat.lms.course.CourseFactory;
-import org.olat.lms.course.ICourse;
-import org.olat.lms.group.BusinessGroupService;
-import org.olat.system.logging.log4j.LoggerHelper;*/
+import org.olat.repository.RepositoryService;
+
 import org.olat.test.JunitTestHelper;
 import org.olat.test.OlatTestCase;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 
 import ch.uzh.campus.CampusConfiguration;
+import ch.uzh.campus.CampusCourseImportTO;
+import ch.uzh.campus.service.CampusCourse;
 
 /**
  * Initial Date: 04.06.2012 <br>
@@ -64,6 +58,10 @@ public class CourseCreateCoordinatorTest extends OlatTestCase {
     private BaseSecurity baseSecurity;
     @Autowired
     private BusinessGroupService businessGroupService;
+    @Autowired
+    private RepositoryService repositoryService;
+    @Autowired
+    private GroupDAO groupDAO;
 
     private Long sourceResourceableId;
     private ICourse sourceCourse;
@@ -78,18 +76,19 @@ public class CourseCreateCoordinatorTest extends OlatTestCase {
     private Identity secondTestIdentity;
 
     private CampusConfiguration campusConfigurationMock;
-    /*
+    
     @Before
     public void setup() {
-        sourceRepositoryEntry = JunitTestHelper.deployDemoCourse();
+    	ownerIdentity = JunitTestHelper.createAndPersistIdentityAsUser(ownerName);
+    	
+        sourceRepositoryEntry = JunitTestHelper.deployDemoCourse(ownerIdentity);
         sourceResourceableId = sourceRepositoryEntry.getOlatResource().getResourceableId();
-
-        final DB db = DBFactory.getInstance();
+                
         sourceCourse = CourseFactory.loadCourse(sourceResourceableId);
-        DBFactory.getInstance().closeSession();
-
-        ObjectMother.setupCampusCourseGroupForTest(sourceCourse, TEST_COURSE_GROUP_A_NAME, businessGroupService);
-        ObjectMother.setupCampusCourseGroupForTest(sourceCourse, TEST_COURSE_GROUP_B_NAME, businessGroupService);
+        DBFactory.getInstance().closeSession();   
+        
+        setupCampusCourseGroupForTest(sourceRepositoryEntry, TEST_COURSE_GROUP_A_NAME);
+        setupCampusCourseGroupForTest(sourceRepositoryEntry, TEST_COURSE_GROUP_B_NAME);
         // DBFactory.getInstance().closeSession();
 
         campusConfigurationMock = mock(CampusConfiguration.class);
@@ -98,18 +97,23 @@ public class CourseCreateCoordinatorTest extends OlatTestCase {
         when(campusConfigurationMock.getCourseGroupBName()).thenReturn(TEST_COURSE_GROUP_B_NAME);
         when(campusConfigurationMock.getTemplateLanguage(null)).thenReturn("DE");
         courseCreateCoordinator.campusConfiguration = campusConfigurationMock;
-        courseCreateCoordinator.campusCourseGroupSynchronizer.setCampusConfiguration(campusConfigurationMock);
+        //TODO: olatng
+        //courseCreateCoordinator.campusCourseGroupSynchronizer.setCampusConfiguration(campusConfigurationMock);
 
         CoursePublisher coursePublisherMock = mock(CoursePublisher.class);
         courseCreateCoordinator.coursePublisher = coursePublisherMock;
 
-        ownerIdentity = JunitTestHelper.createAndPersistIdentityAsUser(ownerName);
+        
         secondOwnerIdentity = JunitTestHelper.createAndPersistIdentityAsUser(ownerNameSecond);
         testIdentity = JunitTestHelper.createAndPersistIdentityAsUser(testUserName);
         secondTestIdentity = JunitTestHelper.createAndPersistIdentityAsUser(secondTestUserName);
     }
 
-    @After
+    private void setupCampusCourseGroupForTest(RepositoryEntry repositoryEntry, String testCourseGroupAName) {		
+    	businessGroupService.createBusinessGroup(null, testCourseGroupAName, null, 0, 10,false, false, repositoryEntry);
+	}
+
+	@After
     public void tearDown() throws Exception {
         // TODO: Does not cleanup Demo-course because other Test which use Demo-Course too, will be have failures
         // remove demo course on file system
@@ -134,7 +138,7 @@ public class CourseCreateCoordinatorTest extends OlatTestCase {
         CampusCourse campusCourse = courseCreateCoordinator.createCampusCourse(null, campusCourseImportData, ownerIdentity);
         return campusCourse;
     }
-
+    
     @Test
     public void createCampusCourse() {
         CampusCourse createdCampusCourseTestObject = createCampusCourseTestObject();
@@ -142,20 +146,21 @@ public class CourseCreateCoordinatorTest extends OlatTestCase {
         assertNotNull("Missing repositoryEntry in CampusCourse return-object", createdCampusCourseTestObject.getRepositoryEntry());
         assertNotNull("Missing Course in CampusCourse return-object", createdCampusCourseTestObject.getCourse());
     }
-
+   
     @Test
     public void createCampusCourse_CheckAccess() {
         CampusCourse createdCampusCourseTestObject = createCampusCourseTestObject();
         assertTrue("CampusCourse Access must be 'BARG'", createdCampusCourseTestObject.getRepositoryEntry().getAccess() == RepositoryEntry.ACC_USERS_GUESTS);
     }
 
+    /*
     @Test
     public void createCampusCourse_CheckTitle() {
         CampusCourse createdCampusCourseTestObject = createCampusCourseTestObject();
         assertEquals("Wrong title in RepositoryEntry", TEST_TITLE_TEXT, createdCampusCourseTestObject.getRepositoryEntry().getDisplayname());
         assertEquals("Wrong title in Course", TEST_TITLE_TEXT, createdCampusCourseTestObject.getCourse().getCourseTitle());
-    }
-
+    }*/
+    
     @Test
     public void createCampusCourse_CheckDescription() {
         CampusCourse createdCampusCourseTestObject = createCampusCourseTestObject();
@@ -166,10 +171,10 @@ public class CourseCreateCoordinatorTest extends OlatTestCase {
         // Dozierende : Firstname Lastname, Firstname Lastname
         // Lehrveranstaltungsinhalt : Event description
         assertTextInDescription(createdCampusCourseTestObject, TEST_SEMESTER_TEXT);
-        assertTextInDescription(createdCampusCourseTestObject, ownerIdentity.getAttributes().getFirstName());
-        assertTextInDescription(createdCampusCourseTestObject, secondOwnerIdentity.getAttributes().getFirstName());
-        assertTextInDescription(createdCampusCourseTestObject, ownerIdentity.getAttributes().getLastName());
-        assertTextInDescription(createdCampusCourseTestObject, secondOwnerIdentity.getAttributes().getLastName());
+        assertTextInDescription(createdCampusCourseTestObject, ownerIdentity.getUser().getProperty(UserConstants.FIRSTNAME, null));
+        assertTextInDescription(createdCampusCourseTestObject, secondOwnerIdentity.getUser().getProperty(UserConstants.FIRSTNAME, null));
+        assertTextInDescription(createdCampusCourseTestObject, ownerIdentity.getUser().getProperty(UserConstants.LASTNAME, null));
+        assertTextInDescription(createdCampusCourseTestObject, secondOwnerIdentity.getUser().getProperty(UserConstants.LASTNAME, null));
         assertTextInDescription(createdCampusCourseTestObject, TEST_EVENT_DESCRIPTION_TEXT);
     }
 
@@ -177,15 +182,20 @@ public class CourseCreateCoordinatorTest extends OlatTestCase {
         assertTrue("Missing attribute of test-identity (" + attribute + ") in RepositoryEntry-Description", createdCampusCourseTestObject.getRepositoryEntry()
                 .getDescription().indexOf(attribute) != -1);
     }
-
+    
+    /*
     @Test
     public void createCampusCourse_CheckOwners() {
         CampusCourse createdCampusCourseTestObject = createCampusCourseTestObject();
-        SecurityGroup ownerGroup = createdCampusCourseTestObject.getRepositoryEntry().getOwnerGroup();
-        assertTrue("Missing identity (" + ownerIdentity + ") in owner-group", baseSecurity.isIdentityInSecurityGroup(ownerIdentity, ownerGroup));
-        assertTrue("Missing identity (" + secondOwnerIdentity + ")in owner-group", baseSecurity.isIdentityInSecurityGroup(secondOwnerIdentity, ownerGroup));
+        
+        Group defaultGroup = repositoryService.getDefaultGroup( createdCampusCourseTestObject.getRepositoryEntry());
+        List<Identity> ownerIdentities = groupDAO.getMembers(defaultGroup, "owner");
+        
+        assertTrue("Missing identity (" + ownerIdentity + ") in owner-group", ownerIdentities.contains(ownerIdentity));
+        assertTrue("Missing identity (" + secondOwnerIdentity + ")in owner-group", ownerIdentities.contains(secondOwnerIdentity));
     }
-
+    */
+    /*
     @Test
     public void createCampusCourse_CheckCourseGroup() {
         CampusCourse createdCampusCourseTestObject = createCampusCourseTestObject();

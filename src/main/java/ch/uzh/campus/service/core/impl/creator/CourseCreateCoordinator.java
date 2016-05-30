@@ -50,7 +50,6 @@ import ch.uzh.campus.service.CampusCourse;
  */
 @Component
 public class CourseCreateCoordinator {
-
     
 	private static final OLog log = Tracing.createLoggerFor(CourseCreateCoordinator.class);
 
