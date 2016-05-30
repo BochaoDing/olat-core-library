@@ -23,7 +23,9 @@ package ch.uzh.campus.connectors;
 import java.util.List;
 
 import ch.uzh.campus.data.CampusDao;
+import org.olat.core.commons.persistence.DB;
 import org.springframework.batch.item.ItemWriter;
+import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * This class is a generic {@link ItemWriter} that writes data to the database. <br>
@@ -36,6 +38,9 @@ import org.springframework.batch.item.ItemWriter;
  */
 public class CampusWriter<T> implements ItemWriter<T> {
     private CampusDao<T> campuskursDao;
+
+    @Autowired
+    private DB dbInstance;
 
     /**
      * Sets the CampusDao to be used to save or update the items in {@link #write(List)}.
@@ -66,6 +71,7 @@ public class CampusWriter<T> implements ItemWriter<T> {
     @SuppressWarnings({ "unchecked", "rawtypes" })
     public void write(List<? extends T> items) throws Exception {
         campuskursDao.save((List) items);
+        dbInstance.commitAndCloseSession();
     }
 
 }
