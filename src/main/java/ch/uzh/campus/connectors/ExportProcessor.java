@@ -25,6 +25,8 @@ import java.util.Date;
 import ch.uzh.campus.data.Export;
 import ch.uzh.campus.CampusConfiguration;
 import ch.uzh.campus.utils.DateUtil;
+import org.olat.core.logging.OLog;
+import org.olat.core.logging.Tracing;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -37,6 +39,8 @@ import org.springframework.beans.factory.annotation.Autowired;
  * @author aabouc
  */
 public class ExportProcessor implements ItemProcessor<Export, Export> {
+
+    private static final OLog LOG = Tracing.createLoggerFor(ExportProcessor.class);
 
     @Autowired
     CampusConfiguration campusConfiguration;
@@ -57,7 +61,8 @@ public class ExportProcessor implements ItemProcessor<Export, Export> {
             return null;
         }
         if (DateUtil.isMoreThanOneDayBefore(export.getExportDate())) {
-            throw new CampusException("THE FILE [" + export.getFileName() + "] WONT BE IMPORTED BECAUSE OF THE OLD EXPORT DATE [" + export.getExportDate() + "]");
+            LOG.error("THE FILE [" + export.getFileName() + "] WILL NOT BE IMPORTED BECAUSE OF THE OLD EXPORT DATE [" + export.getExportDate() + "]");
+            throw new CampusException("THE FILE [" + export.getFileName() + "] WILL NOT BE IMPORTED BECAUSE OF THE OLD EXPORT DATE [" + export.getExportDate() + "]");
         }
         export.setCreationDate(new Date());
         return export;
