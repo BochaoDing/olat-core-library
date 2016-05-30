@@ -1,0 +1,411 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+	</properties>
+
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>org.openolat</groupId>
+	<artifactId>openolat-loadtest</artifactId>
+	<version>10.4-SNAPSHOT</version>
+	<packaging>pom</packaging>
+
+	<dependencies>
+        <dependency>
+            <groupId>org.openolat</groupId>
+            <artifactId>openolat-lms</artifactId>
+            <version>10.4-SNAPSHOT</version>
+            <type>war</type>
+        </dependency>
+	</dependencies>
+
+    <!--
+        Choose a specific load test profile with the Maven command line parameter "-P" e.g.
+        "-P local-openolat-loadtest".
+    -->
+    <profiles>
+        <profile>
+            <id>local-openolat-loadtest</id>
+
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+
+            <properties>
+                <tomcat8x.version>8.0.33</tomcat8x.version>
+
+                <loadtest.server.protocol>http</loadtest.server.protocol>
+                <loadtest.server.host>localhost</loadtest.server.host>
+                <loadtest.server.port>8080</loadtest.server.port>
+
+                <loadtest.jmeter.test.file.prefix>OpenOLAT104_LMS</loadtest.jmeter.test.file.prefix>
+            </properties>
+
+            <build>
+                <plugins>
+                    <!-- OLAT requires JDK 1.8 or later. -->
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-compiler-plugin</artifactId>
+                        <version>3.5.1</version>
+                        <configuration>
+                            <source>1.8</source>
+                            <target>1.8</target>
+                            <!--
+                                As default encoding the value of the variable ${project.build.sourceEncoding} is used.
+                            -->
+                        </configuration>
+                    </plugin>
+                    <!-- Sets the "${revisionNumber}" and the "${changeSet}" variables. -->
+                    <plugin>
+                        <groupId>org.openolat.mojo</groupId>
+                        <artifactId>buildnumber-maven-plugin</artifactId>
+                        <version>1.2.0</version>
+                        <executions>
+                            <execution>
+                                <phase>validate</phase>
+                                <goals>
+                                    <goal>hgchangeset</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                        <configuration>
+                            <doCheck>true</doCheck>
+                            <doUpdate>true</doUpdate>
+                        </configuration>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.codehaus.cargo</groupId>
+                        <artifactId>cargo-maven2-plugin</artifactId>
+                        <version>1.4.19</version>
+
+                        <executions>
+                            <execution>
+                                <id>tomcat-start</id>
+                                <phase>pre-integration-test</phase>
+                                <goals>
+                                    <goal>start</goal>
+                                </goals>
+                            </execution>
+
+                            <execution>
+                                <id>tomcat-stop</id>
+                                <phase>post-integration-test</phase>
+                                <goals>
+                                    <goal>stop</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+
+                        <configuration>
+                            <!-- Container configuration -->
+                            <container>
+                                <containerId>tomcat8x</containerId>
+                                <zipUrlInstaller>
+                                    <url>https://repo1.maven.org/maven2/org/apache/tomcat/tomcat/${tomcat8x.version}/tomcat-${tomcat8x.version}.zip</url>
+                                </zipUrlInstaller>
+                                <append>false</append>
+                            </container>
+
+                            <configuration>
+                                <!--
+                                    The "embedded" type means programmatically and is not supported by Tomcat (only
+                                    by the Jetty servlet container).
+                                -->
+                                <type>standalone</type>
+
+                                <properties>
+                                    <cargo.jvmargs>-Xms1024M -Xmx3072M</cargo.jvmargs>
+                                    <cargo.servlet.port>8080</cargo.servlet.port>
+                                    <!-- Possible logging values: "low", "medium" or "high" -->
+                                    <cargo.logging>medium</cargo.logging>
+                                </properties>
+                            </configuration>
+                            <deployables>
+                                <deployable>
+                                    <groupId>org.openolat</groupId>
+                                    <artifactId>openolat-lms</artifactId>
+
+                                    <type>war</type>
+                                    <properties>
+                                        <context>ROOT</context>
+                                    </properties>
+                                </deployable>
+                            </deployables>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+
+        <profile>
+            <id>remote-openolat-loadtest</id>
+
+            <properties>
+                <loadtest.server.protocol>http</loadtest.server.protocol>
+                <loadtest.server.host>localhost</loadtest.server.host>
+                <loadtest.server.port>8080</loadtest.server.port>
+
+                <loadtest.jmeter.test.file.prefix>OpenOLAT104_LMS</loadtest.jmeter.test.file.prefix>
+            </properties>
+        </profile>
+
+        <profile>
+            <id>local-olat-loadtest</id>
+
+            <properties>
+                <loadtest.server.protocol>http</loadtest.server.protocol>
+                <loadtest.server.host>localhost</loadtest.server.host>
+                <loadtest.server.port>8070</loadtest.server.port>
+
+                <loadtest.jmeter.test.file.prefix>OLAT_LMS</loadtest.jmeter.test.file.prefix>
+            </properties>
+        </profile>
+
+        <profile>
+            <id>remote-olat-loadtest</id>
+
+            <properties>
+                <loadtest.server.protocol>http</loadtest.server.protocol>
+                <loadtest.server.host>localhost</loadtest.server.host>
+                <loadtest.server.port>8070</loadtest.server.port>
+
+                <loadtest.jmeter.test.file.prefix>OLAT_LMS</loadtest.jmeter.test.file.prefix>
+            </properties>
+        </profile>
+    </profiles>
+
+	<build>
+        <plugins>
+            <plugin>
+                <groupId>com.lazerycode.jmeter</groupId>
+                <artifactId>jmeter-maven-plugin</artifactId>
+                <version>1.10.1</version>
+                <!-- The plugin version 2 supports JMeter 3. -->
+                <!--<version>2.0.0-SNAPSHOT</version>-->
+
+                <executions>
+                    <!-- Only available in the plugin version 2. -->
+                    <!--<execution>-->
+                        <!--&lt;!&ndash; Required for plugin version 2.x.x. &ndash;&gt;-->
+                        <!--<id>configure-jmeter-maven-plugin-2</id>-->
+                        <!--<phase>pre-integration-test</phase>-->
+                        <!--<goals>-->
+                            <!--<goal>configure</goal>-->
+                        <!--</goals>-->
+                    <!--</execution>-->
+                    <execution>
+                        <id>run-loadtest-jmeter-maven-plugin</id>
+                        <phase>integration-test</phase>
+                        <goals>
+                            <goal>jmeter</goal>
+                        </goals>
+                        <configuration>
+                            <jMeterProcessJVMSettings>
+                                <xms>512</xms>
+                                <xmx>1024</xmx>
+                            </jMeterProcessJVMSettings>
+                        </configuration>
+                    </execution>
+                </executions>
+
+                <configuration>
+                    <!-- Only available in the plugin version 2. -->
+                    <!--<jmeterVersion>3.0</jmeterVersion>-->
+
+                    <testFilesIncluded>
+                        <jMeterTestFile>${loadtest.jmeter.test.file.prefix}.jmx</jMeterTestFile>
+                    </testFilesIncluded>
+
+                    <!--
+                        Enables/disables timestamp based result files e.g.
+                        "/target/jmeter/results/<test_name>-<timestamp>.jtl".
+                    -->
+                    <testResultsTimestamp>true</testResultsTimestamp>
+
+                    <!-- See: http://joda-time.sourceforge.net/apidocs/org/joda/time/format/DateTimeFormat.html -->
+                    <resultsFileNameDateFormat>yyyy-MM-dd'T'HH:mm:ssZZ</resultsFileNameDateFormat>
+
+                    <!-- The analyse tool requires XML. -->
+                    <resultsFileFormat>xml</resultsFileFormat>
+
+                    <overrideRootLogLevel>DEBUG</overrideRootLogLevel>
+
+                    <suppressJMeterOutput>false</suppressJMeterOutput>
+
+                    <!-- Failures are ignored because in a load test failures can happen due to a overload. -->
+                    <ignoreResultFailures>true</ignoreResultFailures>
+
+                    <!-- Only available in the plugin version 2. -->
+                    <!--<postTestPauseInSeconds>10</postTestPauseInSeconds>-->
+
+                    <propertiesUser>
+                        <server.protocol>${loadtest.server.protocol}</server.protocol>
+                        <server.host>${loadtest.server.host}</server.host>
+                        <server.port>${loadtest.server.port}</server.port>
+                        <path.prefix></path.prefix>
+                        <revision.number>${revisionNumber}</revision.number>
+                        <change.set>${changeSet}</change.set>
+                        <user.list.file>users.csv</user.list.file>
+                        <user.agent>Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/50.0.2661.94 Safari/537.36</user.agent>
+                        <number.of.threads>200</number.of.threads>
+                        <ramp.up>30</ramp.up>
+                        <execution.mode>parallel</execution.mode>
+                        <wait.time>2</wait.time>
+                        <wait.time.stddev>1</wait.time.stddev>
+                        <question.answer.time>60</question.answer.time>
+                        <question.answer.time.stddev>10</question.answer.time.stddev>
+                        <polling.interval>6</polling.interval>
+                        <result.file.prefix>${loadtest.jmeter.test.file.prefix}</result.file.prefix>
+
+                        <!-- HTTPClient4 properties -->
+                        <hc.parameters.file>hc.parameters</hc.parameters.file>
+
+                        <!-- How many retries for a failed connections. -->
+                        <httpclient4.retrycount>1</httpclient4.retrycount>
+                    </propertiesUser>
+
+                    <!-- Only available in the plugin version 2. -->
+                    <!--<jmeterExtensions>-->
+                        <!--<artifact>kg.apc:jmeter-plugins-standard:pom:1.4.0</artifact>-->
+                        <!--<artifact>kg.apc:jmeter-plugins-extras:pom:1.4.0</artifact>-->
+                    <!--</jmeterExtensions>-->
+                </configuration>
+
+                <!--
+                    The "<dependencies>" tag were deprecated in the plugin version 2. Use the "<jmeterExtensions>" tag
+                    instead (see above).
+                -->
+                <dependencies>
+                    <dependency>
+                        <groupId>kg.apc</groupId>
+                        <artifactId>jmeter-plugins-standard</artifactId>
+                        <version>1.4.0</version>
+                    </dependency>
+                    <dependency>
+                        <groupId>kg.apc</groupId>
+                        <artifactId>jmeter-plugins-extras</artifactId>
+                        <version>1.4.0</version>
+                    </dependency>
+                </dependencies>
+            </plugin>
+            <plugin>
+                <groupId>com.lazerycode.jmeter</groupId>
+                <artifactId>jmeter-analysis-maven-plugin</artifactId>
+                <version>1.0.6</version>
+
+                <executions>
+                    <execution>
+                        <phase>post-integration-test</phase>
+                        <goals>
+                            <goal>analyze</goal>
+                        </goals>
+
+                        <configuration>
+                            <source>${project.build.directory}/jmeter/results/*.jtl</source>
+                            <targetDirectory>${project.build.directory}/results</targetDirectory>
+
+                            <!-- The directory, where the JTL source files lie, must exist. -->
+                            <sourceDirFailed>true</sourceDirFailed>
+
+                            <checkResult>
+                                <!-- Check throughput. -->
+                                <throughput>
+                                    <!-- -1 means disabled. -->
+                                    <threshold>-1</threshold>
+
+                                    <!--
+                                        For more information see the example on:
+                                        https://github.com/afranken/jmeter-analysis-maven-plugin
+                                    -->
+                                    <toleranceDirection>UPPER_LOWER_TOLERANCE</toleranceDirection>
+
+                                    <!-- In percentage -->
+                                    <tolerance>5</tolerance>
+                                </throughput>
+
+                                <!-- Check errors. -->
+                                <errors>
+                                    <threshold>-1</threshold>
+                                    <toleranceDirection>UPPER_LOWER_TOLERANCE</toleranceDirection>
+                                    <tolerance>5</tolerance>
+                                </errors>
+                            </checkResult>
+
+                            <requestGroups>
+                                <!-- Match order is honored. -->
+                                <requestGroup>
+                                    <name>static</name>
+                                    <pattern>*/raw/*/**</pattern>
+
+                                    <checkResult>
+                                    </checkResult>
+                                </requestGroup>
+
+                                <!-- All unfiltered requests are caught by the "default" request group. -->
+                            </requestGroups>
+
+                            <!-- Chart dimensions. -->
+                            <configurationCharts>
+                                <width>950</width>
+                                <height>500</height>
+                            </configurationCharts>
+
+                            <maxSamples>50000</maxSamples>
+                            <sampleNames>
+                                <sampleName>sample</sampleName>
+                                <sampleName>httpSample</sampleName>
+                            </sampleNames>
+
+                            <processAllFilesFound>true</processAllFilesFound>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <!-- Next plugin may be useful for debugging. -->
+            <!--<plugin>-->
+                <!--<groupId>org.apache.maven.plugins</groupId>-->
+                <!--<artifactId>maven-antrun-plugin</artifactId>-->
+                <!--<configuration>-->
+                    <!--<tasks>-->
+                        <!--<sleep seconds="600" />-->
+                    <!--</tasks>-->
+                <!--</configuration>-->
+                <!--<executions>-->
+                    <!--<execution>-->
+                        <!--<id>sleeping-for-debugging</id>-->
+                        <!--<phase>post-integration-test</phase>-->
+                        <!--<goals>-->
+                            <!--<goal>run</goal>-->
+                        <!--</goals>-->
+                    <!--</execution>-->
+                <!--</executions>-->
+            <!--</plugin>-->
+            <!-- Next plugin may be useful some day. -->
+            <!--<plugin>-->
+                <!--<artifactId>maven-enforcer-plugin</artifactId>-->
+                <!--<executions>-->
+                    <!--<execution>-->
+                        <!--<id>enforce-maven</id>-->
+                        <!--<goals>-->
+                            <!--<goal>enforce</goal>-->
+                        <!--</goals>-->
+                        <!--<configuration>-->
+                            <!--<rules>-->
+                                <!--<requireMavenVersion>-->
+                                    <!--<version>[3.0,)</version>-->
+                                    <!--<message>-->
+                                        <!--Maven 3.0.x is required because profile cascading is used [MNG-2276]-->
+                                    <!--</message>-->
+                                <!--</requireMavenVersion>-->
+                            <!--</rules>-->
+                        <!--</configuration>-->
+                    <!--</execution>-->
+                <!--</executions>-->
+            <!--</plugin>-->
+        </plugins>
+	</build>
+</project>
