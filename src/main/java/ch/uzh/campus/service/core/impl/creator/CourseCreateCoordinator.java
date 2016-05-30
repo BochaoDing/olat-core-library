@@ -20,43 +20,20 @@
  */
 package ch.uzh.campus.service.core.impl.creator;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Locale;
 
-import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
-import org.olat.basesecurity.BaseSecurity;
-import org.olat.core.CoreSpringFactory;
-import org.olat.core.gui.translator.PackageTranslator;
+import org.olat.core.gui.translator.Translator;
+import org.olat.core.id.Identity;
 import org.olat.core.logging.OLog;
 import org.olat.core.logging.Tracing;
+import org.olat.core.util.Util;
 import org.olat.course.CourseFactory;
 import org.olat.course.ICourse;
 import org.olat.course.tree.PublishTreeModel;
 import org.olat.repository.RepositoryEntry;
 import org.olat.repository.RepositoryService;
 import org.olat.resource.OLATResourceManager;
-/*import org.olat.data.basesecurity.BaseSecurity;
-import org.olat.data.basesecurity.Constants;
-import org.olat.data.basesecurity.Identity;
-import org.olat.data.course.campus.DaoManager;
-import org.olat.data.course.campus.SapOlatUser;
-import org.olat.data.course.campus.StudentCourse;
-import org.olat.data.course.campus.StudentCoursePK;
-import org.olat.data.repository.RepositoryEntry;
-import org.olat.data.resource.OLATResourceManager;
-import org.olat.lms.core.course.campus.CampusConfiguration;
-import org.olat.lms.core.course.campus.CampusCourseImportTO;
-import org.olat.lms.core.course.campus.impl.syncer.CampusCourseGroupSynchronizer;
-import org.olat.lms.course.CourseFactory;
-import org.olat.lms.course.ICourse;
-import org.olat.lms.repository.RepositoryService;
-import org.olat.presentation.course.tree.PublishTreeModel;
-import org.olat.presentation.framework.core.translator.PackageTranslator;
-import org.olat.presentation.framework.core.translator.PackageUtil;
-import org.olat.system.logging.log4j.LoggerHelper;
-import org.olat.system.spring.CoreSpringFactory;*/
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -64,7 +41,7 @@ import ch.uzh.campus.CampusConfiguration;
 import ch.uzh.campus.CampusCourseImportTO;
 import ch.uzh.campus.data.DaoManager;
 import ch.uzh.campus.service.CampusCourse;
-import ch.uzh.campus.service.core.impl.CampusCourseFactory;
+
 
 /**
  * Initial Date: 30.05.2012 <br>
@@ -74,7 +51,7 @@ import ch.uzh.campus.service.core.impl.CampusCourseFactory;
 @Component
 public class CourseCreateCoordinator {
 
-    //private static final Logger log = LoggerHelper.getLogger();
+    
 	private static final OLog log = Tracing.createLoggerFor(CourseCreateCoordinator.class);
 
     @Autowired
@@ -130,7 +107,7 @@ public class CourseCreateCoordinator {
         }
 
         return campusCourse;
-    }
+    }*/
 
     public CampusCourse createCampusCourse(Long courseResourceableId, CampusCourseImportTO campusCourseImportData, Identity creator) {
         final Long templateCourseResourceableId;
@@ -143,7 +120,7 @@ public class CourseCreateCoordinator {
                 return null;
             }
             final ICourse defaultTemplateCourse = CourseFactory.loadCourse(templateCourseResourceableId);
-            final PublishTreeModel publishTreeModel = new PublishTreeModel(defaultTemplateCourse.getEditorTreeModel(), defaultTemplateCourse.getRunStructure(), null);
+            final PublishTreeModel publishTreeModel = new PublishTreeModel(defaultTemplateCourse.getEditorTreeModel(), defaultTemplateCourse.getRunStructure());
 
             if (publishTreeModel.hasPublishableChanges()) {
                 log.warn("Campuskurs template course " + defaultTemplateCourse.getCourseTitle() + " (" + defaultTemplateCourse.getResourceableId()
@@ -165,20 +142,22 @@ public class CourseCreateCoordinator {
             campusCourse.setCourseTitleAndLearningObjectivesInCourseModel(campusCourseImportData.getTitle(), campusCourseImportData.getVvzLink());
             campusCourse.setDescription(courseDescriptionBuilder.buildDescriptionFrom(campusCourseImportData, lvLanguage));
 
-            if (!defaultTemplate) {
-                // CampusGroupHelper.addCampusGroups(campusCourse.getCourse());
+            if (!defaultTemplate) {                
                 campusCourse.SetBusinessGroups(creator);
             }
 
-            campusCourseGroupSynchronizer.addAllLecturesAsOwner(campusCourse, campusCourseImportData.getLecturers());
+            //TODO: olatng
+            /*campusCourseGroupSynchronizer.addAllLecturesAsOwner(campusCourse, campusCourseImportData.getLecturers());
             campusCourseGroupSynchronizer.addDefaultCoOwnersAsOwner(campusCourse);
             campusCourseGroupSynchronizer.synchronizeCourseGroups(campusCourse.getCourse(), campusCourseImportData);
-            repositoryService.saveRepositoryEntry(campusCourse.getRepositoryEntry());
+            */
+            //repositoryService.saveRepositoryEntry(campusCourse.getRepositoryEntry());
+            repositoryService.update(campusCourse.getRepositoryEntry());
 
-            // ADD ADMIN RIGHTS TO OWNER GROUP
-            // CoreSpringFactory.getBean(BaseSecurityEBL.class).createCourseAdminPolicy(campusCourse.getRepositoryEntry());
-            final BaseSecurity securityManager = (BaseSecurity) CoreSpringFactory.getBean(BaseSecurity.class);
-            securityManager.createAndPersistPolicy(campusCourse.getRepositoryEntry().getOwnerGroup(), Constants.PERMISSION_ADMIN, campusCourse.getCourse());
+            //TODO: olatng
+            // ADD ADMIN RIGHTS TO OWNER GROUP            
+            //final BaseSecurity securityManager = (BaseSecurity) CoreSpringFactory.getBean(BaseSecurity.class);
+            //securityManager.createAndPersistPolicy(campusCourse.getRepositoryEntry().getOwnerGroup(), Constants.PERMISSION_ADMIN, campusCourse.getCourse());
 
             if (defaultTemplate) {
                 // SET THE BARG
@@ -194,7 +173,9 @@ public class CourseCreateCoordinator {
             if (campusCourse != null) {
                 if (campusCourse.getRepositoryEntry() != null) {
                     try {
-                        repositoryService.deleteRepositoryEntryAndBasesecurity(campusCourse.getRepositoryEntry());
+                    	//TODO: olatng
+                        //repositoryService.deleteRepositoryEntryAndBasesecurity(campusCourse.getRepositoryEntry());
+                    	repositoryService.deleteRepositoryEntryAndBaseGroups(campusCourse.getRepositoryEntry());
                     } catch (Exception e) {
                         // we tried best to delete entry - ignore exceptions during deletion
                     }
@@ -211,7 +192,7 @@ public class CourseCreateCoordinator {
         }
     }
 
-    private PackageTranslator getTranslator(String lvLanguage) {
-        return new PackageTranslator(PackageUtil.getPackageName(this.getClass()), new Locale(lvLanguage));
-    }*/
+    private Translator getTranslator(String lvLanguage) {       
+        return  Util.createPackageTranslator(this.getClass(), new Locale(lvLanguage));
+    }
 }
