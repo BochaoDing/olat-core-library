@@ -71,3 +71,5 @@ syntax: regexp
 syntax: regexp
 \.sass-cache$
 
+jmeter.log
+
