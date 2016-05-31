@@ -46,6 +46,7 @@ CVS/*
 system/*
 .idea/*
 openolat-lms.iml
+openolat-loadtest/openolat-loadtest.iml
 src/main/resources/maven.build.properties
 src/main/java/maven.build.properties
 
