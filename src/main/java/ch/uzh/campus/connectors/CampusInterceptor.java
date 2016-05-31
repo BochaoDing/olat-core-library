@@ -99,6 +99,10 @@ public class CampusInterceptor<T, S> implements StepExecutionListener, ItemWrite
         if (CampusProcessStep.IMPORT_TEXTS.name().equalsIgnoreCase(se.getStepName())) {
             daoManager.deleteAllTexts();
         }
+        // DISABLED FOR NOW
+        // if (CampusImportStep.IMPORT_EVENTS.name().equalsIgnoreCase(se.getStepName())) {
+        // daoManager.deleteAllEvents();
+        // }
     }
 
     /**
@@ -113,18 +117,19 @@ public class CampusInterceptor<T, S> implements StepExecutionListener, ItemWrite
     public ExitStatus afterStep(StepExecution se) {
         LOG.info(se.toString());
 
-        //TODO: olatng - Find out if we still need notifyMetrics
         statisticDao.save(createImportStatistic(se));
+
+        //TODO: olatng - Find out if we still need notifyMetrics
+//        notifyMetrics(se);
 
         if (CampusProcessStep.IMPORT_CONTROLFILE.name().equalsIgnoreCase(se.getStepName())) {
             if (se.getWriteCount() != getFixedNumberOfFilesToBeExported()) {
-//                notifyMetrics(se);
                 return ExitStatus.FAILED;
             }
         }
 
         removeOldDataIfExist(se);
-//        notifyMetrics(se);
+
         return null;
     }
 
