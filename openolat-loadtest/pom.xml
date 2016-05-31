@@ -46,19 +46,19 @@
 
             <build>
                 <plugins>
-                    <!-- OLAT requires JDK 1.8 or later. -->
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-compiler-plugin</artifactId>
-                        <version>3.5.1</version>
-                        <configuration>
-                            <source>1.8</source>
-                            <target>1.8</target>
-                            <!--
-                                As default encoding the value of the variable ${project.build.sourceEncoding} is used.
-                            -->
-                        </configuration>
-                    </plugin>
+                    <!-- Enable it once some Java code is in this Maven module. -->
+                    <!--<plugin>-->
+                        <!--<groupId>org.apache.maven.plugins</groupId>-->
+                        <!--<artifactId>maven-compiler-plugin</artifactId>-->
+                        <!--<version>3.5.1</version>-->
+                        <!--<configuration>-->
+                            <!--<source>1.8</source>-->
+                            <!--<target>1.8</target>-->
+                            <!--&lt;!&ndash;-->
+                                <!--As default encoding the value of the variable ${project.build.sourceEncoding} is used.-->
+                            <!--&ndash;&gt;-->
+                        <!--</configuration>-->
+                    <!--</plugin>-->
                     <!-- Sets the "${revisionNumber}" and the "${changeSet}" variables. -->
                     <plugin>
                         <groupId>org.openolat.mojo</groupId>
@@ -162,6 +162,9 @@
                 <loadtest.server.port>8070</loadtest.server.port>
 
                 <loadtest.jmeter.test.file.prefix>OLAT_LMS</loadtest.jmeter.test.file.prefix>
+
+                <!-- Same property name as the "buildnumber-maven-plugin" uses. -->
+                <revisionNumber>20160411</revisionNumber>
             </properties>
         </profile>
 
@@ -174,6 +177,9 @@
                 <loadtest.server.port>8070</loadtest.server.port>
 
                 <loadtest.jmeter.test.file.prefix>OLAT_LMS</loadtest.jmeter.test.file.prefix>
+
+                <!-- Same property name as the "buildnumber-maven-plugin" uses. -->
+                <revisionNumber>20160411</revisionNumber>
             </properties>
         </profile>
     </profiles>
@@ -232,7 +238,7 @@
                     <!-- The analyse tool requires XML. -->
                     <resultsFileFormat>xml</resultsFileFormat>
 
-                    <overrideRootLogLevel>DEBUG</overrideRootLogLevel>
+                    <overrideRootLogLevel>WARN</overrideRootLogLevel>
 
                     <suppressJMeterOutput>false</suppressJMeterOutput>
 
