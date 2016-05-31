@@ -4,6 +4,7 @@ import org.olat.core.commons.persistence.DB;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
+import javax.persistence.EntityManager;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -24,8 +25,9 @@ public class CourseDao implements CampusDao<Course> {
 
     @Override
     public void save(List<Course> courses) {
+        EntityManager em = dbInstance.getCurrentEntityManager();
     	for (Course course : courses) {
-            dbInstance.saveObject(course);
+            em.merge(course);
         }
     }
 
