@@ -30,7 +30,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 /**
  * This class is a generic {@link ItemWriter} that writes data to the database. <br>
  * It delegates the actual writing (save or update) of data to the database to a <br>
- * concrete implementation of {@link CampuskursDao}.<br>
+ * concrete implementation of {@link CampusDao}.<br>
  * 
  * Initial Date: 11.06.2012 <br>
  * 
@@ -61,7 +61,7 @@ public class CampusWriter<T> implements ItemWriter<T> {
 
     /**
      * Delegates the actual saving or updating of the given list of items to the <br>
-     * concrete implementation of {@link CampuskursDao}
+     * concrete implementation of {@link CampusDao}
      * 
      * @param items
      *            the items to send
