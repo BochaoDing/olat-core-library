@@ -41,6 +41,7 @@ import ch.uzh.campus.CampusConfiguration;
 import ch.uzh.campus.CampusCourseImportTO;
 import ch.uzh.campus.data.DaoManager;
 import ch.uzh.campus.service.CampusCourse;
+import ch.uzh.campus.service.core.impl.syncer.CampusCourseGroupSynchronizer;
 
 
 /**
@@ -50,24 +51,30 @@ import ch.uzh.campus.service.CampusCourse;
  */
 @Component
 public class CourseCreateCoordinator {
-
     
 	private static final OLog log = Tracing.createLoggerFor(CourseCreateCoordinator.class);
 
     @Autowired
     CampusConfiguration campusConfiguration;
+    
     @Autowired
     CourseDescriptionBuilder courseDescriptionBuilder;
+    
     @Autowired
     CoursePublisher coursePublisher;
+    
     @Autowired
     CourseTemplate courseTemplate;
+    
     @Autowired
     RepositoryService repositoryService;
-    //@Autowired
-    //CampusCourseGroupSynchronizer campusCourseGroupSynchronizer;
+    
+    @Autowired
+    CampusCourseGroupSynchronizer campusCourseGroupSynchronizer;
+    
     @Autowired
     OLATResourceManager olatResourceManager;
+    
     @Autowired
     DaoManager daoManager;
 
@@ -147,10 +154,10 @@ public class CourseCreateCoordinator {
             }
 
             //TODO: olatng
-            /*campusCourseGroupSynchronizer.addAllLecturesAsOwner(campusCourse, campusCourseImportData.getLecturers());
-            campusCourseGroupSynchronizer.addDefaultCoOwnersAsOwner(campusCourse);
-            campusCourseGroupSynchronizer.synchronizeCourseGroups(campusCourse.getCourse(), campusCourseImportData);
-            */
+            campusCourseGroupSynchronizer.addAllLecturesAsOwner(campusCourse, campusCourseImportData.getLecturers());
+            //campusCourseGroupSynchronizer.addDefaultCoOwnersAsOwner(campusCourse);
+            //campusCourseGroupSynchronizer.synchronizeCourseGroups(campusCourse.getCourse(), campusCourseImportData);
+            
             //repositoryService.saveRepositoryEntry(campusCourse.getRepositoryEntry());
             repositoryService.update(campusCourse.getRepositoryEntry());
 
