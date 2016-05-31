@@ -149,13 +149,13 @@
 	<!-- ======================================================================================= -->
 	<!-- ==============USERMAPPING/ABGLEICH JOB================== -->  
 	<!-- ======================================================================================= -->
-	<!--  
 	<batch:job id="userMappingJob">
 		<batch:listeners>
 			<batch:listener ref="campusJobInterceptor" />
 		</batch:listeners>
+
 		<batch:split id="userMapping" task-executor="splitTaskExecutor">
-			<batch:next on="COMPLETED" to="campusSynchronisation" />
+			<!--<batch:next on="COMPLETED" to="campusSynchronisation" />-->
 			<batch:flow>
 				<batch:step id="studentMapping" parent="campusStep">
 		    		<batch:tasklet task-executor="taskletTaskExecutor">
@@ -172,14 +172,13 @@
 			</batch:flow>
 		</batch:split>
 		
-		<batch:step id="campusSynchronisation" parent="campusStep">
-		    <batch:tasklet task-executor="synchronizationTaskletTaskExecutor">
-				<batch:chunk reader="synchronizationReader"  writer="synchronizationWriter" commit-interval="50" skip-limit="50" retry-limit="5"/>
-			</batch:tasklet>
-		</batch:step>  
+		<!--<batch:step id="campusSynchronisation" parent="campusStep">-->
+		    <!--<batch:tasklet task-executor="synchronizationTaskletTaskExecutor">-->
+				<!--<batch:chunk reader="synchronizationReader"  writer="synchronizationWriter" commit-interval="50" skip-limit="50" retry-limit="5"/>-->
+			<!--</batch:tasklet>-->
+		<!--</batch:step>  -->
 	</batch:job>
-	-->
-	
+
 	<!-- ======================================================================================= -->
 	<!-- ==============Export(Reader, Writer, Processor, Entity, Dao)================== -->  
 	<!-- ======================================================================================= -->
@@ -474,19 +473,18 @@
 	<!-- ======================================================================================= -->
 	<!-- ============== USERMAPPING(Reader, Writer)================== -->  
 	<!-- ======================================================================================= -->  
-	<!-- 
-	<bean id="studentMappingReader" class="org.olat.lms.core.course.campus.impl.mapper.StudentMappingReader" scope="step"/>
-	<bean id="studentMappingWriter" class="org.olat.lms.core.course.campus.impl.mapper.StudentMappingWriter" scope="step">
+	<bean id="studentMappingReader" class="ch.uzh.campus.mapper.StudentMappingReader" scope="step"/>
+	<bean id="studentMappingWriter" class="ch.uzh.campus.mapper.StudentMappingWriter" scope="step">
 		<property name="mappingStatistic" ref="mappingStatistic" />
 	</bean>
 	
-	<bean id="lecturerMappingReader" class="org.olat.lms.core.course.campus.impl.mapper.LecturerMappingReader" scope="step"/>
-	<bean id="lecturerMappingWriter" class="org.olat.lms.core.course.campus.impl.mapper.LecturerMappingWriter" scope="step">
+	<bean id="lecturerMappingReader" class="ch.uzh.campus.mapper.LecturerMappingReader" scope="step"/>
+	<bean id="lecturerMappingWriter" class="ch.uzh.campus.mapper.LecturerMappingWriter" scope="step">
 		<property name="mappingStatistic" ref="mappingStatistic" />
 	</bean>
 	
-	<bean id="mappingStatistic" class= 'org.olat.lms.core.course.campus.impl.mapper.MappingStatistic' scope='prototype'/>
-	 -->
+	<bean id="mappingStatistic" class="ch.uzh.campus.mapper.MappingStatistic" scope='prototype'/>
+
 	<!-- ======================================================================================= -->
 	<!-- ==============GENERIC STUFF: READER, WRITER, STEP, INTERCEPTOR================== -->  
 	<!-- ======================================================================================= --> 
@@ -534,12 +532,10 @@
 	
 	<bean id="campusJobInterceptor" class="ch.uzh.campus.connectors.CampusJobInterceptor" scope="prototype"/>	
 	
-	<!-- 
 	<bean id="statisticDao" class="ch.uzh.campus.data.ImportStatisticDao"/>
-	
+
 	<bean id="skipItemDao" class="ch.uzh.campus.data.SkipItemDao"/>
-	 -->
-	
+
 	<bean id="campusWriter" class="ch.uzh.campus.connectors.CampusWriter"  />
 	
 	<bean id="campusReader" class="org.springframework.batch.item.file.FlatFileItemReader" abstract="true" >  
