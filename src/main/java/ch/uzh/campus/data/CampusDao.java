@@ -9,5 +9,5 @@ import java.util.List;
  */
 public interface CampusDao<T> {
     void save(List<T> items);
-
+    void saveOrUpdate(List<T> items);
 }

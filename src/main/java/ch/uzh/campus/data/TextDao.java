@@ -26,6 +26,11 @@ public class TextDao implements CampusDao<Text> {
         }
     }
 
+    @Override
+    public void saveOrUpdate(List<Text> items) {
+        save(items);
+    }
+
     public void save(Text text) {
         dbInstance.saveObject(text);
     }

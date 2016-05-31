@@ -19,6 +19,11 @@ public class ImportStatisticDao implements CampusDao<ImportStatistic> {
         }
     }
 
+    @Override
+    public void saveOrUpdate(List<ImportStatistic> items) {
+        save(items);
+    }
+
     public void save(ImportStatistic statistic) {
         dbInstance.saveObject(statistic);
     }

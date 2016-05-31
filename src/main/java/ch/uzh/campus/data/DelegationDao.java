@@ -44,6 +44,11 @@ public class DelegationDao implements CampusDao<Delegation> {
         }
     }
 
+    @Override
+    public void saveOrUpdate(List<Delegation> items) {
+        save(items);
+    }
+
     public void save(Delegation delegation) {
         dbInstance.saveObject(delegation);
     }

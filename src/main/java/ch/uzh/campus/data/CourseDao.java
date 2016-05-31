@@ -25,6 +25,13 @@ public class CourseDao implements CampusDao<Course> {
 
     @Override
     public void save(List<Course> courses) {
+    	for (Course course : courses) {
+            dbInstance.saveObject(course);
+        }
+    }
+
+    @Override
+    public void saveOrUpdate(List<Course> courses) {
         EntityManager em = dbInstance.getCurrentEntityManager();
     	for (Course course : courses) {
             em.merge(course);

@@ -24,7 +24,15 @@ public class OrgDao implements CampusDao<Org> {
     @Autowired
     private DB dbInstance;
 
+    @Override
     public void save(List<Org> orgs) {
+        for (Org org : orgs) {
+            dbInstance.saveObject(org);
+        }
+    }
+
+    @Override
+    public void saveOrUpdate(List<Org> orgs) {
         EntityManager em = dbInstance.getCurrentEntityManager();
         for (Org org : orgs) {
             em.merge(org);

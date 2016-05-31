@@ -70,7 +70,7 @@ public class CampusWriter<T> implements ItemWriter<T> {
      */
     @SuppressWarnings({ "unchecked", "rawtypes" })
     public void write(List<? extends T> items) throws Exception {
-        campuskursDao.save((List) items);
+        campuskursDao.saveOrUpdate((List) items);
         dbInstance.commitAndCloseSession();
     }
 

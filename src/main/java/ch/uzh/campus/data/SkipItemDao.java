@@ -20,6 +20,11 @@ public class SkipItemDao implements CampusDao<SkipItem> {
         }
     }
 
+    @Override
+    public void saveOrUpdate(List<SkipItem> items) {
+        save(items);
+    }
+
     public void save(SkipItem skipItem) {
         dbInstance.saveObject(skipItem);
     }

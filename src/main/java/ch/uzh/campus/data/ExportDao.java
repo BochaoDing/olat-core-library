@@ -24,5 +24,10 @@ public class ExportDao implements CampusDao<Export> {
     	}
     }
 
+    @Override
+    public void saveOrUpdate(List<Export> items) {
+        save(items);
+    }
+
 }
 

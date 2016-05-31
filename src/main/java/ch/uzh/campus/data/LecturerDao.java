@@ -23,6 +23,13 @@ public class LecturerDao implements CampusDao<Lecturer> {
 
     @Override
     public void save(List<Lecturer> lecturers) {
+        for (Lecturer lecturer : lecturers) {
+            dbInstance.saveObject(lecturer);
+        }
+    }
+
+    @Override
+    public void saveOrUpdate(List<Lecturer> lecturers) {
         EntityManager em = dbInstance.getCurrentEntityManager();
         for (Lecturer lecturer : lecturers) {
             em.merge(lecturer);

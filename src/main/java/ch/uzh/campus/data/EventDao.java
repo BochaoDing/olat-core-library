@@ -19,6 +19,11 @@ public class EventDao implements CampusDao<Event> {
         }
     }
 
+    @Override
+    public void saveOrUpdate(List<Event> items) {
+        save(items);
+    }
+
     public void save(Event event) {
         dbInstance.saveObject(event);
     }
