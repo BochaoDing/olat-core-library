@@ -183,7 +183,7 @@ public class CourseCreateCoordinatorTest extends OlatTestCase {
                 .getDescription().indexOf(attribute) != -1);
     }
     
-    /*
+    
     @Test
     public void createCampusCourse_CheckOwners() {
         CampusCourse createdCampusCourseTestObject = createCampusCourseTestObject();
@@ -194,7 +194,7 @@ public class CourseCreateCoordinatorTest extends OlatTestCase {
         assertTrue("Missing identity (" + ownerIdentity + ") in owner-group", ownerIdentities.contains(ownerIdentity));
         assertTrue("Missing identity (" + secondOwnerIdentity + ")in owner-group", ownerIdentities.contains(secondOwnerIdentity));
     }
-    */
+    
     /*
     @Test
     public void createCampusCourse_CheckCourseGroup() {

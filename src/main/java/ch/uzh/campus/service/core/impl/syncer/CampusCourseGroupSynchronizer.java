@@ -3,6 +3,7 @@ package ch.uzh.campus.service.core.impl.syncer;
 import java.util.List;
 
 import org.apache.log4j.Logger;
+import org.olat.admin.securitygroup.gui.IdentitiesAddEvent;
 import org.olat.basesecurity.BaseSecurity;
 import org.olat.core.commons.persistence.DB;
 import org.olat.core.id.Identity;
@@ -11,6 +12,7 @@ import org.olat.core.logging.Tracing;
 import org.olat.course.ICourse;
 import org.olat.group.BusinessGroup;
 import org.olat.repository.RepositoryEntry;
+import org.olat.repository.RepositoryManager;
 import org.olat.repository.RepositoryService;
 /*import org.olat.data.basesecurity.BaseSecurity;
 import org.olat.data.basesecurity.Identity;
@@ -35,6 +37,7 @@ import org.springframework.stereotype.Component;
 import ch.uzh.campus.CampusConfiguration;
 import ch.uzh.campus.service.CampusCourse;
 import ch.uzh.campus.service.core.impl.creator.CourseCreateCoordinator;
+import ch.uzh.campus.service.core.impl.syncer.statistic.SynchronizedSecurityGroupStatistic;
 
 /**
  * Initial Date: 20.06.2012 <br>
@@ -43,21 +46,58 @@ import ch.uzh.campus.service.core.impl.creator.CourseCreateCoordinator;
  */
 @Component
 public class CampusCourseGroupSynchronizer {
-    //private static final Logger log = LoggerHelper.getLogger();
+    
 	private static final OLog log = Tracing.createLoggerFor(CampusCourseGroupSynchronizer.class);
 
     @Autowired
     CampusConfiguration campusConfiguration;
+    
     @Autowired
     BaseSecurity baseSecurity;
+    
     @Autowired
     CampuskursCoOwners campuskursCoOwners;
+    
+    @Autowired
+    RepositoryManager repositoryManager;
+    
+    @Autowired
+    RepositoryService repositoryService;
+    
     DB dBImpl;
 
-    /*public void addAllLecturesAsOwner(CampusCourse campusCourse, List<Identity> lecturers) {
+   public void addAllLecturesAsOwner(CampusCourse campusCourse, List<Identity> lecturers) {
         addAllIdentitiesAsOwner(campusCourse, lecturers);
     }
+   
+   private void addAllIdentitiesAsOwner(CampusCourse campusCourse, List<Identity> identities) {
+       //synchronizeSecurityGroup(campusCourse.getRepositoryEntry().getOwnerGroup(), identities, false);
+	   IdentitiesAddEvent iae = new IdentitiesAddEvent(identities);
+	   //TODO: olatng 
+	   //var 1: use the API
+	   //Identity addingIdentity = campuskursCoOwners.getDefaultCoOwners().get(0);//or get the campuskursAdminIdentity
+	   //repositoryManager.addOwners(addingIdentity, iae, campusCourse.getRepositoryEntry());
+	   //var 2	   
+	   for (Identity identity: identities) {
+		   if(!repositoryService.hasRole(identity, campusCourse.getRepositoryEntry(), "owner")) {
+			   repositoryService.addRole(identity, campusCourse.getRepositoryEntry(), "owner");
+		   }
+	   }
+   }
+   
+   
+   
+   /*private SynchronizedSecurityGroupStatistic synchronizeSecurityGroup(SecurityGroup group, List<Identity> allNewMembers, boolean isParticipant) {
+       int removedIdentityCounter = 0;
+       if (isParticipant) {
+           removedIdentityCounter = removeNonMembersFromSecurityGroup(group, allNewMembers);
+       }
+       int addedIdentityCounter = addNewMembersToSecurityGroup(group, allNewMembers);
 
+       return new SynchronizedSecurityGroupStatistic(addedIdentityCounter, removedIdentityCounter);
+   }*/
+   
+   /*
     public void addAllLecturesAsOwner(ICourse course, List<Identity> lecturers) {
         RepositoryEntry repositoryEntry = getRepositoryService().lookupRepositoryEntry(course.getCourseEnvironment().getRepositoryEntryId());
         synchronizeSecurityGroup(repositoryEntry.getOwnerGroup(), lecturers, false);
@@ -66,10 +106,7 @@ public class CampusCourseGroupSynchronizer {
     public void addAllDelegateesAsOwner(CampusCourse campusCourse, List<Identity> delegatees) {
         addAllIdentitiesAsOwner(campusCourse, delegatees);
     }
-
-    private void addAllIdentitiesAsOwner(CampusCourse campusCourse, List<Identity> identities) {
-        synchronizeSecurityGroup(campusCourse.getRepositoryEntry().getOwnerGroup(), identities, false);
-    }
+   
 
     public List<Identity> getCampusGroupAParticipants(CampusCourse campusCourse) {
         BusinessGroup campusGroupA = CampusGroupHelper.lookupCampusGroup(campusCourse.getCourse(), campusConfiguration.getCourseGroupAName());
@@ -106,15 +143,7 @@ public class CampusCourseGroupSynchronizer {
         return synchronizeSecurityGroup(businessGroup.getOwnerGroup(), lecturers, false);
     }
 
-    private SynchronizedSecurityGroupStatistic synchronizeSecurityGroup(SecurityGroup group, List<Identity> allNewMembers, boolean isParticipant) {
-        int removedIdentityCounter = 0;
-        if (isParticipant) {
-            removedIdentityCounter = removeNonMembersFromSecurityGroup(group, allNewMembers);
-        }
-        int addedIdentityCounter = addNewMembersToSecurityGroup(group, allNewMembers);
-
-        return new SynchronizedSecurityGroupStatistic(addedIdentityCounter, removedIdentityCounter);
-    }
+    
 
     private int removeNonMembersFromSecurityGroup(SecurityGroup group, List<Identity> allNewMembers) {
         int removedIdentityCounter = 0;
