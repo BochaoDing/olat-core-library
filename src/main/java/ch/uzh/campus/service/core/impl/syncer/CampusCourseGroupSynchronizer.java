@@ -54,16 +54,28 @@ public class CampusCourseGroupSynchronizer {
     
     @Autowired
     BaseSecurity baseSecurity;
-    
+
     @Autowired
     CampuskursCoOwners campuskursCoOwners;
-    
+
     @Autowired
     RepositoryManager repositoryManager;
-    
+
     @Autowired
     RepositoryService repositoryService;
-    
+
+    public void setCampuskursCoOwners(CampuskursCoOwners campuskursCoOwners) {
+        this.campuskursCoOwners = campuskursCoOwners;
+    }
+
+    public void setCampusConfiguration(CampusConfiguration campusConfiguration) {
+        this.campusConfiguration = campusConfiguration;
+    }
+
+    public CampuskursCoOwners getCampuskursCoOwners() {
+        return campuskursCoOwners;
+    }
+
     DB dBImpl;
 
    public void addAllLecturesAsOwner(CampusCourse campusCourse, List<Identity> lecturers) {
