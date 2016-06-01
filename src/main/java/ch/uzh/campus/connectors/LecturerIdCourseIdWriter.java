@@ -22,6 +22,7 @@ package ch.uzh.campus.connectors;
 
 import ch.uzh.campus.data.LecturerDao;
 import ch.uzh.campus.data.LecturerIdCourseId;
+import org.olat.core.commons.persistence.DB;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -41,10 +42,15 @@ public class LecturerIdCourseIdWriter implements ItemWriter<LecturerIdCourseId> 
     @Autowired
     public LecturerDao lecturerDao;
 
+    @Autowired
+    DB dbInstance;
+
     @Override
     public void write(List<? extends LecturerIdCourseId> lecturerIdCourseIds) throws Exception {
         for (LecturerIdCourseId lecturerIdCourseId : lecturerIdCourseIds) {
             lecturerDao.addLecturerToCourse(lecturerIdCourseId);
         }
+        dbInstance.commitAndCloseSession();
     }
+
 }
