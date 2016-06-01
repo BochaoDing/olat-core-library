@@ -23,20 +23,25 @@ package ch.uzh.campus.data;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.olat.core.commons.persistence.DB;
 import org.olat.test.OlatTestCase;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.AbstractTransactionalJUnit4SpringContextTests;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import javax.inject.Provider;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
+/**
+ * Initial Date: Oct 27, 2014 <br>
+ *
+ * @author aabouc
+ * @author lavinia
+ * @author Martin Schraner
+ */
 @ContextConfiguration(locations = {"classpath:ch/uzh/campus/data/_spring/mockDataContext.xml"})
 public class EventDaoTest extends OlatTestCase {
 
@@ -50,21 +55,13 @@ public class EventDaoTest extends OlatTestCase {
     private CourseDao courseDao;
 
     @Autowired
-    private MockDataGenerator mockDataGenerator;
-
-    private List<Course> courses;
-    private List<Event> events;
+    private Provider<MockDataGenerator> mockDataGeneratorProvider;
 
     @Before
     public void setup() {
         // Insert some courses
-        courses = mockDataGenerator.getCourses();
+        List<Course> courses = mockDataGeneratorProvider.get().getCourses();
         courseDao.save(courses);
-        dbInstance.flush();
-
-        // Insert some events
-        events = mockDataGenerator.getEvents();
-        eventDao.save(events);
         dbInstance.flush();
     }
 
@@ -75,60 +72,147 @@ public class EventDaoTest extends OlatTestCase {
 
     @Test
     public void testGetEventsByCourseId_notFound() {
+        addEventsToCourses();
         assertTrue(eventDao.getEventsByCourseId(999L).isEmpty());
     }
 
     @Test
     public void testGetEventsByCourseId_foundTwoEvents() {
-        assertEquals(eventDao.getEventsByCourseId(100L).size(), 2);
+        addEventsToCourses();
+        assertEquals(2, eventDao.getEventsByCourseId(100L).size());
+    }
+    
+    @Test
+    public void testAddEventToTCourse() {
+        Course course = courseDao.getCourseById(100L);
+        assertNotNull(course);
+        assertEquals(0, course.getEvents().size());
+        assertTrue(eventDao.getEventsByCourseId(100L).isEmpty());
+
+        // Add an event
+        EventCourseId eventCourseId = mockDataGeneratorProvider.get().getEventCourseIds().get(0);
+        eventDao.addEventToCourse(eventCourseId);
+
+        // Check before flush
+        assertEquals(1, course.getEvents().size());
+
+        dbInstance.flush();
+        dbInstance.getCurrentEntityManager().clear();
+
+        course = courseDao.getCourseById(100L);
+        assertEquals(1, course.getEvents().size());
+        assertEquals(1, eventDao.getEventsByCourseId(100L).size());
+    }
+
+    @Test
+    public void testAddEventsToTCourse() {
+        Course course = courseDao.getCourseById(100L);
+        assertNotNull(course);
+        assertEquals(0, course.getEvents().size());
+        assertTrue(eventDao.getEventsByCourseId(100L).isEmpty());
+
+        addEventsToCourses();
+        dbInstance.getCurrentEntityManager().clear();
+
+        course = courseDao.getCourseById(100L);
+        assertEquals(2, course.getEvents().size());
+        assertEquals(2, eventDao.getEventsByCourseId(100L).size());
     }
 
     @Test
     public void testDeleteAllEvents() {
-        assertEquals(eventDao.getEventsByCourseId(100L).size(), 2);
-        assertEquals(eventDao.getEventsByCourseId(200L).size(), 2);
+        addEventsToCourses();
+        assertEquals(2, eventDao.getEventsByCourseId(100L).size());
+        assertEquals(2, eventDao.getEventsByCourseId(200L).size());
+        Course course = courseDao.getCourseById(100L);
+        assertEquals(2, course.getEvents().size());
 
         eventDao.deleteAllEvents();
+
+        // Check before flush
+        assertEquals(0, course.getEvents().size());
+
         dbInstance.flush();
         dbInstance.clear();
 
-        assertEquals(eventDao.getEventsByCourseId(100L).size(), 0);
-        assertEquals(eventDao.getEventsByCourseId(200L).size(), 0);
+        assertEquals(0, eventDao.getEventsByCourseId(100L).size());
+        assertEquals(0, eventDao.getEventsByCourseId(200L).size());
+        course = courseDao.getCourseById(100L);
+        assertEquals(0, course.getEvents().size());
     }
 
     @Test
+    public void testDeleteAllEventsAsBulkDelete() {
+        addEventsToCourses();
+        assertEquals(2, eventDao.getEventsByCourseId(100L).size());
+        assertEquals(2, eventDao.getEventsByCourseId(200L).size());
+        Course course = courseDao.getCourseById(100L);
+        assertEquals(2, course.getEvents().size());
+
+        eventDao.deleteAllEventsAsBulkDelete();
+
+        dbInstance.flush();
+        dbInstance.clear();
+
+        assertEquals(0, eventDao.getEventsByCourseId(100L).size());
+        assertEquals(0, eventDao.getEventsByCourseId(200L).size());
+        course = courseDao.getCourseById(100L);
+        assertEquals(0, course.getEvents().size());
+    }
+
+
+    @Test
     public void testDeleteEventsByCourseId() {
-        assertEquals(eventDao.getEventsByCourseId(100L).size(), 2);
+        addEventsToCourses();
+        assertEquals(2, eventDao.getEventsByCourseId(100L).size());
+        assertEquals(2, eventDao.getEventsByCourseId(200L).size());
+        Course course = courseDao.getCourseById(100L);
+        assertEquals(2, course.getEvents().size());
+
         eventDao.deleteEventsByCourseId(100L);
+
+        // Check before flush
+        assertEquals(0, course.getEvents().size());
+
         dbInstance.flush();
         dbInstance.clear();
-        assertEquals(eventDao.getEventsByCourseId(100L).size(), 0);
-        assertEquals(eventDao.getEventsByCourseId(200L).size(), 2);
-        eventDao.deleteEventsByCourseId(200L);
-        dbInstance.flush();
-        dbInstance.clear();
-        assertEquals(eventDao.getEventsByCourseId(200L).size(), 0);
+
+        assertEquals(0, eventDao.getEventsByCourseId(100L).size());
+        assertEquals(2, eventDao.getEventsByCourseId(200L).size());
+        course = courseDao.getCourseById(100L);
+        assertEquals(0, course.getEvents().size());
     }
 
     @Test
     public void testDeleteEventsByCourseIds() {
-        assertEquals(eventDao.getEventsByCourseId(100L).size(), 2);
-        assertEquals(eventDao.getEventsByCourseId(200L).size(), 2);
+        addEventsToCourses();
+        assertEquals(2, eventDao.getEventsByCourseId(100L).size());
+        assertEquals(2, eventDao.getEventsByCourseId(200L).size());
+        Course course = courseDao.getCourseById(100L);
+        assertEquals(2, course.getEvents().size());
 
-        // TODO
-//        Course course = courseDao.getCourseById(100L);
-//        assertEquals(2, course.getTexts().size());
-
-        List<Long> courseIds = new LinkedList<Long>();
+        List<Long> courseIds = new ArrayList<>();
         courseIds.add(100L);
         courseIds.add(200L);
 
         eventDao.deleteEventsByCourseIds(courseIds);
+
+        // Check before flush
+        assertEquals(0, course.getEvents().size());
+
         dbInstance.flush();
         dbInstance.clear();
-        
-        assertEquals(eventDao.getEventsByCourseId(100L).size(), 0);
-        assertEquals(eventDao.getEventsByCourseId(200L).size(), 0);
+
+        assertEquals(0, eventDao.getEventsByCourseId(100L).size());
+        assertEquals(0, eventDao.getEventsByCourseId(200L).size());
+        course = courseDao.getCourseById(100L);
+        assertEquals(0, course.getEvents().size());
+    }
+
+    private void addEventsToCourses() {
+        List<EventCourseId> eventCourseIds = mockDataGeneratorProvider.get().getEventCourseIds();
+        eventDao.addEventsToCourse(eventCourseIds);
+        dbInstance.flush();
     }
 
 }

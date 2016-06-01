@@ -20,7 +20,7 @@ public class MockDataGenerator {
     private List<LecturerIdCourseId> lecturerIdCourseIds;
     private List<StudentIdCourseId> studentIdCourseIds;
     private List<TextCourseId> textCourseIds;
-    private List<Event> events;
+    private List<EventCourseId> eventCourseIds;
     private List<ImportStatistic> importStatistics;
 
     public List<Delegation> getDelegations() {
@@ -71,12 +71,12 @@ public class MockDataGenerator {
         this.courses = courses;
     }
 
-    public List<Event> getEvents() {
-        return events;
+    public List<EventCourseId> getEventCourseIds() {
+        return eventCourseIds;
     }
 
-    public void setEvents(List<Event> events) {
-        this.events = events;
+    public void setEventCourseIds(List<EventCourseId> eventCourseIds) {
+        this.eventCourseIds = eventCourseIds;
     }
 
     public List<ImportStatistic> getImportStatistics() {

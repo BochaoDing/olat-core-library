@@ -92,10 +92,19 @@ public class TextDao implements CampusDao<Text> {
 
     public int deleteAllTexts() {
         List<Long> idsOfTextsToBeDeleted = dbInstance.getCurrentEntityManager()
-                .createNamedQuery(Text.GET_IDS_OF_ALL_TEXT, Long.class)
+                .createNamedQuery(Text.GET_IDS_OF_ALL_TEXTS, Long.class)
                 .getResultList();
         deleteTextsBidirectionally(idsOfTextsToBeDeleted);
         return idsOfTextsToBeDeleted.size();
+    }
+
+    /**
+     * Bulk delete for efficient deletion of a big number of entries. Does not update persistence context!
+     */
+    public int deleteAllTextsAsBulkDelete() {
+        return dbInstance.getCurrentEntityManager()
+                .createNamedQuery(Text.DELETE_ALL_TEXTS)
+                .executeUpdate();
     }
 
     public int deleteTextsByCourseId(Long courseId) {

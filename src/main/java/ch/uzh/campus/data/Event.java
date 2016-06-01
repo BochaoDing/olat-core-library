@@ -27,12 +27,11 @@ import org.hibernate.annotations.GenericGenerator;
  */
 @Entity
 @Table(name = "ck_event")
-@NamedQueries({ @NamedQuery(name = Event.DELETE_ALL_EVENTS, query = "delete from Event"),
+@NamedQueries({ @NamedQuery(name = Event.GET_IDS_OF_ALL_EVENTS, query = "select e.id from Event e"),
         @NamedQuery(name = Event.GET_EVENTS_BY_COURSE_ID, query = "select e from Event e where e.course.id = :courseId"),
         @NamedQuery(name = Event.GET_EVENT_IDS_BY_COURSE_ID, query = "select e.id from Event e where e.course.id = :courseId"),
-        @NamedQuery(name = Event.DELETE_EVENTS_BY_COURSE_ID, query = "delete from Event e where e.course.id = :courseId"),
         @NamedQuery(name = Event.GET_EVENT_IDS_BY_COURSE_IDS, query = "select e.id from Event e where e.course.id in :courseIds"),
-        @NamedQuery(name = Event.DELETE_EVENTS_BY_COURSE_IDS, query = "delete from Event e where e.course.id in :courseIds") })
+        @NamedQuery(name = Event.DELETE_ALL_EVENTS, query = "delete from Event") })
 public class Event {
     @Id
     @GeneratedValue(generator = "system-uuid")
@@ -56,12 +55,21 @@ public class Event {
     @JoinColumn(name = "course_id", nullable = false)
     private Course course;
 
-    public static final String DELETE_ALL_EVENTS = "deleteAllEvents";
+    public Event() {
+    }
+
+    public Event(Date date, String start, String end, Date modifiedDate) {
+        this.date = date;
+        this.start = start;
+        this.end = end;
+        this.modifiedDate = modifiedDate;
+    }
+
+    public static final String GET_IDS_OF_ALL_EVENTS = "getIdsOfAllEvents";
     public static final String GET_EVENT_IDS_BY_COURSE_ID = "getEventIdsByCourseId";
     public static final String GET_EVENT_IDS_BY_COURSE_IDS = "getEventIdsByCourseIds";
     public static final String GET_EVENTS_BY_COURSE_ID = "getEventsByCourseId";
-    public static final String DELETE_EVENTS_BY_COURSE_ID = "deleteEventsByCourseId";
-    public static final String DELETE_EVENTS_BY_COURSE_IDS = "deleteEventsByCourseIds";
+    public static final String DELETE_ALL_EVENTS = "deleteAllEvents";
 
     public Long getId() {
         return id;
@@ -124,31 +132,23 @@ public class Event {
     }
 
     @Override
-    public boolean equals(final Object obj) {
-        if (obj == this) {
-            return true;
-        }
-        if (!(obj instanceof Event))
-            return false;
-        Event theOther = (Event) obj;
-        EqualsBuilder builder = new EqualsBuilder();
-        builder.append(this.course.getId(), theOther.course.getId());
-        builder.append(this.getDate(), theOther.getDate());
-        builder.append(this.getStart(), theOther.getStart());
-        builder.append(this.getEnd(), theOther.getEnd());
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
 
-        return builder.isEquals();
+        Event event = (Event) o;
+
+        if (!date.equals(event.date)) return false;
+        if (!start.equals(event.start)) return false;
+        return end.equals(event.end);
+
     }
 
     @Override
     public int hashCode() {
-        HashCodeBuilder builder = new HashCodeBuilder(1239, 5475);
-        builder.append(this.course.getId());
-        builder.append(this.getDate());
-        builder.append(this.getStart());
-        builder.append(this.getEnd());
-
-        return builder.toHashCode();
+        int result = date.hashCode();
+        result = 31 * result + start.hashCode();
+        result = 31 * result + end.hashCode();
+        return result;
     }
-
 }
