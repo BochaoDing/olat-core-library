@@ -14,26 +14,10 @@ import java.util.List;
  * @author Martin Schraner
  */
 @Repository
-public class TextDao implements CampusDao<Text> {
+public class TextDao {
 
 	@Autowired
     private DB dbInstance;
-
-    @Override
-    public void save(List<Text> texts) {
-        for(Text text : texts) {
-            dbInstance.saveObject(text);
-        }
-    }
-
-    @Override
-    public void saveOrUpdate(List<Text> items) {
-        save(items);
-    }
-
-    public void save(Text text) {
-        dbInstance.saveObject(text);
-    }
 
     public void addTextToCourse(Text text, Long courseId) {
         Course course = dbInstance.getCurrentEntityManager().getReference(Course.class, courseId);
@@ -42,7 +26,8 @@ public class TextDao implements CampusDao<Text> {
     }
 
     public void addTextToCourse(TextCourseId textCourseId) {
-        addTextToCourse(textCourseId, textCourseId.getCourseId());
+        Text text = new Text(textCourseId.getType(), textCourseId.getLineSeq(), textCourseId.getLine(), textCourseId.getModifiedDate());
+        addTextToCourse(text, textCourseId.getCourseId());
     }
 
     public void addTextsToCourse(List<TextCourseId> textCourseIds) {

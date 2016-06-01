@@ -1,10 +1,10 @@
 package ch.uzh.campus.data;
 
-import java.util.List;
-
 import org.olat.core.commons.persistence.DB;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
+
+import java.util.List;
 
 /**
  * Initial Date: 04.06.2012 <br>
@@ -14,26 +14,10 @@ import org.springframework.stereotype.Repository;
  * @author Martin Schraner
  */
 @Repository
-public class EventDao implements CampusDao<Event> {
+public class EventDao {
 
     @Autowired
     private DB dbInstance;
-
-    @Override
-    public void save(List<Event> events) {
-        for (Event event : events) {
-            dbInstance.saveObject(event);
-        }
-    }
-
-    @Override
-    public void saveOrUpdate(List<Event> items) {
-        save(items);
-    }
-
-    public void save(Event event) {
-        dbInstance.saveObject(event);
-    }
 
     public void addEventToCourse(Event event, Long courseId) {
         Course course = dbInstance.getCurrentEntityManager().getReference(Course.class, courseId);

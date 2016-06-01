@@ -50,6 +50,16 @@ public class Text {
     @JoinColumn(name = "course_id", nullable = false)
     private Course course;
 
+    public Text() {
+    }
+
+    public Text(String type, int lineSeq, String line, Date modifiedDate) {
+        this.type = type;
+        this.lineSeq = lineSeq;
+        this.line = line;
+        this.modifiedDate = modifiedDate;
+    }
+
     public static final String CONTENTS = "Veranstaltungsinhalt";
     public static final String INFOS = "Hinweise";
     public static final String MATERIALS = "Unterrichtsmaterialien";

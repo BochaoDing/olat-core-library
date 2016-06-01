@@ -70,8 +70,8 @@ public class TextDaoTest extends OlatTestCase {
         assertTrue(textDao.getTextsByCourseId(100L).isEmpty());
 
         // Add a text
-        Text text = mockDataGeneratorProvider.get().getTextCourseIds().get(0);
-        textDao.addTextToCourse(text, 100L);
+        TextCourseId textCourseId = mockDataGeneratorProvider.get().getTextCourseIds().get(0);
+        textDao.addTextToCourse(textCourseId);
 
         // Check before flush
         assertEquals(1, course.getTexts().size());

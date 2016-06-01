@@ -2,10 +2,8 @@ package ch.uzh.campus.importers;
 
 import ch.uzh.campus.connectors.CampusUtils;
 import ch.uzh.campus.data.DaoManager;
-import ch.uzh.campus.data.Org;
-import ch.uzh.campus.data.TextDao;
 import ch.uzh.campus.data.Text;
-import ch.uzh.campus.importers.Importer;
+import ch.uzh.campus.data.TextDao;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -54,6 +52,6 @@ public class TextImporter extends Importer {
 
     @Override
     void persist() {
-        persistList(texts, textDao);
+        //persistList(texts, textDao);
     }
 }
