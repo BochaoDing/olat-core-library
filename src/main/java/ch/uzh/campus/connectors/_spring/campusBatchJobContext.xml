@@ -62,7 +62,7 @@
 
 		<batch:step id="import_students_Courses" parent="campusStep">
 			<batch:tasklet>
-				<batch:chunk reader="studentCourseReader" processor="studentCourseProcessor" writer="studentCourseWriter" skip-limit="1000" retry-limit="5"/>
+				<batch:chunk reader="studentCourseReader" processor="studentCourseProcessor" writer="studentCourseWriter" skip-limit="1000" retry-limit="5" commit-interval="10"/>
 			</batch:tasklet>
 			<batch:next on="COMPLETED" to="import_lecturers_Courses"/>
 			<batch:fail on="FAILED" exit-code="EARLY TERMINATION"/>
@@ -70,7 +70,7 @@
 
 		<batch:step id="import_lecturers_Courses" parent="campusStep">
 			<batch:tasklet>
-				<batch:chunk reader="lecturerCourseReader" processor="lecturerCourseProcessor" writer="lecturerCourseWriter" skip-limit="500" retry-limit="5"/>
+				<batch:chunk reader="lecturerCourseReader" processor="lecturerCourseProcessor" writer="lecturerCourseWriter" skip-limit="500" retry-limit="5" commit-interval="10"/>
 			</batch:tasklet>
 			<batch:next on="COMPLETED" to="import_texts"/>
 			<batch:fail on="FAILED" exit-code="EARLY TERMINATION"/>
@@ -78,7 +78,7 @@
 
 		<batch:step id="import_texts" parent="campusStep">
 			<batch:tasklet>
-				<batch:chunk reader="textReader" processor="textProcessor" writer="textWriter" skip-limit="1000" retry-limit="5"/>
+				<batch:chunk reader="textReader" processor="textProcessor" writer="textWriter" skip-limit="1000" retry-limit="5" commit-interval="10"/>
 			</batch:tasklet>
 		</batch:step>
 
@@ -155,7 +155,7 @@
 		</batch:listeners>
 
 		<batch:split id="userMapping" task-executor="splitTaskExecutor">
-			<!--<batch:next on="COMPLETED" to="campusSynchronisation" />-->
+			<batch:next on="COMPLETED" to="campusSynchronisation" />
 			<batch:flow>
 				<batch:step id="studentMapping" parent="campusStep">
 		    		<batch:tasklet task-executor="taskletTaskExecutor">
@@ -172,11 +172,11 @@
 			</batch:flow>
 		</batch:split>
 		
-		<!--<batch:step id="campusSynchronisation" parent="campusStep">-->
-		    <!--<batch:tasklet task-executor="synchronizationTaskletTaskExecutor">-->
-				<!--<batch:chunk reader="synchronizationReader"  writer="synchronizationWriter" commit-interval="50" skip-limit="50" retry-limit="5"/>-->
-			<!--</batch:tasklet>-->
-		<!--</batch:step>  -->
+		<batch:step id="campusSynchronisation" parent="campusStep">
+		    <batch:tasklet task-executor="synchronizationTaskletTaskExecutor">
+				<batch:chunk reader="synchronizationReader"  writer="synchronizationWriter" commit-interval="50" skip-limit="50" retry-limit="5"/>
+			</batch:tasklet>
+		</batch:step>
 	</batch:job>
 
 	<!-- ======================================================================================= -->
@@ -461,15 +461,13 @@
 	<!-- ======================================================================================= -->
 	<!-- ============== ABGLEICH(Reader, Writer, Processor)================== -->  
 	<!-- ======================================================================================= -->  
-	<!--  
-	<bean id="synchronizationReader" class="org.olat.lms.core.course.campus.impl.syncer.SynchronizationReader" scope="step"/>
-	<bean id="synchronizationWriter" class="org.olat.lms.core.course.campus.impl.syncer.SynchronizationWriter" scope="step">
+	<bean id="synchronizationReader" class="ch.uzh.campus.syncer.SynchronizationReader" scope="step"/>
+	<bean id="synchronizationWriter" class="ch.uzh.campus.syncer.SynchronizationWriter" scope="step">
 		<property name="synchronizeStatistic" ref="synchronizeStatistic" />
 	</bean>
 	
-	<bean id="synchronizeStatistic" class= 'org.olat.lms.core.course.campus.impl.syncer.statistic.OverallSynchronizeStatistic' scope='prototype'/>
-	-->
-	
+	<bean id="synchronizeStatistic" class= 'ch.uzh.campus.service.core.impl.syncer.statistic.OverallSynchronizeStatistic' scope='prototype'/>
+
 	<!-- ======================================================================================= -->
 	<!-- ============== USERMAPPING(Reader, Writer)================== -->  
 	<!-- ======================================================================================= -->  
