@@ -20,6 +20,7 @@
  */
 package ch.uzh.campus.mapper;
 
+import org.olat.core.commons.persistence.DB;
 import org.olat.core.id.Identity;
 import ch.uzh.campus.data.SapOlatUserDao;
 import ch.uzh.campus.data.Student;
@@ -48,9 +49,11 @@ public class StudentMapper {
     MappingByEmail mappingByEmail;
     @Autowired
     SapOlatUserDao userMappingDao;
+    @Autowired
+    private DB dbInstance;
 
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public MappingResult synchronizeStudentMapping(Student student) {
+        dbInstance.commitAndCloseSession();
         if (!userMappingDao.existsMappingForSapUserId(student.getId())) {
             // first try to map by personal number
             Identity mappedIdentity = studentMappingByMartikelNumber.tryToMap(student);

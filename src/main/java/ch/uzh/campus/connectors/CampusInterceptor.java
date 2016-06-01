@@ -24,6 +24,7 @@ import java.util.List;
 
 import ch.uzh.campus.data.*;
 import org.olat.core.CoreSpringFactory;
+import org.olat.core.commons.persistence.DB;
 import org.olat.core.logging.OLog;
 import org.olat.core.logging.Tracing;
 //import org.olat.data.course.campus.DaoManager;
@@ -64,6 +65,8 @@ public class CampusInterceptor<T, S> implements StepExecutionListener, ItemWrite
 	private static final OLog LOG = Tracing.createLoggerFor(CampusInterceptor.class);
 
     @Autowired
+    private DB dbInstance;
+    @Autowired
 	protected ImportStatisticDao statisticDao;
 	@Autowired
 	protected SkipItemDao skipItemDao;
@@ -87,9 +90,9 @@ public class CampusInterceptor<T, S> implements StepExecutionListener, ItemWrite
      *            the StepExecution
      */
     @Override
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void beforeStep(StepExecution se) {
         LOG.info(se.toString());
+        dbInstance.commitAndCloseSession();
         setStepExecution(se);
         // Chunk count and duration is being logged for sync step since this may be slow and potentially break timeout
         if (CampusProcessStep.CAMPUSSYNCHRONISATION.name().equalsIgnoreCase(se.getStepName())) {
@@ -113,10 +116,10 @@ public class CampusInterceptor<T, S> implements StepExecutionListener, ItemWrite
      *            the StepExecution
      */
     @Override
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public ExitStatus afterStep(StepExecution se) {
         LOG.info(se.toString());
 
+        dbInstance.commitAndCloseSession();
         statisticDao.saveOrUpdate(createImportStatistic(se));
 
         //TODO: olatng - Find out if we still need notifyMetrics
@@ -265,9 +268,9 @@ public class CampusInterceptor<T, S> implements StepExecutionListener, ItemWrite
      *            the cause of failure
      */
     @Override
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void onSkipInProcess(T item, Throwable ex) {
         LOG.debug("onSkipInWrite: " + item);
+        dbInstance.commitAndCloseSession();
         skipItemDao.save(createSkipItem("PROCESS", item.toString(), ex.getMessage()));
     }
 
@@ -278,9 +281,9 @@ public class CampusInterceptor<T, S> implements StepExecutionListener, ItemWrite
      *            the cause of failure
      */
     @Override
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void onSkipInRead(Throwable ex) {
         LOG.debug("onSkipInRead: ");
+        dbInstance.commitAndCloseSession();
         skipItemDao.save(createSkipItem("READ", null, ex.getMessage()));
     }
 
@@ -293,9 +296,9 @@ public class CampusInterceptor<T, S> implements StepExecutionListener, ItemWrite
      *            the cause of failure
      */
     @Override
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void onSkipInWrite(S item, Throwable ex) {
         LOG.debug("onSkipInWrite: " + item);
+        dbInstance.commitAndCloseSession();
         skipItemDao.save(createSkipItem("WRITE", item.toString(), ex.getMessage()));
     }
 

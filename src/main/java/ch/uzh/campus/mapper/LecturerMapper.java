@@ -21,6 +21,7 @@
 package ch.uzh.campus.mapper;
 
 import org.apache.commons.lang.StringUtils;
+import org.olat.core.commons.persistence.DB;
 import org.olat.core.logging.OLog;
 import org.olat.core.logging.Tracing;
 import org.olat.core.id.Identity;
@@ -52,9 +53,11 @@ public class LecturerMapper {
     MappingByEmail mappingByEmail;
     @Autowired
     SapOlatUserDao userMappingDao;
+    @Autowired
+    DB dbInstance;
 
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public MappingResult synchronizeLecturerMapping(Lecturer lecturer) {
+        dbInstance.commitAndCloseSession();
         if (!userMappingDao.existsMappingForSapUserId(lecturer.getPersonalNr())) {
             // first try to map by personal number
             Identity mappedIdentity = mappingByPersonalNumber.tryToMap(lecturer.getPersonalNr());

@@ -24,6 +24,7 @@ import java.util.*;
 
 import ch.uzh.campus.CampusCourseImportTO;
 import ch.uzh.campus.utils.ListUtil;
+import org.olat.core.commons.persistence.DB;
 import org.olat.core.id.Identity;
 
 import ch.uzh.campus.CampusConfiguration;
@@ -36,6 +37,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Repository
 public class DaoManager {
+    @Autowired
+    DB dbInstance;
+
     @Autowired
     private CourseDao courseDao;
     @Autowired
@@ -368,19 +372,19 @@ public class DaoManager {
         }
     }
 
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void saveCampusCourseResoureableId(Long courseId, Long resourceableId) {
+        dbInstance.commitAndCloseSession();
         courseDao.saveResourceableId(courseId, resourceableId);
     }
 
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void saveCampusCourseResoureableIdAndDisableSynchronization(Long courseId, Long resourceableId) {
+        dbInstance.commitAndCloseSession();
         courseDao.saveResourceableId(courseId, resourceableId);
         courseDao.disableSynchronization(courseId);
     }
 
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void deleteResourceableId(Long resourceableId) {
+        dbInstance.commitAndCloseSession();
         courseDao.deleteResourceableId(resourceableId);
     }
 
