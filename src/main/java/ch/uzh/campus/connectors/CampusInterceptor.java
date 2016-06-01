@@ -23,17 +23,10 @@ package ch.uzh.campus.connectors;
 import java.util.List;
 
 import ch.uzh.campus.data.*;
-import org.olat.core.CoreSpringFactory;
+
 import org.olat.core.commons.persistence.DB;
 import org.olat.core.logging.OLog;
 import org.olat.core.logging.Tracing;
-//import org.olat.data.course.campus.DaoManager;
-//import org.olat.data.course.campus.ImportStatisticDao;
-//import org.olat.data.course.campus.SkipItemDao;
-//import org.olat.lms.core.course.campus.impl.metric.CampusNotifier;
-//import org.olat.lms.core.course.campus.impl.metric.CampusStatistics;
-//import org.olat.system.commons.configuration.PropertyLocator;
-//import org.olat.system.commons.configuration.SystemPropertiesService;
 
 import org.springframework.batch.core.BatchStatus;
 import org.springframework.batch.core.ChunkListener;
@@ -43,8 +36,6 @@ import org.springframework.batch.core.SkipListener;
 import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.StepExecutionListener;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 
 /**
  * This class is an implementation listener that will be notified in the case of:
