@@ -31,7 +31,15 @@ public abstract class Importer {
     final static String SKIP_REASON_MALFORMED_CSV = "MALFORMED_CSV";
     final static String SKIP_REASON_FILTERED_OUT = "FILTERED_OUT";
     final static String SKIP_REASON_DUPLICATE_ID = "DUPLICATE_ID";
+    final static String SKIP_REASON_FAILED_TO_PROCESS = "SKIP_REASON_FAILED_TO_PROCESS";
     final static String SKIP_REASON_FAILED_TO_PERSIST = "SKIP_REASON_FAILED_TO_PERSIST";
+
+    final static String STATUS_COMPLETED = "COMPLETED";
+    final static String STATUS_FAILED = "FAILED";
+
+    protected long stepId;
+    protected String stepName;
+    protected String stepStatus;
 
     protected int line = 0;
     protected int cntSuccess = 0;
@@ -40,6 +48,7 @@ public abstract class Importer {
     protected int cntSkippedRead = 0;
     protected int cntSkippedProcess = 0;
     protected int cntSkippedWrite = 0;
+    protected int cntCommits = 0;
 
     // TODO Started/LastUpdated
     protected Date startTime;
@@ -50,6 +59,30 @@ public abstract class Importer {
     abstract void processEntry(String[] entry);
     abstract int getEntryFieldCount();
     abstract void persist();
+
+    public long getStepId() {
+        return stepId;
+    }
+
+    public void setStepId(long stepId) {
+        this.stepId = stepId;
+    }
+
+    public String getStepName() {
+        return stepName;
+    }
+
+    public void setStepName(String stepName) {
+        this.stepName = stepName;
+    }
+
+    public String getStepStatus() {
+        return stepStatus;
+    }
+
+    public void setStepStatus(String stepStatus) {
+        this.stepStatus = stepStatus;
+    }
 
     protected void beforeImport() {
         startTime = new Date();
@@ -82,15 +115,36 @@ public abstract class Importer {
             }
             persist(); // whatever has left in the buffer
             System.out.println("Finished processing " + line + " lines. Succeeded importing " + cntSuccess + " lines, failed to import " + cntFailed + " lines");
+            setStepStatus(Importer.STATUS_COMPLETED);
         } catch (IOException ioe) {
             System.out.println("IO problem: " + ioe.getMessage());
+            setStepStatus(Importer.STATUS_FAILED);
         }
         afterImport();
 
     }
 
+    void failEntry(String[] entry, String reason) {
+        failEntry(entry, reason, "");
+    }
+
+    void failEntry(String[] entry, String reason, String moreDetails) {
+        failEntry(String.join(";", entry), reason, moreDetails);
+    }
+
     void failEntry(String serializedEntry, String reason, String moreDetails) {
         LOG.info("Skipped entry(" + reason + "):" + serializedEntry); // TODO convert to LOG.debug()
+        switch (reason) {
+            case Importer.SKIP_REASON_FAILED_TO_PROCESS:
+                cntSkippedProcess++;
+                skipItemDao.save(createSkipItem("READ", serializedEntry, "Error while instantiating entity. " + moreDetails));
+                break;
+            case Importer.SKIP_REASON_FAILED_TO_PERSIST:
+                cntSkippedRead++;
+                skipItemDao.save(createSkipItem("WRITE", serializedEntry, "Failed to persist. " + moreDetails));
+                break;
+        }
+
         skipItemDao.save(createSkipItem("WRITE", serializedEntry, moreDetails));
         cntFailed++;
     }
@@ -123,8 +177,9 @@ public abstract class Importer {
         try {
             int batchSize = list.size();
             LOG.info("Ready to persist " + batchSize + " objects");
-            dao.save(list);
+            dao.saveOrUpdate(list);
             dbInstance.intermediateCommit();
+            cntCommits++;
             cntSuccess = cntSuccess + batchSize;
         } catch (Exception e) {
             // Try to persist item by item
@@ -139,13 +194,14 @@ public abstract class Importer {
             try {
                 List<T> wrapper = new ArrayList<T>();
                 wrapper.add(item);
-                dao.save(wrapper);
+                dao.saveOrUpdate(wrapper);
                 cntSuccess++;
             } catch (Exception e) {
                 failEntry(item.toString(), Importer.SKIP_REASON_FAILED_TO_PERSIST, e.getMessage());
             }
         }
         dbInstance.intermediateCommit();
+        cntCommits++;
     }
 
     private void showProgressInConsole(int line) {
@@ -165,26 +221,26 @@ public abstract class Importer {
 // TODO which values to use outside of springframework.batch context?
 //        skipItem.setJobExecutionId(getStepExecution().getJobExecutionId());
 //        skipItem.setJobName(getStepExecution().getJobExecution().getJobInstance().getJobName());
-//        skipItem.setStepExecutionId(getStepExecution().getId());
-//        skipItem.setStepName(getStepExecution().getStepName());
-//        skipItem.setStepStartTime(getStepExecution().getStartTime());
+        skipItem.setStepExecutionId(stepId);
+        skipItem.setStepName(stepName);
+        skipItem.setStepStartTime(startTime);
         return skipItem;
     }
 
     private ImportStatistic createImportStatistic() {
         ImportStatistic statistic = new ImportStatistic();
-// TODO which values to use outside of springframework.batch context?
-//        statistic.setStepId(se.getId());
-//        statistic.setStepName(se.getStepName());
-//        statistic.setStatus(se.getStatus().toString());
+        statistic.setStepId(stepId);
+        statistic.setStepName(stepName);
+        statistic.setStatus(stepStatus);
         statistic.setReadCount(line);
         statistic.setReadSkipCount(cntSkippedRead);
         statistic.setWriteCount(cntSuccess);
         statistic.setWriteSkipCount(cntSkippedWrite);
         statistic.setProcessSkipCount(cntSkippedProcess);
-//        statistic.setCommitCount(se.getCommitCount());
+        statistic.setCommitCount(cntCommits);
+// TODO which values to use outside of springframework.batch context?
 //        statistic.setRollbackCount(se.getRollbackCount());
-//        statistic.setStartTime(se.getStartTime());
+        statistic.setStartTime(startTime);
 //        statistic.setEndTime(se.getLastUpdated());
         return statistic;
     }
