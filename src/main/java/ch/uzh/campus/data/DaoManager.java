@@ -109,14 +109,6 @@ public class DaoManager {
         }
     }
 
-    public void saveTexts(List<Text> texts) {
-        textDao.save(texts);
-    }
-
-    public void saveEvents(List<Event> events) {
-        eventDao.save(events);
-    }
-
     public void saveSapOlatUsers(List<SapOlatUser> sapOlatUsers) {
         sapOlatUserDao.save(sapOlatUsers);
     }
