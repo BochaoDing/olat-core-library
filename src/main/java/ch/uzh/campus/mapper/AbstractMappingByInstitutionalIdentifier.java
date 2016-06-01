@@ -43,6 +43,11 @@ public class AbstractMappingByInstitutionalIdentifier {
     @Autowired
     BaseSecurity baseSecurity;
 
+    /** Setter for dbInstance is used by tests to inject mocks */
+    public void setDbInstance(DB dbInstance) {
+        this.dbInstance = dbInstance;
+    }
+
     @Autowired
     private DB dbInstance;
 

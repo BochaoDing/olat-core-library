@@ -28,8 +28,6 @@ import org.olat.core.logging.OLog;
 import org.olat.core.logging.Tracing;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Initial Date: 28.06.2012 <br>
@@ -42,13 +40,18 @@ public class StudentMapper {
     private static final OLog LOG = Tracing.createLoggerFor(StudentMapper.class);
 
     @Autowired
-    StudentMappingByMarticulationNumber studentMappingByMartikelNumber;
+    StudentMappingByMatriculationNumber studentMappingByMartikelNumber;
     @Autowired
     MappingByFirstNameAndLastName mappingByFirstNameAndLastName;
     @Autowired
     MappingByEmail mappingByEmail;
     @Autowired
     SapOlatUserDao userMappingDao;
+
+    public void setDbInstance(DB dbInstance) {
+        this.dbInstance = dbInstance;
+    }
+
     @Autowired
     private DB dbInstance;
 

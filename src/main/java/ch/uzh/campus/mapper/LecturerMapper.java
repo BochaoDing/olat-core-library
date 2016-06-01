@@ -53,6 +53,11 @@ public class LecturerMapper {
     MappingByEmail mappingByEmail;
     @Autowired
     SapOlatUserDao userMappingDao;
+
+    public void setDbInstance(DB dbInstance) {
+        this.dbInstance = dbInstance;
+    }
+
     @Autowired
     DB dbInstance;
 

@@ -33,7 +33,7 @@ import org.springframework.stereotype.Component;
  * @author cg
  */
 @Component
-public class StudentMappingByMarticulationNumber extends AbstractMappingByInstitutionalIdentifier {
+public class StudentMappingByMatriculationNumber extends AbstractMappingByInstitutionalIdentifier {
     public Identity tryToMap(Student student) {
         Identity identity = tryToMap(UserConstants.INSTITUTIONAL_MATRICULATION_NUMBER, student.getRegistrationNr());
         if (identity == null) {

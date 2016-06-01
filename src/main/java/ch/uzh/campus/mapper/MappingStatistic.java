@@ -55,7 +55,7 @@ public class MappingStatistic {
         builder.append("MappedByEmail=");
         builder.append(newMappingByEmailCounter);
         builder.append(" , ");
-        builder.append("MappedByMatrikelNumber=");
+        builder.append("MappedByMatriculationNumber=");
         builder.append(newMappingByMatrikelNrCounter);
         builder.append(" , ");
         builder.append("MappedByPersonalNumber=");
@@ -74,7 +74,7 @@ public class MappingStatistic {
 
     public String toStringForStudentMapping() {
         StringBuilder builder = new StringBuilder();
-        builder.append("MappedByMatrikelNumber=");
+        builder.append("MappedByMatriculationNumber=");
         builder.append(newMappingByMatrikelNrCounter);
         builder.append(" , ");
         builder.append("MappedByEmail=");
