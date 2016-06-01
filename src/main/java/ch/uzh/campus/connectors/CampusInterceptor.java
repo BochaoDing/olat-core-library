@@ -117,7 +117,7 @@ public class CampusInterceptor<T, S> implements StepExecutionListener, ItemWrite
     public ExitStatus afterStep(StepExecution se) {
         LOG.info(se.toString());
 
-        statisticDao.save(createImportStatistic(se));
+        statisticDao.saveOrUpdate(createImportStatistic(se));
 
         //TODO: olatng - Find out if we still need notifyMetrics
 //        notifyMetrics(se);
@@ -173,7 +173,6 @@ public class CampusInterceptor<T, S> implements StepExecutionListener, ItemWrite
      *            the StepExecution
      */
     private void removeOldDataIfExist(StepExecution se) {
-    	//TODO: olatng
         if (!BatchStatus.COMPLETED.equals(se.getStatus())) {
             return;
         }
@@ -214,6 +213,7 @@ public class CampusInterceptor<T, S> implements StepExecutionListener, ItemWrite
             return;
         }
 
+        //TODO: olatng
 //        if (CampusProcessStep.IMPORT_LECTURERS_COURSES.name().equalsIgnoreCase(se.getStepName())) {
 //            int stornos = daoManager.deleteAllNotUpdatedLCBooking(se.getStartTime());
 //            LOG.info("STORNOS(LECTURER_COURSE): " + stornos);
@@ -232,7 +232,9 @@ public class CampusInterceptor<T, S> implements StepExecutionListener, ItemWrite
      */
     @Override
     public void afterWrite(List<? extends S> items) {
-        LOG.debug("afterWrite: " + items);
+        if (items != null) {
+            LOG.debug("afterWrite: " + items);
+        }
     }
 
     /**
@@ -241,7 +243,9 @@ public class CampusInterceptor<T, S> implements StepExecutionListener, ItemWrite
      */
     @Override
     public void beforeWrite(List<? extends S> items) {
-        LOG.debug("beforeWrite: " + items);
+        if (items != null) {
+            LOG.debug("beforeWrite: " + items);
+        }
     }
 
     /**
