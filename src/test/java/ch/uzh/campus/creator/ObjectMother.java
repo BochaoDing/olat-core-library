@@ -27,7 +27,9 @@ import org.olat.core.id.User;
 import org.olat.core.id.UserConstants;
 import org.olat.course.ICourse;
 import org.olat.course.groupsandrights.CourseGroupManager;
+import org.olat.group.BusinessGroup;
 import org.olat.group.BusinessGroupService;
+import org.olat.repository.RepositoryEntry;
 
 /**
  * Initial Date: 04.06.2012 <br>
@@ -44,18 +46,12 @@ public class ObjectMother {
 //        return identity;
 //    }
 //
-
-    public static void setupCampusCourseGroupForTest(ICourse course, String groupName, BusinessGroupService businessGroupService) {
-        CourseGroupManager courseGroupManager = course.getCourseEnvironment().getCourseGroupManager();
-
-        // TODO OLATng - there are no GroupContexts any more
-//        List groupContexts = courseGroupManager.getLearningGroupContexts(course);
-//        for (Object item : groupContexts) {
-//            BGContext bgContext = (BGContext) item;
-//            businessGroupService.createAndPersistBusinessGroup(BusinessGroup.TYPE_LEARNINGROUP, null, groupName, null, new Integer(0), new Integer(10), false, false,
-//                    bgContext);
-//        }
-    }
+ 
+    
+    public static void setupCampusCourseGroupForTest(RepositoryEntry repositoryEntry, String groupName, BusinessGroupService businessGroupService) {		
+    	businessGroupService.createBusinessGroup(null, groupName, null, 0, -1, false, false, repositoryEntry);
+    	
+	}
 
     public static User createTestUserForJunit(final String name) {
         User newUser = new TestUser();

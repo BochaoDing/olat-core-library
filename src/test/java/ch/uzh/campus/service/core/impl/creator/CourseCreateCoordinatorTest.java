@@ -15,6 +15,7 @@ import org.junit.Test;
 import org.olat.basesecurity.BaseSecurity;
 import org.olat.basesecurity.Group;
 import org.olat.basesecurity.manager.GroupDAO;
+import org.olat.core.commons.persistence.DB;
 import org.olat.core.commons.persistence.DBFactory;
 import org.olat.core.id.Identity;
 import org.olat.core.id.UserConstants;
@@ -33,6 +34,7 @@ import org.springframework.test.context.ContextConfiguration;
 
 import ch.uzh.campus.CampusConfiguration;
 import ch.uzh.campus.CampusCourseImportTO;
+import ch.uzh.campus.creator.ObjectMother;
 import ch.uzh.campus.service.CampusCourse;
 
 /**
@@ -62,6 +64,9 @@ public class CourseCreateCoordinatorTest extends OlatTestCase {
     private RepositoryService repositoryService;
     @Autowired
     private GroupDAO groupDAO;
+    
+    @Autowired
+    private DB dbInstance;
 
     private Long sourceResourceableId;
     private ICourse sourceCourse;
@@ -87,8 +92,10 @@ public class CourseCreateCoordinatorTest extends OlatTestCase {
         sourceCourse = CourseFactory.loadCourse(sourceResourceableId);
         DBFactory.getInstance().closeSession();   
         
-        setupCampusCourseGroupForTest(sourceRepositoryEntry, TEST_COURSE_GROUP_A_NAME);
-        setupCampusCourseGroupForTest(sourceRepositoryEntry, TEST_COURSE_GROUP_B_NAME);
+        ObjectMother.setupCampusCourseGroupForTest(sourceRepositoryEntry, TEST_COURSE_GROUP_A_NAME, businessGroupService);
+        dbInstance.commitAndCloseSession();
+        ObjectMother.setupCampusCourseGroupForTest(sourceRepositoryEntry, TEST_COURSE_GROUP_B_NAME, businessGroupService);
+        dbInstance.commitAndCloseSession();
         // DBFactory.getInstance().closeSession();
 
         campusConfigurationMock = mock(CampusConfiguration.class);
@@ -109,12 +116,11 @@ public class CourseCreateCoordinatorTest extends OlatTestCase {
         secondTestIdentity = JunitTestHelper.createAndPersistIdentityAsUser(secondTestUserName);
     }
 
-    private void setupCampusCourseGroupForTest(RepositoryEntry repositoryEntry, String testCourseGroupAName) {		
-    	businessGroupService.createBusinessGroup(null, testCourseGroupAName, null, 0, 10,false, false, repositoryEntry);
-	}
+    
 
 	@After
     public void tearDown() throws Exception {
+		dbInstance.rollback();
         // TODO: Does not cleanup Demo-course because other Test which use Demo-Course too, will be have failures
         // remove demo course on file system
         // CourseFactory.deleteCourse(course);

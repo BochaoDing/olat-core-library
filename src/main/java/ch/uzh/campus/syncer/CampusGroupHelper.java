@@ -20,7 +20,7 @@
  */
 package ch.uzh.campus.syncer;
 
-import ch.uzh.campus.connectors.CampusInterceptor;
+
 import org.olat.core.logging.AssertException;
 import org.olat.core.logging.OLog;
 import org.olat.core.logging.Tracing;
@@ -28,7 +28,7 @@ import org.olat.course.ICourse;
 import org.olat.course.groupsandrights.CourseGroupManager;
 import org.olat.group.BusinessGroup;
 
-import java.util.ArrayList;
+
 import java.util.List;
 
 /**
@@ -38,24 +38,31 @@ import java.util.List;
  */
 public class CampusGroupHelper {
 
-    private static final OLog LOG = Tracing.createLoggerFor(CampusInterceptor.class);
+    private static final OLog LOG = Tracing.createLoggerFor(CampusGroupHelper.class);
 
     public static BusinessGroup lookupCampusGroup(ICourse course, String campusGruppe) {
         CourseGroupManager courseGroupManager = course.getCourseEnvironment().getCourseGroupManager();
-
-        // TODO OLATng
-        List foundCampusGroups = new ArrayList(); // Just a dummy until next line has been fixed
-//        List foundCampusGroups = courseGroupManager.getLearningGroupsFromAllContexts(campusGruppe, course);
-
-        if (foundCampusGroups.isEmpty()) {
-            LOG.error("Found no course-group with name=" + campusGruppe);
+        
+        List <BusinessGroup> foundCampusGroups = courseGroupManager.getAllBusinessGroups();
+        
+        // TODO: Possible problem to many groups => Solution : lookup only in default context
+        //List foundCampusGroups = courseGroupManager.getLearningGroupsFromAllContexts(campusGruppe, course);
+        /*if (foundCampusGroups.isEmpty()) {
+        	LOG.error("Found no course-group with name=" + campusGruppe);
             throw new AssertException("Found no course-group with name=" + campusGruppe);
         }
         if (foundCampusGroups.size() > 1) {
-            LOG.error("Found more than one course-group with name=" + campusGruppe);
+        	LOG.error("Found more than one course-group with name=" + campusGruppe);
             throw new AssertException("Found more than one course-group with name=" + campusGruppe);
+        }*/
+        
+        for(BusinessGroup businessGroup:foundCampusGroups ) {
+        	if(businessGroup.getName().equals(campusGruppe)) {
+        		return businessGroup;
+        	}
         }
-        return (BusinessGroup) foundCampusGroups.get(0);
+        LOG.error("Found no course-group with name=" + campusGruppe);
+        throw new AssertException("Found no course-group with name=" + campusGruppe);
     }
 
 }

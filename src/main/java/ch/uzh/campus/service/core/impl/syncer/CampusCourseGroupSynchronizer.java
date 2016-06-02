@@ -5,6 +5,7 @@ import java.util.List;
 import org.apache.log4j.Logger;
 import org.olat.admin.securitygroup.gui.IdentitiesAddEvent;
 import org.olat.basesecurity.BaseSecurity;
+import org.olat.basesecurity.GroupRoles;
 import org.olat.core.commons.persistence.DB;
 import org.olat.core.id.Identity;
 import org.olat.core.logging.AssertException;
@@ -13,6 +14,7 @@ import org.olat.core.logging.Tracing;
 import org.olat.course.ICourse;
 import org.olat.course.groupsandrights.CourseGroupManager;
 import org.olat.group.BusinessGroup;
+import org.olat.group.BusinessGroupAddResponse;
 import org.olat.group.BusinessGroupService;
 import org.olat.repository.RepositoryEntry;
 import org.olat.repository.RepositoryManager;
@@ -43,6 +45,7 @@ import ch.uzh.campus.service.CampusCourse;
 import ch.uzh.campus.service.core.impl.creator.CourseCreateCoordinator;
 import ch.uzh.campus.service.core.impl.syncer.statistic.SynchronizedGroupStatistic;
 import ch.uzh.campus.service.core.impl.syncer.statistic.SynchronizedSecurityGroupStatistic;
+import ch.uzh.campus.syncer.CampusGroupHelper;
 
 /**
  * Initial Date: 20.06.2012 <br>
@@ -101,8 +104,8 @@ public class CampusCourseGroupSynchronizer {
 	   
 	   //var 2: use the repositoryService 
 	   for (Identity identity: identities) {
-		   if(!repositoryService.hasRole(identity, campusCourse.getRepositoryEntry(), "owner")) {
-			   repositoryService.addRole(identity, campusCourse.getRepositoryEntry(), "owner");
+		   if(!repositoryService.hasRole(identity, campusCourse.getRepositoryEntry(), GroupRoles.owner.name())) {
+			   repositoryService.addRole(identity, campusCourse.getRepositoryEntry(), GroupRoles.owner.name());
 		   }
 	   }
 	}
@@ -134,23 +137,32 @@ public class CampusCourseGroupSynchronizer {
 
    */   
   
-/*
+
+   /**
+    * Synchronizes the owners of the GroupB, and the owners and participants of the GroupA.
+    * @param course
+    * @param campusCourseImportData
+    * @return
+    */
     public SynchronizedGroupStatistic synchronizeCourseGroups(ICourse course, CampusCourseImportTO campusCourseImportData) {
-        BusinessGroup campusGroupA = lookupCampusGroup(course, campusConfiguration.getCourseGroupAName());
-        BusinessGroup campusGroupB = lookupCampusGroup(course, campusConfiguration.getCourseGroupBName());
+        BusinessGroup campusGroupA = CampusGroupHelper.lookupCampusGroup(course, campusConfiguration.getCourseGroupAName());
+        BusinessGroup campusGroupB = CampusGroupHelper.lookupCampusGroup(course, campusConfiguration.getCourseGroupBName());
 
         synchronizeGroupOwners(campusGroupB, campusCourseImportData.getLecturers());
         SynchronizedSecurityGroupStatistic ownerGroupStatistic = synchronizeGroupOwners(campusGroupA, campusCourseImportData.getLecturers());
-        SynchronizedSecurityGroupStatistic participantGroupStatistic = synchronizeGroupParticipants(campusGroupA, campusCourseImportData.getParticipants());
+        //TODO: olatng
+        //SynchronizedSecurityGroupStatistic participantGroupStatistic = synchronizeGroupParticipants(campusGroupA, campusCourseImportData.getParticipants());
+        SynchronizedSecurityGroupStatistic participantGroupStatistic = null;
 
         return new SynchronizedGroupStatistic(campusCourseImportData.getTitle(), ownerGroupStatistic, participantGroupStatistic);
     }
     
     private SynchronizedSecurityGroupStatistic synchronizeGroupOwners(BusinessGroup businessGroup, List<Identity> lecturers) {
         //return synchronizeSecurityGroup(businessGroup.getOwnerGroup(), lecturers, false);
-    	businessGroupService.addOwners(ureqIdentity, ureqRoles, addIdentities, group, mailing)
+    	BusinessGroupAddResponse businessGroupAddResponse = businessGroupService.addOwners(null, null, lecturers, businessGroup, null);
+    	return new SynchronizedSecurityGroupStatistic(businessGroupAddResponse.getAddedIdentities().size(), 0);
     }
-       
+    /*   
     private SynchronizedSecurityGroupStatistic synchronizeSecurityGroup(SecurityGroup group, List<Identity> allNewMembers, boolean isParticipant) {
         int removedIdentityCounter = 0;
         if (isParticipant) {
@@ -221,28 +233,6 @@ public class CampusCourseGroupSynchronizer {
     }
    */
     
-    public static BusinessGroup lookupCampusGroup(ICourse course, String campusGruppe) {
-        CourseGroupManager courseGroupManager = course.getCourseEnvironment().getCourseGroupManager();
-        
-        List <BusinessGroup> foundCampusGroups = courseGroupManager.getAllBusinessGroups();
-        
-        // TODO: Possible problem to many groups => Solution : lookup only in default context
-        //List foundCampusGroups = courseGroupManager.getLearningGroupsFromAllContexts(campusGruppe, course);
-        if (foundCampusGroups.isEmpty()) {
-            log.error("Found no course-group with name=" + campusGruppe);
-            throw new AssertException("Found no course-group with name=" + campusGruppe);
-        }
-        if (foundCampusGroups.size() > 1) {
-            log.error("Found more than one course-group with name=" + campusGruppe);
-            throw new AssertException("Found more than one course-group with name=" + campusGruppe);
-        }
-        
-        for(BusinessGroup businessGroup:foundCampusGroups ) {
-        	if(businessGroup.getName().equals(campusGruppe)) {
-        		return businessGroup;
-        	}
-        }
-        return null;
-    }
+    
 
 }
