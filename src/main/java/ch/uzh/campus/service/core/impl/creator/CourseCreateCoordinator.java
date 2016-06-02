@@ -155,7 +155,7 @@ public class CourseCreateCoordinator {
 
             //TODO: olatng
             campusCourseGroupSynchronizer.addAllLecturesAsOwner(campusCourse, campusCourseImportData.getLecturers());
-            //campusCourseGroupSynchronizer.addDefaultCoOwnersAsOwner(campusCourse);
+            campusCourseGroupSynchronizer.addDefaultCoOwnersAsOwner(campusCourse);
             //campusCourseGroupSynchronizer.synchronizeCourseGroups(campusCourse.getCourse(), campusCourseImportData);
             
             //repositoryService.saveRepositoryEntry(campusCourse.getRepositoryEntry());
