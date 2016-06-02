@@ -45,7 +45,6 @@ import ch.uzh.campus.service.CampusCourse;
 import ch.uzh.campus.service.core.impl.creator.CourseCreateCoordinator;
 import ch.uzh.campus.service.core.impl.syncer.statistic.SynchronizedGroupStatistic;
 import ch.uzh.campus.service.core.impl.syncer.statistic.SynchronizedSecurityGroupStatistic;
-import ch.uzh.campus.syncer.CampusGroupHelper;
 
 /**
  * Initial Date: 20.06.2012 <br>

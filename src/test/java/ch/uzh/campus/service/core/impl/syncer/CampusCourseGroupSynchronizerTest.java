@@ -31,7 +31,6 @@ import ch.uzh.campus.CampusCourseImportTO;
 import ch.uzh.campus.creator.ObjectMother;
 import ch.uzh.campus.service.CampusCourse;
 import ch.uzh.campus.service.core.impl.syncer.statistic.SynchronizedGroupStatistic;
-import ch.uzh.campus.syncer.CampusGroupHelper;
 
 public class CampusCourseGroupSynchronizerTest extends OlatTestCase {
 	private static final String TEST_COURSE_GROUP_A_NAME = "Campusgroup A SynchronizeTest";

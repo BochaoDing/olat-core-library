@@ -18,7 +18,7 @@
  * University of Zurich, Switzerland.
  * <p>
  */
-package ch.uzh.campus.syncer;
+package ch.uzh.campus.service.core.impl.syncer;
 
 
 import org.olat.core.logging.AssertException;
