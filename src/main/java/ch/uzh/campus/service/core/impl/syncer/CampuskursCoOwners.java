@@ -27,9 +27,14 @@ public class CampuskursCoOwners {
     private static final String DELIMITER = ",";
 
     @Autowired
-    CampusConfiguration campusConfiguration;
+    public CampusConfiguration campusConfiguration;
+
     @Autowired
-    BaseSecurity baseSecurity;
+    public BaseSecurity baseSecurity;
+
+    public void setCampusConfiguration(CampusConfiguration campusConfiguration) {
+        this.campusConfiguration = campusConfiguration;
+    }
 
     private List<Identity> identites;
 

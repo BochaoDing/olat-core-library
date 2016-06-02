@@ -3,10 +3,13 @@ package ch.uzh.campus.data;
 import java.util.Date;
 
 import javax.persistence.*;
+import javax.persistence.Entity;
+import javax.persistence.NamedQueries;
+import javax.persistence.NamedQuery;
+import javax.persistence.Table;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
-import org.hibernate.annotations.GenericGenerator;
-
+import org.hibernate.annotations.*;
 
 
 /**
@@ -18,11 +21,12 @@ import org.hibernate.annotations.GenericGenerator;
  */
 @Entity
 @Table(name = "ck_text")
-@NamedQueries({ @NamedQuery(name = Text.GET_IDS_OF_ALL_TEXT, query = "select t.id from Text t"),
+@NamedQueries({ @NamedQuery(name = Text.GET_IDS_OF_ALL_TEXTS, query = "select t.id from Text t"),
         @NamedQuery(name = Text.GET_TEXTS_BY_COURSE_ID_AND_TYPE, query = "select t from Text t where t.course.id = :courseId and t.type = :type order by t.lineSeq asc"),
         @NamedQuery(name = Text.GET_TEXT_IDS_BY_COURSE_ID, query = "select t.id from Text t where t.course.id = :courseId"),
         @NamedQuery(name = Text.GET_TEXTS_BY_COURSE_ID, query = "select t from Text t where t.course.id = :courseId"),
-        @NamedQuery(name = Text.GET_TEXT_IDS_BY_COURSE_IDS, query = "select t.id from Text t where t.course.id in :courseIds") })
+        @NamedQuery(name = Text.GET_TEXT_IDS_BY_COURSE_IDS, query = "select t.id from Text t where t.course.id in :courseIds"),
+        @NamedQuery(name = Text.DELETE_ALL_TEXTS, query = "delete from Text t") })
 public class Text {
     @Id   
     @GeneratedValue(generator = "system-uuid")
@@ -46,16 +50,27 @@ public class Text {
     @JoinColumn(name = "course_id", nullable = false)
     private Course course;
 
+    public Text() {
+    }
+
+    public Text(String type, int lineSeq, String line, Date modifiedDate) {
+        this.type = type;
+        this.lineSeq = lineSeq;
+        this.line = line;
+        this.modifiedDate = modifiedDate;
+    }
+
     public static final String CONTENTS = "Veranstaltungsinhalt";
     public static final String INFOS = "Hinweise";
     public static final String MATERIALS = "Unterrichtsmaterialien";
     public static final String BREAK_TAG = "<br>";
 
-    public static final String GET_IDS_OF_ALL_TEXT = "getIdsOfAllTexts";
+    public static final String GET_IDS_OF_ALL_TEXTS = "getIdsOfAllTexts";
     public static final String GET_TEXT_IDS_BY_COURSE_ID = "getTextIdsByCourseId";
     public static final String GET_TEXT_IDS_BY_COURSE_IDS = "getTextIdsByCourseIds";
     public static final String GET_TEXTS_BY_COURSE_ID_AND_TYPE = "getTextsByCourseIdAndType";
     public static final String GET_TEXTS_BY_COURSE_ID ="getTextsByCourseId";
+    public static final String DELETE_ALL_TEXTS = "deleteAllTexts";
 
     public Long getId() {
         return id;

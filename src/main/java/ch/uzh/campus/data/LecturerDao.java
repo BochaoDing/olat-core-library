@@ -5,6 +5,7 @@ import org.olat.core.commons.persistence.DB;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
+import javax.persistence.EntityManager;
 import java.util.Date;
 import java.util.List;
 
@@ -24,6 +25,14 @@ public class LecturerDao implements CampusDao<Lecturer> {
     public void save(List<Lecturer> lecturers) {
         for (Lecturer lecturer : lecturers) {
             dbInstance.saveObject(lecturer);
+        }
+    }
+
+    @Override
+    public void saveOrUpdate(List<Lecturer> lecturers) {
+        EntityManager em = dbInstance.getCurrentEntityManager();
+        for (Lecturer lecturer : lecturers) {
+            em.merge(lecturer);
         }
     }
 

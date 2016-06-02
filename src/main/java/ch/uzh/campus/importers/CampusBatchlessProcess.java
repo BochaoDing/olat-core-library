@@ -21,10 +21,8 @@
 package ch.uzh.campus.importers;
 
 import ch.uzh.campus.data.Export;
-import ch.uzh.campus.data.OrgDao;
 import org.olat.core.logging.OLog;
 import org.olat.core.logging.Tracing;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.annotation.PostConstruct;
 import java.io.File;
@@ -44,7 +42,6 @@ import java.util.*;
  */
 public class CampusBatchlessProcess {
 
-    
 	private static final OLog LOG = Tracing.createLoggerFor(CampusBatchlessProcess.class);
 
     private Map<String, String> parameters;
@@ -88,9 +85,9 @@ public class CampusBatchlessProcess {
                 // Check integrity of CSV export descriptor file and fail fast if it is corrupt
                 try {
                     // Gather files to be exported - should be the same number as in the white list
-                    Map<String, Export> filesToExport = getFilesToExport(importers, csvFolderPath, csvExportFilePath);
+                    Map<String, Export> filesToImport = getFilesToImport(importers, csvFolderPath, csvExportFilePath);
                     // If exception is not thrown by this moment, files are ready for export
-                    exportFiles(importers, filesToExport);
+                    importFiles(importers, filesToImport);
                 } catch (Exception e) {
                     LOG.error(e.getMessage());
                 }
@@ -98,11 +95,21 @@ public class CampusBatchlessProcess {
         }
     }
 
-    private void exportFiles(Map<String, Importer> importerMap, Map<String, Export> filesToExport) {
-        for (Map.Entry<String, Importer> importer : importerMap.entrySet()) {
-            LOG.info("Processing file " + importer.getKey());
-            String filePath = filesToExport.get(importer.getKey()).getFileName();
-            importer.getValue().process(filePath);
+    private void importFiles(Map<String, Importer> importerMap, Map<String, Export> filesToImport) {
+        int i = 1;
+        for (Map.Entry<String, Importer> importerEntry : importerMap.entrySet()) {
+            final String stepName = importerEntry.getKey();
+            LOG.info("Processing file " + stepName);
+            String filePath = filesToImport.get(stepName).getFileName();
+            Importer importer = importerEntry.getValue();
+            importer.setStepId(i++);
+            importer.setStepName(stepName);
+            importer.process(filePath);
+            // Only proceed if step was successful
+            if (importer.getStepStatus().equals(Importer.STATUS_FAILED)) {
+                LOG.error("CampusKurs import procedure ended prematurely on step " + stepName);
+                return;
+            }
         }
     }
 
@@ -130,7 +137,7 @@ public class CampusBatchlessProcess {
         return result;
     }
 
-    private Map<String, Export> getFilesToExport(Map<String, Importer> importerMap, String csvFolderPath, String csvExportFilePath) throws Exception {
+    private Map<String, Export> getFilesToImport(Map<String, Importer> importerMap, String csvFolderPath, String csvExportFilePath) throws Exception {
         Map<String, Export> filesToExport = new HashMap<String, Export>();
 
         int line = 1;

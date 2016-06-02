@@ -23,9 +23,12 @@ package ch.uzh.campus.connectors;
 import org.olat.core.logging.OLog;
 import org.olat.core.logging.Tracing;
 //import org.olat.lms.core.course.campus.impl.metric.CampusNotifier;
-import org.springframework.batch.core.JobExecution;
-import org.springframework.batch.core.JobExecutionListener;
+import org.springframework.batch.core.*;
 import org.springframework.beans.factory.annotation.Autowired;
+
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.Map;
 
 /**
  * Initial Date: 08.01.2014 <br>
@@ -50,6 +53,24 @@ public class CampusJobInterceptor implements JobExecutionListener {
     @Override
     public void beforeJob(JobExecution je) {
     	LOG.info("beforeJob - notifyJobExecution");
+        switch (je.getJobInstance().getJobName()) {
+            case "importJob":
+                Map<String, JobParameter> parameters = je.getJobInstance().getJobParameters().getParameters();
+                for (String parameterKey : parameters.keySet()) {
+                    if (!parameterKey.equals("run.ts")) {
+                        String filePath = parameters.get(parameterKey).getValue().toString();
+                        LOG.info("TODO: check for existence filePath :" + filePath);
+                        if (!Files.exists(Paths.get(filePath))) {
+                            LOG.error("CSV File for '" + parameterKey + "' is not found in expected location. Check campusJobSchedulerContext.xml");
+                        }
+                    }
+                }
+                break;
+            case "userMappingJob":
+                // TODO OLATng
+                // ... check if "importJob" has ran today
+                break;
+        }
     }
 
 }

@@ -39,10 +39,10 @@ import ch.uzh.campus.CampusCourseImportTO;
 @Component
 public class CourseDescriptionBuilder {
 
-    protected static final String KEY_DESCRIPTION_TEMPLATE = "campus.course.description.template";
-    protected static final String KEY_DESCRIPTION_MULTI_SEMESTER_TEMPLATE = "campus.course.multisemester.description.template";
+    public static final String KEY_DESCRIPTION_TEMPLATE = "campus.course.description.template";
+    public static final String KEY_DESCRIPTION_MULTI_SEMESTER_TEMPLATE = "campus.course.multisemester.description.template";
 
-    protected Translator translator;
+    public Translator translator;
 
     public CourseDescriptionBuilder() {
         translator = Util.createPackageTranslator(CourseDescriptionBuilder.class, new Locale("de"));
@@ -72,8 +72,7 @@ public class CourseDescriptionBuilder {
         return translator.translate((campusCourseMultiSemester != null) ? KEY_DESCRIPTION_MULTI_SEMESTER_TEMPLATE : KEY_DESCRIPTION_TEMPLATE, args);
     }
 
-    // protected for testing
-    protected String getLectureList(List<Identity> lecturers) {
+    public String getLectureList(List<Identity> lecturers) {
         StringBuilder builder = new StringBuilder();
         boolean firstEntry = true;
         for (Identity lecture : lecturers) {

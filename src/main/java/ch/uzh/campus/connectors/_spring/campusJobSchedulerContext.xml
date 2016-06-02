@@ -16,11 +16,8 @@
 	<bean id="campusSchedulerFactoryBean" class="org.springframework.scheduling.quartz.SchedulerFactoryBean" depends-on="userModule">
 	   <property name="triggers">
 	  		<list>
-				<ref bean="disabled.importProcessTrigger" />
-				<!--//TODO: olatng
-            	<ref bean="enabled.importProcessTrigger" />
-				<ref bean="disabled.userMappingProcessTrigger" />
-				-->
+				<!--<ref bean="disabled.importProcessTrigger" />-->
+				<!--<ref bean="disabled.userMappingProcessTrigger" />-->
         	</list>
 		</property>
 	</bean>
@@ -111,13 +108,12 @@
     <!-- ======================================================================================= -->
 	<!-- ==============JOB STARTER FOR USERMAPPING PROCESS================== -->  
 	<!-- ======================================================================================= -->
-	<!-- //TODO: olatng
 	<bean id="enabled.userMappingProcessTrigger" class="org.springframework.scheduling.quartz.CronTriggerBean">
 		<property name="jobDetail" ref="userMappingProcessJobDetail" />
 		<property name="cronExpression" value="${campus.userMapping.process.cron.expression}" />
 		<property name="startDelay" value="300" />
 	</bean>
-	
+
 	<bean id="disabled.userMappingProcessTrigger" class="org.springframework.scheduling.quartz.SimpleTriggerBean">
 		<property name="jobDetail" ref="userMappingProcessJobDetail" />
 		<property name="repeatCount" value="0"/>
@@ -129,8 +125,8 @@
 		class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
 		<property name="targetObject" ref="userMappingProcess" />
 		<property name="targetMethod" value="process" />
-		 <property name="concurrent" value="false"/>
-		  <property name="arguments">
+		<property name="concurrent" value="false"/>
+		<property name="arguments">
             <list>
                 <value>enabled</value>
                   <value>USER MAPPING PROCESS</value>
@@ -141,9 +137,9 @@
     <bean id="userMappingProcess" class="ch.uzh.campus.connectors.CampusProcess">
 		<property name="job" ref="userMappingJob" />
 		<property name="jobLauncher" ref="jobLauncher" />
-			<property name="parameters">
-				<map/>
-			</property>
+		<property name="parameters">
+			<map/>
+		</property>
 	</bean>
-	-->
+
 </beans>

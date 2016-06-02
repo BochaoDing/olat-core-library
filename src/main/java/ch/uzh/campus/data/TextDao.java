@@ -14,21 +14,10 @@ import java.util.List;
  * @author Martin Schraner
  */
 @Repository
-public class TextDao implements CampusDao<Text> {
+public class TextDao {
 
 	@Autowired
     private DB dbInstance;
-
-    @Override
-    public void save(List<Text> texts) {
-        for(Text text : texts) {
-            dbInstance.saveObject(text);
-        }
-    }
-
-    public void save(Text text) {
-        dbInstance.saveObject(text);
-    }
 
     public void addTextToCourse(Text text, Long courseId) {
         Course course = dbInstance.getCurrentEntityManager().getReference(Course.class, courseId);
@@ -37,7 +26,8 @@ public class TextDao implements CampusDao<Text> {
     }
 
     public void addTextToCourse(TextCourseId textCourseId) {
-        addTextToCourse(textCourseId, textCourseId.getCourseId());
+        Text text = new Text(textCourseId.getType(), textCourseId.getLineSeq(), textCourseId.getLine(), textCourseId.getModifiedDate());
+        addTextToCourse(text, textCourseId.getCourseId());
     }
 
     public void addTextsToCourse(List<TextCourseId> textCourseIds) {
@@ -87,10 +77,19 @@ public class TextDao implements CampusDao<Text> {
 
     public int deleteAllTexts() {
         List<Long> idsOfTextsToBeDeleted = dbInstance.getCurrentEntityManager()
-                .createNamedQuery(Text.GET_IDS_OF_ALL_TEXT, Long.class)
+                .createNamedQuery(Text.GET_IDS_OF_ALL_TEXTS, Long.class)
                 .getResultList();
         deleteTextsBidirectionally(idsOfTextsToBeDeleted);
         return idsOfTextsToBeDeleted.size();
+    }
+
+    /**
+     * Bulk delete for efficient deletion of a big number of entries. Does not update persistence context!
+     */
+    public int deleteAllTextsAsBulkDelete() {
+        return dbInstance.getCurrentEntityManager()
+                .createNamedQuery(Text.DELETE_ALL_TEXTS)
+                .executeUpdate();
     }
 
     public int deleteTextsByCourseId(Long courseId) {

@@ -70,8 +70,8 @@ public class TextDaoTest extends OlatTestCase {
         assertTrue(textDao.getTextsByCourseId(100L).isEmpty());
 
         // Add a text
-        Text text = mockDataGeneratorProvider.get().getTextCourseIds().get(0);
-        textDao.addTextToCourse(text, 100L);
+        TextCourseId textCourseId = mockDataGeneratorProvider.get().getTextCourseIds().get(0);
+        textDao.addTextToCourse(textCourseId);
 
         // Check before flush
         assertEquals(1, course.getTexts().size());
@@ -150,6 +150,25 @@ public class TextDaoTest extends OlatTestCase {
 
         // Check before flush
         assertEquals(0, course.getTexts().size());
+
+        dbInstance.flush();
+        dbInstance.clear();
+
+        assertEquals(0, textDao.getTextsByCourseId(100L).size());
+        assertEquals(0, textDao.getTextsByCourseId(200L).size());
+        course = courseDao.getCourseById(100L);
+        assertEquals(0, course.getTexts().size());
+    }
+
+    @Test
+    public void testDeleteAllTextsAsBulkDelete() {
+        addTextsToCourses();
+        assertEquals(6, textDao.getTextsByCourseId(100L).size());
+        assertEquals(2, textDao.getTextsByCourseId(200L).size());
+        Course course = courseDao.getCourseById(100L);
+        assertEquals(6, course.getTexts().size());
+
+        textDao.deleteAllTextsAsBulkDelete();
 
         dbInstance.flush();
         dbInstance.clear();

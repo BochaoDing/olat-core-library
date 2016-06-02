@@ -45,8 +45,7 @@ public class CoursePublisher {
         CoursePublishHelper.publish(course, locale, publisherIdentity, getAllPublishNodeIds(course.getEditorTreeModel()));
     }
 
-    // Package visible for testing
-    List<String> getAllPublishNodeIds(CourseEditorTreeModel editorTreeModel) {
+    public List<String> getAllPublishNodeIds(CourseEditorTreeModel editorTreeModel) {
         final List<String> nodeIds = new ArrayList<String>();
         addChildNodeIdRecursive(nodeIds, editorTreeModel.getRootNode());
         return nodeIds;

@@ -23,16 +23,10 @@ package ch.uzh.campus.connectors;
 import java.util.List;
 
 import ch.uzh.campus.data.*;
-import org.olat.core.CoreSpringFactory;
+
+import org.olat.core.commons.persistence.DB;
 import org.olat.core.logging.OLog;
 import org.olat.core.logging.Tracing;
-//import org.olat.data.course.campus.DaoManager;
-//import org.olat.data.course.campus.ImportStatisticDao;
-//import org.olat.data.course.campus.SkipItemDao;
-//import org.olat.lms.core.course.campus.impl.metric.CampusNotifier;
-//import org.olat.lms.core.course.campus.impl.metric.CampusStatistics;
-//import org.olat.system.commons.configuration.PropertyLocator;
-//import org.olat.system.commons.configuration.SystemPropertiesService;
 
 import org.springframework.batch.core.BatchStatus;
 import org.springframework.batch.core.ChunkListener;
@@ -42,8 +36,6 @@ import org.springframework.batch.core.SkipListener;
 import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.StepExecutionListener;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 
 /**
  * This class is an implementation listener that will be notified in the case of:
@@ -63,6 +55,8 @@ public class CampusInterceptor<T, S> implements StepExecutionListener, ItemWrite
 
 	private static final OLog LOG = Tracing.createLoggerFor(CampusInterceptor.class);
 
+    @Autowired
+    private DB dbInstance;
     @Autowired
 	protected ImportStatisticDao statisticDao;
 	@Autowired
@@ -87,9 +81,9 @@ public class CampusInterceptor<T, S> implements StepExecutionListener, ItemWrite
      *            the StepExecution
      */
     @Override
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void beforeStep(StepExecution se) {
         LOG.info(se.toString());
+        dbInstance.commitAndCloseSession();
         setStepExecution(se);
         // Chunk count and duration is being logged for sync step since this may be slow and potentially break timeout
         if (CampusProcessStep.CAMPUSSYNCHRONISATION.name().equalsIgnoreCase(se.getStepName())) {
@@ -99,6 +93,10 @@ public class CampusInterceptor<T, S> implements StepExecutionListener, ItemWrite
         if (CampusProcessStep.IMPORT_TEXTS.name().equalsIgnoreCase(se.getStepName())) {
             daoManager.deleteAllTexts();
         }
+        // DISABLED FOR NOW
+        // if (CampusImportStep.IMPORT_EVENTS.name().equalsIgnoreCase(se.getStepName())) {
+        // daoManager.deleteAllEvents();
+        // }
     }
 
     /**
@@ -109,22 +107,23 @@ public class CampusInterceptor<T, S> implements StepExecutionListener, ItemWrite
      *            the StepExecution
      */
     @Override
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public ExitStatus afterStep(StepExecution se) {
         LOG.info(se.toString());
 
+        dbInstance.commitAndCloseSession();
+        statisticDao.saveOrUpdate(createImportStatistic(se));
+
         //TODO: olatng - Find out if we still need notifyMetrics
-        statisticDao.save(createImportStatistic(se));
+//        notifyMetrics(se);
 
         if (CampusProcessStep.IMPORT_CONTROLFILE.name().equalsIgnoreCase(se.getStepName())) {
             if (se.getWriteCount() != getFixedNumberOfFilesToBeExported()) {
-//                notifyMetrics(se);
                 return ExitStatus.FAILED;
             }
         }
 
         removeOldDataIfExist(se);
-//        notifyMetrics(se);
+
         return null;
     }
 
@@ -168,7 +167,6 @@ public class CampusInterceptor<T, S> implements StepExecutionListener, ItemWrite
      *            the StepExecution
      */
     private void removeOldDataIfExist(StepExecution se) {
-    	//TODO: olatng
         if (!BatchStatus.COMPLETED.equals(se.getStatus())) {
             return;
         }
@@ -209,6 +207,7 @@ public class CampusInterceptor<T, S> implements StepExecutionListener, ItemWrite
             return;
         }
 
+        //TODO: olatng
 //        if (CampusProcessStep.IMPORT_LECTURERS_COURSES.name().equalsIgnoreCase(se.getStepName())) {
 //            int stornos = daoManager.deleteAllNotUpdatedLCBooking(se.getStartTime());
 //            LOG.info("STORNOS(LECTURER_COURSE): " + stornos);
@@ -227,7 +226,9 @@ public class CampusInterceptor<T, S> implements StepExecutionListener, ItemWrite
      */
     @Override
     public void afterWrite(List<? extends S> items) {
-        LOG.debug("afterWrite: " + items);
+        if (items != null) {
+            LOG.debug("afterWrite: " + items);
+        }
     }
 
     /**
@@ -236,7 +237,9 @@ public class CampusInterceptor<T, S> implements StepExecutionListener, ItemWrite
      */
     @Override
     public void beforeWrite(List<? extends S> items) {
-        LOG.debug("beforeWrite: " + items);
+        if (items != null) {
+            LOG.debug("beforeWrite: " + items);
+        }
     }
 
     /**
@@ -256,9 +259,9 @@ public class CampusInterceptor<T, S> implements StepExecutionListener, ItemWrite
      *            the cause of failure
      */
     @Override
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void onSkipInProcess(T item, Throwable ex) {
         LOG.debug("onSkipInWrite: " + item);
+        dbInstance.commitAndCloseSession();
         skipItemDao.save(createSkipItem("PROCESS", item.toString(), ex.getMessage()));
     }
 
@@ -269,9 +272,9 @@ public class CampusInterceptor<T, S> implements StepExecutionListener, ItemWrite
      *            the cause of failure
      */
     @Override
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void onSkipInRead(Throwable ex) {
         LOG.debug("onSkipInRead: ");
+        dbInstance.commitAndCloseSession();
         skipItemDao.save(createSkipItem("READ", null, ex.getMessage()));
     }
 
@@ -284,9 +287,9 @@ public class CampusInterceptor<T, S> implements StepExecutionListener, ItemWrite
      *            the cause of failure
      */
     @Override
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void onSkipInWrite(S item, Throwable ex) {
         LOG.debug("onSkipInWrite: " + item);
+        dbInstance.commitAndCloseSession();
         skipItemDao.save(createSkipItem("WRITE", item.toString(), ex.getMessage()));
     }
 

@@ -32,81 +32,128 @@
 			<batch:tasklet>
 				<batch:chunk reader="orgReader" processor="orgProcessor" writer="orgWriter" skip-limit="100" retry-limit="5"/>
 			</batch:tasklet>
-			<batch:next on="COMPLETED" to="importStammDaten"/>
+			<batch:next on="COMPLETED" to="import_students"/>
 		    <batch:fail on="FAILED" exit-code="EARLY TERMINATION"/>
 		</batch:step>
 
-		<batch:split id="importStammDaten" task-executor="splitTaskExecutor">
-			<batch:next on="COMPLETED" to="importBooking" />
+		<batch:step id="import_students" parent="campusStep">
+			<batch:tasklet>
+				<batch:chunk reader="studentReader" processor="studentProcessor" writer="studentWriter" skip-limit="1000" retry-limit="5" commit-interval="10"/>
+			</batch:tasklet>
+			<batch:next on="COMPLETED" to="import_lecturers"/>
 			<batch:fail on="FAILED" exit-code="EARLY TERMINATION"/>
-			<batch:flow>
-				<batch:step id="import_students" parent="campusStep">
-					<batch:tasklet>
-						<batch:chunk reader="studentReader" processor="studentProcessor" writer="studentWriter" skip-limit="1000" retry-limit="5" commit-interval="10"/>
-					</batch:tasklet>
-				</batch:step>
-			</batch:flow>
-			<batch:flow>
-				<batch:step id="import_lecturers" parent="campusStep">
-					<batch:tasklet>
-						<batch:chunk reader="lecturerReader" processor="lecturerProcessor" writer="lecturerWriter" skip-limit="500" retry-limit="5" commit-interval="10"/>
-					</batch:tasklet>
-				</batch:step>
-			</batch:flow>
-			<batch:flow>
-				<batch:step id="import_courses" parent="campusStep">
-					<batch:tasklet>
-						<batch:chunk reader="courseReader" processor="courseProcessor" writer="courseWriter" skip-limit="100" retry-limit="5" commit-interval="10"/>
-					</batch:tasklet>
-				</batch:step>
-			</batch:flow>
-		</batch:split>
+		</batch:step>
 
-		<batch:split id="importBooking" task-executor="splitTaskExecutor">
-			<batch:flow>
-				<batch:step id="import_students_Courses" parent="campusStep">
-					<batch:tasklet>
-						<batch:chunk reader="studentCourseReader" processor="studentCourseProcessor" writer="studentCourseWriter" skip-limit="1000" retry-limit="5"/>
-					</batch:tasklet>
-				</batch:step>
-			</batch:flow>
-			<batch:flow>
-				<batch:step id="import_lecturers_Courses" parent="campusStep">
-					<batch:tasklet>
-						<batch:chunk reader="lecturerCourseReader" processor="lecturerCourseProcessor" writer="lecturerCourseWriter" skip-limit="500" retry-limit="5"/>
-					</batch:tasklet>
-				</batch:step>
-			</batch:flow>
-			<batch:flow>
-				<batch:step id="import_texts" parent="campusStep">
-					<batch:tasklet>
-						<batch:chunk reader="textReader" processor="textProcessor" writer="textWriter" skip-limit="1000" retry-limit="5"/>
-					</batch:tasklet>
-				</batch:step>
-			</batch:flow>
-			<!-- DISABLED FOR NOW -->
-			<!-- 
-			<batch:flow>
-				<batch:step id="import_events" parent="campusStep">
-					<batch:tasklet>
-						<batch:chunk reader="eventReader" processor="eventProcessor" writer="eventWriter" skip-limit="1000" retry-limit="5">
-						</batch:chunk>
-					</batch:tasklet>
-				</batch:step>
-			</batch:flow>
-			 -->
-		</batch:split>
+		<batch:step id="import_lecturers" parent="campusStep">
+			<batch:tasklet>
+				<batch:chunk reader="lecturerReader" processor="lecturerProcessor" writer="lecturerWriter" skip-limit="500" retry-limit="5" commit-interval="10"/>
+			</batch:tasklet>
+			<batch:next on="COMPLETED" to="import_courses"/>
+			<batch:fail on="FAILED" exit-code="EARLY TERMINATION"/>
+		</batch:step>
+
+		<batch:step id="import_courses" parent="campusStep">
+			<batch:tasklet>
+				<batch:chunk reader="courseReader" processor="courseProcessor" writer="courseWriter" skip-limit="100" retry-limit="5" commit-interval="10"/>
+			</batch:tasklet>
+			<batch:next on="COMPLETED" to="import_students_Courses"/>
+			<batch:fail on="FAILED" exit-code="EARLY TERMINATION"/>
+		</batch:step>
+
+		<batch:step id="import_students_Courses" parent="campusStep">
+			<batch:tasklet>
+				<batch:chunk reader="studentCourseReader" processor="studentCourseProcessor" writer="studentCourseWriter" skip-limit="1000" retry-limit="5" commit-interval="10"/>
+			</batch:tasklet>
+			<batch:next on="COMPLETED" to="import_lecturers_Courses"/>
+			<batch:fail on="FAILED" exit-code="EARLY TERMINATION"/>
+		</batch:step>
+
+		<batch:step id="import_lecturers_Courses" parent="campusStep">
+			<batch:tasklet>
+				<batch:chunk reader="lecturerCourseReader" processor="lecturerCourseProcessor" writer="lecturerCourseWriter" skip-limit="500" retry-limit="5" commit-interval="10"/>
+			</batch:tasklet>
+			<batch:next on="COMPLETED" to="import_texts"/>
+			<batch:fail on="FAILED" exit-code="EARLY TERMINATION"/>
+		</batch:step>
+
+		<batch:step id="import_texts" parent="campusStep">
+			<batch:tasklet>
+				<batch:chunk reader="textReader" processor="textProcessor" writer="textWriter" skip-limit="1000" retry-limit="5" commit-interval="10"/>
+			</batch:tasklet>
+		</batch:step>
+
+
+		<!--<batch:split id="importStammDaten" task-executor="splitTaskExecutor">-->
+			<!--<batch:next on="COMPLETED" to="importBooking" />-->
+			<!--<batch:fail on="FAILED" exit-code="EARLY TERMINATION"/>-->
+			<!--<batch:flow>-->
+				<!--<batch:step id="import_students" parent="campusStep">-->
+					<!--<batch:tasklet>-->
+						<!--<batch:chunk reader="studentReader" processor="studentProcessor" writer="studentWriter" skip-limit="1000" retry-limit="5" commit-interval="10"/>-->
+					<!--</batch:tasklet>-->
+				<!--</batch:step>-->
+			<!--</batch:flow>-->
+			<!--<batch:flow>-->
+				<!--<batch:step id="import_lecturers" parent="campusStep">-->
+					<!--<batch:tasklet>-->
+						<!--<batch:chunk reader="lecturerReader" processor="lecturerProcessor" writer="lecturerWriter" skip-limit="500" retry-limit="5" commit-interval="10"/>-->
+					<!--</batch:tasklet>-->
+				<!--</batch:step>-->
+			<!--</batch:flow>-->
+			<!--<batch:flow>-->
+				<!--<batch:step id="import_courses" parent="campusStep">-->
+					<!--<batch:tasklet>-->
+						<!--<batch:chunk reader="courseReader" processor="courseProcessor" writer="courseWriter" skip-limit="100" retry-limit="5" commit-interval="10"/>-->
+					<!--</batch:tasklet>-->
+				<!--</batch:step>-->
+			<!--</batch:flow>-->
+		<!--</batch:split>-->
+
+		<!--<batch:split id="importBooking" task-executor="splitTaskExecutor">-->
+			<!--<batch:flow>-->
+				<!--<batch:step id="import_students_Courses" parent="campusStep">-->
+					<!--<batch:tasklet>-->
+						<!--<batch:chunk reader="studentCourseReader" processor="studentCourseProcessor" writer="studentCourseWriter" skip-limit="1000" retry-limit="5"/>-->
+					<!--</batch:tasklet>-->
+				<!--</batch:step>-->
+			<!--</batch:flow>-->
+			<!--<batch:flow>-->
+				<!--<batch:step id="import_lecturers_Courses" parent="campusStep">-->
+					<!--<batch:tasklet>-->
+						<!--<batch:chunk reader="lecturerCourseReader" processor="lecturerCourseProcessor" writer="lecturerCourseWriter" skip-limit="500" retry-limit="5"/>-->
+					<!--</batch:tasklet>-->
+				<!--</batch:step>-->
+			<!--</batch:flow>-->
+			<!--<batch:flow>-->
+				<!--<batch:step id="import_texts" parent="campusStep">-->
+					<!--<batch:tasklet>-->
+						<!--<batch:chunk reader="textReader" processor="textProcessor" writer="textWriter" skip-limit="1000" retry-limit="5"/>-->
+					<!--</batch:tasklet>-->
+				<!--</batch:step>-->
+			<!--</batch:flow>-->
+			<!--&lt;!&ndash; DISABLED FOR NOW &ndash;&gt;-->
+			<!--&lt;!&ndash; -->
+			<!--<batch:flow>-->
+				<!--<batch:step id="import_events" parent="campusStep">-->
+					<!--<batch:tasklet>-->
+						<!--<batch:chunk reader="eventReader" processor="eventProcessor" writer="eventWriter" skip-limit="1000" retry-limit="5">-->
+						<!--</batch:chunk>-->
+					<!--</batch:tasklet>-->
+				<!--</batch:step>-->
+			<!--</batch:flow>-->
+			 <!--&ndash;&gt;-->
+		<!--</batch:split>-->
 		
 	</batch:job>
 
 	<!-- ======================================================================================= -->
 	<!-- ==============USERMAPPING/ABGLEICH JOB================== -->  
 	<!-- ======================================================================================= -->
-	<!--  
 	<batch:job id="userMappingJob">
 		<batch:listeners>
 			<batch:listener ref="campusJobInterceptor" />
 		</batch:listeners>
+
 		<batch:split id="userMapping" task-executor="splitTaskExecutor">
 			<batch:next on="COMPLETED" to="campusSynchronisation" />
 			<batch:flow>
@@ -129,10 +176,9 @@
 		    <batch:tasklet task-executor="synchronizationTaskletTaskExecutor">
 				<batch:chunk reader="synchronizationReader"  writer="synchronizationWriter" commit-interval="50" skip-limit="50" retry-limit="5"/>
 			</batch:tasklet>
-		</batch:step>  
+		</batch:step>
 	</batch:job>
-	-->
-	
+
 	<!-- ======================================================================================= -->
 	<!-- ==============Export(Reader, Writer, Processor, Entity, Dao)================== -->  
 	<!-- ======================================================================================= -->
@@ -291,7 +337,7 @@
 
 	<bean id="studentCourseProcessor" class="ch.uzh.campus.connectors.StudentCourseProcessor" scope="step"/>
 	
-	<bean id='studentCourse' class ='ch.uzh.campus.data.StudentIdCourseId' scope="prototype" />
+	<bean id='studentIdCourseId' class ='ch.uzh.campus.data.StudentIdCourseId' scope="prototype" />
 	
 	<!-- ======================================================================================= -->
 	<!-- ==============BUCHUNG:lecturer-KURS(Reader, Writer, Processor, Entity, Dao)================== -->
@@ -415,31 +461,28 @@
 	<!-- ======================================================================================= -->
 	<!-- ============== ABGLEICH(Reader, Writer, Processor)================== -->  
 	<!-- ======================================================================================= -->  
-	<!--  
-	<bean id="synchronizationReader" class="org.olat.lms.core.course.campus.impl.syncer.SynchronizationReader" scope="step"/>
-	<bean id="synchronizationWriter" class="org.olat.lms.core.course.campus.impl.syncer.SynchronizationWriter" scope="step">
+	<bean id="synchronizationReader" class="ch.uzh.campus.syncer.SynchronizationReader" scope="step"/>
+	<bean id="synchronizationWriter" class="ch.uzh.campus.syncer.SynchronizationWriter" scope="step">
 		<property name="synchronizeStatistic" ref="synchronizeStatistic" />
 	</bean>
 	
-	<bean id="synchronizeStatistic" class= 'org.olat.lms.core.course.campus.impl.syncer.statistic.OverallSynchronizeStatistic' scope='prototype'/>
-	-->
-	
+	<bean id="synchronizeStatistic" class= 'ch.uzh.campus.service.core.impl.syncer.statistic.OverallSynchronizeStatistic' scope='prototype'/>
+
 	<!-- ======================================================================================= -->
 	<!-- ============== USERMAPPING(Reader, Writer)================== -->  
 	<!-- ======================================================================================= -->  
-	<!-- 
-	<bean id="studentMappingReader" class="org.olat.lms.core.course.campus.impl.mapper.StudentMappingReader" scope="step"/>
-	<bean id="studentMappingWriter" class="org.olat.lms.core.course.campus.impl.mapper.StudentMappingWriter" scope="step">
+	<bean id="studentMappingReader" class="ch.uzh.campus.mapper.StudentMappingReader" scope="step"/>
+	<bean id="studentMappingWriter" class="ch.uzh.campus.mapper.StudentMappingWriter" scope="step">
 		<property name="mappingStatistic" ref="mappingStatistic" />
 	</bean>
 	
-	<bean id="lecturerMappingReader" class="org.olat.lms.core.course.campus.impl.mapper.LecturerMappingReader" scope="step"/>
-	<bean id="lecturerMappingWriter" class="org.olat.lms.core.course.campus.impl.mapper.LecturerMappingWriter" scope="step">
+	<bean id="lecturerMappingReader" class="ch.uzh.campus.mapper.LecturerMappingReader" scope="step"/>
+	<bean id="lecturerMappingWriter" class="ch.uzh.campus.mapper.LecturerMappingWriter" scope="step">
 		<property name="mappingStatistic" ref="mappingStatistic" />
 	</bean>
 	
-	<bean id="mappingStatistic" class= 'org.olat.lms.core.course.campus.impl.mapper.MappingStatistic' scope='prototype'/>
-	 -->
+	<bean id="mappingStatistic" class="ch.uzh.campus.mapper.MappingStatistic" scope='prototype'/>
+
 	<!-- ======================================================================================= -->
 	<!-- ==============GENERIC STUFF: READER, WRITER, STEP, INTERCEPTOR================== -->  
 	<!-- ======================================================================================= --> 
@@ -471,7 +514,9 @@
 						class="java.lang.NullPointerException" />		
 					<batch:include 
 						class="org.olat.core.logging.AssertException" />		
-				</batch:skippable-exception-classes>		
+					<batch:include
+						class="javax.persistence.EntityNotFoundException" />
+				</batch:skippable-exception-classes>
 			</batch:chunk>
 		</batch:tasklet>
 		<batch:listeners>
@@ -485,12 +530,10 @@
 	
 	<bean id="campusJobInterceptor" class="ch.uzh.campus.connectors.CampusJobInterceptor" scope="prototype"/>	
 	
-	<!-- 
 	<bean id="statisticDao" class="ch.uzh.campus.data.ImportStatisticDao"/>
-	
+
 	<bean id="skipItemDao" class="ch.uzh.campus.data.SkipItemDao"/>
-	 -->
-	
+
 	<bean id="campusWriter" class="ch.uzh.campus.connectors.CampusWriter"  />
 	
 	<bean id="campusReader" class="org.springframework.batch.item.file.FlatFileItemReader" abstract="true" >  
