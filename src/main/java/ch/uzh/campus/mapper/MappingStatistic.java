@@ -28,7 +28,7 @@ package ch.uzh.campus.mapper;
 public class MappingStatistic {
 
     private int newMappingByEmailCounter;
-    private int newMappingByMatrikelNrCounter;
+    private int newMappingByMatriculationNrCounter;
     private int newMappingByPersonalNrCounter;
     private int couldNotMapCounter;
     private int couldBeMappedManuallyCounter;
@@ -38,7 +38,7 @@ public class MappingStatistic {
         if (mappingResult.equals(MappingResult.NEW_MAPPING_BY_EMAIL)) {
             newMappingByEmailCounter++;
         } else if (mappingResult.equals(MappingResult.NEW_MAPPING_BY_MATRICULATION_NR)) {
-            newMappingByMatrikelNrCounter++;
+            newMappingByMatriculationNrCounter++;
         } else if (mappingResult.equals(MappingResult.NEW_MAPPING_BY_PERSONAL_NR)) {
             newMappingByPersonalNrCounter++;
         } else if (mappingResult.equals(MappingResult.COULD_NOT_MAP)) {
@@ -56,7 +56,7 @@ public class MappingStatistic {
         builder.append(newMappingByEmailCounter);
         builder.append(" , ");
         builder.append("MappedByMatriculationNumber=");
-        builder.append(newMappingByMatrikelNrCounter);
+        builder.append(newMappingByMatriculationNrCounter);
         builder.append(" , ");
         builder.append("MappedByPersonalNumber=");
         builder.append(newMappingByPersonalNrCounter);
@@ -75,7 +75,7 @@ public class MappingStatistic {
     public String toStringForStudentMapping() {
         StringBuilder builder = new StringBuilder();
         builder.append("MappedByMatriculationNumber=");
-        builder.append(newMappingByMatrikelNrCounter);
+        builder.append(newMappingByMatriculationNrCounter);
         builder.append(" , ");
         builder.append("MappedByEmail=");
         builder.append(newMappingByEmailCounter);
@@ -111,8 +111,8 @@ public class MappingStatistic {
         return newMappingByEmailCounter;
     }
 
-    public int getNewMappingByMatrikelNrCounter() {
-        return newMappingByMatrikelNrCounter;
+    public int getNewMappingByMatriculationNrCounter() {
+        return newMappingByMatriculationNrCounter;
     }
 
     public int getNewMappingByPersonalNrCounter() {

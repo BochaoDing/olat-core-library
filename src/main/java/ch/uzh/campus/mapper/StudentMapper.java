@@ -40,7 +40,7 @@ public class StudentMapper {
     private static final OLog LOG = Tracing.createLoggerFor(StudentMapper.class);
 
     @Autowired
-    StudentMappingByMatriculationNumber studentMappingByMartikelNumber;
+    StudentMappingByMatriculationNumber studentMappingByMatriculationNumber;
     @Autowired
     MappingByFirstNameAndLastName mappingByFirstNameAndLastName;
     @Autowired
@@ -58,8 +58,8 @@ public class StudentMapper {
     public MappingResult synchronizeStudentMapping(Student student) {
         dbInstance.commitAndCloseSession();
         if (!userMappingDao.existsMappingForSapUserId(student.getId())) {
-            // first try to map by personal number
-            Identity mappedIdentity = studentMappingByMartikelNumber.tryToMap(student);
+            // first try to map by matriculation number
+            Identity mappedIdentity = studentMappingByMatriculationNumber.tryToMap(student);
             if (mappedIdentity != null) {
                 userMappingDao.saveMapping(student, mappedIdentity);
                 return MappingResult.NEW_MAPPING_BY_MATRICULATION_NR;
