@@ -6,9 +6,7 @@ import org.springframework.stereotype.Repository;
 
 import javax.persistence.EntityManager;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Initial Date: 04.06.2012 <br>
@@ -93,10 +91,16 @@ public class CourseDao implements CampusDao<Course> {
 		        .executeUpdate();
     }
 
+    /**
+     * Deletes also according entries of the join tables ck_lecturer_course and ck_student_course.
+     */
     public void deleteByCourseId(Long courseId) {
         deleteCourseBidirectionally(dbInstance.getCurrentEntityManager().getReference(Course.class, courseId));
     }
 
+    /**
+     * Deletes also according entries of the join tables ck_lecturer_course and ck_student_course.
+     */
     public void deleteByCourseIds(List<Long> courseIds) {
         for (Long courseId : courseIds) {
             deleteCourseBidirectionally(dbInstance.getCurrentEntityManager().getReference(Course.class, courseId));
@@ -142,17 +146,6 @@ public class CourseDao implements CampusDao<Course> {
         return !courseIds.isEmpty();
     }
 
-    private void deleteCourseBidirectionally(Course course) {
-        // Update ManyToMany associations
-        for (Lecturer lecturer : course.getLecturers()) {
-            lecturer.getCourses().remove(course);
-        }
-        for (Student student : course.getStudents()) {
-            student.getCourses().remove(course);
-        }
-        dbInstance.deleteObject(course);
-    }
-
     public List<Course> getPilotCoursesByLecturerId(Long lecturerId) {
         return dbInstance.getCurrentEntityManager()
                 .createNamedQuery(Course.GET_PILOT_COURSES_BY_LECTURER_ID, Course.class)
@@ -167,5 +160,15 @@ public class CourseDao implements CampusDao<Course> {
                 .getResultList();
     }
 
-
+    private void deleteCourseBidirectionally(Course course) {
+        // Delete join table entries
+        for (Lecturer lecturer : course.getLecturers()) {
+            lecturer.getCourses().remove(course);
+        }
+        for (StudentCourse studentCourse : course.getStudentCourses()) {
+            studentCourse.getStudent().getStudentCourses().remove(studentCourse);
+            dbInstance.deleteObject(studentCourse);
+        }
+        dbInstance.deleteObject(course);
+    }
 }

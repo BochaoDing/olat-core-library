@@ -18,13 +18,14 @@
  * University of Zurich, Switzerland.
  * <p>
  */
-package ch.uzh.campus.syncer;
+package ch.uzh.campus.service.core.impl.syncer;
 
 import ch.uzh.campus.CampusConfiguration;
 import ch.uzh.campus.CampusCourseImportTO;
 import ch.uzh.campus.service.CampusCourse;
 import ch.uzh.campus.service.core.impl.CampusCourseFactory;
 import ch.uzh.campus.service.core.impl.creator.CourseDescriptionBuilder;
+import ch.uzh.campus.service.core.impl.syncer.CourseAttributeSynchronizer;
 import ch.uzh.campus.service.core.impl.syncer.statistic.TitleAndDescriptionStatistik;
 import org.junit.Before;
 import org.junit.Test;

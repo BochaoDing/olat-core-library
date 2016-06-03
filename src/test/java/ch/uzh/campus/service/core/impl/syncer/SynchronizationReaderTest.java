@@ -18,10 +18,11 @@
  * University of Zurich, Switzerland.
  * <p>
  */
-package ch.uzh.campus.syncer;
+package ch.uzh.campus.service.core.impl.syncer;
 
 import ch.uzh.campus.CampusCourseImportTO;
 import ch.uzh.campus.data.DaoManager;
+import ch.uzh.campus.service.core.impl.syncer.SynchronizationReader;
 import edu.emory.mathcs.backport.java.util.Collections;
 import org.junit.Before;
 import org.junit.Test;

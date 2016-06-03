@@ -39,6 +39,9 @@ public class CourseDaoTest extends OlatTestCase {
     private StudentDao studentDao;
 
     @Autowired
+    private StudentCourseDao studentCourseDao;
+
+    @Autowired
     private Provider<MockDataGenerator> mockDataGeneratorProvider;
 
     private List<Course> courses;
@@ -67,7 +70,7 @@ public class CourseDaoTest extends OlatTestCase {
 
         // Add students to courses
         List<StudentIdCourseId> studentIdCourseIds = mockDataGeneratorProvider.get().getStudentIdCourseIds();
-        studentDao.addStudentsToCourse(studentIdCourseIds);
+        studentCourseDao.save(studentIdCourseIds);
         dbInstance.flush();
     }
 
@@ -117,20 +120,19 @@ public class CourseDaoTest extends OlatTestCase {
     @Test
     public void testDelete() {
         assertNotNull(courseDao.getCourseById(100L));
-
-        // Check bidirectional deletion
         Lecturer lecturer = lecturerDao.getLecturerById(1100L);
         assertNotNull(lecturer);
         assertEquals(3, lecturer.getCourses().size());
         Student student = studentDao.getStudentById(2100L);
         assertNotNull(student);
-        assertEquals(3, student.getCourses().size());
+        assertEquals(3, student.getStudentCourses().size());
+        assertNotNull(studentCourseDao.getStudentCourseById(2100L, 100L));
 
         courseDao.delete(courses.get(0));
 
         // Check before flush
         assertEquals(2, lecturer.getCourses().size());
-        assertEquals(2, student.getCourses().size());
+        assertEquals(2, student.getStudentCourses().size());
 
         dbInstance.flush();
         dbInstance.clear();
@@ -142,26 +144,26 @@ public class CourseDaoTest extends OlatTestCase {
         assertEquals(2, lecturer.getCourses().size());
         student = studentDao.getStudentById(2100L);
         assertNotNull(student);
-        assertEquals(2, student.getCourses().size());
+        assertEquals(2, student.getStudentCourses().size());
+        assertNull(studentCourseDao.getStudentCourseById(2100L, 100L));
     }
 
     @Test
     public void testDeleteByCourseId() {
         assertNotNull(courseDao.getCourseById(100L));
-
-        // Check bidirectional deletion
         Lecturer lecturer = lecturerDao.getLecturerById(1100L);
         assertNotNull(lecturer);
         assertEquals(3, lecturer.getCourses().size());
         Student student = studentDao.getStudentById(2100L);
         assertNotNull(student);
-        assertEquals(3, student.getCourses().size());
+        assertEquals(3, student.getStudentCourses().size());
+        assertNotNull(studentCourseDao.getStudentCourseById(2100L, 100L));
 
         courseDao.deleteByCourseId(100L);
 
         // Check before flush
         assertEquals(2, lecturer.getCourses().size());
-        assertEquals(2, student.getCourses().size());
+        assertEquals(2, student.getStudentCourses().size());
 
         dbInstance.flush();
         dbInstance.clear();
@@ -173,7 +175,8 @@ public class CourseDaoTest extends OlatTestCase {
         assertEquals(2, lecturer.getCourses().size());
         student = studentDao.getStudentById(2100L);
         assertNotNull(student);
-        assertEquals(2, student.getCourses().size());
+        assertEquals(2, student.getStudentCourses().size());
+        assertNull(studentCourseDao.getStudentCourseById(2100L, 100L));
     }
 
     @Test

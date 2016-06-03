@@ -32,8 +32,6 @@ import ch.uzh.campus.CampusConfiguration;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 
 @Repository
 public class DaoManager {
@@ -83,30 +81,6 @@ public class DaoManager {
 
     public void saveLecturers(List<Lecturer> lecturers) {
         lecturerDao.save(lecturers);
-    }
-
-    public void saveStudentCourses(Student student, List<Course> courses) {
-        for(Course course : courses) {
-            studentDao.addStudentToCourse(student.getId(), course.getId());
-        }
-    }
-
-    public void saveCourseStudents(Course course, List<Student> students) {
-        for(Student student : students) {
-            studentDao.addStudentToCourse(student.getId(), course.getId());
-        }
-    }
-
-    public void saveLecturerCourses(Lecturer lecturer, List<Course> courses) {
-        for(Course course : courses) {
-            lecturerDao.addLecturerToCourse(lecturer.getPersonalNr(), course.getId());
-        }
-    }
-
-    public void saveCourseLecturers(Course course, List<Lecturer> lecturers) {
-        for(Lecturer lecturer : lecturers) {
-            lecturerDao.addLecturerToCourse(lecturer.getPersonalNr(), course.getId());
-        }
     }
 
     public void saveSapOlatUsers(List<SapOlatUser> sapOlatUsers) {
@@ -406,7 +380,7 @@ public class DaoManager {
             return null;
         }
         return new CampusCourseImportTO(course.getTitleToBeDisplayed(shortTitleActivated), course.getSemester(), dataConverter.convertLecturersToIdentities(course.getLecturers()),
-                dataConverter.convertDelegateesToIdentities(course.getLecturers()), dataConverter.convertStudentsToIdentities(course.getStudents()),
+                dataConverter.convertDelegateesToIdentities(course.getLecturers()), dataConverter.convertStudentsToIdentities(course.getStudentCourses()),
                 textDao.getContentsByCourseId(course.getId()), course.getResourceableId(), course.getId(), course.getLanguage(), course.getVvzLink());
     }
 
@@ -415,7 +389,7 @@ public class DaoManager {
             return null;
         }
         return new CampusCourseImportTO(course.getTitleToBeDisplayed(shortTitleActivated), course.getSemester(), dataConverter.convertLecturersToIdentities(course.getLecturers()),
-                dataConverter.convertDelegateesToIdentities(course.getLecturers()), dataConverter.convertStudentsToIdentities(course.getStudents()),
+                dataConverter.convertDelegateesToIdentities(course.getLecturers()), dataConverter.convertStudentsToIdentities(course.getStudentCourses()),
                 textDao.getContentsByCourseId(course.getId()), course.getResourceableId(), course.getId(), course.getLanguage(), course.getVvzLink());
     }
 

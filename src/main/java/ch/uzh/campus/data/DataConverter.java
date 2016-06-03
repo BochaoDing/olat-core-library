@@ -24,7 +24,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-import ch.uzh.campus.data.*;
 import org.olat.basesecurity.BaseSecurity;
 import org.olat.core.id.Identity;
 import org.olat.core.commons.persistence.DB;
@@ -54,20 +53,20 @@ public class DataConverter {
         this.baseSecurity = baseSecurity;
     }
 
-    public List<Identity> convertStudentsToIdentities(Set<Student> students) {
-        List<Identity> identitiesOfparticipant = new ArrayList<Identity>();
+    public List<Identity> convertStudentsToIdentities(Set<StudentCourse> studentCourses) {
+        List<Identity> identitiesOfParticipant = new ArrayList<>();
         SapOlatUser sapOlatUser = null;
-        for (Student student : students) {
-            sapOlatUser = sapOlatUserDao.getSapOlatUserBySapUserId(student.getId());
+        for (StudentCourse studentCourse : studentCourses) {
+            sapOlatUser = sapOlatUserDao.getSapOlatUserBySapUserId(studentCourse.getStudent().getId());
             if (sapOlatUser == null) {
                 continue;
             }
             Identity identity = findIdentity(sapOlatUser.getOlatUserName());
             if (identity != null) {
-                identitiesOfparticipant.add(identity);
+                identitiesOfParticipant.add(identity);
             }
         }
-        return identitiesOfparticipant;
+        return identitiesOfParticipant;
     }
 
     public List<Identity> convertLecturersToIdentities(Set<Lecturer> lecturers) {

@@ -18,7 +18,7 @@
  * University of Zurich, Switzerland.
  * <p>
  */
-package ch.uzh.campus.syncer;
+package ch.uzh.campus.service.core.impl.syncer;
 
 import ch.uzh.campus.CampusConfiguration;
 import ch.uzh.campus.service.core.impl.syncer.CampuskursCoOwners;

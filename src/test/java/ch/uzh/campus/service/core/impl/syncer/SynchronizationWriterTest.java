@@ -18,22 +18,21 @@
  * University of Zurich, Switzerland.
  * <p>
  */
-package ch.uzh.campus.syncer;
+package ch.uzh.campus.service.core.impl.syncer;
 
 import ch.uzh.campus.CampusCourseImportTO;
+import ch.uzh.campus.service.core.impl.syncer.CourseSynchronizer;
+import ch.uzh.campus.service.core.impl.syncer.SynchronizationWriter;
 import ch.uzh.campus.service.core.impl.syncer.statistic.OverallSynchronizeStatistic;
 import ch.uzh.campus.service.core.impl.syncer.statistic.SynchronizedGroupStatistic;
 import ch.uzh.campus.service.core.impl.syncer.statistic.SynchronizedSecurityGroupStatistic;
-import edu.emory.mathcs.backport.java.util.Collections;
 import org.junit.Before;
-import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 /**
  * Initial Date: 08.11.2012 <br>

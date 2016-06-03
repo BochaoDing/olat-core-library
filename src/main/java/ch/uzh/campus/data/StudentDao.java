@@ -37,23 +37,6 @@ public class StudentDao implements CampusDao<Student> {
         }
     }
 
-    public void addStudentToCourse(Long studentId, Long courseId) {
-        Student student = dbInstance.getCurrentEntityManager().getReference(Student.class, studentId);
-        Course course = dbInstance.getCurrentEntityManager().getReference(Course.class, courseId);
-        student.getCourses().add(course);
-        course.getStudents().add(student);
-    }
-
-    public void addStudentToCourse(StudentIdCourseId studentIdCourseId) {
-        addStudentToCourse(studentIdCourseId.getStudentId(), studentIdCourseId.getCourseId());
-    }
-
-    public void addStudentsToCourse(List<StudentIdCourseId> studentIdCourseIds) {
-        for (StudentIdCourseId studentIdCourseId : studentIdCourseIds) {
-            addStudentToCourse(studentIdCourseId.getStudentId(), studentIdCourseId.getCourseId());
-        }
-    }
-
     public Student getStudentById(Long id) {
         return dbInstance.findObject(Student.class, id);
     }
@@ -92,25 +75,32 @@ public class StudentDao implements CampusDao<Student> {
                 .getResultList();
     }
 
-    public void delete(Student student) {
-        deleteStudentBidirectionally(student);
-    }
-
-    public void deleteByStudentIds(List<Long> studentIds) {
-        for (Long studentId : studentIds) {
-            deleteStudentBidirectionally(dbInstance.getCurrentEntityManager().getReference(Student.class, studentId));
-        }
-    }
-
     public List<Student> getAllPilotStudents() {
         return dbInstance.getCurrentEntityManager()
                 .createNamedQuery(Student.GET_ALL_PILOT_STUDENTS, Student.class)
                 .getResultList();
     }
 
+    /**
+     * Deletes also according entries of the join able ck_student_course.
+     */
+    public void delete(Student student) {
+        deleteStudentBidirectionally(student);
+    }
+
+    /**
+     * Deletes also according entries of the join table ck_student_course.
+     */
+    public void deleteByStudentIds(List<Long> studentIds) {
+        for (Long studentId : studentIds) {
+            deleteStudentBidirectionally(dbInstance.getCurrentEntityManager().getReference(Student.class, studentId));
+        }
+    }
+
     private void deleteStudentBidirectionally(Student student) {
-        for (Course course : student.getCourses()) {
-            course.getStudents().remove(student);
+        for (StudentCourse studentCourse : student.getStudentCourses()) {
+            studentCourse.getCourse().getStudentCourses().remove(studentCourse);
+            dbInstance.deleteObject(studentCourse);
         }
         dbInstance.deleteObject(student);
     }

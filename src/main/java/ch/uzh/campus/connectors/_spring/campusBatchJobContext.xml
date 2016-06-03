@@ -332,8 +332,10 @@
 			</bean>
 		</property>
 	</bean>
- 
-	<bean id="studentCourseWriter" class="ch.uzh.campus.connectors.StudentIdCourseIdWriter" scope="step" />
+
+	<bean id="studentCourseWriter" class="ch.uzh.campus.connectors.CampusWriter" scope="step">
+		<property name="campuskursDao" ref="studentCourseDao" />
+	</bean>
 
 	<bean id="studentCourseProcessor" class="ch.uzh.campus.connectors.StudentCourseProcessor" scope="step"/>
 	
@@ -461,8 +463,8 @@
 	<!-- ======================================================================================= -->
 	<!-- ============== ABGLEICH(Reader, Writer, Processor)================== -->  
 	<!-- ======================================================================================= -->  
-	<bean id="synchronizationReader" class="ch.uzh.campus.syncer.SynchronizationReader" scope="step"/>
-	<bean id="synchronizationWriter" class="ch.uzh.campus.syncer.SynchronizationWriter" scope="step">
+	<bean id="synchronizationReader" class="ch.uzh.campus.service.core.impl.syncer.SynchronizationReader" scope="step"/>
+	<bean id="synchronizationWriter" class="ch.uzh.campus.service.core.impl.syncer.SynchronizationWriter" scope="step">
 		<property name="synchronizeStatistic" ref="synchronizeStatistic" />
 	</bean>
 	
