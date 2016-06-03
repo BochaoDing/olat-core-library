@@ -20,6 +20,7 @@
  */
 package ch.uzh.campus.metric;
 
+import ch.uzh.campus.mapper.OverallUserMapperStatistic;
 import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.StepExecution;
 
@@ -34,8 +35,8 @@ public class CampusStatistics {
 
     private boolean startOfImport = false;
 
-//    private OverallUserMapperStatistic overallUserMapperStatistic;
-//
+    private OverallUserMapperStatistic overallUserMapperStatistic;
+
     private JobExecution jobExecution;
     private StepExecution stepExecution;
 
@@ -59,17 +60,17 @@ public class CampusStatistics {
         this.stepExecution = stepExecution;
     }
 
-//    public CampusStatistics(OverallUserMapperStatistic overallUserMapperStatistic) {
-//        this.overallUserMapperStatistic = overallUserMapperStatistic;
-//    }
+    public CampusStatistics(OverallUserMapperStatistic overallUserMapperStatistic) {
+        this.overallUserMapperStatistic = overallUserMapperStatistic;
+    }
 
     public EXPORT_STATUS getExportStatus() {
         return exportStatus;
     }
 
-//    public OverallUserMapperStatistic getOverallUserMapperStatistic() {
-//        return overallUserMapperStatistic;
-//    }
+    public OverallUserMapperStatistic getOverallUserMapperStatistic() {
+        return overallUserMapperStatistic;
+    }
 
     public boolean isStartOfImport() {
         return startOfImport;

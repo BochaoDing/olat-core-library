@@ -50,6 +50,8 @@ import java.util.Map;
         persistName = "CampusMetric"
 )
 public class CampusMetric  {
+    // TODO OLATng : in OLAT, this class extends CampusServiceMetric<CampusStatistics>,
+    //   but in OpenOLAT, there are neither ServiceMetric class nor ServiceContext interface available
 
     private String exportStatus;
 
@@ -77,16 +79,15 @@ public class CampusMetric  {
             steps.put(campusStatistics.getStepExecution().getStepName().toLowerCase(), campusStatistics.getStepExecution());
         }
 
-        // TODO olatng - what shall we do with OverallUserMapperStatistic?
-//        if (campusStatistics.getOverallUserMapperStatistic() != null) {
-//            if (campusStatistics.getOverallUserMapperStatistic().getLecturersMappingStatistic() != null) {
-//                setUserMappingProcessStatisticForLecturers(campusStatistics.getOverallUserMapperStatistic().getLecturersMappingStatistic().toStringForLecturerMapping());
-//            }
-//
-//            if (campusStatistics.getOverallUserMapperStatistic().getStudentMappingStatistic() != null) {
-//                setUserMappingProcessStatisticForStudents(campusStatistics.getOverallUserMapperStatistic().getStudentMappingStatistic().toStringForStudentMapping());
-//            }
-//        }
+        if (campusStatistics.getOverallUserMapperStatistic() != null) {
+            if (campusStatistics.getOverallUserMapperStatistic().getLecturersMappingStatistic() != null) {
+                setUserMappingProcessStatisticForLecturers(campusStatistics.getOverallUserMapperStatistic().getLecturersMappingStatistic().toStringForLecturerMapping());
+            }
+
+            if (campusStatistics.getOverallUserMapperStatistic().getStudentMappingStatistic() != null) {
+                setUserMappingProcessStatisticForStudents(campusStatistics.getOverallUserMapperStatistic().getStudentMappingStatistic().toStringForStudentMapping());
+            }
+        }
     }
 
     @ManagedAttribute(description = "The Status of the export")

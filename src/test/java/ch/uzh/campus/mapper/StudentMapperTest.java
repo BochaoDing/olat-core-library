@@ -53,7 +53,7 @@ public class StudentMapperTest {
         studentMapperTestObject.userMappingDao = userMappingDaoMock;
         studentMappingByMatriculationNumber = mock(StudentMappingByMatriculationNumber.class);
         mappingByFirstNameAndLastNameMock = mock(MappingByFirstNameAndLastName.class);
-        studentMapperTestObject.studentMappingByMartikelNumber = studentMappingByMatriculationNumber;
+        studentMapperTestObject.studentMappingByMatriculationNumber = studentMappingByMatriculationNumber;
         mappingByEmailMock = mock(MappingByEmail.class);
         studentMapperTestObject.mappingByEmail = mappingByEmailMock;
         studentMapperTestObject.mappingByFirstNameAndLastName = mappingByFirstNameAndLastNameMock;
