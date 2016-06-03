@@ -379,8 +379,8 @@ public class DaoManager {
         if (course == null) {
             return null;
         }
-        return new CampusCourseImportTO(course.getTitleToBeDisplayed(shortTitleActivated), course.getSemester(), dataConverter.convertLecturersToIdentities(course.getLecturers()),
-                dataConverter.convertDelegateesToIdentities(course.getLecturers()), dataConverter.convertStudentsToIdentities(course.getStudentCourses()),
+        return new CampusCourseImportTO(course.getTitleToBeDisplayed(shortTitleActivated), course.getSemester(), dataConverter.convertLecturersToIdentities(course.getLecturerCourses()),
+                dataConverter.convertDelegateesToIdentities(course.getLecturerCourses()), dataConverter.convertStudentsToIdentities(course.getStudentCourses()),
                 textDao.getContentsByCourseId(course.getId()), course.getResourceableId(), course.getId(), course.getLanguage(), course.getVvzLink());
     }
 
@@ -388,8 +388,8 @@ public class DaoManager {
         if (course == null) {
             return null;
         }
-        return new CampusCourseImportTO(course.getTitleToBeDisplayed(shortTitleActivated), course.getSemester(), dataConverter.convertLecturersToIdentities(course.getLecturers()),
-                dataConverter.convertDelegateesToIdentities(course.getLecturers()), dataConverter.convertStudentsToIdentities(course.getStudentCourses()),
+        return new CampusCourseImportTO(course.getTitleToBeDisplayed(shortTitleActivated), course.getSemester(), dataConverter.convertLecturersToIdentities(course.getLecturerCourses()),
+                dataConverter.convertDelegateesToIdentities(course.getLecturerCourses()), dataConverter.convertStudentsToIdentities(course.getStudentCourses()),
                 textDao.getContentsByCourseId(course.getId()), course.getResourceableId(), course.getId(), course.getLanguage(), course.getVvzLink());
     }
 

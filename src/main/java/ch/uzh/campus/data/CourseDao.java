@@ -162,8 +162,9 @@ public class CourseDao implements CampusDao<Course> {
 
     private void deleteCourseBidirectionally(Course course) {
         // Delete join table entries
-        for (Lecturer lecturer : course.getLecturers()) {
-            lecturer.getCourses().remove(course);
+        for (LecturerCourse lecturerCourse : course.getLecturerCourses()) {
+            lecturerCourse.getLecturer().getLecturerCourses().remove(lecturerCourse);
+            dbInstance.deleteObject(lecturerCourse);
         }
         for (StudentCourse studentCourse : course.getStudentCourses()) {
             studentCourse.getStudent().getStudentCourses().remove(studentCourse);

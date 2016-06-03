@@ -1,7 +1,5 @@
 package ch.uzh.campus.data;
 
-import org.apache.commons.lang.builder.EqualsBuilder;
-import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 
 import javax.persistence.*;
@@ -28,13 +26,13 @@ import java.util.Set;
 
         @NamedQuery(name = Course.DISABLE_SYNCHRONIZATION, query = "update Course c set c.synchronizable = false where c.id = :courseId"),
 
-        @NamedQuery(name = Course.GET_CREATED_COURSES_BY_LECTURER_IDS, query = "select distinct c from Course c join c.lecturers l where l.personalNr in :lecturerIds and c.resourceableId is not null and c.enabled = '1' and c.shortSemester= (select max(c2.shortSemester) from Course c2) "),
-        @NamedQuery(name = Course.GET_NOT_CREATED_COURSES_BY_LECTURER_IDS, query = "select distinct c from Course c join c.lecturers l where l.personalNr in :lecturerIds and c.resourceableId is null and c.enabled = '1' and c.shortSemester= (select max(c2.shortSemester) from Course c2) "),
+        @NamedQuery(name = Course.GET_CREATED_COURSES_BY_LECTURER_IDS, query = "select distinct c from Course c join c.lecturerCourses lc where lc.lecturer.personalNr in :lecturerIds and c.resourceableId is not null and c.enabled = '1' and c.shortSemester= (select max(c2.shortSemester) from Course c2) "),
+        @NamedQuery(name = Course.GET_NOT_CREATED_COURSES_BY_LECTURER_IDS, query = "select distinct c from Course c join c.lecturerCourses lc where lc.lecturer.personalNr in :lecturerIds and c.resourceableId is null and c.enabled = '1' and c.shortSemester= (select max(c2.shortSemester) from Course c2) "),
         @NamedQuery(name = Course.GET_CREATED_COURSES_BY_STUDENT_ID, query = "select distinct c from Course c join c.studentCourses sc where sc.student.id = :studentId and c.resourceableId is not null and  c.enabled = '1' and c.shortSemester= (select max(c2.shortSemester) from Course c2)"),
         @NamedQuery(name = Course.GET_NOT_CREATED_COURSES_BY_STUDENT_ID, query = "select distinct c from Course c join c.studentCourses sc where sc.student.id = :studentId and c.resourceableId is null and c.enabled = '1' and c.shortSemester= (select max(c2.shortSemester) from Course c2)"),
 
-        @NamedQuery(name = Course.GET_PILOT_COURSES_BY_STUDENT_ID, query = "select c from Course c left join c.studentCourses sc where sc.course.id = :studentId and c.enabled = '1' and c.shortSemester= (select max(c2.shortSemester) from Course c2)"),
-        @NamedQuery(name = Course.GET_PILOT_COURSES_BY_LECTURER_ID, query = "select c from Course c left join c.lecturers cl where cl.personalNr = :lecturerId and c.enabled = '1' and c.shortSemester= (select max(c2.shortSemester) from Course c2) "),
+        @NamedQuery(name = Course.GET_PILOT_COURSES_BY_STUDENT_ID, query = "select c from Course c left join c.studentCourses sc where sc.student.id = :studentId and c.enabled = '1' and c.shortSemester= (select max(c2.shortSemester) from Course c2)"),
+        @NamedQuery(name = Course.GET_PILOT_COURSES_BY_LECTURER_ID, query = "select c from Course c left join c.lecturerCourses lc where lc.lecturer.personalNr = :lecturerId and c.enabled = '1' and c.shortSemester= (select max(c2.shortSemester) from Course c2) "),
 
         @NamedQuery(name = Course.GET_ALL_NOT_UPDATED_COURSES, query = "select c.id from Course c where c.resourceableId is null and c.modifiedDate < :lastImportDate"),
         @NamedQuery(name = Course.GET_COURSE_IDS_BY_RESOURCEABLE_ID, query = "select c.id from Course c where c.resourceableId = :resourceableId")
@@ -95,11 +93,8 @@ public class Course {
     @Column(name = "modified_date")
     private Date modifiedDate;
 
-    @ManyToMany(cascade = CascadeType.PERSIST)
-    @JoinTable(name = "ck_lecturer_course",
-            joinColumns = {@JoinColumn(name = "course_id")},
-            inverseJoinColumns = {@JoinColumn(name = "lecturer_id")})
-    private Set<Lecturer> lecturers = new HashSet<>();
+    @OneToMany(mappedBy = "course")
+    private Set<LecturerCourse> lecturerCourses = new HashSet<>();
   
     @OneToMany(mappedBy = "course")
     private Set<StudentCourse> studentCourses = new HashSet<>();
@@ -305,8 +300,8 @@ public class Course {
         this.modifiedDate = modifiedDate;
     }
 
-    public Set<Lecturer> getLecturers() {
-        return lecturers;
+    public Set<LecturerCourse> getLecturerCourses() {
+        return lecturerCourses;
     }
 
     public Set<StudentCourse> getStudentCourses() {
@@ -384,30 +379,24 @@ public class Course {
     }
 
     @Override
-    public boolean equals(final Object obj) {
-        if (obj == this) {
-            return true;
-        }
-        if (!(obj instanceof Course))
-            return false;
-        Course theOther = (Course) obj;
-        EqualsBuilder builder = new EqualsBuilder();
-        builder.append(this.getShortTitle(), theOther.getShortTitle());
-        builder.append(this.getTitle(), theOther.getTitle());
-        builder.append(this.getVstNr(), theOther.getVstNr());
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
 
-        return builder.isEquals();
+        Course course = (Course) o;
+
+        if (!shortTitle.equals(course.shortTitle)) return false;
+        if (!title.equals(course.title)) return false;
+        return vstNr.equals(course.vstNr);
+
     }
 
     @Override
     public int hashCode() {
-        HashCodeBuilder builder = new HashCodeBuilder(1239, 5475);
-        builder.append(this.getShortTitle());
-        builder.append(this.getTitle());
-        builder.append(this.getVstNr());
-
-        return builder.toHashCode();
+        int result = shortTitle.hashCode();
+        result = 31 * result + title.hashCode();
+        result = 31 * result + vstNr.hashCode();
+        return result;
     }
-
 }
 

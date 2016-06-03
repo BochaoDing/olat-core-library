@@ -361,8 +361,10 @@
 			</bean>
 		</property>
 	</bean>
- 
-	<bean id="lecturerCourseWriter" class="ch.uzh.campus.connectors.LecturerIdCourseIdWriter" scope="step"/>
+
+	<bean id="lecturerCourseWriter" class="ch.uzh.campus.connectors.CampusWriter" scope="step">
+		<property name="campuskursDao" ref="lecturerCourseDao" />
+	</bean>
 
 	<bean id="lecturerCourseProcessor" class="ch.uzh.campus.connectors.LecturerCourseProcessor" scope="step"/>
 	

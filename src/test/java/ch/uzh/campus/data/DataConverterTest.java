@@ -31,7 +31,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 
 import java.util.ArrayList;
-import java.util.GregorianCalendar;
+import java.util.Date;
 import java.util.List;
 
 import static org.junit.Assert.*;
@@ -119,15 +119,15 @@ public class DataConverterTest extends OlatTestCase {
         List<StudentIdCourseId> studentIdCourseIds = dataGenerator.getStudentIdCourseIds();
         List<Long> studentIds = new ArrayList<>();
         for (StudentIdCourseId studentIdCourseId : studentIdCourseIds ) {
-        	if(course.getId().equals(studentIdCourseId.getCourseId())) {
+        	if (course.getId().equals(studentIdCourseId.getCourseId())) {
         		studentIds.add(studentIdCourseId.getStudentId());
         	}
         }
         List<Student> students = dataGenerator.getStudents();
         List<StudentCourse> studentCoursesOfTheCourse = new ArrayList<>();
-        for (Student student:students){
-        	if(studentIds.contains(student.getId()) ) {
-                StudentCourse studentCourse = new StudentCourse(student, course, new GregorianCalendar().getTime());
+        for (Student student : students){
+        	if (studentIds.contains(student.getId())) {
+                StudentCourse studentCourse = new StudentCourse(student, course, new Date());
                 studentCoursesOfTheCourse.add(studentCourse);
         	}
         }
@@ -139,20 +139,21 @@ public class DataConverterTest extends OlatTestCase {
 		Course course = dataGenerator.getCourses().get(0);
 		
         List<LecturerIdCourseId> lecturerIdCourseIds = dataGenerator.getLecturerIdCourseIds();
-        List<Long> lecturerIds = new ArrayList<Long>();
-        for(LecturerIdCourseId lecturerIdCourseId :lecturerIdCourseIds ) {
-        	if(course.getId().equals(lecturerIdCourseId.getCourseId())) {
+        List<Long> lecturerIds = new ArrayList<>();
+        for (LecturerIdCourseId lecturerIdCourseId : lecturerIdCourseIds ) {
+        	if (course.getId().equals(lecturerIdCourseId.getCourseId())) {
         		lecturerIds.add(lecturerIdCourseId.getLecturerId());
         	}
         }
         List<Lecturer> lecturers = dataGenerator.getLecturers();
-        List<Lecturer> lecturersOfTheCourse = new ArrayList<Lecturer>();
-        for(Lecturer lecturer:lecturers){
-        	if(lecturerIds.contains(lecturer.getPersonalNr()) ) {
-        		lecturersOfTheCourse.add(lecturer);
+        List<LecturerCourse> lecturerCoursesOfTheCourse = new ArrayList<>();
+        for (Lecturer lecturer : lecturers){
+        	if (lecturerIds.contains(lecturer.getPersonalNr())) {
+                LecturerCourse lecturerCourse = new LecturerCourse(lecturer, course, new Date());
+                lecturerCoursesOfTheCourse.add(lecturerCourse);
         	}
         }
-        course.getLecturers().addAll(lecturersOfTheCourse);
+        course.getLecturerCourses().addAll(lecturerCoursesOfTheCourse);
 		return course;
 	}
 
@@ -162,7 +163,7 @@ public class DataConverterTest extends OlatTestCase {
         when(mockSapOlatUserDao.getSapOlatUserBySapUserId(1200L)).thenReturn(null);
         Course course = getCourseWithLecturers();
         
-        assertTrue(dataConverterTestObject.convertLecturersToIdentities(course.getLecturers()).isEmpty());
+        assertTrue(dataConverterTestObject.convertLecturersToIdentities(course.getLecturerCourses()).isEmpty());
     }
 
     
@@ -174,12 +175,12 @@ public class DataConverterTest extends OlatTestCase {
         
         Course course = getCourseWithLecturers();
         
-        assertFalse(dataConverterTestObject.convertLecturersToIdentities(course.getLecturers()).isEmpty());
-        assertEquals(dataConverterTestObject.convertLecturersToIdentities(course.getLecturers()).size(), 2);
+        assertFalse(dataConverterTestObject.convertLecturersToIdentities(course.getLecturerCourses()).isEmpty());
+        assertEquals(2, dataConverterTestObject.convertLecturersToIdentities(course.getLecturerCourses()).size());
         
         when(id3.getStatus()).thenReturn(Identity.STATUS_DELETED);
-        assertEquals(dataConverterTestObject.convertLecturersToIdentities(course.getLecturers()).size(), 1);
-        assertEquals(dataConverterTestObject.convertLecturersToIdentities(course.getLecturers()).get(0), id2);
+        assertEquals(1, dataConverterTestObject.convertLecturersToIdentities(course.getLecturerCourses()).size());
+        assertTrue(dataConverterTestObject.convertLecturersToIdentities(course.getLecturerCourses()).contains(id2));
     }
 
     @Test
@@ -189,7 +190,7 @@ public class DataConverterTest extends OlatTestCase {
         
         Course course = getCourseWithLecturers();
         
-        assertTrue(dataConverterTestObject.convertDelegateesToIdentities(course.getLecturers()).isEmpty());
+        assertTrue(dataConverterTestObject.convertDelegateesToIdentities(course.getLecturerCourses()).isEmpty());
     }
 
     @Test
@@ -215,7 +216,7 @@ public class DataConverterTest extends OlatTestCase {
         
         Course course = getCourseWithLecturers();
         
-        assertTrue(dataConverterTestObject.convertDelegateesToIdentities(course.getLecturers()).isEmpty());
+        assertTrue(dataConverterTestObject.convertDelegateesToIdentities(course.getLecturerCourses()).isEmpty());
     }
    
     @Test
@@ -227,9 +228,10 @@ public class DataConverterTest extends OlatTestCase {
 
         Course course = getCourseWithLecturers();
         
-        assertFalse(dataConverterTestObject.convertDelegateesToIdentities(course.getLecturers()).isEmpty());
-        assertEquals(dataConverterTestObject.convertDelegateesToIdentities(course.getLecturers()).size(), 2);
-        assertEquals(dataConverterTestObject.convertDelegateesToIdentities(course.getLecturers()).get(0), id1);
+        assertFalse(dataConverterTestObject.convertDelegateesToIdentities(course.getLecturerCourses()).isEmpty());
+        assertEquals(2, dataConverterTestObject.convertDelegateesToIdentities(course.getLecturerCourses()).size());
+        assertTrue(dataConverterTestObject.convertDelegateesToIdentities(course.getLecturerCourses()).contains(id1));
+        assertTrue(dataConverterTestObject.convertDelegateesToIdentities(course.getLecturerCourses()).contains(id2));
     }
 }
 

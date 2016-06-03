@@ -69,11 +69,11 @@ public class DataConverter {
         return identitiesOfParticipant;
     }
 
-    public List<Identity> convertLecturersToIdentities(Set<Lecturer> lecturers) {
-        List<Identity> identitiesOfLecturers = new ArrayList<Identity>();
+    public List<Identity> convertLecturersToIdentities(Set<LecturerCourse> lecturerCourses) {
+        List<Identity> identitiesOfLecturers = new ArrayList<>();
         SapOlatUser sapOlatUser = null;
-        for (Lecturer lecturer : lecturers) {
-            sapOlatUser = sapOlatUserDao.getSapOlatUserBySapUserId(lecturer.getPersonalNr());
+        for (LecturerCourse lecturerCourse : lecturerCourses) {
+            sapOlatUser = sapOlatUserDao.getSapOlatUserBySapUserId(lecturerCourse.getLecturer().getPersonalNr());
             if (sapOlatUser == null) {
                 continue;
             }
@@ -93,11 +93,11 @@ public class DataConverter {
         return identitiesOfLecturers;
     }
 
-    public List<Identity> convertDelegateesToIdentities(Set<Lecturer> lecturers) {
-        List<Identity> identitiesOfLecturers = new ArrayList<Identity>();
+    public List<Identity> convertDelegateesToIdentities(Set<LecturerCourse> lecturerCourses) {
+        List<Identity> identitiesOfLecturers = new ArrayList<>();
         SapOlatUser sapOlatUser = null;
-        for (Lecturer lecturer : lecturers) {
-            sapOlatUser = sapOlatUserDao.getSapOlatUserBySapUserId(lecturer.getPersonalNr());
+        for (LecturerCourse lecturerCourse : lecturerCourses) {
+            sapOlatUser = sapOlatUserDao.getSapOlatUserBySapUserId(lecturerCourse.getLecturer().getPersonalNr());
             if (sapOlatUser == null) {
                 continue;
             }

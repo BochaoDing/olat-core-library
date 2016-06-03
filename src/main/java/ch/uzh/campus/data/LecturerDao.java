@@ -36,23 +36,6 @@ public class LecturerDao implements CampusDao<Lecturer> {
         }
     }
 
-    public void addLecturerToCourse(Long lecturerId, Long courseId) {
-        Lecturer lecturer = dbInstance.getCurrentEntityManager().getReference(Lecturer.class, lecturerId);
-        Course course = dbInstance.getCurrentEntityManager().getReference(Course.class, courseId);
-        lecturer.getCourses().add(course);
-        course.getLecturers().add(lecturer);
-    }
-
-    public void addLecturerToCourse(LecturerIdCourseId lecturerIdCourseId) {
-        addLecturerToCourse(lecturerIdCourseId.getLecturerId(), lecturerIdCourseId.getCourseId());
-    }
-
-    public void addLecturersToCourse(List<LecturerIdCourseId> lecturerIdCourseIds) {
-        for (LecturerIdCourseId lecturerIdCourseId : lecturerIdCourseIds) {
-            addLecturerToCourse(lecturerIdCourseId.getLecturerId(), lecturerIdCourseId.getCourseId());
-        }
-    }
-
     public Lecturer getLecturerById(Long id) {
         return dbInstance.findObject(Lecturer.class, id);
     }
@@ -86,10 +69,16 @@ public class LecturerDao implements CampusDao<Lecturer> {
                 .getResultList();
     }
 
+    /**
+     * Deletes also according entries of the join table ck_lecturer_course.
+     */
     public void delete(Lecturer lecturer) {
         deleteLecturerBidirectionally(lecturer);
     }
 
+    /**
+     * Deletes also according entries of the join table ck_lecturer_course.
+     */
     public void deleteByLecturerIds(List<Long> lecturerIds) {
         for (Long lecturerId : lecturerIds) {
             deleteLecturerBidirectionally(dbInstance.getCurrentEntityManager().getReference(Lecturer.class, lecturerId));
@@ -97,8 +86,9 @@ public class LecturerDao implements CampusDao<Lecturer> {
     }
 
     private void deleteLecturerBidirectionally(Lecturer lecturer) {
-        for (Course course : lecturer.getCourses()) {
-            course.getLecturers().remove(lecturer);
+        for (LecturerCourse lecturerCourse : lecturer.getLecturerCourses()) {
+            lecturerCourse.getCourse().getLecturerCourses().remove(lecturerCourse);
+            dbInstance.deleteObject(lecturerCourse);
         }
         dbInstance.deleteObject(lecturer);
     }

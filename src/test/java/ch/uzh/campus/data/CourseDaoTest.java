@@ -34,6 +34,9 @@ public class CourseDaoTest extends OlatTestCase {
 
     @Autowired
     private LecturerDao lecturerDao;
+
+    @Autowired
+    private LecturerCourseDao lecturerCourseDao;
     
     @Autowired
     private StudentDao studentDao;
@@ -60,7 +63,7 @@ public class CourseDaoTest extends OlatTestCase {
 
         // Add lecturers to courses
         List<LecturerIdCourseId> lecturerIdCourseIds = mockDataGeneratorProvider.get().getLecturerIdCourseIds();
-        lecturerDao.addLecturersToCourse(lecturerIdCourseIds);
+        lecturerCourseDao.save(lecturerIdCourseIds);
         dbInstance.flush();
 
         // Insert some students
@@ -122,7 +125,8 @@ public class CourseDaoTest extends OlatTestCase {
         assertNotNull(courseDao.getCourseById(100L));
         Lecturer lecturer = lecturerDao.getLecturerById(1100L);
         assertNotNull(lecturer);
-        assertEquals(3, lecturer.getCourses().size());
+        assertEquals(3, lecturer.getLecturerCourses().size());
+        assertNotNull(lecturerCourseDao.getLecturerCourseById(1100L, 100L));
         Student student = studentDao.getStudentById(2100L);
         assertNotNull(student);
         assertEquals(3, student.getStudentCourses().size());
@@ -131,7 +135,7 @@ public class CourseDaoTest extends OlatTestCase {
         courseDao.delete(courses.get(0));
 
         // Check before flush
-        assertEquals(2, lecturer.getCourses().size());
+        assertEquals(2, lecturer.getLecturerCourses().size());
         assertEquals(2, student.getStudentCourses().size());
 
         dbInstance.flush();
@@ -141,7 +145,8 @@ public class CourseDaoTest extends OlatTestCase {
 
         lecturer = lecturerDao.getLecturerById(1100L);
         assertNotNull(lecturer);
-        assertEquals(2, lecturer.getCourses().size());
+        assertEquals(2, lecturer.getLecturerCourses().size());
+        assertNull(lecturerCourseDao.getLecturerCourseById(1100L, 100L));
         student = studentDao.getStudentById(2100L);
         assertNotNull(student);
         assertEquals(2, student.getStudentCourses().size());
@@ -153,7 +158,8 @@ public class CourseDaoTest extends OlatTestCase {
         assertNotNull(courseDao.getCourseById(100L));
         Lecturer lecturer = lecturerDao.getLecturerById(1100L);
         assertNotNull(lecturer);
-        assertEquals(3, lecturer.getCourses().size());
+        assertEquals(3, lecturer.getLecturerCourses().size());
+        assertNotNull(lecturerCourseDao.getLecturerCourseById(1100L, 100L));
         Student student = studentDao.getStudentById(2100L);
         assertNotNull(student);
         assertEquals(3, student.getStudentCourses().size());
@@ -162,7 +168,7 @@ public class CourseDaoTest extends OlatTestCase {
         courseDao.deleteByCourseId(100L);
 
         // Check before flush
-        assertEquals(2, lecturer.getCourses().size());
+        assertEquals(2, lecturer.getLecturerCourses().size());
         assertEquals(2, student.getStudentCourses().size());
 
         dbInstance.flush();
@@ -172,7 +178,8 @@ public class CourseDaoTest extends OlatTestCase {
 
         lecturer = lecturerDao.getLecturerById(1100L);
         assertNotNull(lecturer);
-        assertEquals(2, lecturer.getCourses().size());
+        assertEquals(2, lecturer.getLecturerCourses().size());
+        assertNull(lecturerCourseDao.getLecturerCourseById(1100L, 100L));
         student = studentDao.getStudentById(2100L);
         assertNotNull(student);
         assertEquals(2, student.getStudentCourses().size());

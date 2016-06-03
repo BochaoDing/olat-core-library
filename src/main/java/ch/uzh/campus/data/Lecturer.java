@@ -1,18 +1,13 @@
 package ch.uzh.campus.data;
 
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Set;
-
-import javax.persistence.*;
-import javax.persistence.Entity;
-import javax.persistence.NamedQueries;
-import javax.persistence.NamedQuery;
-import javax.persistence.Table;
-
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
+
+import javax.persistence.*;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
 
 
 /**
@@ -24,10 +19,9 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 @Entity
 @Table(name = "ck_lecturer")
 @NamedQueries({
-        @NamedQuery(name = Lecturer.GET_LECTURER_BY_EMAIL, query = "select l from Lecturer l where l.email = :email")
-        , @NamedQuery(name = Lecturer.GET_ALL_PILOT_LECTURERS, query = "select distinct l from Lecturer l left join l.courses c where c.enabled = '1' ")
-        , @NamedQuery(name = Lecturer.GET_ALL_NOT_UPDATED_LECTURERS, query = "select l.personalNr from Lecturer l where l.modifiedDate < :lastImportDate")
-//        , @NamedQuery(name = Lecturer.GET_ALL_NOT_UPDATED_LC_BOOKINGS, query = "select lc from Lecturer.courses lc where lc.modifiedDate < :lastImportDate")
+        @NamedQuery(name = Lecturer.GET_LECTURER_BY_EMAIL, query = "select l from Lecturer l where l.email = :email"),
+        @NamedQuery(name = Lecturer.GET_ALL_PILOT_LECTURERS, query = "select distinct l from Lecturer l left join l.lecturerCourses lc where lc.course.enabled = '1' "),
+        @NamedQuery(name = Lecturer.GET_ALL_NOT_UPDATED_LECTURERS, query = "select l.personalNr from Lecturer l where l.modifiedDate < :lastImportDate")
 })
 public class Lecturer {
     @Id
@@ -53,13 +47,12 @@ public class Lecturer {
     @Column(name = "modified_date")
     private Date modifiedDate;
 
-    @ManyToMany(mappedBy = "lecturers")
-    private Set<Course> courses = new HashSet<>();
+    @OneToMany(mappedBy = "lecturer")
+    private Set<LecturerCourse> lecturerCourses = new HashSet<>();
 
     public static final String GET_LECTURER_BY_EMAIL = "getLecturerByEmail";
     public static final String GET_ALL_PILOT_LECTURERS = "getAllPilotLecturers";
     public static final String GET_ALL_NOT_UPDATED_LECTURERS = "getAllNotUpdatedLecturers";
-    public static final String GET_ALL_NOT_UPDATED_LC_BOOKINGS = "getAllNotUpdatedLecturerCourseBookings";
 
     public Lecturer() {
     }
@@ -124,8 +117,8 @@ public class Lecturer {
         this.additionalPersonalNrs = additionalPersonalNrs;
     }
 
-    public Set<Course> getCourses() {
-        return courses;
+    public Set<LecturerCourse> getLecturerCourses() {
+        return lecturerCourses;
     }
 
     @Override
