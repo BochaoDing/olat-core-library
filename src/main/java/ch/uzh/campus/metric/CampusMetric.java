@@ -50,6 +50,8 @@ import java.util.Map;
         persistName = "CampusMetric"
 )
 public class CampusMetric  {
+    // TODO OLATng : in OLAT, this class extends CampusServiceMetric<CampusStatistics>,
+    //   but in OpenOLAT, there are neither ServiceMetric class nor ServiceContext interface available
 
     private String exportStatus;
 

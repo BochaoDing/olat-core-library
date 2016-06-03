@@ -42,7 +42,7 @@ import java.util.List;
  */
 public class SynchronizationWriter implements ItemWriter<CampusCourseImportTO> {
 
-    private static final OLog LOG = Tracing.createLoggerFor(CampusInterceptor.class);
+    private static final OLog LOG = Tracing.createLoggerFor(SynchronizationWriter.class);
 
     private OverallSynchronizeStatistic synchronizeStatistic;
     @Autowired

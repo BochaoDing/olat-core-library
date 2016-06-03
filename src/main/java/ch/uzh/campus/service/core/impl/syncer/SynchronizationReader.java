@@ -49,7 +49,7 @@ import java.util.List;
  */
 public class SynchronizationReader implements ItemReader<CampusCourseImportTO> {
 
-    private static final OLog LOG = Tracing.createLoggerFor(CampusInterceptor.class);
+    private static final OLog LOG = Tracing.createLoggerFor(SynchronizationReader.class);
 
     @Autowired
     DaoManager daoManager;
