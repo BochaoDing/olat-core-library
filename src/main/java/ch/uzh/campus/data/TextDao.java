@@ -67,7 +67,7 @@ public class TextDao {
     }
 
     private String buildText(List<Text> texts) {
-        StringBuffer content = new StringBuffer();
+        StringBuilder content = new StringBuilder();
         for (Text text : texts) {
             content.append(text.getLine());
             content.append(Text.BREAK_TAG);

@@ -61,11 +61,11 @@
     <!-- ===============StudentIdCourseIds================= -->
     <!-- ======================================================================================= -->
     <util:list id = 'studentIdCourseIds' scope="prototype" >
-        <bean class="ch.uzh.campus.data.StudentIdCourseId" p:courseId="100" p:studentId="2100" scope="prototype" />
-        <bean class="ch.uzh.campus.data.StudentIdCourseId" p:courseId="100" p:studentId="2200" scope="prototype" />
-        <bean class="ch.uzh.campus.data.StudentIdCourseId" p:courseId="200" p:studentId="2100" scope="prototype" />
-        <bean class="ch.uzh.campus.data.StudentIdCourseId" p:courseId="200" p:studentId="2200" scope="prototype" />
-        <bean class="ch.uzh.campus.data.StudentIdCourseId" p:courseId="300" p:studentId="2100" scope="prototype" />
+        <bean class="ch.uzh.campus.data.StudentIdCourseId" p:studentId="2100" p:courseId="100" scope="prototype" />
+        <bean class="ch.uzh.campus.data.StudentIdCourseId" p:studentId="2200" p:courseId="100" scope="prototype" />
+        <bean class="ch.uzh.campus.data.StudentIdCourseId" p:studentId="2100" p:courseId="200" scope="prototype" />
+        <bean class="ch.uzh.campus.data.StudentIdCourseId" p:studentId="2200" p:courseId="200" scope="prototype" />
+        <bean class="ch.uzh.campus.data.StudentIdCourseId" p:studentId="2100" p:courseId="300" scope="prototype" />
     </util:list>
       
 

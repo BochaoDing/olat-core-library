@@ -38,6 +38,9 @@ public class StudentDaoTest extends OlatTestCase {
     private CourseDao courseDao;
 
     @Autowired
+    private StudentCourseDao studentCourseDao;
+
+    @Autowired
     private Provider<MockDataGenerator> mockDataGeneratorProvider;
 
     private List<Student> students;
@@ -53,49 +56,16 @@ public class StudentDaoTest extends OlatTestCase {
         List<Course> courses = mockDataGeneratorProvider.get().getCourses();
         courseDao.save(courses);
         dbInstance.flush();
+
+        // Insert some studentIdCourseIds
+        List<StudentIdCourseId> studentIdCourseIds = mockDataGeneratorProvider.get().getStudentIdCourseIds();
+        studentCourseDao.save(studentIdCourseIds);
+        dbInstance.flush();
     }
     
     @After
     public void after() {
     	dbInstance.rollback();
-    }
-
-    @Test
-    public void testAddStudentToCourse() {
-        Student student = studentDao.getStudentById(2100L);
-        assertNotNull(student);
-        assertEquals(0, student.getCourses().size());
-        Course course = courseDao.getCourseById(100L);
-        assertNotNull(course);
-        assertEquals(0, course.getStudents().size());
-
-        // Add a student
-        studentDao.addStudentToCourse(2100L, 100L);
-
-        // Check before flush
-        assertEquals(1, student.getCourses().size());
-        assertEquals(1, course.getStudents().size());
-
-        dbInstance.flush();
-        dbInstance.clear();
-
-        student = studentDao.getStudentById(2100L);
-        assertEquals(1, student.getCourses().size());
-        course = courseDao.getCourseById(100L);
-        assertEquals(1, course.getStudents().size());
-    }
-
-    @Test
-    public void testAddStudentsToCourse() {
-        Course course = courseDao.getCourseById(200L);
-        assertNotNull(course);
-        assertEquals(0, course.getStudents().size());
-
-        addStudentsToCourses();
-        dbInstance.clear();
-
-        course = courseDao.getCourseById(200L);
-        assertEquals(2, course.getStudents().size());
     }
 
     @Test
@@ -108,7 +78,6 @@ public class StudentDaoTest extends OlatTestCase {
         assertNotNull(studentDao.getStudentById(2100L));
     }
 
-    
     @Test
     public void testGetStudentByEmail_Null() {
         assertNull(studentDao.getStudentByEmail("wrongEmail"));
@@ -124,7 +93,6 @@ public class StudentDaoTest extends OlatTestCase {
         assertNull(studentDao.getStudentByEmail("999L"));
     }
 
-    
     @Test
     public void testGetStudentByRegistrationNr_NotNull() {
         assertNotNull(studentDao.getStudentByRegistrationNr("1000"));
@@ -151,35 +119,33 @@ public class StudentDaoTest extends OlatTestCase {
     @Test
     public void testDelete() {
         assertNotNull(studentDao.getStudentById(2100L));
-
-        // Check bidirectional deletion
-        addStudentsToCourses();
         Course course = courseDao.getCourseById(200L);
         assertNotNull(course);
-        assertEquals(2, course.getStudents().size());
+        assertEquals(2, course.getStudentCourses().size());
+        assertNotNull(studentCourseDao.getStudentCourseById(2100L, 100L));
 
         studentDao.delete(students.get(0));
 
         // Check before flush
-        assertEquals(1, course.getStudents().size());
+        assertEquals(1, course.getStudentCourses().size());
 
         dbInstance.flush();
         dbInstance.clear();
 
         assertNull(studentDao.getStudentById(2100L));
-        assertEquals(1, course.getStudents().size());
+        assertEquals(1, course.getStudentCourses().size());
+        assertNull(studentCourseDao.getStudentCourseById(2100L, 100L));
     }
 
     @Test
     public void testDeleteByStudentIds() {
         assertNotNull(studentDao.getStudentById(2100L));
         assertNotNull(studentDao.getStudentById(2200L));
-
-        // Check bidirectional deletion
-        addStudentsToCourses();
         Course course = courseDao.getCourseById(200L);
         assertNotNull(course);
-        assertEquals(2, course.getStudents().size());
+        assertEquals(2, course.getStudentCourses().size());
+        assertNotNull(studentCourseDao.getStudentCourseById(2100L, 100L));
+        assertNotNull(studentCourseDao.getStudentCourseById(2200L, 100L));
 
         List<Long> studentIds = new LinkedList<>();
         studentIds.add(2100L);
@@ -188,25 +154,20 @@ public class StudentDaoTest extends OlatTestCase {
         studentDao.deleteByStudentIds(studentIds);
 
         // Check before flush
-        assertEquals(0, course.getStudents().size());
+        assertEquals(0, course.getStudentCourses().size());
 
         dbInstance.flush();
         dbInstance.clear();
 
         assertNull(studentDao.getStudentById(2100L));
         assertNull(studentDao.getStudentById(2200L));
-        assertEquals(0, course.getStudents().size());
+        assertEquals(0, course.getStudentCourses().size());
+        assertNull(studentCourseDao.getStudentCourseById(2100L, 100L));
+        assertNull(studentCourseDao.getStudentCourseById(2200L, 100L));
     }
 
     @Test
     public void testGetAllPilotStudents() {
-        addStudentsToCourses();
         assertEquals(2, studentDao.getAllPilotStudents().size());
-    }
-
-    private void addStudentsToCourses() {
-        List<StudentIdCourseId> studentIdCourseIds = mockDataGeneratorProvider.get().getStudentIdCourseIds();
-        studentDao.addStudentsToCourse(studentIdCourseIds);
-        dbInstance.flush();
     }
 }
