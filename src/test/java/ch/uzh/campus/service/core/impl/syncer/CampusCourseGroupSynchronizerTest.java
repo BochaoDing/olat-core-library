@@ -1,6 +1,7 @@
 package ch.uzh.campus.service.core.impl.syncer;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -121,7 +122,7 @@ public class CampusCourseGroupSynchronizerTest extends OlatTestCase {
         
 
     @After
-    public void teardown() {
+    public void teardown() {    	
     	dbInstance.rollback();
         //cleanupCampusCourseGroup(campusCourseGroup);
     }
@@ -135,19 +136,26 @@ public class CampusCourseGroupSynchronizerTest extends OlatTestCase {
         assertEquals("Wrong number of owners", 2, ownerIdentities.size());
         //assertTrue("Missing identity (" + ownerIdentity + ") in owner-group", baseSecurity.isIdentityInSecurityGroup(ownerIdentity, testSecurityGroup));
         //assertTrue("Missing identity (" + secondOwnerIdentity + ")in owner-group", baseSecurity.isIdentityInSecurityGroup(secondOwnerIdentity, testSecurityGroup));
+        assertTrue("Missing identity (" + ownerIdentity + ") in owner-group", ownerIdentities.contains(ownerIdentity));
+        assertTrue("Missing identity (" + secondOwnerIdentity + ")in owner-group", ownerIdentities.contains(secondOwnerIdentity));
     }
 
-    /*
-    @Ignore
-    // runs locally successfully, it is influenced by other tests
+    
+    
     @Test
     public void addDefaultCoOwnersAsOwner() {
         // Exercise
         courseGroupSynchronizerTestObject.addDefaultCoOwnersAsOwner(campusCourseMock);
-        assertEquals("Wrong number of owners", 2, baseSecurity.countIdentitiesOfSecurityGroup(testSecurityGroup));
-        assertTrue("Missing identity (" + firstCoOwnerIdentity + ") in owner-group", baseSecurity.isIdentityInSecurityGroup(firstCoOwnerIdentity, testSecurityGroup));
-        assertTrue("Missing identity (" + secondCoOwnerIdentity + ")in owner-group", baseSecurity.isIdentityInSecurityGroup(secondCoOwnerIdentity, testSecurityGroup));
-    }*/
+        
+        List<Identity> ownerIdentities =  repositoryService.getMembers(sourceRepositoryEntry, GroupRoles.owner.name());
+        //assertEquals("Wrong number of owners", 2, baseSecurity.countIdentitiesOfSecurityGroup(testSecurityGroup));
+        assertEquals("Wrong number of owners", 3, ownerIdentities.size()); //the third owner is the one that created the course
+        
+        //assertTrue("Missing identity (" + firstCoOwnerIdentity + ") in owner-group", baseSecurity.isIdentityInSecurityGroup(firstCoOwnerIdentity, testSecurityGroup));
+        //assertTrue("Missing identity (" + secondCoOwnerIdentity + ")in owner-group", baseSecurity.isIdentityInSecurityGroup(secondCoOwnerIdentity, testSecurityGroup));
+        assertTrue("Missing identity (" + ownerIdentity + ") in owner-group", ownerIdentities.contains(firstCoOwnerIdentity));
+        assertTrue("Missing identity (" + secondOwnerIdentity + ")in owner-group", ownerIdentities.contains(secondCoOwnerIdentity));
+    }
 
     /**
      * Add two lecturers (includes an identity twice to check duplicate handling) and no participants. This is the initialize process when owner-list is empty at the
