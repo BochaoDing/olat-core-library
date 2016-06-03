@@ -156,12 +156,12 @@ public class CourseCreateCoordinator {
             //TODO: olatng
             campusCourseGroupSynchronizer.addAllLecturesAsOwner(campusCourse, campusCourseImportData.getLecturers());
             campusCourseGroupSynchronizer.addDefaultCoOwnersAsOwner(campusCourse);
-            campusCourseGroupSynchronizer.synchronizeCourseGroups(campusCourse.getCourse(), campusCourseImportData);
+            campusCourseGroupSynchronizer.synchronizeCourseGroups(campusCourse, campusCourseImportData);
             
             //repositoryService.saveRepositoryEntry(campusCourse.getRepositoryEntry());
             repositoryService.update(campusCourse.getRepositoryEntry());
 
-            //TODO: olatng
+            //TODO: olatng -> is this still needed?
             // ADD ADMIN RIGHTS TO OWNER GROUP            
             //final BaseSecurity securityManager = (BaseSecurity) CoreSpringFactory.getBean(BaseSecurity.class);
             //securityManager.createAndPersistPolicy(campusCourse.getRepositoryEntry().getOwnerGroup(), Constants.PERMISSION_ADMIN, campusCourse.getCourse());
