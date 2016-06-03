@@ -23,6 +23,8 @@ package ch.uzh.campus.connectors;
 import ch.uzh.campus.data.LecturerIdCourseId;
 import org.springframework.batch.item.ItemProcessor;
 
+import java.util.Date;
+
 /**
  * Initial Date: 11.06.2012 <br>
  * 
@@ -30,10 +32,8 @@ import org.springframework.batch.item.ItemProcessor;
  */
 public class LecturerCourseProcessor implements ItemProcessor<LecturerIdCourseId, LecturerIdCourseId> {
 
-    /**
-     * No need to do anything.
-     */
     public LecturerIdCourseId process(LecturerIdCourseId lecturerIdCourseId) throws Exception {
+        lecturerIdCourseId.setModifiedDate(new Date());
         return lecturerIdCourseId;
     }
 

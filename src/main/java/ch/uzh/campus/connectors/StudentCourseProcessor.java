@@ -24,6 +24,8 @@ import ch.uzh.campus.data.StudentIdCourseId;
 
 import org.springframework.batch.item.ItemProcessor;
 
+import java.util.Date;
+
 /**
  * This is an implementation of {@link ItemProcessor} that converts the input StudentCoursePK item <br>
  * to the output StudentIdCourseId item. <br>
@@ -34,10 +36,8 @@ import org.springframework.batch.item.ItemProcessor;
  */
 public class StudentCourseProcessor implements ItemProcessor<StudentIdCourseId, StudentIdCourseId> {
 
-    /**
-     * No need to do anything.
-     */
     public StudentIdCourseId process(StudentIdCourseId studentIdCourseId) throws Exception {
+        studentIdCourseId.setModifiedDate(new Date());
     	return studentIdCourseId;
     }
 
