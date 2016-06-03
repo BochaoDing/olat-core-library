@@ -77,7 +77,20 @@ public class TextDaoTest extends OlatTestCase {
         assertEquals(1, course.getTexts().size());
 
         dbInstance.flush();
-        dbInstance.getCurrentEntityManager().clear();
+        dbInstance.clear();
+
+        course = courseDao.getCourseById(100L);
+        assertEquals(1, course.getTexts().size());
+        assertEquals(1, textDao.getTextsByCourseId(100L).size());
+
+        // Add the same text a second time
+        textDao.addTextToCourse(textCourseId);
+
+        // Check before flush
+        assertEquals(1, course.getTexts().size());
+
+        dbInstance.flush();
+        dbInstance.clear();
 
         course = courseDao.getCourseById(100L);
         assertEquals(1, course.getTexts().size());
@@ -92,7 +105,7 @@ public class TextDaoTest extends OlatTestCase {
         assertTrue(textDao.getTextsByCourseId(100L).isEmpty());
 
         addTextsToCourses();
-        dbInstance.getCurrentEntityManager().clear();
+        dbInstance.clear();
 
         course = courseDao.getCourseById(100L);
         assertEquals(6, course.getTexts().size());

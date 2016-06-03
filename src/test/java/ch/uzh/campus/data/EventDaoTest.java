@@ -96,7 +96,20 @@ public class EventDaoTest extends OlatTestCase {
         assertEquals(1, course.getEvents().size());
 
         dbInstance.flush();
-        dbInstance.getCurrentEntityManager().clear();
+        dbInstance.clear();
+
+        course = courseDao.getCourseById(100L);
+        assertEquals(1, course.getEvents().size());
+        assertEquals(1, eventDao.getEventsByCourseId(100L).size());
+
+        // Add the same event a second time
+        eventDao.addEventToCourse(eventCourseId);
+
+        // Check before flush
+        assertEquals(1, course.getEvents().size());
+
+        dbInstance.flush();
+        dbInstance.clear();
 
         course = courseDao.getCourseById(100L);
         assertEquals(1, course.getEvents().size());
@@ -111,7 +124,7 @@ public class EventDaoTest extends OlatTestCase {
         assertTrue(eventDao.getEventsByCourseId(100L).isEmpty());
 
         addEventsToCourses();
-        dbInstance.getCurrentEntityManager().clear();
+        dbInstance.clear();
 
         course = courseDao.getCourseById(100L);
         assertEquals(2, course.getEvents().size());

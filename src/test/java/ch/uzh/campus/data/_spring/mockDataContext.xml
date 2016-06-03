@@ -106,10 +106,10 @@
     <!-- ===============EventCourseIds================= -->
     <!-- ======================================================================================= -->
    <util:list id = 'eventCourseIds' scope="prototype" >
-        <bean class="ch.uzh.campus.data.EventCourseId" p:courseId="100" p:date-ref="newDate" p:start="10:00" p:end="11:30" p:modifiedDate="10.10.2014 10:10" scope="prototype" />
-        <bean class="ch.uzh.campus.data.EventCourseId" p:courseId="100" p:date-ref="newDate" p:start="16:00" p:end="17:30" p:modifiedDate="10.10.2014 10:10" scope="prototype" />
-        <bean class="ch.uzh.campus.data.EventCourseId" p:courseId="200" p:date-ref="newDate" p:start="09:00" p:end="10:30" p:modifiedDate="10.10.2014 10:10" scope="prototype" />
-        <bean class="ch.uzh.campus.data.EventCourseId" p:courseId="200" p:date-ref="newDate" p:start="14:00" p:end="15:30" p:modifiedDate="10.10.2014 10:10" scope="prototype" />
+        <bean class="ch.uzh.campus.data.EventCourseId" p:courseId="100" p:date="13.10.2014 00:00:00" p:start="10:00:00" p:end="11:30:00" p:modifiedDate="10.10.2014 10:10" scope="prototype" />
+        <bean class="ch.uzh.campus.data.EventCourseId" p:courseId="100" p:date="13.10.2014 00:00:00" p:start="16:00:00" p:end="17:30:00" p:modifiedDate="10.10.2014 10:10" scope="prototype" />
+        <bean class="ch.uzh.campus.data.EventCourseId" p:courseId="200" p:date="16.10.2014 00:00:00" p:start="09:00:00" p:end="10:30:00" p:modifiedDate="10.10.2014 10:10" scope="prototype" />
+        <bean class="ch.uzh.campus.data.EventCourseId" p:courseId="200" p:date="16.10.2014 00:00:00" p:start="14:00:00" p:end="15:30:00" p:modifiedDate="10.10.2014 10:10" scope="prototype" />
     </util:list>
 	
     <!-- ======================================================================================= -->
