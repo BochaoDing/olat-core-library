@@ -25,13 +25,13 @@ import org.apache.commons.lang.builder.ToStringBuilder;
  */
 @Entity
 @NamedQueries({
-        @NamedQuery(name = SapOlatUser.GET_SAP_OLAT_USERS_BY_SAP_IDS, query = "from SapOlatUser m  " + " where m.sapUserId in (:" + SapOlatUser.SAP_IDS_PARAM + ")"),
-        @NamedQuery(name = SapOlatUser.GET_SAP_OLAT_USER_BY_OLAT_USERNAME, query = "from SapOlatUser s " + " where s.olatUserName = :olatUserName"),
-        @NamedQuery(name = SapOlatUser.GET_SAP_OLAT_USER_BY_OLAT_USERNAME_AND_TYPE, query = "from SapOlatUser s " + " where s.olatUserName = :olatUserName and s.sapUserType = :sapUserType"),
+        @NamedQuery(name = SapOlatUser.GET_SAP_OLAT_USERS_BY_SAP_IDS, query = "select m from SapOlatUser m  " + " where m.sapUserId in (:" + SapOlatUser.SAP_IDS_PARAM + ")"),
+        @NamedQuery(name = SapOlatUser.GET_SAP_OLAT_USER_BY_OLAT_USERNAME, query = "select m from SapOlatUser m " + " where m.olatUserName = :olatUserName"),
+        @NamedQuery(name = SapOlatUser.GET_SAP_OLAT_USER_BY_OLAT_USERNAME_AND_TYPE, query = "select m from SapOlatUser m " + " where m.olatUserName = :olatUserName and m.sapUserType = :sapUserType"),
         @NamedQuery(name = SapOlatUser.DELETE_SAP_OLAT_LECTURERS_BY_SAP_IDS, query = "delete from SapOlatUser m where m.sapUserType = 'LECTURER' and m.sapUserId in ( :sapIds) "),
         @NamedQuery(name = SapOlatUser.DELETE_SAP_OLAT_STUDENTS_BY_SAP_IDS, query = "delete from SapOlatUser m where m.sapUserType = 'STUDENT' and m.sapUserId in ( :sapIds) "),
         @NamedQuery(name = SapOlatUser.DELETE_SAP_OLAT_STUDENTS, query = "delete from SapOlatUser m where m.sapUserType = 'STUDENT' and m.sapUserId not in (select id from Student) "),
-        @NamedQuery(name = SapOlatUser.DELETE_SAP_OLAT_LECTURERS, query = "delete from SapOlatUser m where m.sapUserType = 'LECTURER' and m.sapUserId not in (select id from Lecturer ) ") })
+        @NamedQuery(name = SapOlatUser.DELETE_SAP_OLAT_LECTURERS, query = "delete from SapOlatUser m where m.sapUserType = 'LECTURER' and m.sapUserId not in (select personalNr from Lecturer ) ") })
 @Table(name = "ck_olat_user")
 public class SapOlatUser {
 
