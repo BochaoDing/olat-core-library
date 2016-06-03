@@ -1,5 +1,7 @@
 package ch.uzh.campus.data;
 
+import java.util.Date;
+
 /**
  * Initial Date: 04.06.2012 <p>
  * 
@@ -11,6 +13,7 @@ public class StudentIdCourseId {
 
 	private Long studentId;
 	private Long courseId;
+	private Date modifiedDate;
     
 	public Long getStudentId() {
 		return studentId;
@@ -26,5 +29,13 @@ public class StudentIdCourseId {
 
 	public void setCourseId(Long courseId) {
 		this.courseId = courseId;
+	}
+
+	public Date getModifiedDate() {
+		return modifiedDate;
+	}
+
+	public void setModifiedDate(Date modifiedDate) {
+		this.modifiedDate = modifiedDate;
 	}
 }

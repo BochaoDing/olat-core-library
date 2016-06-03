@@ -4,33 +4,26 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.ManyToMany;
-import javax.persistence.Table;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
+import javax.persistence.*;
 
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
-import javax.persistence.NamedQueries;
-import javax.persistence.NamedQuery;
 
 /**
  * Initial Date: 04.06.2012 <br>
  * 
  * @author aabouc
+ * @author Martin Schraner
  * 
  */
 @Entity
 @NamedQueries({
-        @NamedQuery(name = Student.GET_ALL_PILOT_STUDENTS, query = "select distinct s from Student s left join s.courses cs where cs.enabled = '1' ")
-        , @NamedQuery(name = Student.GET_ALL_NOT_UPDATED_STUDENTS, query = "select s.id from Student s where s.modifiedDate < :lastImportDate")
-        , @NamedQuery(name = Student.GET_STUDENTS_BY_EMAIL, query = "select s from Student s where s.email = :email")
-        , @NamedQuery(name = Student.GET_STUDENTS_WITH_REGISTRATION_NUMBER, query = "select s from Student s where s.registrationNr = :registrationNr")
-//        , @NamedQuery(name = Student.GET_ALL_NOT_UPDATED_SC_BOOKING, query = "select sc from Student.courses sc where sc.modifiedDate is not null and sc.modifiedDate < :lastImportDate")
+        @NamedQuery(name = Student.GET_ALL_PILOT_STUDENTS, query = "select distinct s from Student s left join s.studentCourses sc where sc.course.enabled = '1' "),
+        @NamedQuery(name = Student.GET_ALL_NOT_UPDATED_STUDENTS, query = "select s.id from Student s where s.modifiedDate < :lastImportDate"),
+        @NamedQuery(name = Student.GET_STUDENTS_BY_EMAIL, query = "select s from Student s where s.email = :email"),
+        @NamedQuery(name = Student.GET_STUDENTS_WITH_REGISTRATION_NUMBER, query = "select s from Student s where s.registrationNr = :registrationNr"),
+        @NamedQuery(name = Student.GET_ALL_NOT_UPDATED_SC_BOOKING, query = "select distinct s from Student s left join s.studentCourses sc where sc.modifiedDate is not null and sc.modifiedDate < :lastImportDate")
 })
 @Table(name = "ck_student")
 public class Student {
@@ -54,8 +47,8 @@ public class Student {
     @Column(name = "modified_date")
     private Date modifiedDate;
 
-    @ManyToMany(mappedBy = "students")
-    private Set<Course> courses = new HashSet<>();
+    @OneToMany(mappedBy = "student")
+    private Set<StudentCourse> studentCourses = new HashSet<>();
 
     public static final String GET_ALL_PILOT_STUDENTS = "getAllPilotStudents";
     public static final String GET_ALL_NOT_UPDATED_STUDENTS = "getAllNotUpdatedStudents";
@@ -118,12 +111,8 @@ public class Student {
         this.modifiedDate = modifiedDate;
     }
 
-    public Set<Course> getCourses() {
-        return courses;
-    }
-
-    public void addCourse(Course course) {
-        courses.add(course);
+    public Set<StudentCourse> getStudentCourses() {
+        return studentCourses;
     }
 
     @Override

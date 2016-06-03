@@ -21,26 +21,21 @@ package ch.uzh.campus.data;
  * <p>
  */
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-
 import org.junit.Before;
 import org.junit.Test;
-
 import org.olat.basesecurity.BaseSecurity;
-import org.olat.core.id.Identity;
 import org.olat.core.commons.persistence.DB;
+import org.olat.core.id.Identity;
 import org.olat.test.OlatTestCase;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
+
+import java.util.ArrayList;
+import java.util.GregorianCalendar;
+import java.util.List;
+
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
 
 
 /**
@@ -63,8 +58,6 @@ public class DataConverterTest extends OlatTestCase {
 
     private BaseSecurity mockBaseSecurity;
 
-    private DB mockDB;
-
     private Identity id1, id2, id3;
 
     @Before
@@ -76,7 +69,7 @@ public class DataConverterTest extends OlatTestCase {
         when(mockSapOlatUserDao.getSapOlatUserBySapUserId(100L)).thenReturn(null);
         when(mockSapOlatUserDao.getSapOlatUserBySapUserId(200L)).thenReturn(dataGenerator.getSapOlatUsers().get(1));
 
-        mockDB = mock(DB.class);
+        DB mockDB = mock(DB.class);
         dataConverterTestObject.dBImpl = mockDB;
         doNothing().when(mockDB).intermediateCommit();
 
@@ -101,7 +94,7 @@ public class DataConverterTest extends OlatTestCase {
         when(mockSapOlatUserDao.getSapOlatUserBySapUserId(2200L)).thenReturn(null);
         Course course = getCourseWithStudents();
         
-        assertTrue(dataConverterTestObject.convertStudentsToIdentities(course.getStudents()).isEmpty());
+        assertTrue(dataConverterTestObject.convertStudentsToIdentities(course.getStudentCourses()).isEmpty());
     }
 
     @Test
@@ -111,34 +104,34 @@ public class DataConverterTest extends OlatTestCase {
         
         Course course = getCourseWithStudents();
                    
-        assertFalse(dataConverterTestObject.convertStudentsToIdentities(course.getStudents()).isEmpty());
-        assertEquals(2, dataConverterTestObject.convertStudentsToIdentities(course.getStudents()).size());
-        assertEquals(id1, dataConverterTestObject.convertStudentsToIdentities(course.getStudents()).get(0));
-        assertEquals(id2, dataConverterTestObject.convertStudentsToIdentities(course.getStudents()).get(1));
+        assertFalse(dataConverterTestObject.convertStudentsToIdentities(course.getStudentCourses()).isEmpty());
+        assertEquals(2, dataConverterTestObject.convertStudentsToIdentities(course.getStudentCourses()).size());
+        assertTrue(dataConverterTestObject.convertStudentsToIdentities(course.getStudentCourses()).contains(id1));
+        assertTrue(dataConverterTestObject.convertStudentsToIdentities(course.getStudentCourses()).contains(id2));
     }
 
     /**
      * Adds students to the first course found.
-     * @return
      */
 	private Course getCourseWithStudents() {
 		Course course = dataGenerator.getCourses().get(0);
 		
         List<StudentIdCourseId> studentIdCourseIds = dataGenerator.getStudentIdCourseIds();
-        List<Long> studentIds = new ArrayList<Long>();
-        for(StudentIdCourseId studentIdCourseId:studentIdCourseIds ) {
+        List<Long> studentIds = new ArrayList<>();
+        for (StudentIdCourseId studentIdCourseId : studentIdCourseIds ) {
         	if(course.getId().equals(studentIdCourseId.getCourseId())) {
         		studentIds.add(studentIdCourseId.getStudentId());
         	}
         }
         List<Student> students = dataGenerator.getStudents();
-        List<Student> studentsOfTheCourse = new ArrayList<Student>();
-        for(Student student:students){
+        List<StudentCourse> studentCoursesOfTheCourse = new ArrayList<>();
+        for (Student student:students){
         	if(studentIds.contains(student.getId()) ) {
-        		studentsOfTheCourse.add(student);
+                StudentCourse studentCourse = new StudentCourse(student, course, new GregorianCalendar().getTime());
+                studentCoursesOfTheCourse.add(studentCourse);
         	}
         }
-        course.getStudents().addAll(studentsOfTheCourse);
+        course.getStudentCourses().addAll(studentCoursesOfTheCourse);
 		return course;
 	}
 	
