@@ -38,7 +38,7 @@ import java.util.List;
  */
 public class AbstractMappingByInstitutionalIdentifier {
 
-    private static final OLog LOG = Tracing.createLoggerFor(StudentMapper.class);
+    private static final OLog LOG = Tracing.createLoggerFor(AbstractMappingByInstitutionalIdentifier.class);
 
     @Autowired
     BaseSecurity baseSecurity;

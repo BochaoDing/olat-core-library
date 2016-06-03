@@ -43,7 +43,7 @@ import java.util.List;
 @Component
 public class LecturerMapper {
 
-    private static final OLog LOG = Tracing.createLoggerFor(StudentMapper.class);
+    private static final OLog LOG = Tracing.createLoggerFor(LecturerMapper.class);
 
     @Autowired
     LecturerMappingByPersonalNumber mappingByPersonalNumber;

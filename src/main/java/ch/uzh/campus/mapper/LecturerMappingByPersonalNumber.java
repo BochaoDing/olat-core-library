@@ -34,7 +34,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class LecturerMappingByPersonalNumber extends AbstractMappingByInstitutionalIdentifier {
 
-    private static final OLog LOG = Tracing.createLoggerFor(StudentMapper.class);
+    private static final OLog LOG = Tracing.createLoggerFor(LecturerMappingByPersonalNumber.class);
 
     public Identity tryToMap(Long personalNr) {
         // append '%' because personal-number starts with 0 e.g. 012345
