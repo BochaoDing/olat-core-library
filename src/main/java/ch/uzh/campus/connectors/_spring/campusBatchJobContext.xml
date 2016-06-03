@@ -461,8 +461,8 @@
 	<!-- ======================================================================================= -->
 	<!-- ============== ABGLEICH(Reader, Writer, Processor)================== -->  
 	<!-- ======================================================================================= -->  
-	<bean id="synchronizationReader" class="ch.uzh.campus.syncer.SynchronizationReader" scope="step"/>
-	<bean id="synchronizationWriter" class="ch.uzh.campus.syncer.SynchronizationWriter" scope="step">
+	<bean id="synchronizationReader" class="ch.uzh.campus.service.core.impl.syncer.SynchronizationReader" scope="step"/>
+	<bean id="synchronizationWriter" class="ch.uzh.campus.service.core.impl.syncer.SynchronizationWriter" scope="step">
 		<property name="synchronizeStatistic" ref="synchronizeStatistic" />
 	</bean>
 	

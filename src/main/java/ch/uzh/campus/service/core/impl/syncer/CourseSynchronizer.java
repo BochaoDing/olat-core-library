@@ -18,19 +18,14 @@
  * University of Zurich, Switzerland.
  * <p>
  */
-package ch.uzh.campus.syncer;
+package ch.uzh.campus.service.core.impl.syncer;
 
 import ch.uzh.campus.CampusConfiguration;
-import ch.uzh.campus.CampusCourseImportTO;
 import ch.uzh.campus.connectors.CampusInterceptor;
 import ch.uzh.campus.data.DaoManager;
-import ch.uzh.campus.service.core.impl.syncer.CampusCourseGroupSynchronizer;
-import ch.uzh.campus.service.core.impl.syncer.statistic.SynchronizedGroupStatistic;
 import org.olat.core.commons.persistence.DB;
 import org.olat.core.logging.OLog;
 import org.olat.core.logging.Tracing;
-import org.olat.course.CourseFactory;
-import org.olat.course.ICourse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 

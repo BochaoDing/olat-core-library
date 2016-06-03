@@ -18,16 +18,13 @@
  * University of Zurich, Switzerland.
  * <p>
  */
-package ch.uzh.campus.syncer;
+package ch.uzh.campus.service.core.impl.syncer;
 
-import ch.uzh.campus.data.DaoManager;
-import ch.uzh.campus.service.core.impl.syncer.statistic.SynchronizedGroupStatistic;
+import ch.uzh.campus.service.core.impl.syncer.CourseSynchronizer;
 import org.junit.Before;
-import org.junit.Test;
 
 import static org.junit.Assert.assertNotNull;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 /**
  * Initial Date: 28.06.2012 <br>

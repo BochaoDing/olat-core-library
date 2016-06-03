@@ -18,12 +18,11 @@
  * University of Zurich, Switzerland.
  * <p>
  */
-package ch.uzh.campus.syncer;
+package ch.uzh.campus.service.core.impl.syncer;
 
 import ch.uzh.campus.CampusCourseImportTO;
 import ch.uzh.campus.connectors.CampusInterceptor;
 import ch.uzh.campus.service.core.impl.syncer.statistic.OverallSynchronizeStatistic;
-import ch.uzh.campus.service.core.impl.syncer.statistic.SynchronizedGroupStatistic;
 import org.olat.core.logging.OLog;
 import org.olat.core.logging.Tracing;
 import org.springframework.batch.item.ItemWriter;
