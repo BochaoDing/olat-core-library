@@ -39,7 +39,7 @@ import java.util.List;
  */
 public class StudentMappingWriter implements ItemWriter<Student> {
 
-    private static final OLog LOG = Tracing.createLoggerFor(StudentMapper.class);
+    private static final OLog LOG = Tracing.createLoggerFor(StudentMappingWriter.class);
 
     private MappingStatistic mappingStatistic;
 

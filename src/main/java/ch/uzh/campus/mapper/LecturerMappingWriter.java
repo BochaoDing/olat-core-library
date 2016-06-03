@@ -36,7 +36,7 @@ import java.util.List;
  */
 public class LecturerMappingWriter implements ItemWriter<Lecturer> {
 
-    private static final OLog LOG = Tracing.createLoggerFor(StudentMapper.class);
+    private static final OLog LOG = Tracing.createLoggerFor(LecturerMappingWriter.class);
 
     private MappingStatistic mappingStatistic;
 
