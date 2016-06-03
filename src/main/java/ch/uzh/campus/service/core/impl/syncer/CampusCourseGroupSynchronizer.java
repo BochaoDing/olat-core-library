@@ -144,19 +144,19 @@ public class CampusCourseGroupSynchronizer {
     private SynchronizedSecurityGroupStatistic synchronizeGroupOwners(Identity courseOwner, BusinessGroup businessGroup, List<Identity> lecturers) {
         //return synchronizeSecurityGroup(businessGroup.getOwnerGroup(), lecturers, false);
     	BusinessGroupAddResponse businessGroupAddResponse = businessGroupService.addOwners(courseOwner, null, lecturers, businessGroup, null);
-    	dBImpl.commitAndCloseSession();
+    	//dBImpl.commitAndCloseSession();
     	return new SynchronizedSecurityGroupStatistic(businessGroupAddResponse.getAddedIdentities().size(), 0);
     }
     
     private SynchronizedSecurityGroupStatistic synchronizeGroupParticipants(Identity courseOwner, BusinessGroup businessGroup, List<Identity> participants) {
-    	int removedIdentityCounter = removeNonMembersFromSecurityGroup(businessGroup, participants);       
+    	int removedIdentityCounter = removeNonMembersFromSecurityGroup(courseOwner, businessGroup, participants);       
         int addedIdentityCounter = addNewMembersToSecurityGroup(courseOwner, businessGroup, participants);
 
         return new SynchronizedSecurityGroupStatistic(addedIdentityCounter, removedIdentityCounter);
     }
           
     
-    private int removeNonMembersFromSecurityGroup(BusinessGroup businessGroup, List<Identity> allNewMembers) {
+    private int removeNonMembersFromSecurityGroup(Identity courseOwner, BusinessGroup businessGroup, List<Identity> allNewMembers) {
         int removedIdentityCounter = 0;        
         List<Identity> previousMembers = businessGroupService.getMembers(businessGroup, GroupRoles.participant.name());
         List<Identity> removableMembers = new ArrayList<Identity>();
@@ -169,16 +169,18 @@ public class CampusCourseGroupSynchronizer {
             }
         }
         if(removableMembers.size()>0) {
-          businessGroupService.removeParticipants(null, removableMembers, businessGroup, null);
+          businessGroupService.removeParticipants(courseOwner, removableMembers, businessGroup, null);
         }
-        dBImpl.commitAndCloseSession();
+        //dBImpl.commitAndCloseSession();
         return removedIdentityCounter;
     }
     
-    private int addNewMembersToSecurityGroup(Identity courseOwner, BusinessGroup businessGroup, List<Identity> allNewMembers) {       
+    private int addNewMembersToSecurityGroup(Identity courseOwner, BusinessGroup businessGroup, List<Identity> allNewMembers) {    
+    	
         BusinessGroupAddResponse businessGroupAddResponse = businessGroupService.addParticipants(courseOwner, null, allNewMembers, businessGroup, null);
-        dBImpl.commitAndCloseSession();
-        int addedIdentityCounter = businessGroupAddResponse.getAddedIdentities().size() - businessGroupAddResponse.getIdentitiesAlreadyInGroup().size();                
+        //dBImpl.commitAndCloseSession();
+        int addedIdentityCounter = businessGroupAddResponse.getAddedIdentities().size(); // - businessGroupAddResponse.getIdentitiesAlreadyInGroup().size();
+        System.out.println("added identities: " + businessGroupAddResponse.getAddedIdentities().size());
         return addedIdentityCounter;
     }
     
