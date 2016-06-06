@@ -85,7 +85,19 @@ public class StudentMapperTest {
     }
 
     @Test
-    public void synchronizeStudentMapping_MappingByMarticulationNumber() {
+    public void synchronizeStudentMapping_CouldBeMappedManually() {
+        when(userMappingDaoMock.existsMappingForSapUserId(studentMock.getId())).thenReturn(false);
+        when(studentMappingByMatriculationNumber.tryToMap(studentMock)).thenReturn(null);
+        when(mappingByEmailMock.tryToMap(studentMock)).thenReturn(null);
+        when(mappingByFirstNameAndLastNameMock.tryToMap(studentMock.getFirstName(), studentMock.getLastName())).thenReturn(identityMock);
+
+        MappingResult result = studentMapperTestObject.synchronizeStudentMapping(studentMock);
+
+        assertEquals("", MappingResult.COULD_BE_MAPPED_MANUALLY, result);
+    }
+
+    @Test
+    public void synchronizeStudentMapping_MappingByMatriculationNumber() {
         when(userMappingDaoMock.existsMappingForSapUserId(studentMock.getId())).thenReturn(false);
         when(studentMappingByMatriculationNumber.tryToMap(studentMock)).thenReturn(identityMock);
 
