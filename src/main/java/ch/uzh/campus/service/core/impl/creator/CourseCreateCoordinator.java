@@ -20,8 +20,12 @@
  */
 package ch.uzh.campus.service.core.impl.creator;
 
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 import java.util.Locale;
-
+import org.apache.commons.lang.StringUtils;
+import org.olat.core.commons.persistence.DB;
 import org.olat.core.gui.translator.Translator;
 import org.olat.core.id.Identity;
 import org.olat.core.logging.OLog;
@@ -39,7 +43,11 @@ import org.springframework.stereotype.Component;
 
 import ch.uzh.campus.CampusConfiguration;
 import ch.uzh.campus.CampusCourseImportTO;
+import ch.uzh.campus.data.Course;
 import ch.uzh.campus.data.DaoManager;
+import ch.uzh.campus.data.SapOlatUser;
+import ch.uzh.campus.data.Student;
+import ch.uzh.campus.data.StudentCourse;
 import ch.uzh.campus.service.CampusCourse;
 import ch.uzh.campus.service.core.impl.syncer.CampusCourseGroupSynchronizer;
 
@@ -76,9 +84,12 @@ public class CourseCreateCoordinator {
     OLATResourceManager olatResourceManager;
     
     @Autowired
+    private DB dbInstance;
+    
+    @Autowired
     DaoManager daoManager;
 
-    /*public CampusCourse continueCampusCourse(Long courseResourceableId, CampusCourse campusCourse, CampusCourseImportTO campusCourseImportData, Identity creator) {
+    public CampusCourse continueCampusCourse(Long courseResourceableId, CampusCourse campusCourse, CampusCourseImportTO campusCourseImportData, Identity creator) {
         RepositoryEntry repositoryEntry = campusCourse.getRepositoryEntry();
         // TITLE
         String oldTitle = repositoryEntry.getDisplayname();
@@ -94,14 +105,17 @@ public class CourseCreateCoordinator {
         String campusCourseSemester = oldTitle.concat("<br>").concat(newTitle);
         campusCourse.setDescription(courseDescriptionBuilder.buildDescriptionFrom(campusCourseImportData, campusCourseSemester, campusCourseImportData.getLanguage()));
 
-        repositoryService.updateDisplaynameDescriptionOfRepositoryEntry(campusCourse.getRepositoryEntry());
+        updateDisplaynameDescriptionOfRepositoryEntry(campusCourse.getRepositoryEntry());
 
         List<StudentCourse> studentCourses = new ArrayList<StudentCourse>();
         for (Identity identity : campusCourseGroupSynchronizer.getCampusGroupAParticipants(campusCourse)) {
             SapOlatUser sapOlatUser = daoManager.getStudentSapOlatUserByOlatUserName(identity.getName());
             if (sapOlatUser != null) {
                 if (daoManager.getStudentById(sapOlatUser.getSapUserId()) != null) {
-                    StudentCourse studentCourse = new StudentCourse(new StudentCoursePK(sapOlatUser.getSapUserId(), campusCourseImportData.getSapCourseId()));
+                	//StudentCourse studentCourse = new StudentCourse(new StudentCoursePK(sapOlatUser.getSapUserId(), campusCourseImportData.getSapCourseId()));
+                	Course course = daoManager.getCourseById(campusCourseImportData.getSapCourseId());
+                	Student student = daoManager.getStudentById(sapOlatUser.getSapUserId());
+                	StudentCourse studentCourse = new StudentCourse(student,course, new Date());                    
                     studentCourses.add(studentCourse);
                 }
             }
@@ -114,8 +128,24 @@ public class CourseCreateCoordinator {
         }
 
         return campusCourse;
-    }*/
+    }
+    
+    
+    public RepositoryEntry updateDisplaynameDescriptionOfRepositoryEntry(final RepositoryEntry repositoryEntry) {
+        final RepositoryEntry reloaded = repositoryService.loadByKey(repositoryEntry.getKey());
+        reloaded.setDisplayname(repositoryEntry.getDisplayname());
+        reloaded.setDescription(repositoryEntry.getDescription());        
+        dbInstance.getCurrentEntityManager().merge(reloaded);
+        return reloaded;
+    }
 
+    /**
+     * Create campus course from a template course if courseResourceableId==null, else uses the given course as a template.
+     * @param courseResourceableId
+     * @param campusCourseImportData
+     * @param creator
+     * @return
+     */
     public CampusCourse createCampusCourse(Long courseResourceableId, CampusCourseImportTO campusCourseImportData, Identity creator) {
         final Long templateCourseResourceableId;
 
@@ -153,7 +183,7 @@ public class CourseCreateCoordinator {
                 campusCourse.SetBusinessGroups(creator);
             }
 
-            //TODO: olatng
+            //execute the first synchronization
             campusCourseGroupSynchronizer.addAllLecturesAsOwner(campusCourse, campusCourseImportData.getLecturers());
             campusCourseGroupSynchronizer.addDefaultCoOwnersAsOwner(campusCourse);
             campusCourseGroupSynchronizer.synchronizeCourseGroups(campusCourse, campusCourseImportData);

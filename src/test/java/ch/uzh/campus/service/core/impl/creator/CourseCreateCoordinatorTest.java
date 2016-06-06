@@ -103,9 +103,8 @@ public class CourseCreateCoordinatorTest extends OlatTestCase {
         when(campusConfigurationMock.getCourseGroupAName()).thenReturn(TEST_COURSE_GROUP_A_NAME);
         when(campusConfigurationMock.getCourseGroupBName()).thenReturn(TEST_COURSE_GROUP_B_NAME);
         when(campusConfigurationMock.getTemplateLanguage(null)).thenReturn("DE");
-        courseCreateCoordinator.campusConfiguration = campusConfigurationMock;
-        //TODO: olatng
-        //courseCreateCoordinator.campusCourseGroupSynchronizer.setCampusConfiguration(campusConfigurationMock);
+        courseCreateCoordinator.campusConfiguration = campusConfigurationMock;        
+        courseCreateCoordinator.campusCourseGroupSynchronizer.setCampusConfiguration(campusConfigurationMock);
 
         CoursePublisher coursePublisherMock = mock(CoursePublisher.class);
         courseCreateCoordinator.coursePublisher = coursePublisherMock;
@@ -115,7 +114,6 @@ public class CourseCreateCoordinatorTest extends OlatTestCase {
         testIdentity = JunitTestHelper.createAndPersistIdentityAsUser(testUserName);
         secondTestIdentity = JunitTestHelper.createAndPersistIdentityAsUser(secondTestUserName);
     }
-
     
 
 	@After

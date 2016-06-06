@@ -158,5 +158,10 @@ public class CampusCourseGroupSynchronizer {
         System.out.println("added identities: " + businessGroupAddResponse.getAddedIdentities().size());
         return addedIdentityCounter;
     }
+    
+    // only for testing
+    public void setCampusConfiguration(CampusConfiguration campusConfigurationMock) {
+        this.campusConfiguration = campusConfigurationMock;
+    }
        
 }

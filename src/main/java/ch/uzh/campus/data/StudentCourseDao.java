@@ -1,6 +1,6 @@
 package ch.uzh.campus.data;
 
-import org.hibernate.Query;
+
 import org.olat.core.commons.persistence.DB;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
@@ -41,6 +41,12 @@ public class StudentCourseDao implements CampusDao<StudentIdCourseId> {
         studentCourse = dbInstance.getCurrentEntityManager().merge(studentCourse);
         studentCourse.getStudent().getStudentCourses().add(studentCourse);
         studentCourse.getCourse().getStudentCourses().add(studentCourse);
+    }
+    
+    public void saveOrUpdateList(List<StudentCourse> studentCourses) {
+    	for(StudentCourse studentCourse:studentCourses) {
+    		saveOrUpdate(studentCourse);
+    	}    	
     }
 
     public void saveOrUpdate(StudentIdCourseId studentIdCourseId) {
