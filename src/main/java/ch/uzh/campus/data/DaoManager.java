@@ -43,6 +43,8 @@ public class DaoManager {
     @Autowired
     private StudentDao studentDao;
     @Autowired
+    StudentCourseDao studentCourseDao;
+    @Autowired
     private LecturerDao lecturerDao;
     @Autowired
     private SapOlatUserDao sapOlatUserDao;
@@ -81,6 +83,10 @@ public class DaoManager {
 
     public void saveLecturers(List<Lecturer> lecturers) {
         lecturerDao.save(lecturers);
+    }
+    
+    public void saveStudentCourses(List<StudentCourse> studentCourses) {
+        studentCourseDao.saveOrUpdateList(studentCourses);
     }
 
     public void saveSapOlatUsers(List<SapOlatUser> sapOlatUsers) {
