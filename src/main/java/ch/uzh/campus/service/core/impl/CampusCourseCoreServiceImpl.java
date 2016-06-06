@@ -23,30 +23,14 @@ package ch.uzh.campus.service.core.impl;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.log4j.Logger;
 import org.olat.core.id.Identity;
 import org.olat.core.id.OLATResourceable;
 import org.olat.core.logging.OLog;
 import org.olat.core.logging.Tracing;
-import org.olat.core.util.coordinate.CoordinatorManager;
+
 import org.olat.repository.RepositoryEntry;
 import org.olat.repository.RepositoryService;
-/*import org.olat.data.basesecurity.Identity;
-import org.olat.data.course.campus.Course;
-import org.olat.data.course.campus.DaoManager;
-import org.olat.data.course.campus.SapOlatUser;
-import org.olat.data.repository.RepositoryEntry;
-import org.olat.lms.core.course.campus.CampusCourseImportTO;
-import org.olat.lms.core.course.campus.impl.creator.CampusCourse;
-import org.olat.lms.core.course.campus.impl.creator.CourseCreateCoordinator;
-import org.olat.lms.core.course.campus.service.CampusCourseCoreService;
-import org.olat.lms.repository.RepositoryService;
-import org.olat.presentation.portal.campus.CampusCourseEvent;
-import org.olat.system.commons.resource.OLATResourceable;
-import org.olat.system.commons.resource.OresHelper;
-import org.olat.system.coordinate.CoordinatorManager;
-import org.olat.system.logging.log4j.LoggerHelper;
-*/
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -58,6 +42,7 @@ import ch.uzh.campus.data.DaoManager;
 import ch.uzh.campus.data.SapOlatUser;
 import ch.uzh.campus.service.CampusCourse;
 import ch.uzh.campus.service.core.CampusCourseCoreService;
+import ch.uzh.campus.service.core.impl.creator.CourseCreateCoordinator;
 
 /**
  * Initial Date: 16.07.2012 <br>
@@ -67,14 +52,17 @@ import ch.uzh.campus.service.core.CampusCourseCoreService;
 @Service
 public class CampusCourseCoreServiceImpl implements CampusCourseCoreService {
 	
-	private static final OLog log = Tracing.createLoggerFor(CampusCourseFactory.class);
+	private static final OLog log = Tracing.createLoggerFor(CampusCourseCoreServiceImpl.class);
 
     @Autowired
     DaoManager daoManager;
-    //@Autowired
-    //CourseCreateCoordinator courseCreateCoordinator;
+    
+    @Autowired
+    CourseCreateCoordinator courseCreateCoordinator;
+    
     @Autowired
     RepositoryService repositoryService;
+    
     @Autowired
     CampusCourseFactory campusCourseFactory;
 
@@ -105,21 +93,16 @@ public class CampusCourseCoreServiceImpl implements CampusCourseCoreService {
         daoManager.saveCampusCourseResoureableIdAndDisableSynchronization(sapCampusCourseId, courseResourceableId);
         CampusCourseImportTO campusCourseImportData = daoManager.getSapCampusCourse(sapCampusCourseId);
         CampusCourse campusCourse = loadCampusCourse(sapCampusCourseId, courseResourceableId);
-
-        //TODO: olatng
-        //return courseCreateCoordinator.continueCampusCourse(courseResourceableId, campusCourse, campusCourseImportData, creator);
-        return null;
+        
+        return courseCreateCoordinator.continueCampusCourse(courseResourceableId, campusCourse, campusCourseImportData, creator);       
     }
 
     public CampusCourse createCampusCourse(Long resourceableId, Long sapCampusCourseId, Identity creator, CampusCourseImportTO campusCourseImportData) {
-        /*CampusCourse campusCourse = courseCreateCoordinator.createCampusCourse(resourceableId, campusCourseImportData, creator);
+        CampusCourse campusCourse = courseCreateCoordinator.createCampusCourse(resourceableId, campusCourseImportData, creator);
         if (campusCourse != null) {
             daoManager.saveCampusCourseResoureableId(sapCampusCourseId, campusCourse.getRepositoryEntry().getOlatResource().getResourceableId());
         }
-        return campusCourse;
-        */
-    	//TODO: olatng
-    	return null;
+        return campusCourse;       
     }
 
     public CampusCourse loadCampusCourse(Long sapCampusCourseId, Long resourceableId) {

@@ -3,6 +3,8 @@ package ch.uzh.campus.service.core.impl.creator;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+import org.junit.Ignore;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -14,6 +16,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.olat.basesecurity.BaseSecurity;
 import org.olat.basesecurity.Group;
+import org.olat.basesecurity.GroupRoles;
 import org.olat.basesecurity.manager.GroupDAO;
 import org.olat.core.commons.persistence.DB;
 import org.olat.core.commons.persistence.DBFactory;
@@ -23,6 +26,7 @@ import org.olat.core.logging.OLog;
 import org.olat.core.logging.Tracing;
 import org.olat.course.CourseFactory;
 import org.olat.course.ICourse;
+import org.olat.group.BusinessGroup;
 import org.olat.group.BusinessGroupService;
 import org.olat.repository.RepositoryEntry;
 import org.olat.repository.RepositoryService;
@@ -36,6 +40,7 @@ import ch.uzh.campus.CampusConfiguration;
 import ch.uzh.campus.CampusCourseImportTO;
 import ch.uzh.campus.creator.ObjectMother;
 import ch.uzh.campus.service.CampusCourse;
+import ch.uzh.campus.service.core.impl.syncer.CampusGroupHelper;
 
 /**
  * Initial Date: 04.06.2012 <br>
@@ -139,6 +144,7 @@ public class CourseCreateCoordinatorTest extends OlatTestCase {
         participants.add(secondTestIdentity);
         CampusCourseImportTO campusCourseImportData = new CampusCourseImportTO(TEST_TITLE_TEXT, semester, lecturers, participants, TEST_EVENT_DESCRIPTION_TEXT,
                 TEST_RESOURCEABLE_ID, null);
+        
         CampusCourse campusCourse = courseCreateCoordinator.createCampusCourse(null, campusCourseImportData, ownerIdentity);
         return campusCourse;
     }
@@ -157,13 +163,14 @@ public class CourseCreateCoordinatorTest extends OlatTestCase {
         assertTrue("CampusCourse Access must be 'BARG'", createdCampusCourseTestObject.getRepositoryEntry().getAccess() == RepositoryEntry.ACC_USERS_GUESTS);
     }
 
-    /*
+    @Ignore
     @Test
     public void createCampusCourse_CheckTitle() {
         CampusCourse createdCampusCourseTestObject = createCampusCourseTestObject();
         assertEquals("Wrong title in RepositoryEntry", TEST_TITLE_TEXT, createdCampusCourseTestObject.getRepositoryEntry().getDisplayname());
         assertEquals("Wrong title in Course", TEST_TITLE_TEXT, createdCampusCourseTestObject.getCourse().getCourseTitle());
-    }*/
+        //assertEquals("Wrong title in Course", TEST_TITLE_TEXT, createdCampusCourseTestObject.reloadCourse().getCourseTitle());
+    }
     
     @Test
     public void createCampusCourse_CheckDescription() {
@@ -199,22 +206,28 @@ public class CourseCreateCoordinatorTest extends OlatTestCase {
         assertTrue("Missing identity (" + secondOwnerIdentity + ")in owner-group", ownerIdentities.contains(secondOwnerIdentity));
     }
     
-    /*
+    
     @Test
     public void createCampusCourse_CheckCourseGroup() {
         CampusCourse createdCampusCourseTestObject = createCampusCourseTestObject();
         BusinessGroup campusCourseGroup = CampusGroupHelper.lookupCampusGroup(createdCampusCourseTestObject.getCourse(), campusConfigurationMock.getCourseGroupAName());
 
-        assertTrue("Missing identity (" + ownerIdentity + ") in owner-group of course-group",
-                baseSecurity.isIdentityInSecurityGroup(ownerIdentity, campusCourseGroup.getOwnerGroup()));
-        assertTrue("Missing identity (" + secondOwnerIdentity + ")in owner-group of course-group",
-                baseSecurity.isIdentityInSecurityGroup(secondOwnerIdentity, campusCourseGroup.getOwnerGroup()));
+        List<Identity> coaches = businessGroupService.getMembers(campusCourseGroup, GroupRoles.coach.name());
+        
+        assertTrue("Missing identity (" + ownerIdentity + ") in owner-group of course-group", coaches.contains(ownerIdentity));
+        assertTrue("Missing identity (" + secondOwnerIdentity + ")in owner-group of course-group", coaches.contains(secondOwnerIdentity));
+        
+        List<Identity> participants = businessGroupService.getMembers(campusCourseGroup, GroupRoles.participant.name());
 
-        assertTrue("Missing identity (" + testIdentity + ") in participant-group of course-group",
-                baseSecurity.isIdentityInSecurityGroup(testIdentity, campusCourseGroup.getPartipiciantGroup()));
-        assertTrue("Missing identity (" + secondTestIdentity + ")in participant-group of course-group",
-                baseSecurity.isIdentityInSecurityGroup(secondTestIdentity, campusCourseGroup.getPartipiciantGroup()));
+        assertTrue("Missing identity (" + testIdentity + ") in participant-group of course-group", participants.contains(testIdentity));
+        assertTrue("Missing identity (" + secondTestIdentity + ")in participant-group of course-group", participants.contains(secondTestIdentity));
 
-    }*/
+    }
+    
+    @Ignore
+    @Test
+    public void continueCampusCourse() {
+    	fail("Not yet implemented");
+    }
 
 }

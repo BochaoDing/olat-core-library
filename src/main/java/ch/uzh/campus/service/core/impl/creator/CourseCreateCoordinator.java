@@ -49,6 +49,7 @@ import ch.uzh.campus.data.SapOlatUser;
 import ch.uzh.campus.data.Student;
 import ch.uzh.campus.data.StudentCourse;
 import ch.uzh.campus.service.CampusCourse;
+import ch.uzh.campus.service.core.impl.CampusCourseFactory;
 import ch.uzh.campus.service.core.impl.syncer.CampusCourseGroupSynchronizer;
 
 
@@ -88,6 +89,10 @@ public class CourseCreateCoordinator {
     
     @Autowired
     DaoManager daoManager;
+    
+    @Autowired
+    CampusCourseFactory campusCourseFactory;
+    
 
     public CampusCourse continueCampusCourse(Long courseResourceableId, CampusCourse campusCourse, CampusCourseImportTO campusCourseImportData, Identity creator) {
         RepositoryEntry repositoryEntry = campusCourse.getRepositoryEntry();
@@ -202,7 +207,12 @@ public class CourseCreateCoordinator {
                 // PUBLISH THE CREATED CampusCourse
                 coursePublisher.publish(campusCourse.getCourse(), creator);
             }
-
+            
+            //TODO: olatng load course again to see the updates in title, etc. ?
+            //ICourse reloadedCourse = CourseFactory.loadCourse(campusCourse.getCourse().getResourceableId());
+            //campusCourse.reloadCourse();
+            
+           
             return campusCourse;
 
         } catch (Exception ex) {
