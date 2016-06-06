@@ -44,7 +44,7 @@ import static org.mockito.Mockito.when;
  * 
  * @author cg
  */
-public class StudentMappingByMartikelNumberTest {
+public class StudentMappingByMarticulationNumberTest {
 
     StudentMappingByMatriculationNumber studentMappingByMatriculationNumber;
 
