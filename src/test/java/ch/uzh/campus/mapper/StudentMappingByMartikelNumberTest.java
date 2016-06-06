@@ -81,12 +81,12 @@ public class StudentMappingByMartikelNumberTest {
 
     @Test
     public void tryToMap_foundMoreThanOneMapping() {
-        List<Identity> twoIdentities = new ArrayList<Identity>();
-        twoIdentities.add(identityMockOne);
-        twoIdentities.add(identityMockTwo);
+        List<Identity> twoIdentitiesList = new ArrayList<Identity>();
+        twoIdentitiesList.add(identityMockOne);
+        twoIdentitiesList.add(identityMockTwo);
         when(
                 baseSecurityMock.getVisibleIdentitiesByPowerSearch(anyString(), anyMap(), anyBoolean(), any(SecurityGroup[].class),
-                        any(PermissionOnResourceable[].class), any(String[].class), any(Date.class), any(Date.class))).thenReturn(twoIdentities);
+                        any(PermissionOnResourceable[].class), any(String[].class), any(Date.class), any(Date.class))).thenReturn(twoIdentitiesList);
 
         Identity mappedIdentity = studentMappingByMatriculationNumber.tryToMap(studentMock);
         assertNull("Must return null, when more than one mapping exists", mappedIdentity);
@@ -94,11 +94,11 @@ public class StudentMappingByMartikelNumberTest {
 
     @Test
     public void tryToMap_foundOneMapping() {
-        List<Identity> twoIdentities = new ArrayList<Identity>();
-        twoIdentities.add(identityMockOne);
+        List<Identity> oneIdentityList = new ArrayList<Identity>();
+        oneIdentityList.add(identityMockOne);
         when(
                 baseSecurityMock.getVisibleIdentitiesByPowerSearch(anyString(), anyMap(), anyBoolean(), any(SecurityGroup[].class),
-                        any(PermissionOnResourceable[].class), any(String[].class), any(Date.class), any(Date.class))).thenReturn(twoIdentities);
+                        any(PermissionOnResourceable[].class), any(String[].class), any(Date.class), any(Date.class))).thenReturn(oneIdentityList);
 
         Identity mappedIdentity = studentMappingByMatriculationNumber.tryToMap(studentMock);
         assertNotNull("Must return an identity, when only one mapping exists", mappedIdentity);

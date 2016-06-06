@@ -71,7 +71,7 @@ public class LecturerMapperTest {
 
         MappingResult result = lecturerMapperTestObject.synchronizeLecturerMapping(lecturerMock);
 
-        assertEquals("", MappingResult.MAPPING_ALREADY_EXIST, result);
+        assertEquals("Mapping should already exist", MappingResult.MAPPING_ALREADY_EXIST, result);
     }
 
     @Test
@@ -83,7 +83,7 @@ public class LecturerMapperTest {
 
         MappingResult result = lecturerMapperTestObject.synchronizeLecturerMapping(lecturerMock);
 
-        assertEquals("", MappingResult.COULD_NOT_MAP, result);
+        assertEquals("Mapping should not be found", MappingResult.COULD_NOT_MAP, result);
     }
 
     @Test
@@ -95,7 +95,7 @@ public class LecturerMapperTest {
 
         MappingResult result = lecturerMapperTestObject.synchronizeLecturerMapping(lecturerMock);
 
-        assertEquals("", MappingResult.COULD_BE_MAPPED_MANUALLY, result);
+        assertEquals("Mapping should be done manually", MappingResult.COULD_BE_MAPPED_MANUALLY, result);
     }
 
     @Test
@@ -105,7 +105,7 @@ public class LecturerMapperTest {
 
         MappingResult result = lecturerMapperTestObject.synchronizeLecturerMapping(lecturerMock);
 
-        assertEquals("", MappingResult.NEW_MAPPING_BY_PERSONAL_NR, result);
+        assertEquals("Mapping should be found for the personal number", MappingResult.NEW_MAPPING_BY_PERSONAL_NR, result);
     }
 
     @Test
@@ -116,7 +116,7 @@ public class LecturerMapperTest {
 
         MappingResult result = lecturerMapperTestObject.synchronizeLecturerMapping(lecturerMock);
 
-        assertEquals("", MappingResult.NEW_MAPPING_BY_EMAIL, result);
+        assertEquals("Mapping should be found for the email", MappingResult.NEW_MAPPING_BY_EMAIL, result);
     }
 
 }
