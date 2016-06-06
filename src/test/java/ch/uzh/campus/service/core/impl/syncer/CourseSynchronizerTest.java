@@ -20,11 +20,16 @@
  */
 package ch.uzh.campus.service.core.impl.syncer;
 
+import ch.uzh.campus.data.DaoManager;
 import ch.uzh.campus.service.core.impl.syncer.CourseSynchronizer;
+import ch.uzh.campus.service.core.impl.syncer.statistic.SynchronizedGroupStatistic;
+
 import org.junit.Before;
+import org.junit.Test;
 
 import static org.junit.Assert.assertNotNull;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 /**
  * Initial Date: 28.06.2012 <br>
@@ -41,14 +46,20 @@ public class CourseSynchronizerTest {
         courseSynchronizerTestObject = new CourseSynchronizer();
     }
 
+    
+    @Test
+    public void synchronizeCourse_CouldNotFoundCourse() {
+        DaoManager daoManagerMock = mock(DaoManager.class);
+        when(daoManagerMock.getSapCampusCourse(NOT_EXISTING_SAP_COURSE_ID)).thenReturn(null);
+        // courseSynchronizerTestObject.campusDaoManager = daoManagerMock;
+
+        SynchronizedGroupStatistic statistic = courseSynchronizerTestObject.synchronizeCourse(null);
+        assertNotNull(statistic);
+    }
+    
     // TODO OLATng
-//    @Test
-//    public void synchronizeCourse_CouldNotFoundCourse() {
-//        DaoManager daoManagerMock = mock(DaoManager.class);
-//        when(daoManagerMock.getSapCampusCourse(NOT_EXISTING_SAP_COURSE_ID)).thenReturn(null);
-//        // courseSynchronizerTestObject.campusDaoManager = daoManagerMock;
-//
-//        SynchronizedGroupStatistic statistic = courseSynchronizerTestObject.synchronizeCourse(null);
-//        assertNotNull(statistic);
-//    }
+    @Test
+    public void synchronizeCourse_FoundCourse() {
+    	
+    }
 }

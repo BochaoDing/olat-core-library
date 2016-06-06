@@ -21,7 +21,7 @@ import ch.uzh.campus.CampusConfiguration;
  */
 @Component
 public class CampuskursCoOwners {
-    //private static final Logger log = LoggerHelper.getLogger();
+    
 	private static final OLog log = Tracing.createLoggerFor(CampuskursCoOwners.class);
 
     private static final String DELIMITER = ",";

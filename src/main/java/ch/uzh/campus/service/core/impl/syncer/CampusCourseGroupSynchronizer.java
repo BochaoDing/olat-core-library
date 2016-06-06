@@ -11,13 +11,10 @@ import org.olat.core.id.Identity;
 
 import org.olat.core.logging.OLog;
 import org.olat.core.logging.Tracing;
-import org.olat.course.ICourse;
 
 import org.olat.group.BusinessGroup;
 import org.olat.group.BusinessGroupAddResponse;
 import org.olat.group.BusinessGroupService;
-
-import org.olat.repository.RepositoryManager;
 import org.olat.repository.RepositoryService;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,25 +47,14 @@ public class CampusCourseGroupSynchronizer {
     CampuskursCoOwners campuskursCoOwners;
 
     @Autowired
-    RepositoryManager repositoryManager;
-
-    @Autowired
     RepositoryService repositoryService;
 
     @Autowired
     BusinessGroupService businessGroupService;    
     
-
-    public void setCampusConfiguration(CampusConfiguration campusConfiguration) {
-        this.campusConfiguration = campusConfiguration;
-    }
-
-    public CampuskursCoOwners getCampuskursCoOwners() {
-        return campuskursCoOwners;
-    }
-
-    @Autowired
-    DB dBImpl;
+    //@Autowired
+    //DB dBImpl;
+   
 
    public void addAllLecturesAsOwner(CampusCourse campusCourse, List<Identity> lecturers) {
         addAllIdentitiesAsOwner(campusCourse, lecturers);
@@ -79,8 +65,12 @@ public class CampusCourseGroupSynchronizer {
 	   addAsOwners(campusCourse, identities);
    }
 
-   private void addAsOwners(CampusCourse campusCourse, List<Identity> identities) {
-	   //TODO: olatng 
+   /**
+    * Adds the list of identities as owners of this resource/course.
+    * @param campusCourse
+    * @param identities
+    */
+   private void addAsOwners(CampusCourse campusCourse, List<Identity> identities) {	   
 	   //var 1: use the repositoryManager
 	   //IdentitiesAddEvent iae = new IdentitiesAddEvent(identities);
 	   //Identity addingIdentity = campuskursCoOwners.getDefaultCoOwners().get(0);//or get the campuskursAdminIdentity
@@ -98,28 +88,13 @@ public class CampusCourseGroupSynchronizer {
        //addNewMembersToSecurityGroup(campusCourse.getRepositoryEntry().getOwnerGroup(), campuskursCoOwners.getDefaultCoOwners());
 	   addAsOwners(campusCourse, campuskursCoOwners.getDefaultCoOwners());
    }
-   
-   
-   /**/
-   
-   /*
-    public void addAllLecturesAsOwner(ICourse course, List<Identity> lecturers) {
-        RepositoryEntry repositoryEntry = getRepositoryService().lookupRepositoryEntry(course.getCourseEnvironment().getRepositoryEntryId());
-        synchronizeSecurityGroup(repositoryEntry.getOwnerGroup(), lecturers, false);
-    }
-
-    public void addAllDelegateesAsOwner(CampusCourse campusCourse, List<Identity> delegatees) {
-        addAllIdentitiesAsOwner(campusCourse, delegatees);
-    }
-   
-
-    public List<Identity> getCampusGroupAParticipants(CampusCourse campusCourse) {
-        BusinessGroup campusGroupA = CampusGroupHelper.lookupCampusGroup(campusCourse.getCourse(), campusConfiguration.getCourseGroupAName());
-        List<Identity> participants = baseSecurity.getIdentitiesOfSecurityGroup(campusGroupA.getPartipiciantGroup());
+     
+   public List<Identity> getCampusGroupAParticipants(CampusCourse campusCourse) {
+        BusinessGroup campusGroupA = CampusGroupHelper.lookupCampusGroup(campusCourse.getCourse(), campusConfiguration.getCourseGroupAName());        
+        List<Identity> participants = businessGroupService.getMembers(campusGroupA, GroupRoles.participant.name());
         return participants;
-    }
-
-   */     
+   }
+      
 
    /**
     * Synchronizes the owners of the GroupB, and the owners and participants of the GroupA.
@@ -183,15 +158,5 @@ public class CampusCourseGroupSynchronizer {
         System.out.println("added identities: " + businessGroupAddResponse.getAddedIdentities().size());
         return addedIdentityCounter;
     }
-    
-    
-   /*
-    public SynchronizedGroupStatistic synchronizeCourseGroupsForStudentsOnly(ICourse course, CampusCourseImportTO campusCourseImportData) {
-        BusinessGroup campusGroupA = CampusGroupHelper.lookupCampusGroup(course, campusConfiguration.getCourseGroupAName());
-        SynchronizedSecurityGroupStatistic participantGroupStatistic = synchronizeGroupParticipants(campusGroupA, campusCourseImportData.getParticipants());
-        return new SynchronizedGroupStatistic(campusCourseImportData.getTitle(), null, participantGroupStatistic);
-    }
-
-*/
-  
+       
 }
