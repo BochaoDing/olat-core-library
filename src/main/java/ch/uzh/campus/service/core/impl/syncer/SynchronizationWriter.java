@@ -23,6 +23,7 @@ package ch.uzh.campus.service.core.impl.syncer;
 import ch.uzh.campus.CampusCourseImportTO;
 import ch.uzh.campus.connectors.CampusInterceptor;
 import ch.uzh.campus.service.core.impl.syncer.statistic.OverallSynchronizeStatistic;
+import ch.uzh.campus.service.core.impl.syncer.statistic.SynchronizedGroupStatistic;
 import org.olat.core.logging.OLog;
 import org.olat.core.logging.Tracing;
 import org.springframework.batch.item.ItemWriter;
@@ -75,9 +76,8 @@ public class SynchronizationWriter implements ItemWriter<CampusCourseImportTO> {
      */
     public void write(List<? extends CampusCourseImportTO> sapCourses) throws Exception {
         for (CampusCourseImportTO sapCourse : sapCourses) {
-            // TODO OLATng
-//            SynchronizedGroupStatistic courseSynchronizeStatistic = courseSynchronizer.synchronizeCourse(sapCourse);
-//            synchronizeStatistic.add(courseSynchronizeStatistic);
+            SynchronizedGroupStatistic courseSynchronizeStatistic = courseSynchronizer.synchronizeCourse(sapCourse);
+            synchronizeStatistic.add(courseSynchronizeStatistic);
         }
     }
 }
