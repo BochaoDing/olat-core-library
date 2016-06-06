@@ -69,7 +69,7 @@ public class StudentMapperTest {
 
         MappingResult result = studentMapperTestObject.synchronizeStudentMapping(studentMock);
 
-        assertEquals("", MappingResult.MAPPING_ALREADY_EXIST, result);
+        assertEquals("Mapping should already exist", MappingResult.MAPPING_ALREADY_EXIST, result);
     }
 
     @Test
@@ -81,17 +81,29 @@ public class StudentMapperTest {
 
         MappingResult result = studentMapperTestObject.synchronizeStudentMapping(studentMock);
 
-        assertEquals("", MappingResult.COULD_NOT_MAP, result);
+        assertEquals("Mapping should not be found", MappingResult.COULD_NOT_MAP, result);
     }
 
     @Test
-    public void synchronizeStudentMapping_MappingByMarticulationNumber() {
+    public void synchronizeStudentMapping_CouldBeMappedManually() {
+        when(userMappingDaoMock.existsMappingForSapUserId(studentMock.getId())).thenReturn(false);
+        when(studentMappingByMatriculationNumber.tryToMap(studentMock)).thenReturn(null);
+        when(mappingByEmailMock.tryToMap(studentMock)).thenReturn(null);
+        when(mappingByFirstNameAndLastNameMock.tryToMap(studentMock.getFirstName(), studentMock.getLastName())).thenReturn(identityMock);
+
+        MappingResult result = studentMapperTestObject.synchronizeStudentMapping(studentMock);
+
+        assertEquals("Mapping should be done manually", MappingResult.COULD_BE_MAPPED_MANUALLY, result);
+    }
+
+    @Test
+    public void synchronizeStudentMapping_MappingByMatriculationNumber() {
         when(userMappingDaoMock.existsMappingForSapUserId(studentMock.getId())).thenReturn(false);
         when(studentMappingByMatriculationNumber.tryToMap(studentMock)).thenReturn(identityMock);
 
         MappingResult result = studentMapperTestObject.synchronizeStudentMapping(studentMock);
 
-        assertEquals("", MappingResult.NEW_MAPPING_BY_MATRICULATION_NR, result);
+        assertEquals("Mapping should be found for the matriculation number", MappingResult.NEW_MAPPING_BY_MATRICULATION_NR, result);
     }
 
     @Test
@@ -102,7 +114,7 @@ public class StudentMapperTest {
 
         MappingResult result = studentMapperTestObject.synchronizeStudentMapping(studentMock);
 
-        assertEquals("", MappingResult.NEW_MAPPING_BY_EMAIL, result);
+        assertEquals("Mapping should be found for the email", MappingResult.NEW_MAPPING_BY_EMAIL, result);
     }
 
 }

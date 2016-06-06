@@ -26,6 +26,7 @@ import org.olat.core.logging.Tracing;
 import org.springframework.batch.core.*;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Map;
@@ -59,9 +60,9 @@ public class CampusJobInterceptor implements JobExecutionListener {
                 for (String parameterKey : parameters.keySet()) {
                     if (!parameterKey.equals("run.ts")) {
                         String filePath = parameters.get(parameterKey).getValue().toString();
-                        LOG.info("TODO: check for existence filePath :" + filePath);
-                        if (!Files.exists(Paths.get(filePath))) {
-                            LOG.error("CSV File for '" + parameterKey + "' is not found in expected location. Check campusJobSchedulerContext.xml");
+                        LOG.info("Check if CSV file exists: " + filePath);
+                        if (!Files.exists(Paths.get(URI.create(filePath)))) {
+                            LOG.error("CSV file for parameter '" + parameterKey + "' does not exist: " + filePath);
                         }
                     }
                 }
