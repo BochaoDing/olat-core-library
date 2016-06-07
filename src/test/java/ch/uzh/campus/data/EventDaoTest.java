@@ -30,6 +30,7 @@ import org.springframework.test.context.ContextConfiguration;
 
 import javax.inject.Provider;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import static org.junit.Assert.*;
@@ -114,6 +115,23 @@ public class EventDaoTest extends OlatTestCase {
         course = courseDao.getCourseById(100L);
         assertEquals(1, course.getEvents().size());
         assertEquals(1, eventDao.getEventsByCourseId(100L).size());
+    }
+
+    @Test
+    public void testAddEventToTCourse_NotExistingCourse() {
+        EventCourseId eventCourseId = new EventCourseId();
+        eventCourseId.setCourseId(999L);
+        eventCourseId.setDate(new Date());
+        eventCourseId.setStart("10:00");
+        eventCourseId.setEnd("13:00");
+        eventCourseId.setModifiedDate(new Date());
+
+        eventDao.addEventToCourse(eventCourseId);
+
+        dbInstance.flush();
+        dbInstance.clear();
+
+        assertEquals(0, eventDao.getEventsByCourseId(999L).size());
     }
 
     @Test

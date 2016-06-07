@@ -1,6 +1,8 @@
 package ch.uzh.campus.data;
 
 import org.olat.core.commons.persistence.DB;
+import org.olat.core.logging.OLog;
+import org.olat.core.logging.Tracing;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
@@ -16,11 +18,17 @@ import java.util.List;
 @Repository
 public class EventDao {
 
+    private static final OLog LOG = Tracing.createLoggerFor(EventDao.class);
+
     @Autowired
     private DB dbInstance;
 
     public void addEventToCourse(Event event, Long courseId) {
-        Course course = dbInstance.getCurrentEntityManager().getReference(Course.class, courseId);
+        Course course = dbInstance.getCurrentEntityManager().find(Course.class, courseId);
+        if (course == null) {
+            LOG.warn("No course found with id " + courseId + ". Skipping entry " + event.getId() + " for table ck_event.");
+            return;
+        }
         event.setCourse(course);
         course.getEvents().add(event);
     }

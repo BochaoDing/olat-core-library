@@ -11,6 +11,7 @@ import org.springframework.test.context.ContextConfiguration;
 
 import javax.inject.Provider;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import static org.junit.Assert.*;
@@ -95,6 +96,23 @@ public class TextDaoTest extends OlatTestCase {
         course = courseDao.getCourseById(100L);
         assertEquals(1, course.getTexts().size());
         assertEquals(1, textDao.getTextsByCourseId(100L).size());
+    }
+
+    @Test
+    public void testAddTextToTCourse_NotExistingCourse() {
+        TextCourseId textCourseId = new TextCourseId();
+        textCourseId.setCourseId(999L);
+        textCourseId.setType("Veranstaltungsinhalt");
+        textCourseId.setLineSeq(1);
+        textCourseId.setLine("- praktische Tätigkeiten im chemischen Labor");
+        textCourseId.setModifiedDate(new Date());
+
+        textDao.addTextToCourse(textCourseId);
+
+        dbInstance.flush();
+        dbInstance.clear();
+
+        assertEquals(0, textDao.getTextsByCourseId(999L).size());
     }
 
     @Test

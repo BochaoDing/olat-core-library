@@ -89,6 +89,36 @@ public class LecturerCourseDaoTest extends OlatTestCase {
     }
 
     @Test
+    public void testSaveLecturerCourse_NotExistingCourse() {
+        LecturerIdCourseId lecturerIdCourseId = new LecturerIdCourseId();
+        lecturerIdCourseId.setLecturerId(1100L);
+        lecturerIdCourseId.setCourseId(999L);
+        lecturerIdCourseId.setModifiedDate(new Date());
+
+        lecturerCourseDao.save(lecturerIdCourseId);
+
+        dbInstance.flush();
+        dbInstance.clear();
+
+        assertNull(lecturerCourseDao.getLecturerCourseById(1100L, 999L));
+    }
+
+    @Test
+    public void testSaveLecturerCourse_NotExistingLecturer() {
+        LecturerIdCourseId lecturerIdCourseId = new LecturerIdCourseId();
+        lecturerIdCourseId.setLecturerId(999L);
+        lecturerIdCourseId.setCourseId(100L);
+        lecturerIdCourseId.setModifiedDate(new Date());
+
+        lecturerCourseDao.save(lecturerIdCourseId);
+
+        dbInstance.flush();
+        dbInstance.clear();
+
+        assertNull(lecturerCourseDao.getLecturerCourseById(999L, 100L));
+    }
+
+    @Test
     public void testSaveLecturerCourses() {
         assertNull(lecturerCourseDao.getLecturerCourseById(1100L, 100L));
         assertNull(lecturerCourseDao.getLecturerCourseById(1200L, 200L));

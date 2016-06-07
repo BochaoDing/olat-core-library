@@ -1,6 +1,8 @@
 package ch.uzh.campus.data;
 
 import org.olat.core.commons.persistence.DB;
+import org.olat.core.logging.OLog;
+import org.olat.core.logging.Tracing;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
@@ -13,6 +15,8 @@ import java.util.List;
 @Repository
 public class LecturerCourseDao implements CampusDao<LecturerIdCourseId> {
 
+    private static final OLog LOG = Tracing.createLoggerFor(LecturerCourseDao.class);
+
     @Autowired
     private DB dbInstance;
 
@@ -23,8 +27,12 @@ public class LecturerCourseDao implements CampusDao<LecturerIdCourseId> {
     }
 
     public void save(LecturerIdCourseId lecturerIdCourseId) {
-        Lecturer lecturer = dbInstance.getCurrentEntityManager().getReference(Lecturer.class, lecturerIdCourseId.getLecturerId());
-        Course course = dbInstance.getCurrentEntityManager().getReference(Course.class, lecturerIdCourseId.getCourseId());
+        Lecturer lecturer = dbInstance.getCurrentEntityManager().find(Lecturer.class, lecturerIdCourseId.getLecturerId());
+        Course course = dbInstance.getCurrentEntityManager().find(Course.class, lecturerIdCourseId.getCourseId());
+        if (lecturer == null || course == null) {
+            logLecturerCourseNotFound(lecturerIdCourseId, lecturer, course);
+            return;
+        }
         LecturerCourse lecturerCourse = new LecturerCourse(lecturer, course, lecturerIdCourseId.getModifiedDate());
         save(lecturerCourse);
     }
@@ -43,8 +51,12 @@ public class LecturerCourseDao implements CampusDao<LecturerIdCourseId> {
     }
 
     public void saveOrUpdate(LecturerIdCourseId lecturerIdCourseId) {
-        Lecturer lecturer = dbInstance.getCurrentEntityManager().getReference(Lecturer.class, lecturerIdCourseId.getLecturerId());
-        Course course = dbInstance.getCurrentEntityManager().getReference(Course.class, lecturerIdCourseId.getCourseId());
+        Lecturer lecturer = dbInstance.getCurrentEntityManager().find(Lecturer.class, lecturerIdCourseId.getLecturerId());
+        Course course = dbInstance.getCurrentEntityManager().find(Course.class, lecturerIdCourseId.getCourseId());
+        if (lecturer == null || course == null) {
+            logLecturerCourseNotFound(lecturerIdCourseId, lecturer, course);
+            return;
+        }
         LecturerCourse lecturerCourse = new LecturerCourse(lecturer, course, lecturerIdCourseId.getModifiedDate());
         saveOrUpdate(lecturerCourse);
     }
@@ -54,6 +66,18 @@ public class LecturerCourseDao implements CampusDao<LecturerIdCourseId> {
         for (LecturerIdCourseId lecturerIdCourseId : lecturerIdCourseIds) {
             saveOrUpdate(lecturerIdCourseId);
         }
+    }
+
+    private void logLecturerCourseNotFound(LecturerIdCourseId lecturerIdCourseId, Lecturer lecturer, Course course) {
+        String warningMessage = "";
+        if (lecturer == null) {
+            warningMessage = "No lecturer found with id " + lecturerIdCourseId.getLecturerId();
+        }
+        if (course == null) {
+            warningMessage = "No course found with id " + lecturerIdCourseId.getCourseId();
+        }
+        warningMessage = warningMessage + ". Skipping entry " + lecturerIdCourseId.getLecturerId() + ", " + lecturerIdCourseId.getCourseId() + " for table ck_lecturer_course.";
+        LOG.warn(warningMessage);
     }
 
     public LecturerCourse getLecturerCourseById(Long lecturerId, Long courseId) {
