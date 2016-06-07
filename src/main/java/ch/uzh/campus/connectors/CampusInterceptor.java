@@ -259,7 +259,7 @@ public class CampusInterceptor<T, S> implements StepExecutionListener, ItemWrite
      */
     @Override
     public void onSkipInProcess(T item, Throwable ex) {
-        LOG.debug("onSkipInWrite: " + item);
+        LOG.debug("onSkipInProcess: " + item);
         dbInstance.commitAndCloseSession();
         skipItemDao.save(createSkipItem("PROCESS", item.toString(), ex.getMessage()));
     }
