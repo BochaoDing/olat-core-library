@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 
 import javax.inject.Provider;
+import javax.persistence.EntityNotFoundException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -107,7 +108,14 @@ public class TextDaoTest extends OlatTestCase {
         textCourseId.setLine("- praktische Tätigkeiten im chemischen Labor");
         textCourseId.setModifiedDate(new Date());
 
-        textDao.addTextToCourse(textCourseId);
+        try {
+            textDao.addTextToCourse(textCourseId);
+            fail("Expected exception has not occurred.");
+        } catch(EntityNotFoundException e) {
+            // All good, that's exactly what we expect
+        } catch(Exception e) {
+            fail("Unexpected exception has occurred: " + e.getMessage());
+        }
 
         dbInstance.flush();
         dbInstance.clear();

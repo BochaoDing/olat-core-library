@@ -6,6 +6,7 @@ import org.olat.core.logging.Tracing;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
+import javax.persistence.EntityNotFoundException;
 import java.util.List;
 
 /**
@@ -26,8 +27,9 @@ public class EventDao {
     public void addEventToCourse(Event event, Long courseId) {
         Course course = dbInstance.getCurrentEntityManager().find(Course.class, courseId);
         if (course == null) {
-            LOG.warn("No course found with id " + courseId + ". Skipping entry " + event.getId() + " for table ck_event.");
-            return;
+            String warningMessage = "No course found with id " + courseId + ". Skipping entry " + event.getId() + " for table ck_event.";
+            LOG.warn(warningMessage);
+            throw new EntityNotFoundException(warningMessage);
         }
         event.setCourse(course);
         course.getEvents().add(event);

@@ -7,6 +7,7 @@ import org.olat.core.logging.Tracing;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
+import javax.persistence.EntityNotFoundException;
 import java.util.Date;
 import java.util.List;
 
@@ -31,8 +32,7 @@ public class StudentCourseDao implements CampusDao<StudentIdCourseId> {
         Student student = dbInstance.getCurrentEntityManager().find(Student.class, studentIdCourseId.getStudentId());
         Course course = dbInstance.getCurrentEntityManager().find(Course.class, studentIdCourseId.getCourseId());
         if (student == null || course == null) {
-            logStudentCourseNotFound(studentIdCourseId, student, course);
-            return;
+            logStudentCourseNotFoundAndThrowException(studentIdCourseId, student, course);
         }
         StudentCourse studentCourse = new StudentCourse(student, course, studentIdCourseId.getModifiedDate());
         save(studentCourse);
@@ -61,7 +61,7 @@ public class StudentCourseDao implements CampusDao<StudentIdCourseId> {
         Student student = dbInstance.getCurrentEntityManager().find(Student.class, studentIdCourseId.getStudentId());
         Course course = dbInstance.getCurrentEntityManager().find(Course.class, studentIdCourseId.getCourseId());
         if (student == null || course == null) {
-            logStudentCourseNotFound(studentIdCourseId, student, course);
+            logStudentCourseNotFoundAndThrowException(studentIdCourseId, student, course);
             return;
         }
         StudentCourse studentCourse = new StudentCourse(student, course, studentIdCourseId.getModifiedDate());
@@ -75,7 +75,7 @@ public class StudentCourseDao implements CampusDao<StudentIdCourseId> {
         }
     }
 
-    private void logStudentCourseNotFound(StudentIdCourseId studentIdCourseId, Student student, Course course) {
+    private void logStudentCourseNotFoundAndThrowException(StudentIdCourseId studentIdCourseId, Student student, Course course) {
         String warningMessage = "";
         if (student == null) {
             warningMessage = "No student found with id " + studentIdCourseId.getStudentId();
@@ -85,6 +85,7 @@ public class StudentCourseDao implements CampusDao<StudentIdCourseId> {
         }
         warningMessage = warningMessage + ". Skipping entry " + studentIdCourseId.getStudentId() + ", " + studentIdCourseId.getCourseId() + " for table ck_student_course.";
         LOG.warn(warningMessage);
+        throw new EntityNotFoundException(warningMessage);
     }
 
     public StudentCourse getStudentCourseById(Long studentId, Long courseId) {

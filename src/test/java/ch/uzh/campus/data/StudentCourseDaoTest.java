@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 
 import javax.inject.Provider;
+import javax.persistence.EntityNotFoundException;
 import java.util.*;
 
 import static org.junit.Assert.*;
@@ -92,7 +93,14 @@ public class StudentCourseDaoTest extends OlatTestCase {
         studentIdCourseId.setCourseId(999L);
         studentIdCourseId.setModifiedDate(new Date());
 
-        studentCourseDao.save(studentIdCourseId);
+        try {
+            studentCourseDao.save(studentIdCourseId);
+            fail("Expected exception has not occurred.");
+        } catch(EntityNotFoundException e) {
+            // All good, that's exactly what we expect
+        } catch(Exception e) {
+            fail("Unexpected exception has occurred: " + e.getMessage());
+        }
 
         dbInstance.flush();
         dbInstance.clear();
@@ -107,7 +115,14 @@ public class StudentCourseDaoTest extends OlatTestCase {
         studentIdCourseId.setCourseId(100L);
         studentIdCourseId.setModifiedDate(new Date());
 
-        studentCourseDao.save(studentIdCourseId);
+        try {
+            studentCourseDao.save(studentIdCourseId);
+            fail("Expected exception has not occurred.");
+        } catch(EntityNotFoundException e) {
+            // All good, that's exactly what we expect
+        } catch(Exception e) {
+            fail("Unexpected exception has occurred: " + e.getMessage());
+        }
 
         dbInstance.flush();
         dbInstance.clear();

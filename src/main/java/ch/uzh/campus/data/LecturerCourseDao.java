@@ -6,6 +6,7 @@ import org.olat.core.logging.Tracing;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
+import javax.persistence.EntityNotFoundException;
 import java.util.Date;
 import java.util.List;
 
@@ -20,6 +21,9 @@ public class LecturerCourseDao implements CampusDao<LecturerIdCourseId> {
     @Autowired
     private DB dbInstance;
 
+    @Autowired
+    DaoManager daoManager;
+
     public void save(LecturerCourse lecturerCourse) {
         dbInstance.saveObject(lecturerCourse);
         lecturerCourse.getLecturer().getLecturerCourses().add(lecturerCourse);
@@ -30,7 +34,7 @@ public class LecturerCourseDao implements CampusDao<LecturerIdCourseId> {
         Lecturer lecturer = dbInstance.getCurrentEntityManager().find(Lecturer.class, lecturerIdCourseId.getLecturerId());
         Course course = dbInstance.getCurrentEntityManager().find(Course.class, lecturerIdCourseId.getCourseId());
         if (lecturer == null || course == null) {
-            logLecturerCourseNotFound(lecturerIdCourseId, lecturer, course);
+            logLecturerCourseNotFoundAndThrowException(lecturerIdCourseId, lecturer, course);
             return;
         }
         LecturerCourse lecturerCourse = new LecturerCourse(lecturer, course, lecturerIdCourseId.getModifiedDate());
@@ -54,7 +58,7 @@ public class LecturerCourseDao implements CampusDao<LecturerIdCourseId> {
         Lecturer lecturer = dbInstance.getCurrentEntityManager().find(Lecturer.class, lecturerIdCourseId.getLecturerId());
         Course course = dbInstance.getCurrentEntityManager().find(Course.class, lecturerIdCourseId.getCourseId());
         if (lecturer == null || course == null) {
-            logLecturerCourseNotFound(lecturerIdCourseId, lecturer, course);
+            logLecturerCourseNotFoundAndThrowException(lecturerIdCourseId, lecturer, course);
             return;
         }
         LecturerCourse lecturerCourse = new LecturerCourse(lecturer, course, lecturerIdCourseId.getModifiedDate());
@@ -68,7 +72,7 @@ public class LecturerCourseDao implements CampusDao<LecturerIdCourseId> {
         }
     }
 
-    private void logLecturerCourseNotFound(LecturerIdCourseId lecturerIdCourseId, Lecturer lecturer, Course course) {
+    private void logLecturerCourseNotFoundAndThrowException(LecturerIdCourseId lecturerIdCourseId, Lecturer lecturer, Course course) {
         String warningMessage = "";
         if (lecturer == null) {
             warningMessage = "No lecturer found with id " + lecturerIdCourseId.getLecturerId();
@@ -78,6 +82,7 @@ public class LecturerCourseDao implements CampusDao<LecturerIdCourseId> {
         }
         warningMessage = warningMessage + ". Skipping entry " + lecturerIdCourseId.getLecturerId() + ", " + lecturerIdCourseId.getCourseId() + " for table ck_lecturer_course.";
         LOG.warn(warningMessage);
+        throw new EntityNotFoundException(warningMessage);
     }
 
     public LecturerCourse getLecturerCourseById(Long lecturerId, Long courseId) {

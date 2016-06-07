@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 
 import javax.inject.Provider;
+import javax.persistence.EntityNotFoundException;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
@@ -95,7 +96,14 @@ public class LecturerCourseDaoTest extends OlatTestCase {
         lecturerIdCourseId.setCourseId(999L);
         lecturerIdCourseId.setModifiedDate(new Date());
 
-        lecturerCourseDao.save(lecturerIdCourseId);
+        try {
+            lecturerCourseDao.save(lecturerIdCourseId);
+            fail("Expected exception has not occurred.");
+        } catch(EntityNotFoundException e) {
+            // All good, that's exactly what we expect
+        } catch(Exception e) {
+            fail("Unexpected exception has occurred: " + e.getMessage());
+        }
 
         dbInstance.flush();
         dbInstance.clear();
@@ -110,7 +118,14 @@ public class LecturerCourseDaoTest extends OlatTestCase {
         lecturerIdCourseId.setCourseId(100L);
         lecturerIdCourseId.setModifiedDate(new Date());
 
-        lecturerCourseDao.save(lecturerIdCourseId);
+        try {
+            lecturerCourseDao.save(lecturerIdCourseId);
+            fail("Expected exception has not occurred.");
+        } catch(EntityNotFoundException e) {
+            // All good, that's exactly what we expect
+        } catch(Exception e) {
+            fail("Unexpected exception has occurred: " + e.getMessage());
+        }
 
         dbInstance.flush();
         dbInstance.clear();
