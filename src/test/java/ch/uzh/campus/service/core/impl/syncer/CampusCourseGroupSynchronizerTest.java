@@ -25,7 +25,7 @@ import org.olat.repository.RepositoryEntry;
 import org.olat.repository.RepositoryService;
 import org.olat.test.OlatTestCase;
 import org.springframework.beans.factory.annotation.Autowired;
-
+import org.springframework.test.context.ContextConfiguration;
 import org.olat.test.JunitTestHelper;
 
 import ch.uzh.campus.CampusConfiguration;
@@ -34,13 +34,15 @@ import ch.uzh.campus.creator.ObjectMother;
 import ch.uzh.campus.service.CampusCourse;
 import ch.uzh.campus.service.core.impl.syncer.statistic.SynchronizedGroupStatistic;
 
+@ContextConfiguration(locations = {"classpath:ch/uzh/campus/data/_spring/mockDataContext.xml"})
 public class CampusCourseGroupSynchronizerTest extends OlatTestCase {
+	
 	private static final String TEST_COURSE_GROUP_A_NAME = "Campusgroup A SynchronizeTest";
     private static final String TEST_COURSE_GROUP_B_NAME = "Campusgroup B SynchronizeTest";
 
     private String firstCoOwnerName = "co_owner1";
     private String secondCoOwnerName = "co_owner2";
-    private String TEST_CO_OWNER_NAMES = firstCoOwnerName + "," + secondCoOwnerName;
+    private final String TEST_CO_OWNER_NAMES = firstCoOwnerName + "," + secondCoOwnerName;
 
     private final Long TEST_RESOURCEABLE_ID = 1234L;
 
@@ -80,15 +82,7 @@ public class CampusCourseGroupSynchronizerTest extends OlatTestCase {
 
     @Before
     public void setup() {
-        // Setup Test Configuration
-        campusConfigurationMock = mock(CampusConfiguration.class);
-        when(campusConfigurationMock.getCourseGroupAName()).thenReturn(TEST_COURSE_GROUP_A_NAME);
-        when(campusConfigurationMock.getCourseGroupBName()).thenReturn(TEST_COURSE_GROUP_B_NAME);
-        when(campusConfigurationMock.getDefaultCoOwnerUserNames()).thenReturn(TEST_CO_OWNER_NAMES);
-        courseGroupSynchronizerTestObject.campusConfiguration = campusConfigurationMock;
-        courseGroupSynchronizerTestObject.campuskursCoOwners.campusConfiguration = campusConfigurationMock;
-
-        // Setup Test Identities
+    	 // Setup Test Identities
         ownerIdentity = JunitTestHelper.createAndPersistIdentityAsUser(ownerName); //course owner
         secondOwnerIdentity = JunitTestHelper.createAndPersistIdentityAsUser(ownerNameSecond);
 
@@ -98,6 +92,21 @@ public class CampusCourseGroupSynchronizerTest extends OlatTestCase {
 
         firstCoOwnerIdentity = JunitTestHelper.createAndPersistIdentityAsUser(firstCoOwnerName);
         secondCoOwnerIdentity = JunitTestHelper.createAndPersistIdentityAsUser(secondCoOwnerName);
+        List<Identity> coOwnerList = new ArrayList<Identity>();
+        coOwnerList.add(firstCoOwnerIdentity);
+        coOwnerList.add(secondCoOwnerIdentity);
+        
+        // Setup Test Configuration
+        campusConfigurationMock = mock(CampusConfiguration.class);
+        when(campusConfigurationMock.getCourseGroupAName()).thenReturn(TEST_COURSE_GROUP_A_NAME);
+        when(campusConfigurationMock.getCourseGroupBName()).thenReturn(TEST_COURSE_GROUP_B_NAME);
+        //when(campusConfigurationMock.getDefaultCoOwnerUserNames()).thenReturn(TEST_CO_OWNER_NAMES);
+        courseGroupSynchronizerTestObject.campusConfiguration = campusConfigurationMock;
+        
+        //courseGroupSynchronizerTestObject.campuskursCoOwners.campusConfiguration = campusConfigurationMock;
+        courseGroupSynchronizerTestObject.campuskursCoOwners = mock(CampuskursCoOwners.class);
+        when(courseGroupSynchronizerTestObject.campuskursCoOwners.getDefaultCoOwners()).thenReturn(coOwnerList);
+      
 
         // Setup test-course and campus-group
         sourceRepositoryEntry = JunitTestHelper.deployDemoCourse(ownerIdentity);
