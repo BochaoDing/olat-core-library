@@ -191,7 +191,7 @@ public class LecturerCourseDaoTest extends OlatTestCase {
         assertEquals(1, course1.getLecturerCourses().size());
         assertEquals(1, course2.getLecturerCourses().size());
 
-        lecturerCourseDao.deleteAllNotUpdatedSCBooking(new Date());
+        lecturerCourseDao.deleteAllNotUpdatedLCBooking(new Date());
 
         dbInstance.flush();
         dbInstance.clear();
@@ -201,11 +201,9 @@ public class LecturerCourseDaoTest extends OlatTestCase {
         assertEquals(1, course2.getLecturerCourses().size());
     }
 
-
     private void insertLecturerIdCourseIds() {
         List<LecturerIdCourseId> lecturerIdCourseIds = mockDataGeneratorProvider.get().getLecturerIdCourseIds();
         lecturerCourseDao.save(lecturerIdCourseIds);
         dbInstance.flush();
     }
-
 }

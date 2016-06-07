@@ -70,9 +70,18 @@ public class CampusWriter<T> implements ItemWriter<T> {
      */
     @SuppressWarnings({ "unchecked", "rawtypes" })
     public void write(List<? extends T> items) throws Exception {
-        dbInstance.commitAndCloseSession();
-        campuskursDao.saveOrUpdate((List) items);
-        dbInstance.commitAndCloseSession();
+        /**
+         * Ensure no active {@link DB} session is open i.e. bound to the
+         * {@link ThreadLocal}. If this is not the case, do not try to close
+         * the session here. Close it where it was opened.
+         */
+        try {
+            campuskursDao.saveOrUpdate((List) items);
+            dbInstance.commitAndCloseSession();
+        } catch (Throwable t) {
+            dbInstance.rollbackAndCloseSession();
+            throw t;
+        }
     }
-
 }
+

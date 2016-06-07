@@ -207,17 +207,16 @@ public class CampusInterceptor<T, S> implements StepExecutionListener, ItemWrite
             return;
         }
 
-        //TODO: olatng
-//        if (CampusProcessStep.IMPORT_LECTURERS_COURSES.name().equalsIgnoreCase(se.getStepName())) {
-//            int stornos = daoManager.deleteAllNotUpdatedLCBooking(se.getStartTime());
-//            LOG.info("STORNOS(LECTURER_COURSE): " + stornos);
-//            return;
-//        }
-//        if (CampusProcessStep.IMPORT_STUDENTS_COURSES.name().equalsIgnoreCase(se.getStepName())) {
-//            int stornos = daoManager.deleteAllNotUpdatedSCBooking(se.getStartTime());
-//            LOG.info("STORNOS(STUDENT_COURSE): " + stornos);
-//            return;
-//        }
+        if (CampusProcessStep.IMPORT_LECTURERS_COURSES.name().equalsIgnoreCase(se.getStepName())) {
+            int stornos = daoManager.deleteAllNotUpdatedLCBooking(se.getStartTime());
+            LOG.info("STORNOS(LECTURER_COURSE): " + stornos);
+            return;
+        }
+        if (CampusProcessStep.IMPORT_STUDENTS_COURSES.name().equalsIgnoreCase(se.getStepName())) {
+            int stornos = daoManager.deleteAllNotUpdatedSCBooking(se.getStartTime());
+            LOG.info("STORNOS(STUDENT_COURSE): " + stornos);
+            return;
+        }
     }
 
     /**

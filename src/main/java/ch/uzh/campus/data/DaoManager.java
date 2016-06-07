@@ -43,7 +43,9 @@ public class DaoManager {
     @Autowired
     private StudentDao studentDao;
     @Autowired
-    StudentCourseDao studentCourseDao;
+    private LecturerCourseDao lecturerCourseDao;
+    @Autowired
+    private StudentCourseDao studentCourseDao;
     @Autowired
     private LecturerDao lecturerDao;
     @Autowired
@@ -158,13 +160,13 @@ public class DaoManager {
         studentDao.delete(student);
     }
 
-//    public int deleteAllNotUpdatedLCBooking(Date date) {
-//        return lecturerCourseDao.deleteAllNotUpdatedLCBooking(date);
-//    }
+    public int deleteAllNotUpdatedLCBooking(Date date) {
+        return lecturerCourseDao.deleteAllNotUpdatedLCBooking(date);
+    }
 
-//    public int deleteAllNotUpdatedSCBooking(Date date) {
-//        return studentCourseDao.deleteAllNotUpdatedSCBooking(date);
-//    }
+    public int deleteAllNotUpdatedSCBooking(Date date) {
+        return studentCourseDao.deleteAllNotUpdatedSCBooking(date);
+    }
 
     public void deleteLecturersAndBookingsByLecturerIds(List<Long> lecturerIds) {
         List<List<Long>> listSplit = ListUtil.split(lecturerIds, campusConfiguration.getEntitiesSublistMaxSize());

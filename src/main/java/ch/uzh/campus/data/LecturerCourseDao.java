@@ -64,7 +64,7 @@ public class LecturerCourseDao implements CampusDao<LecturerIdCourseId> {
         deleteLecturerCourseBidirectionally(lecturerCourse);
     }
 
-    public int deleteAllNotUpdatedSCBooking(Date date) {
+    public int deleteAllNotUpdatedLCBooking(Date date) {
         List<LecturerCourse> lecturerCoursesToBeDeleted = dbInstance.getCurrentEntityManager()
                 .createNamedQuery(LecturerCourse.GET_ALL_NOT_UPDATED_LC_BOOKING, LecturerCourse.class)
                 .setParameter("lastImportDate", date)
