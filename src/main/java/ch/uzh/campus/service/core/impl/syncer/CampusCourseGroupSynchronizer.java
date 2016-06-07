@@ -52,8 +52,8 @@ public class CampusCourseGroupSynchronizer {
     @Autowired
     BusinessGroupService businessGroupService;    
     
-    //@Autowired
-    //DB dBImpl;
+    @Autowired
+    DB dBImpl;
    
 
    public void addAllLecturesAsOwner(CampusCourse campusCourse, List<Identity> lecturers) {
@@ -82,6 +82,7 @@ public class CampusCourseGroupSynchronizer {
 			   repositoryService.addRole(identity, campusCourse.getRepositoryEntry(), GroupRoles.owner.name());
 		   }
 	   }
+	   commitDBImplTransaction();
 	}
    
    public void addDefaultCoOwnersAsOwner(CampusCourse campusCourse) {
@@ -119,7 +120,7 @@ public class CampusCourseGroupSynchronizer {
     private SynchronizedSecurityGroupStatistic synchronizeGroupOwners(Identity courseOwner, BusinessGroup businessGroup, List<Identity> lecturers) {
         //return synchronizeSecurityGroup(businessGroup.getOwnerGroup(), lecturers, false);
     	BusinessGroupAddResponse businessGroupAddResponse = businessGroupService.addOwners(courseOwner, null, lecturers, businessGroup, null);
-    	//dBImpl.commitAndCloseSession();
+    	//commitDBImplTransaction();
     	return new SynchronizedSecurityGroupStatistic(businessGroupAddResponse.getAddedIdentities().size(), 0);
     }
     
@@ -146,14 +147,14 @@ public class CampusCourseGroupSynchronizer {
         if(removableMembers.size()>0) {
           businessGroupService.removeParticipants(courseOwner, removableMembers, businessGroup, null);
         }
-        //dBImpl.commitAndCloseSession();
+        //commitDBImplTransaction();
         return removedIdentityCounter;
     }
     
     private int addNewMembersToSecurityGroup(Identity courseOwner, BusinessGroup businessGroup, List<Identity> allNewMembers) {    
     	
         BusinessGroupAddResponse businessGroupAddResponse = businessGroupService.addParticipants(courseOwner, null, allNewMembers, businessGroup, null);
-        //dBImpl.commitAndCloseSession();
+        //commitDBImplTransaction();
         int addedIdentityCounter = businessGroupAddResponse.getAddedIdentities().size(); // - businessGroupAddResponse.getIdentitiesAlreadyInGroup().size();
         System.out.println("added identities: " + businessGroupAddResponse.getAddedIdentities().size());
         return addedIdentityCounter;
@@ -162,6 +163,10 @@ public class CampusCourseGroupSynchronizer {
     // only for testing
     public void setCampusConfiguration(CampusConfiguration campusConfigurationMock) {
         this.campusConfiguration = campusConfigurationMock;
+    }
+    
+    private void commitDBImplTransaction() {
+    	dBImpl.intermediateCommit();
     }
        
 }
