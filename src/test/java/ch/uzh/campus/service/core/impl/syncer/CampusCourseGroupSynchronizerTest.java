@@ -25,7 +25,7 @@ import org.olat.repository.RepositoryEntry;
 import org.olat.repository.RepositoryService;
 import org.olat.test.OlatTestCase;
 import org.springframework.beans.factory.annotation.Autowired;
-
+import org.springframework.test.context.ContextConfiguration;
 import org.olat.test.JunitTestHelper;
 
 import ch.uzh.campus.CampusConfiguration;
@@ -34,7 +34,9 @@ import ch.uzh.campus.creator.ObjectMother;
 import ch.uzh.campus.service.CampusCourse;
 import ch.uzh.campus.service.core.impl.syncer.statistic.SynchronizedGroupStatistic;
 
+@ContextConfiguration(locations = {"classpath:ch/uzh/campus/data/_spring/mockDataContext.xml"})
 public class CampusCourseGroupSynchronizerTest extends OlatTestCase {
+	
 	private static final String TEST_COURSE_GROUP_A_NAME = "Campusgroup A SynchronizeTest";
     private static final String TEST_COURSE_GROUP_B_NAME = "Campusgroup B SynchronizeTest";
 
