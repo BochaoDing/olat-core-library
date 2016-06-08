@@ -121,9 +121,11 @@ public class DaoManager {
         List<List<Long>> listSplit = ListUtil.split(courseIds, campusConfiguration.getEntitiesSublistMaxSize());
         for (List<Long> subList : listSplit) {
             if (!subList.isEmpty()) {
-                eventDao.deleteEventsByCourseIds(subList);
-                textDao.deleteTextsByCourseIds(subList);
-                courseDao.deleteByCourseIds(subList);
+                studentCourseDao.deleteByCourseIdsAsBulkDelete(subList);
+                lecturerCourseDao.deleteByCourseIdsAsBulkDelete(subList);
+                eventDao.deleteEventsByCourseIdsAsBulkDelete(subList);
+                textDao.deleteTextsByCourseIdsAsBulkDelete(subList);
+                courseDao.deleteByCourseIdsAsBulkDelete(subList);
             }
         }
     }
@@ -137,19 +139,20 @@ public class DaoManager {
     }
 
     public int deleteAllTexts() {
-        return textDao.deleteAllTexts();
+        return textDao.deleteAllTextsAsBulkDelete();
     }
 
     public int deleteAllEvents() {
-        return eventDao.deleteAllEvents();
+        return eventDao.deleteAllEventsAsBulkDelete();
     }
 
     public void deleteStudentsAndBookingsByStudentIds(List<Long> studentIds) {
         List<List<Long>> listSplit = ListUtil.split(studentIds, campusConfiguration.getEntitiesSublistMaxSize());
         for (List<Long> subList : listSplit) {
             if (!subList.isEmpty()) {
+                studentCourseDao.deleteByStudentIdsAsBulkDelete(subList);
                 sapOlatUserDao.deleteMappingBySapStudentIdsAsBulkDelete(subList);
-                studentDao.deleteByStudentIds(subList);
+                studentDao.deleteByStudentIdsAsBulkDelete(subList);
             }
         }
     }
@@ -159,19 +162,20 @@ public class DaoManager {
     }
 
     public int deleteAllNotUpdatedLCBooking(Date date) {
-        return lecturerCourseDao.deleteAllNotUpdatedLCBooking(date);
+        return lecturerCourseDao.deleteAllNotUpdatedLCBookingAsBulkDelete(date);
     }
 
     public int deleteAllNotUpdatedSCBooking(Date date) {
-        return studentCourseDao.deleteAllNotUpdatedSCBooking(date);
+        return studentCourseDao.deleteAllNotUpdatedSCBookingAsBulkDelete(date);
     }
 
     public void deleteLecturersAndBookingsByLecturerIds(List<Long> lecturerIds) {
         List<List<Long>> listSplit = ListUtil.split(lecturerIds, campusConfiguration.getEntitiesSublistMaxSize());
         for (List<Long> subList : listSplit) {
             if (!subList.isEmpty()) {
+                lecturerCourseDao.deleteByLecturerIdsAsBulkDelete(subList);
                 sapOlatUserDao.deleteMappingBySapLecturerIdsAsBulkDelete(subList);
-                lecturerDao.deleteByLecturerIds(subList);
+                lecturerDao.deleteByLecturerIdsAsBulkDelete(subList);
             }
         }
     }
