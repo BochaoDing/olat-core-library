@@ -49,11 +49,11 @@ public class Student {
     @OneToMany(mappedBy = "student")
     private Set<StudentCourse> studentCourses = new HashSet<>();
 
-    public static final String GET_ALL_PILOT_STUDENTS = "getAllPilotStudents";
-    public static final String GET_ALL_NOT_UPDATED_STUDENTS = "getAllNotUpdatedStudents";
-    public static final String GET_STUDENTS_BY_EMAIL = "getStudentsWithEmail";
-    public static final String GET_STUDENTS_WITH_REGISTRATION_NUMBER = "getStudentsWithRegistrationNr";
-    public static final String DELETE_BY_STUDENT_IDS = "deleteStudentByStudentIds";
+    static final String GET_ALL_PILOT_STUDENTS = "getAllPilotStudents";
+    static final String GET_ALL_NOT_UPDATED_STUDENTS = "getAllNotUpdatedStudents";
+    static final String GET_STUDENTS_BY_EMAIL = "getStudentsWithEmail";
+    static final String GET_STUDENTS_WITH_REGISTRATION_NUMBER = "getStudentsWithRegistrationNr";
+    static final String DELETE_BY_STUDENT_IDS = "deleteStudentByStudentIds";
 
     public Student() {
     }

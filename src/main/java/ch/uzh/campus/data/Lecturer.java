@@ -51,10 +51,10 @@ public class Lecturer {
     @OneToMany(mappedBy = "lecturer")
     private Set<LecturerCourse> lecturerCourses = new HashSet<>();
 
-    public static final String GET_LECTURER_BY_EMAIL = "getLecturerByEmail";
-    public static final String GET_ALL_PILOT_LECTURERS = "getAllPilotLecturers";
-    public static final String GET_ALL_NOT_UPDATED_LECTURERS = "getAllNotUpdatedLecturers";
-    public static final String DELETE_BY_LECTURER_IDS = "deleteLecturerByLecturerIds";
+    static final String GET_LECTURER_BY_EMAIL = "getLecturerByEmail";
+    static final String GET_ALL_PILOT_LECTURERS = "getAllPilotLecturers";
+    static final String GET_ALL_NOT_UPDATED_LECTURERS = "getAllNotUpdatedLecturers";
+    static final String DELETE_BY_LECTURER_IDS = "deleteLecturerByLecturerIds";
 
     public Lecturer() {
     }

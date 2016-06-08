@@ -20,21 +20,10 @@
  */
 package ch.uzh.campus.data;
 
-import java.util.Date;
-
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.NamedQuery;
-import javax.persistence.NamedQueries;
-import javax.persistence.Table;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
-
-import org.apache.commons.lang.builder.EqualsBuilder;
-import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
+
+import javax.persistence.*;
+import java.util.Date;
 
 /**
  * Initial Date: 03.05.2013 <br>
@@ -59,16 +48,16 @@ public class Delegation {
     @Column(name = "modified_date")
     private Date modifiedDate;
 
-    @Column(name = "delegator")
+    @Column(name = "delegator", nullable = false)
     private String delegator;
 
-    @Column(name = "delegatee")
+    @Column(name = "delegatee", nullable = false)
     private String delegatee;
 
-    public static final String DELETE_BY_DELEGATOR_AND_DELEGATEE = "deleteByDelegatorAndDelegatee";
-    public static final String GET_BY_DELEGATOR_AND_DELEGATEE = "getByDelegatorAndDelegatee";
-    public static final String GET_BY_DELEGATOR = "deleteByDelegator";
-    public static final String GET_BY_DELEGATEE = "deleteByDelegatee";
+    static final String DELETE_BY_DELEGATOR_AND_DELEGATEE = "deleteByDelegatorAndDelegatee";
+    static final String GET_BY_DELEGATOR_AND_DELEGATEE = "getByDelegatorAndDelegatee";
+    static final String GET_BY_DELEGATOR = "getByDelegator";
+    static final String GET_BY_DELEGATEE = "getByDelegatee";
 
     public Long getId() {
         return id;
@@ -114,29 +103,21 @@ public class Delegation {
     }
 
     @Override
-    public int hashCode() {
-        HashCodeBuilder builder = new HashCodeBuilder(1239, 5475);
-        builder.append(delegator);
-        builder.append(delegatee);
-        builder.append(modifiedDate);
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
 
-        return builder.toHashCode();
+        Delegation that = (Delegation) o;
+
+        if (!delegator.equals(that.delegator)) return false;
+        return delegatee.equals(that.delegatee);
+
     }
 
     @Override
-    public boolean equals(Object obj) {
-        if (obj == this) {
-            return true;
-        }
-        if (!(obj instanceof Delegation))
-            return false;
-        Delegation theOther = (Delegation) obj;
-        EqualsBuilder builder = new EqualsBuilder();
-        builder.append(this.delegator, theOther.delegator);
-        builder.append(this.delegatee, theOther.delegatee);
-        builder.append(this.modifiedDate, theOther.modifiedDate);
-
-        return builder.isEquals();
+    public int hashCode() {
+        int result = delegator.hashCode();
+        result = 31 * result + delegatee.hashCode();
+        return result;
     }
-
 }

@@ -1,18 +1,14 @@
 package ch.uzh.campus.data;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
+import ch.uzh.campus.data.SapOlatUser.SapUserType;
 import org.olat.core.commons.persistence.DB;
 import org.olat.core.id.Identity;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
-import ch.uzh.campus.data.SapOlatUser.SapUserType;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
 
 /**
  * Initial Date: 04.06.2012 <br>
@@ -27,7 +23,7 @@ public class SapOlatUserDao {
     private DB dbInstance;
 	   
     public void save(List<SapOlatUser> sapOlatUsers) {
-    	for(SapOlatUser sapOlatUser:sapOlatUsers) {
+    	for(SapOlatUser sapOlatUser: sapOlatUsers) {
     		dbInstance.saveObject(sapOlatUser);
     	}
     }
@@ -67,11 +63,11 @@ public class SapOlatUserDao {
     
     public List<SapOlatUser> getSapOlatUsersBySapIds(Set<Long> sapUserIds) {
         if (sapUserIds == null || sapUserIds.isEmpty()) {
-            return new ArrayList<SapOlatUser>();
+            return new ArrayList<>();
         }                
         return dbInstance.getCurrentEntityManager()
         		.createNamedQuery(SapOlatUser.GET_SAP_OLAT_USERS_BY_SAP_IDS, SapOlatUser.class)
-        		.setParameter(SapOlatUser.SAP_IDS_PARAM, sapUserIds)        		
+        		.setParameter("sapUserIds", sapUserIds)
         		.getResultList();
     }
     
@@ -87,39 +83,47 @@ public class SapOlatUserDao {
 
     public boolean existsMappingForSapUserId(Long sapUserId) {
         SapOlatUser sapOlatUser = getSapOlatUserBySapUserId(sapUserId);
-        if (sapOlatUser != null) {
-            return true;
-        } else {
-            return false;
-        }
+        return sapOlatUser != null;
     }
 
-   
     public void deleteMapping(SapOlatUser sapUser) {        
         dbInstance.deleteObject(sapUser);
     }
-    
-    public void deleteMappingBySapLecturerIds(List<Long> sapIds) { 
-        dbInstance.getCurrentEntityManager().createNamedQuery(SapOlatUser.DELETE_SAP_OLAT_LECTURERS_BY_SAP_IDS)        
-		.setParameter("sapIds", sapIds)		
-		.executeUpdate();
+
+    /**
+     * Bulk delete for efficient deletion of a big number of entries. Does not update persistence context!
+     */
+    public void deleteMappingBySapLecturerIdsAsBulkDelete(List<Long> sapIds) {
+        dbInstance.getCurrentEntityManager().createNamedQuery(SapOlatUser.DELETE_SAP_OLAT_LECTURERS_BY_SAP_IDS)
+                .setParameter("sapIds", sapIds)
+		        .executeUpdate();
     }
-    
-    public void deleteMappingBySapStudentIds(List<Long> sapIds) { 
-        dbInstance.getCurrentEntityManager().createNamedQuery(SapOlatUser.DELETE_SAP_OLAT_STUDENTS_BY_SAP_IDS)        
-		.setParameter("sapIds", sapIds)		
-		.executeUpdate();
+
+    /**
+     * Bulk delete for efficient deletion of a big number of entries. Does not update persistence context!
+     */
+    public void deleteMappingBySapStudentIdsAsBulkDelete(List<Long> sapIds) {
+        dbInstance.getCurrentEntityManager().createNamedQuery(SapOlatUser.DELETE_SAP_OLAT_STUDENTS_BY_SAP_IDS)
+                .setParameter("sapIds", sapIds)
+		        .executeUpdate();
     }
-    
-    
-    public void deleteOldLecturerMapping() {  
-        dbInstance.getCurrentEntityManager().createNamedQuery(SapOlatUser.DELETE_SAP_OLAT_LECTURERS) 
-		.executeUpdate();
+
+    /**
+     * Bulk delete for efficient deletion of a big number of entries. Does not update persistence context!
+     */
+    public void deleteOldLecturerMappingAsBulkDelete() {
+        dbInstance.getCurrentEntityManager()
+                .createNamedQuery(SapOlatUser.DELETE_SAP_OLAT_LECTURERS)
+		        .executeUpdate();
     }
-    
-    public void deleteOldStudentMapping() {   
-        dbInstance.getCurrentEntityManager().createNamedQuery(SapOlatUser.DELETE_SAP_OLAT_STUDENTS) 
-		.executeUpdate();
+
+    /**
+     * Bulk delete for efficient deletion of a big number of entries. Does not update persistence context!
+     */
+    public void deleteOldStudentMappingAsBulkDelete() {
+        dbInstance.getCurrentEntityManager()
+                .createNamedQuery(SapOlatUser.DELETE_SAP_OLAT_STUDENTS)
+		        .executeUpdate();
     }
 
 }

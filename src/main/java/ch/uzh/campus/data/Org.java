@@ -33,10 +33,10 @@ public class Org {
     @Column(name = "modified_date")
     private Date modifiedDate;
 
-    public static final String GET_IDS_OF_ALL_ENABLED_ORGS = "getIdsOfAllEnabledOrgs";
-    public static final String GET_ALL_NOT_UPDATED_ORGS = "getAllNotUpdatedOrgs";
-    public static final String DELETE_ALL_NOT_UPDATED_ORGS = "deleteAllNotUpdatedOrgs";
-    public static final String DELETE_BY_ORG_IDS = "deleteOrgByIds";
+    static final String GET_IDS_OF_ALL_ENABLED_ORGS = "getIdsOfAllEnabledOrgs";
+    static final String GET_ALL_NOT_UPDATED_ORGS = "getAllNotUpdatedOrgs";
+    static final String DELETE_ALL_NOT_UPDATED_ORGS = "deleteAllNotUpdatedOrgs";
+    static final String DELETE_BY_ORG_IDS = "deleteOrgByIds";
 
     public Long getId() {
         return id;

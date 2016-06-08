@@ -1,19 +1,12 @@
 package ch.uzh.campus.data;
 
-import java.util.Date;
-
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.Table;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
-
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.hibernate.annotations.GenericGenerator;
+
+import javax.persistence.*;
+import java.util.Date;
 
 /**
  * Initial Date: 04.06.2012 <br>
@@ -24,20 +17,21 @@ import org.hibernate.annotations.GenericGenerator;
 @Entity
 @Table(name = "ck_export")
 public class Export {
+
     @Id
     @GeneratedValue(generator = "system-uuid")
     @GenericGenerator(name = "system-uuid", strategy = "hilo")
     private Long id;
 
-    @Column(name = "file_name")
+    @Column(name = "file_name", nullable = false)
     private String fileName;
 
     @Temporal(TemporalType.TIMESTAMP)
-    @Column(name = "timestamp")
+    @Column(name = "timestamp", nullable = false)
     private Date creationDate;
 
     @Temporal(TemporalType.TIMESTAMP)
-    @Column(name = "export_date")
+    @Column(name = "export_date", nullable = false)
     private Date exportDate;
 
     public Long getId() {

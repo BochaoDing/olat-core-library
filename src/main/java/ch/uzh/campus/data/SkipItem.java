@@ -20,20 +20,13 @@
  */
 package ch.uzh.campus.data;
 
-import java.util.Date;
-
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.Table;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
-
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.hibernate.annotations.GenericGenerator;
+
+import javax.persistence.*;
+import java.util.Date;
 
 /**
  * Initial Date: 19.06.2012 <br>
@@ -43,6 +36,7 @@ import org.hibernate.annotations.GenericGenerator;
 @Entity
 @Table(name = "ck_skip_item")
 public class SkipItem {
+
     @Id
     @GeneratedValue(generator = "system-uuid")
     @GenericGenerator(name = "system-uuid", strategy = "hilo")
@@ -50,18 +44,22 @@ public class SkipItem {
 
     @Column(name = "type")
     private String type;
+
     @Column(name = "item")
     private String item;
+
     @Column(name = "msg")
     private String msg;
 
     @Column(name = "job_execution_id")
     private Long jobExecutionId;
+
     @Column(name = "job_name")
     private String jobName;
 
     @Column(name = "step_execution_id")
     private Long stepExecutionId;
+
     @Column(name = "step_name")
     private String stepName;
 

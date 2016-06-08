@@ -20,16 +20,15 @@
  */
 package ch.uzh.campus.data;
 
+import org.olat.basesecurity.BaseSecurity;
+import org.olat.core.commons.persistence.DB;
+import org.olat.core.id.Identity;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
-
-import org.olat.basesecurity.BaseSecurity;
-import org.olat.core.id.Identity;
-import org.olat.core.commons.persistence.DB;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
 @Component
 public class DataConverter {
@@ -82,7 +81,7 @@ public class DataConverter {
                 identitiesOfLecturers.add(identity);
             }
 
-            List<Delegation> delegations = delegationDao.getDelegationByDelegator(sapOlatUser.getOlatUserName());
+            List<Delegation> delegations = delegationDao.getDelegationsByDelegator(sapOlatUser.getOlatUserName());
             for (Delegation delegation : delegations) {
                 Identity delegatee = findIdentity(delegation.getDelegatee());
                 if (delegatee != null) {
@@ -101,7 +100,7 @@ public class DataConverter {
             if (sapOlatUser == null) {
                 continue;
             }
-            List<Delegation> delegations = delegationDao.getDelegationByDelegator(sapOlatUser.getOlatUserName());
+            List<Delegation> delegations = delegationDao.getDelegationsByDelegator(sapOlatUser.getOlatUserName());
             for (Delegation delegation : delegations) {
                 Identity delegatee = findIdentity(delegation.getDelegatee());
                 if (delegatee != null) {
@@ -114,7 +113,7 @@ public class DataConverter {
 
     public List getDelegatees(Identity delegator) {
         List<Object[]> identitiesOfDelegatees = new ArrayList<Object[]>();
-        List<Delegation> delegations = delegationDao.getDelegationByDelegator(delegator.getName());
+        List<Delegation> delegations = delegationDao.getDelegationsByDelegator(delegator.getName());
         for (Delegation delegation : delegations) {
             Identity identity = findIdentity(delegation.getDelegatee());
 

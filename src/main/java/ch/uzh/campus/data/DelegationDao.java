@@ -20,11 +20,12 @@
  */
 package ch.uzh.campus.data;
 
-import java.util.List;
-
 import org.olat.core.commons.persistence.DB;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
+
+import javax.persistence.EntityManager;
+import java.util.List;
 
 /**
  * Initial Date: 03.05.2013 <br>
@@ -45,15 +46,21 @@ public class DelegationDao implements CampusDao<Delegation> {
     }
 
     @Override
-    public void saveOrUpdate(List<Delegation> items) {
-        save(items);
+    public void saveOrUpdate(List<Delegation> delegations) {
+        EntityManager em = dbInstance.getCurrentEntityManager();
+        for (Delegation delegation : delegations) {
+            em.merge(delegation);
+        }
     }
 
     public void save(Delegation delegation) {
         dbInstance.saveObject(delegation);
     }
 
-    public void deleteByDelegatorAndDelegatee(String delegator, String delegatee) {
+    /**
+     * Bulk delete for efficient deletion of a big number of entries. Does not update persistence context!
+     */
+    public void deleteByDelegatorAndDelegateeAsBulkDelete(String delegator, String delegatee) {
         dbInstance.getCurrentEntityManager()
                 .createNamedQuery(Delegation.DELETE_BY_DELEGATOR_AND_DELEGATEE)
                 .setParameter("delegator", delegator)
@@ -61,16 +68,14 @@ public class DelegationDao implements CampusDao<Delegation> {
                 .executeUpdate();
     }
 
-    /** TODO Check if we really want to consume the list and not a single entry */
-    public List<Delegation> getDelegationByDelegator(String delegator) {
+    public List<Delegation> getDelegationsByDelegator(String delegator) {
         return dbInstance.getCurrentEntityManager()
                 .createNamedQuery(Delegation.GET_BY_DELEGATOR, Delegation.class)
                 .setParameter("delegator", delegator)
                 .getResultList();
     }
 
-    /** TODO Check if we really want to consume the list and not a single entry */
-    public List<Delegation> getDelegationByDelegatee(String delegatee) {
+    public List<Delegation> getDelegationsByDelegatee(String delegatee) {
         return dbInstance.getCurrentEntityManager()
                 .createNamedQuery(Delegation.GET_BY_DELEGATEE, Delegation.class)
                 .setParameter("delegatee", delegatee)

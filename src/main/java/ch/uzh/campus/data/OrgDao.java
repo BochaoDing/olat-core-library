@@ -1,14 +1,10 @@
 package ch.uzh.campus.data;
 
-import ch.uzh.campus.connectors.CampusInterceptor;
 import org.olat.core.commons.persistence.DB;
-import org.olat.core.logging.OLog;
-import org.olat.core.logging.Tracing;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import javax.persistence.EntityManager;
-import javax.persistence.Query;
 import java.util.Date;
 import java.util.List;
 
@@ -52,7 +48,10 @@ public class OrgDao implements CampusDao<Org> {
                 .getResultList();
     }
 
-    public int deleteByOrgIds(List<Long> orgIds) {
+    /**
+     * Bulk delete for efficient deletion of a big number of entries. Does not update persistence context!
+     */
+    public int deleteByOrgIdsAsBulkDelete(List<Long> orgIds) {
         return dbInstance.getCurrentEntityManager()
                 .createNamedQuery(Org.DELETE_BY_ORG_IDS)
                 .setParameter("orgIds", orgIds)

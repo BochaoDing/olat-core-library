@@ -4,7 +4,6 @@ import org.olat.core.commons.persistence.DB;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
-import javax.persistence.EntityManager;
 import java.util.List;
 
 @Repository
@@ -16,15 +15,14 @@ public class ImportStatisticDao implements CampusDao<ImportStatistic> {
     @Override
     public void save(List<ImportStatistic> statistics) {
         for(ImportStatistic statistic : statistics) {
-            dbInstance.saveObject(statistic);
+            save(statistic);
         }
     }
 
     @Override
-    public void saveOrUpdate(List<ImportStatistic> items) {
-        EntityManager em = dbInstance.getCurrentEntityManager();
-        for (ImportStatistic statistic : items) {
-            em.merge(statistic);
+    public void saveOrUpdate(List<ImportStatistic> statistics) {
+        for (ImportStatistic statistic : statistics) {
+            saveOrUpdate(statistic);
         }
     }
 

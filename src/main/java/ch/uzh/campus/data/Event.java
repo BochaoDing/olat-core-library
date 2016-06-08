@@ -54,12 +54,12 @@ public class Event {
         this.modifiedDate = modifiedDate;
     }
 
-    public static final String GET_IDS_OF_ALL_EVENTS = "getIdsOfAllEvents";
-    public static final String GET_EVENT_IDS_BY_COURSE_ID = "getEventIdsByCourseId";
-    public static final String GET_EVENT_IDS_BY_COURSE_IDS = "getEventIdsByCourseIds";
-    public static final String GET_EVENTS_BY_COURSE_ID = "getEventsByCourseId";
-    public static final String DELETE_ALL_EVENTS = "deleteAllEvents";
-    public static final String DELETE_EVENTS_BY_COURSE_IDS = "deleteEventsByCourseIds";
+    static final String GET_IDS_OF_ALL_EVENTS = "getIdsOfAllEvents";
+    static final String GET_EVENT_IDS_BY_COURSE_ID = "getEventIdsByCourseId";
+    static final String GET_EVENT_IDS_BY_COURSE_IDS = "getEventIdsByCourseIds";
+    static final String GET_EVENTS_BY_COURSE_ID = "getEventsByCourseId";
+    static final String DELETE_ALL_EVENTS = "deleteAllEvents";
+    static final String DELETE_EVENTS_BY_COURSE_IDS = "deleteEventsByCourseIds";
 
     public Long getId() {
         return id;

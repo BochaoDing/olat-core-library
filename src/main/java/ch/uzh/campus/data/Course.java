@@ -120,26 +120,24 @@ public class Course {
     @OneToMany(mappedBy = "course", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Text> texts = new HashSet<>();
 
-    public static final String GET_IDS_OF_ALL_CREATED_COURSES = "getIdsOfAllCreatedCourses";
-    public static final String GET_RESOURCEABLEIDS_OF_ALL_CREATED_COURSES = "getResourceableIdsOfAllCreatedCourses";
-    public static final String GET_IDS_OF_ALL_NOT_CREATED_COURSES = "getIdsOfAllNotCreatedCourses";
-    public static final String GET_ALL_CREATED_COURSES = "getAllCreatedCourses";
-    public static final String DELETE_RESOURCEABLE_ID = "deleteResourceableId";
-    public static final String SAVE_RESOURCEABLE_ID = "saveResourceableId";
-    public static final String DISABLE_SYNCHRONIZATION = "disableSynchronization";
+    static final String GET_IDS_OF_ALL_CREATED_COURSES = "getIdsOfAllCreatedCourses";
+    static final String GET_RESOURCEABLEIDS_OF_ALL_CREATED_COURSES = "getResourceableIdsOfAllCreatedCourses";
+    static final String GET_IDS_OF_ALL_NOT_CREATED_COURSES = "getIdsOfAllNotCreatedCourses";
+    static final String GET_ALL_CREATED_COURSES = "getAllCreatedCourses";
+    static final String GET_CREATED_COURSES_BY_LECTURER_IDS = "getCreatedCoursesByLecturerIds";
+    static final String GET_NOT_CREATED_COURSES_BY_LECTURER_IDS = "getNotCreatedCoursesByLecturerIds";
+    static final String GET_CREATED_COURSES_BY_STUDENT_ID = "getCreatedCoursesByStudentId";
+    static final String GET_NOT_CREATED_COURSES_BY_STUDENT_ID = "getNotCreatedCoursesByStudentId";
+    static final String GET_ALL_NOT_UPDATED_COURSES = "getAllNotUpdatedCourses";
+    static final String GET_COURSE_IDS_BY_RESOURCEABLE_ID = "getCourseIdsByResourceableId";
+    static final String GET_PILOT_COURSES_BY_LECTURER_ID = "getPilotCoursesByLecturerId";
+    static final String GET_PILOT_COURSES_BY_STUDENT_ID = "getPilotCoursesByStudentId";
 
-    public static final String GET_CREATED_COURSES_BY_LECTURER_IDS = "getCreatedCoursesByLecturerIds";
-    public static final String GET_NOT_CREATED_COURSES_BY_LECTURER_IDS = "getNotCreatedCoursesByLecturerIds";
-    public static final String GET_CREATED_COURSES_BY_STUDENT_ID = "getCreatedCoursesByStudentId";
-    public static final String GET_NOT_CREATED_COURSES_BY_STUDENT_ID = "getNotCreatedCoursesByStudentId";
+    static final String DELETE_RESOURCEABLE_ID = "deleteResourceableId";
+    static final String SAVE_RESOURCEABLE_ID = "saveResourceableId";
+    static final String DISABLE_SYNCHRONIZATION = "disableSynchronization";
 
-    public static final String GET_ALL_NOT_UPDATED_COURSES = "getAllNotUpdatedCourses";
-    public static final String GET_COURSE_IDS_BY_RESOURCEABLE_ID = "getCourseIdsByResourceableId";
-
-    public static final String GET_PILOT_COURSES_BY_LECTURER_ID = "getPilotCoursesByLecturerId";
-    public static final String GET_PILOT_COURSES_BY_STUDENT_ID = "getPilotCoursesByStudentId";
-
-    public static final String DELETE_BY_COURSE_IDS = "deleteCoursesByCourseId";
+    static final String DELETE_BY_COURSE_IDS = "deleteCoursesByCourseId";
 
     public Long getId() {
         return id;

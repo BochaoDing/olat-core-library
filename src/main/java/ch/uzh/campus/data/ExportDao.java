@@ -1,10 +1,11 @@
 package ch.uzh.campus.data;
 
-import java.util.List;
-
 import org.olat.core.commons.persistence.DB;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
+
+import javax.persistence.EntityManager;
+import java.util.List;
 
 /**
  * Initial Date: 04.06.2012 <br>
@@ -14,6 +15,7 @@ import org.springframework.stereotype.Repository;
  */
 @Repository
 public class ExportDao implements CampusDao<Export> {
+
 	@Autowired
     private DB dbInstance;
     
@@ -25,9 +27,11 @@ public class ExportDao implements CampusDao<Export> {
     }
 
     @Override
-    public void saveOrUpdate(List<Export> items) {
-        save(items);
+    public void saveOrUpdate(List<Export> exports) {
+        EntityManager em = dbInstance.getCurrentEntityManager();
+        for (Export export : exports) {
+            em.merge(export);
+        }
     }
-
 }
 

@@ -23,13 +23,12 @@ package ch.uzh.campus.data;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-
 import org.olat.core.commons.persistence.DB;
 import org.olat.test.OlatTestCase;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 
-
+import javax.inject.Provider;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
@@ -45,13 +44,13 @@ public class ImportStatisticDaoTest extends OlatTestCase {
     private ImportStatisticDao importStatisticDao;
 
     @Autowired
-    private MockDataGenerator mockDataGenerator;
+    private Provider<MockDataGenerator> mockDataGeneratorProvider;
 
     private List<ImportStatistic> importStatistics;
 
     @Before
     public void setup() {
-        importStatistics = mockDataGenerator.getImportStatistics();
+        importStatistics = mockDataGeneratorProvider.get().getImportStatistics();
     }
 
     @After
@@ -63,6 +62,7 @@ public class ImportStatisticDaoTest extends OlatTestCase {
     public void getLastCompletedImportedStatistic_notFound() {        
     	importStatisticDao.save(importStatistics.get(2));
         dbInstance.flush();
+
         assertTrue(importStatisticDao.getLastCompletedImportedStatistic().isEmpty());
     }
 
@@ -71,6 +71,7 @@ public class ImportStatisticDaoTest extends OlatTestCase {
        importStatisticDao.save(importStatistics.get(0));
        importStatisticDao.save(importStatistics.get(1));
        dbInstance.flush();
+
        assertEquals(1, importStatisticDao.getLastCompletedImportedStatistic().size());
        assertEquals(20L, importStatisticDao.getLastCompletedImportedStatistic().get(0).getStepId());
     }

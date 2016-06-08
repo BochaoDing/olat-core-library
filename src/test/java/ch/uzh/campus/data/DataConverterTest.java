@@ -170,7 +170,7 @@ public class DataConverterTest extends OlatTestCase {
     @Test
     public void testConvertLecturersToIdentities_NotEmpty() {        
         when(mockSapOlatUserDao.getSapOlatUserBySapUserId(1100L)).thenReturn(dataGenerator.getSapOlatUsers().get(1));
-        when(mockDelegationDao.getDelegationByDelegator("olatUserName2")).thenReturn(dataGenerator.getDelegations());
+        when(mockDelegationDao.getDelegationsByDelegator("olatUserName2")).thenReturn(dataGenerator.getDelegations());
         when(mockBaseSecurity.findIdentityByName(dataGenerator.getDelegations().get(0).getDelegatee())).thenReturn(id3);
         
         Course course = getCourseWithLecturers();
@@ -195,14 +195,14 @@ public class DataConverterTest extends OlatTestCase {
 
     @Test
     public void testGetDelegatees_Empty() {
-        when(mockDelegationDao.getDelegationByDelegator(id1.getName())).thenReturn(dataGenerator.getDelegations());
+        when(mockDelegationDao.getDelegationsByDelegator(id1.getName())).thenReturn(dataGenerator.getDelegations());
         when(mockBaseSecurity.findIdentityByName(dataGenerator.getDelegations().get(0).getDelegatee())).thenReturn(null);
         assertTrue(dataConverterTestObject.getDelegatees(id1).isEmpty());
     }
 
     @Test
     public void testGetDelegatees_NotEmpty() {
-        when(mockDelegationDao.getDelegationByDelegator(id1.getName())).thenReturn(dataGenerator.getDelegations());
+        when(mockDelegationDao.getDelegationsByDelegator(id1.getName())).thenReturn(dataGenerator.getDelegations());
         when(mockBaseSecurity.findIdentityByName(dataGenerator.getDelegations().get(0).getDelegatee())).thenReturn(id1);
         assertFalse(dataConverterTestObject.getDelegatees(id1).isEmpty());
     }
@@ -210,7 +210,7 @@ public class DataConverterTest extends OlatTestCase {
     @Test
     public void testConvertDelegateesToIdentities_Empty() {
         when(mockSapOlatUserDao.getSapOlatUserBySapUserId(1100L)).thenReturn(dataGenerator.getSapOlatUsers().get(0));
-        when(mockDelegationDao.getDelegationByDelegator("olatUserName1")).thenReturn(dataGenerator.getDelegations());
+        when(mockDelegationDao.getDelegationsByDelegator("olatUserName1")).thenReturn(dataGenerator.getDelegations());
         when(mockBaseSecurity.findIdentityByName(dataGenerator.getDelegations().get(0).getDelegatee())).thenReturn(null);
         when(mockBaseSecurity.findIdentityByName(dataGenerator.getDelegations().get(1).getDelegatee())).thenReturn(null);
         
@@ -222,7 +222,7 @@ public class DataConverterTest extends OlatTestCase {
     @Test
     public void testConvertDelegateesToIdentities_NotEmpty() {
         when(mockSapOlatUserDao.getSapOlatUserBySapUserId(1100L)).thenReturn(dataGenerator.getSapOlatUsers().get(0));
-        when(mockDelegationDao.getDelegationByDelegator("olatUserName1")).thenReturn(dataGenerator.getDelegations());
+        when(mockDelegationDao.getDelegationsByDelegator("olatUserName1")).thenReturn(dataGenerator.getDelegations());
         when(mockBaseSecurity.findIdentityByName(dataGenerator.getDelegations().get(0).getDelegatee())).thenReturn(id1);
         when(mockBaseSecurity.findIdentityByName(dataGenerator.getDelegations().get(1).getDelegatee())).thenReturn(id2);
 

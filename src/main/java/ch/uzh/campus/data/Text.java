@@ -25,6 +25,7 @@ import java.util.Date;
         @NamedQuery(name = Text.DELETE_TEXTS_BY_COURSE_IDS, query = "delete from Text t where t.course.id in :courseIds")
 })
 public class Text {
+
     @Id   
     @GeneratedValue(generator = "system-uuid")
 	@GenericGenerator(name = "system-uuid", strategy = "hilo")
@@ -57,18 +58,18 @@ public class Text {
         this.modifiedDate = modifiedDate;
     }
 
-    public static final String CONTENTS = "Veranstaltungsinhalt";
-    public static final String INFOS = "Hinweise";
-    public static final String MATERIALS = "Unterrichtsmaterialien";
-    public static final String BREAK_TAG = "<br>";
+    static final String CONTENTS = "Veranstaltungsinhalt";
+    static final String INFOS = "Hinweise";
+    static final String MATERIALS = "Unterrichtsmaterialien";
+    static final String BREAK_TAG = "<br>";
 
-    public static final String GET_IDS_OF_ALL_TEXTS = "getIdsOfAllTexts";
-    public static final String GET_TEXT_IDS_BY_COURSE_ID = "getTextIdsByCourseId";
-    public static final String GET_TEXT_IDS_BY_COURSE_IDS = "getTextIdsByCourseIds";
-    public static final String GET_TEXTS_BY_COURSE_ID_AND_TYPE = "getTextsByCourseIdAndType";
-    public static final String GET_TEXTS_BY_COURSE_ID ="getTextsByCourseId";
-    public static final String DELETE_ALL_TEXTS = "deleteAllTexts";
-    public static final String DELETE_TEXTS_BY_COURSE_IDS = "deleteTextsByCourseIds";
+    static final String GET_IDS_OF_ALL_TEXTS = "getIdsOfAllTexts";
+    static final String GET_TEXT_IDS_BY_COURSE_ID = "getTextIdsByCourseId";
+    static final String GET_TEXT_IDS_BY_COURSE_IDS = "getTextIdsByCourseIds";
+    static final String GET_TEXTS_BY_COURSE_ID_AND_TYPE = "getTextsByCourseIdAndType";
+    static final String GET_TEXTS_BY_COURSE_ID ="getTextsByCourseId";
+    static final String DELETE_ALL_TEXTS = "deleteAllTexts";
+    static final String DELETE_TEXTS_BY_COURSE_IDS = "deleteTextsByCourseIds";
 
     public Long getId() {
         return id;

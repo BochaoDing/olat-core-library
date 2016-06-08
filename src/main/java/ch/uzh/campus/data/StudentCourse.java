@@ -40,10 +40,10 @@ public class StudentCourse {
         this.modifiedDate = modifiedDate;
     }
 
-    public static final String GET_ALL_NOT_UPDATED_SC_BOOKING = "getAllNotUpdatedSCBooking";
-    public static final String DELETE_BY_STUDENT_IDS = "deleteStudentCourseByStudentIds";
-    public static final String DELETE_BY_COURSE_IDS = "deleteStudentCourseByCourseIds";
-    public static final String DELETE_ALL_NOT_UPDATED_SC_BOOKING = "deleteAllNotUpdatedSCBooking";
+    static final String GET_ALL_NOT_UPDATED_SC_BOOKING = "getAllNotUpdatedSCBooking";
+    static final String DELETE_BY_STUDENT_IDS = "deleteStudentCourseByStudentIds";
+    static final String DELETE_BY_COURSE_IDS = "deleteStudentCourseByCourseIds";
+    static final String DELETE_ALL_NOT_UPDATED_SC_BOOKING = "deleteAllNotUpdatedSCBooking";
 
     public Student getStudent() {
         return student;

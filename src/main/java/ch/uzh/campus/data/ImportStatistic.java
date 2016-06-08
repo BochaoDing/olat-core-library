@@ -1,21 +1,12 @@
 package ch.uzh.campus.data;
 
-import java.util.Date;
-
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.NamedQuery;
-import javax.persistence.NamedQueries;
-import javax.persistence.Table;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
-
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.hibernate.annotations.GenericGenerator;
+
+import javax.persistence.*;
+import java.util.Date;
 
 
 /**
@@ -27,7 +18,7 @@ import org.hibernate.annotations.GenericGenerator;
 @Table(name = "ck_import_statistic")
 @NamedQueries({
         @NamedQuery(name = ImportStatistic.GET_LAST_COMPLETED_IMPORT_STATISTIC, query = "select s from ImportStatistic s where s.stepName like 'import_%' and s.status='COMPLETED'"
-        + " and s.startTime >=(select max(s2.startTime) from ImportStatistic s2 where s2.stepName='import_controlFile')")
+        + " and s.startTime >= (select max(s2.startTime) from ImportStatistic s2 where s2.stepName='import_controlFile')")
 })
 public class ImportStatistic {
 
@@ -39,16 +30,16 @@ public class ImportStatistic {
     @Column(name = "step_id")
     private long stepId;
 
-    @Column(name = "step_name")
+    @Column(name = "step_name", nullable = false)
     private String stepName;
 
-    @Column(name = "status")
+    @Column(name = "status", nullable = false)
     private String status;
 
-    @Column(name = "read_count")
+    @Column(name = "read_count", nullable = false)
     private int readCount;
 
-    @Column(name = "write_count")
+    @Column(name = "write_count", nullable = false)
     private int writeCount;
 
     @Column(name = "read_skip_count")
@@ -59,8 +50,10 @@ public class ImportStatistic {
 
     @Column(name = "process_skip_count")
     private int processSkipCount;
+
     @Column(name = "commit_count")
     private int commitCount;
+
     @Column(name = "rollback_count")
     private int rollbackCount;
 
@@ -72,7 +65,7 @@ public class ImportStatistic {
     @Column(name = "end_time")
     private Date endTime;
 
-    public static final String GET_LAST_COMPLETED_IMPORT_STATISTIC = "getLastCompletedImportStatistic";
+    static final String GET_LAST_COMPLETED_IMPORT_STATISTIC = "getLastCompletedImportStatistic";
 
     public Long getId() {
         return id;

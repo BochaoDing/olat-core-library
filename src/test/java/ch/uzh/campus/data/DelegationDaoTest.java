@@ -23,14 +23,12 @@ package ch.uzh.campus.data;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.olat.core.commons.persistence.DB;
 import org.olat.test.OlatTestCase;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.AbstractTransactionalJUnit4SpringContextTests;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import javax.inject.Provider;
 import java.util.List;
 
 import static org.junit.Assert.*;
@@ -50,13 +48,13 @@ public class DelegationDaoTest extends OlatTestCase {
     private DelegationDao delegationDao;
 
     @Autowired
-    private MockDataGenerator mockDataGenerator;
+    private Provider<MockDataGenerator> mockDataGeneratorProvider;
 
     private List<Delegation> delegations;
 
     @Before
     public void setup() {
-        delegations = mockDataGenerator.getDelegations();
+        delegations = mockDataGeneratorProvider.get().getDelegations();
     }
 
     @After
@@ -66,32 +64,36 @@ public class DelegationDaoTest extends OlatTestCase {
 
     @Test
     public void testGetDelegationByDelegator_notFound() {
-        assertTrue(delegationDao.getDelegationByDelegator("delegatorX").isEmpty());
+        assertTrue(delegationDao.getDelegationsByDelegator("delegatorX").isEmpty());
     }
 
     @Test
-    public void testGetDelegationByDelegator_foundTwoDelegations() {
+    public void testGetDelegationsByDelegator_foundTwoDelegations() {
         delegationDao.save(delegations.subList(0, 2));
         dbInstance.flush();
-        List<Delegation> foundDelegations = delegationDao.getDelegationByDelegator("delegator1");
-        assertEquals(foundDelegations.size(), 2);
-        assertEquals(foundDelegations.get(0).getDelegatee(), "delegatee11");
-        assertEquals(foundDelegations.get(1).getDelegatee(), "delegatee12");
+
+        List<Delegation> foundDelegations = delegationDao.getDelegationsByDelegator("delegator1");
+
+        assertEquals(2, foundDelegations.size(), 2);
+        assertEquals("delegatee11", foundDelegations.get(0).getDelegatee());
+        assertEquals("delegatee12", foundDelegations.get(1).getDelegatee());
     }
 
     @Test
-    public void testGetDelegationByDelegatee_notFound() {
-        assertTrue(delegationDao.getDelegationByDelegatee("delegateeX").isEmpty());
+    public void testGetDelegationsByDelegatee_notFound() {
+        assertTrue(delegationDao.getDelegationsByDelegatee("delegateeX").isEmpty());
     }
 
     @Test
-    public void testGetDelegationByDelegatee_foundTwoDelegations() {
+    public void testGetDelegationsByDelegatee_foundTwoDelegations() {
         delegationDao.save(delegations.subList(2, 4));
         dbInstance.flush();
-        List<Delegation> foundDelegations = delegationDao.getDelegationByDelegatee("delegatee20");
-        assertEquals(foundDelegations.size(), 2);
-        assertEquals(foundDelegations.get(0).getDelegator(), "delegator2");
-        assertEquals(foundDelegations.get(1).getDelegator(), "delegator3");
+
+        List<Delegation> foundDelegations = delegationDao.getDelegationsByDelegatee("delegatee20");
+
+        assertEquals(2, foundDelegations.size());
+        assertEquals("delegator2", foundDelegations.get(0).getDelegator());
+        assertEquals("delegator3", foundDelegations.get(1).getDelegator());
     }
 
     @Test
@@ -103,16 +105,22 @@ public class DelegationDaoTest extends OlatTestCase {
     public void testExistDelegation() {
         delegationDao.save(delegations.get(4));
         dbInstance.flush();
+
         assertTrue(delegationDao.existDelegation("delegator4", "delegatee40"));
     }
 
     @Test
-    public void testDeleteByDelegatorAndDelegatee() {
+    public void testDeleteByDelegatorAndDelegateeAsBulkDelete() {
         delegationDao.save(delegations.subList(5, 6));
         dbInstance.flush();
+
         assertTrue(delegationDao.existDelegation("delegator5", "delegatee50"));
 
-        delegationDao.deleteByDelegatorAndDelegatee("delegator5", "delegatee50");
+        delegationDao.deleteByDelegatorAndDelegateeAsBulkDelete("delegator5", "delegatee50");
+
+        dbInstance.flush();
+        dbInstance.clear();
+
         assertFalse(delegationDao.existDelegation("delegator5", "delegatee50"));
     }
 

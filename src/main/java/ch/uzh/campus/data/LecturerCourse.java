@@ -41,10 +41,10 @@ public class LecturerCourse {
         this.modifiedDate = modifiedDate;
     }
 
-    public static final String GET_ALL_NOT_UPDATED_LC_BOOKING = "getAllNotUpdatedLCBooking";
-    public static final String DELETE_BY_LECTURER_IDS = "deleteLecturerCourseByLecturerIds";
-    public static final String DELETE_BY_COURSE_IDS = "deleteLecturerCourseByCourseIds";
-    public static final String DELETE_ALL_NOT_UPDATED_LC_BOOKING = "deleteAllNotUpdatedLCBooking";
+    static final String GET_ALL_NOT_UPDATED_LC_BOOKING = "getAllNotUpdatedLCBooking";
+    static final String DELETE_BY_LECTURER_IDS = "deleteLecturerCourseByLecturerIds";
+    static final String DELETE_BY_COURSE_IDS = "deleteLecturerCourseByCourseIds";
+    static final String DELETE_ALL_NOT_UPDATED_LC_BOOKING = "deleteAllNotUpdatedLCBooking";
 
     public Lecturer getLecturer() {
         return lecturer;

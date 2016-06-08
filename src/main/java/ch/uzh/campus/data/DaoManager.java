@@ -148,7 +148,7 @@ public class DaoManager {
         List<List<Long>> listSplit = ListUtil.split(studentIds, campusConfiguration.getEntitiesSublistMaxSize());
         for (List<Long> subList : listSplit) {
             if (!subList.isEmpty()) {
-                sapOlatUserDao.deleteMappingBySapStudentIds(subList);
+                sapOlatUserDao.deleteMappingBySapStudentIdsAsBulkDelete(subList);
                 studentDao.deleteByStudentIds(subList);
             }
         }
@@ -170,7 +170,7 @@ public class DaoManager {
         List<List<Long>> listSplit = ListUtil.split(lecturerIds, campusConfiguration.getEntitiesSublistMaxSize());
         for (List<Long> subList : listSplit) {
             if (!subList.isEmpty()) {
-                sapOlatUserDao.deleteMappingBySapLecturerIds(subList);
+                sapOlatUserDao.deleteMappingBySapLecturerIdsAsBulkDelete(subList);
                 lecturerDao.deleteByLecturerIds(subList);
             }
         }
@@ -237,7 +237,7 @@ public class DaoManager {
     }
 
     public int deleteOrgByIds(List<Long> orgIds) {
-        return orgDao.deleteByOrgIds(orgIds);
+        return orgDao.deleteByOrgIdsAsBulkDelete(orgIds);
     }
 
     public SapOlatUser getStudentSapOlatUserByOlatUserName(String olatUserName) {
@@ -301,7 +301,7 @@ public class DaoManager {
         coursesWithoutResourceableId.addAll(getCourses(identity.getName(), userType, false));// false --- > notCreatedCourses
         // THE CASE OF LECTURER, ADD THE APPRORIATE DELEGATEES
         if (userType.equals(SapOlatUser.SapUserType.LECTURER)) {
-            List<Delegation> delegations = delegationDao.getDelegationByDelegatee(identity.getName());
+            List<Delegation> delegations = delegationDao.getDelegationsByDelegatee(identity.getName());
             for (Delegation delegation : delegations) {
                 coursesWithoutResourceableId.addAll(getCourses(delegation.getDelegator(), userType, false));// false --- > notCreatedCourses
             }
@@ -314,7 +314,7 @@ public class DaoManager {
         coursesWithResourceableId.addAll(getCourses(identity.getName(), userType, true));// true --- > CreatedCourses
         // THE CASE OF LECTURER, ADD THE APPRORIATE DELEGATEES
         if (userType.equals(SapOlatUser.SapUserType.LECTURER)) {
-            List<Delegation> delegations = delegationDao.getDelegationByDelegatee(identity.getName());
+            List<Delegation> delegations = delegationDao.getDelegationsByDelegatee(identity.getName());
             for (Delegation delegation : delegations) {
                 coursesWithResourceableId.addAll(getCourses(delegation.getDelegator(), userType, true));// true --- > CreatedCourses
             }
@@ -404,7 +404,7 @@ public class DaoManager {
     }
 
     public void deleteDelegation(Identity delegator, Identity delegatee) {
-        delegationDao.deleteByDelegatorAndDelegatee(delegator.getName(), delegatee.getName());
+        delegationDao.deleteByDelegatorAndDelegateeAsBulkDelete(delegator.getName(), delegatee.getName());
     }
 
     public boolean chekImportedData() {
@@ -412,11 +412,11 @@ public class DaoManager {
     }
 
     public void deleteOldLecturerMapping() {
-        sapOlatUserDao.deleteOldLecturerMapping();
+        sapOlatUserDao.deleteOldLecturerMappingAsBulkDelete();
     }
 
     public void deleteOldStudentMapping() {
-        sapOlatUserDao.deleteOldStudentMapping();
+        sapOlatUserDao.deleteOldStudentMappingAsBulkDelete();
     }
 
 }

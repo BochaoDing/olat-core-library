@@ -9,7 +9,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 
 import javax.inject.Provider;
-import java.util.*;
+import java.util.Calendar;
+import java.util.GregorianCalendar;
+import java.util.LinkedList;
+import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 
@@ -66,14 +69,15 @@ public class OrgDaoTest extends OlatTestCase {
     }
 
     @Test
-    public void testDeleteByOrgIds() {
+    public void testDeleteByOrgIdsAsBulkDelete() {
         assertEquals(2, orgDao.getIdsOfAllEnabledOrgs().size());
 
         List<Long> orgIds = new LinkedList<>();
         orgIds.add(100L);
         orgIds.add(200L);
 
-        orgDao.deleteByOrgIds(orgIds);
+        orgDao.deleteByOrgIdsAsBulkDelete(orgIds);
+
         dbInstance.flush();
         dbInstance.clear();
 

@@ -4,8 +4,6 @@ import org.olat.core.commons.persistence.DB;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
-import javax.annotation.PostConstruct;
-import javax.persistence.EntityManager;
 import java.util.List;
 
 @Repository
@@ -17,15 +15,14 @@ public class SkipItemDao implements CampusDao<SkipItem> {
     @Override
     public void save(List<SkipItem> skipItems) {
         for (SkipItem skipItem : skipItems) {
-            dbInstance.saveObject(skipItem);
+            save(skipItem);
         }
     }
 
     @Override
-    public void saveOrUpdate(List<SkipItem> items) {
-        EntityManager em = dbInstance.getCurrentEntityManager();
-        for (SkipItem skipItem : items) {
-            em.merge(skipItem);
+    public void saveOrUpdate(List<SkipItem> skipItems) {
+        for (SkipItem skipItem : skipItems) {
+            saveOrUpdate(skipItem);
         }
     }
 
@@ -36,5 +33,4 @@ public class SkipItemDao implements CampusDao<SkipItem> {
     public void saveOrUpdate(SkipItem skipItem) {
         dbInstance.getCurrentEntityManager().merge(skipItem);
     }
-
 }
