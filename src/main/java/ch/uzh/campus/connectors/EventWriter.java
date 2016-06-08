@@ -43,9 +43,14 @@ public class EventWriter implements ItemWriter<EventCourseId> {
 
     @Override
     public void write(List<? extends EventCourseId> eventCourseIds) throws Exception {
-        for (EventCourseId eventCourseId : eventCourseIds) {
-            eventDao.addEventToCourse(eventCourseId);
+        try {
+            for (EventCourseId eventCourseId : eventCourseIds) {
+                eventDao.addEventToCourse(eventCourseId);
+            }
+            dbInstance.commitAndCloseSession();
+        } catch (Throwable t) {
+            dbInstance.rollbackAndCloseSession();
+            throw t;
         }
-        dbInstance.commitAndCloseSession();
     }
 }

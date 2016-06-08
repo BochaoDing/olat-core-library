@@ -349,18 +349,15 @@ public class DaoManager {
     }
 
     public void saveCampusCourseResoureableId(Long courseId, Long resourceableId) {
-        dbInstance.commitAndCloseSession();
         courseDao.saveResourceableIdAsBulkUpdate(courseId, resourceableId);
     }
 
     public void saveCampusCourseResoureableIdAndDisableSynchronization(Long courseId, Long resourceableId) {
-        dbInstance.commitAndCloseSession();
         courseDao.saveResourceableIdAsBulkUpdate(courseId, resourceableId);
         courseDao.disableSynchronizationAsBulkUpdate(courseId);
     }
 
     public void deleteResourceableId(Long resourceableId) {
-        dbInstance.commitAndCloseSession();
         courseDao.deleteResourceableIdAsBulkUpdate(resourceableId);
     }
 

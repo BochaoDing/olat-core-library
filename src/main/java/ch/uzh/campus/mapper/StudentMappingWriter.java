@@ -21,7 +21,7 @@
 package ch.uzh.campus.mapper;
 
 import ch.uzh.campus.data.Student;
-
+import org.olat.core.commons.persistence.DB;
 import org.olat.core.logging.OLog;
 import org.olat.core.logging.Tracing;
 import org.springframework.batch.item.ItemWriter;
@@ -44,6 +44,9 @@ public class StudentMappingWriter implements ItemWriter<Student> {
     private MappingStatistic mappingStatistic;
 
     @Autowired
+    DB dbInstance;
+
+    @Autowired
     StudentMapper studentMapper;
 
     public void setMappingStatistic(MappingStatistic mappingStatistic) {
@@ -54,11 +57,13 @@ public class StudentMappingWriter implements ItemWriter<Student> {
         return mappingStatistic;
     }
 
+    public void setDbInstance(DB dbInstance) {
+        this.dbInstance = dbInstance;
+    }
+
     @PreDestroy
     public void destroy() {
         LOG.info("MappingStatistic(Students)=" + mappingStatistic);
-        // TODO OLATng
-//        campusNotifier.notifyUserMapperStatistic(new OverallUserMapperStatistic(null, mappingStatistic));
     }
 
     @Override
@@ -66,8 +71,11 @@ public class StudentMappingWriter implements ItemWriter<Student> {
         for (Student student : students) {
             try {
                 mappingStatistic.addMappingResult(studentMapper.synchronizeStudentMapping(student));
-            } catch (Exception ex) {
-                LOG.warn("synchronizeAllStudentMapping: Could not syncronized student:" + student + " exception:" + ex);
+                dbInstance.commitAndCloseSession();
+            } catch (Throwable t) {
+                dbInstance.rollbackAndCloseSession();
+                LOG.warn("synchronizeAllLecturerMapping: Could not synchronize student:" + student + " exception:" + t);
+                throw t;
             }
         }
     }

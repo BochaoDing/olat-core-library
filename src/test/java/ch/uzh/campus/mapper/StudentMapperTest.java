@@ -57,7 +57,6 @@ public class StudentMapperTest {
         mappingByEmailMock = mock(MappingByEmail.class);
         studentMapperTestObject.mappingByEmail = mappingByEmailMock;
         studentMapperTestObject.mappingByFirstNameAndLastName = mappingByFirstNameAndLastNameMock;
-        studentMapperTestObject.setDbInstance(mock(DB.class));
 
         studentMock = mock(Student.class);
         identityMock = mock(Identity.class);

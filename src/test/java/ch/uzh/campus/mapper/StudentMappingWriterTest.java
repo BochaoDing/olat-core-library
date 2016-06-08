@@ -24,6 +24,7 @@ import ch.uzh.campus.data.Student;
 import edu.emory.mathcs.backport.java.util.Collections;
 import org.junit.Before;
 import org.junit.Test;
+import org.olat.core.commons.persistence.DB;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -59,6 +60,9 @@ public class StudentMappingWriterTest {
 
         when(studentMapperMock.synchronizeStudentMapping(studentMock1)).thenReturn(MappingResult.NEW_MAPPING_BY_EMAIL);
         when(studentMapperMock.synchronizeStudentMapping(studentMock2)).thenReturn(MappingResult.NEW_MAPPING_BY_MATRICULATION_NR);
+
+        // Mock database
+        studentMappingWriterTestObject.setDbInstance(mock(DB.class));
     }
 
     @Test

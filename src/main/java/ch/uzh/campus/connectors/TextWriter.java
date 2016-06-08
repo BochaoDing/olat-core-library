@@ -43,9 +43,14 @@ public class TextWriter implements ItemWriter<TextCourseId> {
 
     @Override
     public void write(List<? extends TextCourseId> textCourseIds) throws Exception {
-        for (TextCourseId textCourseId : textCourseIds) {
-            textDao.addTextToCourse(textCourseId);
+        try {
+            for (TextCourseId textCourseId : textCourseIds) {
+                textDao.addTextToCourse(textCourseId);
+            }
+            dbInstance.commitAndCloseSession();
+        } catch (Throwable t) {
+            dbInstance.rollbackAndCloseSession();
+            throw t;
         }
-        dbInstance.commitAndCloseSession();
     }
 }
