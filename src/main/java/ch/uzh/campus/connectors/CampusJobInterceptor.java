@@ -40,36 +40,19 @@ public class CampusJobInterceptor implements JobExecutionListener {
 	
 	private static final OLog LOG = Tracing.createLoggerFor(CampusJobInterceptor.class);
 
-	//TODO: olatng
-    //@Autowired
-    //private CampusNotifier campusNotifier;
-
     @Override
     public void afterJob(JobExecution je) {
-    	//TODO: olatng
-        //campusNotifier.notifyJobExecution(je);
-    	LOG.info("afterJob - notifyJobExecution");
+    	LOG.info("afterJob " + je.getJobInstance().getJobName());
     }
 
     @Override
     public void beforeJob(JobExecution je) {
-    	LOG.info("beforeJob - notifyJobExecution");
+        LOG.info("beforeJob " + je.getJobInstance().getJobName());
         switch (je.getJobInstance().getJobName()) {
-            case "importJob":
-                Map<String, JobParameter> parameters = je.getJobInstance().getJobParameters().getParameters();
-                for (String parameterKey : parameters.keySet()) {
-                    if (!parameterKey.equals("run.ts")) {
-                        String filePath = parameters.get(parameterKey).getValue().toString();
-                        LOG.info("Check if CSV file exists: " + filePath);
-                        if (!Files.exists(Paths.get(URI.create(filePath)))) {
-                            LOG.error("CSV file for parameter '" + parameterKey + "' does not exist: " + filePath);
-                        }
-                    }
-                }
-                break;
+//            case "importJob":
+//                break;
             case "userMappingJob":
-                // TODO OLATng
-                // ... check if "importJob" has ran today
+                // TODO OLATng: check if "importJob" has ran today
                 break;
         }
     }
