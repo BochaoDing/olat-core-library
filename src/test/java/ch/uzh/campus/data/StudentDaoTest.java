@@ -141,7 +141,7 @@ public class StudentDaoTest extends OlatTestCase {
     public void testDeleteByStudentIds() {
         assertNotNull(studentDao.getStudentById(2100L));
         assertNotNull(studentDao.getStudentById(2200L));
-        Course course = courseDao.getCourseById(200L);
+        Course course = courseDao.getCourseById(100L);
         assertNotNull(course);
         assertEquals(2, course.getStudentCourses().size());
         assertNotNull(studentCourseDao.getStudentCourseById(2100L, 100L));
@@ -162,6 +162,31 @@ public class StudentDaoTest extends OlatTestCase {
         assertNull(studentDao.getStudentById(2100L));
         assertNull(studentDao.getStudentById(2200L));
         assertEquals(0, course.getStudentCourses().size());
+        assertNull(studentCourseDao.getStudentCourseById(2100L, 100L));
+        assertNull(studentCourseDao.getStudentCourseById(2200L, 100L));
+    }
+
+    @Test
+    public void testDeleteByStudentIdsAsBulkDelete() {
+        assertNotNull(studentDao.getStudentById(2100L));
+        assertNotNull(studentDao.getStudentById(2200L));
+        Course course = courseDao.getCourseById(100L);
+        assertNotNull(course);
+        assertNotNull(studentCourseDao.getStudentCourseById(2100L, 100L));
+        assertNotNull(studentCourseDao.getStudentCourseById(2200L, 100L));
+
+        List<Long> studentIds = new LinkedList<>();
+        studentIds.add(2100L);
+        studentIds.add(2200L);
+
+        studentCourseDao.deleteByStudentIdsAsBulkDelete(studentIds);
+        studentDao.deleteByStudentIdsAsBulkDelete(studentIds);
+
+        dbInstance.flush();
+        dbInstance.clear();
+
+        assertNull(studentDao.getStudentById(2100L));
+        assertNull(studentDao.getStudentById(2200L));
         assertNull(studentCourseDao.getStudentCourseById(2100L, 100L));
         assertNull(studentCourseDao.getStudentCourseById(2200L, 100L));
     }

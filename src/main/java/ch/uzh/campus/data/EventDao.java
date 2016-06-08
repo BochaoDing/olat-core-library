@@ -88,6 +88,16 @@ public class EventDao {
         return idsOfEventsToBeDeleted.size();
     }
 
+    /**
+     * Bulk delete for efficient deletion of a big number of entries. Does not update persistence context!
+     */
+    public int deleteEventsByCourseIdsAsBulkDelete(List<Long> courseIds) {
+        return dbInstance.getCurrentEntityManager()
+                .createNamedQuery(Event.DELETE_EVENTS_BY_COURSE_IDS)
+                .setParameter("courseIds", courseIds)
+                .executeUpdate();
+    }
+
     private void deleteEventsBidirectionally(List<Long> idsOfEventsToBeDeleted) {
         for (Long id : idsOfEventsToBeDeleted) {
             Event event = dbInstance.getCurrentEntityManager().getReference(Event.class, id);

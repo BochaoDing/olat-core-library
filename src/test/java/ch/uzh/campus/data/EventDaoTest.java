@@ -247,6 +247,25 @@ public class EventDaoTest extends OlatTestCase {
         assertEquals(0, course.getEvents().size());
     }
 
+    @Test
+    public void testDeleteEventsByCourseIdsAsBulkDelete() {
+        addEventsToCourses();
+        assertEquals(2, eventDao.getEventsByCourseId(100L).size());
+        assertEquals(2, eventDao.getEventsByCourseId(200L).size());
+
+        List<Long> courseIds = new ArrayList<>();
+        courseIds.add(100L);
+        courseIds.add(200L);
+
+        eventDao.deleteEventsByCourseIdsAsBulkDelete(courseIds);
+
+        dbInstance.flush();
+        dbInstance.clear();
+
+        assertEquals(0, eventDao.getEventsByCourseId(100L).size());
+        assertEquals(0, eventDao.getEventsByCourseId(200L).size());
+    }
+
     private void addEventsToCourses() {
         List<EventCourseId> eventCourseIds = mockDataGeneratorProvider.get().getEventCourseIds();
         eventDao.addEventsToCourse(eventCourseIds);

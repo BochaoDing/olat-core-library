@@ -1,14 +1,13 @@
 package ch.uzh.campus.data;
 
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Set;
-
-import javax.persistence.*;
-
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
+
+import javax.persistence.*;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Initial Date: 04.06.2012 <br>
@@ -22,7 +21,8 @@ import org.apache.commons.lang.builder.ToStringBuilder;
         @NamedQuery(name = Student.GET_ALL_PILOT_STUDENTS, query = "select distinct s from Student s left join s.studentCourses sc where sc.course.enabled = '1' "),
         @NamedQuery(name = Student.GET_ALL_NOT_UPDATED_STUDENTS, query = "select s.id from Student s where s.modifiedDate < :lastImportDate"),
         @NamedQuery(name = Student.GET_STUDENTS_BY_EMAIL, query = "select s from Student s where s.email = :email"),
-        @NamedQuery(name = Student.GET_STUDENTS_WITH_REGISTRATION_NUMBER, query = "select s from Student s where s.registrationNr = :registrationNr")
+        @NamedQuery(name = Student.GET_STUDENTS_WITH_REGISTRATION_NUMBER, query = "select s from Student s where s.registrationNr = :registrationNr"),
+        @NamedQuery(name = Student.DELETE_BY_STUDENT_IDS, query = "delete from Student s where s.id in :studentIds")
 })
 @Table(name = "ck_student")
 public class Student {
@@ -30,20 +30,20 @@ public class Student {
     @Id    
     private Long id;
 
-    @Column(name = "registration_nr")
+    @Column(name = "registration_nr", nullable = false)
     private String registrationNr;
     
-    @Column(name = "first_name")
+    @Column(name = "first_name", nullable = false)
     private String firstName;
     
-    @Column(name = "last_name")
+    @Column(name = "last_name", nullable = false)
     private String lastName;
     
-    @Column(name = "email")
+    @Column(name = "email", nullable = false)
     private String email;
 
     @Temporal(TemporalType.TIMESTAMP)
-    @Column(name = "modified_date")
+    @Column(name = "modified_date", nullable = false)
     private Date modifiedDate;
 
     @OneToMany(mappedBy = "student")
@@ -53,6 +53,7 @@ public class Student {
     public static final String GET_ALL_NOT_UPDATED_STUDENTS = "getAllNotUpdatedStudents";
     public static final String GET_STUDENTS_BY_EMAIL = "getStudentsWithEmail";
     public static final String GET_STUDENTS_WITH_REGISTRATION_NUMBER = "getStudentsWithRegistrationNr";
+    public static final String DELETE_BY_STUDENT_IDS = "deleteStudentByStudentIds";
 
     public Student() {
     }

@@ -10,7 +10,11 @@ import java.util.Date;
 @Table(name="ck_lecturer_course")
 @IdClass(LecturerCourseId.class)
 @NamedQueries({
-        @NamedQuery(name = LecturerCourse.GET_ALL_NOT_UPDATED_LC_BOOKING, query = "select lc from LecturerCourse lc where lc.modifiedDate is not null and lc.modifiedDate < :lastImportDate") })
+        @NamedQuery(name = LecturerCourse.GET_ALL_NOT_UPDATED_LC_BOOKING, query = "select lc from LecturerCourse lc where lc.modifiedDate < :lastImportDate"),
+        @NamedQuery(name = LecturerCourse.DELETE_BY_LECTURER_IDS, query = "delete from LecturerCourse lc where lc.lecturer.personalNr in :lecturerIds"),
+        @NamedQuery(name = LecturerCourse.DELETE_BY_COURSE_IDS, query = "delete from LecturerCourse lc where lc.course.id in :courseIds"),
+        @NamedQuery(name = LecturerCourse.DELETE_ALL_NOT_UPDATED_LC_BOOKING, query = "delete from LecturerCourse lc where lc.modifiedDate < :lastImportDate")
+})
 public class LecturerCourse {
 
     @Id
@@ -25,7 +29,7 @@ public class LecturerCourse {
 
 
     @Temporal(TemporalType.TIMESTAMP)
-    @Column(name = "modified_date")
+    @Column(name = "modified_date", nullable = false)
     private Date modifiedDate;
 
     public LecturerCourse() {
@@ -38,6 +42,9 @@ public class LecturerCourse {
     }
 
     public static final String GET_ALL_NOT_UPDATED_LC_BOOKING = "getAllNotUpdatedLCBooking";
+    public static final String DELETE_BY_LECTURER_IDS = "deleteLecturerCourseByLecturerIds";
+    public static final String DELETE_BY_COURSE_IDS = "deleteLecturerCourseByCourseIds";
+    public static final String DELETE_ALL_NOT_UPDATED_LC_BOOKING = "deleteAllNotUpdatedLCBooking";
 
     public Lecturer getLecturer() {
         return lecturer;

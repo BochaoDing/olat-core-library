@@ -20,18 +20,16 @@
  */
 package ch.uzh.campus.data;
 
-import java.util.*;
-
+import ch.uzh.campus.CampusConfiguration;
 import ch.uzh.campus.CampusCourseImportTO;
 import ch.uzh.campus.utils.ListUtil;
 import org.olat.core.commons.persistence.DB;
 import org.olat.core.id.Identity;
-
-import ch.uzh.campus.CampusConfiguration;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Repository;
+
+import java.util.*;
 
 @Repository
 public class DaoManager {
@@ -348,18 +346,18 @@ public class DaoManager {
 
     public void saveCampusCourseResoureableId(Long courseId, Long resourceableId) {
         dbInstance.commitAndCloseSession();
-        courseDao.saveResourceableId(courseId, resourceableId);
+        courseDao.saveResourceableIdAsBulkUpdate(courseId, resourceableId);
     }
 
     public void saveCampusCourseResoureableIdAndDisableSynchronization(Long courseId, Long resourceableId) {
         dbInstance.commitAndCloseSession();
-        courseDao.saveResourceableId(courseId, resourceableId);
-        courseDao.disableSynchronization(courseId);
+        courseDao.saveResourceableIdAsBulkUpdate(courseId, resourceableId);
+        courseDao.disableSynchronizationAsBulkUpdate(courseId);
     }
 
     public void deleteResourceableId(Long resourceableId) {
         dbInstance.commitAndCloseSession();
-        courseDao.deleteResourceableId(resourceableId);
+        courseDao.deleteResourceableIdAsBulkUpdate(resourceableId);
     }
 
     public List<Long> getAllCreatedSapCourcesIds() {

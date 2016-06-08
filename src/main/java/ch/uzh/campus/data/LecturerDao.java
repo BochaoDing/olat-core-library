@@ -85,6 +85,18 @@ public class LecturerDao implements CampusDao<Lecturer> {
         }
     }
 
+    /**
+     * Bulk delete for efficient deletion of a big number of entries.
+     * Does not delete according entries of join table ck_lecturer_course (-> must be deleted explicitly)!
+     * Does not update persistence context!
+     */
+    public int deleteByLecturerIdsAsBulkDelete(List<Long> lecturerIds) {
+        return dbInstance.getCurrentEntityManager()
+                .createNamedQuery(Lecturer.DELETE_BY_LECTURER_IDS)
+                .setParameter("lecturerIds", lecturerIds)
+                .executeUpdate();
+    }
+
     private void deleteLecturerBidirectionally(Lecturer lecturer) {
         for (LecturerCourse lecturerCourse : lecturer.getLecturerCourses()) {
             lecturerCourse.getCourse().getLecturerCourses().remove(lecturerCourse);

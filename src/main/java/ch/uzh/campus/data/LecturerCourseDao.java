@@ -104,6 +104,36 @@ public class LecturerCourseDao implements CampusDao<LecturerIdCourseId> {
         return lecturerCoursesToBeDeleted.size();
     }
 
+    /**
+     * Bulk delete for efficient deletion of a big number of entries. Does not update persistence context!
+     */
+    public int deleteAllNotUpdatedLCBookingAsBulkDelete(Date date) {
+        return dbInstance.getCurrentEntityManager()
+                .createNamedQuery(LecturerCourse.DELETE_ALL_NOT_UPDATED_LC_BOOKING)
+                .setParameter("lastImportDate", date)
+                .executeUpdate();
+    }
+
+    /**
+     * Bulk delete for efficient deletion of a big number of entries. Does not update persistence context!
+     */
+    public int deleteByLecturerIdsAsBulkDelete(List<Long> lecturerIds) {
+        return dbInstance.getCurrentEntityManager()
+                .createNamedQuery(LecturerCourse.DELETE_BY_LECTURER_IDS)
+                .setParameter("lecturerIds", lecturerIds)
+                .executeUpdate();
+    }
+
+    /**
+     * Bulk delete for efficient deletion of a big number of entries. Does not update persistence context!
+     */
+    public int deleteByCourseIdsAsBulkDelete(List<Long> courseIds) {
+        return dbInstance.getCurrentEntityManager()
+                .createNamedQuery(LecturerCourse.DELETE_BY_COURSE_IDS)
+                .setParameter("courseIds", courseIds)
+                .executeUpdate();
+    }
+
     private void deleteLecturerCourseBidirectionally(LecturerCourse lecturerCourse) {
         lecturerCourse.getLecturer().getLecturerCourses().remove(lecturerCourse);
         lecturerCourse.getCourse().getLecturerCourses().remove(lecturerCourse);

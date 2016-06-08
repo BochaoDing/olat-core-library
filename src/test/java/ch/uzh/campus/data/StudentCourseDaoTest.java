@@ -229,6 +229,8 @@ public class StudentCourseDaoTest extends OlatTestCase {
 
         dbInstance.flush();
 
+        assertNotNull(studentCourseDao.getStudentCourseById(2100L, 100L));
+        assertNotNull(studentCourseDao.getStudentCourseById(2100L, 200L));
         assertEquals(2, student.getStudentCourses().size());
         assertEquals(1, course1.getStudentCourses().size());
         assertEquals(1, course2.getStudentCourses().size());
@@ -238,11 +240,82 @@ public class StudentCourseDaoTest extends OlatTestCase {
         dbInstance.flush();
         dbInstance.clear();
 
+        assertNull(studentCourseDao.getStudentCourseById(2100L, 100L));
+        assertNotNull(studentCourseDao.getStudentCourseById(2100L, 200L));
         assertEquals(1, student.getStudentCourses().size());
         assertEquals(0, course1.getStudentCourses().size());
         assertEquals(1, course2.getStudentCourses().size());
     }
 
+    @Test
+    public void testDeleteAllNotUpdatedSCBookingAsBulkDelete() {
+        Student student = studentDao.getStudentById(2100L);
+        Course course1 = courseDao.getCourseById(100L);
+        Course course2 = courseDao.getCourseById(200L);
+        assertNull(studentCourseDao.getStudentCourseById(2100L, 100L));
+        assertNull(studentCourseDao.getStudentCourseById(2100L, 200L));
+
+        // Insert student to course with date in the past
+        StudentCourse studentCourse1 = new StudentCourse(student, course1, new GregorianCalendar(2000, Calendar.JANUARY, 1).getTime());
+        studentCourseDao.saveOrUpdate(studentCourse1);
+
+        // Insert student to course with date in the future
+        StudentCourse studentCourse2 = new StudentCourse(student, course2, new GregorianCalendar(2035, Calendar.JANUARY, 1).getTime());
+        studentCourseDao.saveOrUpdate(studentCourse2);
+
+        dbInstance.flush();
+
+        assertNotNull(studentCourseDao.getStudentCourseById(2100L, 100L));
+        assertNotNull(studentCourseDao.getStudentCourseById(2100L, 200L));
+
+        studentCourseDao.deleteAllNotUpdatedSCBookingAsBulkDelete(new Date());
+
+        dbInstance.flush();
+        dbInstance.clear();
+
+        assertNull(studentCourseDao.getStudentCourseById(2100L, 100L));
+        assertNotNull(studentCourseDao.getStudentCourseById(2100L, 200L));
+    }
+
+    @Test
+    public void testDeleteByStudentIdsAsBulkDelete() {
+        insertStudentIdCourseIds();
+
+        assertNotNull(studentCourseDao.getStudentCourseById(2100L, 100L));
+        assertNotNull(studentCourseDao.getStudentCourseById(2200L, 100L));
+
+        List<Long> studentIds = new LinkedList<>();
+        studentIds.add(2100L);
+        studentIds.add(2200L);
+
+        studentCourseDao.deleteByStudentIdsAsBulkDelete(studentIds);
+
+        dbInstance.flush();
+        dbInstance.clear();
+
+        assertNull(studentCourseDao.getStudentCourseById(2100L, 100L));
+        assertNull(studentCourseDao.getStudentCourseById(2200L, 100L));
+    }
+
+    @Test
+    public void testDeleteByCourseIdsAsBulkDelete() {
+        insertStudentIdCourseIds();
+
+        assertNotNull(studentCourseDao.getStudentCourseById(2100L, 100L));
+        assertNotNull(studentCourseDao.getStudentCourseById(2100L, 200L));
+
+        List<Long> courseIds = new LinkedList<>();
+        courseIds.add(100L);
+        courseIds.add(200L);
+
+        studentCourseDao.deleteByCourseIdsAsBulkDelete(courseIds);
+
+        dbInstance.flush();
+        dbInstance.clear();
+
+        assertNull(studentCourseDao.getStudentCourseById(2100L, 100L));
+        assertNull(studentCourseDao.getStudentCourseById(2100L, 200L));
+    }
 
     private void insertStudentIdCourseIds() {
         List<StudentIdCourseId> studentIdCourseIds = mockDataGeneratorProvider.get().getStudentIdCourseIds();

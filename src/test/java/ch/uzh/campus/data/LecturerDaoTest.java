@@ -152,6 +152,31 @@ public class LecturerDaoTest extends OlatTestCase {
     }
 
     @Test
+    public void testDeleteByLecturerIdsAsBulkDelete() {
+        assertNotNull(lecturerDao.getLecturerById(1100L));
+        assertNotNull(lecturerDao.getLecturerById(1200L));
+        Course course = courseDao.getCourseById(200L);
+        assertNotNull(course);
+        assertNotNull(lecturerCourseDao.getLecturerCourseById(1100L, 200L));
+        assertNotNull(lecturerCourseDao.getLecturerCourseById(1200L, 200L));
+
+        List<Long> lecturerIds = new LinkedList<>();
+        lecturerIds.add(2100L);
+        lecturerIds.add(2200L);
+
+        lecturerCourseDao.deleteByLecturerIdsAsBulkDelete(lecturerIds);
+        lecturerDao.deleteByLecturerIdsAsBulkDelete(lecturerIds);
+
+        dbInstance.flush();
+        dbInstance.clear();
+
+        assertNull(lecturerDao.getLecturerById(2100L));
+        assertNull(lecturerDao.getLecturerById(2200L));
+        assertNull(lecturerCourseDao.getLecturerCourseById(2100L, 200L));
+        assertNull(lecturerCourseDao.getLecturerCourseById(2200L, 200L));
+    }
+
+    @Test
     public void testGetAllPilotLecturers() {
         assertEquals(2, lecturerDao.getAllPilotLecturers().size());
     }

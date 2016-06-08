@@ -120,6 +120,16 @@ public class TextDao {
         return idsOfTextsToBeDeleted.size();
     }
 
+    /**
+     * Bulk delete for efficient deletion of a big number of entries. Does not update persistence context!
+     */
+    public int deleteTextsByCourseIdsAsBulkDelete(List<Long> courseIds) {
+        return dbInstance.getCurrentEntityManager()
+                .createNamedQuery(Text.DELETE_TEXTS_BY_COURSE_IDS)
+                .setParameter("courseIds", courseIds)
+                .executeUpdate();
+    }
+
     private void deleteTextsBidirectionally(List<Long> idsOfTextsToBeDeleted) {
         for (Long id : idsOfTextsToBeDeleted) {
             Text text = dbInstance.getCurrentEntityManager().getReference(Text.class, id);

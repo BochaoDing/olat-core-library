@@ -1,23 +1,10 @@
 package ch.uzh.campus.data;
 
-import java.util.Date;
-
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.NamedQuery;
-import javax.persistence.NamedQueries;
-import javax.persistence.Table;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
-
-import org.apache.commons.lang.builder.EqualsBuilder;
-import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.hibernate.annotations.GenericGenerator;
+
+import javax.persistence.*;
+import java.util.Date;
 
 /**
  * 
@@ -31,24 +18,26 @@ import org.hibernate.annotations.GenericGenerator;
         @NamedQuery(name = Event.GET_EVENTS_BY_COURSE_ID, query = "select e from Event e where e.course.id = :courseId"),
         @NamedQuery(name = Event.GET_EVENT_IDS_BY_COURSE_ID, query = "select e.id from Event e where e.course.id = :courseId"),
         @NamedQuery(name = Event.GET_EVENT_IDS_BY_COURSE_IDS, query = "select e.id from Event e where e.course.id in :courseIds"),
-        @NamedQuery(name = Event.DELETE_ALL_EVENTS, query = "delete from Event") })
+        @NamedQuery(name = Event.DELETE_ALL_EVENTS, query = "delete from Event"),
+        @NamedQuery(name = Event.DELETE_EVENTS_BY_COURSE_IDS, query = "delete from Event e where e.course.id in :courseIds")
+})
 public class Event {
     @Id
     @GeneratedValue(generator = "system-uuid")
     @GenericGenerator(name = "system-uuid", strategy = "hilo")
     private Long id;
     
-    @Column(name = "date")
+    @Column(name = "date", nullable = false)
     private Date date;
     
-    @Column(name = "start")
+    @Column(name = "start", nullable = false)
     private String start;
     
-    @Column(name = "end")
+    @Column(name = "end", nullable = false)
     private String end;
 
     @Temporal(TemporalType.TIMESTAMP)
-    @Column(name = "modified_date")
+    @Column(name = "modified_date", nullable = false)
     private Date modifiedDate;
 
     @ManyToOne
@@ -70,6 +59,7 @@ public class Event {
     public static final String GET_EVENT_IDS_BY_COURSE_IDS = "getEventIdsByCourseIds";
     public static final String GET_EVENTS_BY_COURSE_ID = "getEventsByCourseId";
     public static final String DELETE_ALL_EVENTS = "deleteAllEvents";
+    public static final String DELETE_EVENTS_BY_COURSE_IDS = "deleteEventsByCourseIds";
 
     public Long getId() {
         return id;

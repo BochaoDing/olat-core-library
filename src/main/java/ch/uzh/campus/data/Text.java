@@ -1,15 +1,10 @@
 package ch.uzh.campus.data;
 
-import java.util.Date;
+import org.apache.commons.lang.builder.ToStringBuilder;
+import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
-import javax.persistence.Entity;
-import javax.persistence.NamedQueries;
-import javax.persistence.NamedQuery;
-import javax.persistence.Table;
-
-import org.apache.commons.lang.builder.ToStringBuilder;
-import org.hibernate.annotations.*;
+import java.util.Date;
 
 
 /**
@@ -26,24 +21,26 @@ import org.hibernate.annotations.*;
         @NamedQuery(name = Text.GET_TEXT_IDS_BY_COURSE_ID, query = "select t.id from Text t where t.course.id = :courseId"),
         @NamedQuery(name = Text.GET_TEXTS_BY_COURSE_ID, query = "select t from Text t where t.course.id = :courseId"),
         @NamedQuery(name = Text.GET_TEXT_IDS_BY_COURSE_IDS, query = "select t.id from Text t where t.course.id in :courseIds"),
-        @NamedQuery(name = Text.DELETE_ALL_TEXTS, query = "delete from Text t") })
+        @NamedQuery(name = Text.DELETE_ALL_TEXTS, query = "delete from Text t"),
+        @NamedQuery(name = Text.DELETE_TEXTS_BY_COURSE_IDS, query = "delete from Text t where t.course.id in :courseIds")
+})
 public class Text {
     @Id   
     @GeneratedValue(generator = "system-uuid")
 	@GenericGenerator(name = "system-uuid", strategy = "hilo")
     private Long id;
 
-    @Column(name = "type")
+    @Column(name = "type", nullable = false)
     private String type;
     
-    @Column(name = "line_seq")
+    @Column(name = "line_seq", nullable = false)
     private int lineSeq;
     
-    @Column(name = "line")
+    @Column(name = "line", nullable = false)
     private String line;
 
     @Temporal(TemporalType.TIMESTAMP)
-    @Column(name = "modified_date")
+    @Column(name = "modified_date", nullable = false)
     private Date modifiedDate;
 
     @ManyToOne
@@ -71,6 +68,7 @@ public class Text {
     public static final String GET_TEXTS_BY_COURSE_ID_AND_TYPE = "getTextsByCourseIdAndType";
     public static final String GET_TEXTS_BY_COURSE_ID ="getTextsByCourseId";
     public static final String DELETE_ALL_TEXTS = "deleteAllTexts";
+    public static final String DELETE_TEXTS_BY_COURSE_IDS = "deleteTextsByCourseIds";
 
     public Long getId() {
         return id;

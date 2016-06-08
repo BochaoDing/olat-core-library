@@ -97,6 +97,18 @@ public class StudentDao implements CampusDao<Student> {
         }
     }
 
+    /**
+     * Bulk delete for efficient deletion of a big number of entries.
+     * Does not delete according entries of join table ck_student_course (-> must be deleted explicitly)!
+     * Does not update persistence context!
+     */
+    public int deleteByStudentIdsAsBulkDelete(List<Long> studentIds) {
+        return dbInstance.getCurrentEntityManager()
+                .createNamedQuery(Student.DELETE_BY_STUDENT_IDS)
+                .setParameter("studentIds", studentIds)
+                .executeUpdate();
+    }
+
     private void deleteStudentBidirectionally(Student student) {
         for (StudentCourse studentCourse : student.getStudentCourses()) {
             studentCourse.getCourse().getStudentCourses().remove(studentCourse);

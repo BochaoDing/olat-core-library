@@ -72,39 +72,62 @@ public class CourseDao implements CampusDao<Course> {
         deleteCourseBidirectionally(course);
     }
 
-    public void saveResourceableId(Long courseId, Long resourceableId) {  
+    /**
+     * Bulk update for efficient update of a big number of entries. Does not update persistence context!
+     */
+    public void saveResourceableIdAsBulkUpdate(Long courseId, Long resourceableId) {
         dbInstance.getCurrentEntityManager().createNamedQuery(Course.SAVE_RESOURCEABLE_ID)
 				.setParameter("courseId", courseId)
 				.setParameter("resId", resourceableId)
 				.executeUpdate();
     }
 
-    public void disableSynchronization(Long courseId) {               
+    /**
+     * Bulk update for efficient update of a big number of entries. Does not update persistence context!
+     */
+    public void disableSynchronizationAsBulkUpdate(Long courseId) {
         dbInstance.getCurrentEntityManager().createNamedQuery(Course.DISABLE_SYNCHRONIZATION)
 		        .setParameter("courseId", courseId)
 		        .executeUpdate();
     }
 
-    public void deleteResourceableId(Long resourceableId) {                
+    /**
+     * Bulk update for efficient update of a big number of entries. Does not update persistence context!
+     */
+    public void deleteResourceableIdAsBulkUpdate(Long resourceableId) {
         dbInstance.getCurrentEntityManager().createNamedQuery(Course.DELETE_RESOURCEABLE_ID)
                 .setParameter("resId", resourceableId)
 		        .executeUpdate();
     }
 
     /**
-     * Deletes also according entries of the join tables ck_lecturer_course and ck_student_course.
+     * Deletes also according entries of the join tables ck_lecturer_course and ck_student_course and of the related tables ck_text and ck_event.
      */
     public void deleteByCourseId(Long courseId) {
         deleteCourseBidirectionally(dbInstance.getCurrentEntityManager().getReference(Course.class, courseId));
     }
 
     /**
-     * Deletes also according entries of the join tables ck_lecturer_course and ck_student_course.
+     * Deletes also according entries of the join tables ck_lecturer_course and ck_student_course and of the related tables ck_text and ck_event.
      */
     public void deleteByCourseIds(List<Long> courseIds) {
         for (Long courseId : courseIds) {
             deleteCourseBidirectionally(dbInstance.getCurrentEntityManager().getReference(Course.class, courseId));
         }
+    }
+
+    /**
+     * Bulk delete for efficient deletion of a big number of entries.
+     *
+     * Does not delete according entries of join tables ck_lecturer_course and ck_student_course (-> must be deleted explicitly)!
+     * Does not delete according entries of ck_text and ck_event (-> must be deleted explicitly)!
+     * Does not update persistence context!
+     */
+    public int deleteByCourseIdsAsBulkDelete(List<Long> courseIds) {
+        return dbInstance.getCurrentEntityManager()
+                .createNamedQuery(Course.DELETE_BY_COURSE_IDS)
+                .setParameter("courseIds", courseIds)
+                .executeUpdate();
     }
     
     public List<Long> getIdsOfAllCreatedCourses() {               

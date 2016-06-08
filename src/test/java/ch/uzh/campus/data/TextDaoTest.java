@@ -266,6 +266,25 @@ public class TextDaoTest extends OlatTestCase {
         assertEquals(0, course.getTexts().size());
     }
 
+    @Test
+    public void testDeleteTextsByCourseIdsAsBulkDelete() {
+        addTextsToCourses();
+        assertEquals(6, textDao.getTextsByCourseId(100L).size());
+        assertEquals(2, textDao.getTextsByCourseId(200L).size());
+
+        List<Long> courseIds = new ArrayList<>();
+        courseIds.add(100L);
+        courseIds.add(200L);
+
+        textDao.deleteTextsByCourseIdsAsBulkDelete(courseIds);
+
+        dbInstance.flush();
+        dbInstance.clear();
+
+        assertEquals(0, textDao.getTextsByCourseId(100L).size());
+        assertEquals(0, textDao.getTextsByCourseId(200L).size());
+    }
+
     private void addTextsToCourses() {
         List<TextCourseId> textCourseIds = mockDataGeneratorProvider.get().getTextCourseIds();
         textDao.addTextsToCourse(textCourseIds);

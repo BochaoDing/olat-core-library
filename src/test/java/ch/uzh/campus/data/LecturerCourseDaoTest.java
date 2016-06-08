@@ -10,10 +10,7 @@ import org.springframework.test.context.ContextConfiguration;
 
 import javax.inject.Provider;
 import javax.persistence.EntityNotFoundException;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.GregorianCalendar;
-import java.util.List;
+import java.util.*;
 
 import static org.junit.Assert.*;
 
@@ -232,6 +229,8 @@ public class LecturerCourseDaoTest extends OlatTestCase {
 
         dbInstance.flush();
 
+        assertNotNull(lecturerCourseDao.getLecturerCourseById(1100L, 100L));
+        assertNotNull(lecturerCourseDao.getLecturerCourseById(1100L, 200L));
         assertEquals(2, lecturer.getLecturerCourses().size());
         assertEquals(1, course1.getLecturerCourses().size());
         assertEquals(1, course2.getLecturerCourses().size());
@@ -241,9 +240,81 @@ public class LecturerCourseDaoTest extends OlatTestCase {
         dbInstance.flush();
         dbInstance.clear();
 
+        assertNull(lecturerCourseDao.getLecturerCourseById(1100L, 100L));
+        assertNotNull(lecturerCourseDao.getLecturerCourseById(1100L, 200L));
         assertEquals(1, lecturer.getLecturerCourses().size());
         assertEquals(0, course1.getLecturerCourses().size());
         assertEquals(1, course2.getLecturerCourses().size());
+    }
+
+    @Test
+    public void testDeleteAllNotUpdatedSCBookingAsBulkDelete() {
+        Lecturer lecturer = lecturerDao.getLecturerById(1100L);
+        Course course1 = courseDao.getCourseById(100L);
+        Course course2 = courseDao.getCourseById(200L);
+        assertNull(lecturerCourseDao.getLecturerCourseById(1100L, 100L));
+        assertNull(lecturerCourseDao.getLecturerCourseById(1100L, 200L));
+
+        // Insert lecturer to course with date in the past
+        LecturerCourse lecturerCourse1 = new LecturerCourse(lecturer, course1, new GregorianCalendar(2000, Calendar.JANUARY, 1).getTime());
+        lecturerCourseDao.saveOrUpdate(lecturerCourse1);
+
+        // Insert lecturer to course with date in the future
+        LecturerCourse lecturerCourse2 = new LecturerCourse(lecturer, course2, new GregorianCalendar(2035, Calendar.JANUARY, 1).getTime());
+        lecturerCourseDao.saveOrUpdate(lecturerCourse2);
+
+        dbInstance.flush();
+
+        assertNotNull(lecturerCourseDao.getLecturerCourseById(1100L, 100L));
+        assertNotNull(lecturerCourseDao.getLecturerCourseById(1100L, 200L));
+
+        lecturerCourseDao.deleteAllNotUpdatedLCBookingAsBulkDelete(new Date());
+
+        dbInstance.flush();
+        dbInstance.clear();
+
+        assertNull(lecturerCourseDao.getLecturerCourseById(1100L, 100L));
+        assertNotNull(lecturerCourseDao.getLecturerCourseById(1100L, 200L));
+    }
+
+    @Test
+    public void testDeleteByLecturerIdsAsBulkDelete() {
+        insertLecturerIdCourseIds();
+
+        assertNotNull(lecturerCourseDao.getLecturerCourseById(1100L, 100L));
+        assertNotNull(lecturerCourseDao.getLecturerCourseById(1200L, 200L));
+
+        List<Long> lecturerIds = new LinkedList<>();
+        lecturerIds.add(1100L);
+        lecturerIds.add(1200L);
+
+        lecturerCourseDao.deleteByLecturerIdsAsBulkDelete(lecturerIds);
+
+        dbInstance.flush();
+        dbInstance.clear();
+
+        assertNull(lecturerCourseDao.getLecturerCourseById(1100L, 100L));
+        assertNull(lecturerCourseDao.getLecturerCourseById(1200L, 200L));
+    }
+
+    @Test
+    public void testDeleteByCourseIdsAsBulkDelete() {
+        insertLecturerIdCourseIds();
+
+        assertNotNull(lecturerCourseDao.getLecturerCourseById(1100L, 100L));
+        assertNotNull(lecturerCourseDao.getLecturerCourseById(1100L, 200L));
+
+        List<Long> courseIds = new LinkedList<>();
+        courseIds.add(100L);
+        courseIds.add(200L);
+
+        lecturerCourseDao.deleteByCourseIdsAsBulkDelete(courseIds);
+
+        dbInstance.flush();
+        dbInstance.clear();
+
+        assertNull(lecturerCourseDao.getLecturerCourseById(1100L, 100L));
+        assertNull(lecturerCourseDao.getLecturerCourseById(1100L, 200L));
     }
 
     private void insertLecturerIdCourseIds() {
