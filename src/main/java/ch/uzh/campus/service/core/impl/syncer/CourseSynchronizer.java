@@ -36,7 +36,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 /**
- * Synchronize the hole course with groups, title, description.
+ * Synchronize the entire course with groups, title, description.
  * 
  * @author cg
  */

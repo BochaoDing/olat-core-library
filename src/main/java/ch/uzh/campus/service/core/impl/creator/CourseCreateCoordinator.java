@@ -90,9 +90,7 @@ public class CourseCreateCoordinator {
     @Autowired
     DaoManager daoManager;
     
-    @Autowired
-    CampusCourseFactory campusCourseFactory;
-    
+       
 
     public CampusCourse continueCampusCourse(Long courseResourceableId, CampusCourse campusCourse, CampusCourseImportTO campusCourseImportData, Identity creator) {
         RepositoryEntry repositoryEntry = campusCourse.getRepositoryEntry();

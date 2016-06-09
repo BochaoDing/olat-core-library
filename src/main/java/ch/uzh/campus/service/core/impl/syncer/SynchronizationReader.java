@@ -21,7 +21,6 @@
 package ch.uzh.campus.service.core.impl.syncer;
 
 import ch.uzh.campus.CampusCourseImportTO;
-import ch.uzh.campus.connectors.CampusInterceptor;
 
 import ch.uzh.campus.utils.ListUtil;
 import org.olat.core.logging.OLog;

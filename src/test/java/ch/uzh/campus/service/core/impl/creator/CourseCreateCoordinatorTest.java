@@ -163,6 +163,7 @@ public class CourseCreateCoordinatorTest extends OlatTestCase {
         assertTrue("CampusCourse Access must be 'BARG'", createdCampusCourseTestObject.getRepositoryEntry().getAccess() == RepositoryEntry.ACC_USERS_GUESTS);
     }
 
+    //TODO: olatng
     @Ignore
     @Test
     public void createCampusCourse_CheckTitle() {
@@ -224,6 +225,7 @@ public class CourseCreateCoordinatorTest extends OlatTestCase {
 
     }
     
+    //TODO: olatng
     @Ignore
     @Test
     public void continueCampusCourse() {
