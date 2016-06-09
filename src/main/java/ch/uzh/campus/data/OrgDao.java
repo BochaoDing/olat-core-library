@@ -1,10 +1,12 @@
 package ch.uzh.campus.data;
 
+import org.apache.commons.lang.time.DateUtils;
 import org.olat.core.commons.persistence.DB;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import javax.persistence.EntityManager;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
@@ -42,9 +44,11 @@ public class OrgDao implements CampusDao<Org> {
     }
 
     public List<Long> getAllNotUpdatedOrgs(Date date) {
+        // Round to seconds since modifiedDate (used in query) is also rounded to seconds
+        Date roundedToSeconds = DateUtils.round(date, Calendar.SECOND);
         return dbInstance.getCurrentEntityManager()
                 .createNamedQuery(Org.GET_ALL_NOT_UPDATED_ORGS, Long.class)
-                .setParameter("lastImportDate", date)
+                .setParameter("lastImportDate", roundedToSeconds)
                 .getResultList();
     }
 

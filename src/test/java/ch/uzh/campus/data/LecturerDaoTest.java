@@ -9,7 +9,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 
 import javax.inject.Provider;
-import java.util.*;
+import java.util.Date;
+import java.util.LinkedList;
+import java.util.List;
 
 import static org.junit.Assert.*;
 
@@ -90,15 +92,13 @@ public class LecturerDaoTest extends OlatTestCase {
 
     @Test
     public void testGetAllNotUpdatedLecturers_foundOneLecturer() throws InterruptedException {
-        Calendar now = new GregorianCalendar();
-        // To avoid rounding problems
-        Calendar nowMinusOneSecond = (Calendar) now.clone();
-        nowMinusOneSecond.add(Calendar.SECOND, -1);
+        Date now = new Date();
 
-        lecturers.get(0).setModifiedDate(now.getTime());
+        lecturers.get(0).setModifiedDate(now);
+
         dbInstance.flush();
 
-        assertEquals(1, lecturerDao.getAllNotUpdatedLecturers(nowMinusOneSecond.getTime()).size());
+        assertEquals(1, lecturerDao.getAllNotUpdatedLecturers(now).size());
     }
 
     @Test

@@ -1,11 +1,13 @@
 package ch.uzh.campus.data;
 
 
+import org.apache.commons.lang.time.DateUtils;
 import org.olat.core.commons.persistence.DB;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import javax.persistence.EntityManager;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
@@ -63,9 +65,11 @@ public class LecturerDao implements CampusDao<Lecturer> {
     }
 
     public List<Long> getAllNotUpdatedLecturers(Date date) {
+        // Round to seconds since modifiedDate (used in query) is also rounded to seconds
+        Date roundedToSeconds = DateUtils.round(date, Calendar.SECOND);
         return dbInstance.getCurrentEntityManager()
                 .createNamedQuery(Lecturer.GET_ALL_NOT_UPDATED_LECTURERS, Long.class)
-                .setParameter("lastImportDate", date)
+                .setParameter("lastImportDate", roundedToSeconds)
                 .getResultList();
     }
 

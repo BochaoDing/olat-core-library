@@ -9,8 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 
 import javax.inject.Provider;
-import java.util.Calendar;
-import java.util.GregorianCalendar;
+import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -54,18 +53,14 @@ public class OrgDaoTest extends OlatTestCase {
 
     @Test
     public void testGetAllNotUpdatedOrgs_foundOneOrg() {
-        Calendar now = new GregorianCalendar();
-        // To avoid rounding problems
-        Calendar nowMinusOneSecond = (Calendar) now.clone();
-        nowMinusOneSecond.add(Calendar.SECOND, -1);
+        Date now = new Date();
+        assertEquals(2, orgDao.getAllNotUpdatedOrgs(now).size());
 
-        assertEquals(2, orgDao.getAllNotUpdatedOrgs(nowMinusOneSecond.getTime()).size());
+        orgs.get(0).setModifiedDate(now);
 
-        orgs.get(0).setModifiedDate(now.getTime());
         dbInstance.flush();
-        dbInstance.clear();
 
-        assertEquals(1, orgDao.getAllNotUpdatedOrgs(nowMinusOneSecond.getTime()).size());
+        assertEquals(1, orgDao.getAllNotUpdatedOrgs(now).size());
     }
 
     @Test

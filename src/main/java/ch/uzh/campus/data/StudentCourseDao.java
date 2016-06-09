@@ -1,13 +1,16 @@
 package ch.uzh.campus.data;
 
 
+import org.apache.commons.lang.time.DateUtils;
 import org.olat.core.commons.persistence.DB;
 import org.olat.core.logging.OLog;
 import org.olat.core.logging.Tracing;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
+import javax.persistence.EntityManager;
 import javax.persistence.EntityNotFoundException;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
@@ -29,8 +32,9 @@ public class StudentCourseDao implements CampusDao<StudentIdCourseId> {
     }
 
     public void save(StudentIdCourseId studentIdCourseId) {
-        Student student = dbInstance.getCurrentEntityManager().find(Student.class, studentIdCourseId.getStudentId());
-        Course course = dbInstance.getCurrentEntityManager().find(Course.class, studentIdCourseId.getCourseId());
+        EntityManager em = dbInstance.getCurrentEntityManager();
+        Student student = em.find(Student.class, studentIdCourseId.getStudentId());
+        Course course = em.find(Course.class, studentIdCourseId.getCourseId());
         if (student == null || course == null) {
             logStudentCourseNotFoundAndThrowException(studentIdCourseId, student, course);
         }
@@ -50,7 +54,7 @@ public class StudentCourseDao implements CampusDao<StudentIdCourseId> {
         studentCourse.getStudent().getStudentCourses().add(studentCourse);
         studentCourse.getCourse().getStudentCourses().add(studentCourse);
     }
-    
+
     public void saveOrUpdateList(List<StudentCourse> studentCourses) {
     	for(StudentCourse studentCourse:studentCourses) {
     		saveOrUpdate(studentCourse);
@@ -58,8 +62,9 @@ public class StudentCourseDao implements CampusDao<StudentIdCourseId> {
     }
 
     public void saveOrUpdate(StudentIdCourseId studentIdCourseId) {
-        Student student = dbInstance.getCurrentEntityManager().find(Student.class, studentIdCourseId.getStudentId());
-        Course course = dbInstance.getCurrentEntityManager().find(Course.class, studentIdCourseId.getCourseId());
+        EntityManager em = dbInstance.getCurrentEntityManager();
+        Student student = em.find(Student.class, studentIdCourseId.getStudentId());
+        Course course = em.find(Course.class, studentIdCourseId.getCourseId());
         if (student == null || course == null) {
             logStudentCourseNotFoundAndThrowException(studentIdCourseId, student, course);
             return;
@@ -97,9 +102,11 @@ public class StudentCourseDao implements CampusDao<StudentIdCourseId> {
     }
 
     public int deleteAllNotUpdatedSCBooking(Date date) {
+        // Round to seconds since modifiedDate (used in query) is also rounded to seconds
+        Date roundedToSeconds = DateUtils.round(date, Calendar.SECOND);
         List<StudentCourse> studentCoursesToBeDeleted = dbInstance.getCurrentEntityManager()
                 .createNamedQuery(StudentCourse.GET_ALL_NOT_UPDATED_SC_BOOKING, StudentCourse.class)
-                .setParameter("lastImportDate", date)
+                .setParameter("lastImportDate", roundedToSeconds)
                 .getResultList();
         for (StudentCourse studentCourse : studentCoursesToBeDeleted) {
             deleteStudentCourseBidirectionally(studentCourse);
@@ -111,9 +118,11 @@ public class StudentCourseDao implements CampusDao<StudentIdCourseId> {
      * Bulk delete for efficient deletion of a big number of entries. Does not update persistence context!
      */
     public int deleteAllNotUpdatedSCBookingAsBulkDelete(Date date) {
+        // Round to seconds since modifiedDate (used in query) is also rounded to seconds
+        Date roundedToSeconds = DateUtils.round(date, Calendar.SECOND);
         return dbInstance.getCurrentEntityManager()
                 .createNamedQuery(StudentCourse.DELETE_ALL_NOT_UPDATED_SC_BOOKING)
-                .setParameter("lastImportDate", date)
+                .setParameter("lastImportDate", roundedToSeconds)
                 .executeUpdate();
     }
 

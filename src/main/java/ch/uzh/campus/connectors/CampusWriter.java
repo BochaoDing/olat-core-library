@@ -20,12 +20,14 @@
  */
 package ch.uzh.campus.connectors;
 
-import java.util.List;
-
 import ch.uzh.campus.data.CampusDao;
 import org.olat.core.commons.persistence.DB;
+import org.olat.core.logging.OLog;
+import org.olat.core.logging.Tracing;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.beans.factory.annotation.Autowired;
+
+import java.util.List;
 
 /**
  * This class is a generic {@link ItemWriter} that writes data to the database. <br>
@@ -37,6 +39,9 @@ import org.springframework.beans.factory.annotation.Autowired;
  * @author aabouc
  */
 public class CampusWriter<T> implements ItemWriter<T> {
+
+    private static final OLog LOG = Tracing.createLoggerFor(CampusWriter.class);
+
     private CampusDao<T> campuskursDao;
 
     @Autowired
@@ -80,6 +85,7 @@ public class CampusWriter<T> implements ItemWriter<T> {
             dbInstance.commitAndCloseSession();
         } catch (Throwable t) {
             dbInstance.rollbackAndCloseSession();
+            LOG.warn(t.getMessage());
             throw t;
         }
     }

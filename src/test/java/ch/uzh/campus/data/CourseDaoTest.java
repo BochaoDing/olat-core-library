@@ -9,8 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 
 import javax.inject.Provider;
-import java.util.Calendar;
-import java.util.GregorianCalendar;
+import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -335,22 +334,19 @@ public class CourseDaoTest extends OlatTestCase {
 
     @Test
     public void tesGetAllNotUpdatedCourses() {
-        Calendar now = new GregorianCalendar();
-        // To avoid rounding problems
-        Calendar nowMinusOneSecond = (Calendar) now.clone();
-        nowMinusOneSecond.add(Calendar.SECOND, -1);
+        Date now = new Date();
 
-    	List<Long> courseIds = courseDao.getAllNotUpdatedCourses(nowMinusOneSecond.getTime());
+    	List<Long> courseIds = courseDao.getAllNotUpdatedCourses(now);
         // Only courses with resourceableId = null
     	assertEquals(1, courseIds.size());
 
         assertNull(courses.get(2).getResourceableId());
-        courses.get(2).setModifiedDate(now.getTime());
+        courses.get(2).setModifiedDate(now);
 
         dbInstance.flush();
         dbInstance.clear();
 
-        courseIds = courseDao.getAllNotUpdatedCourses(nowMinusOneSecond.getTime());
+        courseIds = courseDao.getAllNotUpdatedCourses(now);
         assertEquals(0, courseIds.size());
     }
 
