@@ -23,6 +23,8 @@ package ch.uzh.campus.connectors;
 import ch.uzh.campus.data.TextCourseId;
 import ch.uzh.campus.data.TextDao;
 import org.olat.core.commons.persistence.DB;
+import org.olat.core.logging.OLog;
+import org.olat.core.logging.Tracing;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -34,6 +36,8 @@ import java.util.List;
  */
 @Component
 public class TextWriter implements ItemWriter<TextCourseId> {
+
+    private static final OLog LOG = Tracing.createLoggerFor(TextWriter.class);
 
     @Autowired
     public TextDao textDao;
@@ -50,6 +54,7 @@ public class TextWriter implements ItemWriter<TextCourseId> {
             dbInstance.commitAndCloseSession();
         } catch (Throwable t) {
             dbInstance.rollbackAndCloseSession();
+            LOG.warn(t.getMessage());
             throw t;
         }
     }
