@@ -1,6 +1,7 @@
 package ch.uzh.campus.data;
 
 
+import ch.uzh.campus.utils.DateUtil;
 import org.olat.core.commons.persistence.DB;
 import org.olat.core.logging.OLog;
 import org.olat.core.logging.Tracing;
@@ -9,7 +10,6 @@ import org.springframework.stereotype.Repository;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityNotFoundException;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
@@ -102,12 +102,9 @@ public class StudentCourseDao implements CampusDao<StudentIdCourseId> {
 
     public int deleteAllNotUpdatedSCBooking(Date date) {
         // Subtract one second since modifiedDate (used in query) is rounded to seconds
-        Calendar dateMinusOneSecond = Calendar.getInstance();
-        dateMinusOneSecond.setTime(date);
-        dateMinusOneSecond.add(Calendar.SECOND, -1);
         List<StudentCourse> studentCoursesToBeDeleted = dbInstance.getCurrentEntityManager()
                 .createNamedQuery(StudentCourse.GET_ALL_NOT_UPDATED_SC_BOOKING, StudentCourse.class)
-                .setParameter("lastImportDate", dateMinusOneSecond.getTime())
+                .setParameter("lastImportDate", DateUtil.addSecondsToDate(date, -1))
                 .getResultList();
         for (StudentCourse studentCourse : studentCoursesToBeDeleted) {
             deleteStudentCourseBidirectionally(studentCourse);
@@ -119,13 +116,10 @@ public class StudentCourseDao implements CampusDao<StudentIdCourseId> {
      * Bulk delete for efficient deletion of a big number of entries. Does not update persistence context!
      */
     public int deleteAllNotUpdatedSCBookingAsBulkDelete(Date date) {
-        // Subtract one second since modifiedDate (used in query) is rounded to seconds
-        Calendar dateMinusOneSecond = Calendar.getInstance();
-        dateMinusOneSecond.setTime(date);
-        dateMinusOneSecond.add(Calendar.SECOND, -1);
+        // Subtract one second from date since modifiedDate (used in query) is rounded to seconds
         return dbInstance.getCurrentEntityManager()
                 .createNamedQuery(StudentCourse.DELETE_ALL_NOT_UPDATED_SC_BOOKING)
-                .setParameter("lastImportDate", dateMinusOneSecond.getTime())
+                .setParameter("lastImportDate", DateUtil.addSecondsToDate(date, -1))
                 .executeUpdate();
     }
 

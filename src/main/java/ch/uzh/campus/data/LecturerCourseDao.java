@@ -1,5 +1,6 @@
 package ch.uzh.campus.data;
 
+import ch.uzh.campus.utils.DateUtil;
 import org.olat.core.commons.persistence.DB;
 import org.olat.core.logging.OLog;
 import org.olat.core.logging.Tracing;
@@ -8,7 +9,6 @@ import org.springframework.stereotype.Repository;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityNotFoundException;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
@@ -98,13 +98,10 @@ public class LecturerCourseDao implements CampusDao<LecturerIdCourseId> {
     }
 
     public int deleteAllNotUpdatedLCBooking(Date date) {
-        // Subtract one second since modifiedDate (used in query) is rounded to seconds
-        Calendar dateMinusOneSecond = Calendar.getInstance();
-        dateMinusOneSecond.setTime(date);
-        dateMinusOneSecond.add(Calendar.SECOND, -1);
+        // Subtract one second from date since modifiedDate (used in query) is rounded to seconds
         List<LecturerCourse> lecturerCoursesToBeDeleted = dbInstance.getCurrentEntityManager()
                 .createNamedQuery(LecturerCourse.GET_ALL_NOT_UPDATED_LC_BOOKING, LecturerCourse.class)
-                .setParameter("lastImportDate", dateMinusOneSecond.getTime())
+                .setParameter("lastImportDate", DateUtil.addSecondsToDate(date, -1))
                 .getResultList();
         for (LecturerCourse lecturerCourse : lecturerCoursesToBeDeleted) {
             deleteLecturerCourseBidirectionally(lecturerCourse);
@@ -116,13 +113,10 @@ public class LecturerCourseDao implements CampusDao<LecturerIdCourseId> {
      * Bulk delete for efficient deletion of a big number of entries. Does not update persistence context!
      */
     public int deleteAllNotUpdatedLCBookingAsBulkDelete(Date date) {
-        // Subtract one second since modifiedDate (used in query) is rounded to seconds
-        Calendar dateMinusOneSecond = Calendar.getInstance();
-        dateMinusOneSecond.setTime(date);
-        dateMinusOneSecond.add(Calendar.SECOND, -1);
+        // Subtract one second from date since modifiedDate (used in query) is rounded to seconds
         return dbInstance.getCurrentEntityManager()
                 .createNamedQuery(LecturerCourse.DELETE_ALL_NOT_UPDATED_LC_BOOKING)
-                .setParameter("lastImportDate", dateMinusOneSecond.getTime())
+                .setParameter("lastImportDate", DateUtil.addSecondsToDate(date, -1))
                 .executeUpdate();
     }
 

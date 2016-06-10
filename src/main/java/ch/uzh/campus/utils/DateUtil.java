@@ -22,17 +22,16 @@ package ch.uzh.campus.utils;
  */
 
 
+import ch.uzh.campus.connectors.CourseProcessor;
+import org.olat.core.logging.OLog;
+import org.olat.core.logging.Tracing;
+
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
-
-import org.olat.core.logging.OLog;
-import org.olat.core.logging.Tracing;
-
-import ch.uzh.campus.connectors.CourseProcessor;
 
 /**
  *  
@@ -148,6 +147,20 @@ public class DateUtil {
             // TODO: handle exception
         }
         return false;
+    }
+
+    /**
+     * Add or subtract seconds from a date.
+     *
+     * @param date
+     * @param numberOfSeconds to be added / subtracted
+     * @return modified date
+     */
+    public static Date addSecondsToDate (Date date, int numberOfSeconds) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(date);
+        calendar.add(Calendar.SECOND, numberOfSeconds);
+        return calendar.getTime();
     }
 
 }
