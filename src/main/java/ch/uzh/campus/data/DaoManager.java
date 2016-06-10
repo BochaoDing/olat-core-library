@@ -189,10 +189,6 @@ public class DaoManager {
     }
 
     public List<Student> getAllStudents() {
-        return studentDao.getAllStudents();
-    }
-
-    public List<Student> getAllPilotStudents() {
         return studentDao.getAllPilotStudents();
     }
 
@@ -221,10 +217,6 @@ public class DaoManager {
     }
 
     public List<Lecturer> getAllLecturers() {
-        return lecturerDao.getAllLecturers();
-    }
-
-    public List<Lecturer> getAllPilotLecturers() {
         return lecturerDao.getAllPilotLecturers();
     }
 
@@ -408,7 +400,7 @@ public class DaoManager {
         delegationDao.deleteByDelegatorAndDelegateeAsBulkDelete(delegator.getName(), delegatee.getName());
     }
 
-    public boolean chekImportedData() {
+    public boolean checkImportedData() {
         return (statisticDao.getLastCompletedImportedStatistic().size() == campusConfiguration.getMustCompletedImportedFiles());
     }
 

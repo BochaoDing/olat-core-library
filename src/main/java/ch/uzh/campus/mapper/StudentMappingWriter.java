@@ -68,15 +68,15 @@ public class StudentMappingWriter implements ItemWriter<Student> {
 
     @Override
     public void write(List<? extends Student> students) throws Exception {
-        for (Student student : students) {
-            try {
+        try {
+            for (Student student : students) {
                 mappingStatistic.addMappingResult(studentMapper.synchronizeStudentMapping(student));
-                dbInstance.commitAndCloseSession();
-            } catch (Throwable t) {
-                dbInstance.rollbackAndCloseSession();
-                LOG.warn("synchronizeAllLecturerMapping: Could not synchronize student:" + student + " exception:" + t);
-                throw t;
             }
+            dbInstance.commitAndCloseSession();
+        } catch (Throwable t) {
+            dbInstance.rollbackAndCloseSession();
+            LOG.warn(t.getMessage());
+            throw t;
         }
     }
 }

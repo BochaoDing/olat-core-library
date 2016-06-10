@@ -66,15 +66,15 @@ public class LecturerMappingWriter implements ItemWriter<Lecturer> {
 
     @Override
     public void write(List<? extends Lecturer> lecturers) throws Exception {
-        for (Lecturer lecturer : lecturers) {
-            try {
+        try {
+            for (Lecturer lecturer : lecturers) {
                 mappingStatistic.addMappingResult(lecturerMapper.synchronizeLecturerMapping(lecturer));
-                dbInstance.commitAndCloseSession();
-            } catch (Throwable t) {
-                dbInstance.rollbackAndCloseSession();
-                LOG.warn("synchronizeAllLecturerMapping: Could not synchronize lecturer:" + lecturer + " exception:" + t);
-                throw t;
             }
+            dbInstance.commitAndCloseSession();
+        } catch (Throwable t) {
+            dbInstance.rollbackAndCloseSession();
+            LOG.warn(t.getMessage());
+            throw t;
         }
     }
 }

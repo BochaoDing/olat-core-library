@@ -23,7 +23,9 @@ package ch.uzh.campus.mapper;
 import ch.uzh.campus.data.DaoManager;
 import ch.uzh.campus.data.Lecturer;
 import ch.uzh.campus.utils.ListUtil;
-
+import org.olat.core.commons.persistence.DB;
+import org.olat.core.logging.OLog;
+import org.olat.core.logging.Tracing;
 import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,15 +43,27 @@ import java.util.List;
  */
 public class LecturerMappingReader implements ItemReader<Lecturer> {
 
+    private static final OLog LOG = Tracing.createLoggerFor(LecturerMappingReader.class);
+
     @Autowired
     DaoManager daoManager;
+
+    @Autowired
+    private DB dbInstance;
 
     private List<Lecturer> lecturers;
 
     @PostConstruct
     public void init() {
-        daoManager.deleteOldLecturerMapping();
-        lecturers = daoManager.getAllLecturers();
+        try {
+            daoManager.deleteOldLecturerMapping();
+            lecturers = daoManager.getAllLecturers();
+            dbInstance.commitAndCloseSession();
+        } catch (Throwable t) {
+            dbInstance.rollbackAndCloseSession();
+            LOG.warn(t.getMessage());
+            throw t;
+        }
     }
 
     @PreDestroy

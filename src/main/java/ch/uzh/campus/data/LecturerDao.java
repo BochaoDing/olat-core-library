@@ -52,11 +52,6 @@ public class LecturerDao implements CampusDao<Lecturer> {
         return null;
     }
 
-    public List<Lecturer> getAllLecturers() {
-        // return genericDao.findAll();
-        return getAllPilotLecturers();
-    }
-
     public List<Lecturer> getAllPilotLecturers() {
         return dbInstance.getCurrentEntityManager()
                 .createNamedQuery(Lecturer.GET_ALL_PILOT_LECTURERS, Lecturer.class)
