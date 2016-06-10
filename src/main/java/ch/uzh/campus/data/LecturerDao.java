@@ -1,6 +1,7 @@
 package ch.uzh.campus.data;
 
 
+import ch.uzh.campus.utils.DateUtil;
 import org.olat.core.commons.persistence.DB;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
@@ -63,9 +64,10 @@ public class LecturerDao implements CampusDao<Lecturer> {
     }
 
     public List<Long> getAllNotUpdatedLecturers(Date date) {
+        // Subtract one second from date since modifiedDate (used in query) is rounded to seconds
         return dbInstance.getCurrentEntityManager()
                 .createNamedQuery(Lecturer.GET_ALL_NOT_UPDATED_LECTURERS, Long.class)
-                .setParameter("lastImportDate", date)
+                .setParameter("lastImportDate", DateUtil.addSecondsToDate(date, -1))
                 .getResultList();
     }
 

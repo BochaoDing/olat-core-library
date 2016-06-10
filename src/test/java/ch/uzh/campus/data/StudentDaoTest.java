@@ -1,21 +1,19 @@
 package ch.uzh.campus.data;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-
-import java.util.*;
-
-import javax.inject.Provider;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.olat.core.commons.persistence.DB;
 import org.olat.test.OlatTestCase;
 import org.springframework.beans.factory.annotation.Autowired;
-
 import org.springframework.test.context.ContextConfiguration;
+
+import javax.inject.Provider;
+import java.util.Date;
+import java.util.LinkedList;
+import java.util.List;
+
+import static org.junit.Assert.*;
 
 /**
  * Initial Date: Oct 28, 2014 <br>
@@ -105,15 +103,13 @@ public class StudentDaoTest extends OlatTestCase {
     
     @Test
     public void testGetAllNotUpdatedStudents_foundTwoStudent() throws InterruptedException {
-        Calendar now = new GregorianCalendar();
-        // To avoid rounding problems
-        Calendar nowMinusOneSecond = (Calendar) now.clone();
-        nowMinusOneSecond.add(Calendar.SECOND, -1);
+        Date now = new Date();
 
-        students.get(0).setModifiedDate(now.getTime());
+        students.get(0).setModifiedDate(now);
+
         dbInstance.flush();
 
-        assertEquals(2, studentDao.getAllNotUpdatedStudents(nowMinusOneSecond.getTime()).size());
+        assertEquals(2, studentDao.getAllNotUpdatedStudents(now).size());
     }
 
     @Test

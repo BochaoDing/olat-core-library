@@ -24,6 +24,7 @@ import ch.uzh.campus.data.Lecturer;
 import edu.emory.mathcs.backport.java.util.Collections;
 import org.junit.Before;
 import org.junit.Test;
+import org.olat.core.commons.persistence.DB;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -59,6 +60,9 @@ public class LecturerMappingWriterTest {
 
         when(lecturerMapperMock.synchronizeLecturerMapping(lecturerMock1)).thenReturn(MappingResult.NEW_MAPPING_BY_EMAIL);
         when(lecturerMapperMock.synchronizeLecturerMapping(lecturerMock2)).thenReturn(MappingResult.NEW_MAPPING_BY_PERSONAL_NR);
+
+        // Mock database
+        lecturerMappingWriterTestObject.setDbInstance(mock(DB.class));
     }
 
     @Test

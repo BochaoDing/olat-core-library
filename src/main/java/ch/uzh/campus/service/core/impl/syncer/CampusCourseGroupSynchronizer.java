@@ -31,6 +31,10 @@ import ch.uzh.campus.service.core.impl.syncer.statistic.SynchronizedSecurityGrou
  * Initial Date: 20.06.2012 <br>
  * 
  * @author cg
+ * 
+ * All lecturers are added as owners to the course. <br>
+ * All students are added as participants to GroupA and all lecturers are added as coaches of both GroupA and GroupB.
+ * 
  */
 @Component
 public class CampusCourseGroupSynchronizer {
@@ -98,7 +102,7 @@ public class CampusCourseGroupSynchronizer {
       
 
    /**
-    * Synchronizes the owners of the GroupB, and the owners and participants of the GroupA.
+    * Synchronizes the coaches of the GroupB, and the coaches and participants of the GroupA.
     * @param course
     * @param campusCourseImportData
     * @return

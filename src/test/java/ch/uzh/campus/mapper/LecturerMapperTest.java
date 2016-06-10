@@ -57,8 +57,6 @@ public class LecturerMapperTest {
         mappingByEmailMock = mock(MappingByEmail.class);
         lecturerMapperTestObject.mappingByEmail = mappingByEmailMock;
         lecturerMapperTestObject.mappingByFirstNameAndLastName = mappingByFirstNameAndLastNameMock;
-        // Mock for DBImpl
-        lecturerMapperTestObject.setDbInstance(mock(DB.class));
 
         lecturerMock = mock(Lecturer.class);
         when(lecturerMock.getPersonalNr()).thenReturn(1L);

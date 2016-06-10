@@ -20,22 +20,14 @@
  */
 package ch.uzh.campus.connectors;
 
-import java.util.List;
-
 import ch.uzh.campus.data.*;
-
 import org.olat.core.commons.persistence.DB;
 import org.olat.core.logging.OLog;
 import org.olat.core.logging.Tracing;
-
-import org.springframework.batch.core.BatchStatus;
-import org.springframework.batch.core.ChunkListener;
-import org.springframework.batch.core.ExitStatus;
-import org.springframework.batch.core.ItemWriteListener;
-import org.springframework.batch.core.SkipListener;
-import org.springframework.batch.core.StepExecution;
-import org.springframework.batch.core.StepExecutionListener;
+import org.springframework.batch.core.*;
 import org.springframework.beans.factory.annotation.Autowired;
+
+import java.util.List;
 
 /**
  * This class is an implementation listener that will be notified in the case of:
@@ -50,21 +42,21 @@ import org.springframework.beans.factory.annotation.Autowired;
  * 
  * @author aabouc
  */
-//TODO: olatng
 public class CampusInterceptor<T, S> implements StepExecutionListener, ItemWriteListener<S>, SkipListener<T, S>, ChunkListener {
 
 	private static final OLog LOG = Tracing.createLoggerFor(CampusInterceptor.class);
 
     @Autowired
     private DB dbInstance;
+
     @Autowired
 	protected ImportStatisticDao statisticDao;
+
 	@Autowired
 	protected SkipItemDao skipItemDao;
+
 	@Autowired
 	private DaoManager daoManager;
-	//@Autowired
-	//private CampusNotifier campusNotifier;
 
     private StepExecution stepExecution;
 
@@ -82,21 +74,30 @@ public class CampusInterceptor<T, S> implements StepExecutionListener, ItemWrite
      */
     @Override
     public void beforeStep(StepExecution se) {
-        LOG.info(se.toString());
-        dbInstance.commitAndCloseSession();
-        setStepExecution(se);
-        // Chunk count and duration is being logged for sync step since this may be slow and potentially break timeout
-        if (CampusProcessStep.CAMPUSSYNCHRONISATION.name().equalsIgnoreCase(se.getStepName())) {
-            chunkCount = 0;
+
+        try {
+            LOG.info(se.toString());
+
+            setStepExecution(se);
+            // Chunk count and duration is being logged for sync step since this may be slow and potentially break timeout
+            if (CampusProcessStep.CAMPUSSYNCHRONISATION.name().equalsIgnoreCase(se.getStepName())) {
+                chunkCount = 0;
+            }
+            // Before importing Texts, delete all old ones
+            if (CampusProcessStep.IMPORT_TEXTS.name().equalsIgnoreCase(se.getStepName())) {
+                daoManager.deleteAllTexts();
+            }
+            // DISABLED FOR NOW
+            // if (CampusImportStep.IMPORT_EVENTS.name().equalsIgnoreCase(se.getStepName())) {
+            // daoManager.deleteAllEvents();
+            // }
+
+            dbInstance.commitAndCloseSession();
+
+        } catch (Throwable t) {
+            dbInstance.rollbackAndCloseSession();
+            throw t;
         }
-        // Before importing Texts, delete all old ones
-        if (CampusProcessStep.IMPORT_TEXTS.name().equalsIgnoreCase(se.getStepName())) {
-            daoManager.deleteAllTexts();
-        }
-        // DISABLED FOR NOW
-        // if (CampusImportStep.IMPORT_EVENTS.name().equalsIgnoreCase(se.getStepName())) {
-        // daoManager.deleteAllEvents();
-        // }
     }
 
     /**
@@ -108,57 +109,23 @@ public class CampusInterceptor<T, S> implements StepExecutionListener, ItemWrite
      */
     @Override
     public ExitStatus afterStep(StepExecution se) {
-        LOG.info(se.toString());
 
-        dbInstance.commitAndCloseSession();
-        statisticDao.saveOrUpdate(createImportStatistic(se));
-
-        //TODO: olatng - Find out if we still need notifyMetrics
-//        notifyMetrics(se);
-
-        if (CampusProcessStep.IMPORT_CONTROLFILE.name().equalsIgnoreCase(se.getStepName())) {
-            if (se.getWriteCount() != getFixedNumberOfFilesToBeExported()) {
-                return ExitStatus.FAILED;
+        try {
+            LOG.info(se.toString());
+            statisticDao.saveOrUpdate(createImportStatistic(se));
+            if (CampusProcessStep.IMPORT_CONTROLFILE.name().equalsIgnoreCase(se.getStepName())) {
+                if (se.getWriteCount() != getFixedNumberOfFilesToBeExported()) {
+                    return ExitStatus.FAILED;
+                }
             }
+            removeOldDataIfExist(se);
+            dbInstance.commitAndCloseSession();
+            return null;
+        } catch (Throwable t) {
+            dbInstance.rollbackAndCloseSession();
+            throw t;
         }
-
-        removeOldDataIfExist(se);
-
-        return null;
     }
-
-    /**
-     * Prepares the metric data and delegates the actual notification to the {@link CampusNotifier}.
-     * 
-     * @param se
-     *            the StepExecution
-     */
-//    private void notifyMetrics(StepExecution se) {
-//    	//TODO: olatng
-//        if (CampusProcessStep.IMPORT_CONTROLFILE.name().equalsIgnoreCase(se.getStepName())) {
-//            campusNotifier.notifyStartOfImportProcess();
-//            CampusStatistics.EXPORT_STATUS exportStatus = CampusStatistics.EXPORT_STATUS.OK;
-//
-//            if (se.getReadCount() != getFixedNumberOfFilesToBeExported() && se.getReadCount() != 2 * getFixedNumberOfFilesToBeExported()) {
-//                // THE CASE THAT THE EXPORT FILE (CONTROL FILE) HASN'T BEEN CREATED YET
-//                if (se.getReadCount() == 0) {
-//                    exportStatus = CampusStatistics.EXPORT_STATUS.NO_EXPORT;
-//                }
-//                // THE CASE OF EXPORTING LESS THAN THE EXPECTED FILES (LESS THAN 8(ONLY CURRENT) OR LESS THAN 16 (CURRENT AND NEXT)
-//                else {
-//                    exportStatus = CampusStatistics.EXPORT_STATUS.INCOMPLETE_EXPORT;
-//                }
-//            }
-//            // THE CASE OF EXPORTING THE OLD FILES
-//            if (se.getWriteCount() != getFixedNumberOfFilesToBeExported()) {
-//                exportStatus = CampusStatistics.EXPORT_STATUS.NO_EXPORT;
-//            }
-//
-//            campusNotifier.notifyExportStatus(exportStatus);
-//        }
-//
-//        campusNotifier.notifyStepExecution(se);
-//    }
 
     /**
      * Delegates the actual deletion of old data to the {@link DaoManager} in the case of a successful batch processing.
@@ -212,6 +179,7 @@ public class CampusInterceptor<T, S> implements StepExecutionListener, ItemWrite
             LOG.info("STORNOS(LECTURER_COURSE): " + stornos);
             return;
         }
+
         if (CampusProcessStep.IMPORT_STUDENTS_COURSES.name().equalsIgnoreCase(se.getStepName())) {
             int stornos = daoManager.deleteAllNotUpdatedSCBooking(se.getStartTime());
             LOG.info("STORNOS(STUDENT_COURSE): " + stornos);
@@ -259,9 +227,14 @@ public class CampusInterceptor<T, S> implements StepExecutionListener, ItemWrite
      */
     @Override
     public void onSkipInProcess(T item, Throwable ex) {
-        LOG.debug("onSkipInProcess: " + item);
-        dbInstance.commitAndCloseSession();
-        skipItemDao.save(createSkipItem("PROCESS", item.toString(), ex.getMessage()));
+        try {
+            LOG.debug("onSkipInProcess: " + item);
+            skipItemDao.save(createSkipItem("PROCESS", item.toString(), ex.getMessage()));
+            dbInstance.commitAndCloseSession();
+        } catch (Throwable t) {
+            dbInstance.rollbackAndCloseSession();
+            throw t;
+        }
     }
 
     /**
@@ -272,9 +245,14 @@ public class CampusInterceptor<T, S> implements StepExecutionListener, ItemWrite
      */
     @Override
     public void onSkipInRead(Throwable ex) {
-        LOG.debug("onSkipInRead: ");
-        dbInstance.commitAndCloseSession();
-        skipItemDao.save(createSkipItem("READ", null, ex.getMessage()));
+        try {
+            LOG.debug("onSkipInRead: ");
+            skipItemDao.save(createSkipItem("READ", null, ex.getMessage()));
+            dbInstance.commitAndCloseSession();
+        } catch (Throwable t) {
+            dbInstance.rollbackAndCloseSession();
+            throw t;
+        }
     }
 
     /**
@@ -287,9 +265,14 @@ public class CampusInterceptor<T, S> implements StepExecutionListener, ItemWrite
      */
     @Override
     public void onSkipInWrite(S item, Throwable ex) {
-        LOG.debug("onSkipInWrite: " + item);
-        dbInstance.commitAndCloseSession();
-        skipItemDao.save(createSkipItem("WRITE", item.toString(), ex.getMessage()));
+        try {
+            LOG.debug("onSkipInWrite: " + item);
+            skipItemDao.save(createSkipItem("WRITE", item.toString(), ex.getMessage()));
+            dbInstance.commitAndCloseSession();
+        } catch (Throwable t) {
+            dbInstance.rollbackAndCloseSession();
+            throw t;
+        }
     }
 
     /**

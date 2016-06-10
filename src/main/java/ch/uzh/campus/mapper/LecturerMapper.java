@@ -20,17 +20,13 @@
  */
 package ch.uzh.campus.mapper;
 
-import org.apache.commons.lang.StringUtils;
-import org.olat.core.commons.persistence.DB;
-import org.olat.core.logging.OLog;
-import org.olat.core.logging.Tracing;
-import org.olat.core.id.Identity;
 import ch.uzh.campus.data.Lecturer;
 import ch.uzh.campus.data.SapOlatUserDao;
+import org.apache.commons.lang.StringUtils;
+import org.olat.core.commons.persistence.DB;
+import org.olat.core.id.Identity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Arrays;
 import java.util.List;
@@ -43,26 +39,19 @@ import java.util.List;
 @Component
 public class LecturerMapper {
 
-    private static final OLog LOG = Tracing.createLoggerFor(LecturerMapper.class);
-
     @Autowired
     LecturerMappingByPersonalNumber mappingByPersonalNumber;
+
     @Autowired
     MappingByFirstNameAndLastName mappingByFirstNameAndLastName;
+
     @Autowired
     MappingByEmail mappingByEmail;
+
     @Autowired
     SapOlatUserDao userMappingDao;
 
-    public void setDbInstance(DB dbInstance) {
-        this.dbInstance = dbInstance;
-    }
-
-    @Autowired
-    DB dbInstance;
-
     public MappingResult synchronizeLecturerMapping(Lecturer lecturer) {
-        dbInstance.commitAndCloseSession();
         if (!userMappingDao.existsMappingForSapUserId(lecturer.getPersonalNr())) {
             // first try to map by personal number
             Identity mappedIdentity = mappingByPersonalNumber.tryToMap(lecturer.getPersonalNr());

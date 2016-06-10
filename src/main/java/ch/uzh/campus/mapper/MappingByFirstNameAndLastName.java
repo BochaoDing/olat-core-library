@@ -21,7 +21,6 @@
 package ch.uzh.campus.mapper;
 
 import org.olat.basesecurity.BaseSecurity;
-import org.olat.core.commons.persistence.DB;
 import org.olat.core.id.Identity;
 import org.olat.core.id.UserConstants;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,10 +40,6 @@ public class MappingByFirstNameAndLastName {
     @Autowired
     BaseSecurity baseSecurity;
 
-    @Autowired
-    private DB dbInstance;
-
-
     public MappingByFirstNameAndLastName() {
         super();
     }
@@ -53,11 +48,10 @@ public class MappingByFirstNameAndLastName {
      * @return Mapped identity or null when no identity could be found
      */
     public Identity tryToMap(String firstName, String lastName) {
-        HashMap<String, String> userProperties = new HashMap<String, String>();
+        HashMap<String, String> userProperties = new HashMap<>();
         userProperties.put(UserConstants.FIRSTNAME, firstName);
         userProperties.put(UserConstants.LASTNAME, lastName);
         List<Identity> results = baseSecurity.getVisibleIdentitiesByPowerSearch(null, userProperties, true, null, null, null, null, null);
-        dbInstance.commitAndCloseSession();
         if (results.isEmpty()) {
             return null;
         } else {

@@ -117,15 +117,8 @@ public class CampusCourseGroupSynchronizerTest extends OlatTestCase {
         dbInstance.commitAndCloseSession();
         
         campusCourseGroup = CampusGroupHelper.lookupCampusGroup(course, campusConfigurationMock.getCourseGroupAName());
-
-        //TODO: olatng
-        // Setup RepositoryEntry-mock to have access to the owner-group
-        /*testSecurityGroup = baseSecurity.createAndPersistSecurityGroup();
-        RepositoryEntry repositoryEntryMock = mock(RepositoryEntry.class);
-        when(repositoryEntryMock.getOwnerGroup()).thenReturn(testSecurityGroup);
-        */
-        campusCourseMock = mock(CampusCourse.class);
-        //when(campusCourseMock.getRepositoryEntry()).thenReturn(repositoryEntryMock);
+        
+        campusCourseMock = mock(CampusCourse.class);       
         when(campusCourseMock.getRepositoryEntry()).thenReturn(sourceRepositoryEntry);
         when(campusCourseMock.getCourse()).thenReturn(course);
     }

@@ -20,12 +20,9 @@
  */
 package ch.uzh.campus.mapper;
 
-import org.olat.core.commons.persistence.DB;
-import org.olat.core.id.Identity;
 import ch.uzh.campus.data.SapOlatUserDao;
 import ch.uzh.campus.data.Student;
-import org.olat.core.logging.OLog;
-import org.olat.core.logging.Tracing;
+import org.olat.core.id.Identity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -37,26 +34,19 @@ import org.springframework.stereotype.Component;
 @Component
 public class StudentMapper {
 
-    private static final OLog LOG = Tracing.createLoggerFor(StudentMapper.class);
-
     @Autowired
     StudentMappingByMatriculationNumber studentMappingByMatriculationNumber;
+
     @Autowired
     MappingByFirstNameAndLastName mappingByFirstNameAndLastName;
+
     @Autowired
     MappingByEmail mappingByEmail;
+
     @Autowired
     SapOlatUserDao userMappingDao;
 
-    public void setDbInstance(DB dbInstance) {
-        this.dbInstance = dbInstance;
-    }
-
-    @Autowired
-    private DB dbInstance;
-
     public MappingResult synchronizeStudentMapping(Student student) {
-        dbInstance.commitAndCloseSession();
         if (!userMappingDao.existsMappingForSapUserId(student.getId())) {
             // first try to map by matriculation number
             Identity mappedIdentity = studentMappingByMatriculationNumber.tryToMap(student);
