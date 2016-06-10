@@ -1,6 +1,5 @@
 package ch.uzh.campus.data;
 
-import org.apache.commons.lang.time.DateUtils;
 import org.olat.core.commons.persistence.DB;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
@@ -71,11 +70,13 @@ public class StudentDao implements CampusDao<Student> {
     }
 
     public List<Long> getAllNotUpdatedStudents(Date date) {
-        // Round to seconds since modifiedDate (used in query) is also rounded to seconds
-        Date roundedToSeconds = DateUtils.round(date, Calendar.SECOND);
+        // Subtract one second since modifiedDate (used in query) is rounded to seconds
+        Calendar dateMinusOneSecond = Calendar.getInstance();
+        dateMinusOneSecond.setTime(date);
+        dateMinusOneSecond.add(Calendar.SECOND, -1);
         return dbInstance.getCurrentEntityManager()
                 .createNamedQuery(Student.GET_ALL_NOT_UPDATED_STUDENTS, Long.class)
-                .setParameter("lastImportDate", roundedToSeconds)
+                .setParameter("lastImportDate", dateMinusOneSecond.getTime())
                 .getResultList();
     }
 
