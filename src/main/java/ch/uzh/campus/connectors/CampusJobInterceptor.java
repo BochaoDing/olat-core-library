@@ -20,6 +20,7 @@
  */
 package ch.uzh.campus.connectors;
 
+import ch.uzh.campus.metric.CampusNotifier;
 import org.olat.core.logging.OLog;
 import org.olat.core.logging.Tracing;
 //import org.olat.lms.core.course.campus.impl.metric.CampusNotifier;
@@ -37,12 +38,16 @@ import java.util.Map;
  * @author aabouc
  */
 public class CampusJobInterceptor implements JobExecutionListener {
-	
+
+    @Autowired
+    private CampusNotifier campusNotifier;
+
 	private static final OLog LOG = Tracing.createLoggerFor(CampusJobInterceptor.class);
 
     @Override
     public void afterJob(JobExecution je) {
-    	LOG.info("afterJob " + je.getJobInstance().getJobName());
+        LOG.info("afterJob " + je.getJobInstance().getJobName());
+        campusNotifier.notifyJobExecution(je);
     }
 
     @Override

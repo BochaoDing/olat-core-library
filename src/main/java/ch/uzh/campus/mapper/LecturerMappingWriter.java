@@ -21,6 +21,7 @@
 package ch.uzh.campus.mapper;
 
 import ch.uzh.campus.data.Lecturer;
+import ch.uzh.campus.metric.CampusNotifier;
 import org.olat.core.commons.persistence.DB;
 import org.olat.core.logging.OLog;
 import org.olat.core.logging.Tracing;
@@ -45,6 +46,9 @@ public class LecturerMappingWriter implements ItemWriter<Lecturer> {
     DB dbInstance;
 
     @Autowired
+    CampusNotifier campusNotifier;
+
+    @Autowired
     LecturerMapper lecturerMapper;
 
     public void setMappingStatistic(MappingStatistic mappingStatistic) {
@@ -62,6 +66,7 @@ public class LecturerMappingWriter implements ItemWriter<Lecturer> {
     @PreDestroy
     public void destroy() {
         LOG.info("MappingStatistic(Lecturers)=" + mappingStatistic);
+        campusNotifier.notifyUserMapperStatistic(new OverallUserMapperStatistic(mappingStatistic, null));
     }
 
     @Override

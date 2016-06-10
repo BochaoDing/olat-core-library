@@ -21,6 +21,8 @@
 package ch.uzh.campus.connectors;
 
 import ch.uzh.campus.data.*;
+import ch.uzh.campus.metric.CampusNotifier;
+import ch.uzh.campus.metric.CampusStatistics;
 import org.olat.core.commons.persistence.DB;
 import org.olat.core.logging.OLog;
 import org.olat.core.logging.Tracing;
@@ -57,6 +59,9 @@ public class CampusInterceptor<T, S> implements StepExecutionListener, ItemWrite
 
 	@Autowired
 	private DaoManager daoManager;
+
+    @Autowired
+    private CampusNotifier campusNotifier;
 
     private StepExecution stepExecution;
 
@@ -125,6 +130,39 @@ public class CampusInterceptor<T, S> implements StepExecutionListener, ItemWrite
             dbInstance.rollbackAndCloseSession();
             throw t;
         }
+    }
+
+    /**
+     * Prepares the metric data and delegates the actual notification to the {@link CampusNotifier}.
+     *
+     * @param se
+     *            the StepExecution
+     */
+    private void notifyMetrics(StepExecution se) {
+        if (CampusProcessStep.IMPORT_CONTROLFILE.name().equalsIgnoreCase(se.getStepName())) {
+            campusNotifier.notifyStartOfImportProcess();
+            CampusStatistics.EXPORT_STATUS exportStatus = CampusStatistics.EXPORT_STATUS.OK;
+
+            if (se.getReadCount() != getFixedNumberOfFilesToBeExported() && se.getReadCount() != 2 * getFixedNumberOfFilesToBeExported()) {
+                // THE CASE THAT THE EXPORT FILE (CONTROL FILE) HASN'T BEEN CREATED YET
+                if (se.getReadCount() == 0) {
+                    exportStatus = CampusStatistics.EXPORT_STATUS.NO_EXPORT;
+                }
+                // THE CASE OF EXPORTING LESS THAN THE EXPECTED FILES (LESS THAN 8(ONLY CURRENT) OR LESS THAN 16 (CURRENT AND NEXT)
+                else {
+                    exportStatus = CampusStatistics.EXPORT_STATUS.INCOMPLETE_EXPORT;
+                }
+            }
+            // THE CASE OF EXPORTING THE OLD FILES
+            if (se.getWriteCount() != getFixedNumberOfFilesToBeExported()) {
+                exportStatus = CampusStatistics.EXPORT_STATUS.NO_EXPORT;
+            }
+
+            campusNotifier.notifyExportStatus(exportStatus);
+        }
+
+        campusNotifier.notifyStepExecution(se);
+
     }
 
     /**
