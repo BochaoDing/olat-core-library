@@ -408,7 +408,7 @@ public class DaoManager {
         delegationDao.deleteByDelegatorAndDelegateeAsBulkDelete(delegator.getName(), delegatee.getName());
     }
 
-    public boolean chekImportedData() {
+    public boolean checkImportedData() {
         return (statisticDao.getLastCompletedImportedStatistic().size() == campusConfiguration.getMustCompletedImportedFiles());
     }
 

@@ -22,13 +22,9 @@ package ch.uzh.campus.service.core.impl.syncer;
 
 import ch.uzh.campus.CampusCourseImportTO;
 import ch.uzh.campus.data.DaoManager;
-import ch.uzh.campus.service.core.impl.syncer.SynchronizationReader;
-import edu.emory.mathcs.backport.java.util.Collections;
 import org.junit.Before;
 import org.junit.Test;
-import org.springframework.batch.item.NonTransientResourceException;
-import org.springframework.batch.item.ParseException;
-import org.springframework.batch.item.UnexpectedInputException;
+import org.olat.core.commons.persistence.DB;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -49,10 +45,10 @@ public class SynchronizationReaderTest {
 
     @Before
     public void setup() {
-        synchronizationReaderTestObject = new SynchronizationReader();
-        // Mock for DaoManager
+        // Mocks for DaoManager and DB
         daoManagerMock = mock(DaoManager.class);
-        synchronizationReaderTestObject.daoManager = daoManagerMock;
+        DB dbMock = mock(DB.class);
+        synchronizationReaderTestObject = new SynchronizationReader(daoManagerMock, dbMock);
     }
 
     @Test
@@ -64,29 +60,29 @@ public class SynchronizationReaderTest {
 
     @Test
     public void destroy_emptyCoursesList() {
-        when(daoManagerMock.getAllCreatedSapCources()).thenReturn(Collections.emptyList());
+        when(daoManagerMock.getAllCreatedSapCources()).thenReturn(new ArrayList<>());
         synchronizationReaderTestObject.init();
         synchronizationReaderTestObject.destroy();
     }
 
     @Test
-    public void read_nullCoursesList() throws UnexpectedInputException, ParseException, NonTransientResourceException, Exception {
+    public void read_nullCoursesList() throws Exception {
         when(daoManagerMock.getAllCreatedSapCources()).thenReturn(null);
         synchronizationReaderTestObject.init();
         assertNull(synchronizationReaderTestObject.read());
     }
 
     @Test
-    public void read_emptyCoursesList() throws UnexpectedInputException, ParseException, NonTransientResourceException, Exception {
-        when(daoManagerMock.getAllCreatedSapCources()).thenReturn(Collections.emptyList());
+    public void read_emptyCoursesList() throws Exception {
+        when(daoManagerMock.getAllCreatedSapCources()).thenReturn(new ArrayList<>());
         synchronizationReaderTestObject.init();
         assertNull(synchronizationReaderTestObject.read());
     }
 
     @Test
-    public void read_twoCoursesList() throws UnexpectedInputException, ParseException, NonTransientResourceException, Exception {
-        when(daoManagerMock.chekImportedData()).thenReturn(true);
-        List<Long> CreatedSapCourcesIds = new ArrayList<Long>();
+    public void read_twoCoursesList() throws Exception {
+        when(daoManagerMock.checkImportedData()).thenReturn(true);
+        List<Long> CreatedSapCourcesIds = new ArrayList<>();
         CreatedSapCourcesIds.add(100L);
         CreatedSapCourcesIds.add(200L);
         when(daoManagerMock.getAllCreatedSapCourcesIds()).thenReturn(CreatedSapCourcesIds);

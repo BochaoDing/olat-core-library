@@ -21,15 +21,10 @@
 package ch.uzh.campus.service.core.impl.syncer;
 
 import ch.uzh.campus.CampusCourseImportTO;
-
-import ch.uzh.campus.utils.ListUtil;
-import org.olat.core.logging.OLog;
-import org.olat.core.logging.Tracing;
 import ch.uzh.campus.data.DaoManager;
+import ch.uzh.campus.utils.ListUtil;
+import org.olat.core.commons.persistence.DB;
 import org.springframework.batch.item.ItemReader;
-import org.springframework.batch.item.NonTransientResourceException;
-import org.springframework.batch.item.ParseException;
-import org.springframework.batch.item.UnexpectedInputException;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.annotation.PostConstruct;
@@ -48,18 +43,22 @@ import java.util.List;
  */
 public class SynchronizationReader implements ItemReader<CampusCourseImportTO> {
 
-    private static final OLog LOG = Tracing.createLoggerFor(SynchronizationReader.class);
+    private DaoManager daoManager;
+    private DB dbInstance;
+    private List<Long> sapCoursesIds = Collections.emptyList();
 
     @Autowired
-    DaoManager daoManager;
-
-    private List<Long> sapCoursesIds = Collections.emptyList();
+    public SynchronizationReader(DaoManager daoManager, DB dbInstance) {
+        this.daoManager = daoManager;
+        this.dbInstance = dbInstance;
+    }
 
     @PostConstruct
     public void init() {
-        if (daoManager.chekImportedData()) {
+        if (daoManager.checkImportedData()) {
             sapCoursesIds = daoManager.getAllCreatedSapCourcesIds();
         }
+        dbInstance.closeSession();
     }
 
     @PreDestroy
@@ -73,7 +72,7 @@ public class SynchronizationReader implements ItemReader<CampusCourseImportTO> {
      * Reads a {@link CampusCourseImportTO} via the {@link DaoManager} with the given course id from the list of the sapCoursesIds. <br>
      * It returns null at the end of the list of the sapCoursesIds
      */
-    public synchronized CampusCourseImportTO read() throws Exception, UnexpectedInputException, ParseException, NonTransientResourceException {
+    public synchronized CampusCourseImportTO read() throws Exception {
         if (ListUtil.isNotBlank(sapCoursesIds)) {
             return daoManager.getSapCampusCourse(sapCoursesIds.remove(0));
         }

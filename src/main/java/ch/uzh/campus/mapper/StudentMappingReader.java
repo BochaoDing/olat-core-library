@@ -24,6 +24,9 @@ import ch.uzh.campus.data.DaoManager;
 import ch.uzh.campus.data.Student;
 import ch.uzh.campus.utils.ListUtil;
 
+import org.olat.core.commons.persistence.DB;
+import org.olat.core.logging.OLog;
+import org.olat.core.logging.Tracing;
 import org.springframework.batch.item.ItemReader;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -33,15 +36,27 @@ import java.util.List;
 
 public class StudentMappingReader implements ItemReader<Student> {
 
+    private static final OLog LOG = Tracing.createLoggerFor(StudentMappingReader.class);
+
     @Autowired
     DaoManager daoManager;
+
+    @Autowired
+    private DB dbInstance;
 
     private List<Student> students;
 
     @PostConstruct
     public void init() {
-        daoManager.deleteOldStudentMapping();
-        students = daoManager.getAllStudents();
+        try {
+            daoManager.deleteOldStudentMapping();
+            students = daoManager.getAllStudents();
+            dbInstance.commitAndCloseSession();
+        } catch (Throwable t) {
+            dbInstance.rollbackAndCloseSession();
+            LOG.warn(t.getMessage());
+            throw t;
+        }
     }
 
     @PreDestroy
