@@ -64,11 +64,6 @@ public class StudentDao implements CampusDao<Student> {
         return null;
     }
 
-    public List<Student> getAllStudents() {
-        // return genericDao.findAll();
-        return getAllPilotStudents();
-    }
-
     public List<Long> getAllNotUpdatedStudents(Date date) {
         // Subtract one second from date since modifiedDate (used in query) is rounded to seconds
         return dbInstance.getCurrentEntityManager()
