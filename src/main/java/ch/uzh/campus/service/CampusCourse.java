@@ -75,7 +75,7 @@ public class CampusCourse {
         return "<a href=\"" + url + "\">" + title + "</a>";
     }
 
-    public void SetBusinessGroups(Identity identity) {
+    public void addGroupsToArea(Identity identity) {
     	//TODO: olatng
     	/*BGContext defaultBGContext = getDefaultBGContext(getCourse());
 
