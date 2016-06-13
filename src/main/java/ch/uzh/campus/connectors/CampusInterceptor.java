@@ -118,6 +118,7 @@ public class CampusInterceptor<T, S> implements StepExecutionListener, ItemWrite
         try {
             LOG.info(se.toString());
             statisticDao.saveOrUpdate(createImportStatistic(se));
+            notifyMetrics(se);
             if (CampusProcessStep.IMPORT_CONTROLFILE.name().equalsIgnoreCase(se.getStepName())) {
                 if (se.getWriteCount() != getFixedNumberOfFilesToBeExported()) {
                     return ExitStatus.FAILED;

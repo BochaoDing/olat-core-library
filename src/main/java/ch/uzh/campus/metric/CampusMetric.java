@@ -38,7 +38,7 @@ import java.util.Map;
  * @author aabouc
  */
 @Component
-@ManagedResource(objectName = "org.olat.lms.core.course.campus.metric:name=campusMetric", description = "Campus-Import Service Metric Bean", log = true, logFile = "jmx.log", currencyTimeLimit = 15, persistPolicy = "OnUpdate", persistPeriod = 200, persistLocation = "campusMetric", persistName = "CampusMetric")
+@ManagedResource(objectName = "ch.uzh.campus.metric:name=campusMetric", description = "Campus-Import Service Metric Bean", log = true, logFile = "jmx.log", currencyTimeLimit = 15, persistPolicy = "OnUpdate", persistPeriod = 200, persistLocation = "campusMetric", persistName = "CampusMetric")
 public class CampusMetric extends CampusServiceMetric<CampusStatistics> {
 
     private String exportStatus;
@@ -57,7 +57,6 @@ public class CampusMetric extends CampusServiceMetric<CampusStatistics> {
 
         if (campusStatistics.isStartOfImport()) {
             steps.clear();
-            // importStep2Status.clear();
         }
 
         if (campusStatistics.getJobExecution() != null) {
