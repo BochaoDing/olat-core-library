@@ -322,9 +322,9 @@ public class DaoManager {
         if (userType.equals(SapOlatUser.SapUserType.LECTURER)) {
             List<SapOlatUser> sapOlatUsers = getLecturerSapOlatUsersByOlatUserName(olatUserName);
             if (sapOlatUsers.isEmpty()) {
-                return Collections.<Course> emptyList();
+                return Collections.emptyList();
             } else {
-                List<Long> sapUserIds = new ArrayList<Long>();
+                List<Long> sapUserIds = new ArrayList<>();
                 for (SapOlatUser sapOlatUser : sapOlatUsers) {
                     sapUserIds.add(sapOlatUser.getSapUserId());
                 }
@@ -333,7 +333,7 @@ public class DaoManager {
         } else {
             SapOlatUser sapOlatUser = getStudentSapOlatUserByOlatUserName(olatUserName);
             if (sapOlatUser == null) {
-                return Collections.<Course> emptyList();
+                return Collections.emptyList();
             } else {
                 return (created) ? getCreatedCoursesByStudentId(sapOlatUser.getSapUserId()) : getNotCreatedCoursesByStudentId(sapOlatUser.getSapUserId());
             }
@@ -375,12 +375,7 @@ public class DaoManager {
 
     public CampusCourseImportTO getSapCampusCourse(long courseId) {
         Course course = getCourseById(courseId);
-        if (course == null) {
-            return null;
-        }
-        return new CampusCourseImportTO(course.getTitleToBeDisplayed(shortTitleActivated), course.getSemester(), dataConverter.convertLecturersToIdentities(course.getLecturerCourses()),
-                dataConverter.convertDelegateesToIdentities(course.getLecturerCourses()), dataConverter.convertStudentsToIdentities(course.getStudentCourses()),
-                textDao.getContentsByCourseId(course.getId()), course.getResourceableId(), course.getId(), course.getLanguage(), course.getVvzLink());
+        return getSapCampusCourse(course);
     }
 
     public CampusCourseImportTO getSapCampusCourse(Course course) {
