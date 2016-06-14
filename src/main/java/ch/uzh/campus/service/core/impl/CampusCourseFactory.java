@@ -26,6 +26,7 @@ import org.olat.core.logging.OLog;
 import org.olat.core.logging.Tracing;
 import org.olat.course.CourseFactory;
 import org.olat.course.ICourse;
+import org.olat.group.area.BGAreaManager;
 import org.olat.repository.RepositoryEntry;
 import org.olat.repository.RepositoryManager;
 
@@ -48,12 +49,16 @@ public class CampusCourseFactory {
 
 	@Autowired
 	private RepositoryManager repositoryManager;
+	
     @Autowired
     DaoManager daoManager;
+    
+    @Autowired
+	private BGAreaManager areaManager;
 
     public CampusCourse getCampusCourse(Long sapCampusCourseId, Long resourceableId) {
         ICourse loadedCourse = CourseFactory.loadCourse(resourceableId);
-        return new CampusCourse(loadedCourse, getRepositoryEntryFor(sapCampusCourseId));
+        return new CampusCourse(loadedCourse, getRepositoryEntryFor(sapCampusCourseId), areaManager);
     }
 
     public RepositoryEntry getRepositoryEntryFor(Long sapCourseId) {

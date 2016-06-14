@@ -28,6 +28,8 @@ import org.olat.course.CourseFactory;
 import org.olat.course.ICourse;
 import org.olat.group.BusinessGroup;
 import org.olat.group.BusinessGroupService;
+import org.olat.group.area.BGArea;
+import org.olat.group.area.BGAreaManager;
 import org.olat.repository.RepositoryEntry;
 import org.olat.repository.RepositoryService;
 
@@ -69,6 +71,8 @@ public class CourseCreateCoordinatorTest extends OlatTestCase {
     private RepositoryService repositoryService;
     @Autowired
     private GroupDAO groupDAO;
+    @Autowired
+    private BGAreaManager areaManager;
     
     @Autowired
     private DB dbInstance;
@@ -223,6 +227,37 @@ public class CourseCreateCoordinatorTest extends OlatTestCase {
         assertTrue("Missing identity (" + testIdentity + ") in participant-group of course-group", participants.contains(testIdentity));
         assertTrue("Missing identity (" + secondTestIdentity + ")in participant-group of course-group", participants.contains(secondTestIdentity));
 
+    }
+    
+    @Test
+    public void createCampusCourse_checkArea() {
+    	//change the test setup: to do not use a template course
+    	when(campusConfigurationMock.getTemplateCourseResourcableId(null)).thenReturn(null);
+    	
+    	Identity testIdentity_2 = JunitTestHelper.createAndPersistIdentityAsUser("test_user_2");
+    	Identity testIdentity_3 = JunitTestHelper.createAndPersistIdentityAsUser("test_user_3");
+    	
+    	String semester = "Herbstsemester 2016";
+        List<Identity> lecturers = new ArrayList<Identity>();
+        lecturers.add(testIdentity_2);       
+        List<Identity> participants = new ArrayList<Identity>();
+        participants.add(testIdentity_3);        
+        CampusCourseImportTO campusCourseImportData = new CampusCourseImportTO(TEST_TITLE_TEXT, semester, lecturers, participants, TEST_EVENT_DESCRIPTION_TEXT,
+                TEST_RESOURCEABLE_ID, null);
+        
+        //uses an existing course
+        CampusCourse campusCourse = courseCreateCoordinator.createCampusCourse(sourceResourceableId, campusCourseImportData, ownerIdentity);
+        
+        BusinessGroup campusCourseGroup = CampusGroupHelper.lookupCampusGroup(campusCourse.getCourse(), campusConfigurationMock.getCourseGroupAName());
+        
+        List<Identity> coaches = businessGroupService.getMembers(campusCourseGroup, GroupRoles.coach.name());        
+        assertTrue("Missing identity (" + ownerIdentity + ") in owner-group of course-group", coaches.contains(testIdentity_2));
+        
+        List<Identity> readParticipants = businessGroupService.getMembers(campusCourseGroup, GroupRoles.participant.name());
+        assertTrue("Missing identity (" + secondOwnerIdentity + ")in owner-group of course-group", readParticipants.contains(testIdentity_3));
+        
+        List<BGArea> areas = areaManager.findBGAreasInContext(campusCourse.getRepositoryEntry().getOlatResource());
+        assertEquals(1,areas.size());
     }
     
     //TODO: olatng

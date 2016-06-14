@@ -75,7 +75,7 @@ public class CourseAttributeSynchronizerTest {
         RepositoryEntry repositoryEntry = mock(RepositoryEntry.class);
         when(repositoryEntry.getDisplayname()).thenReturn(title);
         when(repositoryEntry.getDescription()).thenReturn(eventDescription);
-        campusCourse = new CampusCourse(course, repositoryEntry);
+        campusCourse = new CampusCourse(course, repositoryEntry, null);
         // when(courseDescriptionBuilderMock.buildDescriptionFrom(any(CampusCourseImportTO.class))).thenReturn(eventDescription);
         when(campusCourseFactoryMock.getCampusCourse(sapCampusCourseId, resourceableId)).thenReturn(campusCourse);
     }
