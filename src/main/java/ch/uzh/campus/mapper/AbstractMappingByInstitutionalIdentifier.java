@@ -85,6 +85,20 @@ public class AbstractMappingByInstitutionalIdentifier {
         }
     }
 
+    /**
+     * Returns the property from identity using the same fall-back logic as tryToMap()
+     * @param mappedIdentity
+     * @param propertyName
+     * @return
+     */
+    protected String findProperty(Identity mappedIdentity, String propertyName) {
+        String personalNumber = mappedIdentity.getUser().getProperty(propertyName, null);
+        if (personalNumber == null) {
+            personalNumber = mappedIdentity.getUser().getProperty(UserConstants.INSTITUTIONALUSERIDENTIFIER, null);
+        }
+        return personalNumber;
+    }
+
     @SuppressWarnings("deprecation")
     private void commitDBImplTransaction() {
         dbInstance.intermediateCommit();

@@ -40,7 +40,7 @@ public class LecturerMappingByPersonalNumber extends AbstractMappingByInstitutio
         // append '%' because personal-number starts with 0 e.g. 012345
         Identity mappedIdentity = tryToMap(UserConstants.INSTITUTIONAL_EMPLOYEE_NUMBER, "%" + personalNr.toString());
         if (mappedIdentity != null) {
-            String personalNumber = mappedIdentity.getUser().getProperty(UserConstants.INSTITUTIONAL_EMPLOYEE_NUMBER, null);
+            String personalNumber = findProperty(mappedIdentity, UserConstants.INSTITUTIONAL_EMPLOYEE_NUMBER);
             try {
                 Long personalNumberAsLong = Long.valueOf(personalNumber);
                 if (personalNumberAsLong.equals(personalNr)) {
