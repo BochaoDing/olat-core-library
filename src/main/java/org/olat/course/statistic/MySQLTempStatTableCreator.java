@@ -75,20 +75,32 @@ public class MySQLTempStatTableCreator implements IStatisticUpdater {
 		final long startTime = System.currentTimeMillis();
 		try{
 			log_.info("updateStatistic: dropping o_stat_temptable if still existing");
-			jdbcTemplate_.execute("drop table if exists o_stat_temptable;");
+			jdbcTemplate_.execute("DROP TABLE IF EXISTS o_stat_temptable;");
 			
 			log_.info("updateStatistic: creating o_stat_temptable");
-			jdbcTemplate_.execute(
-					"create table o_stat_temptable (" +
-							"creationdate datetime not null," +
-							"businesspath varchar(2048) not null," +
-							"userproperty2 varchar(255)," +							// homeOrg
-							"userproperty4 varchar(255)," +							// orgType
-							"userproperty10 varchar(255)," +						// studyBranch3
-							"userproperty3 varchar(255)" +							// studyLevel
-					");");
-			
-			log_.info("updateStatistic: inserting logging actions from "+from+" until "+until);
+			final String createSql =
+				"CREATE TABLE o_stat_temptable (" +
+				" creationdate datetime not null," +
+				" businesspath varchar(2048) not null," +
+				" signature varchar(32) not null," +
+				" resid bigint(20) not null," +
+				" day datetime not null," +
+				" week varchar(7) not null," +
+				" dayofweek int(11) not null," +
+				" hourofday int(11) not null," +
+				" userproperty2 varchar(255)," +							// homeOrg
+				" userproperty4 varchar(255)," +							// orgType
+				" userproperty10 varchar(255)," +						// studyBranch3
+				" userproperty3 varchar(255)" +							// studyLevel
+				");";
+			log_.info("updateStatistic: " + createSql); // TODO Remove log record after debugging
+			jdbcTemplate_.execute(createSql);
+			jdbcTemplate_.execute("ALTER TABLE o_stat_temptable ADD INDEX(signature, day);");
+			jdbcTemplate_.execute("ALTER TABLE o_stat_temptable ADD INDEX(signature, week);");
+			jdbcTemplate_.execute("ALTER TABLE o_stat_temptable ADD INDEX(signature, dayofweek);");
+			jdbcTemplate_.execute("ALTER TABLE o_stat_temptable ADD INDEX(signature, hourofday);");
+
+			log_.info("updateStatistic: inserting logging actions from " + from + " until " + until);
 			
 			// same month optimization
 			String oLoggingTable = "o_loggingtable";
@@ -115,25 +127,47 @@ public class MySQLTempStatTableCreator implements IStatisticUpdater {
 			} else {
 				log_.info("updateStatistic: using "+oLoggingTable+" since from and to months are not the same");
 			}
-			
-			jdbcTemplate_.execute(
-					"insert into o_stat_temptable (creationdate,businesspath,userproperty2,userproperty4,userproperty10,userproperty3) " +
-						"select " +
-							"creationdate,businesspath,userproperty2,userproperty4,userproperty10,userproperty3 " +
-						"from " + 
-						oLoggingTable + 
-						" where " +
-							"actionverb='launch' and actionobject='node' and creationdate>from_unixtime('"+(from.getTime()/1000)+"') and creationdate<=from_unixtime('"+(until.getTime()/1000)+"');");
 
+			// Check if we can skip some records in o_loggingtable scan
+			final long lastLogId = jdbcTemplate_.queryForLong("SELECT MAX(last_log_id) FROM o_stat_lastupdated;");
+			String whereClause;
+			if (!fullRecalculation && lastLogId > 0) {
+				whereClause = " WHERE log_id > " + String.valueOf(lastLogId) + " ";
+			} else {
+				whereClause = " WHERE creationdate > FROM_UNIXTIME('" + (from.getTime() / 1000) + "') ";
+				whereClause = whereClause + " AND creationdate <= FROM_UNIXTIME('" + (until.getTime() / 1000) + "') ";
+			}
+
+			final String insertSql =
+				"INSERT INTO o_stat_temptable (" +
+				" log_id, creationdate, businesspath, " +
+				" signature, " +
+				" resid, " +
+				" day, week, dayofweek, hourofday, " +
+				" userproperty2, userproperty4, userproperty10, userproperty3" +
+				") SELECT " +
+				" log_id, creationdate, businesspath, " +
+				" MD5(businesspath), " +
+				" SUBSTR(businesspath, LOCATE(':',businesspath) + 1, LOCATE(']', businesspath) - LOCATE(':', businesspath) - 1), " +
+				" DATE(creationdate), CONCAT(YEAR(creationdate), '-', LPAD(WEEK(creationdate,3), 2, '0')), DAYOFWEEK(creationdate), HOUR(creationdate), " +
+				" userproperty2, userproperty4, userproperty10, userproperty3 " +
+				" FROM " + oLoggingTable +
+				whereClause +
+				" AND actionverb = 'launch' AND actionobject = 'node';";
+
+			jdbcTemplate_.execute(insertSql);
 			long numLoggingActions = jdbcTemplate_.queryForLong("select count(*) from o_stat_temptable;");
-			log_.info("updateStatistic: insert done. number of logging actions: "+numLoggingActions);
+			log_.info("updateStatistic: insert done. number of logging actions: " + numLoggingActions);
+			final long lastCopiedLogId = jdbcTemplate_.queryForLong("SELECT MAX(log_id) from o_stat_temptable;");
+			jdbcTemplate_.execute("INSERT INTO o_stat_lastupdated (lastupdated, last_log_id) VALUES (NOW(), " + lastCopiedLogId + ");");
+			log_.info("updateStatistic: saved the last processed log_id: " + lastCopiedLogId);
 		} catch(RuntimeException e) {
-			log_.warn("updateStatistic: ran into a RuntimeException: "+e, e);
+			log_.warn("updateStatistic: ran into a RuntimeException: " + e, e);
 		} catch(Error er) {
-			log_.warn("updateStatistic: ran into an Error: "+er, er);
+			log_.warn("updateStatistic: ran into an Error: " + er, er);
 		} finally {
 			final long diff = System.currentTimeMillis() - startTime;
-			log_.info("updateStatistic: END. duration="+diff);
+			log_.info("updateStatistic: END. duration=" + diff);
 		}
 	}
 

@@ -266,151 +266,139 @@
 		</property>
 	</bean> 
 	
-				<bean class="org.olat.course.statistic.StatisticUpdater" id="DailyStatisticUpdater_mysql" lazy-init="true">
-					<property name="loggingName" value="DailyStatisticUpdater"/>
-					<property name="jdbcTemplate" ref="statisticsMysqlJdbcTemplate" />
-					<property name="updateSQL">
-						<list>
-							<!-- 
-							
-							    'old' represents the existing i.e. old table
-							    'delta' represents the new stuff being added
-							    this update goes through the 'old' table and adds from the 'delta' where entries already exist in 'old'
-							  update o_stat_dayofweek as old, (select businesspath,dayofweek(creationdate) day, count(*) cnt from o_loggingtable where actionverb='launch' and actionobject='node' group by businesspath,day) as delta SET old.value=old.value+delta.cnt where old.day=delta.day and old.businesspath=delta.businesspath;
-							
-							 -->
-							<value>
-								update o_stat_daily as old,
-									(select businesspath,date(creationdate) day, count(*) cnt from o_stat_temptable group by businesspath,day) as delta
-								SET old.value=old.value+delta.cnt
-									where old.day=delta.day and old.businesspath=delta.businesspath;
-							</value>
-							<!-- 
-							
-							  again:
-							    'old' represents the existing i.e. old table
-							    'delta' represents the new stuff being added
-							    this insert goes through the delta to add entries which do not yet exist in the 'old' table at all
-							  insert into o_stat_dayofweek (businesspath,day,value) select delta.businesspath,delta.day,delta.cnt from (select businesspath,dayofweek(creationdate) day,count(*) cnt from o_loggingtable where actionverb='launch' and actionobject='node' group by businesspath,day) delta left join o_stat_dayofweek old on delta.businesspath=old.businesspath and delta.day=old.day where old.businesspath is null;
-							
-							 -->
-							<value>
-								insert into o_stat_daily (businesspath,resid,day,value)
-									select
-										delta.businesspath, delta.resid, delta.day, delta.cnt
-									from
-										(select
-												businesspath,
-												substr(businesspath,locate(':',businesspath)+1,locate(']',businesspath)-locate(':',businesspath)-1) resid,
-												date(creationdate) day,
-												count(*) cnt
-											from o_stat_temptable group by businesspath,day) delta
-										left join o_stat_daily old on delta.businesspath=old.businesspath and delta.day=old.day
-									where old.businesspath is null;
-							</value>
-							<value>
-								delete from o_stat_daily where datediff(now(),day)>180;
-							</value>
-						</list>
-					</property>
-					
-					<property name="deleteSQL" value="delete from o_stat_daily;"/>
-					
-				</bean>
-			
-				<bean class="org.olat.course.statistic.StatisticUpdater" id="WeeklyStatisticUpdater_mysql">
-					<property name="loggingName" value="WeeklyStatisticUpdater"/>
-					<property name="jdbcTemplate" ref="statisticsMysqlJdbcTemplate" />
-					<property name="updateSQL">
-						<list>
-							<value>
-								update o_stat_weekly as old,
-									(select businesspath,concat(year(creationdate),'-',lpad(week(creationdate,3),2,'0')) week, count(*) cnt from o_stat_temptable group by businesspath,week) as delta
-								SET old.value=old.value+delta.cnt
-									where old.week=delta.week and old.businesspath=delta.businesspath;							
-							</value>
-							<value>
-								insert into o_stat_weekly (businesspath,resid,week,value)
-									select
-										delta.businesspath, delta.resid, delta.week, delta.cnt
-									from
-										(select
-												businesspath,
-												substr(businesspath,locate(':',businesspath)+1,locate(']',businesspath)-locate(':',businesspath)-1) resid,
-												concat(year(creationdate),'-',lpad(week(creationdate,3),2,'0')) week,
-												count(*) cnt
-											from o_stat_temptable group by businesspath,week) delta
-										left join o_stat_weekly old on delta.businesspath=old.businesspath and delta.week=old.week
-									where old.businesspath is null;
-							</value>
-							<value>
-								delete from o_stat_weekly where week&lt;concat(year(now() - interval 180 day),'-',lpad(week(now() - interval 180 day,3),2,'0'));
-							</value>
-						</list>
-					</property>
-					<property name="deleteSQL" value="delete from o_stat_weekly;"/>
-				</bean>
-			
-				<bean class="org.olat.course.statistic.StatisticUpdater" id="DayOfWeekStatisticUpdater_mysql">
-					<property name="loggingName" value="DayOfWeekStatisticUpdater"/>
-					<property name="jdbcTemplate" ref="statisticsMysqlJdbcTemplate" />
-					<property name="updateSQL">
-						<list>
-							<value>
-								update o_stat_dayofweek as old,
-									(select businesspath,dayofweek(creationdate) day, count(*) cnt from o_stat_temptable group by businesspath,day) as delta
-								SET old.value=old.value+delta.cnt
-									where old.day=delta.day and old.businesspath=delta.businesspath;
-							</value>
-							<value>
-								insert into o_stat_dayofweek (businesspath,resid,day,value)
-									select
-										delta.businesspath, delta.resid, delta.day, delta.cnt
-									from
-										(select
-												businesspath,
-												substr(businesspath,locate(':',businesspath)+1,locate(']',businesspath)-locate(':',businesspath)-1) resid,
-												dayofweek(creationdate) day,
-												count(*) cnt
-											from o_stat_temptable group by businesspath,day) delta
-										left join o_stat_dayofweek old on delta.businesspath=old.businesspath and delta.day=old.day
-									where old.businesspath is null;
-							</value>
-						</list>
-					</property>
-					<property name="deleteSQL" value="delete from o_stat_dayofweek;"/>
-				</bean>
-			
-				<bean class="org.olat.course.statistic.StatisticUpdater" id="HourOfDayStatisticUpdater_mysql">
-					<property name="loggingName" value="HourOfDayStatisticUpdater"/>
-					<property name="jdbcTemplate" ref="statisticsMysqlJdbcTemplate" />
-					<property name="updateSQL">
-						<list>
-							<value>
-								update o_stat_hourofday as old,
-									(select businesspath,hour(creationdate) hour, count(*) cnt from o_stat_temptable group by businesspath,hour) as delta
-								SET old.value=old.value+delta.cnt
-									where old.hour=delta.hour and old.businesspath=delta.businesspath;
-							</value>
-							<value>
-								insert into o_stat_hourofday (businesspath,resid,hour,value)
-									select
-										delta.businesspath, delta.resid, delta.hour, delta.cnt
-									from
-										(select
-												businesspath,
-												substr(businesspath,locate(':',businesspath)+1,locate(']',businesspath)-locate(':',businesspath)-1) resid,
-												hour(creationdate) hour,
-												count(*) cnt
-											from o_stat_temptable group by businesspath,hour) delta
-										left join o_stat_hourofday old on delta.businesspath=old.businesspath and delta.hour=old.hour
-									where old.businesspath is null;
-							
-							</value>
-						</list>
-					</property>
-					<property name="deleteSQL" value="delete from o_stat_hourofday;"/>
-				</bean>
+	<bean class="org.olat.course.statistic.StatisticUpdater" id="DailyStatisticUpdater_mysql" lazy-init="true">
+		<property name="loggingName" value="DailyStatisticUpdater"/>
+		<property name="jdbcTemplate" ref="statisticsMysqlJdbcTemplate" />
+		<property name="updateSQL">
+			<list>
+				<!--
+
+					'old' represents the existing i.e. old table
+					'delta' represents the new stuff being added
+					this update goes through the 'old' table and adds from the 'delta' where entries already exist in 'old'
+				  update o_stat_dayofweek as old, (select businesspath,dayofweek(creationdate) day, count(*) cnt from o_loggingtable where actionverb='launch' and actionobject='node' group by businesspath,day) as delta SET old.value=old.value+delta.cnt where old.day=delta.day and old.businesspath=delta.businesspath;
+
+				 -->
+				<value>
+					update o_stat_daily as old,
+						(select signature, day, count(*) cnt from o_stat_temptable group by signature, day) as delta
+					SET old.value = old.value + delta.cnt
+						WHERE old.signature=delta.signature AND old.day = delta.day;
+				</value>
+				<!--
+
+				  again:
+					'old' represents the existing i.e. old table
+					'delta' represents the new stuff being added
+					this insert goes through the delta to add entries which do not yet exist in the 'old' table at all
+				  insert into o_stat_dayofweek (businesspath,day,value) select delta.businesspath,delta.day,delta.cnt from (select businesspath,dayofweek(creationdate) day,count(*) cnt from o_loggingtable where actionverb='launch' and actionobject='node' group by businesspath,day) delta left join o_stat_dayofweek old on delta.businesspath=old.businesspath and delta.day=old.day where old.businesspath is null;
+
+				 -->
+				<value>
+					insert into o_stat_daily (businesspath, signature, resid, day, value)
+						select
+							delta.businesspath, delta.signature, delta.resid, delta.day, delta.cnt
+						from (
+							select businesspath, signature, resid, day, count(*) cnt
+							from o_stat_temptable group by signature, day
+						) delta
+							left join o_stat_daily old on delta.signature = old.signature and delta.day = old.day
+						where old.businesspath is null;
+				</value>
+				<value>
+					delete from o_stat_daily where datediff(now(), day) &gt; 180;
+				</value>
+			</list>
+		</property>
+
+		<property name="deleteSQL" value="delete from o_stat_daily;"/>
+
+	</bean>
+
+	<bean class="org.olat.course.statistic.StatisticUpdater" id="WeeklyStatisticUpdater_mysql">
+		<property name="loggingName" value="WeeklyStatisticUpdater"/>
+		<property name="jdbcTemplate" ref="statisticsMysqlJdbcTemplate" />
+		<property name="updateSQL">
+			<list>
+				<value>
+					update o_stat_weekly as old,
+						(select signature, week, count(*) cnt from o_stat_temptable group by signature, week) as delta
+					SET old.value = old.value + delta.cnt
+						WHERE old.signature = delta.signature AND old.week = delta.week;
+				</value>
+				<value>
+					insert into o_stat_weekly (businesspath, signature, resid, week, value)
+						select
+							delta.businesspath, delta.signature, delta.resid, delta.week, delta.cnt
+						from (
+							select businesspath, signature, resid, week, count(*) cnt
+							from o_stat_temptable group by businesspath,week
+					    ) delta
+							left join o_stat_weekly old on delta.signature = old.signature and delta.week = old.week
+						where old.businesspath is null;
+				</value>
+				<value>
+					delete from o_stat_weekly where week &lt; concat(year(now() - interval 180 day), '-', lpad(week(now() - interval 180 day, 3), 2, '0'));
+				</value>
+			</list>
+		</property>
+		<property name="deleteSQL" value="delete from o_stat_weekly;"/>
+	</bean>
+
+	<bean class="org.olat.course.statistic.StatisticUpdater" id="DayOfWeekStatisticUpdater_mysql">
+		<property name="loggingName" value="DayOfWeekStatisticUpdater"/>
+		<property name="jdbcTemplate" ref="statisticsMysqlJdbcTemplate" />
+		<property name="updateSQL">
+			<list>
+				<value>
+					update o_stat_dayofweek as old,
+						(select signature, dayofweek, count(*) cnt from o_stat_temptable group by signature, dayofweek) as delta
+					SET old.value = old.value + delta.cnt
+						WHERE old.signature = delta.signature AND old.day = delta.dayofweek;
+				</value>
+				<value>
+					insert into o_stat_dayofweek (businesspath, signature, resid, day, value)
+						select
+							delta.businesspath, delta.signature, delta.resid, delta.dayofweek, delta.cnt
+						from (
+							select businesspath, signature, resid, dayofweek, count(*) cnt
+							from o_stat_temptable group by signature, day
+						) delta
+							left join o_stat_dayofweek old on delta.signature = old.signature and delta.dayofweek = old.day
+						where old.businesspath is null;
+				</value>
+			</list>
+		</property>
+		<property name="deleteSQL" value="delete from o_stat_dayofweek;"/>
+	</bean>
+
+	<bean class="org.olat.course.statistic.StatisticUpdater" id="HourOfDayStatisticUpdater_mysql">
+		<property name="loggingName" value="HourOfDayStatisticUpdater"/>
+		<property name="jdbcTemplate" ref="statisticsMysqlJdbcTemplate" />
+		<property name="updateSQL">
+			<list>
+				<value>
+					update o_stat_hourofday as old,
+						(select signature, hourofday, count(*) cnt from o_stat_temptable group by signature, hour) as delta
+					SET old.value = old.value + delta.cnt
+						WHERE old.signature = delta.signature AND old.hour = delta.hourofday;
+				</value>
+				<value>
+					insert into o_stat_hourofday (businesspath, signature, resid, hour, value)
+						select
+							delta.businesspath, delta.signature, delta.resid, delta.hour, delta.cnt
+						from (
+							select businesspath, signature, resid, hourofday, count(*) cnt
+							from o_stat_temptable group by signature, hour
+						  ) delta
+							left join o_stat_hourofday old on delta.signature = old.signature and delta.hourofday = old.hour
+						where old.businesspath is null;
+
+				</value>
+			</list>
+		</property>
+		<property name="deleteSQL" value="delete from o_stat_hourofday;"/>
+	</bean>
 			
 	<!--  Postgres:
 
