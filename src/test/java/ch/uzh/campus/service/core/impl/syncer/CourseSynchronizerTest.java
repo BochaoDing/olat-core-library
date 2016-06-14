@@ -48,7 +48,7 @@ public class CourseSynchronizerTest {
 
     
     @Test
-    public void synchronizeCourse_CouldNotFoundCourse() {
+    public void synchronizeCourse_CouldNotFindCourse() {
         DaoManager daoManagerMock = mock(DaoManager.class);
         when(daoManagerMock.getSapCampusCourse(NOT_EXISTING_SAP_COURSE_ID)).thenReturn(null);
         // courseSynchronizerTestObject.campusDaoManager = daoManagerMock;
