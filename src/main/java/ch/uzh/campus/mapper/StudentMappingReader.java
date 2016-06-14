@@ -38,13 +38,15 @@ public class StudentMappingReader implements ItemReader<Student> {
 
     private static final OLog LOG = Tracing.createLoggerFor(StudentMappingReader.class);
 
-    @Autowired
-    DaoManager daoManager;
-
-    @Autowired
+    private DaoManager daoManager;
     private DB dbInstance;
-
     private List<Student> students;
+
+    @Autowired
+    public StudentMappingReader(DaoManager daoManager, DB dbInstance) {
+        this.daoManager = daoManager;
+        this.dbInstance = dbInstance;
+    }
 
     @PostConstruct
     public void init() {
