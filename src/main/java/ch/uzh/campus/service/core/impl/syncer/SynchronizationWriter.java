@@ -24,6 +24,7 @@ import ch.uzh.campus.CampusCourseImportTO;
 import ch.uzh.campus.connectors.CampusInterceptor;
 import ch.uzh.campus.service.core.impl.syncer.statistic.OverallSynchronizeStatistic;
 import ch.uzh.campus.service.core.impl.syncer.statistic.SynchronizedGroupStatistic;
+import org.olat.core.commons.persistence.DB;
 import org.olat.core.logging.OLog;
 import org.olat.core.logging.Tracing;
 import org.springframework.batch.item.ItemWriter;
@@ -46,8 +47,12 @@ public class SynchronizationWriter implements ItemWriter<CampusCourseImportTO> {
     private static final OLog LOG = Tracing.createLoggerFor(SynchronizationWriter.class);
 
     private OverallSynchronizeStatistic synchronizeStatistic;
+
     @Autowired
-    CourseSynchronizer courseSynchronizer;
+    private CourseSynchronizer courseSynchronizer;
+
+    @Autowired
+    private DB dbInstance;
 
     public OverallSynchronizeStatistic getSynchronizeStatistic() {
         return synchronizeStatistic;
@@ -76,8 +81,15 @@ public class SynchronizationWriter implements ItemWriter<CampusCourseImportTO> {
      */
     public void write(List<? extends CampusCourseImportTO> sapCourses) throws Exception {
         for (CampusCourseImportTO sapCourse : sapCourses) {
-            SynchronizedGroupStatistic courseSynchronizeStatistic = courseSynchronizer.synchronizeCourse(sapCourse);
-            synchronizeStatistic.add(courseSynchronizeStatistic);
+            try {
+                SynchronizedGroupStatistic courseSynchronizeStatistic = courseSynchronizer.synchronizeCourse(sapCourse);
+                synchronizeStatistic.add(courseSynchronizeStatistic);
+                dbInstance.commitAndCloseSession();
+            } catch (Throwable t) {
+                dbInstance.rollbackAndCloseSession();
+                LOG.warn(t.getMessage());
+                throw t;
+            }
         }
     }
 }

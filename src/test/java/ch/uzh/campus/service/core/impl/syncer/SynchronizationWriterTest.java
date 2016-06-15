@@ -50,7 +50,8 @@ public class SynchronizationWriterTest {
         synchronizationWriterTestObject = new SynchronizationWriter();
         // Mock for CourseSynchronizer
         courseSynchronizerMock = mock(CourseSynchronizer.class);
-        synchronizationWriterTestObject.courseSynchronizer = courseSynchronizerMock;
+        // TODO OLATng
+        //synchronizationWriterTestObject.courseSynchronizer = courseSynchronizerMock;
         // Test OverallSynchronizeStatistic
         synchronizationWriterTestObject.setSynchronizeStatistic(new OverallSynchronizeStatistic());
         // Mock for DBImpl

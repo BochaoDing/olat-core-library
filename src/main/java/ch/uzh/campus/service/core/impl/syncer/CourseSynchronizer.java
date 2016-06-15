@@ -25,7 +25,6 @@ import ch.uzh.campus.CampusCourseImportTO;
 import ch.uzh.campus.service.CampusCourse;
 import ch.uzh.campus.service.core.impl.CampusCourseFactory;
 import ch.uzh.campus.service.core.impl.syncer.statistic.SynchronizedGroupStatistic;
-import org.olat.core.commons.persistence.DB;
 import org.olat.core.logging.OLog;
 import org.olat.core.logging.Tracing;
 import org.olat.course.CourseFactory;
@@ -44,9 +43,6 @@ public class CourseSynchronizer {
     private static final OLog LOG = Tracing.createLoggerFor(CourseSynchronizer.class);
 
     @Autowired
-    private DB dbInstance;
-
-    @Autowired
     private CampusCourseGroupSynchronizer courseGroupSynchronizer;
    
     @Autowired
@@ -60,31 +56,23 @@ public class CourseSynchronizer {
 
     public SynchronizedGroupStatistic synchronizeCourse(CampusCourseImportTO sapCourse) {
         if (sapCourse != null) {
-            SynchronizedGroupStatistic groupStatistic = null;
-            try {
-                long resourceableId = sapCourse.getOlatResourceableId();
-                LOG.debug("synchronizeCourse sapCourseId=" + sapCourse.getSapCourseId() + "  resourceableId=" + resourceableId);
-                ICourse course = CourseFactory.loadCourse(resourceableId);
-                LOG.debug("synchronizeCourse start for course=" + course.getCourseTitle());
-                LOG.debug("synchronizeCourse Lecturer size=" + sapCourse.getLecturers().size());
-                LOG.debug("synchronizeCourse Participants size=" + sapCourse.getParticipants().size());
+            ICourse course = CourseFactory.loadCourse(sapCourse.getOlatResourceableId());
 
-                CampusCourse campusCourse = campusCourseFactory.getCampusCourse(sapCourse.getSapCourseId(), resourceableId);
+            LOG.debug("synchronizeCourse sapCourseId=" + sapCourse.getSapCourseId() + "  resourceableId=" + sapCourse.getOlatResourceableId());
+            LOG.debug("synchronizeCourse start for course=" + course.getCourseTitle());
+            LOG.debug("synchronizeCourse Lecturer size=" + sapCourse.getLecturers().size());
+            LOG.debug("synchronizeCourse Participants size=" + sapCourse.getParticipants().size());
 
-                courseGroupSynchronizer.addAllLecturesAsOwner(campusCourse, sapCourse.getLecturers());
-                // SynchronizedGroupStatistic groupStatistic = courseGroupSynchronizer.synchronizeCourseGroupsForStudentsOnly(course, sapCourse);
-                groupStatistic = courseGroupSynchronizer.synchronizeCourseGroups(campusCourse, sapCourse);
-                dbInstance.intermediateCommit();
+            CampusCourse campusCourse = campusCourseFactory.getCampusCourse(sapCourse.getSapCourseId(), sapCourse.getOlatResourceableId());
 
-                LOG.debug("synchronizeCourse statistic=" + groupStatistic);
-                if (campusConfiguration.isSynchronizeTitleAndDescriptionEnabled()) {
-                    LOG.debug("SynchronizeTitleAndDescription is enabled");
-                    courseAttributeSynchronizer.synchronizeTitleAndDescription(sapCourse);
-                    dbInstance.intermediateCommit();
-                }
-            } catch (Throwable t) {
-                dbInstance.rollbackAndCloseSession();
-                LOG.warn(t.getMessage());
+            courseGroupSynchronizer.addAllLecturesAsOwner(campusCourse, sapCourse.getLecturers());
+            // SynchronizedGroupStatistic groupStatistic = courseGroupSynchronizer.synchronizeCourseGroupsForStudentsOnly(course, sapCourse);
+            SynchronizedGroupStatistic groupStatistic = courseGroupSynchronizer.synchronizeCourseGroups(campusCourse, sapCourse);
+
+            LOG.debug("synchronizeCourse statistic=" + groupStatistic);
+            if (campusConfiguration.isSynchronizeTitleAndDescriptionEnabled()) {
+                LOG.debug("SynchronizeTitleAndDescription is enabled");
+                courseAttributeSynchronizer.synchronizeTitleAndDescription(sapCourse);
             }
             return groupStatistic;
         } else {
