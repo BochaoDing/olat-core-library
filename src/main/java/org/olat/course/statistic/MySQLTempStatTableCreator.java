@@ -80,6 +80,7 @@ public class MySQLTempStatTableCreator implements IStatisticUpdater {
 			log_.info("updateStatistic: creating o_stat_temptable");
 			final String createSql =
 				"CREATE TABLE o_stat_temptable (" +
+				" log_id bigint(20) not null," +
 				" creationdate datetime not null," +
 				" businesspath varchar(2048) not null," +
 				" signature varchar(32) not null," +
@@ -155,6 +156,7 @@ public class MySQLTempStatTableCreator implements IStatisticUpdater {
 				whereClause +
 				" AND actionverb = 'launch' AND actionobject = 'node';";
 
+			log_.info("updateStatistic: insert query used for gathering stats: " + insertSql);
 			jdbcTemplate_.execute(insertSql);
 			long numLoggingActions = jdbcTemplate_.queryForLong("select count(*) from o_stat_temptable;");
 			log_.info("updateStatistic: insert done. number of logging actions: " + numLoggingActions);
@@ -167,7 +169,7 @@ public class MySQLTempStatTableCreator implements IStatisticUpdater {
 			log_.warn("updateStatistic: ran into an Error: " + er, er);
 		} finally {
 			final long diff = System.currentTimeMillis() - startTime;
-			log_.info("updateStatistic: END. duration=" + diff);
+			log_.info("updateStatistic: END. duration=" + diff + " milliseconds");
 		}
 	}
 

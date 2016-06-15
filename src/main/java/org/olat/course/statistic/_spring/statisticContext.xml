@@ -379,17 +379,17 @@
 			<list>
 				<value>
 					update o_stat_hourofday as old,
-						(select signature, hourofday, count(*) cnt from o_stat_temptable group by signature, hour) as delta
+						(select signature, hourofday, count(*) cnt from o_stat_temptable group by signature, hourofday) as delta
 					SET old.value = old.value + delta.cnt
 						WHERE old.signature = delta.signature AND old.hour = delta.hourofday;
 				</value>
 				<value>
 					insert into o_stat_hourofday (businesspath, signature, resid, hour, value)
 						select
-							delta.businesspath, delta.signature, delta.resid, delta.hour, delta.cnt
+							delta.businesspath, delta.signature, delta.resid, delta.hourofday, delta.cnt
 						from (
 							select businesspath, signature, resid, hourofday, count(*) cnt
-							from o_stat_temptable group by signature, hour
+							from o_stat_temptable group by signature, hourofday
 						  ) delta
 							left join o_stat_hourofday old on delta.signature = old.signature and delta.hourofday = old.hour
 						where old.businesspath is null;
