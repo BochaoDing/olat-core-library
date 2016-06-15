@@ -156,7 +156,7 @@ public class MySQLTempStatTableCreator implements IStatisticUpdater {
 				whereClause +
 				" AND actionverb = 'launch' AND actionobject = 'node';";
 
-			log_.info("updateStatistic: insert query used for gathering stats: " + insertSql);
+			log_.info("updateStatistic: insert query used for gathering stats: " + insertSql); // TODO Remove after debugged and approved
 			jdbcTemplate_.execute(insertSql);
 			long numLoggingActions = jdbcTemplate_.queryForLong("select count(*) from o_stat_temptable;");
 			log_.info("updateStatistic: insert done. number of logging actions: " + numLoggingActions);

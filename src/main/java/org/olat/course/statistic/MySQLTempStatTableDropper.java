@@ -67,7 +67,7 @@ public class MySQLTempStatTableDropper implements IStatisticUpdater {
 			er.printStackTrace(System.out);
 		} finally {
 			final long diff = System.currentTimeMillis() - startTime;
-			log_.info("updateStatistic: END. duration="+diff);
+			log_.info("updateStatistic: END. duration=" + diff + " milliseconds");
 		}
 	}
 

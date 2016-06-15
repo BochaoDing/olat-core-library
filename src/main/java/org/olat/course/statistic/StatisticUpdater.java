@@ -122,30 +122,29 @@ public class StatisticUpdater implements IStatisticUpdater {
 			if (fullRecalculation) {
 				String[] deleteQueries = getDeleteQueries();
 				if (deleteQueries!=null) {
-					for (int i = 0; i < deleteQueries.length; i++) {
-						String aDeleteQuery = deleteQueries[i];
-						if (aDeleteQuery!=null && aDeleteQuery.length()>0) {
-							jdbcTemplate_.execute(aDeleteQuery);
-						}
-					}
+					runSomeQueries(deleteQueries);
 				}
 			}
 			
 			String[] updateQueries = getUpdateQueries();
-			if (updateQueries!=null) {
-				for (int i = 0; i < updateQueries.length; i++) {
-					String anUpdateQuery = updateQueries[i];
-					if (anUpdateQuery!=null && anUpdateQuery.length()>0) {
-						jdbcTemplate_.execute(anUpdateQuery);
-					}
-				}
+			if (updateQueries != null) {
+				runSomeQueries(updateQueries);
 			}
 
 		} catch(RuntimeException e) {
 			log_.error("updateStatistic<"+loggingName_+">: RuntimeException while updating the statistics: "+e, e);
 		} finally {
 			final long diff = System.currentTimeMillis() - startTime;
-			log_.info("updateStatistic<"+loggingName_+">: END. duration="+diff+" milliseconds");
+			log_.info("updateStatistic<"+loggingName_+">: END. duration=" + diff + " milliseconds");
+		}
+	}
+
+	private void runSomeQueries(String[] queries) {
+		for (int i = 0; i < queries.length; i++) {
+			String query = queries[i];
+			if (query != null && query.length() > 0) {
+				jdbcTemplate_.execute(query);
+			}
 		}
 	}
 }
