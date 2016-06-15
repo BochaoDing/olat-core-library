@@ -20,10 +20,11 @@
  */
 package ch.uzh.campus.service.core.impl.creator;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Locale;
+import ch.uzh.campus.CampusConfiguration;
+import ch.uzh.campus.CampusCourseImportTO;
+import ch.uzh.campus.data.*;
+import ch.uzh.campus.service.CampusCourse;
+import ch.uzh.campus.service.core.impl.syncer.CampusCourseGroupSynchronizer;
 import org.apache.commons.lang.StringUtils;
 import org.olat.core.commons.persistence.DB;
 import org.olat.core.gui.translator.Translator;
@@ -37,20 +38,13 @@ import org.olat.course.tree.PublishTreeModel;
 import org.olat.repository.RepositoryEntry;
 import org.olat.repository.RepositoryService;
 import org.olat.resource.OLATResourceManager;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import ch.uzh.campus.CampusConfiguration;
-import ch.uzh.campus.CampusCourseImportTO;
-import ch.uzh.campus.data.Course;
-import ch.uzh.campus.data.DaoManager;
-import ch.uzh.campus.data.SapOlatUser;
-import ch.uzh.campus.data.Student;
-import ch.uzh.campus.data.StudentCourse;
-import ch.uzh.campus.service.CampusCourse;
-import ch.uzh.campus.service.core.impl.CampusCourseFactory;
-import ch.uzh.campus.service.core.impl.syncer.CampusCourseGroupSynchronizer;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Locale;
 
 
 /**
@@ -63,34 +57,28 @@ public class CourseCreateCoordinator {
     
 	private static final OLog log = Tracing.createLoggerFor(CourseCreateCoordinator.class);
 
+    private final CampusConfiguration campusConfiguration;
+    private final CoursePublisher coursePublisher;
+    private final CampusCourseGroupSynchronizer campusCourseGroupSynchronizer;
+    private final CourseDescriptionBuilder courseDescriptionBuilder;
+    private final CourseTemplate courseTemplate;
+    private final RepositoryService repositoryService;
+    private final OLATResourceManager olatResourceManager;
+    private final DB dbInstance;
+    private final DaoManager daoManager;
+
     @Autowired
-    CampusConfiguration campusConfiguration;
-    
-    @Autowired
-    CourseDescriptionBuilder courseDescriptionBuilder;
-    
-    @Autowired
-    CoursePublisher coursePublisher;
-    
-    @Autowired
-    CourseTemplate courseTemplate;
-    
-    @Autowired
-    RepositoryService repositoryService;
-    
-    @Autowired
-    CampusCourseGroupSynchronizer campusCourseGroupSynchronizer;
-    
-    @Autowired
-    OLATResourceManager olatResourceManager;
-    
-    @Autowired
-    private DB dbInstance;
-    
-    @Autowired
-    DaoManager daoManager;
-    
-       
+    public CourseCreateCoordinator(CampusConfiguration campusConfiguration, CoursePublisher coursePublisher, CampusCourseGroupSynchronizer campusCourseGroupSynchronizer, CourseDescriptionBuilder courseDescriptionBuilder, CourseTemplate courseTemplate, RepositoryService repositoryService, OLATResourceManager olatResourceManager, DB dbInstance, DaoManager daoManager) {
+        this.campusConfiguration = campusConfiguration;
+        this.coursePublisher = coursePublisher;
+        this.campusCourseGroupSynchronizer = campusCourseGroupSynchronizer;
+        this.courseDescriptionBuilder = courseDescriptionBuilder;
+        this.courseTemplate = courseTemplate;
+        this.repositoryService = repositoryService;
+        this.olatResourceManager = olatResourceManager;
+        this.dbInstance = dbInstance;
+        this.daoManager = daoManager;
+    }
 
     public CampusCourse continueCampusCourse(Long courseResourceableId, CampusCourse campusCourse, CampusCourseImportTO campusCourseImportData, Identity creator) {
         RepositoryEntry repositoryEntry = campusCourse.getRepositoryEntry();

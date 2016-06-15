@@ -1,19 +1,13 @@
 package ch.uzh.campus.service.core.impl.syncer;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
-import java.util.ArrayList;
-import java.util.List;
-
+import ch.uzh.campus.CampusConfiguration;
+import ch.uzh.campus.CampusCourseImportTO;
+import ch.uzh.campus.CampusJunitTestHelper;
+import ch.uzh.campus.service.CampusCourse;
+import ch.uzh.campus.service.core.impl.syncer.statistic.SynchronizedGroupStatistic;
 import org.junit.After;
 import org.junit.Before;
-
 import org.junit.Test;
-import org.olat.basesecurity.BaseSecurity;
 import org.olat.basesecurity.GroupRoles;
 import org.olat.core.commons.persistence.DB;
 import org.olat.core.id.Identity;
@@ -23,76 +17,63 @@ import org.olat.group.BusinessGroup;
 import org.olat.group.BusinessGroupService;
 import org.olat.repository.RepositoryEntry;
 import org.olat.repository.RepositoryService;
+import org.olat.test.JunitTestHelper;
 import org.olat.test.OlatTestCase;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
-import org.olat.test.JunitTestHelper;
 
-import ch.uzh.campus.CampusConfiguration;
-import ch.uzh.campus.CampusCourseImportTO;
-import ch.uzh.campus.creator.ObjectMother;
-import ch.uzh.campus.service.CampusCourse;
-import ch.uzh.campus.service.core.impl.syncer.statistic.SynchronizedGroupStatistic;
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 @ContextConfiguration(locations = {"classpath:ch/uzh/campus/data/_spring/mockDataContext.xml"})
 public class CampusCourseGroupSynchronizerTest extends OlatTestCase {
 	
 	private static final String TEST_COURSE_GROUP_A_NAME = "Campusgroup A SynchronizeTest";
     private static final String TEST_COURSE_GROUP_B_NAME = "Campusgroup B SynchronizeTest";
-
-    private String firstCoOwnerName = "co_owner1";
-    private String secondCoOwnerName = "co_owner2";
-    private final String TEST_CO_OWNER_NAMES = firstCoOwnerName + "," + secondCoOwnerName;
-
-    private final Long TEST_RESOURCEABLE_ID = 1234L;
+    private static final Long TEST_RESOURCEABLE_ID = 1234L;
 
     @Autowired
     CampusCourseGroupSynchronizer courseGroupSynchronizerTestObject;
-    @Autowired
-    private BaseSecurity baseSecurity;
+
     @Autowired
     private BusinessGroupService businessGroupService;
     
     @Autowired
     RepositoryService repositoryService;
+
     @Autowired
     private DB dbInstance;
 
-    private String ownerName = "TestOwner";
     private Identity ownerIdentity;
-    private String ownerNameSecond = "SecondTestOwner";
     private Identity secondOwnerIdentity;
-    private String firstTestUserName = "FirstTestUser";
     private Identity firstTestIdentity;
-    private String secondTestUserName = "SecondTestUser";
     private Identity secondTestIdentity;
-    private String thirdTestUserName = "ThirdTestUser";
     private Identity thirdTestIdentity;
-
     private ICourse course;
     private BusinessGroup campusCourseGroup; //GroupA
-
     private Identity firstCoOwnerIdentity;
     private Identity secondCoOwnerIdentity;
-    
     private CampusCourse campusCourseMock;
     private CampusConfiguration campusConfigurationMock;
-    
-    RepositoryEntry sourceRepositoryEntry;
+    private RepositoryEntry sourceRepositoryEntry;
 
     @Before
     public void setup() {
     	 // Setup Test Identities
-        ownerIdentity = JunitTestHelper.createAndPersistIdentityAsUser(ownerName); //course owner
-        secondOwnerIdentity = JunitTestHelper.createAndPersistIdentityAsUser(ownerNameSecond);
+        ownerIdentity = JunitTestHelper.createAndPersistIdentityAsUser("TestOwner"); //course owner
+        secondOwnerIdentity = JunitTestHelper.createAndPersistIdentityAsUser("SecondTestOwner");
 
-        firstTestIdentity = JunitTestHelper.createAndPersistIdentityAsUser(firstTestUserName);
-        secondTestIdentity = JunitTestHelper.createAndPersistIdentityAsUser(secondTestUserName);
-        thirdTestIdentity = JunitTestHelper.createAndPersistIdentityAsUser(thirdTestUserName);
+        firstTestIdentity = JunitTestHelper.createAndPersistIdentityAsUser("FirstTestUser");
+        secondTestIdentity = JunitTestHelper.createAndPersistIdentityAsUser("SecondTestUser");
+        thirdTestIdentity = JunitTestHelper.createAndPersistIdentityAsUser("ThirdTestUser");
 
-        firstCoOwnerIdentity = JunitTestHelper.createAndPersistIdentityAsUser(firstCoOwnerName);
-        secondCoOwnerIdentity = JunitTestHelper.createAndPersistIdentityAsUser(secondCoOwnerName);
-        List<Identity> coOwnerList = new ArrayList<Identity>();
+        firstCoOwnerIdentity = JunitTestHelper.createAndPersistIdentityAsUser("co_owner1");
+        secondCoOwnerIdentity = JunitTestHelper.createAndPersistIdentityAsUser("co_owner2");
+        List<Identity> coOwnerList = new ArrayList<>();
         coOwnerList.add(firstCoOwnerIdentity);
         coOwnerList.add(secondCoOwnerIdentity);
         
@@ -100,47 +81,29 @@ public class CampusCourseGroupSynchronizerTest extends OlatTestCase {
         campusConfigurationMock = mock(CampusConfiguration.class);
         when(campusConfigurationMock.getCourseGroupAName()).thenReturn(TEST_COURSE_GROUP_A_NAME);
         when(campusConfigurationMock.getCourseGroupBName()).thenReturn(TEST_COURSE_GROUP_B_NAME);
-        //when(campusConfigurationMock.getDefaultCoOwnerUserNames()).thenReturn(TEST_CO_OWNER_NAMES);
-        courseGroupSynchronizerTestObject.campusConfiguration = campusConfigurationMock;
-        
-        //courseGroupSynchronizerTestObject.campuskursCoOwners.campusConfiguration = campusConfigurationMock;
-        courseGroupSynchronizerTestObject.campuskursCoOwners = mock(CampuskursCoOwners.class);
-        when(courseGroupSynchronizerTestObject.campuskursCoOwners.getDefaultCoOwners()).thenReturn(coOwnerList);
-      
 
-        // Setup test-course and campus-group
+        courseGroupSynchronizerTestObject = new CampusCourseGroupSynchronizer(campusConfigurationMock, mock(CampuskursCoOwners.class), repositoryService, businessGroupService);
+        when(courseGroupSynchronizerTestObject.getCampuskursCoOwners().getDefaultCoOwners()).thenReturn(coOwnerList);
+
+        // Setup test-course
         sourceRepositoryEntry = JunitTestHelper.deployDemoCourse(ownerIdentity);
         course = CourseFactory.loadCourse(sourceRepositoryEntry.getOlatResource().getResourceableId());
-        ObjectMother.setupCampusCourseGroupForTest(sourceRepositoryEntry, TEST_COURSE_GROUP_A_NAME, businessGroupService);
-        dbInstance.commitAndCloseSession();
-        ObjectMother.setupCampusCourseGroupForTest(sourceRepositoryEntry, TEST_COURSE_GROUP_B_NAME, businessGroupService);
-        dbInstance.commitAndCloseSession();
-        
+
+        // Setup campus-groups
+        CampusJunitTestHelper.setupCampusCourseGroupForTest(sourceRepositoryEntry, TEST_COURSE_GROUP_A_NAME, businessGroupService);
+        CampusJunitTestHelper.setupCampusCourseGroupForTest(sourceRepositoryEntry, TEST_COURSE_GROUP_B_NAME, businessGroupService);
+        dbInstance.flush();
         campusCourseGroup = CampusGroupHelper.lookupCampusGroup(course, campusConfigurationMock.getCourseGroupAName());
         
         campusCourseMock = mock(CampusCourse.class);       
         when(campusCourseMock.getRepositoryEntry()).thenReturn(sourceRepositoryEntry);
         when(campusCourseMock.getCourse()).thenReturn(course);
     }
-        
 
     @After
     public void teardown() {    	
     	dbInstance.rollback();
-        //cleanupCampusCourseGroup(campusCourseGroup);
     }
-    
-    /*private void cleanupCampusCourseGroup(BusinessGroup campusCourseGroup) {
-    	removAllIdentitesFromSecurityGroup(campusCourseGroup.getOwnerGroup());
-    	removAllIdentitesFromSecurityGroup(campusCourseGroup.getPartipiciantGroup());
-    }
-
-    private void removAllIdentitesFromSecurityGroup(SecurityGroup securityGroup) {
-    	List<Identity> identities = baseSecurity.getIdentitiesOfSecurityGroup(securityGroup);
-    	for (Identity identity : identities) {
-    		baseSecurity.removeIdentityFromSecurityGroup(identity, securityGroup);
-    	}
-    }*/
 
     @Test
     public void addAllLecturesAsOwner() {
@@ -152,8 +115,7 @@ public class CampusCourseGroupSynchronizerTest extends OlatTestCase {
         assertTrue("Missing identity (" + ownerIdentity + ") in owner-group", ownerIdentities.contains(ownerIdentity));
         assertTrue("Missing identity (" + secondOwnerIdentity + ")in owner-group", ownerIdentities.contains(secondOwnerIdentity));
     }
-    
-    
+
     @Test
     public void addDefaultCoOwnersAsOwner() {
         // Exercise
@@ -172,8 +134,8 @@ public class CampusCourseGroupSynchronizerTest extends OlatTestCase {
      */
     @Test
     public void synchronizeCourseGroups_AddLectures_CheckAddedStatisticAndMembers() {
-        CampusCourseImportTO campusCourseImportData = new CampusCourseImportTO("Group_Test", "HS-2012", getTestLecturersWithDuplicateEntry(), new ArrayList<Identity>(),
-                "Group_Test", TEST_RESOURCEABLE_ID);
+        CampusCourseImportTO campusCourseImportData = new CampusCourseImportTO("Group_Test", "HS-2012", getTestLecturersWithDuplicateEntry(), null, new ArrayList<>(),
+                "Group_Test", TEST_RESOURCEABLE_ID, null, null, null);
 
         SynchronizedGroupStatistic statistic = courseGroupSynchronizerTestObject.synchronizeCourseGroups(campusCourseMock, campusCourseImportData);
         
@@ -192,16 +154,14 @@ public class CampusCourseGroupSynchronizerTest extends OlatTestCase {
                 
     }
 
-
-
     /**
      * Add two participants (includes an identity twice to check duplicate handling) and no lecturer. This is the initialize process when participant-list is empty at the
      * beginning.
      */
     @Test
     public void synchronizeCourseGroups_AddParticipants_CheckAddedStatisticAndMembers() {
-        CampusCourseImportTO campusCourseImportData = new CampusCourseImportTO("Group_Test", "HS-2012", new ArrayList<Identity>(),
-                getTestParticipantsWithDuplicateEntry(), "Group_Test", TEST_RESOURCEABLE_ID);
+        CampusCourseImportTO campusCourseImportData = new CampusCourseImportTO("Group_Test", "HS-2012", new ArrayList<>(), null,
+                getTestParticipantsWithDuplicateEntry(), "Group_Test", TEST_RESOURCEABLE_ID, null, null, null);
 
         // no owner-identities, two participants (testIdentity, secondTestIdentity)
         SynchronizedGroupStatistic statistic = courseGroupSynchronizerTestObject.synchronizeCourseGroups(campusCourseMock, campusCourseImportData);
@@ -223,7 +183,7 @@ public class CampusCourseGroupSynchronizerTest extends OlatTestCase {
     }
 
     private List<Identity> getTestParticipantsWithDuplicateEntry() {
-        List<Identity> participants = new ArrayList<Identity>();
+        List<Identity> participants = new ArrayList<>();
         participants.add(firstTestIdentity);
         participants.add(secondTestIdentity);
         participants.add(firstTestIdentity);
@@ -231,7 +191,7 @@ public class CampusCourseGroupSynchronizerTest extends OlatTestCase {
     }
 
     private List<Identity> getTestLecturersWithDuplicateEntry() {
-        List<Identity> lecturers = new ArrayList<Identity>();
+        List<Identity> lecturers = new ArrayList<>();
         lecturers.add(ownerIdentity);
         lecturers.add(secondOwnerIdentity);
         lecturers.add(ownerIdentity);
@@ -245,8 +205,8 @@ public class CampusCourseGroupSynchronizerTest extends OlatTestCase {
      */
     @Test
     public void synchronizeCourseGroups_AddRemoveLectures_CheckRemovedStatisticAndMembers() {
-        CampusCourseImportTO campusCourseImportData = new CampusCourseImportTO("Group_Test", "HS-2012", getTestLecturersWithDuplicateEntry(), new ArrayList<Identity>(),
-                "Group_Test", TEST_RESOURCEABLE_ID);
+        CampusCourseImportTO campusCourseImportData = new CampusCourseImportTO("Group_Test", "HS-2012", getTestLecturersWithDuplicateEntry(), null, new ArrayList<>(),
+                "Group_Test", TEST_RESOURCEABLE_ID, null, null, null);
 
         // 1. Setup Campus-Group with owners (ownerIdentity, secondOwnerIdentity)        
         courseGroupSynchronizerTestObject.synchronizeCourseGroups(campusCourseMock, campusCourseImportData);
@@ -254,11 +214,11 @@ public class CampusCourseGroupSynchronizerTest extends OlatTestCase {
         assertEquals("Wrong number of participants after init", 0, businessGroupService.getMembers(campusCourseGroup, GroupRoles.participant.name()).size());
 
         // 2. Synchronize Campus-Group, remove one owner (secondOwnerIdentity), add a new owner (thirdTestIdentity)
-        List<Identity> newOwnerIdentites = new ArrayList<Identity>();
+        List<Identity> newOwnerIdentites = new ArrayList<>();
         newOwnerIdentites.add(ownerIdentity);
         newOwnerIdentites.add(thirdTestIdentity);
-        CampusCourseImportTO campusCourseImportDataToSyncronize = new CampusCourseImportTO("Group_Test", "HS-2012", newOwnerIdentites, new ArrayList<Identity>(),
-                "Group_Test", TEST_RESOURCEABLE_ID);
+        CampusCourseImportTO campusCourseImportDataToSyncronize = new CampusCourseImportTO("Group_Test", "HS-2012", newOwnerIdentites, null, new ArrayList<>(),
+                "Group_Test", TEST_RESOURCEABLE_ID, null, null, null);
         SynchronizedGroupStatistic statistic = courseGroupSynchronizerTestObject.synchronizeCourseGroups(campusCourseMock, campusCourseImportDataToSyncronize);
 
         // 1. assert statistic
@@ -284,8 +244,8 @@ public class CampusCourseGroupSynchronizerTest extends OlatTestCase {
      */
     @Test
     public void synchronizeCourseGroups_AddRemoveParticipants_CheckRemovedStatisticAndMembers() {
-        CampusCourseImportTO campusCourseImportData = new CampusCourseImportTO("Group_Test", "HS-2012", new ArrayList<Identity>(),
-                getTestParticipantsWithDuplicateEntry(), "Group_Test", TEST_RESOURCEABLE_ID);
+        CampusCourseImportTO campusCourseImportData = new CampusCourseImportTO("Group_Test", "HS-2012", new ArrayList<>(), null,
+                getTestParticipantsWithDuplicateEntry(), "Group_Test", TEST_RESOURCEABLE_ID, null, null, null);
 
         // 1. Setup Campus-Group with participants (testIdentity, secondTestIdentity)
         courseGroupSynchronizerTestObject.synchronizeCourseGroups(campusCourseMock, campusCourseImportData);
@@ -293,11 +253,11 @@ public class CampusCourseGroupSynchronizerTest extends OlatTestCase {
         assertEquals("Wrong number of participants after init", 2, businessGroupService.getMembers(campusCourseGroup, GroupRoles.participant.name()).size());
 
         // 2. Synchronize Campus-Group, remove one participant (secondTestIdentity), add a new participant (thirdTestIdentity)
-        List<Identity> newParticipantsIdentites = new ArrayList<Identity>();
+        List<Identity> newParticipantsIdentites = new ArrayList<>();
         newParticipantsIdentites.add(firstTestIdentity);
         newParticipantsIdentites.add(thirdTestIdentity);
-        CampusCourseImportTO campusCourseImportDataToSyncronize = new CampusCourseImportTO("Group_Test", "HS-2012", new ArrayList<Identity>(), newParticipantsIdentites,
-                "Group_Test", TEST_RESOURCEABLE_ID);
+        CampusCourseImportTO campusCourseImportDataToSyncronize = new CampusCourseImportTO("Group_Test", "HS-2012", new ArrayList<>(), null, newParticipantsIdentites,
+                "Group_Test", TEST_RESOURCEABLE_ID, null, null, null);
         SynchronizedGroupStatistic statistic = courseGroupSynchronizerTestObject.synchronizeCourseGroups(campusCourseMock, campusCourseImportDataToSyncronize);
 
         // 1. assert statistic
@@ -315,7 +275,6 @@ public class CampusCourseGroupSynchronizerTest extends OlatTestCase {
         assertTrue("Missing identity (" + firstTestIdentity + ") in participant-group of course-group", particiants.contains(firstTestIdentity));
         assertTrue("Missing identity (" + thirdTestIdentity + ")in participant-group of course-group", particiants.contains(thirdTestIdentity));
         assertFalse("Identity (" + secondTestIdentity + ")is no longer member of participant-group of course-group", particiants.contains(secondTestIdentity));
-
     }
 
 }

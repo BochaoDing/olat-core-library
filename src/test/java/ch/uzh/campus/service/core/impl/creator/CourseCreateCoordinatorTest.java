@@ -4,6 +4,10 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+
+import ch.uzh.campus.data.DaoManager;
+import ch.uzh.campus.service.core.impl.syncer.CampusCourseGroupSynchronizer;
+import ch.uzh.campus.service.core.impl.syncer.CampuskursCoOwners;
 import org.junit.Ignore;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -14,7 +18,6 @@ import java.util.List;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.olat.basesecurity.BaseSecurity;
 import org.olat.basesecurity.Group;
 import org.olat.basesecurity.GroupRoles;
 import org.olat.basesecurity.manager.GroupDAO;
@@ -24,8 +27,6 @@ import org.olat.core.id.Identity;
 import org.olat.core.id.UserConstants;
 import org.olat.core.logging.OLog;
 import org.olat.core.logging.Tracing;
-import org.olat.course.CourseFactory;
-import org.olat.course.ICourse;
 import org.olat.group.BusinessGroup;
 import org.olat.group.BusinessGroupService;
 import org.olat.group.area.BGArea;
@@ -33,6 +34,7 @@ import org.olat.group.area.BGAreaManager;
 import org.olat.repository.RepositoryEntry;
 import org.olat.repository.RepositoryService;
 
+import org.olat.resource.OLATResourceManager;
 import org.olat.test.JunitTestHelper;
 import org.olat.test.OlatTestCase;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,7 +42,7 @@ import org.springframework.test.context.ContextConfiguration;
 
 import ch.uzh.campus.CampusConfiguration;
 import ch.uzh.campus.CampusCourseImportTO;
-import ch.uzh.campus.creator.ObjectMother;
+import ch.uzh.campus.CampusJunitTestHelper;
 import ch.uzh.campus.service.CampusCourse;
 import ch.uzh.campus.service.core.impl.syncer.CampusGroupHelper;
 
@@ -61,14 +63,14 @@ public class CourseCreateCoordinatorTest extends OlatTestCase {
     private static final String TEST_COURSE_GROUP_B_NAME = "Campusgroup B";
     private static final Long TEST_RESOURCEABLE_ID = 1234L;
 
-    @Autowired
     private CourseCreateCoordinator courseCreateCoordinator;
-    @Autowired
-    private BaseSecurity baseSecurity;
+
     @Autowired
     private BusinessGroupService businessGroupService;
+
     @Autowired
     private RepositoryService repositoryService;
+
     @Autowired
     private GroupDAO groupDAO;
     @Autowired
@@ -77,8 +79,22 @@ public class CourseCreateCoordinatorTest extends OlatTestCase {
     @Autowired
     private DB dbInstance;
 
+    @Autowired
+    private CampuskursCoOwners campuskursCoOwners;
+
+    @Autowired
+    private CourseDescriptionBuilder courseDescriptionBuilder;
+
+    @Autowired
+    private CourseTemplate courseTemplate;
+
+    @Autowired
+    private OLATResourceManager olatResourceManager;
+
+    @Autowired
+    private DaoManager daoManager;
+
     private Long sourceResourceableId;
-    private ICourse sourceCourse;
     private RepositoryEntry sourceRepositoryEntry;
     private String ownerName = "TestOwner";
     private Identity ownerIdentity;
@@ -97,28 +113,24 @@ public class CourseCreateCoordinatorTest extends OlatTestCase {
     	
         sourceRepositoryEntry = JunitTestHelper.deployDemoCourse(ownerIdentity);
         sourceResourceableId = sourceRepositoryEntry.getOlatResource().getResourceableId();
-                
-        sourceCourse = CourseFactory.loadCourse(sourceResourceableId);
+
         DBFactory.getInstance().closeSession();   
         
-        ObjectMother.setupCampusCourseGroupForTest(sourceRepositoryEntry, TEST_COURSE_GROUP_A_NAME, businessGroupService);
+        CampusJunitTestHelper.setupCampusCourseGroupForTest(sourceRepositoryEntry, TEST_COURSE_GROUP_A_NAME, businessGroupService);
         dbInstance.commitAndCloseSession();
-        ObjectMother.setupCampusCourseGroupForTest(sourceRepositoryEntry, TEST_COURSE_GROUP_B_NAME, businessGroupService);
+        CampusJunitTestHelper.setupCampusCourseGroupForTest(sourceRepositoryEntry, TEST_COURSE_GROUP_B_NAME, businessGroupService);
         dbInstance.commitAndCloseSession();
-        // DBFactory.getInstance().closeSession();
 
         campusConfigurationMock = mock(CampusConfiguration.class);
         when(campusConfigurationMock.getTemplateCourseResourcableId(null)).thenReturn(sourceResourceableId);
         when(campusConfigurationMock.getCourseGroupAName()).thenReturn(TEST_COURSE_GROUP_A_NAME);
         when(campusConfigurationMock.getCourseGroupBName()).thenReturn(TEST_COURSE_GROUP_B_NAME);
         when(campusConfigurationMock.getTemplateLanguage(null)).thenReturn("DE");
-        courseCreateCoordinator.campusConfiguration = campusConfigurationMock;        
-        courseCreateCoordinator.campusCourseGroupSynchronizer.setCampusConfiguration(campusConfigurationMock);
 
+        CampusCourseGroupSynchronizer campusCourseGroupSynchronizerMock = new CampusCourseGroupSynchronizer(campusConfigurationMock, campuskursCoOwners, repositoryService, businessGroupService);
         CoursePublisher coursePublisherMock = mock(CoursePublisher.class);
-        courseCreateCoordinator.coursePublisher = coursePublisherMock;
+        courseCreateCoordinator = new CourseCreateCoordinator(campusConfigurationMock, coursePublisherMock, campusCourseGroupSynchronizerMock, courseDescriptionBuilder, courseTemplate, repositoryService, olatResourceManager, dbInstance, daoManager);
 
-        
         secondOwnerIdentity = JunitTestHelper.createAndPersistIdentityAsUser(ownerNameSecond);
         testIdentity = JunitTestHelper.createAndPersistIdentityAsUser(testUserName);
         secondTestIdentity = JunitTestHelper.createAndPersistIdentityAsUser(secondTestUserName);
@@ -140,10 +152,10 @@ public class CourseCreateCoordinatorTest extends OlatTestCase {
 
     private CampusCourse createCampusCourseTestObject() {
         String semester = "Herbstsemester 2012";
-        List<Identity> lecturers = new ArrayList<Identity>();
+        List<Identity> lecturers = new ArrayList<>();
         lecturers.add(ownerIdentity);
         lecturers.add(secondOwnerIdentity);
-        List<Identity> participants = new ArrayList<Identity>();
+        List<Identity> participants = new ArrayList<>();
         participants.add(testIdentity);
         participants.add(secondTestIdentity);
         CampusCourseImportTO campusCourseImportData = new CampusCourseImportTO(TEST_TITLE_TEXT, semester, lecturers, participants, TEST_EVENT_DESCRIPTION_TEXT,

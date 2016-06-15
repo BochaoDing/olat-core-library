@@ -18,16 +18,8 @@
  * University of Zurich, Switzerland.
  * <p>
  */
-package ch.uzh.campus.creator;
+package ch.uzh.campus;
 
-
-import org.olat.basesecurity.IdentityImpl;
-import org.olat.core.id.Identity;
-import org.olat.core.id.User;
-import org.olat.core.id.UserConstants;
-import org.olat.course.ICourse;
-import org.olat.course.groupsandrights.CourseGroupManager;
-import org.olat.group.BusinessGroup;
 import org.olat.group.BusinessGroupService;
 import org.olat.repository.RepositoryEntry;
 
@@ -36,30 +28,9 @@ import org.olat.repository.RepositoryEntry;
  * 
  * @author cg
  */
-public class ObjectMother {
+public class CampusJunitTestHelper {
 
-    // TODO OLATng
-//    public static Identity createIdentity(String name) {
-//        User newUser = createTestUserForJunit(name);
-//
-//        // How to create identity???
-//        return identity;
-//    }
-//
- 
-    
-    public static void setupCampusCourseGroupForTest(RepositoryEntry repositoryEntry, String groupName, BusinessGroupService businessGroupService) {		
+    public static void setupCampusCourseGroupForTest(RepositoryEntry repositoryEntry, String groupName, BusinessGroupService businessGroupService) {
     	businessGroupService.createBusinessGroup(null, groupName, null, 0, -1, false, false, repositoryEntry);
-    	
 	}
-
-    public static User createTestUserForJunit(final String name) {
-        User newUser = new TestUser();
-        newUser.setProperty(UserConstants.FIRSTNAME, "first_" + name);
-        newUser.setProperty(UserConstants.LASTNAME, "last_" + name);
-        newUser.setProperty(UserConstants.EMAIL, "@email.tst");
-
-        return newUser;
-    }
-
 }

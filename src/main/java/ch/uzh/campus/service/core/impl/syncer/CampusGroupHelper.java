@@ -44,9 +44,9 @@ public class CampusGroupHelper {
         CourseGroupManager courseGroupManager = course.getCourseEnvironment().getCourseGroupManager();
         
         List <BusinessGroup> foundCampusGroups = courseGroupManager.getAllBusinessGroups();
-                   
-        for(BusinessGroup businessGroup:foundCampusGroups ) {
-        	if(businessGroup.getName().equals(campusGruppe)) {
+        
+        for (BusinessGroup businessGroup : foundCampusGroups ) {
+        	if (businessGroup.getName().equals(campusGruppe)) {
         		return businessGroup;
         	}
         }

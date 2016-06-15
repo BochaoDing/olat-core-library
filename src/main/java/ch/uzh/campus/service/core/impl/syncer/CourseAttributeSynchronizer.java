@@ -39,14 +39,16 @@ public class CourseAttributeSynchronizer {
 
     @Autowired
     CampusCourseFactory campusCourseFactory;
+
     @Autowired
     CourseDescriptionBuilder courseDescriptionBuilder;
+
     @Autowired
     CampusConfiguration campusConfiguration;
 
-    public TitleAndDescriptionStatistik synchronizeTitleAndDescription(long sapCourseId, CampusCourseImportTO campusCourseTO) {
-        boolean titleUpdated = synchronizeTitle(getCampusCourse(sapCourseId, campusCourseTO.getOlatResourceableId()), campusCourseTO.getTitle());
-        boolean descriptionUpdated = synchronizeDescription(getCampusCourse(sapCourseId, campusCourseTO.getOlatResourceableId()),
+    TitleAndDescriptionStatistik synchronizeTitleAndDescription(CampusCourseImportTO campusCourseTO) {
+        boolean titleUpdated = synchronizeTitle(getCampusCourse(campusCourseTO.getSapCourseId(), campusCourseTO.getOlatResourceableId()), campusCourseTO.getTitle());
+        boolean descriptionUpdated = synchronizeDescription(getCampusCourse(campusCourseTO.getSapCourseId(), campusCourseTO.getOlatResourceableId()),
                 courseDescriptionBuilder.buildDescriptionFrom(campusCourseTO, campusConfiguration.getTemplateLanguage(campusCourseTO.getLanguage())));
 
         return new TitleAndDescriptionStatistik(titleUpdated, descriptionUpdated);
@@ -59,7 +61,7 @@ public class CourseAttributeSynchronizer {
     /**
      * @return 'true' when description is updated; 'false' when description is NOT updated.
      */
-    boolean synchronizeDescription(CampusCourse campusCourse, String newDescription) {
+    private boolean synchronizeDescription(CampusCourse campusCourse, String newDescription) {
         if (campusCourse.descriptionChanged(newDescription)) {
             campusCourse.setDescription(newDescription);
             return true;
@@ -70,7 +72,7 @@ public class CourseAttributeSynchronizer {
     /**
      * @return 'true' when title is updated; 'false' when title is NOT updated.
      */
-    boolean synchronizeTitle(CampusCourse campusCourse, String newTitle) {
+    private boolean synchronizeTitle(CampusCourse campusCourse, String newTitle) {
         if (campusCourse.titleChanged(newTitle)) {
             campusCourse.setTitle(newTitle);
             return true;

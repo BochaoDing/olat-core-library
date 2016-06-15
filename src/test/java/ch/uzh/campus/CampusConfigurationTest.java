@@ -18,14 +18,14 @@
  * University of Zurich, Switzerland.
  * <p>
  */
-package ch.uzh.campus.creator;
+package ch.uzh.campus;
 
-import ch.uzh.campus.CampusConfiguration;
 import org.junit.Before;
 import org.junit.Test;
 import org.olat.test.OlatTestCase;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
 import static org.junit.Assert.assertEquals;
 
@@ -34,7 +34,8 @@ import static org.junit.Assert.assertEquals;
  * 
  * @author cg
  */
-public class CampusConfigurationITCase extends OlatTestCase {
+@Component
+public class CampusConfigurationTest extends OlatTestCase {
 
     @Autowired
     private CampusConfiguration campusConfiguration;

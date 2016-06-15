@@ -79,7 +79,7 @@ public class CourseSynchronizer {
                 LOG.debug("synchronizeCourse statistic=" + groupStatistic);
                 if (campusConfiguration.isSynchronizeTitleAndDescriptionEnabled()) {
                     LOG.debug("SynchronizeTitleAndDescription is enabled");
-                    courseAttributeSynchronizer.synchronizeTitleAndDescription(sapCourse.getSapCourseId(), sapCourse);
+                    courseAttributeSynchronizer.synchronizeTitleAndDescription(sapCourse);
                     dbInstance.intermediateCommit();
                 }
             } catch (Throwable t) {

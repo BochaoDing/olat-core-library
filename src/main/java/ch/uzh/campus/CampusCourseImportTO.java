@@ -53,26 +53,6 @@ public class CampusCourseImportTO {
      * @param participants
      * @param eventDescription
      * @param resourceableId
-     */
-    public CampusCourseImportTO(String title, String semester, List<Identity> lecturers, List<Identity> participants, String eventDescription, Long resourceableId) {
-        this.title = title;
-        this.semester = semester;
-        this.lecturers = lecturers;
-        this.participants = participants;
-        this.eventDescription = eventDescription;
-        this.resourceableId = resourceableId;
-        this.vvzLink = "";
-    }
-
-    /**
-     * just for testing
-     * 
-     * @param title
-     * @param semester
-     * @param lecturers
-     * @param participants
-     * @param eventDescription
-     * @param resourceableId
      * @param language
      */
     public CampusCourseImportTO(String title, String semester, List<Identity> lecturers, List<Identity> participants, String eventDescription, Long resourceableId,
