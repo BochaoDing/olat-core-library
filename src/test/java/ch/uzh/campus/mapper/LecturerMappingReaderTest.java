@@ -22,12 +22,9 @@ package ch.uzh.campus.mapper;
 
 import ch.uzh.campus.data.DaoManager;
 import ch.uzh.campus.data.Lecturer;
-import edu.emory.mathcs.backport.java.util.Collections;
 import org.junit.Before;
 import org.junit.Test;
-import org.springframework.batch.item.NonTransientResourceException;
-import org.springframework.batch.item.ParseException;
-import org.springframework.batch.item.UnexpectedInputException;
+import org.olat.core.commons.persistence.DB;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -48,10 +45,10 @@ public class LecturerMappingReaderTest {
 
     @Before
     public void setup() {
-        lecturerMappingReaderTestObject = new LecturerMappingReader();
-        // Mock for DaoManager
+        // Mocks for DaoManager and DB
         daoManagerMock = mock(DaoManager.class);
-        lecturerMappingReaderTestObject.daoManager = daoManagerMock;
+        DB dbMock = mock(DB.class);
+        lecturerMappingReaderTestObject = new LecturerMappingReader(daoManagerMock, dbMock);
     }
 
     @Test
@@ -63,28 +60,28 @@ public class LecturerMappingReaderTest {
 
     @Test
     public void destroy_emptyLecturersList() {
-        when(daoManagerMock.getAllLecturers()).thenReturn(Collections.emptyList());
+        when(daoManagerMock.getAllLecturers()).thenReturn(new ArrayList<>());
         lecturerMappingReaderTestObject.init();
         lecturerMappingReaderTestObject.destroy();
     }
 
     @Test
-    public void read_nullLecturersList() throws UnexpectedInputException, ParseException, NonTransientResourceException, Exception {
+    public void read_nullLecturersList() throws Exception {
         when(daoManagerMock.getAllLecturers()).thenReturn(null);
         lecturerMappingReaderTestObject.init();
         assertNull(lecturerMappingReaderTestObject.read());
     }
 
     @Test
-    public void read_emptyLecturersList() throws UnexpectedInputException, ParseException, NonTransientResourceException, Exception {
-        when(daoManagerMock.getAllLecturers()).thenReturn(Collections.emptyList());
+    public void read_emptyLecturersList() throws Exception {
+        when(daoManagerMock.getAllLecturers()).thenReturn(new ArrayList<>());
         lecturerMappingReaderTestObject.init();
         assertNull(lecturerMappingReaderTestObject.read());
     }
 
     @Test
-    public void read_twoLecturersList() throws UnexpectedInputException, ParseException, NonTransientResourceException, Exception {
-        List<Lecturer> twoLecturersList = new ArrayList<Lecturer>();
+    public void read_twoLecturersList() throws Exception {
+        List<Lecturer> twoLecturersList = new ArrayList<>();
         Lecturer lecturerMock1 = mock(Lecturer.class);
         Lecturer lecturerMock2 = mock(Lecturer.class);
         twoLecturersList.add(lecturerMock1);

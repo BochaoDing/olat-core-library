@@ -22,11 +22,9 @@ package ch.uzh.campus.service.core.impl.syncer;
 
 import ch.uzh.campus.CampusConfiguration;
 import ch.uzh.campus.CampusCourseImportTO;
-
 import ch.uzh.campus.service.CampusCourse;
 import ch.uzh.campus.service.core.impl.CampusCourseFactory;
 import ch.uzh.campus.service.core.impl.syncer.statistic.SynchronizedGroupStatistic;
-
 import org.olat.core.commons.persistence.DB;
 import org.olat.core.logging.OLog;
 import org.olat.core.logging.Tracing;
@@ -49,47 +47,48 @@ public class CourseSynchronizer {
     private DB dbInstance;
 
     @Autowired
-    CampusCourseGroupSynchronizer courseGroupSynchronizer;
+    private CampusCourseGroupSynchronizer courseGroupSynchronizer;
    
     @Autowired
-    CourseAttributeSynchronizer courseAttributeSynchronizer;
+    private CourseAttributeSynchronizer courseAttributeSynchronizer;
     
     @Autowired
-    CampusConfiguration campusConfiguration;
+    private CampusConfiguration campusConfiguration;
     
     @Autowired
-    CampusCourseFactory campusCourseFactory;
+    private CampusCourseFactory campusCourseFactory;
 
-    
     public SynchronizedGroupStatistic synchronizeCourse(CampusCourseImportTO sapCourse) {
         if (sapCourse != null) {
-            long resourceableId = sapCourse.getOlatResourceableId();
-            LOG.debug("synchronizeCourse sapCourseId=" + sapCourse.getSapCourseId() + "  resourceableId=" + resourceableId);
-            ICourse course = CourseFactory.loadCourse(resourceableId);
-            commitDBImplTransaction();
-            LOG.debug("synchronizeCourse start for course=" + course.getCourseTitle());
-            LOG.debug("synchronizeCourse Lecturer size=" + sapCourse.getLecturers().size());
-            LOG.debug("synchronizeCourse Participants size=" + sapCourse.getParticipants().size());
-            
-            CampusCourse campusCourse = campusCourseFactory.getCampusCourse(sapCourse.getSapCourseId(), resourceableId);
+            SynchronizedGroupStatistic groupStatistic = null;
+            try {
+                long resourceableId = sapCourse.getOlatResourceableId();
+                LOG.debug("synchronizeCourse sapCourseId=" + sapCourse.getSapCourseId() + "  resourceableId=" + resourceableId);
+                ICourse course = CourseFactory.loadCourse(resourceableId);
+                LOG.debug("synchronizeCourse start for course=" + course.getCourseTitle());
+                LOG.debug("synchronizeCourse Lecturer size=" + sapCourse.getLecturers().size());
+                LOG.debug("synchronizeCourse Participants size=" + sapCourse.getParticipants().size());
 
-            courseGroupSynchronizer.addAllLecturesAsOwner(campusCourse, sapCourse.getLecturers());
-            // SynchronizedGroupStatistic groupStatistic = courseGroupSynchronizer.synchronizeCourseGroupsForStudentsOnly(course, sapCourse);
-            SynchronizedGroupStatistic groupStatistic = courseGroupSynchronizer.synchronizeCourseGroups(campusCourse, sapCourse);
-            commitDBImplTransaction();
-            LOG.debug("synchronizeCourse statistic=" + groupStatistic);
-            if (campusConfiguration.isSynchronizeTitleAndDescriptionEnabled()) {
-                LOG.debug("SynchronizeTitleAndDescription is enabled");
-                courseAttributeSynchronizer.synchronizeTitleAndDescription(sapCourse.getSapCourseId(), sapCourse);
-                commitDBImplTransaction();
+                CampusCourse campusCourse = campusCourseFactory.getCampusCourse(sapCourse.getSapCourseId(), resourceableId);
+
+                courseGroupSynchronizer.addAllLecturesAsOwner(campusCourse, sapCourse.getLecturers());
+                // SynchronizedGroupStatistic groupStatistic = courseGroupSynchronizer.synchronizeCourseGroupsForStudentsOnly(course, sapCourse);
+                groupStatistic = courseGroupSynchronizer.synchronizeCourseGroups(campusCourse, sapCourse);
+                dbInstance.intermediateCommit();
+
+                LOG.debug("synchronizeCourse statistic=" + groupStatistic);
+                if (campusConfiguration.isSynchronizeTitleAndDescriptionEnabled()) {
+                    LOG.debug("SynchronizeTitleAndDescription is enabled");
+                    courseAttributeSynchronizer.synchronizeTitleAndDescription(sapCourse.getSapCourseId(), sapCourse);
+                    dbInstance.intermediateCommit();
+                }
+            } catch (Throwable t) {
+                dbInstance.rollbackAndCloseSession();
+                LOG.warn(t.getMessage());
             }
             return groupStatistic;
         } else {
             return SynchronizedGroupStatistic.createEmptyStatistic();
         }
-    }
-
-    private void commitDBImplTransaction() {
-        dbInstance.intermediateCommit();
     }
 }

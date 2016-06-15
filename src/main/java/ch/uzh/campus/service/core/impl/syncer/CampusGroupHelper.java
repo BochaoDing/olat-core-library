@@ -44,18 +44,7 @@ public class CampusGroupHelper {
         CourseGroupManager courseGroupManager = course.getCourseEnvironment().getCourseGroupManager();
         
         List <BusinessGroup> foundCampusGroups = courseGroupManager.getAllBusinessGroups();
-        
-        // TODO: Possible problem to many groups => Solution : lookup only in default context
-        //List foundCampusGroups = courseGroupManager.getLearningGroupsFromAllContexts(campusGruppe, course);
-        /*if (foundCampusGroups.isEmpty()) {
-        	LOG.error("Found no course-group with name=" + campusGruppe);
-            throw new AssertException("Found no course-group with name=" + campusGruppe);
-        }
-        if (foundCampusGroups.size() > 1) {
-        	LOG.error("Found more than one course-group with name=" + campusGruppe);
-            throw new AssertException("Found more than one course-group with name=" + campusGruppe);
-        }*/
-        
+                   
         for(BusinessGroup businessGroup:foundCampusGroups ) {
         	if(businessGroup.getName().equals(campusGruppe)) {
         		return businessGroup;
