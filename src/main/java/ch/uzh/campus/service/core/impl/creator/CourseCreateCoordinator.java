@@ -182,7 +182,7 @@ public class CourseCreateCoordinator {
             //repositoryService.saveRepositoryEntry(campusCourse.getRepositoryEntry());
             repositoryService.update(campusCourse.getRepositoryEntry());
 
-            //TODO: olatng -> is this still needed?
+            //TODO: olatng -> is this still needed? Wahrscheilich nicht mehr notwendig, evtl. abklären mit REs / Frentix
             // ADD ADMIN RIGHTS TO OWNER GROUP            
             //final BaseSecurity securityManager = (BaseSecurity) CoreSpringFactory.getBean(BaseSecurity.class);
             //securityManager.createAndPersistPolicy(campusCourse.getRepositoryEntry().getOwnerGroup(), Constants.PERMISSION_ADMIN, campusCourse.getCourse());
@@ -194,7 +194,7 @@ public class CourseCreateCoordinator {
                 coursePublisher.publish(campusCourse.getCourse(), creator);
             }
             
-            //TODO: olatng load course again to see the updates in title, etc. ?
+            //TODO: olatng load course again to see the updates in title, etc. ? Als Abhilfe für fehlschlagenden Test; funktionierte nicht
             //ICourse reloadedCourse = CourseFactory.loadCourse(campusCourse.getCourse().getResourceableId());
             //campusCourse.reloadCourse();
             
@@ -206,7 +206,7 @@ public class CourseCreateCoordinator {
             if (campusCourse != null) {
                 if (campusCourse.getRepositoryEntry() != null) {
                     try {
-                    	//TODO: olatng
+                    	//TODO: olatng überprüfen, ob noch ausreichend
                         //repositoryService.deleteRepositoryEntryAndBasesecurity(campusCourse.getRepositoryEntry());
                     	repositoryService.deleteRepositoryEntryAndBaseGroups(campusCourse.getRepositoryEntry());
                     } catch (Exception e) {

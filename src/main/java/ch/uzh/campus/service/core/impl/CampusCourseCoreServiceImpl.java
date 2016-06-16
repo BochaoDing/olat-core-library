@@ -120,6 +120,7 @@ public class CampusCourseCoreServiceImpl implements CampusCourseCoreService {
         return campusCourseFactory.getCampusCourse(sapCampusCourseId, resourceableId);
     }
 
+    //TODO: olatng: muss aufgerufen werden
     public void deleteResourceableIdReference(OLATResourceable res) {
         try {
             log.info("deleteResourceableIdReference for resourceableId=" + res.getResourceableId());
@@ -130,7 +131,7 @@ public class CampusCourseCoreServiceImpl implements CampusCourseCoreService {
             log.warn(t.getMessage());
         }
 
-        //TODO: olatng
+        // TODO: olatng: püfen, ob noch notwendig
         //CoordinatorManager.getInstance().getCoordinator().getEventBus()
         //        .fireEventToListenersOf(new CampusCourseEvent(res.getResourceableId(), CampusCourseEvent.DELETED), OresHelper.lookupType(CampusCourse.class));
     }

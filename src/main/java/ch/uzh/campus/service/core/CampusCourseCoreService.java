@@ -17,7 +17,6 @@ import ch.uzh.campus.service.CampusCourse;
  * 
  * @author cg
  */
-//TODO: olatng: this used to be used in CampusCourseCreatorTasklet
 public interface CampusCourseCoreService {
 
     public boolean checkDelegation(Long sapCampusCourseId, Identity creator);
@@ -29,7 +28,7 @@ public interface CampusCourseCoreService {
     public CampusCourse createCampusCourse(Long resourceableId, Long sapCampusCourseId, Identity creator, CampusCourseImportTO campusCourseImportData);
 
     /**
-     * TODO: olatng: this used to be called from CourseRepositoryHandler, this doesn't exist in OpenOLAT anymore.
+     * TODO: olatng: this used to be called from CourseRepositoryHandler, this doesn't exist in OpenOLAT anymore. Wo aufrufen?
      * @param res
      */
     public void deleteResourceableIdReference(OLATResourceable res);
