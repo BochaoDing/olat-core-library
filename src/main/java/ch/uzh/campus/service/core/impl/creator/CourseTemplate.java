@@ -20,18 +20,18 @@
  */
 package ch.uzh.campus.service.core.impl.creator;
 
+import ch.uzh.campus.service.CampusCourse;
 import org.olat.core.id.Identity;
 import org.olat.core.id.OLATResourceable;
 import org.olat.course.CourseFactory;
 import org.olat.course.ICourse;
+import org.olat.group.BusinessGroupService;
 import org.olat.group.area.BGAreaManager;
 import org.olat.repository.RepositoryEntry;
 import org.olat.repository.RepositoryManager;
 import org.olat.repository.RepositoryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
-import ch.uzh.campus.service.CampusCourse;
 
 /**
  * Initial Date: 04.06.2012 <br>
@@ -50,7 +50,10 @@ public class CourseTemplate {
     @Autowired
 	private BGAreaManager areaManager;
 
-    public CampusCourse createCampusCourseFromTemplate(Long templateCourseResourceableId, Identity owner) {
+    @Autowired
+    private BusinessGroupService businessGroupService;
+
+    CampusCourse createCampusCourseFromTemplate(Long templateCourseResourceableId, Identity owner) {
         // 1. Lookup template
         OLATResourceable templateCourse = CourseFactory.loadCourse(templateCourseResourceableId);
         RepositoryEntry sourceRepositoryEntry = repositoryManager.lookupRepositoryEntry(templateCourse, true);
@@ -60,7 +63,7 @@ public class CourseTemplate {
         OLATResourceable copyCourseOlatResourcable = repositoryService.loadRepositoryEntryResource(copyOfRepositoryEntry.getKey());
         ICourse copyCourse = CourseFactory.loadCourse(copyCourseOlatResourcable.getResourceableId());
         
-        return new CampusCourse(copyCourse, copyOfRepositoryEntry, areaManager);
+        return new CampusCourse(copyCourse, copyOfRepositoryEntry, areaManager, businessGroupService);
     }
   
 

@@ -1,10 +1,9 @@
 package ch.uzh.campus.service;
 
-import java.util.List;
-
-
-import org.olat.core.CoreSpringFactory;
+import ch.uzh.campus.service.core.impl.syncer.CampusGroupHelper;
 import org.olat.core.gui.translator.Translator;
+import org.olat.core.helpers.Settings;
+import org.olat.core.id.Identity;
 import org.olat.core.logging.OLog;
 import org.olat.core.logging.Tracing;
 import org.olat.core.util.Formatter;
@@ -15,11 +14,7 @@ import org.olat.group.area.BGArea;
 import org.olat.group.area.BGAreaManager;
 import org.olat.repository.RepositoryEntry;
 
-
-import ch.uzh.campus.service.core.impl.syncer.CampusGroupHelper;
-
-import org.olat.core.helpers.Settings;
-import org.olat.core.id.Identity;
+import java.util.List;
 
 
 
@@ -30,7 +25,7 @@ import org.olat.core.id.Identity;
  */
 public class CampusCourse {
 	
-	public static final int MAX_DISPLAYNAME_LENGTH = 140;
+	private static final int MAX_DISPLAYNAME_LENGTH = 140;
     
 	private static final OLog log = Tracing.createLoggerFor(CampusCourse.class);
 
@@ -56,15 +51,11 @@ public class CampusCourse {
         this.translator = translator;
     }
 
-    /**
-     * @param course
-     * @param repositoryEntry
-     */
-    public CampusCourse(ICourse course, RepositoryEntry repositoryEntry, BGAreaManager areaManager) {
+    public CampusCourse(ICourse course, RepositoryEntry repositoryEntry, BGAreaManager areaManager, BusinessGroupService businessGroupService) {
         this.course = course;
         this.repositoryEntry = repositoryEntry;
         this.areaManager = areaManager;
-        businessGroupService = (BusinessGroupService) CoreSpringFactory.getBean(BusinessGroupService.class);
+        this.businessGroupService = businessGroupService;
     }
 
     public void setDescription(String eventDescription) {
@@ -88,15 +79,13 @@ public class CampusCourse {
     /**
      * @return an HTML href string.
      */
-    public static String getHtmlHref(String url, String title) {
+    private static String getHtmlHref(String url, String title) {
         return "<a href=\"" + url + "\">" + title + "</a>";
     }
 
     /**
      * Checks if this course has an area, if not, create an area with a default name.
      * If the area exists, check that it has groupA and a groupB, else creates groups and add them to area.
-     * 
-     * @param creatorIdentity
      */
     public void addGroupsToArea(Identity creatorIdentity) {
     	//TODO: olatng: please review

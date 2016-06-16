@@ -26,6 +26,7 @@ import org.olat.core.logging.OLog;
 import org.olat.core.logging.Tracing;
 import org.olat.course.CourseFactory;
 import org.olat.course.ICourse;
+import org.olat.group.BusinessGroupService;
 import org.olat.group.area.BGAreaManager;
 import org.olat.repository.RepositoryEntry;
 import org.olat.repository.RepositoryManager;
@@ -56,12 +57,15 @@ public class CampusCourseFactory {
     @Autowired
 	private BGAreaManager areaManager;
 
+    @Autowired
+    private BusinessGroupService businessGroupService;
+
     public CampusCourse getCampusCourse(Long sapCampusCourseId, Long resourceableId) {
         ICourse loadedCourse = CourseFactory.loadCourse(resourceableId);
-        return new CampusCourse(loadedCourse, getRepositoryEntryFor(sapCampusCourseId), areaManager);
+        return new CampusCourse(loadedCourse, getRepositoryEntryFor(sapCampusCourseId), areaManager, businessGroupService);
     }
 
-    public RepositoryEntry getRepositoryEntryFor(Long sapCourseId) {
+    RepositoryEntry getRepositoryEntryFor(Long sapCourseId) {
         CampusCourseImportTO campusCourseTo = daoManager.getSapCampusCourse(sapCourseId);
         log.debug("getRepositoryEntryFor sapCourseId=" + sapCourseId + "  campusCourseTo.getOlatResourceableId()=" + campusCourseTo.getOlatResourceableId());
         if (campusCourseTo.getOlatResourceableId() == null) {
@@ -69,7 +73,6 @@ public class CampusCourseFactory {
             return null;
         }
         OLATResourceable loadedCourse = CourseFactory.loadCourse(campusCourseTo.getOlatResourceableId());
-        RepositoryEntry sourceRepositoryEntry = repositoryManager.lookupRepositoryEntry(loadedCourse, true);
-        return sourceRepositoryEntry;
+        return repositoryManager.lookupRepositoryEntry(loadedCourse, true);
     }
 }

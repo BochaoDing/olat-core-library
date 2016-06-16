@@ -31,8 +31,6 @@ import org.junit.Test;
 import org.olat.core.id.Identity;
 import org.olat.course.ICourse;
 import org.olat.repository.RepositoryEntry;
-import org.olat.test.OlatTestCase;
-import org.springframework.test.context.ContextConfiguration;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -46,8 +44,7 @@ import static org.mockito.Mockito.*;
  * 
  * @author cg
  */
-@ContextConfiguration(locations = {"classpath:ch/uzh/campus/data/_spring/mockDataContext.xml"})
-public class CourseAttributeSynchronizerTest extends OlatTestCase {
+public class CourseAttributeSynchronizerTest {
 
     private long sapCampusCourseId = 1L;
     private Long resourceableId = 1002L;
@@ -77,7 +74,7 @@ public class CourseAttributeSynchronizerTest extends OlatTestCase {
         RepositoryEntry repositoryEntry = mock(RepositoryEntry.class);
         when(repositoryEntry.getDisplayname()).thenReturn(title);
         when(repositoryEntry.getDescription()).thenReturn(eventDescription);
-        campusCourse = new CampusCourse(course, repositoryEntry, null);
+        campusCourse = new CampusCourse(course, repositoryEntry, null, null);
         when(campusCourseFactoryMock.getCampusCourse(sapCampusCourseId, resourceableId)).thenReturn(campusCourse);
     }
 
