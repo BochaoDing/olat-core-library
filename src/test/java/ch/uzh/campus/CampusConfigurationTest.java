@@ -26,6 +26,7 @@ import org.olat.test.OlatTestCase;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+import org.springframework.test.context.ContextConfiguration;
 
 import static org.junit.Assert.assertEquals;
 
@@ -34,7 +35,7 @@ import static org.junit.Assert.assertEquals;
  * 
  * @author cg
  */
-@Component
+@ContextConfiguration(locations = {"classpath:ch/uzh/campus/data/_spring/mockDataContext.xml"})
 public class CampusConfigurationTest extends OlatTestCase {
 
     @Autowired
