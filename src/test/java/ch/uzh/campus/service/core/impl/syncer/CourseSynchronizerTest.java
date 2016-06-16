@@ -25,6 +25,7 @@ import ch.uzh.campus.service.core.impl.syncer.CourseSynchronizer;
 import ch.uzh.campus.service.core.impl.syncer.statistic.SynchronizedGroupStatistic;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import static org.junit.Assert.assertNotNull;
@@ -58,6 +59,7 @@ public class CourseSynchronizerTest {
     }
     
     // TODO OLATng
+    @Ignore
     @Test
     public void synchronizeCourse_FoundCourse() {
     	

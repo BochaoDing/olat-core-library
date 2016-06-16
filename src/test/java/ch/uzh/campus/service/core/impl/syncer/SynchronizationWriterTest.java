@@ -27,6 +27,8 @@ import ch.uzh.campus.service.core.impl.syncer.statistic.OverallSynchronizeStatis
 import ch.uzh.campus.service.core.impl.syncer.statistic.SynchronizedGroupStatistic;
 import ch.uzh.campus.service.core.impl.syncer.statistic.SynchronizedSecurityGroupStatistic;
 import org.junit.Before;
+import org.junit.Ignore;
+import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -72,17 +74,20 @@ public class SynchronizationWriterTest {
     }
 
     // TODO OLATng
-//    @Test
-//    public void write_emptyCoursesList() throws Exception {
+    @Ignore
+    @Test
+    public void write_emptyCoursesList() throws Exception {
 //        synchronizationWriterTestObject.write(Collections.emptyList());
 //        assertEquals(synchronizationWriterTestObject.getSynchronizeStatistic().calculateOverallStatistic(),
 //                "overallAddedOwners=0 , overallRemovedOwners=0 ; overallAddedParticipants=0 , overallRemovedParticipants=0");
-//    }
-//
-//    @Test
-//    public void write_twoCoursesList() throws Exception {
+    }
+
+    // TODO OLATng
+    @Ignore
+    @Test
+    public void write_twoCoursesList() throws Exception {
 //        synchronizationWriterTestObject.write(twoCoursesList);
 //        assertEquals(synchronizationWriterTestObject.getSynchronizeStatistic().calculateOverallStatistic(),
 //                "overallAddedOwners=0 , overallRemovedOwners=0 ; overallAddedParticipants=15 , overallRemovedParticipants=9");
-//    }
+    }
 }
