@@ -32,7 +32,6 @@ import org.olat.core.id.Identity;
 import org.olat.course.ICourse;
 import org.olat.repository.RepositoryEntry;
 import org.olat.test.OlatTestCase;
-import org.springframework.stereotype.Component;
 import org.springframework.test.context.ContextConfiguration;
 
 import java.util.ArrayList;
