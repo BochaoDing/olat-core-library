@@ -12,6 +12,7 @@
 	http://www.springframework.org/schema/batch/spring-batch-2.1.xsd
 	http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-2.5.xsd">
 
+	<import resource="classpath:org/olat/core/commons/persistence/_spring/databaseCorecontext.xml" />
 
 	<!-- ======================================================================================= -->
 	<!-- ==============IMPORT JOB================== -->  
