@@ -33,6 +33,7 @@ import org.olat.course.ICourse;
 import org.olat.repository.RepositoryEntry;
 import org.olat.test.OlatTestCase;
 import org.springframework.stereotype.Component;
+import org.springframework.test.context.ContextConfiguration;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -46,7 +47,7 @@ import static org.mockito.Mockito.*;
  * 
  * @author cg
  */
-@Component
+@ContextConfiguration(locations = {"classpath:ch/uzh/campus/data/_spring/mockDataContext.xml"})
 public class CourseAttributeSynchronizerTest extends OlatTestCase {
 
     private long sapCampusCourseId = 1L;
