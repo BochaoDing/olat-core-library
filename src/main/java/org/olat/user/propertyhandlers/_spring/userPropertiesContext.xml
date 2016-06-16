@@ -43,6 +43,8 @@
 				<ref bean="userPropertyInstitutionalEmail" />
 				<ref bean="userPropertyOrgUnit" />
 				<ref bean="userPropertyStudySubject" />
+				<ref bean="userPropertyInstitutionalEmployeeNumber" />
+				<ref bean="userPropertyInstitutionalMatriculationNumber" />
 				<!-- example
 				<ref bean="userPropertyAttrEduPersonAffiliation" />
 				<ref bean="userPropertyAttrSwissEduPersonStudyLevel" />
