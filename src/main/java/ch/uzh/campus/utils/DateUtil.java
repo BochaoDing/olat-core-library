@@ -143,8 +143,8 @@ public class DateUtil {
         try {
             Date yearStart = dateFormat.parse("1.1." + year);
             return parsedDate.after(yearStart);
-        } catch (Exception e) {
-            // TODO: handle exception
+        } catch (ParseException e) {
+            LOG.error("isAfter - cannot parse year: " + year, e);
         }
         return false;
     }
@@ -152,7 +152,7 @@ public class DateUtil {
     /**
      * Add or subtract seconds from a date.
      *
-     * @param date
+     * @param date will not be modified
      * @param numberOfSeconds to be added / subtracted
      * @return modified date
      */
@@ -161,6 +161,12 @@ public class DateUtil {
         calendar.setTime(date);
         calendar.add(Calendar.SECOND, numberOfSeconds);
         return calendar.getTime();
+    }
+
+    public static Date parseDateFromTimestamp(String timestampAsString) throws ParseException {
+        String timestampStringWithoutNanos = timestampAsString.substring(0, 23) + timestampAsString.substring(29);
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS Z");
+        return format.parse(timestampStringWithoutNanos);
     }
 
 }

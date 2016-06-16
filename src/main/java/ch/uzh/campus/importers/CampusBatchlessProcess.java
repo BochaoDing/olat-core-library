@@ -21,6 +21,7 @@
 package ch.uzh.campus.importers;
 
 import ch.uzh.campus.data.Export;
+import ch.uzh.campus.utils.DateUtil;
 import org.olat.core.logging.OLog;
 import org.olat.core.logging.Tracing;
 
@@ -30,8 +31,10 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * This class serves as a generic targetObject for the quartz MethodInvokingJobDetailFactoryBean. <br>
@@ -138,7 +141,7 @@ public class CampusBatchlessProcess {
     }
 
     private Map<String, Export> getFilesToImport(Map<String, Importer> importerMap, String csvFolderPath, String csvExportFilePath) throws Exception {
-        Map<String, Export> filesToExport = new HashMap<String, Export>();
+        Map<String, Export> filesToExport = new HashMap<>();
 
         int line = 1;
         // read CSVs with "com.opencsv.CSVReader" library, skipping the first line
@@ -172,7 +175,7 @@ public class CampusBatchlessProcess {
                         Export export = new Export();
                         export.setFileName(csvFilePath);
                         export.setCreationDate(new Date());
-                        export.setExportDate(parseDateFromTimestamp(csvFileInfo[1]));
+                        export.setExportDate(DateUtil.parseDateFromTimestamp(csvFileInfo[1]));
                         filesToExport.put(fileName, export);
                     } else {
                         LOG.warn(fileName + " is ignored because it is not in the whitelist");
@@ -199,10 +202,4 @@ public class CampusBatchlessProcess {
         return filesToExport;
     }
 
-    // TODO move to some Util class
-    private static Date parseDateFromTimestamp(String timestampAsString) throws ParseException {
-        String timestampStringWithoutNanos = timestampAsString.substring(0, 23) + timestampAsString.substring(29);
-        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS Z");
-        return format.parse(timestampStringWithoutNanos);
-    }
 }
