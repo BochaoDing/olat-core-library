@@ -46,9 +46,10 @@
     <!-- ======================================================================================= -->
     <!-- ===============Course================= -->
     <!-- ======================================================================================= -->
-    <bean id="course_1" class="ch.uzh.campus.data.Course" p:id="100" p:resourceableId="100" p:shortTitle="shortTitle1" p:title="title1" p:vstNr="vstNr1" p:category="Seminar" p:language="EN" p:vvzLink="link" p:semester="hs" p:shortSemester="HS" p:enabled="1" p:synchronizable="true" p:modifiedDate="10.10.2014 10:10" scope="prototype" />
-    <bean id="course_2" class="ch.uzh.campus.data.Course" p:id="200" p:resourceableId="200" p:shortTitle="shortTitle2" p:title="title2" p:vstNr="vstNr2" p:category="Seminar" p:language="EN" p:vvzLink="link" p:semester="hs" p:shortSemester="HS" p:enabled="1" p:synchronizable="true" p:modifiedDate="10.10.2014 10:10" scope="prototype" />
-    <bean id="course_3" class="ch.uzh.campus.data.Course" p:id="300" p:shortTitle="shortTitle3" p:title="title3" p:vstNr="vstNr3" p:category="Seminar" p:language="EN" p:vvzLink="link" p:semester="hs" p:shortSemester="HS" p:enabled="1" p:synchronizable="true" p:modifiedDate="10.10.2014 10:10" scope="prototype">
+    <!-- shortSemester must be in far into the future for robust JUnit tests! -->
+    <bean id="course_1" class="ch.uzh.campus.data.Course" p:id="100" p:resourceableId="100" p:shortTitle="shortTitle1" p:title="title1" p:vstNr="vstNr1" p:category="Seminar" p:language="EN" p:vvzLink="link" p:semester="hs" p:shortSemester="99HS" p:enabled="1" p:synchronizable="true" p:modifiedDate="10.10.2014 10:10" scope="prototype" />
+    <bean id="course_2" class="ch.uzh.campus.data.Course" p:id="200" p:resourceableId="200" p:shortTitle="shortTitle2" p:title="title2" p:vstNr="vstNr2" p:category="Seminar" p:language="EN" p:vvzLink="link" p:semester="hs" p:shortSemester="99HS" p:enabled="1" p:synchronizable="true" p:modifiedDate="10.10.2014 10:10" scope="prototype" />
+    <bean id="course_3" class="ch.uzh.campus.data.Course" p:id="300" p:shortTitle="shortTitle3" p:title="title3" p:vstNr="vstNr3" p:category="Seminar" p:language="EN" p:vvzLink="link" p:semester="hs" p:shortSemester="99HS" p:enabled="1" p:synchronizable="true" p:modifiedDate="10.10.2014 10:10" scope="prototype">
         <property name="resourceableId"><null/></property>
     </bean>
     <util:list id = 'courses' scope="prototype" >
@@ -136,10 +137,11 @@
     <!-- ======================================================================================= -->
     <!-- ===============ImportStatistic================= -->
     <!-- ======================================================================================= -->
+    <!-- startTime and endTime must be in far into the future for robust JUnit tests! -->
     <util:list id = 'importStatistics' scope="prototype" >
-        <bean class="ch.uzh.campus.data.ImportStatistic" p:stepId="10" p:stepName="import_controlFile" p:status="COMPLETED" p:startTime="10.10.2014 10:10" p:endTime="10.10.2014 10:12" p:readCount="8" p:writeCount="8" p:readSkipCount="0" p:writeSkipCount="0" p:processSkipCount="0" p:commitCount="0" p:rollbackCount="0" scope="prototype" />
-        <bean class="ch.uzh.campus.data.ImportStatistic" p:stepId="20" p:stepName="import_controlFile" p:status="COMPLETED" p:startTime="11.10.2014 10:10" p:endTime="11.10.2014 10:12" p:readCount="8" p:writeCount="8" p:readSkipCount="0" p:writeSkipCount="0" p:processSkipCount="0" p:commitCount="0" p:rollbackCount="0" scope="prototype" />
-        <bean class="ch.uzh.campus.data.ImportStatistic" p:stepId="30" p:stepName="import_controlFile" p:status="FAILED" p:startTime="12.10.2014 10:10" p:endTime="12.10.2014 10:12" p:readCount="8" p:writeCount="7" p:readSkipCount="0" p:writeSkipCount="1" p:processSkipCount="0" p:commitCount="0" p:rollbackCount="0" scope="prototype" />
+        <bean class="ch.uzh.campus.data.ImportStatistic" p:stepId="10" p:stepName="import_controlFile" p:status="COMPLETED" p:startTime="10.10.2099 10:10" p:endTime="10.10.2099 10:12" p:readCount="8" p:writeCount="8" p:readSkipCount="0" p:writeSkipCount="0" p:processSkipCount="0" p:commitCount="0" p:rollbackCount="0" scope="prototype" />
+        <bean class="ch.uzh.campus.data.ImportStatistic" p:stepId="20" p:stepName="import_controlFile" p:status="COMPLETED" p:startTime="11.10.2099 10:10" p:endTime="11.10.2099 10:12" p:readCount="8" p:writeCount="8" p:readSkipCount="0" p:writeSkipCount="0" p:processSkipCount="0" p:commitCount="0" p:rollbackCount="0" scope="prototype" />
+        <bean class="ch.uzh.campus.data.ImportStatistic" p:stepId="30" p:stepName="import_controlFile" p:status="FAILED" p:startTime="12.10.2099 10:10" p:endTime="12.10.2099 10:12" p:readCount="8" p:writeCount="7" p:readSkipCount="0" p:writeSkipCount="1" p:processSkipCount="0" p:commitCount="0" p:rollbackCount="0" scope="prototype" />
     </util:list>
 
     <!-- ======================================================================================= -->

@@ -1,7 +1,6 @@
 package ch.uzh.campus.data;
 
 import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
 import org.olat.core.commons.persistence.DB;
 import org.olat.test.OlatTestCase;
@@ -32,14 +31,6 @@ public class OrgDaoTest extends OlatTestCase {
     private Provider<MockDataGenerator> mockDataGeneratorProvider;
 
     private List<Org> orgs;
-
-    @Before
-    public void setup() {
-        // Insert some orgs
-    	orgs = mockDataGeneratorProvider.get().getOrgs();
-        orgDao.save(orgs);
-        dbInstance.flush();
-    }
     
     @After
     public void after() {
@@ -48,24 +39,30 @@ public class OrgDaoTest extends OlatTestCase {
 
     @Test
     public void testGetIdsOfAllEnabledOrgs_foundTwoOrgs() {
-        assertEquals(2, orgDao.getIdsOfAllEnabledOrgs().size());
+        int numberOfOrgsFoundBeforeInsertingTestData = orgDao.getIdsOfAllEnabledOrgs().size();
+        insertTestData();
+        assertEquals(numberOfOrgsFoundBeforeInsertingTestData + 2, orgDao.getIdsOfAllEnabledOrgs().size());
     }
 
     @Test
     public void testGetAllNotUpdatedOrgs_foundOneOrg() {
         Date now = new Date();
-        assertEquals(2, orgDao.getAllNotUpdatedOrgs(now).size());
+        int numberOfOrgsFoundBeforeInsertingTestData = orgDao.getAllNotUpdatedOrgs(now).size();
+        insertTestData();
+        assertEquals(numberOfOrgsFoundBeforeInsertingTestData + 2, orgDao.getAllNotUpdatedOrgs(now).size());
 
         orgs.get(0).setModifiedDate(now);
 
         dbInstance.flush();
 
-        assertEquals(1, orgDao.getAllNotUpdatedOrgs(now).size());
+        assertEquals(numberOfOrgsFoundBeforeInsertingTestData + 1, orgDao.getAllNotUpdatedOrgs(now).size());
     }
 
     @Test
     public void testDeleteByOrgIdsAsBulkDelete() {
-        assertEquals(2, orgDao.getIdsOfAllEnabledOrgs().size());
+        int numberOfOrgsFoundBeforeInsertingTestData = orgDao.getIdsOfAllEnabledOrgs().size();
+        insertTestData();
+        assertEquals(numberOfOrgsFoundBeforeInsertingTestData + 2, orgDao.getIdsOfAllEnabledOrgs().size());
 
         List<Long> orgIds = new LinkedList<>();
         orgIds.add(100L);
@@ -76,10 +73,14 @@ public class OrgDaoTest extends OlatTestCase {
         dbInstance.flush();
         dbInstance.clear();
 
-        assertEquals(0, orgDao.getIdsOfAllEnabledOrgs().size());
+        assertEquals(numberOfOrgsFoundBeforeInsertingTestData, orgDao.getIdsOfAllEnabledOrgs().size());
     }
     
-    
-
+    private void insertTestData() {
+        // Insert some orgs
+        orgs = mockDataGeneratorProvider.get().getOrgs();
+        orgDao.save(orgs);
+        dbInstance.flush();
+    }
 
 }
