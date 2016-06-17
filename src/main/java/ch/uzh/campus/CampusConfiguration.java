@@ -59,6 +59,9 @@ public class CampusConfiguration {
     @Value("${campus.import.mustCompletedImportedFiles}")
     private int mustCompletedImportedFiles;
 
+    @Value("${hibernate.hikari.leakDetectionThreshold}")
+    private int connectionPoolTimeout;
+
     @Autowired
     PropertyManager propertyManager;
 
@@ -162,6 +165,14 @@ public class CampusConfiguration {
 
     public int getMustCompletedImportedFiles() {
         return mustCompletedImportedFiles;
+    }
+
+    public int getConnectionPoolTimeout() {
+        return connectionPoolTimeout;
+    }
+
+    public void setConnectionPoolTimeout(int connectionPoolTimeout) {
+        this.connectionPoolTimeout = connectionPoolTimeout;
     }
 
     // TODO: How to handle start-date of semester ?

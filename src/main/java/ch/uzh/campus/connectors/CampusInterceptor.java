@@ -20,6 +20,7 @@
  */
 package ch.uzh.campus.connectors;
 
+import ch.uzh.campus.CampusConfiguration;
 import ch.uzh.campus.data.*;
 import ch.uzh.campus.metric.CampusNotifier;
 import ch.uzh.campus.metric.CampusStatistics;
@@ -62,6 +63,9 @@ public class CampusInterceptor<T, S> implements StepExecutionListener, ItemWrite
 
     @Autowired
     private CampusNotifier campusNotifier;
+
+    @Autowired
+    CampusConfiguration campusConfiguration;
 
     private StepExecution stepExecution;
 
@@ -407,14 +411,11 @@ public class CampusInterceptor<T, S> implements StepExecutionListener, ItemWrite
     public void afterChunk() {
         // chunk count and duration is being logged for sync step since this may be slow and potentially break timeout
 
-    	//TODO: olatng find out where timeput is actually defined
-//    	final int timeout = CoreSpringFactory.getBean(SystemPropertiesService.class).getIntProperty(PropertyLocator.DB_HIBERNATE_C3P0_UNRETURNEDCONNECTIONTIMEOUT);
-        final int timeout = 120; // 120 seconds = 2 minutes
-
-        if (CampusProcessStep.CAMPUSSYNCHRONISATION.name().equalsIgnoreCase(getStepExecution().getStepName())) {
+        final int timeout = campusConfiguration.getConnectionPoolTimeout(); // milliseconds!
+        if (timeout > 0 && CampusProcessStep.CAMPUSSYNCHRONISATION.name().equalsIgnoreCase(getStepExecution().getStepName())) {
             chunkCount++;
             long chunkProcessingDuration = System.currentTimeMillis() - chunkStartTime;
-            if (((float) (chunkProcessingDuration / 1000)) / timeout > 0.9) {
+            if (chunkProcessingDuration > timeout * 0.9) {
                 LOG.warn("Chunk no "
                         + chunkCount
                         + " for campus synchronisation took "
