@@ -171,7 +171,7 @@ public class CourseCreateCoordinator {
             campusCourse.setDescription(courseDescriptionBuilder.buildDescriptionFrom(campusCourseImportData, lvLanguage));
 
             if (!defaultTemplate) {                
-                campusCourse.addGroupsToArea(creator);
+                campusCourse.createCampusLearningAreaAndCampusBusinessGroups(creator);
             }
 
             //execute the first synchronization

@@ -1,6 +1,5 @@
 package ch.uzh.campus.service;
 
-import ch.uzh.campus.service.core.impl.syncer.CampusGroupHelper;
 import org.olat.core.gui.translator.Translator;
 import org.olat.core.helpers.Settings;
 import org.olat.core.id.Identity;
@@ -39,10 +38,6 @@ public class CampusCourse {
 
     private boolean defaultTemplate;
 
-    public boolean isDefaultTemplate() {
-        return defaultTemplate;
-    }
-
     public void setDefaultTemplate(boolean defaultTemplate) {
         this.defaultTemplate = defaultTemplate;
     }
@@ -72,64 +67,45 @@ public class CampusCourse {
     public void setCourseTitleAndLearningObjectivesInCourseModel(String title, String vvzLink) {
         String trimedTitle = getTrimedTitle(title);
         String externalLink = Settings.getServerContextPathURI() + "/url/RepositoryEntry/" + repositoryEntry.getKey();
-        String sentFromCourse = getHtmlHref(externalLink, title);
+        String sentFromCourse = "<a href=\"" + externalLink + "\">" + title + "</a>";
         CourseTitleHelper.saveCourseTitleInCourseModel(course, trimedTitle, translator, defaultTemplate, vvzLink, sentFromCourse);
     }
-    
-    /**
-     * @return an HTML href string.
-     */
-    private static String getHtmlHref(String url, String title) {
-        return "<a href=\"" + url + "\">" + title + "</a>";
-    }
 
-    /**
-     * Checks if this course has an area, if not, create an area with a default name.
-     * If the area exists, check that it has groupA and a groupB, else creates groups and add them to area.
-     */
-    public void addGroupsToArea(Identity creatorIdentity) {
-    	//TODO: olatng: please review
-    	String areaName = translator.translate("campus.course.learningArea.name");
-    	
-    	boolean areaExists = areaManager.existArea(areaName,repositoryEntry.getOlatResource()) ;
-    	BGArea campusLernArea = null;
-    	if(!areaExists) {
-    		campusLernArea = areaManager.createAndPersistBGArea(areaName, translator.translate("campus.course.learningArea.desc"), repositoryEntry.getOlatResource());
-    	} else {
-    		List<BGArea> areas = areaManager.findBGAreasInContext(repositoryEntry.getOlatResource());
-    		for(BGArea area: areas) {
-    			if(areaName.equals(area.getName())) {
-    				campusLernArea = area;
-    			}
-    		}
-    	}    	    	
-    	    	    	
-    	// CREATE THE BusinessGroup(s) ADD THEM TO THE APPROPRIATE BGArea IF NOT ALREADY EXIST
-    	
-    	List<BusinessGroup> groupsOfArea = areaManager.findBusinessGroupsOfArea(campusLernArea);    	
-    	
+    public void createCampusLearningAreaAndCampusBusinessGroups(Identity creatorIdentity) {
+
+        // Check if course has an area called campus.course.learningArea.name. If not, create an area with this name.
+        String areaName = translator.translate("campus.course.learningArea.name");
+    	BGArea campusLearningArea = areaManager.findBGArea(areaName, repositoryEntry.getOlatResource());
+    	if (campusLearningArea == null) {
+    		campusLearningArea = areaManager.createAndPersistBGArea(areaName, translator.translate("campus.course.learningArea.desc"), repositoryEntry.getOlatResource());
+    	}
+
+    	// Check if the learning area contains business groups campus.course.businessGroupA.name and campus.course.businessGroupB.name.
+        // If not, create them and add them to the learning area.
     	String groupNameA = translator.translate("campus.course.businessGroupA.name");
 		String groupDescriptionA = translator.translate("campus.course.businessGroupA.desc");
 		String groupNameB = translator.translate("campus.course.businessGroupB.name");
 		String groupDescriptionB = translator.translate("campus.course.businessGroupB.desc");
-		
-		if(groupsOfArea.size()==0) {
-    		createBusinessGroupInArea(campusLernArea, businessGroupService, creatorIdentity, groupNameA, groupDescriptionA);    		
-			createBusinessGroupInArea(campusLernArea, businessGroupService, creatorIdentity, groupNameB, groupDescriptionB);    		
-    	} else {
-    		BusinessGroup bgA = CampusGroupHelper.lookupCampusGroup(course,  groupNameA);
-    		if(bgA==null) {
-    			createBusinessGroupInArea(campusLernArea, businessGroupService, creatorIdentity, groupNameA, groupDescriptionA);    	
-    		}
-    		BusinessGroup bgB = CampusGroupHelper.lookupCampusGroup(course,  groupNameB);
-    		if(bgB==null) {
-    			createBusinessGroupInArea(campusLernArea, businessGroupService, creatorIdentity, groupNameB, groupDescriptionB);    	
-    		}
-    	}    	
+        List<BusinessGroup> groupsOfArea = areaManager.findBusinessGroupsOfArea(campusLearningArea);
+        if (!doesBusinessGroupExist(groupsOfArea, groupNameA)) {
+            createBusinessGroupAndAddItToArea(campusLearningArea, businessGroupService, creatorIdentity, groupNameA, groupDescriptionA);
+        }
+        if (!doesBusinessGroupExist(groupsOfArea, groupNameB)) {
+            createBusinessGroupAndAddItToArea(campusLearningArea, businessGroupService, creatorIdentity, groupNameB, groupDescriptionB);
+        }
     }
 
-	private void createBusinessGroupInArea(BGArea campusLernArea, BusinessGroupService businessGroupService, Identity creatorIdentity, String name, String description) {
-		BusinessGroup bgA = businessGroupService.createBusinessGroup(creatorIdentity, name, description, null, null, false, false, null);
+    private boolean doesBusinessGroupExist(List<BusinessGroup> groupsOfArea, String groupName) {
+        for (BusinessGroup businessGroup : groupsOfArea) {
+            if (businessGroup.getName().equals(groupName)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+	private void createBusinessGroupAndAddItToArea(BGArea campusLernArea, BusinessGroupService businessGroupService, Identity creatorIdentity, String groupName, String description) {
+		BusinessGroup bgA = businessGroupService.createBusinessGroup(creatorIdentity, groupName, description, null, null, false, false, null);
 		areaManager.addBGToBGArea(bgA, campusLernArea);
 	}    
 
@@ -150,17 +126,11 @@ public class CampusCourse {
     }
 
     public boolean descriptionChanged(String newDescription) {
-        if (repositoryEntry.getDescription() == null && newDescription != null) {
-            return true;
-        }
-        return !repositoryEntry.getDescription().equals(newDescription);
+        return (repositoryEntry.getDescription() == null && newDescription != null) || !repositoryEntry.getDescription().equals(newDescription);
     }
 
     public boolean titleChanged(String newTitle) {
-        if (repositoryEntry.getDisplayname() == null && newTitle != null) {
-            return true;
-        }
-        return !repositoryEntry.getDisplayname().equals(getTrimedTitle(newTitle));
+        return (repositoryEntry.getDisplayname() == null && newTitle != null) || !repositoryEntry.getDisplayname().equals(getTrimedTitle(newTitle));
     }
 
     private String getTrimedTitle(String title) {
