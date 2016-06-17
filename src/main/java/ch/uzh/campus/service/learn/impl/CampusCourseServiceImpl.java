@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Set;
 
 
+import org.olat.core.CoreSpringFactory;
 import org.olat.core.id.Identity;
 import org.olat.core.logging.OLog;
 import org.olat.core.logging.Tracing;
@@ -41,7 +42,6 @@ public class CampusCourseServiceImpl implements CampusCourseService {
 
     @Value("${campus.lv_kuerzel.activated}")
     private String shortTitleActivated;
-
 
     @Override
     public boolean checkDelegation(Long sapCampusCourseId, Identity creator) {
@@ -106,11 +106,20 @@ public class CampusCourseServiceImpl implements CampusCourseService {
     }
 
     public List getDelegatees(Identity delegator) {
-        return campusCourseCoreService.getDelegatees(delegator);
+        return getCampusCourseCoreService().getDelegatees(delegator);
     }
 
     public void deleteDelegation(Identity delegator, Identity delegatee) {
         campusCourseCoreService.deleteDelegation(delegator, delegatee);
+    }
+
+    private CampusCourseCoreService getCampusCourseCoreService() {
+        // Ensure that the bean is not null (can happen if it was not injected)
+        if (campusCourseCoreService == null) {
+            campusCourseCoreService = (CampusCourseCoreService) CoreSpringFactory.getBean(CampusCourseCoreService.class);
+        }
+
+        return campusCourseCoreService;
     }
 
 }
