@@ -46,20 +46,23 @@ public class StudentMapper {
     @Autowired
     SapOlatUserDao userMappingDao;
 
-    public MappingResult synchronizeStudentMapping(Student student) {
+    MappingResult synchronizeStudentMapping(Student student) {
         if (!userMappingDao.existsMappingForSapUserId(student.getId())) {
+
             // first try to map by matriculation number
             Identity mappedIdentity = studentMappingByMatriculationNumber.tryToMap(student);
             if (mappedIdentity != null) {
                 userMappingDao.saveMapping(student, mappedIdentity);
                 return MappingResult.NEW_MAPPING_BY_MATRICULATION_NR;
             }
+
             // second try to map by Email
             mappedIdentity = mappingByEmail.tryToMap(student);
             if (mappedIdentity != null) {
                 userMappingDao.saveMapping(student, mappedIdentity);
                 return MappingResult.NEW_MAPPING_BY_EMAIL;
             }
+
             // third try to map by firstName and lastName
             mappedIdentity = mappingByFirstNameAndLastName.tryToMap(student.getFirstName(), student.getLastName());
             if (mappedIdentity != null) {

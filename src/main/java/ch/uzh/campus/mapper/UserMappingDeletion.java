@@ -22,15 +22,12 @@ package ch.uzh.campus.mapper;
 
 import ch.uzh.campus.data.SapOlatUser;
 import ch.uzh.campus.data.SapOlatUserDao;
-import org.apache.log4j.Logger;
 import org.olat.core.id.Identity;
 import org.olat.core.logging.OLog;
 import org.olat.core.logging.Tracing;
 import org.olat.user.UserDataDeletable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -48,9 +45,7 @@ public class UserMappingDeletion implements UserDataDeletable {
     SapOlatUserDao sapOlatUserDao;
 
     // This method will be called when a OLAT-user is deleted via deletion-manager
-    //  TODO this seems not to be the case even in OLAT, as no traces of using this method are found
     @Override
-    @Transactional(propagation = Propagation.REQUIRED)
     public void deleteUserData(Identity identity, String newDeletedUserName) {
         LOG.debug("deleteUserData start");
         List<SapOlatUser> sapUsers = sapOlatUserDao.getSapOlatUserListByOlatUserName(identity.getName());

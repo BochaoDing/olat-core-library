@@ -1,7 +1,6 @@
 package ch.uzh.campus.data;
 
 import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
 import org.olat.core.commons.persistence.DB;
 import org.olat.test.OlatTestCase;
@@ -42,24 +41,6 @@ public class StudentDaoTest extends OlatTestCase {
     private Provider<MockDataGenerator> mockDataGeneratorProvider;
 
     private List<Student> students;
-
-    @Before
-    public void setup() {
-        // Insert some students
-        students = mockDataGeneratorProvider.get().getStudents();
-        studentDao.save(students);
-        dbInstance.flush();
-
-        // Insert some courses
-        List<Course> courses = mockDataGeneratorProvider.get().getCourses();
-        courseDao.save(courses);
-        dbInstance.flush();
-
-        // Insert some studentIdCourseIds
-        List<StudentIdCourseId> studentIdCourseIds = mockDataGeneratorProvider.get().getStudentIdCourseIds();
-        studentCourseDao.save(studentIdCourseIds);
-        dbInstance.flush();
-    }
     
     @After
     public void after() {
@@ -68,52 +49,60 @@ public class StudentDaoTest extends OlatTestCase {
 
     @Test
     public void testGetStudentById_Null() {
+        insertTestData();
         assertNull(studentDao.getStudentById(2999L));
     }
 
     @Test
     public void testGetStudentById_NotNull() {
+        insertTestData();
         assertNotNull(studentDao.getStudentById(2100L));
     }
 
     @Test
     public void testGetStudentByEmail_Null() {
+        insertTestData();
         assertNull(studentDao.getStudentByEmail("wrongEmail"));
     }
 
     @Test
     public void testlGetStudentByEmail_NotNull() {
+        insertTestData();
         assertNotNull(studentDao.getStudentByEmail("email1"));
     }
 
     @Test
     public void testGetStudentByRegistrationNr_Null() {
+        insertTestData();
         assertNull(studentDao.getStudentByEmail("999L"));
     }
 
     @Test
     public void testGetStudentByRegistrationNr_NotNull() {
+        insertTestData();
         assertNotNull(studentDao.getStudentByRegistrationNr("1000"));
     }
 
     @Test
     public void testGetAllNotUpdatedStudents_foundThreeStudents() {
-        assertEquals(3, studentDao.getAllNotUpdatedStudents(new Date()).size());
+        int numberOfStudentsFoundBeforeInsertingTestData = studentDao.getAllNotUpdatedStudents(new Date()).size();
+        insertTestData();
+        assertEquals(numberOfStudentsFoundBeforeInsertingTestData + 3, studentDao.getAllNotUpdatedStudents(new Date()).size());
     }
     
     @Test
     public void testGetAllNotUpdatedStudents_foundTwoStudent() throws InterruptedException {
         Date now = new Date();
-
+        int numberOfStudentsFoundBeforeInsertingTestData = studentDao.getAllNotUpdatedStudents(now).size();
+        insertTestData();
         students.get(0).setModifiedDate(now);
-
         dbInstance.flush();
-
-        assertEquals(2, studentDao.getAllNotUpdatedStudents(now).size());
+        assertEquals(numberOfStudentsFoundBeforeInsertingTestData + 2, studentDao.getAllNotUpdatedStudents(now).size());
     }
 
     @Test
     public void testDelete() {
+        insertTestData();
         assertNotNull(studentDao.getStudentById(2100L));
         Course course = courseDao.getCourseById(200L);
         assertNotNull(course);
@@ -135,6 +124,7 @@ public class StudentDaoTest extends OlatTestCase {
 
     @Test
     public void testDeleteByStudentIds() {
+        insertTestData();
         assertNotNull(studentDao.getStudentById(2100L));
         assertNotNull(studentDao.getStudentById(2200L));
         Course course = courseDao.getCourseById(100L);
@@ -164,6 +154,7 @@ public class StudentDaoTest extends OlatTestCase {
 
     @Test
     public void testDeleteByStudentIdsAsBulkDelete() {
+        insertTestData();
         assertNotNull(studentDao.getStudentById(2100L));
         assertNotNull(studentDao.getStudentById(2200L));
         Course course = courseDao.getCourseById(100L);
@@ -189,6 +180,25 @@ public class StudentDaoTest extends OlatTestCase {
 
     @Test
     public void testGetAllPilotStudents() {
-        assertEquals(2, studentDao.getAllPilotStudents().size());
+        int numberOfStudentsFoundBeforeInsertingTestData = studentDao.getAllPilotStudents().size();
+        insertTestData();
+        assertEquals(numberOfStudentsFoundBeforeInsertingTestData + 2, studentDao.getAllPilotStudents().size());
+    }
+
+    private void insertTestData() {
+        // Insert some students
+        students = mockDataGeneratorProvider.get().getStudents();
+        studentDao.save(students);
+        dbInstance.flush();
+
+        // Insert some courses
+        List<Course> courses = mockDataGeneratorProvider.get().getCourses();
+        courseDao.save(courses);
+        dbInstance.flush();
+
+        // Insert some studentIdCourseIds
+        List<StudentIdCourseId> studentIdCourseIds = mockDataGeneratorProvider.get().getStudentIdCourseIds();
+        studentCourseDao.save(studentIdCourseIds);
+        dbInstance.flush();
     }
 }

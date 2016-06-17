@@ -34,7 +34,7 @@ public class MappingStatistic {
     private int couldBeMappedManuallyCounter;
     private int newMappingByAdditionalPersonalNrCounter;
 
-    public void addMappingResult(MappingResult mappingResult) {
+    void addMappingResult(MappingResult mappingResult) {
         if (mappingResult.equals(MappingResult.NEW_MAPPING_BY_EMAIL)) {
             newMappingByEmailCounter++;
         } else if (mappingResult.equals(MappingResult.NEW_MAPPING_BY_MATRICULATION_NR)) {
@@ -51,80 +51,42 @@ public class MappingStatistic {
     }
 
     public String toString() {
-        StringBuilder builder = new StringBuilder();
-        builder.append("MappedByEmail=");
-        builder.append(newMappingByEmailCounter);
-        builder.append(" , ");
-        builder.append("MappedByMatriculationNumber=");
-        builder.append(newMappingByMatriculationNrCounter);
-        builder.append(" , ");
-        builder.append("MappedByPersonalNumber=");
-        builder.append(newMappingByPersonalNrCounter);
-        builder.append(" , ");
-        builder.append("MappedByAdditionalPersonalNumber=");
-        builder.append(newMappingByAdditionalPersonalNrCounter);
-        builder.append(" , ");
-        builder.append("couldNotMappedBecauseNotRegistered=");
-        builder.append(couldNotMapCounter);
-        builder.append(" , ");
-        builder.append("couldBeMappedManually=");
-        builder.append(couldBeMappedManuallyCounter);
-        return builder.toString();
+        return "MappedByEmail="
+                + newMappingByEmailCounter
+                + " , MappedByMatriculationNumber="
+                + newMappingByMatriculationNrCounter
+                + " , MappedByPersonalNumber="
+                + newMappingByPersonalNrCounter
+                + " , MappedByAdditionalPersonalNumber="
+                + newMappingByAdditionalPersonalNrCounter
+                + " , couldNotMappedBecauseNotRegistered="
+                + couldNotMapCounter
+                + " , couldBeMappedManually="
+                + couldBeMappedManuallyCounter;
     }
 
     public String toStringForStudentMapping() {
-        StringBuilder builder = new StringBuilder();
-        builder.append("MappedByMatriculationNumber=");
-        builder.append(newMappingByMatriculationNrCounter);
-        builder.append(" , ");
-        builder.append("MappedByEmail=");
-        builder.append(newMappingByEmailCounter);
-        builder.append(" , ");
-        builder.append("couldNotMappedBecauseNotRegistered=");
-        builder.append(couldNotMapCounter);
-        builder.append(" , ");
-        builder.append("couldBeMappedManually=");
-        builder.append(couldBeMappedManuallyCounter);
-        return builder.toString();
+        return "MappedByMatriculationNumber="
+                + newMappingByMatriculationNrCounter
+                + " , MappedByEmail="
+                + newMappingByEmailCounter
+                + " , couldNotMappedBecauseNotRegistered="
+                + couldNotMapCounter
+                + " , couldBeMappedManually="
+                + couldBeMappedManuallyCounter;
     }
 
     public String toStringForLecturerMapping() {
-        StringBuilder builder = new StringBuilder();
-        builder.append("MappedByPersonalNumber=");
-        builder.append(newMappingByPersonalNrCounter);
-        builder.append(" , ");
-        builder.append("MappedByEmail=");
-        builder.append(newMappingByEmailCounter);
-        builder.append(" , ");
-        builder.append("MappedByAdditionalPersonalNumber=");
-        builder.append(newMappingByAdditionalPersonalNrCounter);
-        builder.append(" , ");
-        builder.append("couldNotMappedBecauseNotRegistered=");
-        builder.append(couldNotMapCounter);
-        builder.append(" , ");
-        builder.append("couldBeMappedManually=");
-        builder.append(couldBeMappedManuallyCounter);
-        return builder.toString();
-    }
-
-    public int getNewMappingByEmailCounter() {
-        return newMappingByEmailCounter;
-    }
-
-    public int getNewMappingByMatriculationNrCounter() {
-        return newMappingByMatriculationNrCounter;
-    }
-
-    public int getNewMappingByPersonalNrCounter() {
-        return newMappingByPersonalNrCounter;
-    }
-
-    public int getCouldNotMapCounter() {
-        return couldNotMapCounter;
-    }
-
-    public int getCouldBeMappedManuallyCounter() {
-        return couldBeMappedManuallyCounter;
+        return "MappedByPersonalNumber="
+                + newMappingByPersonalNrCounter
+                + " , MappedByEmail="
+                + newMappingByEmailCounter
+                + " , MappedByAdditionalPersonalNumber="
+                + newMappingByAdditionalPersonalNrCounter
+                + " , couldNotMappedBecauseNotRegistered="
+                + couldNotMapCounter
+                + " , couldBeMappedManually="
+                + couldBeMappedManuallyCounter;
     }
 
 }

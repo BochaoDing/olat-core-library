@@ -23,8 +23,6 @@ package ch.uzh.campus.mapper;
 import ch.uzh.campus.data.Lecturer;
 import ch.uzh.campus.data.Student;
 import org.apache.commons.lang.StringUtils;
-import org.olat.basesecurity.BaseSecurity;
-import org.olat.core.commons.persistence.DB;
 import org.olat.core.id.Identity;
 import org.olat.user.UserManager;
 import org.springframework.beans.factory.annotation.Autowired;

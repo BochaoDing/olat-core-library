@@ -20,12 +20,11 @@
  */
 package ch.uzh.campus.mapper;
 
-import org.olat.core.commons.persistence.DB;
-import org.olat.core.logging.OLog;
-import org.olat.core.logging.Tracing;
 import org.olat.basesecurity.BaseSecurity;
 import org.olat.core.id.Identity;
 import org.olat.core.id.UserConstants;
+import org.olat.core.logging.OLog;
+import org.olat.core.logging.Tracing;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.HashMap;
@@ -40,19 +39,11 @@ public class AbstractMappingByInstitutionalIdentifier {
 
     private static final OLog LOG = Tracing.createLoggerFor(AbstractMappingByInstitutionalIdentifier.class);
 
-    @Autowired
-    BaseSecurity baseSecurity;
-
-    /** Setter for dbInstance is used by tests to inject mocks */
-    public void setDbInstance(DB dbInstance) {
-        this.dbInstance = dbInstance;
-    }
+    private BaseSecurity baseSecurity;
 
     @Autowired
-    private DB dbInstance;
-
-    protected AbstractMappingByInstitutionalIdentifier() {
-        super();
+    public AbstractMappingByInstitutionalIdentifier(BaseSecurity baseSecurity) {
+        this.baseSecurity = baseSecurity;
     }
 
     /**
@@ -60,7 +51,7 @@ public class AbstractMappingByInstitutionalIdentifier {
      */
     protected Identity tryToMap(final String userProperty, final String queryString) {
         // user property is either matriculation number or employee number
-        HashMap<String, String> userProperties = new HashMap<String, String>();
+        HashMap<String, String> userProperties = new HashMap<>();
         userProperties.put(userProperty, queryString);
         // search only visible user and not deleted
         List<Identity> results = baseSecurity.getVisibleIdentitiesByPowerSearch(null, userProperties, true, null, null, null, null, null);
@@ -68,13 +59,12 @@ public class AbstractMappingByInstitutionalIdentifier {
         // TODO remove after INSTITUTIONALUSERIDENTIFIER has been deleted in db (scheduled for 7.8.x)
         // try again with generic INSTITUTIONALUSERIDENTIFIER
         if (results.isEmpty()) {
-            userProperties = new HashMap<String, String>();
+            userProperties = new HashMap<>();
             userProperties.put(UserConstants.INSTITUTIONALUSERIDENTIFIER, queryString);
             // search only visible user and not deleted
             results = baseSecurity.getVisibleIdentitiesByPowerSearch(null, userProperties, true, null, null, null, null, null);
         }
 
-        commitDBImplTransaction();
         if (results.isEmpty()) {
             return null;
         } else if (results.size() == 1) {
@@ -87,9 +77,6 @@ public class AbstractMappingByInstitutionalIdentifier {
 
     /**
      * Returns the property from identity using the same fall-back logic as tryToMap()
-     * @param mappedIdentity
-     * @param propertyName
-     * @return
      */
     protected String findProperty(Identity mappedIdentity, String propertyName) {
         String personalNumber = mappedIdentity.getUser().getProperty(propertyName, null);
@@ -97,11 +84,6 @@ public class AbstractMappingByInstitutionalIdentifier {
             personalNumber = mappedIdentity.getUser().getProperty(UserConstants.INSTITUTIONALUSERIDENTIFIER, null);
         }
         return personalNumber;
-    }
-
-    @SuppressWarnings("deprecation")
-    private void commitDBImplTransaction() {
-        dbInstance.intermediateCommit();
     }
 
 }

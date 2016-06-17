@@ -23,7 +23,7 @@ public class MockDataGenerator {
     private List<EventCourseId> eventCourseIds;
     private List<ImportStatistic> importStatistics;
 
-    public List<Delegation> getDelegations() {
+    List<Delegation> getDelegations() {
         return delegations;
     }
 
@@ -31,7 +31,7 @@ public class MockDataGenerator {
         this.delegations = delegations;
     }
 
-    public List<Org> getOrgs() {
+    List<Org> getOrgs() {
         return orgs;
     }
 
@@ -39,7 +39,7 @@ public class MockDataGenerator {
         this.orgs = orgs;
     }
 
-    public List<SapOlatUser> getSapOlatUsers() {
+    List<SapOlatUser> getSapOlatUsers() {
         return sapOlatUsers;
     }
 
@@ -71,7 +71,7 @@ public class MockDataGenerator {
         this.courses = courses;
     }
 
-    public List<EventCourseId> getEventCourseIds() {
+    List<EventCourseId> getEventCourseIds() {
         return eventCourseIds;
     }
 
@@ -79,7 +79,7 @@ public class MockDataGenerator {
         this.eventCourseIds = eventCourseIds;
     }
 
-    public List<ImportStatistic> getImportStatistics() {
+    List<ImportStatistic> getImportStatistics() {
         return importStatistics;
     }
 
@@ -87,7 +87,7 @@ public class MockDataGenerator {
         this.importStatistics = importStatistics;
     }
 
-    public List<StudentIdCourseId> getStudentIdCourseIds() {
+    List<StudentIdCourseId> getStudentIdCourseIds() {
         return studentIdCourseIds;
     }
 
@@ -95,7 +95,7 @@ public class MockDataGenerator {
         this.studentIdCourseIds = studentIdCourseIds;
     }
 
-    public List<TextCourseId> getTextCourseIds() {
+    List<TextCourseId> getTextCourseIds() {
         return textCourseIds;
     }
 
@@ -103,7 +103,7 @@ public class MockDataGenerator {
         this.textCourseIds = textCourseIds;
     }
 
-    public List<LecturerIdCourseId> getLecturerIdCourseIds() {
+    List<LecturerIdCourseId> getLecturerIdCourseIds() {
         return lecturerIdCourseIds;
     }
 

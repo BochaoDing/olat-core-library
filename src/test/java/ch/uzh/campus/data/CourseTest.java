@@ -6,7 +6,7 @@ import static org.junit.Assert.assertEquals;
 import org.junit.Test;
 
 /**
- * Created by Martin Schraner on 02.03.16.
+ * @author lavinia
  */
 public class CourseTest {
 

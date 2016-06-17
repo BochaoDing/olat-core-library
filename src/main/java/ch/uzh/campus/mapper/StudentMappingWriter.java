@@ -57,7 +57,7 @@ public class StudentMappingWriter implements ItemWriter<Student> {
         this.mappingStatistic = mappingStatistic;
     }
 
-    public MappingStatistic getMappingStatistic() {
+    MappingStatistic getMappingStatistic() {
         return mappingStatistic;
     }
 

@@ -1,7 +1,6 @@
 package ch.uzh.campus.data;
 
 import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
 import org.olat.core.commons.persistence.DB;
 import org.olat.test.OlatTestCase;
@@ -54,42 +53,6 @@ public class CourseDaoTest extends OlatTestCase {
 
     private List<Course> courses;
 
-    @Before
-    public void setup() {
-        // Insert some courses
-        courses = mockDataGeneratorProvider.get().getCourses();
-        courseDao.save(courses);
-        dbInstance.flush();
-
-        // Insert some lecturers
-        List<Lecturer> lecturers = mockDataGeneratorProvider.get().getLecturers();
-        lecturerDao.save(lecturers);
-        dbInstance.flush();
-
-        // Add lecturers to courses
-        List<LecturerIdCourseId> lecturerIdCourseIds = mockDataGeneratorProvider.get().getLecturerIdCourseIds();
-        lecturerCourseDao.save(lecturerIdCourseIds);
-        dbInstance.flush();
-
-        // Insert some students
-        List<Student> students = mockDataGeneratorProvider.get().getStudents();
-        studentDao.save(students);
-        dbInstance.flush();
-
-        // Add students to courses
-        List<StudentIdCourseId> studentIdCourseIds = mockDataGeneratorProvider.get().getStudentIdCourseIds();
-        studentCourseDao.save(studentIdCourseIds);
-        dbInstance.flush();
-
-        // Add some texts
-        List<TextCourseId> textCourseIds = mockDataGeneratorProvider.get().getTextCourseIds();
-        textDao.addTextsToCourse(textCourseIds);
-
-        // Add some events
-        List<EventCourseId> eventCourseIds = mockDataGeneratorProvider.get().getEventCourseIds();
-        eventDao.addEventsToCourse(eventCourseIds);
-    }
-
     @After
     public void after() {
         dbInstance.rollback();
@@ -97,16 +60,19 @@ public class CourseDaoTest extends OlatTestCase {
 
     @Test
     public void testNullGetCourseById() {
+        insertTestData();
         assertNull(courseDao.getCourseById(999L));
     }
 
     @Test
     public void testNotNullGetCourseById() {
+        insertTestData();
         assertNotNull(courseDao.getCourseById(100L));
     }
 
     @Test
     public void testGetCreatedCoursesByLecturerIds() {
+        insertTestData();
         List<Long> lecturerIds = new LinkedList<>();
         lecturerIds.add(1100L);
         lecturerIds.add(1200L);
@@ -118,6 +84,7 @@ public class CourseDaoTest extends OlatTestCase {
 
     @Test
     public void testGetNotCreatedCoursesByLecturerIds() {
+        insertTestData();
         List<Long> lecturerIds = new LinkedList<>();
         lecturerIds.add(1100L);
         List<Course> courses = courseDao.getNotCreatedCoursesByLecturerIds(lecturerIds);
@@ -135,6 +102,7 @@ public class CourseDaoTest extends OlatTestCase {
 
     @Test
     public void testDelete() {
+        insertTestData();
         assertNotNull(courseDao.getCourseById(100L));
         Lecturer lecturer = lecturerDao.getLecturerById(1100L);
         assertNotNull(lecturer);
@@ -168,6 +136,7 @@ public class CourseDaoTest extends OlatTestCase {
 
     @Test
     public void testDeleteByCourseId() {
+        insertTestData();
         assertNotNull(courseDao.getCourseById(100L));
         Lecturer lecturer = lecturerDao.getLecturerById(1100L);
         assertNotNull(lecturer);
@@ -205,6 +174,7 @@ public class CourseDaoTest extends OlatTestCase {
 
     @Test
     public void testDeleteByCourseIds() {
+        insertTestData();
         assertEquals(2, courseDao.getAllCreatedCourses().size());
 
         List<Long> courseIds = new LinkedList<>();
@@ -221,6 +191,7 @@ public class CourseDaoTest extends OlatTestCase {
 
     @Test
     public void testDeleteByCourseIdsAsBulkDelete() {
+        insertTestData();
         assertEquals(2, courseDao.getAllCreatedCourses().size());
         assertNotNull(lecturerCourseDao.getLecturerCourseById(1100L, 100L));
         assertNotNull(studentCourseDao.getStudentCourseById(2100L, 100L));
@@ -249,6 +220,7 @@ public class CourseDaoTest extends OlatTestCase {
 
     @Test
     public void testSaveResourceableIdAsBulkUpdate() {
+        insertTestData();
         Course course = courseDao.getCourseById(100L);
         assertEquals(100L, course.getResourceableId().longValue());
         
@@ -263,6 +235,7 @@ public class CourseDaoTest extends OlatTestCase {
 
     @Test
     public void testDisableSynchronizationAsBulkUpdate() {
+        insertTestData();
         Course course = courseDao.getCourseById(100L);
         assertTrue(course.isSynchronizable());
         
@@ -277,6 +250,7 @@ public class CourseDaoTest extends OlatTestCase {
 
     @Test
     public void testDeleteResourceableIdAsBulkUpdate() {
+        insertTestData();
         Course course = courseDao.getCourseById(100L);
         assertEquals(100L, course.getResourceableId().longValue());
         
@@ -291,6 +265,7 @@ public class CourseDaoTest extends OlatTestCase {
 
     @Test
     public void testGetResourceableIdsOfAllCreatedCourses() {
+        insertTestData();
         List<Long> resourceableIdsOfAllCreatedCourses = courseDao.getResourceableIdsOfAllCreatedCourses();
         assertTrue(resourceableIdsOfAllCreatedCourses.contains(100L));
         assertFalse(resourceableIdsOfAllCreatedCourses.contains(999L));
@@ -298,6 +273,7 @@ public class CourseDaoTest extends OlatTestCase {
 
     @Test
     public void testGetIdsOfAllCreatedCourses() {
+        insertTestData();
         assertEquals(2, courseDao.getIdsOfAllCreatedCourses().size());
 
         courseDao.deleteResourceableIdAsBulkUpdate(100L);
@@ -310,6 +286,7 @@ public class CourseDaoTest extends OlatTestCase {
 
     @Test
     public void testGetIdsOfAllNotCreatedCourses() {
+        insertTestData();
         assertEquals(1, courseDao.getIdsOfAllNotCreatedCourses().size());
         
         courseDao.deleteResourceableIdAsBulkUpdate(100L);
@@ -322,6 +299,7 @@ public class CourseDaoTest extends OlatTestCase {
 
     @Test
     public void testGetAllCreatedCourses() {
+        insertTestData();
         assertEquals(2, courseDao.getAllCreatedCourses().size());
 
         courseDao.deleteByCourseId(100L);
@@ -335,10 +313,11 @@ public class CourseDaoTest extends OlatTestCase {
     @Test
     public void tesGetAllNotUpdatedCourses() {
         Date now = new Date();
-
+        int numberOfCoursesFoundBeforeInsertingTestData = courseDao.getAllNotUpdatedCourses(now).size();
+        insertTestData();
     	List<Long> courseIds = courseDao.getAllNotUpdatedCourses(now);
         // Only courses with resourceableId = null
-    	assertEquals(1, courseIds.size());
+    	assertEquals(numberOfCoursesFoundBeforeInsertingTestData + 1, courseIds.size());
 
         assertNull(courses.get(2).getResourceableId());
         courses.get(2).setModifiedDate(now);
@@ -347,11 +326,12 @@ public class CourseDaoTest extends OlatTestCase {
         dbInstance.clear();
 
         courseIds = courseDao.getAllNotUpdatedCourses(now);
-        assertEquals(0, courseIds.size());
+        assertEquals(numberOfCoursesFoundBeforeInsertingTestData, courseIds.size());
     }
 
     @Test
     public void testExistResourceableId() {
+        insertTestData();
         assertTrue(courseDao.existResourceableId(100L));
 
         courseDao.deleteResourceableIdAsBulkUpdate(100L);
@@ -364,19 +344,59 @@ public class CourseDaoTest extends OlatTestCase {
 
     @Test
     public void testGetCreatedCoursesByStudentId_noneFound() {
+        insertTestData();
     	List<Course> courses = courseDao.getCreatedCoursesByStudentId(2300L);
     	assertEquals(0, courses.size());
     }
     
     @Test
     public void testGetCreatedCoursesByStudentId_twoFound() {
+        insertTestData();
     	List<Course> courses = courseDao.getCreatedCoursesByStudentId(2100L);
     	assertEquals(2, courses.size());
     }
     
     @Test
     public void testGetNotCreatedCoursesByStudentId_noneFound() {
+        insertTestData();
     	List<Course> courses = courseDao.getNotCreatedCoursesByStudentId(2100L);
     	assertEquals(1, courses.size());
+    }
+
+    private void insertTestData() {
+        // Insert some courses
+        courses = mockDataGeneratorProvider.get().getCourses();
+        courseDao.save(courses);
+        dbInstance.flush();
+
+        // Insert some lecturers
+        List<Lecturer> lecturers = mockDataGeneratorProvider.get().getLecturers();
+        lecturerDao.save(lecturers);
+        dbInstance.flush();
+
+        // Add lecturers to courses
+        List<LecturerIdCourseId> lecturerIdCourseIds = mockDataGeneratorProvider.get().getLecturerIdCourseIds();
+        lecturerCourseDao.save(lecturerIdCourseIds);
+        dbInstance.flush();
+
+        // Insert some students
+        List<Student> students = mockDataGeneratorProvider.get().getStudents();
+        studentDao.save(students);
+        dbInstance.flush();
+
+        // Add students to courses
+        List<StudentIdCourseId> studentIdCourseIds = mockDataGeneratorProvider.get().getStudentIdCourseIds();
+        studentCourseDao.save(studentIdCourseIds);
+        dbInstance.flush();
+
+        // Add some texts
+        List<TextCourseId> textCourseIds = mockDataGeneratorProvider.get().getTextCourseIds();
+        textDao.addTextsToCourse(textCourseIds);
+        dbInstance.flush();
+
+        // Add some events
+        List<EventCourseId> eventCourseIds = mockDataGeneratorProvider.get().getEventCourseIds();
+        eventDao.addEventsToCourse(eventCourseIds);
+        dbInstance.flush();
     }
 }
