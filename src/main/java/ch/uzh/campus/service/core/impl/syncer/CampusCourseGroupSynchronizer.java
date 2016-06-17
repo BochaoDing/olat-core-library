@@ -37,13 +37,15 @@ public class CampusCourseGroupSynchronizer {
     private final CampuskursCoOwners campuskursCoOwners;
     private final RepositoryService repositoryService;
     private final BusinessGroupService businessGroupService;
+    private final CampusGroupFinder campusGroupFinder;
 
     @Autowired
-    public CampusCourseGroupSynchronizer(CampusConfiguration campusConfiguration, CampuskursCoOwners campuskursCoOwners, RepositoryService repositoryService, BusinessGroupService businessGroupService) {
+    public CampusCourseGroupSynchronizer(CampusConfiguration campusConfiguration, CampuskursCoOwners campuskursCoOwners, RepositoryService repositoryService, BusinessGroupService businessGroupService, CampusGroupFinder campusGroupFinder) {
         this.campusConfiguration = campusConfiguration;
         this.campuskursCoOwners = campuskursCoOwners;
         this.repositoryService = repositoryService;
         this.businessGroupService = businessGroupService;
+        this.campusGroupFinder = campusGroupFinder;
     }
 
     public void addAllLecturesAsOwner(CampusCourse campusCourse, List<Identity> lecturers) {
@@ -66,7 +68,7 @@ public class CampusCourseGroupSynchronizer {
    }
      
    public List<Identity> getCampusGroupAParticipants(CampusCourse campusCourse) {
-        BusinessGroup campusGroupA = CampusGroupHelper.lookupCampusGroup(campusCourse.getCourse(), campusConfiguration.getCourseGroupAName());        
+        BusinessGroup campusGroupA = campusGroupFinder.lookupCampusGroup(campusCourse.getCourse(), campusConfiguration.getCourseGroupAName());
         return businessGroupService.getMembers(campusGroupA, GroupRoles.participant.name());
    }
 
@@ -74,8 +76,8 @@ public class CampusCourseGroupSynchronizer {
     * Synchronizes the coaches of the GroupB, and the coaches and participants of the GroupA.
     */
     public SynchronizedGroupStatistic synchronizeCourseGroups(CampusCourse campusCourse, CampusCourseImportTO campusCourseImportData) {
-        BusinessGroup campusGroupA = CampusGroupHelper.lookupCampusGroup(campusCourse.getCourse(), campusConfiguration.getCourseGroupAName());
-        BusinessGroup campusGroupB = CampusGroupHelper.lookupCampusGroup(campusCourse.getCourse(), campusConfiguration.getCourseGroupBName());
+        BusinessGroup campusGroupA = campusGroupFinder.lookupCampusGroup(campusCourse.getCourse(), campusConfiguration.getCourseGroupAName());
+        BusinessGroup campusGroupB = campusGroupFinder.lookupCampusGroup(campusCourse.getCourse(), campusConfiguration.getCourseGroupBName());
         
         //get the course owner identities
         List<Identity> courseOwners = repositoryService.getMembers(campusCourse.getRepositoryEntry(), GroupRoles.owner.name());

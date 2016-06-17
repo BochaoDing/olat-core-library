@@ -46,6 +46,9 @@ public class CampusCourseGroupSynchronizerTest extends OlatTestCase {
     RepositoryService repositoryService;
 
     @Autowired
+    CampusGroupFinder campusGroupFinder;
+
+    @Autowired
     private DB dbInstance;
 
     private Identity ownerIdentity;
@@ -82,7 +85,7 @@ public class CampusCourseGroupSynchronizerTest extends OlatTestCase {
         when(campusConfigurationMock.getCourseGroupAName()).thenReturn(TEST_COURSE_GROUP_A_NAME);
         when(campusConfigurationMock.getCourseGroupBName()).thenReturn(TEST_COURSE_GROUP_B_NAME);
 
-        courseGroupSynchronizerTestObject = new CampusCourseGroupSynchronizer(campusConfigurationMock, mock(CampuskursCoOwners.class), repositoryService, businessGroupService);
+        courseGroupSynchronizerTestObject = new CampusCourseGroupSynchronizer(campusConfigurationMock, mock(CampuskursCoOwners.class), repositoryService, businessGroupService, campusGroupFinder);
         when(courseGroupSynchronizerTestObject.getCampuskursCoOwners().getDefaultCoOwners()).thenReturn(coOwnerList);
 
         // Setup test-course
@@ -93,7 +96,7 @@ public class CampusCourseGroupSynchronizerTest extends OlatTestCase {
         CampusJunitTestHelper.setupCampusCourseGroupForTest(sourceRepositoryEntry, TEST_COURSE_GROUP_A_NAME, businessGroupService);
         CampusJunitTestHelper.setupCampusCourseGroupForTest(sourceRepositoryEntry, TEST_COURSE_GROUP_B_NAME, businessGroupService);
         dbInstance.flush();
-        campusCourseGroup = CampusGroupHelper.lookupCampusGroup(course, campusConfigurationMock.getCourseGroupAName());
+        campusCourseGroup = campusGroupFinder.lookupCampusGroup(course, campusConfigurationMock.getCourseGroupAName());
         
         campusCourseMock = mock(CampusCourse.class);       
         when(campusCourseMock.getRepositoryEntry()).thenReturn(sourceRepositoryEntry);
@@ -145,7 +148,7 @@ public class CampusCourseGroupSynchronizerTest extends OlatTestCase {
         assertEquals("Wrong number of added identity in statistic", 0, statistic.getParticipantGroupStatistic().getAddedStatistic());
         assertEquals("Wrong number of removed identity in statistic", 0, statistic.getParticipantGroupStatistic().getRemovedStatistic());
         
-        BusinessGroup campusCourseGroup = CampusGroupHelper.lookupCampusGroup(course, campusConfigurationMock.getCourseGroupAName());
+        BusinessGroup campusCourseGroup = campusGroupFinder.lookupCampusGroup(course, campusConfigurationMock.getCourseGroupAName());
         List<Identity> groupCoaches = businessGroupService.getMembers(campusCourseGroup, GroupRoles.coach.name());
         // 2. assert members
         assertEquals("Wrong number of owners", 2, groupCoaches.size());

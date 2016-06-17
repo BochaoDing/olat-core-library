@@ -27,6 +27,7 @@ import org.olat.core.logging.Tracing;
 import org.olat.course.ICourse;
 import org.olat.course.groupsandrights.CourseGroupManager;
 import org.olat.group.BusinessGroup;
+import org.springframework.stereotype.Service;
 
 
 import java.util.List;
@@ -36,11 +37,12 @@ import java.util.List;
  * 
  * @author cg
  */
-public class CampusGroupHelper {
+@Service
+public class CampusGroupFinder {
 
-    private static final OLog LOG = Tracing.createLoggerFor(CampusGroupHelper.class);
+    private static final OLog LOG = Tracing.createLoggerFor(CampusGroupFinder.class);
 
-    public static BusinessGroup lookupCampusGroup(ICourse course, String campusGruppe) {
+    public BusinessGroup lookupCampusGroup(ICourse course, String campusGruppe) {
         CourseGroupManager courseGroupManager = course.getCourseEnvironment().getCourseGroupManager();
         
         List <BusinessGroup> foundCampusGroups = courseGroupManager.getAllBusinessGroups();
