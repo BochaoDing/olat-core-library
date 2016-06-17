@@ -27,6 +27,7 @@ package org.olat.admin.user;
 
 import java.util.List;
 
+import ch.uzh.campus.presentation.DelegationController;
 import org.olat.admin.user.course.CourseOverviewController;
 import org.olat.admin.user.groups.GroupOverviewController;
 import org.olat.basesecurity.Authentication;
@@ -92,6 +93,7 @@ public class UserAdminController extends BasicController implements Activateable
 	private static final String NLS_EDIT_UAUTH 			= "edit.uauth";
 	private static final String NLS_EDIT_UPROP			= "edit.uprop";
 	private static final String NLS_EDIT_UROLES			= "edit.uroles";
+	private static final String NLS_EDIT_DELEGATION		= "edit.delegation";
 	private static final String NLS_EDIT_UQUOTA			= "edit.uquota";
 	private static final String NLS_VIEW_GROUPS 		= "view.groups";
 	private static final String NLS_VIEW_COURSES		= "view.courses";
@@ -331,7 +333,10 @@ public class UserAdminController extends BasicController implements Activateable
 		
 		rolesCtr = new SystemRolesAndRightsController(getWindowControl(), ureq, identity);
 		userTabP.addTab(translate(NLS_EDIT_UROLES), rolesCtr.getInitialComponent());
-		
+
+		DelegationController delegationController = new DelegationController(ureq, getWindowControl(), identity);
+		userTabP.addTab(translate(NLS_EDIT_DELEGATION), delegationController.getInitialComponent());
+
 		Boolean canQuota = BaseSecurityModule.USERMANAGER_ACCESS_TO_QUOTA;
 		if (canQuota.booleanValue() || isOlatAdmin) {
 			String relPath = FolderConfig.getUserHomes() + "/" + identity.getName();
