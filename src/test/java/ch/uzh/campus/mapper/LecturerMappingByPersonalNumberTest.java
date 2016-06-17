@@ -26,7 +26,6 @@ import org.junit.Test;
 import org.olat.basesecurity.BaseSecurity;
 import org.olat.basesecurity.PermissionOnResourceable;
 import org.olat.basesecurity.SecurityGroup;
-import org.olat.core.commons.persistence.DB;
 import org.olat.core.id.Identity;
 import org.olat.core.id.User;
 import org.olat.core.id.UserConstants;
@@ -50,19 +49,16 @@ public class LecturerMappingByPersonalNumberTest {
 
     private static final String PERSONAL_NUMBER_ONE = "012345";
 
-    LecturerMappingByPersonalNumber lecturerMappingByPersonalNumberTestObject;
-
-    BaseSecurity baseSecurityMock;
-
+    private LecturerMappingByPersonalNumber lecturerMappingByPersonalNumberTestObject;
+    private BaseSecurity baseSecurityMock;
     private Lecturer lecturerMock;
     private Identity identityMockOne;
     private Identity identityMockTwo;
 
     @Before
     public void setup() {
-        lecturerMappingByPersonalNumberTestObject = new LecturerMappingByPersonalNumber();
         baseSecurityMock = mock(BaseSecurity.class);
-        lecturerMappingByPersonalNumberTestObject.baseSecurity = baseSecurityMock;
+        lecturerMappingByPersonalNumberTestObject = new LecturerMappingByPersonalNumber(baseSecurityMock);
 
         lecturerMock = mock(Lecturer.class);
         when(lecturerMock.getPersonalNr()).thenReturn(Long.valueOf(PERSONAL_NUMBER_ONE));
@@ -71,14 +67,12 @@ public class LecturerMappingByPersonalNumberTest {
         when(identityMockOne.getUser()).thenReturn(userMockOne);
         when(userMockOne.getProperty(UserConstants.INSTITUTIONAL_EMPLOYEE_NUMBER, null)).thenReturn(PERSONAL_NUMBER_ONE);
         identityMockTwo = mock(Identity.class);
-
-        // Mock for DBImpl
-        lecturerMappingByPersonalNumberTestObject.setDbInstance(mock(DB.class));
     }
 
     @Test
+    @SuppressWarnings("unchecked")
     public void tryToMap_foundNoMapping() {
-        List<Identity> emptyResults = new ArrayList<Identity>();
+        List<Identity> emptyResults = new ArrayList<>();
         when(
                 baseSecurityMock.getVisibleIdentitiesByPowerSearch(anyString(), anyMap(), anyBoolean(), any(SecurityGroup[].class),
                         any(PermissionOnResourceable[].class), any(String[].class), any(Date.class), any(Date.class))).thenReturn(emptyResults);
@@ -88,8 +82,9 @@ public class LecturerMappingByPersonalNumberTest {
     }
 
     @Test
+    @SuppressWarnings("unchecked")
     public void tryToMap_foundMoreThanOneMapping() {
-        List<Identity> twoIdentities = new ArrayList<Identity>();
+        List<Identity> twoIdentities = new ArrayList<>();
         twoIdentities.add(identityMockOne);
         twoIdentities.add(identityMockTwo);
         when(
@@ -101,8 +96,9 @@ public class LecturerMappingByPersonalNumberTest {
     }
 
     @Test
+    @SuppressWarnings("unchecked")
     public void tryToMap_foundOneMapping() {
-        List<Identity> oneIdentities = new ArrayList<Identity>();
+        List<Identity> oneIdentities = new ArrayList<>();
         oneIdentities.add(identityMockOne);
         when(
                 baseSecurityMock.getVisibleIdentitiesByPowerSearch(anyString(), anyMap(), anyBoolean(), any(SecurityGroup[].class),

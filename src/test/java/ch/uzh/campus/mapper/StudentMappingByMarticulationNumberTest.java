@@ -26,7 +26,6 @@ import org.junit.Test;
 import org.olat.basesecurity.BaseSecurity;
 import org.olat.basesecurity.PermissionOnResourceable;
 import org.olat.basesecurity.SecurityGroup;
-import org.olat.core.commons.persistence.DB;
 import org.olat.core.id.Identity;
 
 import java.util.ArrayList;
@@ -46,31 +45,26 @@ import static org.mockito.Mockito.when;
  */
 public class StudentMappingByMarticulationNumberTest {
 
-    StudentMappingByMatriculationNumber studentMappingByMatriculationNumber;
-
-    BaseSecurity baseSecurityMock;
-
+    private StudentMappingByMatriculationNumber studentMappingByMatriculationNumber;
+    private BaseSecurity baseSecurityMock;
     private Student studentMock;
     private Identity identityMockOne;
     private Identity identityMockTwo;
 
     @Before
     public void setup() {
-        studentMappingByMatriculationNumber = new StudentMappingByMatriculationNumber();
         baseSecurityMock = mock(BaseSecurity.class);
-        studentMappingByMatriculationNumber.baseSecurity = baseSecurityMock;
+        studentMappingByMatriculationNumber = new StudentMappingByMatriculationNumber(baseSecurityMock);
 
         studentMock = mock(Student.class);
         identityMockOne = mock(Identity.class);
         identityMockTwo = mock(Identity.class);
-
-        // Mock for DBImpl
-        studentMappingByMatriculationNumber.setDbInstance(mock(DB.class));
     }
 
     @Test
+    @SuppressWarnings("unchecked")
     public void tryToMap_foundNoMapping() {
-        List<Identity> emptyResults = new ArrayList<Identity>();
+        List<Identity> emptyResults = new ArrayList<>();
         when(
                 baseSecurityMock.getVisibleIdentitiesByPowerSearch(anyString(), anyMap(), anyBoolean(), any(SecurityGroup[].class),
                         any(PermissionOnResourceable[].class), any(String[].class), any(Date.class), any(Date.class))).thenReturn(emptyResults);
@@ -80,8 +74,9 @@ public class StudentMappingByMarticulationNumberTest {
     }
 
     @Test
+    @SuppressWarnings("unchecked")
     public void tryToMap_foundMoreThanOneMapping() {
-        List<Identity> twoIdentitiesList = new ArrayList<Identity>();
+        List<Identity> twoIdentitiesList = new ArrayList<>();
         twoIdentitiesList.add(identityMockOne);
         twoIdentitiesList.add(identityMockTwo);
         when(
@@ -93,8 +88,9 @@ public class StudentMappingByMarticulationNumberTest {
     }
 
     @Test
+    @SuppressWarnings("unchecked")
     public void tryToMap_foundOneMapping() {
-        List<Identity> oneIdentityList = new ArrayList<Identity>();
+        List<Identity> oneIdentityList = new ArrayList<>();
         oneIdentityList.add(identityMockOne);
         when(
                 baseSecurityMock.getVisibleIdentitiesByPowerSearch(anyString(), anyMap(), anyBoolean(), any(SecurityGroup[].class),

@@ -23,7 +23,6 @@ package ch.uzh.campus.mapper;
 import ch.uzh.campus.data.Lecturer;
 import ch.uzh.campus.data.SapOlatUserDao;
 import org.apache.commons.lang.StringUtils;
-import org.olat.core.commons.persistence.DB;
 import org.olat.core.id.Identity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -51,14 +50,16 @@ public class LecturerMapper {
     @Autowired
     SapOlatUserDao userMappingDao;
 
-    public MappingResult synchronizeLecturerMapping(Lecturer lecturer) {
+    MappingResult synchronizeLecturerMapping(Lecturer lecturer) {
         if (!userMappingDao.existsMappingForSapUserId(lecturer.getPersonalNr())) {
+
             // first try to map by personal number
             Identity mappedIdentity = mappingByPersonalNumber.tryToMap(lecturer.getPersonalNr());
             if (mappedIdentity != null) {
                 userMappingDao.saveMapping(lecturer, mappedIdentity);
                 return MappingResult.NEW_MAPPING_BY_PERSONAL_NR;
             }
+
             // second try to map by Email
             mappedIdentity = mappingByEmail.tryToMap(lecturer);
             if (mappedIdentity != null) {

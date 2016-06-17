@@ -20,10 +20,12 @@
  */
 package ch.uzh.campus.mapper;
 
+import org.olat.basesecurity.BaseSecurity;
 import org.olat.core.id.Identity;
 import org.olat.core.id.UserConstants;
 import org.olat.core.logging.OLog;
 import org.olat.core.logging.Tracing;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 /**
@@ -35,6 +37,11 @@ import org.springframework.stereotype.Component;
 public class LecturerMappingByPersonalNumber extends AbstractMappingByInstitutionalIdentifier {
 
     private static final OLog LOG = Tracing.createLoggerFor(LecturerMappingByPersonalNumber.class);
+
+    @Autowired
+    public LecturerMappingByPersonalNumber(BaseSecurity baseSecurity) {
+        super(baseSecurity);
+    }
 
     public Identity tryToMap(Long personalNr) {
         // append '%' because personal-number starts with 0 e.g. 012345

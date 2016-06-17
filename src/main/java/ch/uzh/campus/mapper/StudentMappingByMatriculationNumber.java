@@ -23,8 +23,10 @@ package ch.uzh.campus.mapper;
 import ch.uzh.campus.data.Student;
 
 import org.apache.commons.lang.StringUtils;
+import org.olat.basesecurity.BaseSecurity;
 import org.olat.core.id.Identity;
 import org.olat.core.id.UserConstants;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 /**
@@ -34,6 +36,12 @@ import org.springframework.stereotype.Component;
  */
 @Component
 public class StudentMappingByMatriculationNumber extends AbstractMappingByInstitutionalIdentifier {
+
+    @Autowired
+    public StudentMappingByMatriculationNumber(BaseSecurity baseSecurity) {
+        super(baseSecurity);
+    }
+
     public Identity tryToMap(Student student) {
         Identity identity = tryToMap(UserConstants.INSTITUTIONAL_MATRICULATION_NUMBER, student.getRegistrationNr());
         if (identity == null) {
