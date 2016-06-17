@@ -121,6 +121,7 @@ public class CampusInterceptor<T, S> implements StepExecutionListener, ItemWrite
             notifyMetrics(se);
             if (CampusProcessStep.IMPORT_CONTROLFILE.name().equalsIgnoreCase(se.getStepName())) {
                 if (se.getWriteCount() != getFixedNumberOfFilesToBeExported()) {
+                    dbInstance.commitAndCloseSession();
                     return ExitStatus.FAILED;
                 }
             }
@@ -222,7 +223,6 @@ public class CampusInterceptor<T, S> implements StepExecutionListener, ItemWrite
         if (CampusProcessStep.IMPORT_STUDENTS_COURSES.name().equalsIgnoreCase(se.getStepName())) {
             int stornos = daoManager.deleteAllNotUpdatedSCBooking(se.getStartTime());
             LOG.info("STORNOS(STUDENT_COURSE): " + stornos);
-            return;
         }
     }
 
@@ -381,7 +381,7 @@ public class CampusInterceptor<T, S> implements StepExecutionListener, ItemWrite
     /**
      * Gets the fixedNumberOfFilesToBeExported.
      */
-    public int getFixedNumberOfFilesToBeExported() {
+    private int getFixedNumberOfFilesToBeExported() {
         return fixedNumberOfFilesToBeExported;
     }
 
