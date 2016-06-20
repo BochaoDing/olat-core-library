@@ -59,7 +59,7 @@ public class CampusConfiguration {
     @Value("${campus.import.mustCompletedImportedFiles}")
     private int mustCompletedImportedFiles;
 
-    @Value("${hibernate.hikari.leakDetectionThreshold}")
+    @Value("${db.hibernate.hikari.leakDetectionThreshold}")
     private int connectionPoolTimeout;
 
     @Autowired
