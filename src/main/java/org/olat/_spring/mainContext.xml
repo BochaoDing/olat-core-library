@@ -59,4 +59,6 @@
 	<import resource="classpath:/ch/uzh/campus/connectors/_spring/campusBatchInfrastructureContext.xml"/>
 	<import resource="classpath:/ch/uzh/campus/connectors/_spring/campusJobSchedulerContext.xml"/>
 	<import resource="classpath:/ch/uzh/campus/connectors/_spring/campusBatchJobContext.xml"/>
+	<import resource="classpath:/ch/uzh/campus/presentation/_spring/campusPresentationContext.xml"/>
+
 </beans>
