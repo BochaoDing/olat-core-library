@@ -21,22 +21,18 @@
 package ch.uzh.campus.service.core.impl;
 
 
+import ch.uzh.campus.CampusCourseImportTO;
+import ch.uzh.campus.data.DaoManager;
+import ch.uzh.campus.service.CampusCourse;
 import org.olat.core.id.OLATResourceable;
 import org.olat.core.logging.OLog;
 import org.olat.core.logging.Tracing;
 import org.olat.course.CourseFactory;
 import org.olat.course.ICourse;
-import org.olat.group.BusinessGroupService;
-import org.olat.group.area.BGAreaManager;
 import org.olat.repository.RepositoryEntry;
 import org.olat.repository.RepositoryManager;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
-import ch.uzh.campus.CampusCourseImportTO;
-import ch.uzh.campus.data.DaoManager;
-import ch.uzh.campus.service.CampusCourse;
 
 /**
  * Initial Date: 20.08.2012 <br>
@@ -53,16 +49,10 @@ public class CampusCourseFactory {
 	
     @Autowired
     DaoManager daoManager;
-    
-    @Autowired
-	private BGAreaManager areaManager;
-
-    @Autowired
-    private BusinessGroupService businessGroupService;
 
     public CampusCourse getCampusCourse(Long sapCampusCourseId, Long resourceableId) {
         ICourse loadedCourse = CourseFactory.loadCourse(resourceableId);
-        return new CampusCourse(loadedCourse, getRepositoryEntryFor(sapCampusCourseId), areaManager, businessGroupService);
+        return new CampusCourse(loadedCourse, getRepositoryEntryFor(sapCampusCourseId));
     }
 
     RepositoryEntry getRepositoryEntryFor(Long sapCourseId) {

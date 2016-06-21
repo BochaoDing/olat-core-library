@@ -5,6 +5,7 @@ import ch.uzh.campus.CampusCourseImportTO;
 import ch.uzh.campus.CampusJunitTestHelper;
 import ch.uzh.campus.data.DaoManager;
 import ch.uzh.campus.service.CampusCourse;
+import ch.uzh.campus.service.CourseCreator;
 import ch.uzh.campus.service.core.impl.syncer.CampusCourseGroupSynchronizer;
 import ch.uzh.campus.service.core.impl.syncer.CampusGroupFinder;
 import ch.uzh.campus.service.core.impl.syncer.CampuskursCoOwners;
@@ -91,6 +92,9 @@ public class CourseCreateCoordinatorTest extends OlatTestCase {
     @Autowired
     private CampusGroupFinder campusGroupFinder;
 
+    @Autowired
+    private CourseCreator courseCreator;
+
     private Long sourceResourceableId;
     private RepositoryEntry sourceRepositoryEntry;
     private String ownerName = "TestOwner";
@@ -126,7 +130,7 @@ public class CourseCreateCoordinatorTest extends OlatTestCase {
 
         CampusCourseGroupSynchronizer campusCourseGroupSynchronizerMock = new CampusCourseGroupSynchronizer(campusConfigurationMock, campuskursCoOwners, repositoryService, businessGroupService, campusGroupFinder);
         CoursePublisher coursePublisherMock = mock(CoursePublisher.class);
-        courseCreateCoordinator = new CourseCreateCoordinator(campusConfigurationMock, coursePublisherMock, campusCourseGroupSynchronizerMock, courseDescriptionBuilder, courseTemplate, repositoryService, olatResourceManager, dbInstance, daoManager);
+        courseCreateCoordinator = new CourseCreateCoordinator(campusConfigurationMock, coursePublisherMock, campusCourseGroupSynchronizerMock, courseDescriptionBuilder, courseTemplate, repositoryService, olatResourceManager, dbInstance, daoManager, courseCreator);
 
         secondOwnerIdentity = JunitTestHelper.createAndPersistIdentityAsUser(ownerNameSecond);
         testIdentity = JunitTestHelper.createAndPersistIdentityAsUser(testUserName);

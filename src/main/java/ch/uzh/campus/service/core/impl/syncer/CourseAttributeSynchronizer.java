@@ -23,6 +23,7 @@ package ch.uzh.campus.service.core.impl.syncer;
 import ch.uzh.campus.CampusConfiguration;
 import ch.uzh.campus.CampusCourseImportTO;
 import ch.uzh.campus.service.CampusCourse;
+import ch.uzh.campus.service.CourseCreator;
 import ch.uzh.campus.service.core.impl.CampusCourseFactory;
 import ch.uzh.campus.service.core.impl.creator.CourseDescriptionBuilder;
 import ch.uzh.campus.service.core.impl.syncer.statistic.TitleAndDescriptionStatistik;
@@ -37,14 +38,18 @@ import org.springframework.stereotype.Component;
 @Component
 public class CourseAttributeSynchronizer {
 
-    @Autowired
-    CampusCourseFactory campusCourseFactory;
+    private final CampusCourseFactory campusCourseFactory;
+    private final CourseDescriptionBuilder courseDescriptionBuilder;
+    private final CampusConfiguration campusConfiguration;
+    private final CourseCreator courseCreator;
 
     @Autowired
-    CourseDescriptionBuilder courseDescriptionBuilder;
-
-    @Autowired
-    CampusConfiguration campusConfiguration;
+    public CourseAttributeSynchronizer(CampusCourseFactory campusCourseFactory, CourseDescriptionBuilder courseDescriptionBuilder, CampusConfiguration campusConfiguration, CourseCreator courseCreator) {
+        this.campusCourseFactory = campusCourseFactory;
+        this.courseDescriptionBuilder = courseDescriptionBuilder;
+        this.campusConfiguration = campusConfiguration;
+        this.courseCreator = courseCreator;
+    }
 
     TitleAndDescriptionStatistik synchronizeTitleAndDescription(CampusCourseImportTO campusCourseTO) {
         boolean titleUpdated = synchronizeTitle(getCampusCourse(campusCourseTO.getSapCourseId(), campusCourseTO.getOlatResourceableId()), campusCourseTO.getTitle());
@@ -62,8 +67,8 @@ public class CourseAttributeSynchronizer {
      * @return 'true' when description is updated; 'false' when description is NOT updated.
      */
     private boolean synchronizeDescription(CampusCourse campusCourse, String newDescription) {
-        if (campusCourse.descriptionChanged(newDescription)) {
-            campusCourse.setDescription(newDescription);
+        if (courseCreator.descriptionChanged(campusCourse, newDescription)) {
+            campusCourse.getRepositoryEntry().setDescription(newDescription);
             return true;
         }
         return false;
@@ -73,8 +78,9 @@ public class CourseAttributeSynchronizer {
      * @return 'true' when title is updated; 'false' when title is NOT updated.
      */
     private boolean synchronizeTitle(CampusCourse campusCourse, String newTitle) {
-        if (campusCourse.titleChanged(newTitle)) {
-            campusCourse.setTitle(newTitle);
+        if (courseCreator.titleChanged(campusCourse, newTitle)) {
+            String truncatedTitle = courseCreator.getTruncatedTitle(newTitle);
+            campusCourse.getRepositoryEntry().setDisplayname(truncatedTitle);
             return true;
         }
         return false;

@@ -23,6 +23,7 @@ package ch.uzh.campus.service.core.impl.syncer;
 import ch.uzh.campus.CampusConfiguration;
 import ch.uzh.campus.CampusCourseImportTO;
 import ch.uzh.campus.service.CampusCourse;
+import ch.uzh.campus.service.CourseCreator;
 import ch.uzh.campus.service.core.impl.CampusCourseFactory;
 import ch.uzh.campus.service.core.impl.creator.CourseDescriptionBuilder;
 import ch.uzh.campus.service.core.impl.syncer.statistic.TitleAndDescriptionStatistik;
@@ -31,12 +32,14 @@ import org.junit.Test;
 import org.olat.core.id.Identity;
 import org.olat.course.ICourse;
 import org.olat.repository.RepositoryEntry;
+import org.olat.test.OlatTestCase;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ContextConfiguration;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.Assert.*;
-import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.*;
 
 /**
@@ -44,7 +47,11 @@ import static org.mockito.Mockito.*;
  * 
  * @author cg
  */
-public class CourseAttributeSynchronizerTest {
+@ContextConfiguration(locations = {"classpath:ch/uzh/campus/data/_spring/mockDataContext.xml"})
+public class CourseAttributeSynchronizerTest extends OlatTestCase {
+
+    @Autowired
+    private CourseCreator courseCreator;
 
     private long sapCampusCourseId = 1L;
     private Long resourceableId = 1002L;
@@ -63,18 +70,15 @@ public class CourseAttributeSynchronizerTest {
 
     @Before
     public void setup() {
-        courseAttributeSynchronizerTestObject = new CourseAttributeSynchronizer();
         campusCourseFactoryMock = mock(CampusCourseFactory.class);
         courseDescriptionBuilderMock = mock(CourseDescriptionBuilder.class);
         campusConfigurationMock = mock(CampusConfiguration.class);
-        courseAttributeSynchronizerTestObject.campusCourseFactory = campusCourseFactoryMock;
-        courseAttributeSynchronizerTestObject.courseDescriptionBuilder = courseDescriptionBuilderMock;
-        courseAttributeSynchronizerTestObject.campusConfiguration = campusConfigurationMock;
+        courseAttributeSynchronizerTestObject = new CourseAttributeSynchronizer(campusCourseFactoryMock, courseDescriptionBuilderMock, campusConfigurationMock, courseCreator);
         ICourse course = mock(ICourse.class);
         RepositoryEntry repositoryEntry = mock(RepositoryEntry.class);
         when(repositoryEntry.getDisplayname()).thenReturn(title);
         when(repositoryEntry.getDescription()).thenReturn(eventDescription);
-        campusCourse = new CampusCourse(course, repositoryEntry, null, null);
+        campusCourse = new CampusCourse(course, repositoryEntry);
         when(campusCourseFactoryMock.getCampusCourse(sapCampusCourseId, resourceableId)).thenReturn(campusCourse);
     }
 
@@ -107,9 +111,8 @@ public class CourseAttributeSynchronizerTest {
     public void synchronizeTitleAndDescription_updateTitle() {
 
         CampusCourseImportTO campusCourseTO = new CampusCourseImportTO(title + "_new", semester, lecturers, null, participants, eventDescription, resourceableId, sapCampusCourseId, null, null);
-        // do not call real CampusCourse.setTitle(..) because there is a static call which try to save runstructure.xml
+        // do not call real CampusCourse.setTruncatedTitle(..) because there is a static call which try to save runstructure.xml
         CampusCourse spyCampusCourse = spy(campusCourse);
-        doNothing().when(spyCampusCourse).setTitle(anyString());
         when(campusCourseFactoryMock.getCampusCourse(sapCampusCourseId, resourceableId)).thenReturn(spyCampusCourse);
         when(courseDescriptionBuilderMock.buildDescriptionFrom(campusCourseTO, campusCourseTO.getLanguage())).thenReturn(campusCourseTO.getEventDescription());
         TitleAndDescriptionStatistik titleAndDescriptionStatistik = courseAttributeSynchronizerTestObject.synchronizeTitleAndDescription(campusCourseTO);

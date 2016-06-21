@@ -25,8 +25,6 @@ import org.olat.core.id.Identity;
 import org.olat.core.id.OLATResourceable;
 import org.olat.course.CourseFactory;
 import org.olat.course.ICourse;
-import org.olat.group.BusinessGroupService;
-import org.olat.group.area.BGAreaManager;
 import org.olat.repository.RepositoryEntry;
 import org.olat.repository.RepositoryManager;
 import org.olat.repository.RepositoryService;
@@ -46,12 +44,6 @@ public class CourseTemplate {
     
     @Autowired
     RepositoryService repositoryService;
-    
-    @Autowired
-	private BGAreaManager areaManager;
-
-    @Autowired
-    private BusinessGroupService businessGroupService;
 
     CampusCourse createCampusCourseFromTemplate(Long templateCourseResourceableId, Identity owner) {
         // 1. Lookup template
@@ -63,7 +55,7 @@ public class CourseTemplate {
         OLATResourceable copyCourseOlatResourcable = repositoryService.loadRepositoryEntryResource(copyOfRepositoryEntry.getKey());
         ICourse copyCourse = CourseFactory.loadCourse(copyCourseOlatResourcable.getResourceableId());
         
-        return new CampusCourse(copyCourse, copyOfRepositoryEntry, areaManager, businessGroupService);
+        return new CampusCourse(copyCourse, copyOfRepositoryEntry);
     }
   
 
