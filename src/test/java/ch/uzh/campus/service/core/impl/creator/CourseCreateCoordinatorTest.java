@@ -80,9 +80,6 @@ public class CourseCreateCoordinatorTest extends OlatTestCase {
     private CourseDescriptionBuilder courseDescriptionBuilder;
 
     @Autowired
-    private CourseTemplate courseTemplate;
-
-    @Autowired
     private OLATResourceManager olatResourceManager;
 
     @Autowired
@@ -129,7 +126,7 @@ public class CourseCreateCoordinatorTest extends OlatTestCase {
 
         CampusCourseGroupSynchronizer campusCourseGroupSynchronizerMock = new CampusCourseGroupSynchronizer(campusConfigurationMock, campuskursCoOwners, repositoryService, businessGroupService, campusGroupFinder);
         CoursePublisher coursePublisherMock = mock(CoursePublisher.class);
-        courseCreateCoordinator = new CourseCreateCoordinator(campusConfigurationMock, coursePublisherMock, campusCourseGroupSynchronizerMock, courseDescriptionBuilder, courseTemplate, repositoryService, olatResourceManager, dbInstance, daoManager, courseCreator);
+        courseCreateCoordinator = new CourseCreateCoordinator(campusConfigurationMock, coursePublisherMock, campusCourseGroupSynchronizerMock, courseDescriptionBuilder, repositoryService, olatResourceManager, dbInstance, daoManager, courseCreator);
 
         secondOwnerIdentity = JunitTestHelper.createAndPersistIdentityAsUser(ownerNameSecond);
         testIdentity = JunitTestHelper.createAndPersistIdentityAsUser(testUserName);

@@ -99,7 +99,7 @@ public class CampusCourseCoreServiceImpl implements CampusCourseCoreService {
         CampusCourseImportTO campusCourseImportData = daoManager.getSapCampusCourse(sapCampusCourseId);
         CampusCourse campusCourse = loadCampusCourse(sapCampusCourseId, courseResourceableId);
         
-        return courseCreateCoordinator.continueCampusCourse(courseResourceableId, campusCourse, campusCourseImportData, creator);       
+        return courseCreateCoordinator.continueCampusCourse(campusCourse, campusCourseImportData, creator);
     }
 
     public CampusCourse createCampusCourse(Long resourceableId, Long sapCampusCourseId, Identity creator, CampusCourseImportTO campusCourseImportData) {

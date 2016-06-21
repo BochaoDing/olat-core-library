@@ -5,6 +5,7 @@ import ch.uzh.campus.service.CampusCourse;
 import org.olat.core.gui.translator.Translator;
 import org.olat.core.helpers.Settings;
 import org.olat.core.id.Identity;
+import org.olat.core.id.OLATResourceable;
 import org.olat.core.util.Formatter;
 import org.olat.course.CourseFactory;
 import org.olat.course.ICourse;
@@ -17,6 +18,9 @@ import org.olat.group.BusinessGroupService;
 import org.olat.group.area.BGArea;
 import org.olat.group.area.BGAreaManager;
 import org.olat.modules.ModuleConfiguration;
+import org.olat.repository.RepositoryEntry;
+import org.olat.repository.RepositoryManager;
+import org.olat.repository.RepositoryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -38,6 +42,12 @@ public class CourseCreator {
     private static final String OLAT_SUPPORT_EMAIL_NODE_SHORT_TITLE_SUBSTRING = "@OLAT"; // this is expected to be found in the defaultTemplate
 
     @Autowired
+    private RepositoryManager repositoryManager;
+
+    @Autowired
+    private RepositoryService repositoryService;
+
+    @Autowired
     DaoManager daoManager;
 
     @Autowired
@@ -46,11 +56,24 @@ public class CourseCreator {
     @Autowired
     private BusinessGroupService businessGroupService;
 
-    void setCourseTitleAndLearningObjectivesInCourseModel(CampusCourse campusCourse, String title, String vvzLink, boolean defaultTemplate, Translator translator) {
+    CampusCourse createCampusCourseFromTemplate(Long templateCourseResourceableId, Identity owner) {
+        // 1. Lookup template
+        OLATResourceable templateCourse = CourseFactory.loadCourse(templateCourseResourceableId);
+        RepositoryEntry sourceRepositoryEntry = repositoryManager.lookupRepositoryEntry(templateCourse, true);
+
+        // 2. Copy RepositoryEntry and implicit the Course
+        RepositoryEntry copyOfRepositoryEntry = repositoryService.copy(sourceRepositoryEntry, owner, sourceRepositoryEntry.getDisplayname());
+        OLATResourceable copyCourseOlatResourcable = repositoryService.loadRepositoryEntryResource(copyOfRepositoryEntry.getKey());
+        ICourse copyCourse = CourseFactory.loadCourse(copyCourseOlatResourcable.getResourceableId());
+
+        return new CampusCourse(copyCourse, copyOfRepositoryEntry);
+    }
+
+    void setCourseTitleAndLearningObjectivesInCourseModel(CampusCourse campusCourse, String title, String vvzLink, boolean defaultTemplateUsed, Translator translator) {
         String truncatedTitle = getTruncatedTitle(title);
         String externalLink = Settings.getServerContextPathURI() + "/url/RepositoryEntry/" + campusCourse.getRepositoryEntry().getKey();
         String sentFromCourse = "<a href=\"" + externalLink + "\">" + title + "</a>";
-        saveCourseTitleInCourseModel(campusCourse.getCourse(), truncatedTitle, translator, defaultTemplate, vvzLink, sentFromCourse);
+        saveCourseTitleInCourseModel(campusCourse.getCourse(), truncatedTitle, translator, defaultTemplateUsed, vvzLink, sentFromCourse);
     }
 
     void createCampusLearningAreaAndCampusBusinessGroups(CampusCourse campusCourse, Identity creatorIdentity, Translator translator) {
@@ -107,7 +130,7 @@ public class CourseCreator {
      * Adds the vvzLink to the learning objectives, if not null.
      * Sets SentFromCourse in the @OLAT-Support email node, if the node exists.
      */
-    private void saveCourseTitleInCourseModel(ICourse course, String title, Translator translator, boolean defaultTemplate, String vvzLink, String sentFromCourse) {
+    private void saveCourseTitleInCourseModel(ICourse course, String title, Translator translator, boolean defaultTemplateUsed, String vvzLink, String sentFromCourse) {
         // openCourseEditSession
         CourseFactory.openCourseEditSession(course.getResourceableId());
 
@@ -116,7 +139,7 @@ public class CourseCreator {
         runRoot.setShortTitle(Formatter.truncate(title, NodeConfigFormController.SHORT_TITLE_MAX_LENGTH));
         runRoot.setLongTitle(title);
 
-        String newObjective = getModelObjectivesWithVVZLink(runRoot, translator, defaultTemplate, vvzLink);
+        String newObjective = getModelObjectivesWithVVZLink(runRoot, translator, defaultTemplateUsed, vvzLink);
         if (newObjective != null && !newObjective.isEmpty()) {
             // System.out.println(newObjective);
             runRoot.setLearningObjectives(newObjective);
@@ -139,7 +162,7 @@ public class CourseCreator {
         rootNode.setShortTitle(Formatter.truncate(title, NodeConfigFormController.SHORT_TITLE_MAX_LENGTH));
         rootNode.setLongTitle(title);
 
-        String newEditorObjective = getModelObjectivesWithVVZLink(rootNode, translator, defaultTemplate, vvzLink);
+        String newEditorObjective = getModelObjectivesWithVVZLink(rootNode, translator, defaultTemplateUsed, vvzLink);
         if (newEditorObjective != null && !newEditorObjective.isEmpty()) {
             rootNode.setLearningObjectives(newEditorObjective);
             cetm.setLatestPublishTimestamp(-1);
@@ -195,8 +218,6 @@ public class CourseCreator {
     /**
      * Sets SentFromCourse in the @OLAT-Support email node.
      * This is only CampusCourse relevant.
-     * <p>
-     * 
      */
     private void setSentFromCourse(CourseNode olatSupportEmailNode, String sentFromCourse) {
     	ModuleConfiguration moduleConfiguration = olatSupportEmailNode.getModuleConfiguration();
