@@ -24,7 +24,6 @@ import ch.uzh.campus.CampusConfiguration;
 import ch.uzh.campus.CampusCourseImportTO;
 import ch.uzh.campus.data.*;
 import ch.uzh.campus.service.CampusCourse;
-import ch.uzh.campus.service.CourseCreator;
 import ch.uzh.campus.service.core.impl.syncer.CampusCourseGroupSynchronizer;
 import org.apache.commons.lang.StringUtils;
 import org.olat.core.commons.persistence.DB;

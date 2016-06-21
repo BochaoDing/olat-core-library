@@ -1,6 +1,7 @@
-package ch.uzh.campus.service;
+package ch.uzh.campus.service.core.impl.creator;
 
 import ch.uzh.campus.data.DaoManager;
+import ch.uzh.campus.service.CampusCourse;
 import org.olat.core.gui.translator.Translator;
 import org.olat.core.helpers.Settings;
 import org.olat.core.id.Identity;
@@ -41,14 +42,14 @@ public class CourseCreator {
     @Autowired
     private BusinessGroupService businessGroupService;
 
-    public void setCourseTitleAndLearningObjectivesInCourseModel(CampusCourse campusCourse, String title, String vvzLink, boolean defaultTemplate, Translator translator) {
+    void setCourseTitleAndLearningObjectivesInCourseModel(CampusCourse campusCourse, String title, String vvzLink, boolean defaultTemplate, Translator translator) {
         String truncatedTitle = getTruncatedTitle(title);
         String externalLink = Settings.getServerContextPathURI() + "/url/RepositoryEntry/" + campusCourse.getRepositoryEntry().getKey();
         String sentFromCourse = "<a href=\"" + externalLink + "\">" + title + "</a>";
         saveCourseTitleInCourseModel(campusCourse.getCourse(), truncatedTitle, translator, defaultTemplate, vvzLink, sentFromCourse);
     }
 
-    public void createCampusLearningAreaAndCampusBusinessGroups(CampusCourse campusCourse, Identity creatorIdentity, Translator translator) {
+    void createCampusLearningAreaAndCampusBusinessGroups(CampusCourse campusCourse, Identity creatorIdentity, Translator translator) {
         // Check if course has an area called campus.course.learningArea.name. If not, create an area with this name.
         String areaName = translator.translate("campus.course.learningArea.name");
         BGArea campusLearningArea = areaManager.findBGArea(areaName, campusCourse.getRepositoryEntry().getOlatResource());

@@ -23,7 +23,7 @@ package ch.uzh.campus.service.core.impl.syncer;
 import ch.uzh.campus.CampusConfiguration;
 import ch.uzh.campus.CampusCourseImportTO;
 import ch.uzh.campus.service.CampusCourse;
-import ch.uzh.campus.service.CourseCreator;
+import ch.uzh.campus.service.core.impl.creator.CourseCreator;
 import ch.uzh.campus.service.core.impl.CampusCourseFactory;
 import ch.uzh.campus.service.core.impl.creator.CourseDescriptionBuilder;
 import ch.uzh.campus.service.core.impl.syncer.statistic.TitleAndDescriptionStatistik;

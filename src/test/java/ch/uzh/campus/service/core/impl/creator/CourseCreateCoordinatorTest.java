@@ -5,7 +5,6 @@ import ch.uzh.campus.CampusCourseImportTO;
 import ch.uzh.campus.CampusJunitTestHelper;
 import ch.uzh.campus.data.DaoManager;
 import ch.uzh.campus.service.CampusCourse;
-import ch.uzh.campus.service.CourseCreator;
 import ch.uzh.campus.service.core.impl.syncer.CampusCourseGroupSynchronizer;
 import ch.uzh.campus.service.core.impl.syncer.CampusGroupFinder;
 import ch.uzh.campus.service.core.impl.syncer.CampuskursCoOwners;
