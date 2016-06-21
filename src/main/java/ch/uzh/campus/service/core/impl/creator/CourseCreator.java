@@ -10,17 +10,21 @@ import org.olat.course.CourseFactory;
 import org.olat.course.ICourse;
 import org.olat.course.editor.NodeConfigFormController;
 import org.olat.course.nodes.CourseNode;
+import org.olat.course.nodes.co.COEditController;
 import org.olat.course.tree.CourseEditorTreeModel;
 import org.olat.group.BusinessGroup;
 import org.olat.group.BusinessGroupService;
 import org.olat.group.area.BGArea;
 import org.olat.group.area.BGAreaManager;
+import org.olat.modules.ModuleConfiguration;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
 
 /**
+ * This class holds the helper methods to create a campus course.
+ *
  * Initial Date: 07.06.2012 <br>
  * 
  * @author cg
@@ -159,7 +163,7 @@ public class CourseCreator {
      * 
      */
     private String getModelObjectivesWithVVZLink(CourseNode root, Translator translator, boolean defaultTemplate, String vvzLink) {
-        String newObjective = null;
+        String newObjective;
         if (vvzLink == null || vvzLink.isEmpty()) {
             return null;
         }
@@ -195,13 +199,11 @@ public class CourseCreator {
      * 
      */
     private void setSentFromCourse(CourseNode olatSupportEmailNode, String sentFromCourse) {
-    	//TODO: olatng
-    	/*ModuleConfiguration moduleConfiguration = olatSupportEmailNode.getModuleConfiguration();
+    	ModuleConfiguration moduleConfiguration = olatSupportEmailNode.getModuleConfiguration();
         if (moduleConfiguration ==  null) {
             return;
         }
         moduleConfiguration.set(COEditController.CONFIG_KEY_SENT_FROM_COURSE, sentFromCourse);
-        */
     }
 
 }
