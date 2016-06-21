@@ -67,7 +67,7 @@ public class CourseAttributeSynchronizer {
      * @return 'true' when description is updated; 'false' when description is NOT updated.
      */
     private boolean synchronizeDescription(CampusCourse campusCourse, String newDescription) {
-        if (courseCreator.descriptionChanged(campusCourse, newDescription)) {
+        if (courseCreator.isDescriptionChanged(campusCourse, newDescription)) {
             campusCourse.getRepositoryEntry().setDescription(newDescription);
             return true;
         }
@@ -78,7 +78,7 @@ public class CourseAttributeSynchronizer {
      * @return 'true' when title is updated; 'false' when title is NOT updated.
      */
     private boolean synchronizeTitle(CampusCourse campusCourse, String newTitle) {
-        if (courseCreator.titleChanged(campusCourse, newTitle)) {
+        if (courseCreator.isTitleChanged(campusCourse, newTitle)) {
             String truncatedTitle = courseCreator.getTruncatedTitle(newTitle);
             campusCourse.getRepositoryEntry().setDisplayname(truncatedTitle);
             return true;

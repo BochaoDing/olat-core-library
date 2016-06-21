@@ -91,14 +91,15 @@ public class CourseCreateCoordinator {
 
     public CampusCourse continueCampusCourse(CampusCourse campusCourse, CampusCourseImportTO campusCourseImportData, Identity creator) {
         RepositoryEntry repositoryEntry = campusCourse.getRepositoryEntry();
-        // TITLE
+
+        // Titel
         String oldTitle = repositoryEntry.getDisplayname();
         String newTitle = campusCourseImportData.getTitle();
         String displayName = StringUtils.left(newTitle, 4).concat("/").concat(StringUtils.left(oldTitle, 4)).concat(StringUtils.substring(newTitle, 4));
         String truncatedTitle = courseCreator.getTruncatedTitle(displayName);
         campusCourse.getRepositoryEntry().setDisplayname(truncatedTitle);
 
-        // set title and vvz link in course model
+        // Set title and vvz link in course model
         courseCreator.setCourseTitleAndLearningObjectivesInCourseModel(campusCourse, displayName, campusCourseImportData.getVvzLink(), false, getTranslator(campusCourseImportData.getLanguage()));
 
         // Description
@@ -180,12 +181,11 @@ public class CourseCreateCoordinator {
                 courseCreator.createCampusLearningAreaAndCampusBusinessGroups(campusCourse, creator, getTranslator(lvLanguage));
             }
 
-            //execute the first synchronization
+            // Execute the first synchronization
             campusCourseGroupSynchronizer.addAllLecturesAsOwner(campusCourse, campusCourseImportData.getLecturers());
             campusCourseGroupSynchronizer.addDefaultCoOwnersAsOwner(campusCourse);
             campusCourseGroupSynchronizer.synchronizeCourseGroups(campusCourse, campusCourseImportData);
-            
-            //repositoryService.saveRepositoryEntry(campusCourse.getRepositoryEntry());
+
             repositoryService.update(campusCourse.getRepositoryEntry());
 
             //TODO: olatng -> is this still needed? Wahrscheilich nicht mehr notwendig, evtl. abklären mit REs / Frentix

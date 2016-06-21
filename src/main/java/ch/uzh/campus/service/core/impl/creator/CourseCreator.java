@@ -69,13 +69,6 @@ public class CourseCreator {
         return new CampusCourse(copyCourse, copyOfRepositoryEntry);
     }
 
-    void setCourseTitleAndLearningObjectivesInCourseModel(CampusCourse campusCourse, String title, String vvzLink, boolean defaultTemplateUsed, Translator translator) {
-        String truncatedTitle = getTruncatedTitle(title);
-        String externalLink = Settings.getServerContextPathURI() + "/url/RepositoryEntry/" + campusCourse.getRepositoryEntry().getKey();
-        String sentFromCourse = "<a href=\"" + externalLink + "\">" + title + "</a>";
-        saveCourseTitleInCourseModel(campusCourse.getCourse(), truncatedTitle, translator, defaultTemplateUsed, vvzLink, sentFromCourse);
-    }
-
     void createCampusLearningAreaAndCampusBusinessGroups(CampusCourse campusCourse, Identity creatorIdentity, Translator translator) {
         // Check if course has an area called campus.course.learningArea.name. If not, create an area with this name.
         String areaName = translator.translate("campus.course.learningArea.name");
@@ -117,37 +110,42 @@ public class CourseCreator {
         return Formatter.truncate(title, MAX_DISPLAYNAME_LENGTH);
     }
 
-    public boolean descriptionChanged(CampusCourse campusCourse, String newDescription) {
+    public boolean isDescriptionChanged(CampusCourse campusCourse, String newDescription) {
         return (campusCourse.getRepositoryEntry().getDescription() == null && newDescription != null) || !campusCourse.getRepositoryEntry().getDescription().equals(newDescription);
     }
 
-    public boolean titleChanged(CampusCourse campusCourse, String newTitle) {
+    public boolean isTitleChanged(CampusCourse campusCourse, String newTitle) {
         return (campusCourse.getRepositoryEntry().getDisplayname() == null && newTitle != null) || !campusCourse.getRepositoryEntry().getDisplayname().equals(getTruncatedTitle(newTitle));
     }
 
     /**
      * Sets the short title, long title and the learning objective for both course-run and course-editor model. <br>
-     * Adds the vvzLink to the learning objectives, if not null.
+     * Adds the vvzLink to the learning objectives, if not null. <br>
      * Sets SentFromCourse in the @OLAT-Support email node, if the node exists.
      */
-    private void saveCourseTitleInCourseModel(ICourse course, String title, Translator translator, boolean defaultTemplateUsed, String vvzLink, String sentFromCourse) {
-        // openCourseEditSession
+    void setCourseTitleAndLearningObjectivesInCourseModel(CampusCourse campusCourse, String title, String vvzLink, boolean defaultTemplateUsed, Translator translator) {
+
+        ICourse course = campusCourse.getCourse();
+        String truncatedTitle = getTruncatedTitle(title);
+
+        // Open courseEditSession
         CourseFactory.openCourseEditSession(course.getResourceableId());
 
-        // update course run model
+        // Update course run model
         CourseNode runRoot = course.getRunStructure().getRootNode();
-        runRoot.setShortTitle(Formatter.truncate(title, NodeConfigFormController.SHORT_TITLE_MAX_LENGTH));
-        runRoot.setLongTitle(title);
+        runRoot.setShortTitle(Formatter.truncate(truncatedTitle, NodeConfigFormController.SHORT_TITLE_MAX_LENGTH));
+        runRoot.setLongTitle(truncatedTitle);
 
         String newObjective = getModelObjectivesWithVVZLink(runRoot, translator, defaultTemplateUsed, vvzLink);
         if (newObjective != null && !newObjective.isEmpty()) {
-            // System.out.println(newObjective);
             runRoot.setLearningObjectives(newObjective);
         }
 
         // Set sentFromCourse in the @OLAT-Support email node
         CourseNode olatSupportEmailNode = null;
-        if (sentFromCourse != null && !sentFromCourse.isEmpty()) {
+        String externalLink = Settings.getServerContextPathURI() + "/url/RepositoryEntry/" + campusCourse.getRepositoryEntry().getKey();
+        String sentFromCourse = "<a href=\"" + externalLink + "\">" + title + "</a>";
+        if (!sentFromCourse.isEmpty()) {
             olatSupportEmailNode = findOlatSupportEmailNode(runRoot);
             if (olatSupportEmailNode != null) {
                 setSentFromCourse(olatSupportEmailNode, sentFromCourse);
@@ -156,11 +154,11 @@ public class CourseCreator {
 
         CourseFactory.saveCourse(course.getResourceableId());
 
-        // update course editor model
+        // Update course editor model
         CourseEditorTreeModel cetm = course.getEditorTreeModel();
         CourseNode rootNode = cetm.getCourseNode(course.getRunStructure().getRootNode().getIdent());
-        rootNode.setShortTitle(Formatter.truncate(title, NodeConfigFormController.SHORT_TITLE_MAX_LENGTH));
-        rootNode.setLongTitle(title);
+        rootNode.setShortTitle(Formatter.truncate(truncatedTitle, NodeConfigFormController.SHORT_TITLE_MAX_LENGTH));
+        rootNode.setLongTitle(truncatedTitle);
 
         String newEditorObjective = getModelObjectivesWithVVZLink(rootNode, translator, defaultTemplateUsed, vvzLink);
         if (newEditorObjective != null && !newEditorObjective.isEmpty()) {
@@ -169,7 +167,7 @@ public class CourseCreator {
         }
 
         // Set sentFromCourse in the @OLAT-Support email node
-        if (sentFromCourse != null && !sentFromCourse.isEmpty() && olatSupportEmailNode != null) {
+        if (!sentFromCourse.isEmpty() && olatSupportEmailNode != null) {
             setSentFromCourse(cetm.getCourseNode(olatSupportEmailNode.getIdent()), sentFromCourse);
         }
 
@@ -207,7 +205,7 @@ public class CourseCreator {
         CourseNode olatSupportEmailNode = null;
         for (int i = 0; i < rootNode.getChildCount(); i++) {
             CourseNode element = (CourseNode) rootNode.getChildAt(i);
-            if (element.getType().equals(OLAT_SUPPORT_EMAIL_NODE_TYPE)  && element.getShortTitle().contains(OLAT_SUPPORT_EMAIL_NODE_SHORT_TITLE_SUBSTRING)) {
+            if (element.getType().equals(OLAT_SUPPORT_EMAIL_NODE_TYPE) && element.getShortTitle().contains(OLAT_SUPPORT_EMAIL_NODE_SHORT_TITLE_SUBSTRING)) {
                 olatSupportEmailNode = element;
                 break;
             }
