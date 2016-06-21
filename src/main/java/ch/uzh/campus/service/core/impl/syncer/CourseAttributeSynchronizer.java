@@ -27,6 +27,7 @@ import ch.uzh.campus.service.core.impl.creator.CourseCreator;
 import ch.uzh.campus.service.core.impl.CampusCourseFactory;
 import ch.uzh.campus.service.core.impl.creator.CourseDescriptionBuilder;
 import ch.uzh.campus.service.core.impl.syncer.statistic.TitleAndDescriptionStatistik;
+import org.olat.repository.RepositoryEntry;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -67,7 +68,7 @@ public class CourseAttributeSynchronizer {
      * @return 'true' when description is updated; 'false' when description is NOT updated.
      */
     private boolean synchronizeDescription(CampusCourse campusCourse, String newDescription) {
-        if (courseCreator.isDescriptionChanged(campusCourse, newDescription)) {
+        if (isDescriptionChanged(campusCourse.getRepositoryEntry(), newDescription)) {
             campusCourse.getRepositoryEntry().setDescription(newDescription);
             return true;
         }
@@ -78,11 +79,19 @@ public class CourseAttributeSynchronizer {
      * @return 'true' when title is updated; 'false' when title is NOT updated.
      */
     private boolean synchronizeTitle(CampusCourse campusCourse, String newTitle) {
-        if (courseCreator.isTitleChanged(campusCourse, newTitle)) {
+        if (isTitleChanged(campusCourse.getRepositoryEntry(), newTitle)) {
             String truncatedTitle = courseCreator.getTruncatedTitle(newTitle);
             campusCourse.getRepositoryEntry().setDisplayname(truncatedTitle);
             return true;
         }
         return false;
+    }
+
+    private boolean isDescriptionChanged(RepositoryEntry repositoryEntry, String newDescription) {
+        return (repositoryEntry.getDescription() == null && newDescription != null) || !repositoryEntry.getDescription().equals(newDescription);
+    }
+
+    private boolean isTitleChanged(RepositoryEntry repositoryEntry, String newTitle) {
+        return (repositoryEntry.getDisplayname() == null && newTitle != null) || !repositoryEntry.getDisplayname().equals(courseCreator.getTruncatedTitle(newTitle));
     }
 }

@@ -178,7 +178,7 @@ public class CourseCreateCoordinator {
             campusCourse.getRepositoryEntry().setDescription(courseDescriptionBuilder.buildDescriptionFrom(campusCourseImportData, lvLanguage));
 
             if (!defaultTemplateUsed) {
-                courseCreator.createCampusLearningAreaAndCampusBusinessGroups(campusCourse, creator, getTranslator(lvLanguage));
+                courseCreator.createCampusLearningAreaAndCampusBusinessGroups(campusCourse.getRepositoryEntry(), creator, getTranslator(lvLanguage));
             }
 
             // Execute the first synchronization

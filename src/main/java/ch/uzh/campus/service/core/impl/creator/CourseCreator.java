@@ -69,12 +69,12 @@ public class CourseCreator {
         return new CampusCourse(copyCourse, copyOfRepositoryEntry);
     }
 
-    void createCampusLearningAreaAndCampusBusinessGroups(CampusCourse campusCourse, Identity creatorIdentity, Translator translator) {
+    void createCampusLearningAreaAndCampusBusinessGroups(RepositoryEntry repositoryEntry, Identity creatorIdentity, Translator translator) {
         // Check if course has an area called campus.course.learningArea.name. If not, create an area with this name.
         String areaName = translator.translate("campus.course.learningArea.name");
-        BGArea campusLearningArea = areaManager.findBGArea(areaName, campusCourse.getRepositoryEntry().getOlatResource());
+        BGArea campusLearningArea = areaManager.findBGArea(areaName, repositoryEntry.getOlatResource());
         if (campusLearningArea == null) {
-            campusLearningArea = areaManager.createAndPersistBGArea(areaName, translator.translate("campus.course.learningArea.desc"), campusCourse.getRepositoryEntry().getOlatResource());
+            campusLearningArea = areaManager.createAndPersistBGArea(areaName, translator.translate("campus.course.learningArea.desc"), repositoryEntry.getOlatResource());
         }
 
         // Check if the learning area contains business groups campus.course.businessGroupA.name and campus.course.businessGroupB.name.
@@ -108,14 +108,6 @@ public class CourseCreator {
 
     public String getTruncatedTitle(String title) {
         return Formatter.truncate(title, MAX_DISPLAYNAME_LENGTH);
-    }
-
-    public boolean isDescriptionChanged(CampusCourse campusCourse, String newDescription) {
-        return (campusCourse.getRepositoryEntry().getDescription() == null && newDescription != null) || !campusCourse.getRepositoryEntry().getDescription().equals(newDescription);
-    }
-
-    public boolean isTitleChanged(CampusCourse campusCourse, String newTitle) {
-        return (campusCourse.getRepositoryEntry().getDisplayname() == null && newTitle != null) || !campusCourse.getRepositoryEntry().getDisplayname().equals(getTruncatedTitle(newTitle));
     }
 
     /**
