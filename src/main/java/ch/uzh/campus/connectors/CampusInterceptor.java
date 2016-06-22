@@ -49,31 +49,30 @@ public class CampusInterceptor<T, S> implements StepExecutionListener, ItemWrite
 
 	private static final OLog LOG = Tracing.createLoggerFor(CampusInterceptor.class);
 
-    @Autowired
-    private DB dbInstance;
-
-    @Autowired
-	protected ImportStatisticDao statisticDao;
-
-	@Autowired
-	protected SkipItemDao skipItemDao;
-
-	@Autowired
-	private DaoManager daoManager;
-
-    @Autowired
-    private CampusNotifier campusNotifier;
-
-    @Autowired
-    CampusConfiguration campusConfiguration;
+    private final DB dbInstance;
+	private final ImportStatisticDao statisticDao;
+	private final SkipItemDao skipItemDao;
+	private final DaoManager daoManager;
+    private final CampusNotifier campusNotifier;
+	private final CampusConfiguration campusConfiguration;
 
     private StepExecution stepExecution;
-
     private int fixedNumberOfFilesToBeExported;
-
     private int chunkCount;
-
     private long chunkStartTime;
+
+	@Autowired
+	public CampusInterceptor(DB dbInstance, ImportStatisticDao statisticDao,
+							 SkipItemDao skipItemDao, DaoManager daoManager,
+							 CampusNotifier campusNotifier,
+							 CampusConfiguration campusConfiguration) {
+		this.dbInstance = dbInstance;
+		this.statisticDao = statisticDao;
+		this.skipItemDao = skipItemDao;
+		this.daoManager = daoManager;
+		this.campusNotifier = campusNotifier;
+		this.campusConfiguration = campusConfiguration;
+	}
 
     /**
      * Processes some cleanups depending on the appropriate step.
@@ -83,11 +82,10 @@ public class CampusInterceptor<T, S> implements StepExecutionListener, ItemWrite
      */
     @Override
     public void beforeStep(StepExecution se) {
-
         try {
             LOG.info(se.toString());
 
-            setStepExecution(se);
+			this.stepExecution = se;
             // Chunk count and duration is being logged for sync step since this may be slow and potentially break timeout
             if (CampusProcessStep.CAMPUSSYNCHRONISATION.name().equalsIgnoreCase(se.getStepName())) {
                 chunkCount = 0;
@@ -102,7 +100,6 @@ public class CampusInterceptor<T, S> implements StepExecutionListener, ItemWrite
             // }
 
             dbInstance.commitAndCloseSession();
-
         } catch (Throwable t) {
             dbInstance.rollbackAndCloseSession();
             throw t;
@@ -118,7 +115,6 @@ public class CampusInterceptor<T, S> implements StepExecutionListener, ItemWrite
      */
     @Override
     public ExitStatus afterStep(StepExecution se) {
-
         try {
             LOG.info(se.toString());
             statisticDao.saveOrUpdate(createImportStatistic(se));
@@ -172,62 +168,75 @@ public class CampusInterceptor<T, S> implements StepExecutionListener, ItemWrite
     }
 
     /**
-     * Delegates the actual deletion of old data to the {@link DaoManager} in the case of a successful batch processing.
+     * Delegates the actual deletion of old data to the {@link DaoManager} in
+	 * the case of a successful batch processing.
      * 
      * @param se
      *            the StepExecution
      */
     private void removeOldDataIfExist(StepExecution se) {
-        if (!BatchStatus.COMPLETED.equals(se.getStatus())) {
-            return;
-        }
+		/*
+		 * Synchronized in order to prevent deadlocking during parallel
+		 * removal.
+		 * TODO sev26
+		 * Configure Spring Batch such that this method is only called once
+		 * (at the very end of the import). This would prevent threads to
+		 * block at this synchronization barrier. But even then keep the
+		 * barrier in order to prevent deadlocks cause by a configuration
+		 * change in the future!
+		 */
+		synchronized(dbInstance) {
+			if (!BatchStatus.COMPLETED.equals(se.getStatus())) {
+				return;
+			}
 
-        if (CampusProcessStep.IMPORT_ORGS.name().equalsIgnoreCase(se.getStepName())) {
-            List<Long> orgsToBeRemoved = daoManager.getAllOrgsToBeDeleted(se.getStartTime());
-            LOG.info("ORGS TO BE REMOVED [" + orgsToBeRemoved.size() + "]");
-            if (!orgsToBeRemoved.isEmpty()) {
-                daoManager.deleteOrgByIds(orgsToBeRemoved);
-            }
-            return;
-        }
+			if (CampusProcessStep.IMPORT_ORGS.name().equalsIgnoreCase(se.getStepName())) {
+				List<Long> orgsToBeRemoved = daoManager.getAllOrgsToBeDeleted(se.getStartTime());
+				LOG.info("ORGS TO BE REMOVED [" + orgsToBeRemoved.size() + "]");
+				if (!orgsToBeRemoved.isEmpty()) {
+					daoManager.deleteOrgByIds(orgsToBeRemoved);
+				}
+				return;
+			}
 
-        if (CampusProcessStep.IMPORT_STUDENTS.name().equalsIgnoreCase(se.getStepName())) {
-            List<Long> studentsToBeRemoved = daoManager.getAllStudentsToBeDeleted(se.getStartTime());
-            LOG.info("STUDENTS TO BE REMOVED [" + studentsToBeRemoved.size() + "]");
-            if (!studentsToBeRemoved.isEmpty()) {
-                daoManager.deleteStudentsAndBookingsByStudentIds(studentsToBeRemoved);
-            }
-            return;
-        }
+			if (CampusProcessStep.IMPORT_STUDENTS.name().equalsIgnoreCase(se.getStepName())) {
+				List<Long> studentsToBeRemoved = daoManager.getAllStudentsToBeDeleted(se.getStartTime());
+				LOG.info("STUDENTS TO BE REMOVED [" + studentsToBeRemoved.size() + "]");
+				if (!studentsToBeRemoved.isEmpty()) {
+					daoManager.deleteStudentsAndBookingsByStudentIds(studentsToBeRemoved);
+				}
+				return;
+			}
 
-        if (CampusProcessStep.IMPORT_LECTURERS.name().equalsIgnoreCase(se.getStepName())) {
-            List<Long> lecturersToBeRemoved = daoManager.getAllLecturersToBeDeleted(se.getStartTime());
-            LOG.info("LECTURERS TO BE REMOVED [" + lecturersToBeRemoved.size() + "]");
-            if (!lecturersToBeRemoved.isEmpty()) {
-                daoManager.deleteLecturersAndBookingsByLecturerIds(lecturersToBeRemoved);
-            }
-            return;
-        }
+			if (CampusProcessStep.IMPORT_LECTURERS.name().equalsIgnoreCase(se.getStepName())) {
+				List<Long> lecturersToBeRemoved = daoManager.getAllLecturersToBeDeleted(se.getStartTime());
+				LOG.info("LECTURERS TO BE REMOVED [" + lecturersToBeRemoved.size() + "]");
+				if (!lecturersToBeRemoved.isEmpty()) {
+					daoManager.deleteLecturersAndBookingsByLecturerIds(lecturersToBeRemoved);
+				}
+				return;
+			}
 
-        if (CampusProcessStep.IMPORT_COURSES.name().equalsIgnoreCase(se.getStepName())) {
-            List<Long> coursesToBeRemoved = daoManager.getAllCoursesToBeDeleted(se.getStartTime());
-            LOG.info("COURSES TO BE REMOVED[" + coursesToBeRemoved.size() + "]");
-            if (!coursesToBeRemoved.isEmpty()) {
-                daoManager.deleteCoursesAndBookingsByCourseIds(coursesToBeRemoved);
-            }
-            return;
-        }
+			if (CampusProcessStep.IMPORT_COURSES.name().equalsIgnoreCase(se.getStepName())) {
+				List<Long> coursesToBeRemoved = daoManager.getAllCoursesToBeDeleted(se.getStartTime());
+				LOG.info("COURSES TO BE REMOVED[" + coursesToBeRemoved.size() + "]");
+				if (!coursesToBeRemoved.isEmpty()) {
+					daoManager.deleteCoursesAndBookingsByCourseIds(coursesToBeRemoved);
+				}
+				return;
+			}
 
-        if (CampusProcessStep.IMPORT_LECTURERS_COURSES.name().equalsIgnoreCase(se.getStepName())) {
-            int stornos = daoManager.deleteAllNotUpdatedLCBooking(se.getStartTime());
-            LOG.info("STORNOS(LECTURER_COURSE): " + stornos);
-            return;
-        }
+			if (CampusProcessStep.IMPORT_LECTURERS_COURSES.name().equalsIgnoreCase(se.getStepName())) {
+				int stornos = daoManager.deleteAllNotUpdatedLCBooking(se.getStartTime());
+				LOG.info("STORNOS(LECTURER_COURSE): " + stornos);
+				return;
+			}
 
-        if (CampusProcessStep.IMPORT_STUDENTS_COURSES.name().equalsIgnoreCase(se.getStepName())) {
-            int stornos = daoManager.deleteAllNotUpdatedSCBooking(se.getStartTime());
-            LOG.info("STORNOS(STUDENT_COURSE): " + stornos);
-        }
+			if (CampusProcessStep.IMPORT_STUDENTS_COURSES.name().equalsIgnoreCase(se.getStepName())) {
+				int stornos = daoManager.deleteAllNotUpdatedSCBooking(se.getStartTime());
+				LOG.info("STORNOS(STUDENT_COURSE): " + stornos);
+			}
+		}
     }
 
     /**
@@ -357,29 +366,12 @@ public class CampusInterceptor<T, S> implements StepExecutionListener, ItemWrite
         skipItem.setType(type);
         skipItem.setItem(item);
         skipItem.setMsg(msg);
-        skipItem.setJobExecutionId(getStepExecution().getJobExecutionId());
-        skipItem.setJobName(getStepExecution().getJobExecution().getJobInstance().getJobName());
-        skipItem.setStepExecutionId(getStepExecution().getId());
-        skipItem.setStepName(getStepExecution().getStepName());
-        skipItem.setStepStartTime(getStepExecution().getStartTime());
+        skipItem.setJobExecutionId(stepExecution.getJobExecutionId());
+        skipItem.setJobName(stepExecution.getJobExecution().getJobInstance().getJobName());
+        skipItem.setStepExecutionId(stepExecution.getId());
+        skipItem.setStepName(stepExecution.getStepName());
+        skipItem.setStepStartTime(stepExecution.getStartTime());
         return skipItem;
-    }
-
-    /**
-     * Sets the StepExecution.
-     * 
-     * @param stepExecution
-     *            the StepExecution
-     */
-    private void setStepExecution(StepExecution stepExecution) {
-        this.stepExecution = stepExecution;
-    }
-
-    /**
-     * Gets the StepExecution
-     */
-    private StepExecution getStepExecution() {
-        return stepExecution;
     }
 
     /**
@@ -401,18 +393,23 @@ public class CampusInterceptor<T, S> implements StepExecutionListener, ItemWrite
 
     @Override
     public void beforeChunk() {
-        // chunk count and duration is beeing logged for sync step since this may be slow and potentially break timeout
-        if (CampusProcessStep.CAMPUSSYNCHRONISATION.name().equalsIgnoreCase(getStepExecution().getStepName())) {
+		/**
+		 * Chunk count and duration is beeing logged for sync step since this
+		 * may be slow and potentially break timeout.
+		 */
+        if (CampusProcessStep.CAMPUSSYNCHRONISATION.name().equalsIgnoreCase(stepExecution.getStepName())) {
             chunkStartTime = System.currentTimeMillis();
         }
     }
 
     @Override
     public void afterChunk() {
-        // chunk count and duration is being logged for sync step since this may be slow and potentially break timeout
-
-        final int timeout = campusConfiguration.getConnectionPoolTimeout(); // milliseconds!
-        if (timeout > 0 && CampusProcessStep.CAMPUSSYNCHRONISATION.name().equalsIgnoreCase(getStepExecution().getStepName())) {
+		/**
+		 * Chunk count and duration is being logged for sync step since this
+		 * may be slow and potentially break timeout.
+		 */
+        int timeout = campusConfiguration.getConnectionPoolTimeout(); // milliseconds!
+        if (timeout > 0 && CampusProcessStep.CAMPUSSYNCHRONISATION.name().equalsIgnoreCase(stepExecution.getStepName())) {
             chunkCount++;
             long chunkProcessingDuration = System.currentTimeMillis() - chunkStartTime;
             if (chunkProcessingDuration > timeout * 0.9) {
@@ -428,5 +425,4 @@ public class CampusInterceptor<T, S> implements StepExecutionListener, ItemWrite
             }
         }
     }
-
 }
