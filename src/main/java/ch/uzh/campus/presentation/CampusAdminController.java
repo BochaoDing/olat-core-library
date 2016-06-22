@@ -20,7 +20,6 @@
 package ch.uzh.campus.presentation;
 
 import ch.uzh.campus.CampusConfiguration;
-import org.apache.log4j.Logger;
 import org.olat.core.CoreSpringFactory;
 import org.olat.core.gui.UserRequest;
 import org.olat.core.gui.components.form.flexible.FormItem;
@@ -35,6 +34,9 @@ import org.olat.core.gui.control.Controller;
 import org.olat.core.gui.control.WindowControl;
 import org.olat.core.logging.OLog;
 import org.olat.core.logging.Tracing;
+import org.olat.course.CorruptedCourseException;
+import org.olat.resource.OLATResource;
+import org.olat.resource.OLATResourceManager;
 
 /**
  * @author Christian Guretzki
@@ -118,9 +120,17 @@ public class CampusAdminController extends FormBasicController {
         log.info("formOk: value=" + resourceableIdTextElement.getValue());
         try {
             Long templateCourseResourcableIdAsLong = Long.parseLong(resourceableIdTextElement.getValue());
+            // Validate given number by trying to load the course
+            OLATResource resource = OLATResourceManager.getInstance().findResourceable(templateCourseResourcableIdAsLong, "CourseModule");
+            if (resource == null) {
+                throw new CorruptedCourseException("Provided template is not valid");
+            }
+            // Course is now validated and can be used as template => write property
             campusConfiguration.saveTemplateCourseResourcableId(templateCourseResourcableIdAsLong, languagesSelection.getSelectedKey());
         } catch (NumberFormatException ex) {
             this.showWarning("campus.admin.form.could.not.save");
+        } catch (CorruptedCourseException ex) {
+            this.showWarning("campus.admin.form.could.not.save.invalid.course");
         }
 
     }
