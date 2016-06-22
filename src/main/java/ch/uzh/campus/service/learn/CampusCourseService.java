@@ -33,12 +33,12 @@ public interface CampusCourseService {
     /**
      * Get a list of SAP campus-course which an identity could create. The courses must be not created and the identity must be owner of the courses.
      */
-    public List<SapCampusCourseTo> getCoursesWhichCouldBeCreated(Identity identity, SapOlatUser.SapUserType userType);
+    public List<SapCampusCourseTo> getCoursesWhichCouldBeCreated(Identity identity, SapOlatUser.SapUserType userType, String searchString);
 
     /**
      * Get a list of SAP campus-courses which are already created and identity is owner or participant.
      */
-    public List<SapCampusCourseTo> getCoursesWhichCouldBeOpened(Identity identity, SapOlatUser.SapUserType userType);
+    public List<SapCampusCourseTo> getCoursesWhichCouldBeOpened(Identity identity, SapOlatUser.SapUserType userType, String searchString);
 
     public RepositoryEntry getRepositoryEntryFor(Long sapCourseId);
 
@@ -53,5 +53,4 @@ public interface CampusCourseService {
     public List getDelegatees(Identity delegator);
 
     public void deleteDelegation(Identity delegator, Identity delegatee);
-
 }

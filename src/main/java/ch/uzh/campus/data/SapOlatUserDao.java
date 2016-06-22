@@ -6,6 +6,7 @@ import org.olat.core.id.Identity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
+import javax.persistence.NoResultException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -52,19 +53,23 @@ public class SapOlatUserDao {
     }
 
     
-    public List<SapOlatUser> getSapOlatUsersByOlatUserNameAndSapUserType(String olatUserName, SapOlatUser.SapUserType sapUserType) {
-        return dbInstance.getCurrentEntityManager()
-        		.createNamedQuery(SapOlatUser.GET_SAP_OLAT_USER_BY_OLAT_USERNAME_AND_TYPE, SapOlatUser.class)
-        		.setParameter("olatUserName", olatUserName)
-        		.setParameter("sapUserType", sapUserType)
-        		.getResultList();
+    public SapOlatUser getSapOlatUsersByOlatUserNameAndSapUserType(String olatUserName, SapOlatUser.SapUserType sapUserType) {
+		try {
+			return dbInstance.getCurrentEntityManager()
+					.createNamedQuery(SapOlatUser.GET_SAP_OLAT_USER_BY_OLAT_USERNAME_AND_TYPE, SapOlatUser.class)
+					.setParameter("olatUserName", olatUserName)
+					.setParameter("sapUserType", sapUserType)
+					.getSingleResult();
+		} catch (NoResultException e) {
+			return null;
+		}
     }
-    
-    
+
+
     public List<SapOlatUser> getSapOlatUsersBySapIds(Set<Long> sapUserIds) {
         if (sapUserIds == null || sapUserIds.isEmpty()) {
             return new ArrayList<>();
-        }                
+        }
         return dbInstance.getCurrentEntityManager()
         		.createNamedQuery(SapOlatUser.GET_SAP_OLAT_USERS_BY_SAP_IDS, SapOlatUser.class)
         		.setParameter("sapUserIds", sapUserIds)
@@ -125,5 +130,4 @@ public class SapOlatUserDao {
                 .createNamedQuery(SapOlatUser.DELETE_SAP_OLAT_STUDENTS)
 		        .executeUpdate();
     }
-
 }

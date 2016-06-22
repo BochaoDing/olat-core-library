@@ -15,7 +15,7 @@ import java.util.List;
 import static org.junit.Assert.*;
 
 /**
- * Initial Date: Oct 28, 2014 <br>
+ * Initial Date: Oct 28, 2014<br />
  *
  * @author aabouc
  * @author Martin Schraner
@@ -35,7 +35,7 @@ public class CourseDaoTest extends OlatTestCase {
 
     @Autowired
     private LecturerCourseDao lecturerCourseDao;
-    
+
     @Autowired
     private StudentDao studentDao;
 
@@ -73,30 +73,22 @@ public class CourseDaoTest extends OlatTestCase {
     @Test
     public void testGetCreatedCoursesByLecturerIds() {
         insertTestData();
-        List<Long> lecturerIds = new LinkedList<>();
-        lecturerIds.add(1100L);
-        lecturerIds.add(1200L);
-        List<Course> courses = courseDao.getCreatedCoursesByLecturerIds(lecturerIds);
+        List<Course> courses = courseDao.getCreatedCoursesByLecturerId(1200L, null);
 
         assertNotNull(courses);
-        assertEquals(2, courses.size());
+        assertEquals(1, courses.size());
     }
 
     @Test
     public void testGetNotCreatedCoursesByLecturerIds() {
         insertTestData();
-        List<Long> lecturerIds = new LinkedList<>();
-        lecturerIds.add(1100L);
-        List<Course> courses = courseDao.getNotCreatedCoursesByLecturerIds(lecturerIds);
+        List<Course> courses = courseDao.getNotCreatedCoursesByLecturerId(1100L, null);
 
         assertNotNull(courses);
         assertEquals(1, courses.size());
 
         // Ditto for lecturer 1200
-        lecturerIds = new LinkedList<>();
-        lecturerIds.add(1200L);
-        courses = courseDao.getNotCreatedCoursesByLecturerIds(lecturerIds);
-
+        courses = courseDao.getNotCreatedCoursesByLecturerId(1200L, null);
         assertTrue(courses.isEmpty());
     }
 
@@ -223,12 +215,12 @@ public class CourseDaoTest extends OlatTestCase {
         insertTestData();
         Course course = courseDao.getCourseById(100L);
         assertEquals(100L, course.getResourceableId().longValue());
-        
+
         courseDao.saveResourceableIdAsBulkUpdate(100L, 1000L);
 
         dbInstance.flush();
         dbInstance.clear();
-        
+
         Course updatedCourse = courseDao.getCourseById(100L);
         assertEquals(1000L, updatedCourse.getResourceableId().longValue());
     }
@@ -238,12 +230,12 @@ public class CourseDaoTest extends OlatTestCase {
         insertTestData();
         Course course = courseDao.getCourseById(100L);
         assertTrue(course.isSynchronizable());
-        
+
         courseDao.disableSynchronizationAsBulkUpdate(100L);
 
         dbInstance.flush();
         dbInstance.clear();
-        
+
         Course updatedCourse = courseDao.getCourseById(100L);
         assertFalse(updatedCourse.isSynchronizable());
     }
@@ -253,12 +245,12 @@ public class CourseDaoTest extends OlatTestCase {
         insertTestData();
         Course course = courseDao.getCourseById(100L);
         assertEquals(100L, course.getResourceableId().longValue());
-        
+
         courseDao.deleteResourceableIdAsBulkUpdate(100L);
 
         dbInstance.flush();
         dbInstance.clear();
-        
+
         Course updatedCourse = courseDao.getCourseById(100L);
         assertNull(updatedCourse.getResourceableId());
     }
@@ -280,7 +272,7 @@ public class CourseDaoTest extends OlatTestCase {
 
         dbInstance.flush();
         dbInstance.clear();
-        
+
         assertEquals(1, courseDao.getIdsOfAllCreatedCourses().size());
     }
 
@@ -288,12 +280,12 @@ public class CourseDaoTest extends OlatTestCase {
     public void testGetIdsOfAllNotCreatedCourses() {
         insertTestData();
         assertEquals(1, courseDao.getIdsOfAllNotCreatedCourses().size());
-        
+
         courseDao.deleteResourceableIdAsBulkUpdate(100L);
 
         dbInstance.flush();
         dbInstance.clear();
-        
+
         assertEquals(2, courseDao.getIdsOfAllNotCreatedCourses().size());
     }
 
@@ -345,21 +337,21 @@ public class CourseDaoTest extends OlatTestCase {
     @Test
     public void testGetCreatedCoursesByStudentId_noneFound() {
         insertTestData();
-    	List<Course> courses = courseDao.getCreatedCoursesByStudentId(2300L);
+    	List<Course> courses = courseDao.getCreatedCoursesByStudentId(2300L, null);
     	assertEquals(0, courses.size());
     }
-    
+
     @Test
     public void testGetCreatedCoursesByStudentId_twoFound() {
         insertTestData();
-    	List<Course> courses = courseDao.getCreatedCoursesByStudentId(2100L);
+    	List<Course> courses = courseDao.getCreatedCoursesByStudentId(2100L, null);
     	assertEquals(2, courses.size());
     }
-    
+
     @Test
     public void testGetNotCreatedCoursesByStudentId_noneFound() {
         insertTestData();
-    	List<Course> courses = courseDao.getNotCreatedCoursesByStudentId(2100L);
+    	List<Course> courses = courseDao.getNotCreatedCoursesByStudentId(2100L, null);
     	assertEquals(1, courses.size());
     }
 

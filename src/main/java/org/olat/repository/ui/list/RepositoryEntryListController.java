@@ -43,15 +43,7 @@ import org.olat.core.gui.components.form.flexible.elements.FlexiTableSortOptions
 import org.olat.core.gui.components.form.flexible.elements.FormLink;
 import org.olat.core.gui.components.form.flexible.impl.FormBasicController;
 import org.olat.core.gui.components.form.flexible.impl.FormEvent;
-import org.olat.core.gui.components.form.flexible.impl.elements.table.DateFlexiCellRenderer;
-import org.olat.core.gui.components.form.flexible.impl.elements.table.DefaultFlexiColumnModel;
-import org.olat.core.gui.components.form.flexible.impl.elements.table.FlexiColumnModel;
-import org.olat.core.gui.components.form.flexible.impl.elements.table.FlexiTableColumnModel;
-import org.olat.core.gui.components.form.flexible.impl.elements.table.FlexiTableComponentDelegate;
-import org.olat.core.gui.components.form.flexible.impl.elements.table.FlexiTableDataModelFactory;
-import org.olat.core.gui.components.form.flexible.impl.elements.table.FlexiTableEvent;
-import org.olat.core.gui.components.form.flexible.impl.elements.table.FlexiTableRendererType;
-import org.olat.core.gui.components.form.flexible.impl.elements.table.SelectionEvent;
+import org.olat.core.gui.components.form.flexible.impl.elements.table.*;
 import org.olat.core.gui.components.link.Link;
 import org.olat.core.gui.components.rating.RatingFormEvent;
 import org.olat.core.gui.components.rating.RatingFormItem;
@@ -139,9 +131,18 @@ public class RepositoryEntryListController extends FormBasicController
 		ThreadLocalUserActivityLogger.addLoggingResourceInfo(LoggingResourceable.wrapBusinessPath(ores));
 		
 		this.searchParams = searchParams;
+		/**
+		 * SEV:
+		 * Why "this"? A inner class would be more readable!
+		 */
 		dataSource = new DefaultRepositoryEntryDataSource(searchParams, this);
 		initForm(ureq);
-		
+
+		/**
+		 * SEV:
+		 * This method is the place to provide the data source i.e. where the
+		 * controller put the view together with the model.
+		 */
 		if(load) {
 			tableEl.reloadData();
 		}
@@ -160,7 +161,10 @@ public class RepositoryEntryListController extends FormBasicController
 			listenTo(searchCtrl);
 		}
 
-		FlexiTableColumnModel columnsModel = FlexiTableDataModelFactory.createFlexiTableColumnModel();
+		/**
+		 * Initialize table column properties.
+		 */
+		FlexiTableColumnModel columnsModel = new FlexiTableColumnModelImpl();
 		columnsModel.addFlexiColumnModel(new DefaultFlexiColumnModel(false, Cols.key.i18nKey(), Cols.key.ordinal(), true, OrderBy.key.name()));
 		if(!guestOnly) {
 			columnsModel.addFlexiColumnModel(new DefaultFlexiColumnModel(Cols.mark.i18nKey(), Cols.mark.ordinal(), true, OrderBy.favorit.name()));
@@ -194,6 +198,11 @@ public class RepositoryEntryListController extends FormBasicController
 			columnsModel.addFlexiColumnModel(new DefaultFlexiColumnModel(Cols.comments.i18nKey(), Cols.comments.ordinal()));
 		}
 
+		/**
+		 * TODO sev26
+		 * Why mixing the "columnsModel" i.e. view with the "dataSource" i.e.
+		 * model already here?
+		 */
 		model = new RepositoryEntryDataModel(dataSource, columnsModel);
 		tableEl = uifactory.addTableElement(getWindowControl(), "table", model, 20, false, getTranslator(), formLayout);
 		tableEl.setAvailableRendererTypes(FlexiTableRendererType.custom, FlexiTableRendererType.classic);
@@ -209,10 +218,14 @@ public class RepositoryEntryListController extends FormBasicController
 		
 		initFilters(tableEl);
 		initSorters(tableEl);
-		
+
 		tableEl.setAndLoadPersistedPreferences(ureq, "re-list-" + name);
 	}
-	
+
+		/**
+		 * TODO sev26
+		 * Must be a static method with such a signature.
+		 */
 	private void initFilters(FlexiTableElement tableElement) {
 		List<FlexiTableFilter> filters = new ArrayList<>(16);
 		filters.add(new FlexiTableFilter(translate("filter.show.all"), Filter.showAll.name()));
@@ -233,7 +246,11 @@ public class RepositoryEntryListController extends FormBasicController
 		filters.add(new FlexiTableFilter(translate("filter.without.passed.infos"), Filter.withoutPassedInfos.name()));
 		tableElement.setFilters(null, filters);
 	}
-	
+
+		/**
+		 * TODO sev26
+		 * Must be a static method with such a signature.
+		 */
 	private void initSorters(FlexiTableElement tableElement) {
 		List<FlexiTableSort> sorters = new ArrayList<>(14);
 		sorters.add(new FlexiTableSort(translate("orderby.automatic"), OrderBy.automatic.name()));

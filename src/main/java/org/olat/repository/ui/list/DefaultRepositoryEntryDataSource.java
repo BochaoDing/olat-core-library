@@ -139,7 +139,9 @@ public class DefaultRepositoryEntryDataSource implements FlexiTableDataSourceDel
 		List<Long> repoKeys = new ArrayList<>(repoEntries.size());
 		List<OLATResource> resourcesWithAC = new ArrayList<>(repoEntries.size());
 		for(RepositoryEntryMyView entry:repoEntries) {
-			repoKeys.add(entry.getKey());
+			if (entry.getKey() != null) {
+				repoKeys.add(entry.getKey());
+			}
 			if(entry.isValidOfferAvailable()) {
 				resourcesWithAC.add(entry.getOlatResource());
 			}

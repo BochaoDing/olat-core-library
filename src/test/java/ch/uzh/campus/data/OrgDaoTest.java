@@ -17,7 +17,6 @@ import static org.junit.Assert.assertEquals;
 /**
  * @author Martin Schraner
  */
-
 @ContextConfiguration(locations = {"classpath:ch/uzh/campus/data/_spring/mockDataContext.xml"})
 public class OrgDaoTest extends OlatTestCase {
 	
@@ -38,14 +37,14 @@ public class OrgDaoTest extends OlatTestCase {
     }
 
     @Test
-    public void testGetIdsOfAllEnabledOrgs_foundTwoOrgs() {
+    public void testGetIdsOfAllEnabledOrgsFoundTwoOrgs() {
         int numberOfOrgsFoundBeforeInsertingTestData = orgDao.getIdsOfAllEnabledOrgs().size();
         insertTestData();
         assertEquals(numberOfOrgsFoundBeforeInsertingTestData + 2, orgDao.getIdsOfAllEnabledOrgs().size());
     }
 
     @Test
-    public void testGetAllNotUpdatedOrgs_foundOneOrg() {
+    public void testGetAllNotUpdatedOrgsFoundOneOrg() {
         Date now = new Date();
         int numberOfOrgsFoundBeforeInsertingTestData = orgDao.getAllNotUpdatedOrgs(now).size();
         insertTestData();
@@ -82,5 +81,4 @@ public class OrgDaoTest extends OlatTestCase {
         orgDao.save(orgs);
         dbInstance.flush();
     }
-
 }

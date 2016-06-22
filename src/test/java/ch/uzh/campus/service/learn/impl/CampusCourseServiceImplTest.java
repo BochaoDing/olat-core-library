@@ -19,7 +19,7 @@ import ch.uzh.campus.data.SapOlatUser;
 
 
 /**
- * Initial Date: 25.06.2012 <br>
+ * Initial Date: 25.06.2012<br />
  * 
  * @author aabouc
  */
@@ -68,7 +68,6 @@ public class CampusCourseServiceImplTest {
     @Ignore
     @Test
     public void getCoursesWhichCouldBeCreated() {
-        assertTrue(campusCourseLearnServiceImplTestObject.getCoursesWhichCouldBeCreated(identityMock, SapOlatUser.SapUserType.LECTURER).size() == 1);
+        assertTrue(campusCourseLearnServiceImplTestObject.getCoursesWhichCouldBeCreated(identityMock, SapOlatUser.SapUserType.LECTURER, null).size() == 1);
     }
-
 }

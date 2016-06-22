@@ -21,10 +21,10 @@ import java.util.Set;
         @NamedQuery(name = Course.GET_IDS_OF_ALL_CREATED_COURSES, query = "select c.id from Course c where c.resourceableId is not null and c.synchronizable = true and c.shortSemester = (select max(c2.shortSemester) from Course c2)"),
         @NamedQuery(name = Course.GET_RESOURCEABLEIDS_OF_ALL_CREATED_COURSES, query = "select c.resourceableId from Course c where c.resourceableId is not null and c.shortSemester = (select max(c2.shortSemester) from Course c2)"),
         @NamedQuery(name = Course.GET_IDS_OF_ALL_NOT_CREATED_COURSES, query = "select c.id from Course c where c.resourceableId is null and c.enabled = '1' and c.shortSemester = (select max(c2.shortSemester) from Course c2)"),
-        @NamedQuery(name = Course.GET_CREATED_COURSES_BY_LECTURER_IDS, query = "select distinct c from Course c join c.lecturerCourses lc where lc.lecturer.personalNr in :lecturerIds and c.resourceableId is not null and c.enabled = '1' and c.shortSemester= (select max(c2.shortSemester) from Course c2) "),
-        @NamedQuery(name = Course.GET_NOT_CREATED_COURSES_BY_LECTURER_IDS, query = "select distinct c from Course c join c.lecturerCourses lc where lc.lecturer.personalNr in :lecturerIds and c.resourceableId is null and c.enabled = '1' and c.shortSemester= (select max(c2.shortSemester) from Course c2) "),
-        @NamedQuery(name = Course.GET_CREATED_COURSES_BY_STUDENT_ID, query = "select distinct c from Course c join c.studentCourses sc where sc.student.id = :studentId and c.resourceableId is not null and  c.enabled = '1' and c.shortSemester = (select max(c2.shortSemester) from Course c2)"),
-        @NamedQuery(name = Course.GET_NOT_CREATED_COURSES_BY_STUDENT_ID, query = "select distinct c from Course c join c.studentCourses sc where sc.student.id = :studentId and c.resourceableId is null and c.enabled = '1' and c.shortSemester = (select max(c2.shortSemester) from Course c2)"),
+        @NamedQuery(name = Course.GET_CREATED_COURSES_BY_LECTURER_ID, query = "select c from Course c join c.lecturerCourses lc where lc.lecturer.personalNr in :lecturerId and c.resourceableId is not null and c.enabled = '1' and c.shortSemester= (select max(c2.shortSemester) from Course c2) and c.title like :searchString"),
+        @NamedQuery(name = Course.GET_NOT_CREATED_COURSES_BY_LECTURER_ID, query = "select c from Course c join c.lecturerCourses lc where lc.lecturer.personalNr in :lecturerId and c.resourceableId is null and c.enabled = '1' and c.shortSemester= (select max(c2.shortSemester) from Course c2) and c.title like :searchString"),
+        @NamedQuery(name = Course.GET_CREATED_COURSES_BY_STUDENT_ID, query = "select c from Course c join c.studentCourses sc where sc.student.id = :studentId and c.resourceableId is not null and  c.enabled = '1' and c.shortSemester = (select max(c2.shortSemester) from Course c2) and c.title like :searchString"),
+        @NamedQuery(name = Course.GET_NOT_CREATED_COURSES_BY_STUDENT_ID, query = "select c from Course c join c.studentCourses sc where sc.student.id = :studentId and c.resourceableId is null and c.enabled = '1' and c.shortSemester = (select max(c2.shortSemester) from Course c2) and c.title like :searchString"),
         @NamedQuery(name = Course.GET_PILOT_COURSES_BY_STUDENT_ID, query = "select c from Course c left join c.studentCourses sc where sc.student.id = :studentId and c.enabled = '1' and c.shortSemester = (select max(c2.shortSemester) from Course c2)"),
         @NamedQuery(name = Course.GET_PILOT_COURSES_BY_LECTURER_ID, query = "select c from Course c left join c.lecturerCourses lc where lc.lecturer.personalNr = :lecturerId and c.enabled = '1' and c.shortSemester = (select max(c2.shortSemester) from Course c2) "),
         @NamedQuery(name = Course.GET_ALL_NOT_UPDATED_COURSES, query = "select c.id from Course c where c.resourceableId is null and c.modifiedDate < :lastImportDate"),
@@ -124,8 +124,8 @@ public class Course {
     static final String GET_RESOURCEABLEIDS_OF_ALL_CREATED_COURSES = "getResourceableIdsOfAllCreatedCourses";
     static final String GET_IDS_OF_ALL_NOT_CREATED_COURSES = "getIdsOfAllNotCreatedCourses";
     static final String GET_ALL_CREATED_COURSES = "getAllCreatedCourses";
-    static final String GET_CREATED_COURSES_BY_LECTURER_IDS = "getCreatedCoursesByLecturerIds";
-    static final String GET_NOT_CREATED_COURSES_BY_LECTURER_IDS = "getNotCreatedCoursesByLecturerIds";
+    static final String GET_CREATED_COURSES_BY_LECTURER_ID = "getCreatedCoursesByLecturerId";
+    static final String GET_NOT_CREATED_COURSES_BY_LECTURER_ID = "getNotCreatedCoursesByLecturerId";
     static final String GET_CREATED_COURSES_BY_STUDENT_ID = "getCreatedCoursesByStudentId";
     static final String GET_NOT_CREATED_COURSES_BY_STUDENT_ID = "getNotCreatedCoursesByStudentId";
     static final String GET_ALL_NOT_UPDATED_COURSES = "getAllNotUpdatedCourses";
@@ -414,4 +414,3 @@ public class Course {
         return result;
     }
 }
-

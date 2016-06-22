@@ -193,6 +193,13 @@ public class RepositoryEntry implements CreateInfo, Persistable , RepositoryEntr
 		return key;
 	}
 
+	/**
+	 * Key means id.
+	 */
+	public void setKey(Long key) {
+		this.key = key;
+	}
+
 	@Override
 	public Date getCreationDate() {
 		return creationDate;

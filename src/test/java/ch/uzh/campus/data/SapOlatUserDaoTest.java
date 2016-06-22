@@ -17,7 +17,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 /**
- * Initial Date: Oct 27, 2014 <br>
+ * Initial Date: Oct 27, 2014<br />
  * 
  * @author aabouc
  * @author lavinia
@@ -87,14 +87,14 @@ public class SapOlatUserDaoTest  extends OlatTestCase {
     
     @Test
     public void testGetSapOlatUsersByOlatUserNameAndSapUserType_Empty() {
-        assertTrue(sapOlatUserDao.getSapOlatUsersByOlatUserNameAndSapUserType("olatUserName500", SapOlatUser.SapUserType.LECTURER).isEmpty());
-        assertTrue(sapOlatUserDao.getSapOlatUsersByOlatUserNameAndSapUserType("olatUserName500", SapOlatUser.SapUserType.STUDENT).isEmpty());
+		assertNull(sapOlatUserDao.getSapOlatUsersByOlatUserNameAndSapUserType("olatUserName500", SapOlatUser.SapUserType.LECTURER));
+		assertNull(sapOlatUserDao.getSapOlatUsersByOlatUserNameAndSapUserType("olatUserName500", SapOlatUser.SapUserType.STUDENT));
     }
 
     @Test
     public void testGetSapOlatUsersByOlatUserNameAndSapUserType_NotEmpty() {
-        assertFalse(sapOlatUserDao.getSapOlatUsersByOlatUserNameAndSapUserType("olatUserName2", SapOlatUser.SapUserType.LECTURER).isEmpty());
-        assertFalse(sapOlatUserDao.getSapOlatUsersByOlatUserNameAndSapUserType("olatUserName1", SapOlatUser.SapUserType.STUDENT).isEmpty());
+        assertNotNull(sapOlatUserDao.getSapOlatUsersByOlatUserNameAndSapUserType("olatUserName2", SapOlatUser.SapUserType.LECTURER));
+		assertNotNull(sapOlatUserDao.getSapOlatUsersByOlatUserNameAndSapUserType("olatUserName1", SapOlatUser.SapUserType.STUDENT));
     }
    
     @Test
@@ -163,7 +163,7 @@ public class SapOlatUserDaoTest  extends OlatTestCase {
     
     @Test
     public void testDeleteMappingBySapLecturerIdsAsBulkDelete() {
-        assertEquals(1, sapOlatUserDao.getSapOlatUsersByOlatUserNameAndSapUserType("olatUserName2", SapOlatUser.SapUserType.LECTURER).size());
+        assertNotNull(sapOlatUserDao.getSapOlatUsersByOlatUserNameAndSapUserType("olatUserName2", SapOlatUser.SapUserType.LECTURER));
 
         List<Long> sapIds = new LinkedList<>();
         sapIds.add(200L);
@@ -173,12 +173,12 @@ public class SapOlatUserDaoTest  extends OlatTestCase {
         dbInstance.flush();
         dbInstance.clear();
 
-        assertEquals(0, sapOlatUserDao.getSapOlatUsersByOlatUserNameAndSapUserType("olatUserName1", SapOlatUser.SapUserType.LECTURER).size());
+		assertNull(sapOlatUserDao.getSapOlatUsersByOlatUserNameAndSapUserType("olatUserName1", SapOlatUser.SapUserType.LECTURER));
     }
     
     @Test
     public void testDeleteMappingBySapStudentIdsAsBulkDelete() {
-        assertEquals(1, sapOlatUserDao.getSapOlatUsersByOlatUserNameAndSapUserType("olatUserName1", SapOlatUser.SapUserType.STUDENT).size());
+		assertNotNull(sapOlatUserDao.getSapOlatUsersByOlatUserNameAndSapUserType("olatUserName1", SapOlatUser.SapUserType.STUDENT));
 
         List<Long> sapIds = new LinkedList<>();
         sapIds.add(100L);
@@ -188,12 +188,12 @@ public class SapOlatUserDaoTest  extends OlatTestCase {
         dbInstance.flush();
         dbInstance.clear();
 
-        assertEquals(0, sapOlatUserDao.getSapOlatUsersByOlatUserNameAndSapUserType("olatUserName1", SapOlatUser.SapUserType.STUDENT).size());
+		assertNull(sapOlatUserDao.getSapOlatUsersByOlatUserNameAndSapUserType("olatUserName1", SapOlatUser.SapUserType.STUDENT));
     }
     
     @Test
     public void testDeleteOldLecturerMappingAsBulkDelete() {
-        assertEquals(1, sapOlatUserDao.getSapOlatUsersByOlatUserNameAndSapUserType("olatUserName2", SapOlatUser.SapUserType.LECTURER).size());
+		assertNotNull(sapOlatUserDao.getSapOlatUsersByOlatUserNameAndSapUserType("olatUserName2", SapOlatUser.SapUserType.LECTURER));
 
         lecturerDao.delete(mockDataGeneratorProvider.get().getLecturers().get(1));
         sapOlatUserDao.deleteOldLecturerMappingAsBulkDelete();
@@ -201,12 +201,12 @@ public class SapOlatUserDaoTest  extends OlatTestCase {
         dbInstance.flush();
         dbInstance.clear();
 
-        assertEquals(0, sapOlatUserDao.getSapOlatUsersByOlatUserNameAndSapUserType("olatUserName2", SapOlatUser.SapUserType.LECTURER).size());
+		assertNull(sapOlatUserDao.getSapOlatUsersByOlatUserNameAndSapUserType("olatUserName2", SapOlatUser.SapUserType.LECTURER));
     }
         
     @Test
     public void testDeleteOldStudentMappingAsBulkDelete() {
-        assertEquals(1, sapOlatUserDao.getSapOlatUsersByOlatUserNameAndSapUserType("olatUserName1", SapOlatUser.SapUserType.STUDENT).size());
+		assertNotNull(sapOlatUserDao.getSapOlatUsersByOlatUserNameAndSapUserType("olatUserName1", SapOlatUser.SapUserType.STUDENT));
 
         studentDao.delete(mockDataGeneratorProvider.get().getStudents().get(0));
         sapOlatUserDao.deleteOldStudentMappingAsBulkDelete();
@@ -214,7 +214,6 @@ public class SapOlatUserDaoTest  extends OlatTestCase {
         dbInstance.flush();
         dbInstance.clear();
 
-        assertEquals(0, sapOlatUserDao.getSapOlatUsersByOlatUserNameAndSapUserType("olatUserName2", SapOlatUser.SapUserType.STUDENT).size());
+		assertNull(sapOlatUserDao.getSapOlatUsersByOlatUserNameAndSapUserType("olatUserName2", SapOlatUser.SapUserType.STUDENT));
     }
-    
 }

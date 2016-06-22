@@ -144,17 +144,27 @@ public class CampusCourseCoreServiceImpl implements CampusCourseCoreService {
         return campusCourseFactory.getRepositoryEntryFor(sapCourseId);
     }
 
-    @Override
-    public Set<Course> getCampusCoursesWithoutResourceableId(Identity identity, SapOlatUser.SapUserType userType) {
-        return daoManager.getCampusCoursesWithoutResourceableId(identity, userType);
+	@Override
+    public Set<Course> getCampusCoursesWithoutResourceableId(Identity identity, SapOlatUser.SapUserType userType, String searchString) {
+        return daoManager.getCampusCoursesWithoutResourceableId(identity, userType, searchString);
     }
 
-    @Override
-    public Set<Course> getCampusCoursesWithResourceableId(Identity identity, SapOlatUser.SapUserType userType) {
-        return daoManager.getCampusCoursesWithResourceableId(identity, userType);
-    }
+	@Override
+	public Set<Course> getCampusCoursesWithoutResourceableId(Identity identity, SapOlatUser.SapUserType userType) {
+		return getCampusCoursesWithoutResourceableId(identity, userType, null);
+	}
 
     @Override
+    public Set<Course> getCampusCoursesWithResourceableId(Identity identity, SapOlatUser.SapUserType userType, String searchString) {
+        return daoManager.getCampusCoursesWithResourceableId(identity, userType, searchString);
+    }
+
+	@Override
+	public Set<Course> getCampusCoursesWithResourceableId(Identity identity, SapOlatUser.SapUserType userType) {
+		return getCampusCoursesWithResourceableId(identity, userType, null);
+	}
+
+	@Override
     public void createDelegation(Identity delegator, Identity delegatee) {
         daoManager.saveDelegation(delegator, delegatee);
     }
@@ -181,5 +191,4 @@ public class CampusCourseCoreServiceImpl implements CampusCourseCoreService {
     public void deleteDelegation(Identity delegator, Identity delegatee) {
         daoManager.deleteDelegation(delegator, delegatee);
     }
-
 }

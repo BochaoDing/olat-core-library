@@ -240,7 +240,7 @@ public class DaoManager {
         return sapOlatUserDao.getSapOlatUserByOlatUserNameAndSapUserType(olatUserName, SapOlatUser.SapUserType.STUDENT);
     }
 
-    public List<SapOlatUser> getLecturerSapOlatUsersByOlatUserName(String olatUserName) {
+    public SapOlatUser getLecturerSapOlatUserByOlatUserName(String olatUserName) {
         return sapOlatUserDao.getSapOlatUsersByOlatUserNameAndSapUserType(olatUserName, SapOlatUser.SapUserType.LECTURER);
     }
 
@@ -272,70 +272,66 @@ public class DaoManager {
         return courseDao.getPilotCoursesByStudentId(id);
     }
 
-    public List<Course> getCreatedCoursesByStudentId(Long id) {
-        return courseDao.getCreatedCoursesByStudentId(id);
+    public List<Course> getCreatedCoursesByStudentId(Long id, String searchString) {
+        return courseDao.getCreatedCoursesByStudentId(id, searchString);
     }
 
-    public List<Course> getNotCreatedCoursesByStudentId(Long id) {
-        return courseDao.getNotCreatedCoursesByStudentId(id);
+    public List<Course> getNotCreatedCoursesByStudentId(Long id, String searchString) {
+        return courseDao.getNotCreatedCoursesByStudentId(id, searchString);
     }
 
     public List<Course> getPilotCoursesByLecturerId(Long id) {
         return courseDao.getPilotCoursesByLecturerId(id);
     }
 
-    public List<Course> getCreatedCoursesByLecturerIds(List<Long> ids) {
-        return courseDao.getCreatedCoursesByLecturerIds(ids);
+    public List<Course> getCreatedCoursesByLecturerIds(Long id, String searchString) {
+        return courseDao.getCreatedCoursesByLecturerId(id, searchString);
     }
 
-    public List<Course> getNotCreatedCoursesByLecturerIds(List<Long> ids) {
-        return courseDao.getNotCreatedCoursesByLecturerIds(ids);
+    public List<Course> getNotCreatedCoursesByLecturerId(Long id, String searchString) {
+        return courseDao.getNotCreatedCoursesByLecturerId(id, searchString);
     }
 
-    public Set<Course> getCampusCoursesWithoutResourceableId(Identity identity, SapOlatUser.SapUserType userType) {
-        Set<Course> coursesWithoutResourceableId = new HashSet<Course>();
-        coursesWithoutResourceableId.addAll(getCourses(identity.getName(), userType, false));// false --- > notCreatedCourses
-        // THE CASE OF LECTURER, ADD THE APPRORIATE DELEGATEES
+    public Set<Course> getCampusCoursesWithoutResourceableId(Identity identity, SapOlatUser.SapUserType userType, String searchString) {
+        Set<Course> coursesWithoutResourceableId = new HashSet<>();
+        coursesWithoutResourceableId.addAll(getCourses(identity.getName(), userType, false, searchString));// false --- > notCreatedCourses
+        // THE CASE OF LECTURER, ADD THE APPROPRIATE DELEGATES
         if (userType.equals(SapOlatUser.SapUserType.LECTURER)) {
             List<Delegation> delegations = delegationDao.getDelegationsByDelegatee(identity.getName());
             for (Delegation delegation : delegations) {
-                coursesWithoutResourceableId.addAll(getCourses(delegation.getDelegator(), userType, false));// false --- > notCreatedCourses
+                coursesWithoutResourceableId.addAll(getCourses(delegation.getDelegator(), userType, false, searchString));// false --- > notCreatedCourses
             }
         }
         return coursesWithoutResourceableId;
     }
 
-    public Set<Course> getCampusCoursesWithResourceableId(Identity identity, SapOlatUser.SapUserType userType) {
+    public Set<Course> getCampusCoursesWithResourceableId(Identity identity, SapOlatUser.SapUserType userType, String searchString) {
         Set<Course> coursesWithResourceableId = new HashSet<Course>();
-        coursesWithResourceableId.addAll(getCourses(identity.getName(), userType, true));// true --- > CreatedCourses
-        // THE CASE OF LECTURER, ADD THE APPRORIATE DELEGATEES
+        coursesWithResourceableId.addAll(getCourses(identity.getName(), userType, true, searchString));// true --- > CreatedCourses
+        // THE CASE OF LECTURER, ADD THE APPROPRIATE DELEGATES
         if (userType.equals(SapOlatUser.SapUserType.LECTURER)) {
             List<Delegation> delegations = delegationDao.getDelegationsByDelegatee(identity.getName());
             for (Delegation delegation : delegations) {
-                coursesWithResourceableId.addAll(getCourses(delegation.getDelegator(), userType, true));// true --- > CreatedCourses
+                coursesWithResourceableId.addAll(getCourses(delegation.getDelegator(), userType, true, searchString));// true --- > CreatedCourses
             }
         }
         return coursesWithResourceableId;
     }
 
-    public List<Course> getCourses(String olatUserName, SapOlatUser.SapUserType userType, boolean created) {
+    public List<Course> getCourses(String olatUserName, SapOlatUser.SapUserType userType, boolean created, String searchString) {
         if (userType.equals(SapOlatUser.SapUserType.LECTURER)) {
-            List<SapOlatUser> sapOlatUsers = getLecturerSapOlatUsersByOlatUserName(olatUserName);
-            if (sapOlatUsers.isEmpty()) {
+            SapOlatUser sapOlatUser = getLecturerSapOlatUserByOlatUserName(olatUserName);
+            if (sapOlatUser == null) {
                 return Collections.emptyList();
             } else {
-                List<Long> sapUserIds = new ArrayList<>();
-                for (SapOlatUser sapOlatUser : sapOlatUsers) {
-                    sapUserIds.add(sapOlatUser.getSapUserId());
-                }
-                return (created) ? getCreatedCoursesByLecturerIds(sapUserIds) : getNotCreatedCoursesByLecturerIds(sapUserIds);
+                return (created) ? getCreatedCoursesByLecturerIds(sapOlatUser.getSapUserId(), searchString) : getNotCreatedCoursesByLecturerId(sapOlatUser.getSapUserId(), searchString);
             }
         } else {
             SapOlatUser sapOlatUser = getStudentSapOlatUserByOlatUserName(olatUserName);
             if (sapOlatUser == null) {
                 return Collections.emptyList();
             } else {
-                return (created) ? getCreatedCoursesByStudentId(sapOlatUser.getSapUserId()) : getNotCreatedCoursesByStudentId(sapOlatUser.getSapUserId());
+                return (created) ? getCreatedCoursesByStudentId(sapOlatUser.getSapUserId(), searchString) : getNotCreatedCoursesByStudentId(sapOlatUser.getSapUserId(), searchString);
             }
         }
     }
@@ -406,5 +402,4 @@ public class DaoManager {
     public void deleteOldStudentMapping() {
         sapOlatUserDao.deleteOldStudentMappingAsBulkDelete();
     }
-
 }

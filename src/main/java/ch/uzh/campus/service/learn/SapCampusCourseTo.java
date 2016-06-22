@@ -12,9 +12,6 @@ public final class SapCampusCourseTo implements Comparable<SapCampusCourseTo> {
     private final Long sapCourseId;
     private final Long olatCourseId;
 
-    /**
-     * @param string
-     */
     public SapCampusCourseTo(String title, Long sapCourseId, Long olatCourseClosed) {
         this.title = title;
         this.sapCourseId = sapCourseId;
@@ -52,4 +49,3 @@ public final class SapCampusCourseTo implements Comparable<SapCampusCourseTo> {
         return this.getTitle().compareTo(compareTitle);
     }
 }
-

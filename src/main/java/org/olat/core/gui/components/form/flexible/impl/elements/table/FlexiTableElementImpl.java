@@ -113,6 +113,7 @@ public class FlexiTableElementImpl extends FormItemImpl implements FlexiTableEle
 	private ExtendedFlexiTableSearchController extendedSearchCtrl;
 	
 	private final FlexiTableDataModel<?> dataModel;
+	// TODO sev26: Do not mix the model with the view.
 	private final FlexiTableDataSource<?> dataSource;
 	private final FlexiTableComponent component;
 	private FlexiTableComponentDelegate componentDelegate;

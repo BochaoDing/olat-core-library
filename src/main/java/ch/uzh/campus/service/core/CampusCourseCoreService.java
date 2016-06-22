@@ -29,7 +29,6 @@ public interface CampusCourseCoreService {
 
     /**
      * TODO: olatng: this used to be called from CourseRepositoryHandler, this doesn't exist in OpenOLAT anymore. Wo aufrufen?
-     * @param res
      */
     public void deleteResourceableIdReference(OLATResourceable res);
 
@@ -40,10 +39,14 @@ public interface CampusCourseCoreService {
      */
     public Set<Course> getCampusCoursesWithoutResourceableId(Identity identity, SapOlatUser.SapUserType userType);
 
+	public Set<Course> getCampusCoursesWithoutResourceableId(Identity identity, SapOlatUser.SapUserType userType, String searchString);
+
     /**
      * Get list of Campus courses which already are created in the OLAT course-repository.
      */
     public Set<Course> getCampusCoursesWithResourceableId(Identity identity, SapOlatUser.SapUserType userType);
+
+    public Set<Course> getCampusCoursesWithResourceableId(Identity identity, SapOlatUser.SapUserType userType, String searchString);
 
     public CampusCourse loadCampusCourse(Long sapCampusCourseId, Long resourceableId);
 

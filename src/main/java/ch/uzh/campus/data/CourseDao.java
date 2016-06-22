@@ -41,33 +41,41 @@ public class CourseDao implements CampusDao<Course> {
         return dbInstance.findObject(Course.class, id);
     }
 
-    public List<Course> getCreatedCoursesByLecturerIds(List<Long> lecturerIds) {
+    public List<Course> getCreatedCoursesByLecturerId(Long lecturerId, String searchString) {
         return dbInstance.getCurrentEntityManager()
-                .createNamedQuery(Course.GET_CREATED_COURSES_BY_LECTURER_IDS, Course.class)
-                .setParameter("lecturerIds", lecturerIds)
+                .createNamedQuery(Course.GET_CREATED_COURSES_BY_LECTURER_ID, Course.class)
+                .setParameter("lecturerId", lecturerId)
+				.setParameter("searchString", getWildcardLikeSearchString(searchString))
                 .getResultList();
     }
 
-    public List<Course> getNotCreatedCoursesByLecturerIds(List<Long> lecturerIds) {
+    public List<Course> getNotCreatedCoursesByLecturerId(Long lecturerId, String searchString) {
         return dbInstance.getCurrentEntityManager()
-                .createNamedQuery(Course.GET_NOT_CREATED_COURSES_BY_LECTURER_IDS, Course.class)
-                .setParameter("lecturerIds", lecturerIds)
+                .createNamedQuery(Course.GET_NOT_CREATED_COURSES_BY_LECTURER_ID, Course.class)
+                .setParameter("lecturerId", lecturerId)
+				.setParameter("searchString", getWildcardLikeSearchString(searchString))
                 .getResultList();
     }
 
-    public List<Course> getCreatedCoursesByStudentId(Long studentId) {               
+    public List<Course> getCreatedCoursesByStudentId(Long studentId, String searchString) {
         return dbInstance.getCurrentEntityManager()
                 .createNamedQuery(Course.GET_CREATED_COURSES_BY_STUDENT_ID, Course.class)
                 .setParameter("studentId", studentId)
+				.setParameter("searchString", getWildcardLikeSearchString(searchString))
                 .getResultList(); 
     }
 
-    public List<Course> getNotCreatedCoursesByStudentId(Long studentId) {       
+    public List<Course> getNotCreatedCoursesByStudentId(Long studentId, String searchString) {
         return dbInstance.getCurrentEntityManager()
                 .createNamedQuery(Course.GET_NOT_CREATED_COURSES_BY_STUDENT_ID, Course.class)
                 .setParameter("studentId", studentId)
+				.setParameter("searchString", getWildcardLikeSearchString(searchString))
                 .getResultList(); 
     }
+
+	private static String getWildcardLikeSearchString(String searchString) {
+		return searchString != null ? "%" + searchString + "%" : "%";
+	}
 
     public void delete(Course course) {
         deleteCourseBidirectionally(course);
