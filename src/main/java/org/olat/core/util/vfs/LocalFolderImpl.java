@@ -54,12 +54,9 @@ public class LocalFolderImpl extends LocalImpl implements VFSContainer {
 
 	private VFSItemFilter defaultFilter=null;
 	
-	/**
-	 * @param folderfile
-	 */
 	private LocalFolderImpl() {
 		super(null, null);
-		throw new AssertException("Cannot instantiate LocalFolderImpl().");
+		throw new AssertException("Cannot instantiate LocalFolderImpl() - no parameters given.");
 	}
 	
 	/**
@@ -71,14 +68,18 @@ public class LocalFolderImpl extends LocalImpl implements VFSContainer {
 	}
 	
 	/**
-	 * @param folderfile
+	 * @param folderFile
+	 * @param parent
 	 */
-	protected LocalFolderImpl(File folderfile, VFSContainer parent) {
-		super(folderfile, parent);
-		boolean alreadyExists = folderfile.exists();
-		boolean succesfullCreated = folderfile.mkdirs(); 
-		if (!alreadyExists && !succesfullCreated)
-			throw new AssertException("Cannot create directory of LocalFolderImpl with reason (exists= ): "+alreadyExists+" && created= "+succesfullCreated+") path: " + folderfile.getAbsolutePath());
+	protected LocalFolderImpl(File folderFile, VFSContainer parent) {
+		this(folderFile, parent, true);
+	}
+
+	protected LocalFolderImpl(File folderFile, VFSContainer parent, boolean forceCreate) {
+		super(folderFile, parent);
+		if (!folderFile.exists() && forceCreate && !folderFile.mkdirs()) {
+			throw new AssertException("Could not create directory of LocalFolderImpl for path: " + folderFile.getAbsolutePath());
+		}
 	}
 	
 	/**

@@ -59,8 +59,8 @@ public class PublicFolderIndexer extends FolderIndexer {
 		try {
 			// get public folder for user
 			Identity identity = (Identity) parentObject;
-			OlatRootFolderImpl rootContainer = new OlatRootFolderImpl(FolderConfig.getUserHome(identity.getName()) + "/public", null);
-			if (!rootContainer.getBasefile().exists()) return;
+			OlatRootFolderImpl rootContainer = new OlatRootFolderImpl(FolderConfig.getUserHome(identity.getName()) + "/public", null, false);
+			if (!rootContainer.exists()) return;
 			// build new resource context
 			SearchResourceContext searchResourceContext = new SearchResourceContext(parentResourceContext);
 			searchResourceContext.setParentContextName(identity.getName());

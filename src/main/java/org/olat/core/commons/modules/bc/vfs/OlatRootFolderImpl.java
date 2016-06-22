@@ -47,12 +47,16 @@ public class OlatRootFolderImpl extends LocalFolderImpl implements OlatRelPathIm
 	private String folderRelPath;
 	
 	public OlatRootFolderImpl(String folderRelPath, VFSContainer parent) {
-		super(new File(FolderConfig.getCanonicalRoot() + folderRelPath), parent);
+		this(folderRelPath, parent, true);
+	}
+
+	public OlatRootFolderImpl(String folderRelPath, VFSContainer parent, boolean forceCreate) {
+		super(new File(FolderConfig.getCanonicalRoot() + folderRelPath), parent, forceCreate);
 		this.folderRelPath = folderRelPath;
 	}
 
 	/**
-	 * Wrapp all LocalImpls to OlatRootImpls
+	 * Wrap LocalFolderImpl with OlatRootFolderImpl
 	 *
 	 * @see org.olat.core.util.vfs.VFSContainer#createChildContainer(java.lang.String)
 	 */
@@ -64,7 +68,7 @@ public class OlatRootFolderImpl extends LocalFolderImpl implements OlatRelPathIm
 	}
 
 	/**
-	 * Wrapp all LocalImpls to OlatRootImpls
+	 * Wrap LocalFolderImpl with OlatRootFolderImpl
 	 *
 	 * @see org.olat.core.util.vfs.VFSContainer#createChildLeaf(java.lang.String)
 	 */
@@ -76,7 +80,7 @@ public class OlatRootFolderImpl extends LocalFolderImpl implements OlatRelPathIm
 	}
 
 	/**
-	 * Wrapp all LocalImpls to OlatRootImpls
+	 * Wrap LocalFolderImpl with OlatRootFolderImpl
 	 *
 	 * @see org.olat.core.util.vfs.VFSContainer#getItems()
 	 */
@@ -96,12 +100,12 @@ public class OlatRootFolderImpl extends LocalFolderImpl implements OlatRelPathIm
 	}
 
 	/**
-	 * @param children
+	 * @param items
 	 * @return
 	 */
 	private List<VFSItem> wrapItems(List<VFSItem> items) {
 		List<VFSItem> wrappedItems = new ArrayList<VFSItem>(items.size());
-		// now wrapp all LocalImpls to OlatRootImpls...
+		// transform all LocalXxxImpl objects to OlatXxxRootImpl
 		for (VFSItem item : items) {
 			if (item instanceof LocalFolderImpl) {
 				wrappedItems.add(new OlatRootFolderImpl(folderRelPath + "/" + item.getName(), this));

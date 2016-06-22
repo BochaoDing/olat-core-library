@@ -46,7 +46,7 @@ import org.olat.search.service.indexer.OlatFullIndexer;
 public class GroupFolderIndexer extends FolderIndexer{
 	
   //Must correspond with LocalString_xx.properties
-	// Do not use '_' because we want to seach for certain documenttype and lucene haev problems with '_' 
+	// Do not use '_' because we want to search for certain document type and lucene have problems with '_'
 	public static final String TYPE = "type.group.folder";
 	
 	private CollaborationManager collaborationManager;
@@ -65,7 +65,8 @@ public class GroupFolderIndexer extends FolderIndexer{
 			throw new AssertException("businessObj must be BusinessGroup");
 		BusinessGroup businessGroup = (BusinessGroup)businessObj;
 		String path = collaborationManager.getFolderRelPath(businessGroup);
-		OlatRootFolderImpl rootContainer = new OlatRootFolderImpl(path, null);
+		OlatRootFolderImpl rootContainer = new OlatRootFolderImpl(path, null, false);
+		if (!rootContainer.exists()) return;
 		SearchResourceContext forumSearchResourceContext = new SearchResourceContext(parentResourceContext);
 		forumSearchResourceContext.setBusinessControlFor(BusinessGroupMainRunController.ORES_TOOLFOLDER);
 		forumSearchResourceContext.setDocumentType(TYPE);
