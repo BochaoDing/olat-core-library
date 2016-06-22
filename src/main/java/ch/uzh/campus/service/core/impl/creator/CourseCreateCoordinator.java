@@ -24,14 +24,13 @@ import ch.uzh.campus.CampusConfiguration;
 import ch.uzh.campus.CampusCourseImportTO;
 import ch.uzh.campus.data.*;
 import ch.uzh.campus.service.CampusCourse;
+import ch.uzh.campus.service.core.impl.CampusCourseTool;
 import ch.uzh.campus.service.core.impl.syncer.CampusCourseGroupSynchronizer;
 import org.apache.commons.lang.StringUtils;
 import org.olat.core.commons.persistence.DB;
-import org.olat.core.gui.translator.Translator;
 import org.olat.core.id.Identity;
 import org.olat.core.logging.OLog;
 import org.olat.core.logging.Tracing;
-import org.olat.core.util.Util;
 import org.olat.course.CourseFactory;
 import org.olat.course.ICourse;
 import org.olat.course.tree.PublishTreeModel;
@@ -44,7 +43,6 @@ import org.springframework.stereotype.Component;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Locale;
 
 
 /**
@@ -96,11 +94,10 @@ public class CourseCreateCoordinator {
         String oldTitle = repositoryEntry.getDisplayname();
         String newTitle = campusCourseImportData.getTitle();
         String displayName = StringUtils.left(newTitle, 4).concat("/").concat(StringUtils.left(oldTitle, 4)).concat(StringUtils.substring(newTitle, 4));
-        String truncatedTitle = courseCreator.getTruncatedTitle(displayName);
-        campusCourse.getRepositoryEntry().setDisplayname(truncatedTitle);
+        campusCourse.getRepositoryEntry().setDisplayname(CampusCourseTool.getTruncatedDisplayname(displayName));
 
         // Set title and vvz link in course model
-        courseCreator.setCourseTitleAndLearningObjectivesInCourseModel(campusCourse, displayName, campusCourseImportData.getVvzLink(), false, getTranslator(campusCourseImportData.getLanguage()));
+        courseCreator.setCourseTitleAndLearningObjectivesInCourseModel(campusCourse, displayName, campusCourseImportData.getVvzLink(), false, campusCourseImportData.getLanguage());
 
         // Description
         String campusCourseSemester = oldTitle.concat("<br>").concat(newTitle);
@@ -171,14 +168,13 @@ public class CourseCreateCoordinator {
         try {
             // Copy the CampusCourse from the appropriate template (default or custom)
             campusCourse = courseCreator.createCampusCourseFromTemplate(templateCourseResourceableId, creator);
-            String truncatedTitle = courseCreator.getTruncatedTitle(campusCourseImportData.getTitle());
-            campusCourse.getRepositoryEntry().setDisplayname(truncatedTitle);
+            campusCourse.getRepositoryEntry().setDisplayname(CampusCourseTool.getTruncatedDisplayname(campusCourseImportData.getTitle()));
             String lvLanguage = campusConfiguration.getTemplateLanguage(campusCourseImportData.getLanguage());
-            courseCreator.setCourseTitleAndLearningObjectivesInCourseModel(campusCourse, campusCourseImportData.getTitle(), campusCourseImportData.getVvzLink(), defaultTemplateUsed, getTranslator(lvLanguage));
+            courseCreator.setCourseTitleAndLearningObjectivesInCourseModel(campusCourse, campusCourseImportData.getTitle(), campusCourseImportData.getVvzLink(), defaultTemplateUsed, lvLanguage);
             campusCourse.getRepositoryEntry().setDescription(courseDescriptionBuilder.buildDescriptionFrom(campusCourseImportData, lvLanguage));
 
             if (!defaultTemplateUsed) {
-                courseCreator.createCampusLearningAreaAndCampusBusinessGroups(campusCourse.getRepositoryEntry(), creator, getTranslator(lvLanguage));
+                courseCreator.createCampusLearningAreaAndCampusBusinessGroups(campusCourse.getRepositoryEntry(), creator, lvLanguage);
             }
 
             // Execute the first synchronization
@@ -229,9 +225,5 @@ public class CourseCreateCoordinator {
             }
             return null;
         }
-    }
-
-    private Translator getTranslator(String lvLanguage) {       
-        return  Util.createPackageTranslator(this.getClass(), new Locale(lvLanguage));
     }
 }

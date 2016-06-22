@@ -23,8 +23,8 @@ package ch.uzh.campus.service.core.impl.syncer;
 import ch.uzh.campus.CampusConfiguration;
 import ch.uzh.campus.CampusCourseImportTO;
 import ch.uzh.campus.service.CampusCourse;
-import ch.uzh.campus.service.core.impl.creator.CourseCreator;
 import ch.uzh.campus.service.core.impl.CampusCourseFactory;
+import ch.uzh.campus.service.core.impl.CampusCourseTool;
 import ch.uzh.campus.service.core.impl.creator.CourseDescriptionBuilder;
 import ch.uzh.campus.service.core.impl.syncer.statistic.TitleAndDescriptionStatistik;
 import org.olat.repository.RepositoryEntry;
@@ -42,14 +42,12 @@ public class CourseAttributeSynchronizer {
     private final CampusCourseFactory campusCourseFactory;
     private final CourseDescriptionBuilder courseDescriptionBuilder;
     private final CampusConfiguration campusConfiguration;
-    private final CourseCreator courseCreator;
 
     @Autowired
-    public CourseAttributeSynchronizer(CampusCourseFactory campusCourseFactory, CourseDescriptionBuilder courseDescriptionBuilder, CampusConfiguration campusConfiguration, CourseCreator courseCreator) {
+    public CourseAttributeSynchronizer(CampusCourseFactory campusCourseFactory, CourseDescriptionBuilder courseDescriptionBuilder, CampusConfiguration campusConfiguration) {
         this.campusCourseFactory = campusCourseFactory;
         this.courseDescriptionBuilder = courseDescriptionBuilder;
         this.campusConfiguration = campusConfiguration;
-        this.courseCreator = courseCreator;
     }
 
     TitleAndDescriptionStatistik synchronizeTitleAndDescription(CampusCourseImportTO campusCourseTO) {
@@ -80,8 +78,7 @@ public class CourseAttributeSynchronizer {
      */
     private boolean synchronizeTitle(CampusCourse campusCourse, String newTitle) {
         if (isTitleChanged(campusCourse.getRepositoryEntry(), newTitle)) {
-            String truncatedTitle = courseCreator.getTruncatedTitle(newTitle);
-            campusCourse.getRepositoryEntry().setDisplayname(truncatedTitle);
+            campusCourse.getRepositoryEntry().setDisplayname(CampusCourseTool.getTruncatedDisplayname(newTitle));
             return true;
         }
         return false;
@@ -92,6 +89,6 @@ public class CourseAttributeSynchronizer {
     }
 
     private boolean isTitleChanged(RepositoryEntry repositoryEntry, String newTitle) {
-        return (repositoryEntry.getDisplayname() == null && newTitle != null) || !repositoryEntry.getDisplayname().equals(courseCreator.getTruncatedTitle(newTitle));
+        return (repositoryEntry.getDisplayname() == null && newTitle != null) || !repositoryEntry.getDisplayname().equals(CampusCourseTool.getTruncatedDisplayname(newTitle));
     }
 }

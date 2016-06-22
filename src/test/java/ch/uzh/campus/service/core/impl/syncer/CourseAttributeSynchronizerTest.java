@@ -23,7 +23,6 @@ package ch.uzh.campus.service.core.impl.syncer;
 import ch.uzh.campus.CampusConfiguration;
 import ch.uzh.campus.CampusCourseImportTO;
 import ch.uzh.campus.service.CampusCourse;
-import ch.uzh.campus.service.core.impl.creator.CourseCreator;
 import ch.uzh.campus.service.core.impl.CampusCourseFactory;
 import ch.uzh.campus.service.core.impl.creator.CourseDescriptionBuilder;
 import ch.uzh.campus.service.core.impl.syncer.statistic.TitleAndDescriptionStatistik;
@@ -33,7 +32,6 @@ import org.olat.core.id.Identity;
 import org.olat.course.ICourse;
 import org.olat.repository.RepositoryEntry;
 import org.olat.test.OlatTestCase;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 
 import java.util.ArrayList;
@@ -49,9 +47,6 @@ import static org.mockito.Mockito.*;
  */
 @ContextConfiguration(locations = {"classpath:ch/uzh/campus/data/_spring/mockDataContext.xml"})
 public class CourseAttributeSynchronizerTest extends OlatTestCase {
-
-    @Autowired
-    private CourseCreator courseCreator;
 
     private long sapCampusCourseId = 1L;
     private Long resourceableId = 1002L;
@@ -73,7 +68,7 @@ public class CourseAttributeSynchronizerTest extends OlatTestCase {
         campusCourseFactoryMock = mock(CampusCourseFactory.class);
         courseDescriptionBuilderMock = mock(CourseDescriptionBuilder.class);
         campusConfigurationMock = mock(CampusConfiguration.class);
-        courseAttributeSynchronizerTestObject = new CourseAttributeSynchronizer(campusCourseFactoryMock, courseDescriptionBuilderMock, campusConfigurationMock, courseCreator);
+        courseAttributeSynchronizerTestObject = new CourseAttributeSynchronizer(campusCourseFactoryMock, courseDescriptionBuilderMock, campusConfigurationMock);
         ICourse course = mock(ICourse.class);
         RepositoryEntry repositoryEntry = mock(RepositoryEntry.class);
         when(repositoryEntry.getDisplayname()).thenReturn(title);

@@ -1,12 +1,14 @@
 package ch.uzh.campus.service.core.impl.creator;
 
-import ch.uzh.campus.data.DaoManager;
+import ch.uzh.campus.CampusConfiguration;
 import ch.uzh.campus.service.CampusCourse;
+import ch.uzh.campus.service.core.impl.CampusCourseTool;
 import org.olat.core.gui.translator.Translator;
 import org.olat.core.helpers.Settings;
 import org.olat.core.id.Identity;
 import org.olat.core.id.OLATResourceable;
 import org.olat.core.util.Formatter;
+import org.olat.core.util.Util;
 import org.olat.course.CourseFactory;
 import org.olat.course.ICourse;
 import org.olat.course.editor.NodeConfigFormController;
@@ -25,6 +27,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Locale;
 
 /**
  * This class holds the helper methods to create a campus course.
@@ -36,7 +39,6 @@ import java.util.List;
 @Component
 public class CourseCreator {
 
-    private static final int MAX_DISPLAYNAME_LENGTH = 140;
     private static final String DEFAULT_VVZ_LINK = "http://www.vorlesungen.uzh.ch/";     // this is expected to be found in the defaultTemplate
     private static final String OLAT_SUPPORT_EMAIL_NODE_TYPE = "co";                     // this is expected to be found in the defaultTemplate
     private static final String OLAT_SUPPORT_EMAIL_NODE_SHORT_TITLE_SUBSTRING = "@OLAT"; // this is expected to be found in the defaultTemplate
@@ -48,13 +50,13 @@ public class CourseCreator {
     private RepositoryService repositoryService;
 
     @Autowired
-    DaoManager daoManager;
-
-    @Autowired
     private BGAreaManager areaManager;
 
     @Autowired
     private BusinessGroupService businessGroupService;
+
+    @Autowired
+    private CampusConfiguration campusConfiguration;
 
     CampusCourse createCampusCourseFromTemplate(Long templateCourseResourceableId, Identity owner) {
         // 1. Lookup template
@@ -69,7 +71,10 @@ public class CourseCreator {
         return new CampusCourse(copyCourse, copyOfRepositoryEntry);
     }
 
-    void createCampusLearningAreaAndCampusBusinessGroups(RepositoryEntry repositoryEntry, Identity creatorIdentity, Translator translator) {
+    void createCampusLearningAreaAndCampusBusinessGroups(RepositoryEntry repositoryEntry, Identity creatorIdentity, String lvLanguage) {
+
+        Translator translator = getTranslator(lvLanguage);
+
         // Check if course has an area called campus.course.learningArea.name. If not, create an area with this name.
         String areaName = translator.translate("campus.course.learningArea.name");
         BGArea campusLearningArea = areaManager.findBGArea(areaName, repositoryEntry.getOlatResource());
@@ -106,27 +111,26 @@ public class CourseCreator {
         areaManager.addBGToBGArea(bgA, campusLernArea);
     }
 
-    public String getTruncatedTitle(String title) {
-        return Formatter.truncate(title, MAX_DISPLAYNAME_LENGTH);
-    }
+
 
     /**
      * Sets the short title, long title and the learning objective for both course-run and course-editor model. <br>
      * Adds the vvzLink to the learning objectives, if not null. <br>
      * Sets SentFromCourse in the @OLAT-Support email node, if the node exists.
      */
-    void setCourseTitleAndLearningObjectivesInCourseModel(CampusCourse campusCourse, String title, String vvzLink, boolean defaultTemplateUsed, Translator translator) {
+    void setCourseTitleAndLearningObjectivesInCourseModel(CampusCourse campusCourse, String title, String vvzLink, boolean defaultTemplateUsed, String lvLanguage) {
 
         ICourse course = campusCourse.getCourse();
-        String truncatedTitle = getTruncatedTitle(title);
+        String truncatedDisplayname = CampusCourseTool.getTruncatedDisplayname(title);
+        Translator translator = getTranslator(lvLanguage);
 
         // Open courseEditSession
         CourseFactory.openCourseEditSession(course.getResourceableId());
 
         // Update course run model
         CourseNode runRoot = course.getRunStructure().getRootNode();
-        runRoot.setShortTitle(Formatter.truncate(truncatedTitle, NodeConfigFormController.SHORT_TITLE_MAX_LENGTH));
-        runRoot.setLongTitle(truncatedTitle);
+        runRoot.setShortTitle(Formatter.truncate(truncatedDisplayname, NodeConfigFormController.SHORT_TITLE_MAX_LENGTH));
+        runRoot.setLongTitle(truncatedDisplayname);
 
         String newObjective = getModelObjectivesWithVVZLink(runRoot, translator, defaultTemplateUsed, vvzLink);
         if (newObjective != null && !newObjective.isEmpty()) {
@@ -149,8 +153,8 @@ public class CourseCreator {
         // Update course editor model
         CourseEditorTreeModel cetm = course.getEditorTreeModel();
         CourseNode rootNode = cetm.getCourseNode(course.getRunStructure().getRootNode().getIdent());
-        rootNode.setShortTitle(Formatter.truncate(truncatedTitle, NodeConfigFormController.SHORT_TITLE_MAX_LENGTH));
-        rootNode.setLongTitle(truncatedTitle);
+        rootNode.setShortTitle(Formatter.truncate(truncatedDisplayname, NodeConfigFormController.SHORT_TITLE_MAX_LENGTH));
+        rootNode.setLongTitle(truncatedDisplayname);
 
         String newEditorObjective = getModelObjectivesWithVVZLink(rootNode, translator, defaultTemplateUsed, vvzLink);
         if (newEditorObjective != null && !newEditorObjective.isEmpty()) {
@@ -217,4 +221,8 @@ public class CourseCreator {
         moduleConfiguration.set(COEditController.CONFIG_KEY_SENT_FROM_COURSE, sentFromCourse);
     }
 
+    Translator getTranslator(String lvLanguage) {
+        String supportedLvLanguage = campusConfiguration.getTemplateLanguage(lvLanguage);
+        return  Util.createPackageTranslator(this.getClass(), new Locale(supportedLvLanguage));
+    }
 }
