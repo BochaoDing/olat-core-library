@@ -29,10 +29,7 @@ import java.util.Set;
         @NamedQuery(name = Course.GET_PILOT_COURSES_BY_LECTURER_ID, query = "select c from Course c left join c.lecturerCourses lc where lc.lecturer.personalNr = :lecturerId and c.enabled = '1' and c.shortSemester = (select max(c2.shortSemester) from Course c2) "),
         @NamedQuery(name = Course.GET_ALL_NOT_UPDATED_COURSES, query = "select c.id from Course c where c.resourceableId is null and c.modifiedDate < :lastImportDate"),
         @NamedQuery(name = Course.GET_COURSE_IDS_BY_RESOURCEABLE_ID, query = "select c.id from Course c where c.resourceableId = :resourceableId"),
-
-        @NamedQuery(name = Course.DELETE_RESOURCEABLE_ID, query = "update Course c set c.resourceableId = null where c.resourceableId = :resId"),
-        @NamedQuery(name = Course.SAVE_RESOURCEABLE_ID, query = "update Course c set c.resourceableId = :resId where c.id = :courseId"),
-        @NamedQuery(name = Course.DISABLE_SYNCHRONIZATION, query = "update Course c set c.synchronizable = false where c.id = :courseId"),
+        @NamedQuery(name = Course.GET_COURSE_BY_RESOURCEABLE_ID, query = "select c from Course c where c.resourceableId = :resourceableId"),
 
         @NamedQuery(name = Course.DELETE_BY_COURSE_IDS, query = "delete from Course c where c.id in :courseIds"),
 })
@@ -44,7 +41,7 @@ public class Course {
     @Id
     private Long id;
 
-    @Column(name = "olat_id", updatable = false)
+    @Column(name = "olat_id")
     private Long resourceableId;
 
     @Column(name = "short_title", nullable = false)
@@ -86,7 +83,7 @@ public class Course {
     @Column(name = "enabled", nullable = false)
     private String enabled = "0";
 
-    @Column(name = "synchronizable", nullable = false, updatable = false)
+    @Column(name = "synchronizable", nullable = false)
     private boolean synchronizable = true;
 
     @Transient
@@ -132,11 +129,7 @@ public class Course {
     static final String GET_COURSE_IDS_BY_RESOURCEABLE_ID = "getCourseIdsByResourceableId";
     static final String GET_PILOT_COURSES_BY_LECTURER_ID = "getPilotCoursesByLecturerId";
     static final String GET_PILOT_COURSES_BY_STUDENT_ID = "getPilotCoursesByStudentId";
-
-    static final String DELETE_RESOURCEABLE_ID = "deleteResourceableId";
-    static final String SAVE_RESOURCEABLE_ID = "saveResourceableId";
-    static final String DISABLE_SYNCHRONIZATION = "disableSynchronization";
-
+    static final String GET_COURSE_BY_RESOURCEABLE_ID = "getCourseByResourcableId";
     static final String DELETE_BY_COURSE_IDS = "deleteCoursesByCourseId";
 
     public Long getId() {

@@ -211,12 +211,14 @@ public class CourseDaoTest extends OlatTestCase {
     }
 
     @Test
-    public void testSaveResourceableIdAsBulkUpdate() {
+    public void testSaveResourceableId() {
         insertTestData();
         Course course = courseDao.getCourseById(100L);
         assertEquals(100L, course.getResourceableId().longValue());
 
-        courseDao.saveResourceableIdAsBulkUpdate(100L, 1000L);
+        courseDao.saveResourceableId(100L, 1000L);
+
+        assertEquals(1000L, course.getResourceableId().longValue());
 
         dbInstance.flush();
         dbInstance.clear();
@@ -226,12 +228,14 @@ public class CourseDaoTest extends OlatTestCase {
     }
 
     @Test
-    public void testDisableSynchronizationAsBulkUpdate() {
+    public void testDisableSynchronization() {
         insertTestData();
         Course course = courseDao.getCourseById(100L);
         assertTrue(course.isSynchronizable());
 
-        courseDao.disableSynchronizationAsBulkUpdate(100L);
+        courseDao.disableSynchronization(100L);
+
+        assertFalse(course.isSynchronizable());
 
         dbInstance.flush();
         dbInstance.clear();
@@ -241,12 +245,14 @@ public class CourseDaoTest extends OlatTestCase {
     }
 
     @Test
-    public void testDeleteResourceableIdAsBulkUpdate() {
+    public void testDeleteResourceableId() {
         insertTestData();
         Course course = courseDao.getCourseById(100L);
         assertEquals(100L, course.getResourceableId().longValue());
 
-        courseDao.deleteResourceableIdAsBulkUpdate(100L);
+        courseDao.deleteResourceable(100L);
+
+        assertNull(course.getResourceableId());
 
         dbInstance.flush();
         dbInstance.clear();
@@ -268,7 +274,7 @@ public class CourseDaoTest extends OlatTestCase {
         insertTestData();
         assertEquals(2, courseDao.getIdsOfAllCreatedCourses().size());
 
-        courseDao.deleteResourceableIdAsBulkUpdate(100L);
+        courseDao.deleteResourceable(100L);
 
         dbInstance.flush();
         dbInstance.clear();
@@ -281,7 +287,7 @@ public class CourseDaoTest extends OlatTestCase {
         insertTestData();
         assertEquals(1, courseDao.getIdsOfAllNotCreatedCourses().size());
 
-        courseDao.deleteResourceableIdAsBulkUpdate(100L);
+        courseDao.deleteResourceable(100L);
 
         dbInstance.flush();
         dbInstance.clear();
@@ -326,7 +332,7 @@ public class CourseDaoTest extends OlatTestCase {
         insertTestData();
         assertTrue(courseDao.existResourceableId(100L));
 
-        courseDao.deleteResourceableIdAsBulkUpdate(100L);
+        courseDao.deleteResourceable(100L);
 
         dbInstance.flush();
         dbInstance.clear();

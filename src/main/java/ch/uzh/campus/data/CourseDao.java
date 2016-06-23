@@ -81,32 +81,24 @@ public class CourseDao implements CampusDao<Course> {
         deleteCourseBidirectionally(course);
     }
 
-    /**
-     * Bulk update for efficient update of a big number of entries. Does not update persistence context!
-     */
-    public void saveResourceableIdAsBulkUpdate(Long courseId, Long resourceableId) {
-        dbInstance.getCurrentEntityManager().createNamedQuery(Course.SAVE_RESOURCEABLE_ID)
-				.setParameter("courseId", courseId)
-				.setParameter("resId", resourceableId)
-				.executeUpdate();
+    public void saveResourceableId(Long courseId, Long resourceableId) {
+        Course course = getCourseById(courseId);
+        course.setResourceableId(resourceableId);
     }
 
-    /**
-     * Bulk update for efficient update of a big number of entries. Does not update persistence context!
-     */
-    public void disableSynchronizationAsBulkUpdate(Long courseId) {
-        dbInstance.getCurrentEntityManager().createNamedQuery(Course.DISABLE_SYNCHRONIZATION)
-		        .setParameter("courseId", courseId)
-		        .executeUpdate();
+    public void disableSynchronization(Long courseId) {
+        Course course = getCourseById(courseId);
+        course.setSynchronizable(false);
     }
 
-    /**
-     * Bulk update for efficient update of a big number of entries. Does not update persistence context!
-     */
-    public void deleteResourceableIdAsBulkUpdate(Long resourceableId) {
-        dbInstance.getCurrentEntityManager().createNamedQuery(Course.DELETE_RESOURCEABLE_ID)
-                .setParameter("resId", resourceableId)
-		        .executeUpdate();
+    public void deleteResourceable(Long resourceableId) {
+        List<Course> courses =dbInstance.getCurrentEntityManager()
+                .createNamedQuery(Course.GET_COURSE_BY_RESOURCEABLE_ID, Course.class)
+                .setParameter("resourceableId", resourceableId)
+                .getResultList();
+        for (Course course : courses) {
+            course.setResourceableId(null);
+        }
     }
 
     /**

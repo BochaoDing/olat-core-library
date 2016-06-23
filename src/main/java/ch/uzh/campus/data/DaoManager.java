@@ -337,16 +337,16 @@ public class DaoManager {
     }
 
     public void saveCampusCourseResoureableId(Long courseId, Long resourceableId) {
-        courseDao.saveResourceableIdAsBulkUpdate(courseId, resourceableId);
+        courseDao.saveResourceableId(courseId, resourceableId);
     }
 
     public void saveCampusCourseResoureableIdAndDisableSynchronization(Long courseId, Long resourceableId) {
-        courseDao.saveResourceableIdAsBulkUpdate(courseId, resourceableId);
-        courseDao.disableSynchronizationAsBulkUpdate(courseId);
+        courseDao.saveResourceableId(courseId, resourceableId);
+        courseDao.disableSynchronization(courseId);
     }
 
     public void deleteResourceableId(Long resourceableId) {
-        courseDao.deleteResourceableIdAsBulkUpdate(resourceableId);
+        courseDao.deleteResourceable(resourceableId);
     }
 
     public List<Long> getAllCreatedSapCourcesIds() {
