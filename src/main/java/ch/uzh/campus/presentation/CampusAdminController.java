@@ -19,7 +19,7 @@
  */
 package ch.uzh.campus.presentation;
 
-import ch.uzh.campus.CampusConfiguration;
+import ch.uzh.campus.CampusCourseConfiguration;
 import org.olat.core.CoreSpringFactory;
 import org.olat.core.gui.UserRequest;
 import org.olat.core.gui.components.form.flexible.FormItem;
@@ -49,13 +49,13 @@ public class CampusAdminController extends FormBasicController {
     private static String[] languages = { "DE", "EN", "FR", "IT" };
     private static String DEFAULT_LANGUAGE = "DE";
     private FormLink saveButton;
-    private CampusConfiguration campusConfiguration;
+    private CampusCourseConfiguration campusCourseConfiguration;
     private Long templateCourseResourcableId;
 
     public CampusAdminController(final UserRequest ureq, final WindowControl wControl) {
         super(ureq, wControl);
-        campusConfiguration = (CampusConfiguration) CoreSpringFactory.getBean(CampusConfiguration.class);
-        templateCourseResourcableId = campusConfiguration.getTemplateCourseResourcableId(DEFAULT_LANGUAGE);
+        campusCourseConfiguration = (CampusCourseConfiguration) CoreSpringFactory.getBean(CampusCourseConfiguration.class);
+        templateCourseResourcableId = campusCourseConfiguration.getTemplateCourseResourcableId(DEFAULT_LANGUAGE);
         initForm(this.flc, this, ureq);
     }
 
@@ -80,7 +80,7 @@ public class CampusAdminController extends FormBasicController {
     @Override
     protected void formInnerEvent(final UserRequest ureq, final FormItem source, final FormEvent event) {
         if (source == languagesSelection) {
-            Long templateCourseResourcableId = campusConfiguration.getTemplateCourseResourcableId(languagesSelection.getSelectedKey());
+            Long templateCourseResourcableId = campusCourseConfiguration.getTemplateCourseResourcableId(languagesSelection.getSelectedKey());
             if (templateCourseResourcableId != null) {
                 resourceableIdTextElement.setValue(templateCourseResourcableId.toString());
             }
@@ -126,7 +126,7 @@ public class CampusAdminController extends FormBasicController {
                 throw new CorruptedCourseException("Provided template is not valid");
             }
             // Course is now validated and can be used as template => write property
-            campusConfiguration.saveTemplateCourseResourcableId(templateCourseResourcableIdAsLong, languagesSelection.getSelectedKey());
+            campusCourseConfiguration.saveTemplateCourseResourcableId(templateCourseResourcableIdAsLong, languagesSelection.getSelectedKey());
         } catch (NumberFormatException ex) {
             this.showWarning("campus.admin.form.could.not.save");
         } catch (CorruptedCourseException ex) {

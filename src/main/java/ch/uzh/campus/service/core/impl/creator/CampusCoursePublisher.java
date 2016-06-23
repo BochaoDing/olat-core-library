@@ -40,7 +40,7 @@ import java.util.Locale;
  * @author cg
  */
 @Component
-public class CoursePublisher {
+public class CampusCoursePublisher {
 
     public void publish(ICourse course, Identity publisherIdentity) {
         Locale locale = new Locale("de");

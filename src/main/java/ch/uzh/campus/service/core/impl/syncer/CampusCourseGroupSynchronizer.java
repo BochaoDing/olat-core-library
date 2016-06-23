@@ -1,6 +1,6 @@
 package ch.uzh.campus.service.core.impl.syncer;
 
-import ch.uzh.campus.CampusConfiguration;
+import ch.uzh.campus.CampusCourseConfiguration;
 import ch.uzh.campus.CampusCourseImportTO;
 import ch.uzh.campus.service.CampusCourse;
 import ch.uzh.campus.service.core.impl.syncer.statistic.SynchronizedGroupStatistic;
@@ -33,19 +33,19 @@ public class CampusCourseGroupSynchronizer {
     
 	private static final OLog LOG = Tracing.createLoggerFor(CampusCourseGroupSynchronizer.class);
 
-    private final CampusConfiguration campusConfiguration;
-    private final CampuskursCoOwners campuskursCoOwners;
+    private final CampusCourseConfiguration campusCourseConfiguration;
+    private final CampusCourseCoOwners campusCourseCoOwners;
     private final RepositoryService repositoryService;
     private final BusinessGroupService businessGroupService;
-    private final CampusGroupFinder campusGroupFinder;
+    private final CampusCourseGroupFinder campusCourseGroupFinder;
 
     @Autowired
-    public CampusCourseGroupSynchronizer(CampusConfiguration campusConfiguration, CampuskursCoOwners campuskursCoOwners, RepositoryService repositoryService, BusinessGroupService businessGroupService, CampusGroupFinder campusGroupFinder) {
-        this.campusConfiguration = campusConfiguration;
-        this.campuskursCoOwners = campuskursCoOwners;
+    public CampusCourseGroupSynchronizer(CampusCourseConfiguration campusCourseConfiguration, CampusCourseCoOwners campusCourseCoOwners, RepositoryService repositoryService, BusinessGroupService businessGroupService, CampusCourseGroupFinder campusCourseGroupFinder) {
+        this.campusCourseConfiguration = campusCourseConfiguration;
+        this.campusCourseCoOwners = campusCourseCoOwners;
         this.repositoryService = repositoryService;
         this.businessGroupService = businessGroupService;
-        this.campusGroupFinder = campusGroupFinder;
+        this.campusCourseGroupFinder = campusCourseGroupFinder;
     }
 
     public void addAllLecturesAsOwner(CampusCourse campusCourse, List<Identity> lecturers) {
@@ -64,11 +64,11 @@ public class CampusCourseGroupSynchronizer {
 	}
    
    public void addDefaultCoOwnersAsOwner(CampusCourse campusCourse) {
-	   addAsOwners(campusCourse, campuskursCoOwners.getDefaultCoOwners());
+	   addAsOwners(campusCourse, campusCourseCoOwners.getDefaultCoOwners());
    }
      
    public List<Identity> getCampusGroupAParticipants(CampusCourse campusCourse) {
-        BusinessGroup campusGroupA = campusGroupFinder.lookupCampusGroup(campusCourse.getCourse(), campusConfiguration.getCourseGroupAName());
+        BusinessGroup campusGroupA = campusCourseGroupFinder.lookupCampusGroup(campusCourse.getCourse(), campusCourseConfiguration.getCourseGroupAName());
         return businessGroupService.getMembers(campusGroupA, GroupRoles.participant.name());
    }
 
@@ -76,8 +76,8 @@ public class CampusCourseGroupSynchronizer {
     * Synchronizes the coaches of the GroupB, and the coaches and participants of the GroupA.
     */
     public SynchronizedGroupStatistic synchronizeCourseGroups(CampusCourse campusCourse, CampusCourseImportTO campusCourseImportData) {
-        BusinessGroup campusGroupA = campusGroupFinder.lookupCampusGroup(campusCourse.getCourse(), campusConfiguration.getCourseGroupAName());
-        BusinessGroup campusGroupB = campusGroupFinder.lookupCampusGroup(campusCourse.getCourse(), campusConfiguration.getCourseGroupBName());
+        BusinessGroup campusGroupA = campusCourseGroupFinder.lookupCampusGroup(campusCourse.getCourse(), campusCourseConfiguration.getCourseGroupAName());
+        BusinessGroup campusGroupB = campusCourseGroupFinder.lookupCampusGroup(campusCourse.getCourse(), campusCourseConfiguration.getCourseGroupBName());
         
         //get the course owner identities
         List<Identity> courseOwners = repositoryService.getMembers(campusCourse.getRepositoryEntry(), GroupRoles.owner.name());
@@ -127,7 +127,7 @@ public class CampusCourseGroupSynchronizer {
         return addedIdentityCounter;
     }
 
-    CampuskursCoOwners getCampuskursCoOwners() {
-        return campuskursCoOwners;
+    CampusCourseCoOwners getCampusCourseCoOwners() {
+        return campusCourseCoOwners;
     }
 }

@@ -21,7 +21,6 @@
 package ch.uzh.campus.service.core.impl.syncer;
 
 import ch.uzh.campus.data.DaoManager;
-import ch.uzh.campus.service.core.impl.syncer.CourseSynchronizer;
 import ch.uzh.campus.service.core.impl.syncer.statistic.SynchronizedGroupStatistic;
 
 import org.junit.Before;
@@ -37,14 +36,14 @@ import static org.mockito.Mockito.when;
  * 
  * @author cg
  */
-public class CourseSynchronizerTest {
+public class CampusCourseSynchronizerTest {
 
     private static final long NOT_EXISTING_SAP_COURSE_ID = 4455;
-    private CourseSynchronizer courseSynchronizerTestObject;
+    private CampusCourseSynchronizer campusCourseSynchronizerTestObject;
 
     @Before
     public void setup() {
-        courseSynchronizerTestObject = new CourseSynchronizer();
+        campusCourseSynchronizerTestObject = new CampusCourseSynchronizer();
     }
 
     
@@ -54,7 +53,7 @@ public class CourseSynchronizerTest {
         when(daoManagerMock.getSapCampusCourse(NOT_EXISTING_SAP_COURSE_ID)).thenReturn(null);
         // courseSynchronizerTestObject.campusDaoManager = daoManagerMock;
 
-        SynchronizedGroupStatistic statistic = courseSynchronizerTestObject.synchronizeCourse(null);
+        SynchronizedGroupStatistic statistic = campusCourseSynchronizerTestObject.synchronizeCourse(null);
         assertNotNull(statistic);
     }
     

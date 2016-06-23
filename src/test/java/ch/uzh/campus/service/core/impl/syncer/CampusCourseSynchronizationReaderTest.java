@@ -39,8 +39,8 @@ import static org.mockito.Mockito.when;
  * 
  * @author aabouc
  */
-public class SynchronizationReaderTest {
-    private SynchronizationReader synchronizationReaderTestObject;
+public class CampusCourseSynchronizationReaderTest {
+    private CampusCourseSynchronizationReader campusCourseSynchronizationReaderTestObject;
     private DaoManager daoManagerMock;
 
     @Before
@@ -48,35 +48,35 @@ public class SynchronizationReaderTest {
         // Mocks for DaoManager and DB
         daoManagerMock = mock(DaoManager.class);
         DB dbMock = mock(DB.class);
-        synchronizationReaderTestObject = new SynchronizationReader(daoManagerMock, dbMock);
+        campusCourseSynchronizationReaderTestObject = new CampusCourseSynchronizationReader(daoManagerMock, dbMock);
     }
 
     @Test
     public void destroy_nullCoursesList() {
         when(daoManagerMock.getAllCreatedSapCources()).thenReturn(null);
-        synchronizationReaderTestObject.init();
-        synchronizationReaderTestObject.destroy();
+        campusCourseSynchronizationReaderTestObject.init();
+        campusCourseSynchronizationReaderTestObject.destroy();
     }
 
     @Test
     public void destroy_emptyCoursesList() {
         when(daoManagerMock.getAllCreatedSapCources()).thenReturn(new ArrayList<>());
-        synchronizationReaderTestObject.init();
-        synchronizationReaderTestObject.destroy();
+        campusCourseSynchronizationReaderTestObject.init();
+        campusCourseSynchronizationReaderTestObject.destroy();
     }
 
     @Test
     public void read_nullCoursesList() throws Exception {
         when(daoManagerMock.getAllCreatedSapCources()).thenReturn(null);
-        synchronizationReaderTestObject.init();
-        assertNull(synchronizationReaderTestObject.read());
+        campusCourseSynchronizationReaderTestObject.init();
+        assertNull(campusCourseSynchronizationReaderTestObject.read());
     }
 
     @Test
     public void read_emptyCoursesList() throws Exception {
         when(daoManagerMock.getAllCreatedSapCources()).thenReturn(new ArrayList<>());
-        synchronizationReaderTestObject.init();
-        assertNull(synchronizationReaderTestObject.read());
+        campusCourseSynchronizationReaderTestObject.init();
+        assertNull(campusCourseSynchronizationReaderTestObject.read());
     }
 
     @Test
@@ -92,12 +92,12 @@ public class SynchronizationReaderTest {
         when(daoManagerMock.getSapCampusCourse(100L)).thenReturn(courseMock1);
         when(daoManagerMock.getSapCampusCourse(200L)).thenReturn(courseMock2);
 
-        synchronizationReaderTestObject.init();
+        campusCourseSynchronizationReaderTestObject.init();
         // The first read delivers the first course
-        assertNotNull(synchronizationReaderTestObject.read());
+        assertNotNull(campusCourseSynchronizationReaderTestObject.read());
         // The second read delivers the second course
-        assertNotNull(synchronizationReaderTestObject.read());
+        assertNotNull(campusCourseSynchronizationReaderTestObject.read());
         // The third read delivers null
-        assertNull(synchronizationReaderTestObject.read());
+        assertNull(campusCourseSynchronizationReaderTestObject.read());
     }
 }

@@ -20,7 +20,7 @@
  */
 package ch.uzh.campus.connectors;
 
-import ch.uzh.campus.CampusConfiguration;
+import ch.uzh.campus.CampusCourseConfiguration;
 import ch.uzh.campus.data.*;
 import ch.uzh.campus.metric.CampusNotifier;
 import ch.uzh.campus.metric.CampusStatistics;
@@ -54,7 +54,7 @@ public class CampusInterceptor<T, S> implements StepExecutionListener, ItemWrite
 	private final SkipItemDao skipItemDao;
 	private final DaoManager daoManager;
     private final CampusNotifier campusNotifier;
-	private final CampusConfiguration campusConfiguration;
+	private final CampusCourseConfiguration campusCourseConfiguration;
 
     private StepExecution stepExecution;
     private int fixedNumberOfFilesToBeExported;
@@ -63,15 +63,15 @@ public class CampusInterceptor<T, S> implements StepExecutionListener, ItemWrite
 
 	@Autowired
 	public CampusInterceptor(DB dbInstance, ImportStatisticDao statisticDao,
-							 SkipItemDao skipItemDao, DaoManager daoManager,
-							 CampusNotifier campusNotifier,
-							 CampusConfiguration campusConfiguration) {
+                             SkipItemDao skipItemDao, DaoManager daoManager,
+                             CampusNotifier campusNotifier,
+                             CampusCourseConfiguration campusCourseConfiguration) {
 		this.dbInstance = dbInstance;
 		this.statisticDao = statisticDao;
 		this.skipItemDao = skipItemDao;
 		this.daoManager = daoManager;
 		this.campusNotifier = campusNotifier;
-		this.campusConfiguration = campusConfiguration;
+		this.campusCourseConfiguration = campusCourseConfiguration;
 	}
 
     /**
@@ -408,7 +408,7 @@ public class CampusInterceptor<T, S> implements StepExecutionListener, ItemWrite
 		 * Chunk count and duration is being logged for sync step since this
 		 * may be slow and potentially break timeout.
 		 */
-        int timeout = campusConfiguration.getConnectionPoolTimeout(); // milliseconds!
+        int timeout = campusCourseConfiguration.getConnectionPoolTimeout(); // milliseconds!
         if (timeout > 0 && CampusProcessStep.CAMPUSSYNCHRONISATION.name().equalsIgnoreCase(stepExecution.getStepName())) {
             chunkCount++;
             long chunkProcessingDuration = System.currentTimeMillis() - chunkStartTime;

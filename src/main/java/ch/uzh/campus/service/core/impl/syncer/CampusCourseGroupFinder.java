@@ -38,9 +38,9 @@ import java.util.List;
  * @author cg
  */
 @Service
-public class CampusGroupFinder {
+public class CampusCourseGroupFinder {
 
-    private static final OLog LOG = Tracing.createLoggerFor(CampusGroupFinder.class);
+    private static final OLog LOG = Tracing.createLoggerFor(CampusCourseGroupFinder.class);
 
     public BusinessGroup lookupCampusGroup(ICourse course, String campusGruppe) {
         CourseGroupManager courseGroupManager = course.getCourseEnvironment().getCourseGroupManager();

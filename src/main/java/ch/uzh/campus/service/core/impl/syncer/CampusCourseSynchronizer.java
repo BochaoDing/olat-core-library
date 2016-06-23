@@ -20,7 +20,7 @@
  */
 package ch.uzh.campus.service.core.impl.syncer;
 
-import ch.uzh.campus.CampusConfiguration;
+import ch.uzh.campus.CampusCourseConfiguration;
 import ch.uzh.campus.CampusCourseImportTO;
 import ch.uzh.campus.service.CampusCourse;
 import ch.uzh.campus.service.core.impl.CampusCourseFactory;
@@ -38,23 +38,23 @@ import org.springframework.stereotype.Component;
  * @author cg
  */
 @Component
-public class CourseSynchronizer {
+public class CampusCourseSynchronizer {
 
-    private static final OLog LOG = Tracing.createLoggerFor(CourseSynchronizer.class);
+    private static final OLog LOG = Tracing.createLoggerFor(CampusCourseSynchronizer.class);
 
     @Autowired
     private CampusCourseGroupSynchronizer courseGroupSynchronizer;
    
     @Autowired
-    private CourseAttributeSynchronizer courseAttributeSynchronizer;
+    private CampusCourseAttributeSynchronizer campusCourseAttributeSynchronizer;
     
     @Autowired
-    private CampusConfiguration campusConfiguration;
+    private CampusCourseConfiguration campusCourseConfiguration;
     
     @Autowired
     private CampusCourseFactory campusCourseFactory;
 
-    public SynchronizedGroupStatistic synchronizeCourse(CampusCourseImportTO sapCourse) {
+    SynchronizedGroupStatistic synchronizeCourse(CampusCourseImportTO sapCourse) {
         if (sapCourse != null) {
             ICourse course = CourseFactory.loadCourse(sapCourse.getOlatResourceableId());
 
@@ -70,9 +70,9 @@ public class CourseSynchronizer {
             SynchronizedGroupStatistic groupStatistic = courseGroupSynchronizer.synchronizeCourseGroups(campusCourse, sapCourse);
 
             LOG.debug("synchronizeCourse statistic=" + groupStatistic);
-            if (campusConfiguration.isSynchronizeTitleAndDescriptionEnabled()) {
+            if (campusCourseConfiguration.isSynchronizeTitleAndDescriptionEnabled()) {
                 LOG.debug("SynchronizeTitleAndDescription is enabled");
-                courseAttributeSynchronizer.synchronizeTitleAndDescription(sapCourse);
+                campusCourseAttributeSynchronizer.synchronizeTitleAndDescription(sapCourse);
             }
             return groupStatistic;
         } else {

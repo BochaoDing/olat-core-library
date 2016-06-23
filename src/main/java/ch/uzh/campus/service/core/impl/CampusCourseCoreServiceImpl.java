@@ -26,7 +26,7 @@ import ch.uzh.campus.data.DaoManager;
 import ch.uzh.campus.data.SapOlatUser;
 import ch.uzh.campus.service.CampusCourse;
 import ch.uzh.campus.service.core.CampusCourseCoreService;
-import ch.uzh.campus.service.core.impl.creator.CourseCreateCoordinator;
+import ch.uzh.campus.service.core.impl.creator.CampusCourseCreateCoordinator;
 import org.olat.core.commons.persistence.DB;
 import org.olat.core.id.Identity;
 import org.olat.core.id.OLATResourceable;
@@ -57,7 +57,7 @@ public class CampusCourseCoreServiceImpl implements CampusCourseCoreService {
     DaoManager daoManager;
     
     @Autowired
-    CourseCreateCoordinator courseCreateCoordinator;
+    CampusCourseCreateCoordinator campusCourseCreateCoordinator;
     
     @Autowired
     RepositoryService repositoryService;
@@ -99,11 +99,11 @@ public class CampusCourseCoreServiceImpl implements CampusCourseCoreService {
         CampusCourseImportTO campusCourseImportData = daoManager.getSapCampusCourse(sapCampusCourseId);
         CampusCourse campusCourse = loadCampusCourse(sapCampusCourseId, courseResourceableId);
         
-        return courseCreateCoordinator.continueCampusCourse(campusCourse, campusCourseImportData, creator);
+        return campusCourseCreateCoordinator.continueCampusCourse(campusCourse, campusCourseImportData, creator);
     }
 
     public CampusCourse createCampusCourse(Long resourceableId, Long sapCampusCourseId, Identity creator, CampusCourseImportTO campusCourseImportData) {
-        CampusCourse campusCourse = courseCreateCoordinator.createCampusCourse(resourceableId, campusCourseImportData, creator);
+        CampusCourse campusCourse = campusCourseCreateCoordinator.createCampusCourse(resourceableId, campusCourseImportData, creator);
         if (campusCourse != null) {
             try {
                 daoManager.saveCampusCourseResoureableId(sapCampusCourseId, campusCourse.getRepositoryEntry().getOlatResource().getResourceableId());

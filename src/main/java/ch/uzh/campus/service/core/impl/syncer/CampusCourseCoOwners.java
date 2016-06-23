@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.StringTokenizer;
 
-import org.apache.log4j.Logger;
 import org.olat.basesecurity.BaseSecurity;
 import org.olat.core.id.Identity;
 import org.olat.core.logging.OLog;
@@ -12,7 +11,7 @@ import org.olat.core.logging.Tracing;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import ch.uzh.campus.CampusConfiguration;
+import ch.uzh.campus.CampusCourseConfiguration;
 
 /**
  * Initial Date: 12.07.2012 <br>
@@ -20,25 +19,25 @@ import ch.uzh.campus.CampusConfiguration;
  * @author cg
  */
 @Component
-public class CampuskursCoOwners {
+public class CampusCourseCoOwners {
     
-	private static final OLog log = Tracing.createLoggerFor(CampuskursCoOwners.class);
+	private static final OLog log = Tracing.createLoggerFor(CampusCourseCoOwners.class);
 
     private static final String DELIMITER = ",";
 
     @Autowired
-    public CampusConfiguration campusConfiguration;
+    public CampusCourseConfiguration campusCourseConfiguration;
 
     @Autowired
     public BaseSecurity baseSecurity;
 
-    public void setCampusConfiguration(CampusConfiguration campusConfiguration) {
-        this.campusConfiguration = campusConfiguration;
+    public void setCampusCourseConfiguration(CampusCourseConfiguration campusCourseConfiguration) {
+        this.campusCourseConfiguration = campusCourseConfiguration;
     }
 
     private List<Identity> identites;
 
-    public List<Identity> getDefaultCoOwners() {
+    List<Identity> getDefaultCoOwners() {
         if (identites != null) {
             return identites;
         } else {
@@ -49,8 +48,8 @@ public class CampuskursCoOwners {
     }
 
     private List<Identity> initCoOwnerIdentities() {
-        String defaultCoOwnerUserNamesPropertyValue = campusConfiguration.getDefaultCoOwnerUserNames();
-        List<Identity> identites = new ArrayList<Identity>();
+        String defaultCoOwnerUserNamesPropertyValue = campusCourseConfiguration.getDefaultCoOwnerUserNames();
+        List<Identity> identites = new ArrayList<>();
         StringTokenizer tok = new StringTokenizer(defaultCoOwnerUserNamesPropertyValue, DELIMITER);
         while (tok.hasMoreTokens()) {
             String identityName = tok.nextToken();

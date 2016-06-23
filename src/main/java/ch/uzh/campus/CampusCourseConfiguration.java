@@ -17,7 +17,7 @@ import org.olat.properties.Property;
  * @author cg
  */
 @Component
-public class CampusConfiguration {
+public class CampusCourseConfiguration {
 
     private static final Identity NO_IDENTITY = null;
     private static final BusinessGroup NO_GROUP = null;
@@ -90,7 +90,7 @@ public class CampusConfiguration {
         }
     }
 
-    String getPropertyOrDefaultValue(String propertyKey, String defaultValue) {
+    private String getPropertyOrDefaultValue(String propertyKey, String defaultValue) {
     	Property property = findCampusProperty(propertyKey);
         if (property == null) {
             return defaultValue;
@@ -107,7 +107,7 @@ public class CampusConfiguration {
         saveCampusProperty(language.concat(TEMPLATE_COURSE_RESOURCEABLE_ID_PROPERTY_KEY), templateCourseResourcableId.toString());
     }
 
-    void saveCampusProperty(String propertyKey, String propertyValue) {
+    private void saveCampusProperty(String propertyKey, String propertyValue) {
         Property property = findCampusProperty(propertyKey);
         if (property == null) {
             property = propertyManager.createPropertyInstance(NO_IDENTITY, NO_GROUP, NO_RESOURCEABLE, CAMPUS_COURSE_PROPERTY_CATEGORY, propertyKey, null, null,

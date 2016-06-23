@@ -35,10 +35,10 @@ import static org.junit.Assert.assertEquals;
  * @author cg
  */
 @ContextConfiguration(locations = {"classpath:ch/uzh/campus/data/_spring/mockDataContext.xml"})
-public class CampusConfigurationTest extends OlatTestCase {
+public class CampusCourseConfigurationTest extends OlatTestCase {
 
     @Autowired
-    private CampusConfiguration campusConfiguration;
+    private CampusCourseConfiguration campusCourseConfiguration;
 
     @Value("${campus.template.course.resourceable.id}")
     String defaultValue;
@@ -52,17 +52,17 @@ public class CampusConfigurationTest extends OlatTestCase {
 
     @Test
     public void getTemplateCourseResourcableId_DefaultValue() {
-        Long configValue = campusConfiguration.getTemplateCourseResourcableId(null);
+        Long configValue = campusCourseConfiguration.getTemplateCourseResourcableId(null);
         assertEquals("Wrong default value, config-value is different to value in olat.properties", defaultValue, configValue.toString());
     }
 
     @Test
     public void saveTemplateCourseResourcableId() {
-        Long oldValue = campusConfiguration.getTemplateCourseResourcableId(defaultTemplateLanguage);
+        Long oldValue = campusCourseConfiguration.getTemplateCourseResourcableId(defaultTemplateLanguage);
         Long newValue = 1234L;
-        campusConfiguration.saveTemplateCourseResourcableId(newValue, defaultTemplateLanguage);
-        Long configValue = campusConfiguration.getTemplateCourseResourcableId(defaultTemplateLanguage);
+        campusCourseConfiguration.saveTemplateCourseResourcableId(newValue, defaultTemplateLanguage);
+        Long configValue = campusCourseConfiguration.getTemplateCourseResourcableId(defaultTemplateLanguage);
         assertEquals("Get wrong config-value after save new value", newValue, configValue);
-        campusConfiguration.saveTemplateCourseResourcableId(oldValue, defaultTemplateLanguage);
+        campusCourseConfiguration.saveTemplateCourseResourcableId(oldValue, defaultTemplateLanguage);
     }
 }

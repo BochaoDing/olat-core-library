@@ -20,7 +20,7 @@
  */
 package ch.uzh.campus.data;
 
-import ch.uzh.campus.CampusConfiguration;
+import ch.uzh.campus.CampusCourseConfiguration;
 import ch.uzh.campus.CampusCourseImportTO;
 import ch.uzh.campus.utils.ListUtil;
 import org.olat.core.commons.persistence.DB;
@@ -63,7 +63,7 @@ public class DaoManager {
     DataConverter dataConverter;
 
     @Autowired
-    private CampusConfiguration campusConfiguration;
+    private CampusCourseConfiguration campusCourseConfiguration;
     
     @Value("${campus.lv_kuerzel.activated}")
     private String shortTitleActivated;
@@ -118,7 +118,7 @@ public class DaoManager {
     }
 
     public void deleteCoursesAndBookingsByCourseIds(List<Long> courseIds) {
-        List<List<Long>> listSplit = ListUtil.split(courseIds, campusConfiguration.getEntitiesSublistMaxSize());
+        List<List<Long>> listSplit = ListUtil.split(courseIds, campusCourseConfiguration.getEntitiesSublistMaxSize());
         for (List<Long> subList : listSplit) {
             if (!subList.isEmpty()) {
                 studentCourseDao.deleteByCourseIdsAsBulkDelete(subList);
@@ -147,7 +147,7 @@ public class DaoManager {
     }
 
     public void deleteStudentsAndBookingsByStudentIds(List<Long> studentIds) {
-        List<List<Long>> listSplit = ListUtil.split(studentIds, campusConfiguration.getEntitiesSublistMaxSize());
+        List<List<Long>> listSplit = ListUtil.split(studentIds, campusCourseConfiguration.getEntitiesSublistMaxSize());
         for (List<Long> subList : listSplit) {
             if (!subList.isEmpty()) {
                 studentCourseDao.deleteByStudentIdsAsBulkDelete(subList);
@@ -170,7 +170,7 @@ public class DaoManager {
     }
 
     public void deleteLecturersAndBookingsByLecturerIds(List<Long> lecturerIds) {
-        List<List<Long>> listSplit = ListUtil.split(lecturerIds, campusConfiguration.getEntitiesSublistMaxSize());
+        List<List<Long>> listSplit = ListUtil.split(lecturerIds, campusCourseConfiguration.getEntitiesSublistMaxSize());
         for (List<Long> subList : listSplit) {
             if (!subList.isEmpty()) {
                 lecturerCourseDao.deleteByLecturerIdsAsBulkDelete(subList);
@@ -306,7 +306,7 @@ public class DaoManager {
     }
 
     public Set<Course> getCampusCoursesWithResourceableId(Identity identity, SapOlatUser.SapUserType userType, String searchString) {
-        Set<Course> coursesWithResourceableId = new HashSet<Course>();
+        Set<Course> coursesWithResourceableId = new HashSet<>();
         coursesWithResourceableId.addAll(getCourses(identity.getName(), userType, true, searchString));// true --- > CreatedCourses
         // THE CASE OF LECTURER, ADD THE APPROPRIATE DELEGATES
         if (userType.equals(SapOlatUser.SapUserType.LECTURER)) {
@@ -392,7 +392,7 @@ public class DaoManager {
     }
 
     public boolean checkImportedData() {
-        return (statisticDao.getLastCompletedImportedStatistic().size() == campusConfiguration.getMustCompletedImportedFiles());
+        return (statisticDao.getLastCompletedImportedStatistic().size() == campusCourseConfiguration.getMustCompletedImportedFiles());
     }
 
     public void deleteOldLecturerMapping() {

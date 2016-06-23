@@ -20,12 +20,12 @@
  */
 package ch.uzh.campus.service.core.impl.syncer;
 
-import ch.uzh.campus.CampusConfiguration;
+import ch.uzh.campus.CampusCourseConfiguration;
 import ch.uzh.campus.CampusCourseImportTO;
 import ch.uzh.campus.service.CampusCourse;
 import ch.uzh.campus.service.core.impl.CampusCourseFactory;
 import ch.uzh.campus.service.core.impl.CampusCourseTool;
-import ch.uzh.campus.service.core.impl.creator.CourseDescriptionBuilder;
+import ch.uzh.campus.service.core.impl.creator.CampusCourseDescriptionBuilder;
 import ch.uzh.campus.service.core.impl.syncer.statistic.TitleAndDescriptionStatistik;
 import org.olat.repository.RepositoryEntry;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,23 +37,23 @@ import org.springframework.stereotype.Component;
  * @author cg
  */
 @Component
-public class CourseAttributeSynchronizer {
+public class CampusCourseAttributeSynchronizer {
 
     private final CampusCourseFactory campusCourseFactory;
-    private final CourseDescriptionBuilder courseDescriptionBuilder;
-    private final CampusConfiguration campusConfiguration;
+    private final CampusCourseDescriptionBuilder campusCourseDescriptionBuilder;
+    private final CampusCourseConfiguration campusCourseConfiguration;
 
     @Autowired
-    public CourseAttributeSynchronizer(CampusCourseFactory campusCourseFactory, CourseDescriptionBuilder courseDescriptionBuilder, CampusConfiguration campusConfiguration) {
+    public CampusCourseAttributeSynchronizer(CampusCourseFactory campusCourseFactory, CampusCourseDescriptionBuilder campusCourseDescriptionBuilder, CampusCourseConfiguration campusCourseConfiguration) {
         this.campusCourseFactory = campusCourseFactory;
-        this.courseDescriptionBuilder = courseDescriptionBuilder;
-        this.campusConfiguration = campusConfiguration;
+        this.campusCourseDescriptionBuilder = campusCourseDescriptionBuilder;
+        this.campusCourseConfiguration = campusCourseConfiguration;
     }
 
     TitleAndDescriptionStatistik synchronizeTitleAndDescription(CampusCourseImportTO campusCourseTO) {
         boolean titleUpdated = synchronizeTitle(getCampusCourse(campusCourseTO.getSapCourseId(), campusCourseTO.getOlatResourceableId()), campusCourseTO.getTitle());
         boolean descriptionUpdated = synchronizeDescription(getCampusCourse(campusCourseTO.getSapCourseId(), campusCourseTO.getOlatResourceableId()),
-                courseDescriptionBuilder.buildDescriptionFrom(campusCourseTO, campusConfiguration.getTemplateLanguage(campusCourseTO.getLanguage())));
+                campusCourseDescriptionBuilder.buildDescriptionFrom(campusCourseTO, campusCourseConfiguration.getTemplateLanguage(campusCourseTO.getLanguage())));
 
         return new TitleAndDescriptionStatistik(titleUpdated, descriptionUpdated);
     }

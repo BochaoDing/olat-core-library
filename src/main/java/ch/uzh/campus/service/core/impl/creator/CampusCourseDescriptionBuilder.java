@@ -37,15 +37,15 @@ import ch.uzh.campus.CampusCourseImportTO;
  * @author cg
  */
 @Component
-public class CourseDescriptionBuilder {
+public class CampusCourseDescriptionBuilder {
 
-    public static final String KEY_DESCRIPTION_TEMPLATE = "campus.course.description.template";
-    public static final String KEY_DESCRIPTION_MULTI_SEMESTER_TEMPLATE = "campus.course.multisemester.description.template";
+    static final String KEY_DESCRIPTION_TEMPLATE = "campus.course.description.template";
+    private static final String KEY_DESCRIPTION_MULTI_SEMESTER_TEMPLATE = "campus.course.multisemester.description.template";
 
     public Translator translator;
 
-    public CourseDescriptionBuilder() {
-        translator = Util.createPackageTranslator(CourseDescriptionBuilder.class, new Locale("de"));
+    public CampusCourseDescriptionBuilder() {
+        translator = Util.createPackageTranslator(CampusCourseDescriptionBuilder.class, new Locale("de"));
     }
 
     public String buildDescriptionFrom(CampusCourseImportTO campusCourseData, String language) {
@@ -53,12 +53,12 @@ public class CourseDescriptionBuilder {
 
     }
 
-    public String buildDescriptionFrom(CampusCourseImportTO campusCourseData, String campusCourseMultiSemester, String language) {
+    String buildDescriptionFrom(CampusCourseImportTO campusCourseData, String campusCourseMultiSemester, String language) {
         String[] args = new String[3];
         args[0] = (campusCourseMultiSemester != null) ? campusCourseMultiSemester : campusCourseData.getSemester();
 
         if (campusCourseData.getDelegatees() != null && !campusCourseData.getDelegatees().isEmpty()) {
-            List<Identity> lecturersWithoutDelegatees = new ArrayList<Identity>(campusCourseData.getLecturers());
+            List<Identity> lecturersWithoutDelegatees = new ArrayList<>(campusCourseData.getLecturers());
             lecturersWithoutDelegatees.removeAll(campusCourseData.getDelegatees());
             args[1] = getLectureList(lecturersWithoutDelegatees);
         } else {
@@ -72,7 +72,7 @@ public class CourseDescriptionBuilder {
         return translator.translate((campusCourseMultiSemester != null) ? KEY_DESCRIPTION_MULTI_SEMESTER_TEMPLATE : KEY_DESCRIPTION_TEMPLATE, args);
     }
 
-    public String getLectureList(List<Identity> lecturers) {
+    String getLectureList(List<Identity> lecturers) {
         StringBuilder builder = new StringBuilder();
         boolean firstEntry = true;
         for (Identity lecture : lecturers) {

@@ -41,14 +41,14 @@ import java.util.List;
  * 
  * @author aabouc
  */
-public class SynchronizationReader implements ItemReader<CampusCourseImportTO> {
+public class CampusCourseSynchronizationReader implements ItemReader<CampusCourseImportTO> {
 
     private DaoManager daoManager;
     private DB dbInstance;
     private List<Long> sapCoursesIds = Collections.emptyList();
 
     @Autowired
-    public SynchronizationReader(DaoManager daoManager, DB dbInstance) {
+    public CampusCourseSynchronizationReader(DaoManager daoManager, DB dbInstance) {
         this.daoManager = daoManager;
         this.dbInstance = dbInstance;
     }

@@ -21,8 +21,6 @@
 package ch.uzh.campus.service.core.impl.syncer;
 
 import ch.uzh.campus.CampusCourseImportTO;
-import ch.uzh.campus.service.core.impl.syncer.CourseSynchronizer;
-import ch.uzh.campus.service.core.impl.syncer.SynchronizationWriter;
 import ch.uzh.campus.service.core.impl.syncer.statistic.OverallSynchronizeStatistic;
 import ch.uzh.campus.service.core.impl.syncer.statistic.SynchronizedGroupStatistic;
 import ch.uzh.campus.service.core.impl.syncer.statistic.SynchronizedSecurityGroupStatistic;
@@ -41,21 +39,21 @@ import static org.mockito.Mockito.mock;
  * 
  * @author aabouc
  */
-public class SynchronizationWriterTest {
-    private SynchronizationWriter synchronizationWriterTestObject;
-    private CourseSynchronizer courseSynchronizerMock;
-    private List<CampusCourseImportTO> twoCoursesList = new ArrayList<CampusCourseImportTO>();
+public class CampusCourseSynchronizationWriterTest {
+    private CampusCourseSynchronizationWriter campusCourseSynchronizationWriterTestObject;
+    private CampusCourseSynchronizer campusCourseSynchronizerMock;
+    private List<CampusCourseImportTO> twoCoursesList = new ArrayList<>();
     private SynchronizedGroupStatistic synchronizedGroupStatisticforCourse1, synchronizedGroupStatisticforCourse2;
 
     @Before
     public void setup() {
-        synchronizationWriterTestObject = new SynchronizationWriter();
+        campusCourseSynchronizationWriterTestObject = new CampusCourseSynchronizationWriter();
         // Mock for CourseSynchronizer
-        courseSynchronizerMock = mock(CourseSynchronizer.class);
+        campusCourseSynchronizerMock = mock(CampusCourseSynchronizer.class);
         // TODO OLATng
         //synchronizationWriterTestObject.courseSynchronizer = courseSynchronizerMock;
         // Test OverallSynchronizeStatistic
-        synchronizationWriterTestObject.setSynchronizeStatistic(new OverallSynchronizeStatistic());
+        campusCourseSynchronizationWriterTestObject.setSynchronizeStatistic(new OverallSynchronizeStatistic());
         // Mock for DBImpl
         // synchronizatioWriterTestObject.dBImpl = mock(DB.class);
         // Test SynchronizedGroupStatistic

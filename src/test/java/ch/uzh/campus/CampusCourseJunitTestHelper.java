@@ -28,7 +28,7 @@ import org.olat.repository.RepositoryEntry;
  * 
  * @author cg
  */
-public class CampusJunitTestHelper {
+public class CampusCourseJunitTestHelper {
 
     public static void setupCampusCourseGroupForTest(RepositoryEntry repositoryEntry, String groupName, BusinessGroupService businessGroupService) {
     	businessGroupService.createBusinessGroup(null, groupName, null, 0, -1, false, false, repositoryEntry);

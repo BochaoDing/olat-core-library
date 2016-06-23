@@ -1,8 +1,8 @@
 package ch.uzh.campus.service.core.impl.syncer;
 
-import ch.uzh.campus.CampusConfiguration;
+import ch.uzh.campus.CampusCourseConfiguration;
 import ch.uzh.campus.CampusCourseImportTO;
-import ch.uzh.campus.CampusJunitTestHelper;
+import ch.uzh.campus.CampusCourseJunitTestHelper;
 import ch.uzh.campus.service.CampusCourse;
 import ch.uzh.campus.service.core.impl.syncer.statistic.SynchronizedGroupStatistic;
 import org.junit.After;
@@ -46,7 +46,7 @@ public class CampusCourseGroupSynchronizerTest extends OlatTestCase {
     RepositoryService repositoryService;
 
     @Autowired
-    CampusGroupFinder campusGroupFinder;
+    CampusCourseGroupFinder campusCourseGroupFinder;
 
     @Autowired
     private DB dbInstance;
@@ -61,7 +61,7 @@ public class CampusCourseGroupSynchronizerTest extends OlatTestCase {
     private Identity firstCoOwnerIdentity;
     private Identity secondCoOwnerIdentity;
     private CampusCourse campusCourseMock;
-    private CampusConfiguration campusConfigurationMock;
+    private CampusCourseConfiguration campusCourseConfigurationMock;
     private RepositoryEntry sourceRepositoryEntry;
 
     @Before
@@ -81,22 +81,22 @@ public class CampusCourseGroupSynchronizerTest extends OlatTestCase {
         coOwnerList.add(secondCoOwnerIdentity);
         
         // Setup Test Configuration
-        campusConfigurationMock = mock(CampusConfiguration.class);
-        when(campusConfigurationMock.getCourseGroupAName()).thenReturn(TEST_COURSE_GROUP_A_NAME);
-        when(campusConfigurationMock.getCourseGroupBName()).thenReturn(TEST_COURSE_GROUP_B_NAME);
+        campusCourseConfigurationMock = mock(CampusCourseConfiguration.class);
+        when(campusCourseConfigurationMock.getCourseGroupAName()).thenReturn(TEST_COURSE_GROUP_A_NAME);
+        when(campusCourseConfigurationMock.getCourseGroupBName()).thenReturn(TEST_COURSE_GROUP_B_NAME);
 
-        courseGroupSynchronizerTestObject = new CampusCourseGroupSynchronizer(campusConfigurationMock, mock(CampuskursCoOwners.class), repositoryService, businessGroupService, campusGroupFinder);
-        when(courseGroupSynchronizerTestObject.getCampuskursCoOwners().getDefaultCoOwners()).thenReturn(coOwnerList);
+        courseGroupSynchronizerTestObject = new CampusCourseGroupSynchronizer(campusCourseConfigurationMock, mock(CampusCourseCoOwners.class), repositoryService, businessGroupService, campusCourseGroupFinder);
+        when(courseGroupSynchronizerTestObject.getCampusCourseCoOwners().getDefaultCoOwners()).thenReturn(coOwnerList);
 
         // Setup test-course
         sourceRepositoryEntry = JunitTestHelper.deployDemoCourse(ownerIdentity);
         course = CourseFactory.loadCourse(sourceRepositoryEntry.getOlatResource().getResourceableId());
 
         // Setup campus-groups
-        CampusJunitTestHelper.setupCampusCourseGroupForTest(sourceRepositoryEntry, TEST_COURSE_GROUP_A_NAME, businessGroupService);
-        CampusJunitTestHelper.setupCampusCourseGroupForTest(sourceRepositoryEntry, TEST_COURSE_GROUP_B_NAME, businessGroupService);
+        CampusCourseJunitTestHelper.setupCampusCourseGroupForTest(sourceRepositoryEntry, TEST_COURSE_GROUP_A_NAME, businessGroupService);
+        CampusCourseJunitTestHelper.setupCampusCourseGroupForTest(sourceRepositoryEntry, TEST_COURSE_GROUP_B_NAME, businessGroupService);
         dbInstance.flush();
-        campusCourseGroup = campusGroupFinder.lookupCampusGroup(course, campusConfigurationMock.getCourseGroupAName());
+        campusCourseGroup = campusCourseGroupFinder.lookupCampusGroup(course, campusCourseConfigurationMock.getCourseGroupAName());
         
         campusCourseMock = mock(CampusCourse.class);       
         when(campusCourseMock.getRepositoryEntry()).thenReturn(sourceRepositoryEntry);
@@ -148,7 +148,7 @@ public class CampusCourseGroupSynchronizerTest extends OlatTestCase {
         assertEquals("Wrong number of added identity in statistic", 0, statistic.getParticipantGroupStatistic().getAddedStatistic());
         assertEquals("Wrong number of removed identity in statistic", 0, statistic.getParticipantGroupStatistic().getRemovedStatistic());
         
-        BusinessGroup campusCourseGroup = campusGroupFinder.lookupCampusGroup(course, campusConfigurationMock.getCourseGroupAName());
+        BusinessGroup campusCourseGroup = campusCourseGroupFinder.lookupCampusGroup(course, campusCourseConfigurationMock.getCourseGroupAName());
         List<Identity> groupCoaches = businessGroupService.getMembers(campusCourseGroup, GroupRoles.coach.name());
         // 2. assert members
         assertEquals("Wrong number of owners", 2, groupCoaches.size());

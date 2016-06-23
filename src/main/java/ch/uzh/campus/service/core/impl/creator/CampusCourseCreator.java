@@ -1,6 +1,6 @@
 package ch.uzh.campus.service.core.impl.creator;
 
-import ch.uzh.campus.CampusConfiguration;
+import ch.uzh.campus.CampusCourseConfiguration;
 import ch.uzh.campus.service.CampusCourse;
 import ch.uzh.campus.service.core.impl.CampusCourseTool;
 import org.olat.core.gui.translator.Translator;
@@ -37,7 +37,7 @@ import java.util.Locale;
  * @author cg
  */
 @Component
-public class CourseCreator {
+public class CampusCourseCreator {
 
     private static final String DEFAULT_VVZ_LINK = "http://www.vorlesungen.uzh.ch/";     // this is expected to be found in the defaultTemplate
     private static final String OLAT_SUPPORT_EMAIL_NODE_TYPE = "co";                     // this is expected to be found in the defaultTemplate
@@ -56,7 +56,7 @@ public class CourseCreator {
     private BusinessGroupService businessGroupService;
 
     @Autowired
-    private CampusConfiguration campusConfiguration;
+    private CampusCourseConfiguration campusCourseConfiguration;
 
     CampusCourse createCampusCourseFromTemplate(Long templateCourseResourceableId, Identity owner, String displayname, String description, boolean isDefaultTemplateUsed) {
 
@@ -235,7 +235,7 @@ public class CourseCreator {
     }
 
     Translator getTranslator(String lvLanguage) {
-        String supportedLvLanguage = campusConfiguration.getTemplateLanguage(lvLanguage);
+        String supportedLvLanguage = campusCourseConfiguration.getTemplateLanguage(lvLanguage);
         return  Util.createPackageTranslator(this.getClass(), new Locale(supportedLvLanguage));
     }
 }

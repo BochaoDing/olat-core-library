@@ -18,16 +18,16 @@ import org.olat.course.tree.CourseEditorTreeModel;
  * 
  * @author cg
  */
-public class CoursePublisherTest {
+public class CampusCoursePublisherTest {
 
-    private CoursePublisher coursePublisherTestObject;
+    private CampusCoursePublisher campusCoursePublisherTestObject;
 
     private String rootNodeIdent = "rootNodeIdent";
     private CourseEditorTreeModel editorTreeModel;
 
     @Before
     public void setup() {
-        coursePublisherTestObject = new CoursePublisher();
+        campusCoursePublisherTestObject = new CampusCoursePublisher();
 
         GenericTreeNode rootNode = new GenericTreeNode("rootNode", null);
         rootNode.setIdent(rootNodeIdent);
@@ -37,7 +37,7 @@ public class CoursePublisherTest {
 
     @Test
     public void getAllPublishNodeIds_onlyRootNode() {
-        List<String> allNodeIds = coursePublisherTestObject.getAllPublishNodeIds(editorTreeModel);
+        List<String> allNodeIds = campusCoursePublisherTestObject.getAllPublishNodeIds(editorTreeModel);
         assertEquals("Wrong size of nodes", 1, allNodeIds.size());
         allNodeIds.contains(rootNodeIdent);
     }
@@ -50,7 +50,7 @@ public class CoursePublisherTest {
         appendChildNodeWithSubChildNode(editorTreeModel.getRootNode(), firstChildNodeIdent);
         appendChildNodeWithSubChildNode(editorTreeModel.getRootNode(), secondChildNodeIdent);
 
-        List<String> allNodeIds = coursePublisherTestObject.getAllPublishNodeIds(editorTreeModel);
+        List<String> allNodeIds = campusCoursePublisherTestObject.getAllPublishNodeIds(editorTreeModel);
 
         assertEquals("Wrong size of nodes", 7, allNodeIds.size());
         assertTrue(allNodeIds.contains(rootNodeIdent));

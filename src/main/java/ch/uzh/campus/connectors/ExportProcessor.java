@@ -23,7 +23,7 @@ package ch.uzh.campus.connectors;
 import java.util.Date;
 
 import ch.uzh.campus.data.Export;
-import ch.uzh.campus.CampusConfiguration;
+import ch.uzh.campus.CampusCourseConfiguration;
 import ch.uzh.campus.utils.DateUtil;
 import org.olat.core.logging.OLog;
 import org.olat.core.logging.Tracing;
@@ -43,7 +43,7 @@ public class ExportProcessor implements ItemProcessor<Export, Export> {
     private static final OLog LOG = Tracing.createLoggerFor(ExportProcessor.class);
 
     @Autowired
-    CampusConfiguration campusConfiguration;
+    CampusCourseConfiguration campusCourseConfiguration;
 
     /**
      * Checks the export and returns it modified
@@ -57,7 +57,7 @@ public class ExportProcessor implements ItemProcessor<Export, Export> {
      *             if the exportDate is older than one day
      */
     public Export process(Export export) throws Exception {
-        if (!export.getFileName().contains(campusConfiguration.getSapFilesSuffix())) {
+        if (!export.getFileName().contains(campusCourseConfiguration.getSapFilesSuffix())) {
             return null;
         }
         if (DateUtil.isMoreThanOneDayBefore(export.getExportDate())) {

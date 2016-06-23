@@ -20,7 +20,7 @@
  */
 package ch.uzh.campus.service.core.impl.creator;
 
-import ch.uzh.campus.CampusConfiguration;
+import ch.uzh.campus.CampusCourseConfiguration;
 import ch.uzh.campus.CampusCourseImportTO;
 import ch.uzh.campus.data.*;
 import ch.uzh.campus.service.CampusCourse;
@@ -51,40 +51,40 @@ import java.util.List;
  * @author aabouc
  */
 @Component
-public class CourseCreateCoordinator {
+public class CampusCourseCreateCoordinator {
     
-	private static final OLog log = Tracing.createLoggerFor(CourseCreateCoordinator.class);
+	private static final OLog log = Tracing.createLoggerFor(CampusCourseCreateCoordinator.class);
 
-    private final CampusConfiguration campusConfiguration;
-    private final CoursePublisher coursePublisher;
+    private final CampusCourseConfiguration campusCourseConfiguration;
+    private final CampusCoursePublisher campusCoursePublisher;
     private final CampusCourseGroupSynchronizer campusCourseGroupSynchronizer;
-    private final CourseDescriptionBuilder courseDescriptionBuilder;
+    private final CampusCourseDescriptionBuilder campusCourseDescriptionBuilder;
     private final RepositoryService repositoryService;
     private final OLATResourceManager olatResourceManager;
     private final DB dbInstance;
     private final DaoManager daoManager;
-    private final CourseCreator courseCreator;
+    private final CampusCourseCreator campusCourseCreator;
 
     @Autowired
-    public CourseCreateCoordinator(
-            CampusConfiguration campusConfiguration,
-            CoursePublisher coursePublisher,
+    public CampusCourseCreateCoordinator(
+            CampusCourseConfiguration campusCourseConfiguration,
+            CampusCoursePublisher campusCoursePublisher,
             CampusCourseGroupSynchronizer campusCourseGroupSynchronizer,
-            CourseDescriptionBuilder courseDescriptionBuilder,
+            CampusCourseDescriptionBuilder campusCourseDescriptionBuilder,
             RepositoryService repositoryService,
             OLATResourceManager olatResourceManager,
             DB dbInstance,
             DaoManager daoManager,
-            CourseCreator courseCreator) {
-        this.campusConfiguration = campusConfiguration;
-        this.coursePublisher = coursePublisher;
+            CampusCourseCreator campusCourseCreator) {
+        this.campusCourseConfiguration = campusCourseConfiguration;
+        this.campusCoursePublisher = campusCoursePublisher;
         this.campusCourseGroupSynchronizer = campusCourseGroupSynchronizer;
-        this.courseDescriptionBuilder = courseDescriptionBuilder;
+        this.campusCourseDescriptionBuilder = campusCourseDescriptionBuilder;
         this.repositoryService = repositoryService;
         this.olatResourceManager = olatResourceManager;
         this.dbInstance = dbInstance;
         this.daoManager = daoManager;
-        this.courseCreator = courseCreator;
+        this.campusCourseCreator = campusCourseCreator;
     }
 
     public CampusCourse continueCampusCourse(CampusCourse campusCourse, CampusCourseImportTO campusCourseImportData, Identity creator) {
@@ -97,11 +97,11 @@ public class CourseCreateCoordinator {
         campusCourse.getRepositoryEntry().setDisplayname(CampusCourseTool.getTruncatedDisplayname(displayName));
 
         // Set title and vvz link in course model
-        courseCreator.updateCourseRunAndEditorModels(campusCourse, displayName, campusCourseImportData.getVvzLink(), false, campusCourseImportData.getLanguage());
+        campusCourseCreator.updateCourseRunAndEditorModels(campusCourse, displayName, campusCourseImportData.getVvzLink(), false, campusCourseImportData.getLanguage());
 
         // Description
         String campusCourseSemester = oldTitle.concat("<br>").concat(newTitle);
-        campusCourse.getRepositoryEntry().setDescription(courseDescriptionBuilder.buildDescriptionFrom(campusCourseImportData, campusCourseSemester, campusCourseImportData.getLanguage()));
+        campusCourse.getRepositoryEntry().setDescription(campusCourseDescriptionBuilder.buildDescriptionFrom(campusCourseImportData, campusCourseSemester, campusCourseImportData.getLanguage()));
 
         updateDisplaynameDescriptionOfRepositoryEntry(campusCourse.getRepositoryEntry());
 
@@ -145,7 +145,7 @@ public class CourseCreateCoordinator {
         boolean isDefaultTemplateUsed = (courseResourceableId == null);
 
         if (isDefaultTemplateUsed) {
-            templateCourseResourceableId = campusConfiguration.getTemplateCourseResourcableId(campusCourseImportData.getLanguage());
+            templateCourseResourceableId = campusCourseConfiguration.getTemplateCourseResourcableId(campusCourseImportData.getLanguage());
 
             // The case that no template was found
             if (templateCourseResourceableId == null) {
@@ -168,21 +168,21 @@ public class CourseCreateCoordinator {
         try {
             // Create the campus course by copying the appropriate template (default or custom)
             String displayname = CampusCourseTool.getTruncatedDisplayname(campusCourseImportData.getTitle());
-            String lvLanguage = campusConfiguration.getTemplateLanguage(campusCourseImportData.getLanguage());
-            String description = courseDescriptionBuilder.buildDescriptionFrom(campusCourseImportData, lvLanguage);
-            campusCourse = courseCreator.createCampusCourseFromTemplate(templateCourseResourceableId, creator, displayname, description, isDefaultTemplateUsed);
+            String lvLanguage = campusCourseConfiguration.getTemplateLanguage(campusCourseImportData.getLanguage());
+            String description = campusCourseDescriptionBuilder.buildDescriptionFrom(campusCourseImportData, lvLanguage);
+            campusCourse = campusCourseCreator.createCampusCourseFromTemplate(templateCourseResourceableId, creator, displayname, description, isDefaultTemplateUsed);
 
             // Update the copied course run and editor models
-            courseCreator.updateCourseRunAndEditorModels(campusCourse, campusCourseImportData.getTitle(), campusCourseImportData.getVvzLink(), isDefaultTemplateUsed, lvLanguage);
+            campusCourseCreator.updateCourseRunAndEditorModels(campusCourse, campusCourseImportData.getTitle(), campusCourseImportData.getVvzLink(), isDefaultTemplateUsed, lvLanguage);
 
             // Publish run and editor models
             if (isDefaultTemplateUsed) {
-                coursePublisher.publish(campusCourse.getCourse(), creator);
+                campusCoursePublisher.publish(campusCourse.getCourse(), creator);
             }
 
             // Create campus learning area and business groups A and B if necessary
             if (!isDefaultTemplateUsed) {
-                courseCreator.createCampusLearningAreaAndCampusBusinessGroups(campusCourse.getRepositoryEntry(), creator, lvLanguage);
+                campusCourseCreator.createCampusLearningAreaAndCampusBusinessGroups(campusCourse.getRepositoryEntry(), creator, lvLanguage);
             }
 
             // Execute the first synchronization

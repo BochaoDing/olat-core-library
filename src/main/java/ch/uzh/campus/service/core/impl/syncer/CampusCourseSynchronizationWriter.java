@@ -21,7 +21,6 @@
 package ch.uzh.campus.service.core.impl.syncer;
 
 import ch.uzh.campus.CampusCourseImportTO;
-import ch.uzh.campus.connectors.CampusInterceptor;
 import ch.uzh.campus.service.core.impl.syncer.statistic.OverallSynchronizeStatistic;
 import ch.uzh.campus.service.core.impl.syncer.statistic.SynchronizedGroupStatistic;
 import org.olat.core.commons.persistence.DB;
@@ -36,27 +35,23 @@ import java.util.List;
 /**
  * This is an implementation of {@link ItemWriter} that synchronizes the SAP data (courses and their participants) <br>
  * with the OLAT courses and the appropriate groups.<br>
- * It delegates the actual synchronizing process to the {@link CourseSynchronizer}. <br>
+ * It delegates the actual synchronizing process to the {@link CampusCourseSynchronizer}. <br>
  * 
  * Initial Date: 31.10.2012 <br>
  * 
  * @author aabouc
  */
-public class SynchronizationWriter implements ItemWriter<CampusCourseImportTO> {
+public class CampusCourseSynchronizationWriter implements ItemWriter<CampusCourseImportTO> {
 
-    private static final OLog LOG = Tracing.createLoggerFor(SynchronizationWriter.class);
+    private static final OLog LOG = Tracing.createLoggerFor(CampusCourseSynchronizationWriter.class);
 
     private OverallSynchronizeStatistic synchronizeStatistic;
 
     @Autowired
-    private CourseSynchronizer courseSynchronizer;
+    private CampusCourseSynchronizer campusCourseSynchronizer;
 
     @Autowired
     private DB dbInstance;
-
-    public OverallSynchronizeStatistic getSynchronizeStatistic() {
-        return synchronizeStatistic;
-    }
 
     /**
      * Sets the OverallSynchronizeStatistic to be used for gathering the results during the synchronizing.
@@ -74,7 +69,7 @@ public class SynchronizationWriter implements ItemWriter<CampusCourseImportTO> {
     }
 
     /**
-     * Delegates the actual synchronizing of the SAP data to the OLAT data to the {@link CourseSynchronizer}.<br>
+     * Delegates the actual synchronizing of the SAP data to the OLAT data to the {@link CampusCourseSynchronizer}.<br>
      * 
      * @param sapCourses
      *            the CampusCourseImportTO
@@ -82,7 +77,7 @@ public class SynchronizationWriter implements ItemWriter<CampusCourseImportTO> {
     public void write(List<? extends CampusCourseImportTO> sapCourses) throws Exception {
         for (CampusCourseImportTO sapCourse : sapCourses) {
             try {
-                SynchronizedGroupStatistic courseSynchronizeStatistic = courseSynchronizer.synchronizeCourse(sapCourse);
+                SynchronizedGroupStatistic courseSynchronizeStatistic = campusCourseSynchronizer.synchronizeCourse(sapCourse);
                 synchronizeStatistic.add(courseSynchronizeStatistic);
                 dbInstance.commitAndCloseSession();
             } catch (Throwable t) {
