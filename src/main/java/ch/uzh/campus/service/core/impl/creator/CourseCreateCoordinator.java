@@ -97,7 +97,7 @@ public class CourseCreateCoordinator {
         campusCourse.getRepositoryEntry().setDisplayname(CampusCourseTool.getTruncatedDisplayname(displayName));
 
         // Set title and vvz link in course model
-        courseCreator.setCourseTitleAndLearningObjectivesInCourseModel(campusCourse, displayName, campusCourseImportData.getVvzLink(), false, campusCourseImportData.getLanguage());
+        courseCreator.updateCourseRunAndEditorModels(campusCourse, displayName, campusCourseImportData.getVvzLink(), false, campusCourseImportData.getLanguage());
 
         // Description
         String campusCourseSemester = oldTitle.concat("<br>").concat(newTitle);
@@ -141,10 +141,10 @@ public class CourseCreateCoordinator {
      * Create campus course from a template course if courseResourceableId == null, else use the given course as a template.
      */
     public CampusCourse createCampusCourse(Long courseResourceableId, CampusCourseImportTO campusCourseImportData, Identity creator) {
-        final Long templateCourseResourceableId;
+        Long templateCourseResourceableId;
+        boolean isDefaultTemplateUsed = (courseResourceableId == null);
 
-        boolean defaultTemplateUsed = (courseResourceableId == null);
-        if (defaultTemplateUsed) {
+        if (isDefaultTemplateUsed) {
             templateCourseResourceableId = campusConfiguration.getTemplateCourseResourcableId(campusCourseImportData.getLanguage());
 
             // The case that no template was found
@@ -166,14 +166,22 @@ public class CourseCreateCoordinator {
 
         CampusCourse campusCourse = null;
         try {
-            // Copy the CampusCourse from the appropriate template (default or custom)
-            campusCourse = courseCreator.createCampusCourseFromTemplate(templateCourseResourceableId, creator);
-            campusCourse.getRepositoryEntry().setDisplayname(CampusCourseTool.getTruncatedDisplayname(campusCourseImportData.getTitle()));
+            // Create the campus course by copying the appropriate template (default or custom)
+            String displayname = CampusCourseTool.getTruncatedDisplayname(campusCourseImportData.getTitle());
             String lvLanguage = campusConfiguration.getTemplateLanguage(campusCourseImportData.getLanguage());
-            courseCreator.setCourseTitleAndLearningObjectivesInCourseModel(campusCourse, campusCourseImportData.getTitle(), campusCourseImportData.getVvzLink(), defaultTemplateUsed, lvLanguage);
-            campusCourse.getRepositoryEntry().setDescription(courseDescriptionBuilder.buildDescriptionFrom(campusCourseImportData, lvLanguage));
+            String description = courseDescriptionBuilder.buildDescriptionFrom(campusCourseImportData, lvLanguage);
+            campusCourse = courseCreator.createCampusCourseFromTemplate(templateCourseResourceableId, creator, displayname, description, isDefaultTemplateUsed);
 
-            if (!defaultTemplateUsed) {
+            // Update the copied course run and editor models
+            courseCreator.updateCourseRunAndEditorModels(campusCourse, campusCourseImportData.getTitle(), campusCourseImportData.getVvzLink(), isDefaultTemplateUsed, lvLanguage);
+
+            // Publish run and editor models
+            if (isDefaultTemplateUsed) {
+                coursePublisher.publish(campusCourse.getCourse(), creator);
+            }
+
+            // Create campus learning area and business groups A and B if necessary
+            if (!isDefaultTemplateUsed) {
                 courseCreator.createCampusLearningAreaAndCampusBusinessGroups(campusCourse.getRepositoryEntry(), creator, lvLanguage);
             }
 
@@ -182,25 +190,6 @@ public class CourseCreateCoordinator {
             campusCourseGroupSynchronizer.addDefaultCoOwnersAsOwner(campusCourse);
             campusCourseGroupSynchronizer.synchronizeCourseGroups(campusCourse, campusCourseImportData);
 
-            repositoryService.update(campusCourse.getRepositoryEntry());
-
-            //TODO: olatng -> is this still needed? Wahrscheilich nicht mehr notwendig, evtl. abklären mit REs / Frentix
-            // ADD ADMIN RIGHTS TO OWNER GROUP            
-            //final BaseSecurity securityManager = (BaseSecurity) CoreSpringFactory.getBean(BaseSecurity.class);
-            //securityManager.createAndPersistPolicy(campusCourse.getRepositoryEntry().getOwnerGroup(), Constants.PERMISSION_ADMIN, campusCourse.getCourse());
-
-            if (defaultTemplateUsed) {
-                // SET THE BARG
-                campusCourse.getRepositoryEntry().setAccess(RepositoryEntry.ACC_USERS_GUESTS);
-                // PUBLISH THE CREATED CampusCourse
-                coursePublisher.publish(campusCourse.getCourse(), creator);
-            }
-            
-            //TODO: olatng load course again to see the updates in title, etc. ? Als Abhilfe für fehlschlagenden Test; funktionierte nicht
-            //ICourse reloadedCourse = CourseFactory.loadCourse(campusCourse.getCourse().getResourceableId());
-            //campusCourse.reloadCourse();
-            
-           
             return campusCourse;
 
         } catch (Exception ex) {

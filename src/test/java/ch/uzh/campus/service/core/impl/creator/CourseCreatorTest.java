@@ -6,8 +6,6 @@ import org.junit.Test;
 import org.olat.core.commons.persistence.DBFactory;
 import org.olat.core.gui.translator.Translator;
 import org.olat.core.id.Identity;
-import org.olat.course.CourseFactory;
-import org.olat.course.ICourse;
 import org.olat.group.BusinessGroup;
 import org.olat.group.area.BGArea;
 import org.olat.group.area.BGAreaManager;
@@ -37,9 +35,11 @@ public class CourseCreatorTest extends OlatTestCase {
     @Autowired
     private BGAreaManager areaManager;
 
+    private static final String TITLE = "Test Title";
+    private static final String DESCRIPTION = "Test Description";
+
     private Long sourceResourceableId;
     private Identity ownerIdentity;
-    private ICourse sourceCourse;
     private RepositoryEntry sourceRepositoryEntry;
     private String ownerName = "owner";
     private String lvLanguage = "DE";
@@ -52,10 +52,8 @@ public class CourseCreatorTest extends OlatTestCase {
     @Before
     public void setup() {
         ownerIdentity = JunitTestHelper.createAndPersistIdentityAsUser(ownerName);
-
         sourceRepositoryEntry = JunitTestHelper.deployDemoCourse(ownerIdentity);
         sourceResourceableId = sourceRepositoryEntry.getOlatResource().getResourceableId();
-        sourceCourse = CourseFactory.loadCourse(sourceResourceableId);
         DBFactory.getInstance().closeSession();
 
         Translator translator = courseCreator.getTranslator(lvLanguage);
@@ -68,16 +66,18 @@ public class CourseCreatorTest extends OlatTestCase {
 
     @Test
     public void createCampusCourseFromTemplateTest() {
-        CampusCourse campusCourse = courseCreator.createCampusCourseFromTemplate(sourceResourceableId, ownerIdentity);
+        CampusCourse campusCourse = courseCreator.createCampusCourseFromTemplate(sourceResourceableId, ownerIdentity, TITLE, DESCRIPTION, true);
         assertNotNull(campusCourse);
-        assertNotNull(campusCourse.getCourse());
+
         assertNotNull(campusCourse.getRepositoryEntry());
         assertTrue("Copy must have different resourcableId", !Objects.equals(sourceResourceableId, campusCourse.getCourse().getResourceableId()));
-        assertEquals("Displayname of RepositoryEntry must be the same in the copy", sourceRepositoryEntry.getDisplayname(), campusCourse.getRepositoryEntry().getDisplayname());
         assertEquals("Wrong initialAuthor in copy", ownerName, campusCourse.getRepositoryEntry().getInitialAuthor());
+        assertEquals(TITLE, campusCourse.getRepositoryEntry().getDisplayname());
+        assertEquals(DESCRIPTION, campusCourse.getRepositoryEntry().getDescription());
+        assertEquals(RepositoryEntry.ACC_USERS_GUESTS, campusCourse.getRepositoryEntry().getAccess());
 
-        ICourse copyCourse = CourseFactory.loadCourse(campusCourse.getCourse().getResourceableId());
-        assertEquals("Course-title must be the same in the copy", sourceCourse.getCourseTitle(), copyCourse.getCourseTitle());
+        assertNotNull(campusCourse.getCourse());
+        assertEquals(TITLE, campusCourse.getCourse().getCourseTitle());
     }
 
     @Test

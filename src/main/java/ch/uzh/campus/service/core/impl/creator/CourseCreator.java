@@ -58,17 +58,30 @@ public class CourseCreator {
     @Autowired
     private CampusConfiguration campusConfiguration;
 
-    CampusCourse createCampusCourseFromTemplate(Long templateCourseResourceableId, Identity owner) {
+    CampusCourse createCampusCourseFromTemplate(Long templateCourseResourceableId, Identity owner, String displayname, String description, boolean isDefaultTemplateUsed) {
+
         // 1. Lookup template
-        OLATResourceable templateCourse = CourseFactory.loadCourse(templateCourseResourceableId);
-        RepositoryEntry sourceRepositoryEntry = repositoryManager.lookupRepositoryEntry(templateCourse, true);
+        ICourse template = CourseFactory.loadCourse(templateCourseResourceableId);
+        RepositoryEntry sourceRepositoryEntry = repositoryManager.lookupRepositoryEntry(template, true);
 
-        // 2. Copy RepositoryEntry and implicit the Course
-        RepositoryEntry copyOfRepositoryEntry = repositoryService.copy(sourceRepositoryEntry, owner, sourceRepositoryEntry.getDisplayname());
-        OLATResourceable copyCourseOlatResourcable = repositoryService.loadRepositoryEntryResource(copyOfRepositoryEntry.getKey());
-        ICourse copyCourse = CourseFactory.loadCourse(copyCourseOlatResourcable.getResourceableId());
+        // 2. Copy repository entry and implicit the Course
+        // NB: New displayname must be set when calling repositoryService.copy(). Otherwise copyCourse.getCourseTitle()
+        // (see 4.) will still yield the old displayname from sourceRepositoryName. Reason: copyCourse.getCourseTitle()
+        // gets its value from a cache, which is not updated when displayname of repositoryEntry is changed!
+        RepositoryEntry cloneOfRepositoryEntry = repositoryService.copy(sourceRepositoryEntry, owner, displayname);
+        OLATResourceable cloneOfCourseOlatResourcable = repositoryService.loadRepositoryEntryResource(cloneOfRepositoryEntry.getKey());
 
-        return new CampusCourse(copyCourse, copyOfRepositoryEntry);
+        // 3. Set correct description and access and update repository entry
+        cloneOfRepositoryEntry.setDescription(description);
+        if (isDefaultTemplateUsed) {
+            cloneOfRepositoryEntry.setAccess(RepositoryEntry.ACC_USERS_GUESTS);
+        }
+        repositoryService.update(cloneOfRepositoryEntry);
+
+        // 4. Load copy of course
+        ICourse copyCourse = CourseFactory.loadCourse(cloneOfCourseOlatResourcable.getResourceableId());
+
+        return new CampusCourse(copyCourse, cloneOfRepositoryEntry);
     }
 
     void createCampusLearningAreaAndCampusBusinessGroups(RepositoryEntry repositoryEntry, Identity creatorIdentity, String lvLanguage) {
@@ -118,7 +131,7 @@ public class CourseCreator {
      * Adds the vvzLink to the learning objectives, if not null. <br>
      * Sets SentFromCourse in the @OLAT-Support email node, if the node exists.
      */
-    void setCourseTitleAndLearningObjectivesInCourseModel(CampusCourse campusCourse, String title, String vvzLink, boolean defaultTemplateUsed, String lvLanguage) {
+    void updateCourseRunAndEditorModels(CampusCourse campusCourse, String title, String vvzLink, boolean isDefaultTemplateUsed, String lvLanguage) {
 
         ICourse course = campusCourse.getCourse();
         String truncatedDisplayname = CampusCourseTool.getTruncatedDisplayname(title);
@@ -132,7 +145,7 @@ public class CourseCreator {
         runRoot.setShortTitle(Formatter.truncate(truncatedDisplayname, NodeConfigFormController.SHORT_TITLE_MAX_LENGTH));
         runRoot.setLongTitle(truncatedDisplayname);
 
-        String newObjective = getModelObjectivesWithVVZLink(runRoot, translator, defaultTemplateUsed, vvzLink);
+        String newObjective = getModelObjectivesWithVVZLink(runRoot, translator, isDefaultTemplateUsed, vvzLink);
         if (newObjective != null && !newObjective.isEmpty()) {
             runRoot.setLearningObjectives(newObjective);
         }
@@ -156,7 +169,7 @@ public class CourseCreator {
         rootNode.setShortTitle(Formatter.truncate(truncatedDisplayname, NodeConfigFormController.SHORT_TITLE_MAX_LENGTH));
         rootNode.setLongTitle(truncatedDisplayname);
 
-        String newEditorObjective = getModelObjectivesWithVVZLink(rootNode, translator, defaultTemplateUsed, vvzLink);
+        String newEditorObjective = getModelObjectivesWithVVZLink(rootNode, translator, isDefaultTemplateUsed, vvzLink);
         if (newEditorObjective != null && !newEditorObjective.isEmpty()) {
             rootNode.setLearningObjectives(newEditorObjective);
             cetm.setLatestPublishTimestamp(-1);
@@ -179,12 +192,12 @@ public class CourseCreator {
      * if a default template is used, the default learningObjectives of the template is reused and vvzLink replaces DEFAULT_VVZ_LINK
      * 
      */
-    private String getModelObjectivesWithVVZLink(CourseNode root, Translator translator, boolean defaultTemplate, String vvzLink) {
+    private String getModelObjectivesWithVVZLink(CourseNode root, Translator translator, boolean isDefaultTemplateUsed, String vvzLink) {
         String newObjective;
         if (vvzLink == null || vvzLink.isEmpty()) {
             return null;
         }
-        if (!defaultTemplate) {
+        if (!isDefaultTemplateUsed) {
             newObjective = translator.translate("campus.course.learningObj", new String[] { vvzLink });
         } else {
             // replace DEFAULT_VVZ_LINK with vvzLink
