@@ -23,8 +23,6 @@ public class CoursePublisherTest {
     private CoursePublisher coursePublisherTestObject;
 
     private String rootNodeIdent = "rootNodeIdent";
-    String firstChildNodeIdent = "childIdent1";
-    String secondChildNodeIdent = "childIdent2";
     private CourseEditorTreeModel editorTreeModel;
 
     @Before
@@ -46,6 +44,9 @@ public class CoursePublisherTest {
 
     @Test
     public void getAllPublishNodeIds_twoChildNodesWithtwoChildNodes() {
+        String firstChildNodeIdent = "childIdent1";
+        String secondChildNodeIdent = "childIdent2";
+
         appendChildNodeWithSubChildNode(editorTreeModel.getRootNode(), firstChildNodeIdent);
         appendChildNodeWithSubChildNode(editorTreeModel.getRootNode(), secondChildNodeIdent);
 

@@ -21,16 +21,18 @@
 
 package ch.uzh.campus.service.core.impl.creator;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
-
 import org.olat.core.id.Identity;
 import org.olat.core.util.nodes.INode;
+import org.olat.course.CourseFactory;
 import org.olat.course.ICourse;
+import org.olat.course.editor.PublishProcess;
 import org.olat.course.tree.CourseEditorTreeModel;
 import org.olat.course.tree.CourseEditorTreeNode;
 import org.springframework.stereotype.Component;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
 
 /**
  * Initial Date: 31.05.2012 <br>
@@ -41,12 +43,21 @@ import org.springframework.stereotype.Component;
 public class CoursePublisher {
 
     public void publish(ICourse course, Identity publisherIdentity) {
-        Locale locale = new Locale("de");// needed to re-use code in CourseCreationHelper
-        CoursePublishHelper.publish(course, locale, publisherIdentity, getAllPublishNodeIds(course.getEditorTreeModel()));
+        Locale locale = new Locale("de");
+        publish(course, locale, publisherIdentity);
     }
 
-    public List<String> getAllPublishNodeIds(CourseEditorTreeModel editorTreeModel) {
-        final List<String> nodeIds = new ArrayList<String>();
+    public void publish(ICourse course, Locale locale, Identity publisherIdentity) {
+        CourseFactory.openCourseEditSession(course.getResourceableId());
+        CourseEditorTreeModel cetm = course.getEditorTreeModel();
+        PublishProcess pp = PublishProcess.getInstance(course, cetm, locale);
+        pp.createPublishSetFor(getAllPublishNodeIds(course.getEditorTreeModel()));
+        pp.applyPublishSet(publisherIdentity, locale);
+        CourseFactory.closeCourseEditSession(course.getResourceableId(), true);
+    }
+
+    List<String> getAllPublishNodeIds(CourseEditorTreeModel editorTreeModel) {
+        final List<String> nodeIds = new ArrayList<>();
         addChildNodeIdRecursive(nodeIds, editorTreeModel.getRootNode());
         return nodeIds;
     }
@@ -56,7 +67,7 @@ public class CoursePublisher {
         for (int i = 0; i < node.getChildCount(); i++) {
             if (node.getChildAt(i).getClass() == CourseEditorTreeNode.class) {
                 // CourseEditorTreeNodes will only be published if new, dirty or deleted
-                final CourseEditorTreeNode child = (CourseEditorTreeNode) node.getChildAt(i);
+                CourseEditorTreeNode child = (CourseEditorTreeNode) node.getChildAt(i);
                 if (child.isNewnode() || child.isDirty() || child.isDeleted()) {
                     addChildNodeIdRecursive(nodeIds, node.getChildAt(i));
                 }
