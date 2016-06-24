@@ -2161,6 +2161,7 @@ create table if not exists ck_course (
 	ipz char(1),
 	enabled char(1)  NOT NULL default '0',
 	synchronizable TINYINT(1) NOT NULL default 1,
+  parent_course_id BIGINT,
 	modified_date datetime not null,
 	primary key (id)
 )engine InnoDB;
@@ -2275,7 +2276,8 @@ create table if not exists ck_delegation (
 	modified_date timestamp DEFAULT CURRENT_TIMESTAMP,
 	primary key (id)
 )engine InnoDB;
-        
+
+alter table ck_course add constraint ck_course_f01 foreign key (parent_course_id) references ck_course (id);
 alter table ck_lecturer_course add constraint ck_lecturer_course_f01 foreign key (course_id) references ck_course (id);
 alter table ck_lecturer_course add constraint ck_lecturer_course_f02 foreign key (lecturer_id) references ck_lecturer (id);
 alter table ck_student_course add constraint ck_student_course_f01 foreign key (course_id) references ck_course (id);
