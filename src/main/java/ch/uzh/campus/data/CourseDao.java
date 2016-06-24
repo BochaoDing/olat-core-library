@@ -83,12 +83,16 @@ public class CourseDao implements CampusDao<Course> {
 
     public void saveResourceableId(Long courseId, Long resourceableId) {
         Course course = getCourseById(courseId);
-        course.setResourceableId(resourceableId);
+        if (course != null) {
+            course.setResourceableId(resourceableId);
+        }
     }
 
     public void disableSynchronization(Long courseId) {
         Course course = getCourseById(courseId);
-        course.setSynchronizable(false);
+        if (course != null) {
+            course.setSynchronizable(false);
+        }
     }
 
     public void deleteResourceable(Long resourceableId) {

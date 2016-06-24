@@ -19,47 +19,43 @@ import ch.uzh.campus.service.CampusCourse;
  */
 public interface CampusCourseCoreService {
 
-    public boolean checkDelegation(Long sapCampusCourseId, Identity creator);
+    boolean checkDelegation(Long sapCampusCourseId, Identity creator);
 
-    public CampusCourse createCampusCourseFromTemplate(Long courseResourceableId, Long sapCampusCourseId, Identity creator);
+    CampusCourse createCampusCourseFromTemplate(Long courseResourceableId, Long sapCampusCourseId, Identity creator);
 
-    public CampusCourse continueCampusCourse(Long courseResourceableId, Long sapCampusCourseId, String courseTitle, Identity creator);
-
-    public CampusCourse createCampusCourse(Long resourceableId, Long sapCampusCourseId, Identity creator, CampusCourseImportTO campusCourseImportData);
+    CampusCourse continueCampusCourse(Long courseResourceableId, Long sapCampusCourseId, String courseTitle, Identity creator);
 
     /**
      * TODO: olatng: this used to be called from CourseRepositoryHandler, this doesn't exist in OpenOLAT anymore. Wo aufrufen?
      */
-    public void deleteResourceableIdReference(OLATResourceable res);
+    void deleteResourceableIdReference(OLATResourceable res);
 
-    public RepositoryEntry getRepositoryEntryFor(Long sapCourseId);
+    RepositoryEntry getRepositoryEntryFor(Long sapCourseId);
 
     /**
      * Get a list of Campus-courses which have resourceableId=null. resourceableId=null means no OLAT course is created in the OLAT course-repository yet.
      */
-    public Set<Course> getCampusCoursesWithoutResourceableId(Identity identity, SapOlatUser.SapUserType userType);
+    Set<Course> getCampusCoursesWithoutResourceableId(Identity identity, SapOlatUser.SapUserType userType);
 
-	public Set<Course> getCampusCoursesWithoutResourceableId(Identity identity, SapOlatUser.SapUserType userType, String searchString);
+	Set<Course> getCampusCoursesWithoutResourceableId(Identity identity, SapOlatUser.SapUserType userType, String searchString);
 
     /**
      * Get list of Campus courses which already are created in the OLAT course-repository.
      */
-    public Set<Course> getCampusCoursesWithResourceableId(Identity identity, SapOlatUser.SapUserType userType);
+    Set<Course> getCampusCoursesWithResourceableId(Identity identity, SapOlatUser.SapUserType userType);
 
-    public Set<Course> getCampusCoursesWithResourceableId(Identity identity, SapOlatUser.SapUserType userType, String searchString);
+    Set<Course> getCampusCoursesWithResourceableId(Identity identity, SapOlatUser.SapUserType userType, String searchString);
 
-    public CampusCourse loadCampusCourse(Long sapCampusCourseId, Long resourceableId);
+    void createDelegation(Identity delegator, Identity delegatee);
 
-    public void createDelegation(Identity delegator, Identity delegatee);
+    boolean existDelegation(Identity delegator, Identity delegatee);
 
-    public boolean existDelegation(Identity delegator, Identity delegatee);
+    boolean existResourceableId(Long resourceableId);
 
-    public boolean existResourceableId(Long resourceableId);
+    List<Long> getAllCreatedSapCourcesResourceableIds();
 
-    public List<Long> getAllCreatedSapCourcesResourceableIds();
+    List getDelegatees(Identity delegator);
 
-    public List getDelegatees(Identity delegator);
-
-    public void deleteDelegation(Identity delegator, Identity delegatee);
+    void deleteDelegation(Identity delegator, Identity delegatee);
 
 }

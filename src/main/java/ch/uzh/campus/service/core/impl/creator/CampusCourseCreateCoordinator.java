@@ -88,22 +88,19 @@ public class CampusCourseCreateCoordinator {
     }
 
     public CampusCourse continueCampusCourse(CampusCourse campusCourse, CampusCourseImportTO campusCourseImportData, Identity creator) {
-        RepositoryEntry repositoryEntry = campusCourse.getRepositoryEntry();
 
-        // Titel
-        String oldTitle = repositoryEntry.getDisplayname();
+        // Update display name, description and initial author
+        String oldTitle = campusCourse.getRepositoryEntry().getDisplayname();
         String newTitle = campusCourseImportData.getTitle();
         String displayName = StringUtils.left(newTitle, 4).concat("/").concat(StringUtils.left(oldTitle, 4)).concat(StringUtils.substring(newTitle, 4));
-        campusCourse.getRepositoryEntry().setDisplayname(CampusCourseTool.getTruncatedDisplayname(displayName));
-
-        // Set title and vvz link in course model
-        campusCourseCreator.updateCourseRunAndEditorModels(campusCourse, displayName, campusCourseImportData.getVvzLink(), false, campusCourseImportData.getLanguage());
-
-        // Description
         String campusCourseSemester = oldTitle.concat("<br>").concat(newTitle);
+        campusCourse.getRepositoryEntry().setDisplayname(CampusCourseTool.getTruncatedDisplayname(displayName));
         campusCourse.getRepositoryEntry().setDescription(campusCourseDescriptionBuilder.buildDescriptionFrom(campusCourseImportData, campusCourseSemester, campusCourseImportData.getLanguage()));
+        campusCourse.getRepositoryEntry().setInitialAuthor(creator.getName());
+        repositoryService.update(campusCourse.getRepositoryEntry());
 
-        updateDisplaynameDescriptionOfRepositoryEntry(campusCourse.getRepositoryEntry());
+        // Update course run and editor models
+        campusCourseCreator.updateCourseRunAndEditorModels(campusCourse, displayName, campusCourseImportData.getVvzLink(), false, campusCourseImportData.getLanguage());
 
         List<StudentCourse> studentCourses = new ArrayList<>();
         for (Identity identity : campusCourseGroupSynchronizer.getCampusGroupAParticipants(campusCourse)) {
@@ -119,22 +116,11 @@ public class CampusCourseCreateCoordinator {
             }
         }
 
-        campusCourse.getRepositoryEntry().setInitialAuthor(creator.getName());
-
         if (!studentCourses.isEmpty()) {
             daoManager.saveStudentCourses(studentCourses);
         }
 
         return campusCourse;
-    }
-    
-    
-    private RepositoryEntry updateDisplaynameDescriptionOfRepositoryEntry(final RepositoryEntry repositoryEntry) {
-        final RepositoryEntry reloaded = repositoryService.loadByKey(repositoryEntry.getKey());
-        reloaded.setDisplayname(repositoryEntry.getDisplayname());
-        reloaded.setDescription(repositoryEntry.getDescription());        
-        dbInstance.getCurrentEntityManager().merge(reloaded);
-        return reloaded;
     }
 
     /**

@@ -101,17 +101,15 @@ public class CampusCourseCreateCoordinatorTest extends OlatTestCase {
     private Identity secondOwnerIdentity;
     private Identity testIdentity;
     private Identity secondTestIdentity;
-
     private CampusCourseConfiguration campusCourseConfigurationMock;
-    
+    private CampusCourseImportTO campusCourseImportData;
+
     @Before
     public void setup() {
     	ownerIdentity = JunitTestHelper.createAndPersistIdentityAsUser("TestOwner");
 
         RepositoryEntry sourceRepositoryEntry = JunitTestHelper.deployDemoCourse(ownerIdentity);
         sourceResourceableId = sourceRepositoryEntry.getOlatResource().getResourceableId();
-
-        DBFactory.getInstance().closeSession();   
         
         CampusCourseJunitTestHelper.setupCampusCourseGroupForTest(sourceRepositoryEntry, TEST_COURSE_GROUP_A_NAME, businessGroupService);
         dbInstance.commitAndCloseSession();
@@ -131,15 +129,21 @@ public class CampusCourseCreateCoordinatorTest extends OlatTestCase {
         secondOwnerIdentity = JunitTestHelper.createAndPersistIdentityAsUser("SecondTestOwner");
         testIdentity = JunitTestHelper.createAndPersistIdentityAsUser("TestUser");
         secondTestIdentity = JunitTestHelper.createAndPersistIdentityAsUser("SecondTestUser");
+
+        String semester = "Herbstsemester 2012";
+        List<Identity> lecturers = new ArrayList<>();
+        lecturers.add(ownerIdentity);
+        lecturers.add(secondOwnerIdentity);
+        List<Identity> participants = new ArrayList<>();
+        participants.add(testIdentity);
+        participants.add(secondTestIdentity);
+        campusCourseImportData = new CampusCourseImportTO(TEST_TITLE_TEXT, semester, lecturers, participants, TEST_EVENT_DESCRIPTION_TEXT,
+                TEST_RESOURCEABLE_ID, null);
     }
-    
 
 	@After
     public void tearDown() throws Exception {
 		dbInstance.rollback();
-        // TODO: Does not cleanup Demo-course because other Test which use Demo-Course too, will be have failures
-        // remove demo course on file system
-        // CourseFactory.deleteCourse(course);
         try {
             DBFactory.getInstance().closeSession();
         } catch (final Exception e) {
@@ -148,16 +152,6 @@ public class CampusCourseCreateCoordinatorTest extends OlatTestCase {
     }
 
     private CampusCourse createCampusCourseTestObject() {
-        String semester = "Herbstsemester 2012";
-        List<Identity> lecturers = new ArrayList<>();
-        lecturers.add(ownerIdentity);
-        lecturers.add(secondOwnerIdentity);
-        List<Identity> participants = new ArrayList<>();
-        participants.add(testIdentity);
-        participants.add(secondTestIdentity);
-        CampusCourseImportTO campusCourseImportData = new CampusCourseImportTO(TEST_TITLE_TEXT, semester, lecturers, participants, TEST_EVENT_DESCRIPTION_TEXT,
-                TEST_RESOURCEABLE_ID, null);
-
         // Create campus course from a template
         CampusCourse campusCourse = campusCourseCreateCoordinator.createCampusCourse(null, campusCourseImportData, ownerIdentity);
         dbInstance.flush();
@@ -281,6 +275,8 @@ public class CampusCourseCreateCoordinatorTest extends OlatTestCase {
         List<BGArea> areas = areaManager.findBGAreasInContext(campusCourse.getRepositoryEntry().getOlatResource());
         assertEquals(1,areas.size());
     }
+
+
     
     //TODO: olatng
     @Ignore

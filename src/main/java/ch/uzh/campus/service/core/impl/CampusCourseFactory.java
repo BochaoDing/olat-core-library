@@ -24,7 +24,6 @@ package ch.uzh.campus.service.core.impl;
 import ch.uzh.campus.CampusCourseImportTO;
 import ch.uzh.campus.data.DaoManager;
 import ch.uzh.campus.service.CampusCourse;
-import org.olat.core.id.OLATResourceable;
 import org.olat.core.logging.OLog;
 import org.olat.core.logging.Tracing;
 import org.olat.course.CourseFactory;
@@ -62,7 +61,7 @@ public class CampusCourseFactory {
             log.warn("getRepositoryEntryFor sapCourseId=" + sapCourseId + ": no OLAT course found");
             return null;
         }
-        OLATResourceable loadedCourse = CourseFactory.loadCourse(campusCourseTo.getOlatResourceableId());
+        ICourse loadedCourse = CourseFactory.loadCourse(campusCourseTo.getOlatResourceableId());
         return repositoryManager.lookupRepositoryEntry(loadedCourse, true);
     }
 }

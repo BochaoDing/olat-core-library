@@ -41,6 +41,9 @@ import java.util.List;
 import java.util.Set;
 
 /**
+ *
+ * Use this service only within a {@link javax.servlet.Servlet}. Otherwise commitAndCloseSession / closeSession would be needed.
+ *
  * Initial Date: 16.07.2012 <br>
  * 
  * @author cg
@@ -74,62 +77,46 @@ public class CampusCourseCoreServiceImpl implements CampusCourseCoreService {
             }
         }
         return false;
-
     }
 
     @Override
     public CampusCourse createCampusCourseFromTemplate(Long courseResourceableId, Long sapCampusCourseId, Identity creator) {
         CampusCourseImportTO campusCourseImportData = daoManager.getSapCampusCourse(sapCampusCourseId);
         if (campusCourseImportData.isOlatResourceableIdUndefined()) {
-            return createCampusCourse(courseResourceableId, sapCampusCourseId, creator, campusCourseImportData);
+            // Campus course has not been created yet
+            CampusCourse campusCourse = campusCourseCreateCoordinator.createCampusCourse(courseResourceableId, campusCourseImportData, creator);
+            if (campusCourse != null) {
+                daoManager.saveCampusCourseResoureableId(sapCampusCourseId, campusCourse.getRepositoryEntry().getOlatResource().getResourceableId());
+            }
+            dbInstance.intermediateCommit();
+            return campusCourse;
         } else {
+            // Campus course has already been created
             return loadCampusCourse(sapCampusCourseId, campusCourseImportData.getOlatResourceableId());
         }
     }
 
     @Override
     public CampusCourse continueCampusCourse(Long courseResourceableId, Long sapCampusCourseId, String courseTitle, Identity creator) {
-        try {
-            daoManager.saveCampusCourseResoureableIdAndDisableSynchronization(sapCampusCourseId, courseResourceableId);
-            dbInstance.commitAndCloseSession();
-        } catch (Throwable t) {
-            dbInstance.rollbackAndCloseSession();
-            log.warn(t.getMessage());
-        }
+        daoManager.saveCampusCourseResoureableIdAndDisableSynchronization(sapCampusCourseId, courseResourceableId);
+        dbInstance.intermediateCommit();
         CampusCourseImportTO campusCourseImportData = daoManager.getSapCampusCourse(sapCampusCourseId);
         CampusCourse campusCourse = loadCampusCourse(sapCampusCourseId, courseResourceableId);
-        
-        return campusCourseCreateCoordinator.continueCampusCourse(campusCourse, campusCourseImportData, creator);
+        campusCourse = campusCourseCreateCoordinator.continueCampusCourse(campusCourse, campusCourseImportData, creator);
+        dbInstance.intermediateCommit();
+        return campusCourse;
     }
 
-    public CampusCourse createCampusCourse(Long resourceableId, Long sapCampusCourseId, Identity creator, CampusCourseImportTO campusCourseImportData) {
-        CampusCourse campusCourse = campusCourseCreateCoordinator.createCampusCourse(resourceableId, campusCourseImportData, creator);
-        if (campusCourse != null) {
-            try {
-                daoManager.saveCampusCourseResoureableId(sapCampusCourseId, campusCourse.getRepositoryEntry().getOlatResource().getResourceableId());
-                dbInstance.commitAndCloseSession();
-            } catch (Throwable t) {
-                dbInstance.rollbackAndCloseSession();
-                log.warn(t.getMessage());
-            }
-        }
-        return campusCourse;       
-    }
-
-    public CampusCourse loadCampusCourse(Long sapCampusCourseId, Long resourceableId) {
+    private CampusCourse loadCampusCourse(Long sapCampusCourseId, Long resourceableId) {
         return campusCourseFactory.getCampusCourse(sapCampusCourseId, resourceableId);
     }
 
     //TODO: olatng: muss aufgerufen werden
+    @Override
     public void deleteResourceableIdReference(OLATResourceable res) {
-        try {
-            log.info("deleteResourceableIdReference for resourceableId=" + res.getResourceableId());
-            daoManager.deleteResourceableId(res.getResourceableId());
-            dbInstance.commitAndCloseSession();
-        } catch (Throwable t) {
-            dbInstance.rollbackAndCloseSession();
-            log.warn(t.getMessage());
-        }
+        log.info("deleteResourceableIdReference for resourceableId=" + res.getResourceableId());
+        daoManager.deleteResourceableId(res.getResourceableId());
+        dbInstance.intermediateCommit();
 
         // TODO: olatng: püfen, ob noch notwendig
         //CoordinatorManager.getInstance().getCoordinator().getEventBus()
@@ -167,6 +154,7 @@ public class CampusCourseCoreServiceImpl implements CampusCourseCoreService {
 	@Override
     public void createDelegation(Identity delegator, Identity delegatee) {
         daoManager.saveDelegation(delegator, delegatee);
+        dbInstance.intermediateCommit();
     }
 
     @Override
@@ -184,11 +172,13 @@ public class CampusCourseCoreServiceImpl implements CampusCourseCoreService {
         return daoManager.getAllCreatedSapCourcesResourceableIds();
     }
 
+    @Override
     public List getDelegatees(Identity delegator) {
         return daoManager.getDelegatees(delegator);
     }
 
     public void deleteDelegation(Identity delegator, Identity delegatee) {
         daoManager.deleteDelegation(delegator, delegatee);
+        dbInstance.intermediateCommit();
     }
 }
