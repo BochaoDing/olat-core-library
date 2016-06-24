@@ -349,6 +349,10 @@ public class DaoManager {
         courseDao.deleteResourceable(resourceableId);
     }
 
+    public void saveParentCourseId(Long courseId, Long parentCourseId) {
+        courseDao.saveParentCourseId(courseId, parentCourseId);
+    }
+
     public List<Long> getAllCreatedSapCourcesIds() {
         return courseDao.getIdsOfAllCreatedCourses();
     }

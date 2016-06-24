@@ -262,6 +262,35 @@ public class CourseDaoTest extends OlatTestCase {
     }
 
     @Test
+    public void testSaveParentCourseId() {
+        insertTestData();
+        Course parentCourse = courseDao.getCourseById(100L);
+        Course course = courseDao.getCourseById(200L);
+        assertNotNull(parentCourse);
+        assertNotNull(course);
+        assertNull(course.getParentCourse());
+        assertNull(parentCourse.getChildCourse());
+
+        courseDao.saveParentCourseId(200L, 100L);
+
+        assertParentCourse(course, parentCourse);
+
+        dbInstance.flush();
+        dbInstance.clear();
+
+        Course updatedParentCourse = courseDao.getCourseById(100L);
+        Course updatedCourse = courseDao.getCourseById(200L);
+        assertParentCourse(updatedCourse, updatedParentCourse);
+    }
+
+    private void assertParentCourse(Course course, Course parentCourse) {
+        assertNotNull(course.getParentCourse());
+        assertEquals(100L, course.getParentCourse().getId().longValue());
+        assertNotNull(parentCourse.getChildCourse());
+        assertEquals(200L, parentCourse.getChildCourse().getId().longValue());
+    }
+
+    @Test
     public void testGetResourceableIdsOfAllCreatedCourses() {
         insertTestData();
         List<Long> resourceableIdsOfAllCreatedCourses = courseDao.getResourceableIdsOfAllCreatedCourses();

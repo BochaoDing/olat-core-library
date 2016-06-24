@@ -117,6 +117,13 @@ public class Course {
     @OneToMany(mappedBy = "course", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Text> texts = new HashSet<>();
 
+    @OneToOne(mappedBy = "parentCourse", cascade = CascadeType.ALL)
+    private Course childCourse;
+
+    @OneToOne
+    @JoinColumn(name = "parent_course_id")
+    private Course parentCourse;
+
     static final String GET_IDS_OF_ALL_CREATED_COURSES = "getIdsOfAllCreatedCourses";
     static final String GET_RESOURCEABLEIDS_OF_ALL_CREATED_COURSES = "getResourceableIdsOfAllCreatedCourses";
     static final String GET_IDS_OF_ALL_NOT_CREATED_COURSES = "getIdsOfAllNotCreatedCourses";
@@ -322,6 +329,24 @@ public class Course {
 
     public Set<Text> getTexts() {
         return texts;
+    }
+
+    public Course getChildCourse() {
+        return childCourse;
+    }
+
+    public void setChildCourse(Course childCourse) {
+        this.childCourse = childCourse;
+        childCourse.parentCourse = this;
+    }
+
+    public Course getParentCourse() {
+        return parentCourse;
+    }
+
+    public void setParentCourse(Course parentCourse) {
+        this.parentCourse = parentCourse;
+        parentCourse.childCourse = this;
     }
 
     @Transient

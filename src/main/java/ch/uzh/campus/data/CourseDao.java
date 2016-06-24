@@ -2,10 +2,13 @@ package ch.uzh.campus.data;
 
 import ch.uzh.campus.utils.DateUtil;
 import org.olat.core.commons.persistence.DB;
+import org.olat.core.logging.OLog;
+import org.olat.core.logging.Tracing;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import javax.persistence.EntityManager;
+import javax.persistence.EntityNotFoundException;
 import java.util.Date;
 import java.util.List;
 
@@ -18,6 +21,8 @@ import java.util.List;
  */
 @Repository
 public class CourseDao implements CampusDao<Course> {
+
+    private static final OLog LOG = Tracing.createLoggerFor(CourseDao.class);
 
 	@Autowired
 	private DB dbInstance;
@@ -83,16 +88,22 @@ public class CourseDao implements CampusDao<Course> {
 
     public void saveResourceableId(Long courseId, Long resourceableId) {
         Course course = getCourseById(courseId);
-        if (course != null) {
-            course.setResourceableId(resourceableId);
+        if (course == null) {
+            String warningMessage = "No course found with id " + courseId + ". Cannot save resourcable id;";
+            LOG.warn(warningMessage);
+            return;
         }
+        course.setResourceableId(resourceableId);
     }
 
     public void disableSynchronization(Long courseId) {
         Course course = getCourseById(courseId);
-        if (course != null) {
-            course.setSynchronizable(false);
+        if (course == null) {
+            String warningMessage = "No course found with id " + courseId + ". Cannot disable synchronization;";
+            LOG.warn(warningMessage);
+            return;
         }
+        course.setSynchronizable(false);
     }
 
     public void deleteResourceable(Long resourceableId) {
@@ -100,9 +111,30 @@ public class CourseDao implements CampusDao<Course> {
                 .createNamedQuery(Course.GET_COURSE_BY_RESOURCEABLE_ID, Course.class)
                 .setParameter("resourceableId", resourceableId)
                 .getResultList();
+        if (courses.isEmpty()) {
+            String warningMessage = "No courses found with resourcable id " + resourceableId + ".";
+            LOG.warn(warningMessage);
+            return;
+        }
         for (Course course : courses) {
             course.setResourceableId(null);
         }
+    }
+
+    public void saveParentCourseId(Long courseId, Long parentCourseId) {
+        Course course = getCourseById(courseId);
+        Course parentCourse = getCourseById(parentCourseId);
+        if (course == null) {
+            String warningMessage = "No course found with id " + courseId + ". Cannot save parent course id;";
+            LOG.warn(warningMessage);
+            return;
+        }
+        if (parentCourse == null) {
+            String warningMessage = "No parent course found with id " + parentCourseId + ". Cannot save parent course id;";
+            LOG.warn(warningMessage);
+            return;
+        }
+        course.setParentCourse(parentCourse);
     }
 
     /**
