@@ -27,12 +27,15 @@ import ch.uzh.campus.service.core.impl.syncer.statistic.SynchronizedSecurityGrou
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.olat.core.commons.persistence.DB;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 /**
  * Initial Date: 08.11.2012 <br>
@@ -42,20 +45,20 @@ import static org.mockito.Mockito.mock;
 public class CampusCourseSynchronizationWriterTest {
     private CampusCourseSynchronizationWriter campusCourseSynchronizationWriterTestObject;
     private CampusCourseSynchronizer campusCourseSynchronizerMock;
+    private DB campusCourseDBImplMock;
     private List<CampusCourseImportTO> twoCoursesList = new ArrayList<>();
     private SynchronizedGroupStatistic synchronizedGroupStatisticforCourse1, synchronizedGroupStatisticforCourse2;
 
     @Before
     public void setup() {
-        campusCourseSynchronizationWriterTestObject = new CampusCourseSynchronizationWriter();
         // Mock for CourseSynchronizer
         campusCourseSynchronizerMock = mock(CampusCourseSynchronizer.class);
-        // TODO OLATng
-        //synchronizationWriterTestObject.courseSynchronizer = courseSynchronizerMock;
+        // Mock for DBImpl
+        DB campusCourseDBImplMock = mock(DB.class);
+        // Test object
+        campusCourseSynchronizationWriterTestObject = new CampusCourseSynchronizationWriter(campusCourseSynchronizerMock, campusCourseDBImplMock);
         // Test OverallSynchronizeStatistic
         campusCourseSynchronizationWriterTestObject.setSynchronizeStatistic(new OverallSynchronizeStatistic());
-        // Mock for DBImpl
-        // synchronizatioWriterTestObject.dBImpl = mock(DB.class);
         // Test SynchronizedGroupStatistic
         synchronizedGroupStatisticforCourse1 = new SynchronizedGroupStatistic("course1", null, new SynchronizedSecurityGroupStatistic(15, 0));
         synchronizedGroupStatisticforCourse2 = new SynchronizedGroupStatistic("course2", null, new SynchronizedSecurityGroupStatistic(0, 9));
@@ -66,26 +69,24 @@ public class CampusCourseSynchronizationWriterTest {
         twoCoursesList.add(courseMock2);
 
         // TODO OLATng
-//        when(courseSynchronizerMock.synchronizeCourse(courseMock1)).thenReturn(synchronizedGroupStatisticforCourse1);
-//        when(courseSynchronizerMock.synchronizeCourse(courseMock2)).thenReturn(synchronizedGroupStatisticforCourse2);
+        when(campusCourseSynchronizerMock.synchronizeCourse(courseMock1)).thenReturn(synchronizedGroupStatisticforCourse1);
+        when(campusCourseSynchronizerMock.synchronizeCourse(courseMock2)).thenReturn(synchronizedGroupStatisticforCourse2);
 
     }
 
     // TODO OLATng
-    @Ignore
     @Test
     public void write_emptyCoursesList() throws Exception {
-//        synchronizationWriterTestObject.write(Collections.emptyList());
-//        assertEquals(synchronizationWriterTestObject.getSynchronizeStatistic().calculateOverallStatistic(),
-//                "overallAddedOwners=0 , overallRemovedOwners=0 ; overallAddedParticipants=0 , overallRemovedParticipants=0");
+        campusCourseSynchronizationWriterTestObject.write(Collections.emptyList());
+        assertEquals(campusCourseSynchronizationWriterTestObject.getSynchronizeStatistic().calculateOverallStatistic(),
+                "overallAddedOwners=0 , overallRemovedOwners=0 ; overallAddedParticipants=0 , overallRemovedParticipants=0");
     }
 
     // TODO OLATng
-    @Ignore
     @Test
     public void write_twoCoursesList() throws Exception {
-//        synchronizationWriterTestObject.write(twoCoursesList);
-//        assertEquals(synchronizationWriterTestObject.getSynchronizeStatistic().calculateOverallStatistic(),
-//                "overallAddedOwners=0 , overallRemovedOwners=0 ; overallAddedParticipants=15 , overallRemovedParticipants=9");
+        campusCourseSynchronizationWriterTestObject.write(twoCoursesList);
+        assertEquals(campusCourseSynchronizationWriterTestObject.getSynchronizeStatistic().calculateOverallStatistic(),
+                "overallAddedOwners=0 , overallRemovedOwners=0 ; overallAddedParticipants=15 , overallRemovedParticipants=9");
     }
 }

@@ -47,11 +47,18 @@ public class CampusCourseSynchronizationWriter implements ItemWriter<CampusCours
 
     private OverallSynchronizeStatistic synchronizeStatistic;
 
-    @Autowired
-    private CampusCourseSynchronizer campusCourseSynchronizer;
+    private final CampusCourseSynchronizer campusCourseSynchronizer;
+    private final DB dbInstance;
 
     @Autowired
-    private DB dbInstance;
+    public CampusCourseSynchronizationWriter(CampusCourseSynchronizer campusCourseSynchronizer, DB dbInstance) {
+        this.campusCourseSynchronizer = campusCourseSynchronizer;
+        this.dbInstance = dbInstance;
+    }
+
+    public OverallSynchronizeStatistic getSynchronizeStatistic() {
+        return synchronizeStatistic;
+    }
 
     /**
      * Sets the OverallSynchronizeStatistic to be used for gathering the results during the synchronizing.
