@@ -24,6 +24,7 @@ import ch.uzh.campus.CampusCourseImportTO;
 import ch.uzh.campus.data.Course;
 import ch.uzh.campus.data.DaoManager;
 import ch.uzh.campus.data.SapOlatUser;
+import ch.uzh.campus.presentation.CampusCourseEvent;
 import ch.uzh.campus.service.CampusCourse;
 import ch.uzh.campus.service.core.CampusCourseCoreService;
 import ch.uzh.campus.service.core.impl.creator.CampusCourseCreateCoordinator;
@@ -32,6 +33,8 @@ import org.olat.core.id.Identity;
 import org.olat.core.id.OLATResourceable;
 import org.olat.core.logging.OLog;
 import org.olat.core.logging.Tracing;
+import org.olat.core.util.coordinate.CoordinatorManager;
+import org.olat.core.util.resource.OresHelper;
 import org.olat.repository.RepositoryEntry;
 import org.olat.repository.RepositoryService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -111,16 +114,21 @@ public class CampusCourseCoreServiceImpl implements CampusCourseCoreService {
         return campusCourseFactory.getCampusCourse(sapCampusCourseId, resourceableId);
     }
 
-    //TODO: olatng: muss aufgerufen werden
+    //TODO olatng: not yet used anywhere in the code
+    // In OLAT 7.8, it is used in CourseRepositoryHandler.cleanupOnDelete(final OLATResourceable res);
+    // and in OpenOLAT this class does not exist
     @Override
     public void deleteResourceableIdReference(OLATResourceable res) {
         log.info("deleteResourceableIdReference for resourceableId=" + res.getResourceableId());
         daoManager.deleteResourceableId(res.getResourceableId());
         dbInstance.intermediateCommit();
 
-        // TODO: olatng: püfen, ob noch notwendig
-        //CoordinatorManager.getInstance().getCoordinator().getEventBus()
-        //        .fireEventToListenersOf(new CampusCourseEvent(res.getResourceableId(), CampusCourseEvent.DELETED), OresHelper.lookupType(CampusCourse.class));
+        // Notify possible listeners about DELETED event
+        CoordinatorManager.getInstance().getCoordinator().getEventBus().fireEventToListenersOf(
+                new CampusCourseEvent(
+                        res.getResourceableId(), CampusCourseEvent.DELETED
+                ), OresHelper.lookupType(CampusCourse.class)
+        );
     }
 
     /**
