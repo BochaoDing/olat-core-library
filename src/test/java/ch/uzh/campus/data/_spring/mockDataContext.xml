@@ -33,6 +33,9 @@
         <bean class="ch.uzh.campus.data.Student" p:id="2100" p:registrationNr="1000" p:firstName="firstName1" p:lastName="lastName1" p:email="email1" p:modifiedDate="10.10.2014 10:10" scope="prototype" />
         <bean class="ch.uzh.campus.data.Student" p:id="2200" p:registrationNr="2000" p:firstName="firstName2" p:lastName="lastName2" p:email="email2" p:modifiedDate="10.10.2014 10:10" scope="prototype" />
         <bean class="ch.uzh.campus.data.Student" p:id="2300" p:registrationNr="3000" p:firstName="firstName3" p:lastName="lastName3" p:email="email3" p:modifiedDate="10.10.2014 10:10" scope="prototype" />
+        <bean class="ch.uzh.campus.data.Student" p:id="2400" p:registrationNr="4000" p:firstName="firstName4" p:lastName="lastName4" p:email="email4" p:modifiedDate="10.10.2014 10:10" scope="prototype" />
+        <bean class="ch.uzh.campus.data.Student" p:id="2500" p:registrationNr="5000" p:firstName="firstName5" p:lastName="lastName5" p:email="email5" p:modifiedDate="10.10.2014 10:10" scope="prototype" />
+        <bean class="ch.uzh.campus.data.Student" p:id="2600" p:registrationNr="6000" p:firstName="firstName6" p:lastName="lastName6" p:email="email6" p:modifiedDate="10.10.2014 10:10" scope="prototype" />
     </util:list>
 
     <!-- ======================================================================================= -->
@@ -41,6 +44,11 @@
     <util:list id = 'lecturers' scope="prototype" >
         <bean class="ch.uzh.campus.data.Lecturer" p:personalNr="1100" p:firstName="firstName1" p:lastName="lastName1" p:email="email1" p:modifiedDate="10.10.2014 10:10" scope="prototype" />
         <bean class="ch.uzh.campus.data.Lecturer" p:personalNr="1200" p:firstName="firstName2" p:lastName="lastName2" p:email="email2" p:modifiedDate="10.10.2014 10:10" scope="prototype" />
+        <bean class="ch.uzh.campus.data.Lecturer" p:personalNr="1300" p:firstName="firstName3" p:lastName="lastName3" p:email="email3" p:modifiedDate="10.10.2014 10:10" scope="prototype" />
+        <bean class="ch.uzh.campus.data.Lecturer" p:personalNr="1400" p:firstName="firstName4" p:lastName="lastName4" p:email="email4" p:modifiedDate="10.10.2014 10:10" scope="prototype" />
+        <bean class="ch.uzh.campus.data.Lecturer" p:personalNr="1500" p:firstName="firstName5" p:lastName="lastName5" p:email="email5" p:modifiedDate="10.10.2014 10:10" scope="prototype" />
+        <bean class="ch.uzh.campus.data.Lecturer" p:personalNr="1600" p:firstName="firstName6" p:lastName="lastName6" p:email="email6" p:modifiedDate="10.10.2014 10:10" scope="prototype" />
+        <bean class="ch.uzh.campus.data.Lecturer" p:personalNr="1700" p:firstName="firstName7" p:lastName="lastName7" p:email="email7" p:modifiedDate="10.10.2014 10:10" scope="prototype" />
     </util:list>
 
     <!-- ======================================================================================= -->
@@ -52,10 +60,20 @@
     <bean id="course_3" class="ch.uzh.campus.data.Course" p:id="300" p:shortTitle="shortTitle3" p:title="title3" p:vstNr="vstNr3" p:category="Seminar" p:language="EN" p:vvzLink="link" p:semester="hs" p:shortSemester="99HS" p:enabled="1" p:synchronizable="true" p:modifiedDate="10.10.2014 10:10" scope="prototype">
         <property name="resourceableId"><null/></property>
     </bean>
+    <bean id="course_4" class="ch.uzh.campus.data.Course" p:id="400" p:shortTitle="shortTitle4" p:title="title4" p:vstNr="vstNr4" p:category="Seminar" p:language="EN" p:vvzLink="link" p:semester="fs" p:shortSemester="99FS" p:enabled="1" p:synchronizable="true" p:modifiedDate="10.10.2014 10:10" scope="prototype">
+        <property name="resourceableId"><null/></property>
+    </bean>
+    <bean id="course_5" class="ch.uzh.campus.data.Course" p:id="500" p:shortTitle="shortTitle5" p:title="title5" p:vstNr="vstNr5" p:category="Seminar" p:language="EN" p:vvzLink="link" p:semester="hs" p:shortSemester="98HS" p:enabled="1" p:synchronizable="true" p:modifiedDate="10.10.2014 10:10" scope="prototype">
+        <property name="resourceableId"><null/></property>
+    </bean>
+    <bean id="course_6" class="ch.uzh.campus.data.Course" p:id="600" p:resourceableId="600" p:shortTitle="shortTitle6" p:title="title6" p:vstNr="vstNr6" p:category="Seminar" p:language="EN" p:vvzLink="link" p:semester="fs" p:shortSemester="98FS" p:enabled="1" p:synchronizable="true" p:modifiedDate="10.10.2014 10:10" scope="prototype" />
     <util:list id = 'courses' scope="prototype" >
         <ref bean="course_1"/>
         <ref bean="course_2"/>
         <ref bean="course_3"/>
+        <ref bean="course_4"/>
+        <ref bean="course_5"/>
+        <ref bean="course_6"/>
     </util:list>
 
     <!-- ======================================================================================= -->
@@ -67,6 +85,9 @@
         <bean class="ch.uzh.campus.data.StudentIdCourseId" p:studentId="2100" p:courseId="200" p:modifiedDate="10.10.2014 10:10" scope="prototype" />
         <bean class="ch.uzh.campus.data.StudentIdCourseId" p:studentId="2200" p:courseId="200" p:modifiedDate="10.10.2014 10:10" scope="prototype" />
         <bean class="ch.uzh.campus.data.StudentIdCourseId" p:studentId="2100" p:courseId="300" p:modifiedDate="10.10.2014 10:10" scope="prototype" />
+        <bean class="ch.uzh.campus.data.StudentIdCourseId" p:studentId="2400" p:courseId="400" p:modifiedDate="10.10.2014 10:10" scope="prototype" />
+        <bean class="ch.uzh.campus.data.StudentIdCourseId" p:studentId="2500" p:courseId="500" p:modifiedDate="10.10.2014 10:10" scope="prototype" />
+        <bean class="ch.uzh.campus.data.StudentIdCourseId" p:studentId="2600" p:courseId="600" p:modifiedDate="10.10.2014 10:10" scope="prototype" />
     </util:list>
       
 
@@ -77,7 +98,10 @@
         <bean id="lecturerIdCourseId1" class="ch.uzh.campus.data.LecturerIdCourseId" p:courseId="100" p:lecturerId="1100" p:modifiedDate="10.10.2014 10:10" scope="prototype" />
         <bean id="lecturerIdCourseId2" class="ch.uzh.campus.data.LecturerIdCourseId" p:courseId="200" p:lecturerId="1100" p:modifiedDate="10.10.2014 10:10" scope="prototype" />
         <bean id="lecturerIdCourseId3" class="ch.uzh.campus.data.LecturerIdCourseId" p:courseId="200" p:lecturerId="1200" p:modifiedDate="10.10.2014 10:10" scope="prototype" />
-        <bean id="lecturerIdCourseId4" class="ch.uzh.campus.data.LecturerIdCourseId" p:courseId="300" p:lecturerId="1100" p:modifiedDate="10.10.2014 10:10" scope="prototype" />
+        <bean id="lecturerIdCourseId4" class="ch.uzh.campus.data.LecturerIdCourseId" p:courseId="300" p:lecturerId="1300" p:modifiedDate="10.10.2014 10:10" scope="prototype" />
+        <bean id="lecturerIdCourseId5" class="ch.uzh.campus.data.LecturerIdCourseId" p:courseId="400" p:lecturerId="1400" p:modifiedDate="10.10.2014 10:10" scope="prototype" />
+        <bean id="lecturerIdCourseId6" class="ch.uzh.campus.data.LecturerIdCourseId" p:courseId="500" p:lecturerId="1500" p:modifiedDate="10.10.2014 10:10" scope="prototype" />
+        <bean id="lecturerIdCourseId7" class="ch.uzh.campus.data.LecturerIdCourseId" p:courseId="600" p:lecturerId="1600" p:modifiedDate="10.10.2014 10:10" scope="prototype" />
     </util:list>
 
     <!-- ======================================================================================= -->

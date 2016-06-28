@@ -71,20 +71,20 @@ public class LecturerDaoTest extends OlatTestCase {
     }
 
     @Test
-    public void testGetAllNotUpdatedLecturers_foundTwoLecturers() {
+    public void testGetAllNotUpdatedLecturers_foundSevenLecturers() {
         int numberOfLecturersFoundBeforeInsertingTestData = lecturerDao.getAllNotUpdatedLecturers(new Date()).size();
         insertTestData();
-        assertEquals(numberOfLecturersFoundBeforeInsertingTestData + 2, lecturerDao.getAllNotUpdatedLecturers(new Date()).size());
+        assertEquals(numberOfLecturersFoundBeforeInsertingTestData + 7, lecturerDao.getAllNotUpdatedLecturers(new Date()).size());
     }
 
     @Test
-    public void testGetAllNotUpdatedLecturers_foundOneLecturer() throws InterruptedException {
+    public void testGetAllNotUpdatedLecturers_foundSixLecturers() throws InterruptedException {
         Date now = new Date();
         int numberOfLecturersFoundBeforeInsertingTestData = lecturerDao.getAllNotUpdatedLecturers(now).size();
         insertTestData();
         lecturers.get(0).setModifiedDate(now);
         dbInstance.flush();
-        assertEquals(numberOfLecturersFoundBeforeInsertingTestData + 1, lecturerDao.getAllNotUpdatedLecturers(now).size());
+        assertEquals(numberOfLecturersFoundBeforeInsertingTestData + 6, lecturerDao.getAllNotUpdatedLecturers(now).size());
     }
 
     @Test
@@ -169,7 +169,7 @@ public class LecturerDaoTest extends OlatTestCase {
     public void testGetAllPilotLecturers() {
         int numberOfLecturersFoundBeforeInsertingTestData = lecturerDao.getAllPilotLecturers().size();
         insertTestData();
-        assertEquals(numberOfLecturersFoundBeforeInsertingTestData + 2, lecturerDao.getAllPilotLecturers().size());
+        assertEquals(numberOfLecturersFoundBeforeInsertingTestData + 6, lecturerDao.getAllPilotLecturers().size());
     }
 
     private void insertTestData() {
