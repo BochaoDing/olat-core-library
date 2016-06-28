@@ -25,6 +25,7 @@ import ch.uzh.campus.CampusCourseImportTO;
 import ch.uzh.campus.service.CampusCourse;
 import ch.uzh.campus.service.core.impl.CampusCourseFactory;
 import ch.uzh.campus.service.core.impl.syncer.statistic.SynchronizedGroupStatistic;
+import org.olat.core.commons.persistence.DB;
 import org.olat.core.logging.OLog;
 import org.olat.core.logging.Tracing;
 import org.olat.course.CourseFactory;
@@ -42,31 +43,33 @@ public class CampusCourseSynchronizer {
 
     private static final OLog LOG = Tracing.createLoggerFor(CampusCourseSynchronizer.class);
 
+    private final CampusCourseGroupSynchronizer courseGroupSynchronizer;
+    private final CampusCourseAttributeSynchronizer campusCourseAttributeSynchronizer;
+    private final CampusCourseConfiguration campusCourseConfiguration;
+    private final CampusCourseFactory campusCourseFactory;
+
     @Autowired
-    private CampusCourseGroupSynchronizer courseGroupSynchronizer;
-   
-    @Autowired
-    private CampusCourseAttributeSynchronizer campusCourseAttributeSynchronizer;
-    
-    @Autowired
-    private CampusCourseConfiguration campusCourseConfiguration;
-    
-    @Autowired
-    private CampusCourseFactory campusCourseFactory;
+    public CampusCourseSynchronizer(
+            CampusCourseGroupSynchronizer courseGroupSynchronizer,
+            CampusCourseAttributeSynchronizer campusCourseAttributeSynchronizer,
+            CampusCourseConfiguration campusCourseConfiguration,
+            CampusCourseFactory campusCourseFactory
+    ) {
+        this.courseGroupSynchronizer = courseGroupSynchronizer;
+        this.campusCourseAttributeSynchronizer = campusCourseAttributeSynchronizer;
+        this.campusCourseConfiguration = campusCourseConfiguration;
+        this.campusCourseFactory = campusCourseFactory;
+    }
 
     SynchronizedGroupStatistic synchronizeCourse(CampusCourseImportTO sapCourse) {
         if (sapCourse != null) {
-            ICourse course = CourseFactory.loadCourse(sapCourse.getOlatResourceableId());
-
             LOG.debug("synchronizeCourse sapCourseId=" + sapCourse.getSapCourseId() + "  resourceableId=" + sapCourse.getOlatResourceableId());
-            LOG.debug("synchronizeCourse start for course=" + course.getCourseTitle());
             LOG.debug("synchronizeCourse Lecturer size=" + sapCourse.getLecturers().size());
             LOG.debug("synchronizeCourse Participants size=" + sapCourse.getParticipants().size());
 
             CampusCourse campusCourse = campusCourseFactory.getCampusCourse(sapCourse.getSapCourseId(), sapCourse.getOlatResourceableId());
 
             courseGroupSynchronizer.addAllLecturesAsOwner(campusCourse, sapCourse.getLecturers());
-            // SynchronizedGroupStatistic groupStatistic = courseGroupSynchronizer.synchronizeCourseGroupsForStudentsOnly(course, sapCourse);
             SynchronizedGroupStatistic groupStatistic = courseGroupSynchronizer.synchronizeCourseGroups(campusCourse, sapCourse);
 
             LOG.debug("synchronizeCourse statistic=" + groupStatistic);

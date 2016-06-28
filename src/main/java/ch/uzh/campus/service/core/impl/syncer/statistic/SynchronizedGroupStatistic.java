@@ -27,6 +27,8 @@ package ch.uzh.campus.service.core.impl.syncer.statistic;
  */
 public class SynchronizedGroupStatistic {
 
+    public static final String EMPTY_STATISTIC = "Empty statistic";
+
     private String courseTitle;
     private SynchronizedSecurityGroupStatistic ownerGroupStatistic;
     private SynchronizedSecurityGroupStatistic participantGroupStatistic;
@@ -65,6 +67,10 @@ public class SynchronizedGroupStatistic {
         return builder.toString();
     }
 
+    public String getCourseTitle() {
+        return courseTitle;
+    }
+
     public SynchronizedSecurityGroupStatistic getOwnerGroupStatistic() {
         return ownerGroupStatistic;
     }
@@ -74,10 +80,10 @@ public class SynchronizedGroupStatistic {
     }
 
     public static SynchronizedGroupStatistic createEmptyStatistic(long sapCourseId) {
-        return new SynchronizedGroupStatistic("EmptyStatistic sapCourseId=" + sapCourseId);
+        return new SynchronizedGroupStatistic(EMPTY_STATISTIC + " sapCourseId=" + sapCourseId);
     }
 
     public static SynchronizedGroupStatistic createEmptyStatistic() {
-        return new SynchronizedGroupStatistic("EmptyStatistic sapCourseId");
+        return new SynchronizedGroupStatistic(EMPTY_STATISTIC + " sapCourseId");
     }
 }

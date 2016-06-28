@@ -68,13 +68,10 @@ public class CampusCourseSynchronizationWriterTest {
         twoCoursesList.add(courseMock1);
         twoCoursesList.add(courseMock2);
 
-        // TODO OLATng
         when(campusCourseSynchronizerMock.synchronizeCourse(courseMock1)).thenReturn(synchronizedGroupStatisticforCourse1);
         when(campusCourseSynchronizerMock.synchronizeCourse(courseMock2)).thenReturn(synchronizedGroupStatisticforCourse2);
-
     }
 
-    // TODO OLATng
     @Test
     public void write_emptyCoursesList() throws Exception {
         campusCourseSynchronizationWriterTestObject.write(Collections.emptyList());
@@ -82,7 +79,6 @@ public class CampusCourseSynchronizationWriterTest {
                 "overallAddedOwners=0 , overallRemovedOwners=0 ; overallAddedParticipants=0 , overallRemovedParticipants=0");
     }
 
-    // TODO OLATng
     @Test
     public void write_twoCoursesList() throws Exception {
         campusCourseSynchronizationWriterTestObject.write(twoCoursesList);

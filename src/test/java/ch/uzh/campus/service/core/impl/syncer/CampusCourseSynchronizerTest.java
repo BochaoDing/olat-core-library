@@ -20,14 +20,26 @@
  */
 package ch.uzh.campus.service.core.impl.syncer;
 
+import ch.uzh.campus.CampusCourseConfiguration;
+import ch.uzh.campus.CampusCourseImportTO;
+import ch.uzh.campus.data.CourseDao;
 import ch.uzh.campus.data.DaoManager;
+import ch.uzh.campus.service.CampusCourse;
+import ch.uzh.campus.service.core.impl.CampusCourseFactory;
 import ch.uzh.campus.service.core.impl.syncer.statistic.SynchronizedGroupStatistic;
 
+import ch.uzh.campus.service.core.impl.syncer.statistic.SynchronizedSecurityGroupStatistic;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.olat.core.id.Identity;
+import org.olat.course.ICourse;
+import org.olat.repository.RepositoryEntry;
 
-import static org.junit.Assert.assertNotNull;
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -39,28 +51,71 @@ import static org.mockito.Mockito.when;
 public class CampusCourseSynchronizerTest {
 
     private static final long NOT_EXISTING_SAP_COURSE_ID = 4455;
+    private static final long EXISTING_SAP_COURSE_ID = 4456;
     private CampusCourseSynchronizer campusCourseSynchronizerTestObject;
+
+    private CampusCourse campusCourse;
+    private CampusCourseImportTO campusCourseImportTO;
+
+    private String semester = "HS2012";
+    private List<Identity> lecturers = new ArrayList<>();
+    private List<Identity> participants = new ArrayList<>();
+    private String title = "title";
+    private String eventDescription = "eventDescription";
+    private long resourcableId = 1045;
 
     @Before
     public void setup() {
-        campusCourseSynchronizerTestObject = new CampusCourseSynchronizer();
-    }
 
+        // Prepare a test CampusCourse
+        ICourse course = mock(ICourse.class);
+        RepositoryEntry repositoryEntry = mock(RepositoryEntry.class);
+        when(repositoryEntry.getDisplayname()).thenReturn(title);
+        when(repositoryEntry.getDescription()).thenReturn(eventDescription);
+        campusCourse = new CampusCourse(course, repositoryEntry);
+
+        // Prepare a test CampusCourseImportTO
+        campusCourseImportTO = new CampusCourseImportTO(
+                title, semester, lecturers, null, participants, eventDescription,
+                resourcableId, EXISTING_SAP_COURSE_ID, null, null
+        );
+
+        // mock injections for CampusCourseSynchronizer
+        SynchronizedGroupStatistic groupStatistic = new SynchronizedGroupStatistic(title, null, new SynchronizedSecurityGroupStatistic(5, 10));
+        CampusCourseGroupSynchronizer campusCourseGroupSynchronizerMock = mock(CampusCourseGroupSynchronizer.class);
+        when(campusCourseGroupSynchronizerMock.synchronizeCourseGroups(campusCourse, campusCourseImportTO)).thenReturn(groupStatistic);
+        CampusCourseAttributeSynchronizer campusCourseAttributeSynchronizerMock = mock(CampusCourseAttributeSynchronizer.class);
+        CampusCourseConfiguration campusCourseConfigurationMock = mock(CampusCourseConfiguration.class);
+        CampusCourseFactory campusCourseFactoryMock = mock(CampusCourseFactory.class);
+        when(campusCourseFactoryMock.getCampusCourse(EXISTING_SAP_COURSE_ID, resourcableId)).thenReturn(campusCourse);
+
+        campusCourseSynchronizerTestObject = new CampusCourseSynchronizer(
+                campusCourseGroupSynchronizerMock, campusCourseAttributeSynchronizerMock,
+                campusCourseConfigurationMock, campusCourseFactoryMock
+        );
+    }
     
     @Test
     public void synchronizeCourse_CouldNotFindCourse() {
         DaoManager daoManagerMock = mock(DaoManager.class);
         when(daoManagerMock.getSapCampusCourse(NOT_EXISTING_SAP_COURSE_ID)).thenReturn(null);
-        // courseSynchronizerTestObject.campusDaoManager = daoManagerMock;
 
         SynchronizedGroupStatistic statistic = campusCourseSynchronizerTestObject.synchronizeCourse(null);
         assertNotNull(statistic);
+        assertTrue(statistic.getCourseTitle().startsWith(SynchronizedGroupStatistic.EMPTY_STATISTIC));
+        assertEquals(0, statistic.getParticipantGroupStatistic().getAddedStatistic());
+        assertEquals(0, statistic.getParticipantGroupStatistic().getRemovedStatistic());
     }
     
-    // TODO OLATng
-    @Ignore
     @Test
     public void synchronizeCourse_FoundCourse() {
-    	
+        DaoManager daoManagerMock = mock(DaoManager.class);
+        when(daoManagerMock.getSapCampusCourse(EXISTING_SAP_COURSE_ID)).thenReturn(campusCourseImportTO);
+
+        SynchronizedGroupStatistic statistic = campusCourseSynchronizerTestObject.synchronizeCourse(campusCourseImportTO);
+        assertNotNull(statistic);
+        assertFalse(statistic.getCourseTitle().startsWith(SynchronizedGroupStatistic.EMPTY_STATISTIC));
+        assertEquals(5, statistic.getParticipantGroupStatistic().getAddedStatistic());
+        assertEquals(10, statistic.getParticipantGroupStatistic().getRemovedStatistic());
     }
 }
