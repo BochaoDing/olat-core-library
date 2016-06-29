@@ -70,6 +70,7 @@ import org.olat.repository.RepositoryModule;
 import org.olat.repository.RepositoryService;
 import org.olat.repository.handlers.RepositoryHandler;
 import org.olat.repository.handlers.RepositoryHandlerFactory;
+import org.olat.repository.listener.AfterRepositoryEntryDeletionListener;
 import org.olat.repository.manager.coursequery.MyCourseRepositoryQuery;
 import org.olat.repository.model.RepositoryEntryLifecycle;
 import org.olat.repository.model.RepositoryEntryStatistics;
@@ -142,6 +143,8 @@ public class RepositoryServiceImpl implements RepositoryService {
 	private AssessmentModeDAO assessmentModeDao;
 	@Autowired
 	private ReminderDAO reminderDao;
+	@Autowired
+	private AfterRepositoryEntryDeletionListener[] afterRepositoryEntryDeletionListeners;
 
 	@Autowired
 	private LifeFullIndexer lifeIndexer;
@@ -358,11 +361,19 @@ public class RepositoryServiceImpl implements RepositoryService {
 		reservationDao.deleteReservations(resource);
 		//delete references
 		referenceManager.deleteAllReferencesOf(resource);
+		/**
+		 * TODO sev26
+		 * This commit is questionable.
+		 */
 		dbInstance.commit();
 		
 		// inform handler to do any cleanup work... handler must delete the
 		// referenced resourceable a swell.
 		handler.cleanupOnDelete(entry, resource);
+
+		for (AfterRepositoryEntryDeletionListener afterRepositoryEntryDeletionListener : afterRepositoryEntryDeletionListeners) {
+			afterRepositoryEntryDeletionListener.onAction(entry, resource);
+		}
 		
 		dbInstance.commit();
 

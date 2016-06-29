@@ -106,7 +106,7 @@ public class CourseDao implements CampusDao<Course> {
         course.setSynchronizable(false);
     }
 
-    public void deleteResourceable(Long resourceableId) {
+    public void resetResourceable(Long resourceableId) {
         List<Course> courses =dbInstance.getCurrentEntityManager()
                 .createNamedQuery(Course.GET_COURSE_BY_RESOURCEABLE_ID, Course.class)
                 .setParameter("resourceableId", resourceableId)

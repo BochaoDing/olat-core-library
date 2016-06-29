@@ -118,9 +118,9 @@ public class CampusCourseCoreServiceImpl implements CampusCourseCoreService {
     // In OLAT 7.8, it is used in CourseRepositoryHandler.cleanupOnDelete(final OLATResourceable res);
     // and in OpenOLAT this class does not exist
     @Override
-    public void deleteResourceableIdReference(OLATResourceable res) {
+    public void resetResourceableIdReference(OLATResourceable res) {
         log.info("deleteResourceableIdReference for resourceableId=" + res.getResourceableId());
-        daoManager.deleteResourceableId(res.getResourceableId());
+        daoManager.resetResourceableId(res.getResourceableId());
         dbInstance.intermediateCommit();
 
         // Notify possible listeners about DELETED event

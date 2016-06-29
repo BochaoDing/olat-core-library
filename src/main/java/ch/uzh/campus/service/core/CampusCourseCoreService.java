@@ -28,7 +28,7 @@ public interface CampusCourseCoreService {
     /**
      * TODO: olatng: this used to be called from CourseRepositoryHandler, this doesn't exist in OpenOLAT anymore. Wo aufrufen?
      */
-    void deleteResourceableIdReference(OLATResourceable res);
+    void resetResourceableIdReference(OLATResourceable res);
 
     RepositoryEntry getRepositoryEntryFor(Long sapCourseId);
 
