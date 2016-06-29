@@ -57,12 +57,12 @@ public class CampusCourseDescriptionBuilder {
         String[] args = new String[3];
         args[0] = (campusCourseMultiSemester != null) ? campusCourseMultiSemester : campusCourseData.getSemester();
 
-        if (campusCourseData.getDelegatees() != null && !campusCourseData.getDelegatees().isEmpty()) {
-            List<Identity> lecturersWithoutDelegatees = new ArrayList<>(campusCourseData.getLecturers());
-            lecturersWithoutDelegatees.removeAll(campusCourseData.getDelegatees());
+        if (campusCourseData.getDelegateesOfCourseAndParentCourses() != null && !campusCourseData.getDelegateesOfCourseAndParentCourses().isEmpty()) {
+            List<Identity> lecturersWithoutDelegatees = new ArrayList<>(campusCourseData.getLecturersOfCourseAndParentCourses());
+            lecturersWithoutDelegatees.removeAll(campusCourseData.getDelegateesOfCourseAndParentCourses());
             args[1] = getLectureList(lecturersWithoutDelegatees);
         } else {
-            args[1] = getLectureList(campusCourseData.getLecturers());
+            args[1] = getLectureList(campusCourseData.getLecturersOfCourseAndParentCourses());
         }
 
         args[2] = campusCourseData.getEventDescription();

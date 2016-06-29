@@ -61,12 +61,12 @@ public class CampusCourseSynchronizer {
     SynchronizedGroupStatistic synchronizeCourse(CampusCourseImportTO sapCourse) {
         if (sapCourse != null) {
             LOG.debug("synchronizeCourse sapCourseId=" + sapCourse.getSapCourseId() + "  resourceableId=" + sapCourse.getOlatResourceableId());
-            LOG.debug("synchronizeCourse Lecturer size=" + sapCourse.getLecturers().size());
-            LOG.debug("synchronizeCourse Participants size=" + sapCourse.getParticipants().size());
+            LOG.debug("synchronizeCourse Lecturer size=" + sapCourse.getLecturersOfCourseAndParentCourses().size());
+            LOG.debug("synchronizeCourse Participants size=" + sapCourse.getParticipantsOfCourseAndParentCourses().size());
 
             CampusCourse campusCourse = campusCourseFactory.getCampusCourse(sapCourse.getSapCourseId());
 
-            courseGroupSynchronizer.addAllLecturesAsOwner(campusCourse, sapCourse.getLecturers());
+            courseGroupSynchronizer.addAllLecturesAsOwner(campusCourse, sapCourse.getLecturersOfCourseAndParentCourses());
             SynchronizedGroupStatistic groupStatistic = courseGroupSynchronizer.synchronizeCourseGroups(campusCourse, sapCourse);
 
             LOG.debug("synchronizeCourse statistic=" + groupStatistic);

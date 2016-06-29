@@ -36,9 +36,9 @@ public class CampusCourseImportTO {
     private String title;
     private String semester;
     private String language;
-    private List<Identity> lecturers;
-    private List<Identity> delegatees;
-    private List<Identity> participants;
+    private List<Identity> lecturersOfCourseAndParentCourses;
+    private List<Identity> delegateesOfCourseAndParentCourses;
+    private List<Identity> participantsOfCourseAndParentCourses;
     private String eventDescription;
     private Long resourceableId;
     private Long sapCourseId;
@@ -46,34 +46,26 @@ public class CampusCourseImportTO {
 
     /**
      * just for testing
-     * 
-     * @param title
-     * @param semester
-     * @param lecturers
-     * @param participants
-     * @param eventDescription
-     * @param resourceableId
-     * @param language
+     *
      */
-    public CampusCourseImportTO(String title, String semester, List<Identity> lecturers, List<Identity> participants, String eventDescription, Long resourceableId,
-            String language) {
+    public CampusCourseImportTO(String title, String semester, List<Identity> lecturersOfCourseAndParentCourses, List<Identity> participantsOfCourseAndParentCourses, String eventDescription, Long resourceableId, String language) {
         this.title = title;
         this.semester = semester;
-        this.lecturers = lecturers;
-        this.participants = participants;
+        this.lecturersOfCourseAndParentCourses = lecturersOfCourseAndParentCourses;
+        this.participantsOfCourseAndParentCourses = participantsOfCourseAndParentCourses;
         this.eventDescription = eventDescription;
         this.resourceableId = resourceableId;
         this.language = language;
         this.vvzLink = "";
     }
 
-    public CampusCourseImportTO(String title, String semester, List<Identity> lecturers, List<Identity> delegatees, List<Identity> participants, String eventDescription,
-            Long resourceableId, Long sapCourseId, String language, String vvzLink) {
+    public CampusCourseImportTO(String title, String semester, List<Identity> lecturersOfCourseAndParentCourses, List<Identity> delegateesOfCourseAndParentCourses, List<Identity> participantsOfCourseAndParentCourses, String eventDescription,
+                                Long resourceableId, Long sapCourseId, String language, String vvzLink) {
         this.title = title;
         this.semester = semester;
-        this.lecturers = lecturers;
-        this.delegatees = delegatees;
-        this.participants = participants;
+        this.lecturersOfCourseAndParentCourses = lecturersOfCourseAndParentCourses;
+        this.delegateesOfCourseAndParentCourses = delegateesOfCourseAndParentCourses;
+        this.participantsOfCourseAndParentCourses = participantsOfCourseAndParentCourses;
         this.eventDescription = eventDescription;
         this.resourceableId = resourceableId;
         this.sapCourseId = sapCourseId;
@@ -94,16 +86,16 @@ public class CampusCourseImportTO {
         return title;
     }
 
-    public List<Identity> getLecturers() {
-        return lecturers;
+    public List<Identity> getLecturersOfCourseAndParentCourses() {
+        return lecturersOfCourseAndParentCourses;
     }
 
-    public List<Identity> getDelegatees() {
-        return delegatees;
+    public List<Identity> getDelegateesOfCourseAndParentCourses() {
+        return delegateesOfCourseAndParentCourses;
     }
 
-    public List<Identity> getParticipants() {
-        return participants;
+    public List<Identity> getParticipantsOfCourseAndParentCourses() {
+        return participantsOfCourseAndParentCourses;
     }
 
     public Long getOlatResourceableId() {
@@ -123,8 +115,8 @@ public class CampusCourseImportTO {
     }
 
     public List<Identity> getLecturersAndDelegatees() {
-        List<Identity> lecturersAndDelegatees = getLecturers();
-        lecturersAndDelegatees.addAll(getDelegatees());
+        List<Identity> lecturersAndDelegatees = getLecturersOfCourseAndParentCourses();
+        lecturersAndDelegatees.addAll(getDelegateesOfCourseAndParentCourses());
         return lecturersAndDelegatees;
     }
 

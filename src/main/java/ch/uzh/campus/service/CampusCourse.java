@@ -70,7 +70,7 @@ public class CampusCourse {
         campusCourseCreator.createCampusLearningAreaAndCampusBusinessGroups(repositoryEntry, creator, lvLanguage);
 
         // Execute the first synchronization
-        campusCourseGroupSynchronizer.addAllLecturesAsOwner(this, campusCourseImportData.getLecturers());
+        campusCourseGroupSynchronizer.addAllLecturesAsOwner(this, campusCourseImportData.getLecturersOfCourseAndParentCourses());
         campusCourseGroupSynchronizer.addDefaultCoOwnersAsOwner(this);
         campusCourseGroupSynchronizer.synchronizeCourseGroups(this, campusCourseImportData);
     }
