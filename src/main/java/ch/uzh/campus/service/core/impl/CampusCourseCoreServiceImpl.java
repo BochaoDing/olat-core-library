@@ -168,7 +168,7 @@ public class CampusCourseCoreServiceImpl implements CampusCourseCoreService {
     public CampusCourse continueCampusCourse(Long sapCampusCourseId, Long parentSapCampusCourseId, Identity creator) {
         daoManager.saveParentCourseId(sapCampusCourseId, parentSapCampusCourseId);
         CampusCourse campusCourse = loadCampusCourse(parentSapCampusCourseId);
-        campusCourse.continueCampusCourse(daoManager.getSapCampusCourse(sapCampusCourseId), creator, repositoryService, campusCourseDescriptionBuilder, campusCourseCreator);
+        campusCourse.continueCampusCourse(daoManager.getSapCampusCourse(sapCampusCourseId), creator, repositoryService, campusCourseDescriptionBuilder, campusCourseCreator, campusCourseGroupSynchronizer);
         dbInstance.intermediateCommit();
         return campusCourse;
     }

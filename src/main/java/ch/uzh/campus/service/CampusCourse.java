@@ -37,24 +37,26 @@ public class CampusCourse {
         return repositoryEntry;
     }
 
-    public void continueCampusCourse(CampusCourseImportTO newCampusCourseImportTo, Identity creator, RepositoryService repositoryService, CampusCourseDescriptionBuilder campusCourseDescriptionBuilder, CampusCourseCreator campusCourseCreator) {
+    public void continueCampusCourse(CampusCourseImportTO newCampusCourseImportData, Identity creator, RepositoryService repositoryService, CampusCourseDescriptionBuilder campusCourseDescriptionBuilder, CampusCourseCreator campusCourseCreator, CampusCourseGroupSynchronizer campusCourseGroupSynchronizer) {
 
         // Update display name, description and initial author
         String oldTitle = repositoryEntry.getDisplayname();
-        String newTitle = newCampusCourseImportTo.getTitle();
+        String newTitle = newCampusCourseImportData.getTitle();
         String displayName = StringUtils.left(newTitle, 4).concat("/").concat(StringUtils.left(oldTitle, 4)).concat(StringUtils.substring(newTitle, 4));
         String campusCourseSemester = oldTitle.concat("<br>").concat(newTitle);
         repositoryEntry.setDisplayname(CampusCourseTool.getTruncatedDisplayname(displayName));
-        repositoryEntry.setDescription(campusCourseDescriptionBuilder.buildDescriptionFrom(newCampusCourseImportTo, campusCourseSemester, newCampusCourseImportTo.getLanguage()));
+        repositoryEntry.setDescription(campusCourseDescriptionBuilder.buildDescriptionFrom(newCampusCourseImportData, campusCourseSemester, newCampusCourseImportData.getLanguage()));
         repositoryEntry.setInitialAuthor(creator.getName());
         repositoryService.update(repositoryEntry);
 
         // Update course run and editor models
-        campusCourseCreator.updateCourseRunAndEditorModels(this, displayName, newCampusCourseImportTo.getVvzLink(), false, newCampusCourseImportTo.getLanguage());
+        campusCourseCreator.updateCourseRunAndEditorModels(this, displayName, newCampusCourseImportData.getVvzLink(), false, newCampusCourseImportData.getLanguage());
+
+        // Execute synchronization
+        excecuteCampusCourseGroupSynchronization(newCampusCourseImportData, campusCourseGroupSynchronizer);
     }
 
-    public void updateCampusCourseCreatedFromTemplate(CampusCourseImportTO campusCourseImportData, Identity creator, boolean isDefaultTemplateUsed,
-                                                      CampusCourseCreator campusCourseCreator, CampusCoursePublisher campusCoursePublisher, CampusCourseGroupSynchronizer campusCourseGroupSynchronizer, CampusCourseConfiguration campusCourseConfiguration) {
+    public void updateCampusCourseCreatedFromTemplate(CampusCourseImportTO campusCourseImportData, Identity creator, boolean isDefaultTemplateUsed, CampusCourseCreator campusCourseCreator, CampusCoursePublisher campusCoursePublisher, CampusCourseGroupSynchronizer campusCourseGroupSynchronizer, CampusCourseConfiguration campusCourseConfiguration) {
 
         String lvLanguage = campusCourseConfiguration.getTemplateLanguage(campusCourseImportData.getLanguage());
 
@@ -70,6 +72,10 @@ public class CampusCourse {
         campusCourseCreator.createCampusLearningAreaAndCampusBusinessGroups(repositoryEntry, creator, lvLanguage);
 
         // Execute the first synchronization
+        excecuteCampusCourseGroupSynchronization(campusCourseImportData, campusCourseGroupSynchronizer);
+    }
+
+    private void excecuteCampusCourseGroupSynchronization(CampusCourseImportTO campusCourseImportData, CampusCourseGroupSynchronizer campusCourseGroupSynchronizer) {
         campusCourseGroupSynchronizer.addAllLecturesAsOwner(this, campusCourseImportData.getLecturersOfCourseAndParentCourses());
         campusCourseGroupSynchronizer.addDefaultCoOwnersAsOwner(this);
         campusCourseGroupSynchronizer.synchronizeCourseGroups(this, campusCourseImportData);

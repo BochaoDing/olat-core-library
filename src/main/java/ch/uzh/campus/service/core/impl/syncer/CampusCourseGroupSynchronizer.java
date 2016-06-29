@@ -79,7 +79,7 @@ public class CampusCourseGroupSynchronizer {
         BusinessGroup campusGroupA = campusCourseGroupFinder.lookupCampusGroup(campusCourse.getCourse(), campusCourseConfiguration.getCourseGroupAName());
         BusinessGroup campusGroupB = campusCourseGroupFinder.lookupCampusGroup(campusCourse.getCourse(), campusCourseConfiguration.getCourseGroupBName());
         
-        //get the course owner identities
+        // Get the course owner identities
         List<Identity> courseOwners = repositoryService.getMembers(campusCourse.getRepositoryEntry(), GroupRoles.owner.name());
 
         synchronizeGroupOwners(courseOwners.get(0), campusGroupB, campusCourseImportData.getLecturersOfCourseAndParentCourses());
@@ -106,7 +106,7 @@ public class CampusCourseGroupSynchronizer {
         List<Identity> previousMembers = businessGroupService.getMembers(businessGroup, GroupRoles.participant.name());
         List<Identity> removableMembers = new ArrayList<>();
         for (Identity previousMember : previousMembers) {
-            // check if previous member is still in new member-list
+            // Check if previous member is still in new member-list
             if (!allNewMembers.contains(previousMember)) {
                 LOG.debug("Course-Group Synchronisation: Remove identity =" + previousMember + " from group =" + businessGroup);
                 removableMembers.add(previousMember);                
