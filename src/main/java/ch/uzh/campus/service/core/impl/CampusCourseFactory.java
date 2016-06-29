@@ -41,27 +41,23 @@ import org.springframework.stereotype.Component;
 @Component
 public class CampusCourseFactory {
    
-	private static final OLog log = Tracing.createLoggerFor(CampusCourseFactory.class);
+	private static final OLog LOG = Tracing.createLoggerFor(CampusCourseFactory.class);
 
 	@Autowired
 	private RepositoryManager repositoryManager;
 	
     @Autowired
-    DaoManager daoManager;
+    private DaoManager daoManager;
 
-    public CampusCourse getCampusCourse(Long sapCampusCourseId, Long resourceableId) {
-        ICourse loadedCourse = CourseFactory.loadCourse(resourceableId);
-        return new CampusCourse(loadedCourse, getRepositoryEntryFor(sapCampusCourseId));
-    }
-
-    RepositoryEntry getRepositoryEntryFor(Long sapCourseId) {
-        CampusCourseImportTO campusCourseTo = daoManager.getSapCampusCourse(sapCourseId);
-        log.debug("getRepositoryEntryFor sapCourseId=" + sapCourseId + "  campusCourseTo.getOlatResourceableId()=" + campusCourseTo.getOlatResourceableId());
+    public CampusCourse getCampusCourse(Long sapCampusCourseId) {
+        CampusCourseImportTO campusCourseTo = daoManager.getSapCampusCourse(sapCampusCourseId);
+        LOG.debug("getRepositoryEntryFor sapCourseId=" + sapCampusCourseId + "  campusCourseTo.getOlatResourceableId()=" + campusCourseTo.getOlatResourceableId());
         if (campusCourseTo.getOlatResourceableId() == null) {
-            log.warn("getRepositoryEntryFor sapCourseId=" + sapCourseId + ": no OLAT course found");
+            LOG.warn("sapCourseId = " + sapCampusCourseId + ": no OLAT course found");
             return null;
         }
-        ICourse loadedCourse = CourseFactory.loadCourse(campusCourseTo.getOlatResourceableId());
-        return repositoryManager.lookupRepositoryEntry(loadedCourse, true);
+        ICourse olatCourse = CourseFactory.loadCourse(campusCourseTo.getOlatResourceableId());
+        RepositoryEntry repositoryEntry = repositoryManager.lookupRepositoryEntry(olatCourse, true);
+        return new CampusCourse(olatCourse, repositoryEntry);
     }
 }

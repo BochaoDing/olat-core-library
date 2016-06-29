@@ -22,15 +22,12 @@ package ch.uzh.campus.service.core.impl.syncer;
 
 import ch.uzh.campus.CampusCourseConfiguration;
 import ch.uzh.campus.CampusCourseImportTO;
-import ch.uzh.campus.data.CourseDao;
 import ch.uzh.campus.data.DaoManager;
 import ch.uzh.campus.service.CampusCourse;
 import ch.uzh.campus.service.core.impl.CampusCourseFactory;
 import ch.uzh.campus.service.core.impl.syncer.statistic.SynchronizedGroupStatistic;
-
 import ch.uzh.campus.service.core.impl.syncer.statistic.SynchronizedSecurityGroupStatistic;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.olat.core.id.Identity;
 import org.olat.course.ICourse;
@@ -54,30 +51,27 @@ public class CampusCourseSynchronizerTest {
     private static final long EXISTING_SAP_COURSE_ID = 4456;
     private CampusCourseSynchronizer campusCourseSynchronizerTestObject;
 
-    private CampusCourse campusCourse;
     private CampusCourseImportTO campusCourseImportTO;
-
-    private String semester = "HS2012";
     private List<Identity> lecturers = new ArrayList<>();
     private List<Identity> participants = new ArrayList<>();
-    private String title = "title";
-    private String eventDescription = "eventDescription";
-    private long resourcableId = 1045;
 
     @Before
     public void setup() {
+
+        String title = "title";
+        String eventDescription = "eventDescription";
 
         // Prepare a test CampusCourse
         ICourse course = mock(ICourse.class);
         RepositoryEntry repositoryEntry = mock(RepositoryEntry.class);
         when(repositoryEntry.getDisplayname()).thenReturn(title);
         when(repositoryEntry.getDescription()).thenReturn(eventDescription);
-        campusCourse = new CampusCourse(course, repositoryEntry);
+        CampusCourse campusCourse = new CampusCourse(course, repositoryEntry);
 
         // Prepare a test CampusCourseImportTO
         campusCourseImportTO = new CampusCourseImportTO(
-                title, semester, lecturers, null, participants, eventDescription,
-                resourcableId, EXISTING_SAP_COURSE_ID, null, null
+                title, "HS2012", lecturers, null, participants, eventDescription,
+                1045L, EXISTING_SAP_COURSE_ID, null, null
         );
 
         // mock injections for CampusCourseSynchronizer
@@ -87,7 +81,7 @@ public class CampusCourseSynchronizerTest {
         CampusCourseAttributeSynchronizer campusCourseAttributeSynchronizerMock = mock(CampusCourseAttributeSynchronizer.class);
         CampusCourseConfiguration campusCourseConfigurationMock = mock(CampusCourseConfiguration.class);
         CampusCourseFactory campusCourseFactoryMock = mock(CampusCourseFactory.class);
-        when(campusCourseFactoryMock.getCampusCourse(EXISTING_SAP_COURSE_ID, resourcableId)).thenReturn(campusCourse);
+        when(campusCourseFactoryMock.getCampusCourse(EXISTING_SAP_COURSE_ID)).thenReturn(campusCourse);
 
         campusCourseSynchronizerTestObject = new CampusCourseSynchronizer(
                 campusCourseGroupSynchronizerMock, campusCourseAttributeSynchronizerMock,

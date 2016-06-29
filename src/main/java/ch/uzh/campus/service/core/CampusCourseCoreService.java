@@ -1,16 +1,14 @@
 package ch.uzh.campus.service.core;
 
-import java.util.List;
-import java.util.Set;
-
+import ch.uzh.campus.data.Course;
+import ch.uzh.campus.data.SapOlatUser;
+import ch.uzh.campus.service.CampusCourse;
 import org.olat.core.id.Identity;
 import org.olat.core.id.OLATResourceable;
 import org.olat.repository.RepositoryEntry;
 
-import ch.uzh.campus.CampusCourseImportTO;
-import ch.uzh.campus.data.Course;
-import ch.uzh.campus.data.SapOlatUser;
-import ch.uzh.campus.service.CampusCourse;
+import java.util.List;
+import java.util.Set;
 
 /**
  * Initial Date: 16.07.2012 <br>
@@ -23,7 +21,9 @@ public interface CampusCourseCoreService {
 
     CampusCourse createCampusCourseFromTemplate(Long courseResourceableId, Long sapCampusCourseId, Identity creator);
 
-    CampusCourse continueCampusCourse(Long courseResourceableId, Long sapCampusCourseId, String courseTitle, Identity creator);
+    CampusCourse continueCampusCourse(Long sapCampusCourseId, Long parentSapCampusCourseId, Identity creator);
+
+    CampusCourse loadCampusCourse(Long sapCampusCourseId);
 
     /**
      * TODO: olatng: this used to be called from CourseRepositoryHandler, this doesn't exist in OpenOLAT anymore. Wo aufrufen?

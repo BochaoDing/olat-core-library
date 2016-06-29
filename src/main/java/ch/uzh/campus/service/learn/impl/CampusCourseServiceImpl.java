@@ -9,8 +9,6 @@ import ch.uzh.campus.service.learn.SapCampusCourseTo;
 import edu.emory.mathcs.backport.java.util.Collections;
 import org.olat.core.CoreSpringFactory;
 import org.olat.core.id.Identity;
-import org.olat.core.logging.OLog;
-import org.olat.core.logging.Tracing;
 import org.olat.repository.RepositoryEntry;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -27,8 +25,6 @@ import java.util.Set;
  */
 @Service
 public class CampusCourseServiceImpl implements CampusCourseService {
-
-	private static final OLog log = Tracing.createLoggerFor(CampusCourseServiceImpl.class);
 
 	@Autowired
 	CampusCourseCoreService campusCourseCoreService;
@@ -47,8 +43,8 @@ public class CampusCourseServiceImpl implements CampusCourseService {
 	}
 
 	@Override
-	public CampusCourse continueCampusCourse(Long courseResourceableId, Long sapCampusCourseId, String courseTitle, Identity creator) {
-		return campusCourseCoreService.continueCampusCourse(courseResourceableId, sapCampusCourseId, courseTitle, creator);
+	public CampusCourse continueCampusCourse(Long sapCampusCourseId, Long parentSapCampusCourseId, Identity creator) {
+		return campusCourseCoreService.continueCampusCourse(sapCampusCourseId, parentSapCampusCourseId, creator);
 	}
 
 	@Override
@@ -67,8 +63,7 @@ public class CampusCourseServiceImpl implements CampusCourseService {
 		List<SapCampusCourseTo> courseList = new ArrayList<>();
 		Set<Course> sapCampusCourses = campusCourseCoreService.getCampusCoursesWithResourceableId(identity, userType, searchString);
 		for (Course sapCampusCourse : sapCampusCourses) {
-			courseList
-					.add(new SapCampusCourseTo(sapCampusCourse.getTitleToBeDisplayed(shortTitleActivated), sapCampusCourse.getId(), sapCampusCourse.getResourceableId()));
+			courseList.add(new SapCampusCourseTo(sapCampusCourse.getTitleToBeDisplayed(shortTitleActivated), sapCampusCourse.getId(), sapCampusCourse.getResourceableId()));
 		}
 		Collections.sort(courseList);
 		return courseList;
