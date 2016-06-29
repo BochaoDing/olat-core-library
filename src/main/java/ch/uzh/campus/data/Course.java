@@ -24,21 +24,21 @@ import java.util.Set;
         @NamedQuery(name = Course.GET_CREATED_COURSES_BY_LECTURER_ID, query = "select c from Course c join c.lecturerCourses lc where " +
                 "((c.resourceableId is not null and lc.lecturer.personalNr = :lecturerId) " +
                 "or exists (select c2 from Course c2 join c2.parentCourse.lecturerCourses lc2 " +
-                "where c2.id = c.id and (c2.parentCourse.resourceableId is not null and (lc.lecturer.personalNr = :lecturerId or lc2.lecturer.personalNr = :lecturerId)) " +
+                "where c2.id = c.id and ((c2.parentCourse.resourceableId is not null and (lc.lecturer.personalNr = :lecturerId or lc2.lecturer.personalNr = :lecturerId)) " +
                 "or exists (select c3 from Course c3 join c3.parentCourse.parentCourse.lecturerCourses lc3 " +
-                "where c3.id = c.id and (c3.parentCourse.parentCourse.resourceableId is not null and (lc.lecturer.personalNr = :lecturerId or lc2.lecturer.personalNr = :lecturerId or lc3.lecturer.personalNr = :lecturerId)) " +
+                "where c3.id = c.id and ((c3.parentCourse.parentCourse.resourceableId is not null and (lc.lecturer.personalNr = :lecturerId or lc2.lecturer.personalNr = :lecturerId or lc3.lecturer.personalNr = :lecturerId)) " +
                 "or exists (select c4 from Course c4 join c4.parentCourse.parentCourse.parentCourse.lecturerCourses lc4 " +
-                "where c4.id = c.id and (c4.parentCourse.parentCourse.parentCourse.resourceableId is not null and (lc.lecturer.personalNr = :lecturerId or lc2.lecturer.personalNr = :lecturerId or lc3.lecturer.personalNr = :lecturerId or lc4.lecturer.personalNr = :lecturerId)))))) " +
+                "where c4.id = c.id and ((c4.parentCourse.parentCourse.parentCourse.resourceableId is not null and (lc.lecturer.personalNr = :lecturerId or lc2.lecturer.personalNr = :lecturerId or lc3.lecturer.personalNr = :lecturerId or lc4.lecturer.personalNr = :lecturerId))))))))) " +
                 "and c.enabled = '1' and c.shortSemester = (select max(c5.shortSemester) from Course c5) and c.title like :searchString"),
         @NamedQuery(name = Course.GET_NOT_CREATED_COURSES_BY_LECTURER_ID, query = "select c from Course c join c.lecturerCourses lc where lc.lecturer.personalNr = :lecturerId and c.resourceableId is null and c.enabled = '1' and c.shortSemester= (select max(c2.shortSemester) from Course c2) and c.title like :searchString"),
         @NamedQuery(name = Course.GET_CREATED_COURSES_BY_STUDENT_ID, query = "select c from Course c join c.studentCourses sc where " +
                 "((c.resourceableId is not null and sc.student.id = :studentId) " +
                 "or exists (select c2 from Course c2 join c2.parentCourse.studentCourses sc2 " +
-                "where c2.id = c.id and (c2.parentCourse.resourceableId is not null and (sc.student.id = :studentId or sc2.student.id = :studentId)) " +
+                "where c2.id = c.id and ((c2.parentCourse.resourceableId is not null and (sc.student.id = :studentId or sc2.student.id = :studentId)) " +
                 "or exists (select c3 from Course c3 join c3.parentCourse.parentCourse.studentCourses sc3 " +
-                "where c3.id = c.id and (c3.parentCourse.parentCourse.resourceableId is not null and (sc.student.id = :studentId or sc2.student.id = :studentId or sc3.student.id = :studentId)) " +
+                "where c3.id = c.id and ((c3.parentCourse.parentCourse.resourceableId is not null and (sc.student.id = :studentId or sc2.student.id = :studentId or sc3.student.id = :studentId)) " +
                 "or exists (select c4 from Course c4 join c4.parentCourse.parentCourse.parentCourse.studentCourses sc4 " +
-                "where c4.id = c.id and (c4.parentCourse.parentCourse.parentCourse.resourceableId is not null and (sc.student.id = :studentId or sc2.student.id = :studentId or sc3.student.id = :studentId or sc4.student.id = :studentId)))))) " +
+                "where c4.id = c.id and ((c4.parentCourse.parentCourse.parentCourse.resourceableId is not null and (sc.student.id = :studentId or sc2.student.id = :studentId or sc3.student.id = :studentId or sc4.student.id = :studentId))))))))) " +
                 "and c.enabled = '1' and c.shortSemester = (select max(c5.shortSemester) from Course c5) and c.title like :searchString"),
         @NamedQuery(name = Course.GET_NOT_CREATED_COURSES_BY_STUDENT_ID, query = "select c from Course c join c.studentCourses sc where sc.student.id = :studentId and c.resourceableId is null and c.enabled = '1' and c.shortSemester = (select max(c2.shortSemester) from Course c2) and c.title like :searchString"),
         @NamedQuery(name = Course.GET_PILOT_COURSES_BY_STUDENT_ID, query = "select c from Course c left join c.studentCourses sc where " +
