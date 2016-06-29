@@ -20,6 +20,7 @@
  */
 package ch.uzh.campus.service.core.impl;
 
+import ch.uzh.campus.CampusCourseConfiguration;
 import ch.uzh.campus.CampusCourseImportTO;
 import ch.uzh.campus.data.Course;
 import ch.uzh.campus.data.DaoManager;
@@ -27,7 +28,10 @@ import ch.uzh.campus.data.SapOlatUser;
 import ch.uzh.campus.presentation.CampusCourseEvent;
 import ch.uzh.campus.service.CampusCourse;
 import ch.uzh.campus.service.core.CampusCourseCoreService;
-import ch.uzh.campus.service.core.impl.creator.CampusCourseCreateCoordinator;
+import ch.uzh.campus.service.core.impl.creator.CampusCourseCreator;
+import ch.uzh.campus.service.core.impl.creator.CampusCourseDescriptionBuilder;
+import ch.uzh.campus.service.core.impl.creator.CampusCoursePublisher;
+import ch.uzh.campus.service.core.impl.syncer.CampusCourseGroupSynchronizer;
 import org.olat.core.commons.persistence.DB;
 import org.olat.core.id.Identity;
 import org.olat.core.id.OLATResourceable;
@@ -35,8 +39,12 @@ import org.olat.core.logging.OLog;
 import org.olat.core.logging.Tracing;
 import org.olat.core.util.coordinate.CoordinatorManager;
 import org.olat.core.util.resource.OresHelper;
+import org.olat.course.CourseFactory;
+import org.olat.course.ICourse;
+import org.olat.course.tree.PublishTreeModel;
 import org.olat.repository.RepositoryEntry;
 import org.olat.repository.RepositoryService;
+import org.olat.resource.OLATResourceManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -54,22 +62,32 @@ import java.util.Set;
 @Service
 public class CampusCourseCoreServiceImpl implements CampusCourseCoreService {
 	
-	private static final OLog log = Tracing.createLoggerFor(CampusCourseCoreServiceImpl.class);
+	private static final OLog LOG = Tracing.createLoggerFor(CampusCourseCoreServiceImpl.class);
+
+    private final DB dbInstance;
+    private final DaoManager daoManager;
+    private final RepositoryService repositoryService;
+    private final CampusCourseFactory campusCourseFactory;
+    private final CampusCourseDescriptionBuilder campusCourseDescriptionBuilder;
+    private final CampusCourseCreator campusCourseCreator;
+    private final CampusCoursePublisher campusCoursePublisher;
+    private final CampusCourseConfiguration campusCourseConfiguration;
+    private final CampusCourseGroupSynchronizer campusCourseGroupSynchronizer;
+    private final OLATResourceManager olatResourceManager;
 
     @Autowired
-    DB dbInstance;
-
-    @Autowired
-    DaoManager daoManager;
-    
-    @Autowired
-    CampusCourseCreateCoordinator campusCourseCreateCoordinator;
-    
-    @Autowired
-    RepositoryService repositoryService;
-    
-    @Autowired
-    CampusCourseFactory campusCourseFactory;
+    public CampusCourseCoreServiceImpl(DB dbInstance, DaoManager daoManager, RepositoryService repositoryService, CampusCourseFactory campusCourseFactory, CampusCourseDescriptionBuilder campusCourseDescriptionBuilder, CampusCourseCreator campusCourseCreator, CampusCoursePublisher campusCoursePublisher, CampusCourseConfiguration campusCourseConfiguration, CampusCourseGroupSynchronizer campusCourseGroupSynchronizer, OLATResourceManager olatResourceManager) {
+        this.dbInstance = dbInstance;
+        this.daoManager = daoManager;
+        this.repositoryService = repositoryService;
+        this.campusCourseFactory = campusCourseFactory;
+        this.campusCourseDescriptionBuilder = campusCourseDescriptionBuilder;
+        this.campusCourseCreator = campusCourseCreator;
+        this.campusCoursePublisher = campusCoursePublisher;
+        this.campusCourseConfiguration = campusCourseConfiguration;
+        this.campusCourseGroupSynchronizer = campusCourseGroupSynchronizer;
+        this.olatResourceManager = olatResourceManager;
+    }
 
     @Override
     public boolean checkDelegation(Long sapCampusCourseId, Identity creator) {
@@ -87,41 +105,83 @@ public class CampusCourseCoreServiceImpl implements CampusCourseCoreService {
         CampusCourseImportTO campusCourseImportData = daoManager.getSapCampusCourse(sapCampusCourseId);
         if (campusCourseImportData.isOlatResourceableIdUndefined()) {
             // Campus course has not been created yet
-            CampusCourse campusCourse = campusCourseCreateCoordinator.createCampusCourse(courseResourceableId, campusCourseImportData, creator);
-            if (campusCourse != null) {
-                daoManager.saveCampusCourseResoureableId(sapCampusCourseId, campusCourse.getRepositoryEntry().getOlatResource().getResourceableId());
+            Long templateCourseResourceableId;
+            boolean isDefaultTemplateUsed = (courseResourceableId == null);
+
+            if (isDefaultTemplateUsed) {
+                templateCourseResourceableId = campusCourseConfiguration.getTemplateCourseResourcableId(campusCourseImportData.getLanguage());
+
+                // The case that no template was found
+                if (templateCourseResourceableId == null) {
+                    return null;
+                }
+
+                // Check if template has unpublished changes. If so return.
+                ICourse defaultTemplateCourse = CourseFactory.loadCourse(templateCourseResourceableId);
+                PublishTreeModel publishTreeModel = new PublishTreeModel(defaultTemplateCourse.getEditorTreeModel(), defaultTemplateCourse.getRunStructure());
+                if (publishTreeModel.hasPublishableChanges()) {
+                    LOG.warn("Campuskurs template course " + defaultTemplateCourse.getCourseTitle() + " (" + defaultTemplateCourse.getResourceableId()
+                            + ") is not published completely.");
+                    return null;
+                }
+            } else {
+                templateCourseResourceableId = courseResourceableId;
             }
-            dbInstance.intermediateCommit();
-            return campusCourse;
+
+            CampusCourse campusCourse = null;
+            try {
+                // Create the campus course by copying the appropriate template (default or custom)
+                campusCourse = campusCourseCreator.createCampusCourseFromTemplate(campusCourseImportData, templateCourseResourceableId, creator, isDefaultTemplateUsed);
+                campusCourse.updateCampusCourseCreatedFromTemplate(campusCourseImportData, creator, isDefaultTemplateUsed, campusCourseCreator, campusCoursePublisher, campusCourseGroupSynchronizer, campusCourseConfiguration);
+                daoManager.saveCampusCourseResoureableId(sapCampusCourseId, campusCourse.getRepositoryEntry().getOlatResource().getResourceableId());
+                dbInstance.intermediateCommit();
+                return campusCourse;
+
+            } catch (Exception ex) {
+                // CLEAN UP TO ENSURE CONSISTENT STATE
+                if (campusCourse != null) {
+                    if (campusCourse.getRepositoryEntry() != null) {
+                        try {
+                            repositoryService.deleteRepositoryEntryAndBaseGroups(campusCourse.getRepositoryEntry());
+                        } catch (Exception e) {
+                            // we tried best to delete entry - ignore exceptions during deletion
+                        }
+                    }
+                    if (campusCourse.getCourse() != null) {
+                        try {
+                            olatResourceManager.deleteOLATResourceable(campusCourse.getCourse());
+                        } catch (Exception e) {
+                            // we tried best to delete entry - ignore exceptions during deletion
+                        }
+                    }
+                }
+                dbInstance.rollbackAndCloseSession();
+                return null;
+            }
         } else {
             // Campus course has already been created
-            return loadCampusCourse(sapCampusCourseId, campusCourseImportData.getOlatResourceableId());
+            return loadCampusCourse(sapCampusCourseId);
         }
     }
 
     @Override
-    public CampusCourse continueCampusCourse(Long courseResourceableId, Long sapCampusCourseId, String courseTitle, Identity creator) {
-        daoManager.saveCampusCourseResoureableIdAndDisableSynchronization(sapCampusCourseId, courseResourceableId);
-        dbInstance.intermediateCommit();
-        CampusCourseImportTO campusCourseImportData = daoManager.getSapCampusCourse(sapCampusCourseId);
-        CampusCourse campusCourse = loadCampusCourse(sapCampusCourseId, courseResourceableId);
-        campusCourse = campusCourseCreateCoordinator.continueCampusCourse(campusCourse, campusCourseImportData, creator);
+    public CampusCourse continueCampusCourse(Long sapCampusCourseId, Long parentSapCampusCourseId, Identity creator) {
+        daoManager.saveParentCourseId(sapCampusCourseId, parentSapCampusCourseId);
+        CampusCourse campusCourse = loadCampusCourse(parentSapCampusCourseId);
+        campusCourse.continueCampusCourse(daoManager.getSapCampusCourse(sapCampusCourseId), creator, repositoryService, campusCourseDescriptionBuilder, campusCourseCreator);
         dbInstance.intermediateCommit();
         return campusCourse;
     }
 
-    private CampusCourse loadCampusCourse(Long sapCampusCourseId, Long resourceableId) {
-        return campusCourseFactory.getCampusCourse(sapCampusCourseId, resourceableId);
+    @Override
+    public CampusCourse loadCampusCourse(Long sapCampusCourseId) {
+        return campusCourseFactory.getCampusCourse(sapCampusCourseId);
     }
 
-    //TODO olatng: not yet used anywhere in the code
-    // In OLAT 7.8, it is used in CourseRepositoryHandler.cleanupOnDelete(final OLATResourceable res);
-    // and in OpenOLAT this class does not exist
     @Override
-    public void deleteResourceableIdReference(OLATResourceable res) {
-        log.info("deleteResourceableIdReference for resourceableId=" + res.getResourceableId());
-        daoManager.deleteResourceableId(res.getResourceableId());
-        dbInstance.intermediateCommit();
+    public void resetResourceableIdReference(OLATResourceable res) {
+        LOG.info("deleteResourceableIdReference for resourceableId=" + res.getResourceableId());
+        daoManager.resetResourceableId(res.getResourceableId());
 
         // Notify possible listeners about DELETED event
         CoordinatorManager.getInstance().getCoordinator().getEventBus().fireEventToListenersOf(
@@ -135,8 +195,9 @@ public class CampusCourseCoreServiceImpl implements CampusCourseCoreService {
      * @return Mapped RepositoryEntry or null when no could be found
      */
     @Override
-    public RepositoryEntry getRepositoryEntryFor(Long sapCourseId) {
-        return campusCourseFactory.getRepositoryEntryFor(sapCourseId);
+    public RepositoryEntry getRepositoryEntryFor(Long sapCampusCourseId) {
+        CampusCourse campusCourse = campusCourseFactory.getCampusCourse(sapCampusCourseId);
+        return (campusCourse == null ? null : campusCourse.getRepositoryEntry());
     }
 
 	@Override

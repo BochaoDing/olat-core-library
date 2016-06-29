@@ -74,7 +74,7 @@ public class CampusCourseAttributeSynchronizerTest extends OlatTestCase {
         when(repositoryEntry.getDisplayname()).thenReturn(title);
         when(repositoryEntry.getDescription()).thenReturn(eventDescription);
         campusCourse = new CampusCourse(course, repositoryEntry);
-        when(campusCourseFactoryMock.getCampusCourse(sapCampusCourseId, resourceableId)).thenReturn(campusCourse);
+        when(campusCourseFactoryMock.getCampusCourse(sapCampusCourseId)).thenReturn(campusCourse);
     }
 
     @Test
@@ -108,7 +108,7 @@ public class CampusCourseAttributeSynchronizerTest extends OlatTestCase {
         CampusCourseImportTO campusCourseTO = new CampusCourseImportTO(title + "_new", semester, lecturers, null, participants, eventDescription, resourceableId, sapCampusCourseId, null, null);
         // do not call real CampusCourse.setTruncatedTitle(..) because there is a static call which try to save runstructure.xml
         CampusCourse spyCampusCourse = spy(campusCourse);
-        when(campusCourseFactoryMock.getCampusCourse(sapCampusCourseId, resourceableId)).thenReturn(spyCampusCourse);
+        when(campusCourseFactoryMock.getCampusCourse(sapCampusCourseId)).thenReturn(spyCampusCourse);
         when(campusCourseDescriptionBuilderMock.buildDescriptionFrom(campusCourseTO, campusCourseTO.getLanguage())).thenReturn(campusCourseTO.getEventDescription());
         TitleAndDescriptionStatistik titleAndDescriptionStatistik = campusCourseAttributeSynchronizerTestObject.synchronizeTitleAndDescription(campusCourseTO);
 

@@ -53,26 +53,23 @@ import org.olat.resource.accesscontrol.ui.PriceFormat;
  */
 public class DefaultRepositoryEntryDataSource implements FlexiTableDataSourceDelegate<RepositoryEntryRow> {
 	
-	private final RepositoryEntryDataSourceUIFactory uifactory;
+	private final RepositoryEntryRowFactory repositoryEntryRowFactory;
 	private final SearchMyRepositoryEntryViewParams searchParams;
-	
 
 	private final ACService acService;
 	private final AccessControlModule acModule;
 	private final RepositoryService repositoryService;
-	private final RepositoryManager repositoryManager;
 	
 	private Integer count;
 	
 	public DefaultRepositoryEntryDataSource(SearchMyRepositoryEntryViewParams searchParams,
-			RepositoryEntryDataSourceUIFactory uifactory) {
-		this.uifactory = uifactory;
+											RepositoryEntryRowFactory repositoryEntryRowFactory) {
+		this.repositoryEntryRowFactory = repositoryEntryRowFactory;
 		this.searchParams = searchParams;
-		
+
 		acService = CoreSpringFactory.getImpl(ACService.class);
 		acModule = CoreSpringFactory.getImpl(AccessControlModule.class);
 		repositoryService = CoreSpringFactory.getImpl(RepositoryService.class);
-		repositoryManager = CoreSpringFactory.getImpl(RepositoryManager.class);
 	}
 	
 	public void setFilters(List<Filter> filters) {
@@ -151,17 +148,18 @@ public class DefaultRepositoryEntryDataSource implements FlexiTableDataSourceDel
 
 		List<RepositoryEntryRow> items = new ArrayList<RepositoryEntryRow>();
 		for(RepositoryEntryMyView entry:repoEntries) {
-			RepositoryEntryRow row = new RepositoryEntryRow(entry);
-
-			VFSLeaf image = repositoryManager.getImage(entry);
-			if(image != null) {
-				row.setThumbnailRelPath(uifactory.getMapperThumbnailUrl() + "/" + image.getName());
-			}
+			RepositoryEntryRow row = repositoryEntryRowFactory.create(entry);
 
 			List<PriceMethod> types = new ArrayList<PriceMethod>();
 			if (entry.isMembersOnly()) {
 				// members only always show lock icon
-				types.add(new PriceMethod("", "o_ac_membersonly_icon", uifactory.getTranslator().translate("cif.access.membersonly.short")));
+				/**
+				 * TODO sev26
+				 * Accessing {@link RepositoryEntryDataSourceUIFactory} this
+				 * way because the entire block here should be in the factory
+				 * class or better in the {@link RepositoryEntryRow} class.
+				 */
+				types.add(new PriceMethod("", "o_ac_membersonly_icon", repositoryEntryRowFactory.uifactory.getTranslator().translate("cif.access.membersonly.short")));
 			} else {
 				// collect access control method icons
 				OLATResource resource = entry.getOlatResource();
@@ -171,26 +169,19 @@ public class DefaultRepositoryEntryDataSource implements FlexiTableDataSourceDel
 							String type = (bundle.getMethod().getMethodCssClass() + "_icon").intern();
 							String price = bundle.getPrice() == null || bundle.getPrice().isEmpty() ? "" : PriceFormat.fullFormat(bundle.getPrice());
 							AccessMethodHandler amh = acModule.getAccessMethodHandler(bundle.getMethod().getType());
-							String displayName = amh.getMethodName(uifactory.getTranslator().getLocale());
+							String displayName = amh.getMethodName(repositoryEntryRowFactory.uifactory.getTranslator().getLocale());
 							types.add(new PriceMethod(price, type, displayName));
 						}
 					}
 				}
 			}
-			
+
 			row.setMember(repoKeys.contains(entry.getKey()));
-			
+
 			if(!types.isEmpty()) {
 				row.setAccessTypes(types);
 			}
-			
-			uifactory.forgeMarkLink(row);
-			uifactory.forgeSelectLink(row);
-			uifactory.forgeStartLink(row);
-			uifactory.forgeDetails(row);
-			uifactory.forgeRatings(row);
-			uifactory.forgeComments(row);
-			
+
 			items.add(row);
 		}
 		return items;

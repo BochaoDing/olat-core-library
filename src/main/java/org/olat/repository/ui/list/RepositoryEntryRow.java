@@ -460,4 +460,53 @@ public class RepositoryEntryRow implements RepositoryEntryRef {
 	public boolean isFailed() {
 		return passed != null && !passed.booleanValue();
 	}
+
+	public Object getValueAt(int col) {
+		switch(Cols.values()[col]) {
+			case key: return getKey();
+			case displayName: return getDisplayName();
+			case externalId: return getExternalId();
+			case externalRef: return getExternalRef();
+			case lifecycleLabel: return getLifecycleLabel();
+			case lifecycleSoftkey: return getLifecycleSoftKey();
+			case lifecycleStart: return getLifecycleStart();
+			case lifecycleEnd: return getLifecycleEnd();
+			case mark: return getMarkLink();
+			case select: return getSelectLink();
+			case start: return getStartLink();
+			case location: return getLocation();
+			case details: return getDetailsLink();
+			case ratings: return getRatingFormItem();
+			case comments: return getCommentsLink();
+		}
+		return null;
+	}
+
+	public enum Cols {
+		key("table.header.key"),
+		displayName("cif.displayname"),
+		externalId("table.header.externalid"),
+		externalRef("table.header.externalref"),
+		lifecycleLabel("table.header.lifecycle.label"),
+		lifecycleSoftkey("table.header.lifecycle.softkey"),
+		lifecycleStart("table.header.lifecycle.start"),
+		lifecycleEnd("table.header.lifecycle.end"),
+		location("table.header.location"),
+		details("table.header.details"),
+		select("table.header.details"),
+		start("table.header.start"),
+		mark("table.header.mark"),
+		ratings("ratings"),
+		comments("comments");
+
+		private final String i18nKey;
+
+		private Cols(String i18nKey) {
+			this.i18nKey = i18nKey;
+		}
+
+		public String i18nKey() {
+			return i18nKey;
+		}
+	}
 }

@@ -345,8 +345,8 @@ public class DaoManager {
         courseDao.disableSynchronization(courseId);
     }
 
-    public void deleteResourceableId(Long resourceableId) {
-        courseDao.deleteResourceable(resourceableId);
+    public void resetResourceableId(Long resourceableId) {
+        courseDao.resetResourceable(resourceableId);
     }
 
     public void saveParentCourseId(Long courseId, Long parentCourseId) {

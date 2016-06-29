@@ -5,9 +5,12 @@ import ch.uzh.campus.CampusCourseImportTO;
 import ch.uzh.campus.CampusCourseJunitTestHelper;
 import ch.uzh.campus.data.DaoManager;
 import ch.uzh.campus.service.CampusCourse;
-import ch.uzh.campus.service.core.impl.syncer.CampusCourseGroupSynchronizer;
-import ch.uzh.campus.service.core.impl.syncer.CampusCourseGroupFinder;
+import ch.uzh.campus.service.core.CampusCourseCoreService;
+import ch.uzh.campus.service.core.impl.CampusCourseCoreServiceImpl;
+import ch.uzh.campus.service.core.impl.CampusCourseFactory;
 import ch.uzh.campus.service.core.impl.syncer.CampusCourseCoOwners;
+import ch.uzh.campus.service.core.impl.syncer.CampusCourseGroupFinder;
+import ch.uzh.campus.service.core.impl.syncer.CampusCourseGroupSynchronizer;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -38,6 +41,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.Assert.*;
+import static org.mockito.Matchers.anyLong;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -47,18 +51,17 @@ import static org.mockito.Mockito.when;
  * @author cg
  */
 @ContextConfiguration(locations = {"classpath:ch/uzh/campus/data/_spring/mockDataContext.xml"})
-public class CampusCourseCreateCoordinatorTest extends OlatTestCase {
+public class CampusCourseCoreServiceImplTest extends OlatTestCase {
    
-	private static final OLog log = Tracing.createLoggerFor(CampusCourseCreateCoordinatorTest.class);
+	private static final OLog log = Tracing.createLoggerFor(CampusCourseCoreServiceImplTest.class);
 
     private static final String TEST_TITLE_TEXT = "Test Title";
     private static final String TEST_SEMESTER_TEXT = "Herbstsemester 2012";
     private static final String TEST_EVENT_DESCRIPTION_TEXT = "Event description";
     private static final String TEST_COURSE_GROUP_A_NAME = "Campusgroup A";
     private static final String TEST_COURSE_GROUP_B_NAME = "Campusgroup B";
-    private static final Long TEST_RESOURCEABLE_ID = 1234L;
 
-    private CampusCourseCreateCoordinator campusCourseCreateCoordinator;
+    private CampusCourseCoreService campusCourseCoreService;
 
     @Autowired
     private BusinessGroupService businessGroupService;
@@ -88,13 +91,13 @@ public class CampusCourseCreateCoordinatorTest extends OlatTestCase {
     private OLATResourceManager olatResourceManager;
 
     @Autowired
-    private DaoManager daoManager;
-
-    @Autowired
     private CampusCourseGroupFinder campusCourseGroupFinder;
 
     @Autowired
     private CampusCourseCreator campusCourseCreator;
+
+    @Autowired
+    private CampusCourseFactory campusCourseFactory;
 
     private Long sourceResourceableId;
     private Identity ownerIdentity;
@@ -102,7 +105,7 @@ public class CampusCourseCreateCoordinatorTest extends OlatTestCase {
     private Identity testIdentity;
     private Identity secondTestIdentity;
     private CampusCourseConfiguration campusCourseConfigurationMock;
-    private CampusCourseImportTO campusCourseImportData;
+    private DaoManager daoManagerMock;
 
     @Before
     public void setup() {
@@ -122,10 +125,6 @@ public class CampusCourseCreateCoordinatorTest extends OlatTestCase {
         when(campusCourseConfigurationMock.getCourseGroupBName()).thenReturn(TEST_COURSE_GROUP_B_NAME);
         when(campusCourseConfigurationMock.getTemplateLanguage(null)).thenReturn("DE");
 
-        CampusCourseGroupSynchronizer campusCourseGroupSynchronizerMock = new CampusCourseGroupSynchronizer(campusCourseConfigurationMock, campusCourseCoOwners, repositoryService, businessGroupService, campusCourseGroupFinder);
-        CampusCoursePublisher campusCoursePublisherMock = mock(CampusCoursePublisher.class);
-        campusCourseCreateCoordinator = new CampusCourseCreateCoordinator(campusCourseConfigurationMock, campusCoursePublisherMock, campusCourseGroupSynchronizerMock, campusCourseDescriptionBuilder, repositoryService, olatResourceManager, dbInstance, daoManager, campusCourseCreator);
-
         secondOwnerIdentity = JunitTestHelper.createAndPersistIdentityAsUser("SecondTestOwner");
         testIdentity = JunitTestHelper.createAndPersistIdentityAsUser("TestUser");
         secondTestIdentity = JunitTestHelper.createAndPersistIdentityAsUser("SecondTestUser");
@@ -137,8 +136,15 @@ public class CampusCourseCreateCoordinatorTest extends OlatTestCase {
         List<Identity> participants = new ArrayList<>();
         participants.add(testIdentity);
         participants.add(secondTestIdentity);
-        campusCourseImportData = new CampusCourseImportTO(TEST_TITLE_TEXT, semester, lecturers, participants, TEST_EVENT_DESCRIPTION_TEXT,
-                TEST_RESOURCEABLE_ID, null);
+        CampusCourseImportTO campusCourseImportData1 = new CampusCourseImportTO(TEST_TITLE_TEXT, semester, lecturers, participants, TEST_EVENT_DESCRIPTION_TEXT,
+                null, null);
+
+        daoManagerMock = mock(DaoManager.class);
+        when(daoManagerMock.getSapCampusCourse(anyLong())).thenReturn(campusCourseImportData1);
+
+        CampusCourseGroupSynchronizer campusCourseGroupSynchronizerMock = new CampusCourseGroupSynchronizer(campusCourseConfigurationMock, campusCourseCoOwners, repositoryService, businessGroupService, campusCourseGroupFinder);
+        CampusCoursePublisher campusCoursePublisherMock = mock(CampusCoursePublisher.class);
+        campusCourseCoreService = new CampusCourseCoreServiceImpl(dbInstance, daoManagerMock, repositoryService, campusCourseFactory, campusCourseDescriptionBuilder, campusCourseCreator, campusCoursePublisherMock, campusCourseConfigurationMock, campusCourseGroupSynchronizerMock, olatResourceManager);
     }
 
 	@After
@@ -153,7 +159,7 @@ public class CampusCourseCreateCoordinatorTest extends OlatTestCase {
 
     private CampusCourse createCampusCourseTestObject() {
         // Create campus course from a template
-        CampusCourse campusCourse = campusCourseCreateCoordinator.createCampusCourse(null, campusCourseImportData, ownerIdentity);
+        CampusCourse campusCourse = campusCourseCoreService.createCampusCourseFromTemplate(null, 100L, ownerIdentity);
         dbInstance.flush();
         return campusCourse;
     }
@@ -257,12 +263,15 @@ public class CampusCourseCreateCoordinatorTest extends OlatTestCase {
         List<Identity> lecturers = new ArrayList<>();
         lecturers.add(testIdentity_2);       
         List<Identity> participants = new ArrayList<>();
-        participants.add(testIdentity_3);        
+        participants.add(testIdentity_3);
+
         CampusCourseImportTO campusCourseImportData = new CampusCourseImportTO(TEST_TITLE_TEXT, semester, lecturers, participants, TEST_EVENT_DESCRIPTION_TEXT,
-                TEST_RESOURCEABLE_ID, null);
+                null, null);
+
+        when(daoManagerMock.getSapCampusCourse(100L)).thenReturn(campusCourseImportData);
         
         //uses an existing course
-        CampusCourse campusCourse = campusCourseCreateCoordinator.createCampusCourse(sourceResourceableId, campusCourseImportData, ownerIdentity);
+        CampusCourse campusCourse = campusCourseCoreService.createCampusCourseFromTemplate(sourceResourceableId, 100L, ownerIdentity);
         
         BusinessGroup campusCourseGroup = campusCourseGroupFinder.lookupCampusGroup(campusCourse.getCourse(), campusCourseConfigurationMock.getCourseGroupAName());
         
@@ -275,8 +284,6 @@ public class CampusCourseCreateCoordinatorTest extends OlatTestCase {
         List<BGArea> areas = areaManager.findBGAreasInContext(campusCourse.getRepositoryEntry().getOlatResource());
         assertEquals(1,areas.size());
     }
-
-
     
     //TODO: olatng
     @Ignore

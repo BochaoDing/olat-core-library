@@ -39,7 +39,11 @@ public class DataConverter {
     @Autowired
     DelegationDao delegationDao;
 
-    // @Autowired
+    /**
+     * TODO sev26
+     * Verify correctness.
+     */
+    @Autowired
     BaseSecurity baseSecurity;
 
     DB dBImpl;

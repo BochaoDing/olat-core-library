@@ -53,7 +53,7 @@ public class CampusCourseDescriptionBuilder {
 
     }
 
-    String buildDescriptionFrom(CampusCourseImportTO campusCourseData, String campusCourseMultiSemester, String language) {
+    public String buildDescriptionFrom(CampusCourseImportTO campusCourseData, String campusCourseMultiSemester, String language) {
         String[] args = new String[3];
         args[0] = (campusCourseMultiSemester != null) ? campusCourseMultiSemester : campusCourseData.getSemester();
 

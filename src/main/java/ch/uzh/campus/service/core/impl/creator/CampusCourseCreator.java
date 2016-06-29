@@ -1,6 +1,7 @@
 package ch.uzh.campus.service.core.impl.creator;
 
 import ch.uzh.campus.CampusCourseConfiguration;
+import ch.uzh.campus.CampusCourseImportTO;
 import ch.uzh.campus.service.CampusCourse;
 import ch.uzh.campus.service.core.impl.CampusCourseTool;
 import org.olat.core.gui.translator.Translator;
@@ -43,22 +44,25 @@ public class CampusCourseCreator {
     private static final String OLAT_SUPPORT_EMAIL_NODE_TYPE = "co";                     // this is expected to be found in the defaultTemplate
     private static final String OLAT_SUPPORT_EMAIL_NODE_SHORT_TITLE_SUBSTRING = "@OLAT"; // this is expected to be found in the defaultTemplate
 
-    @Autowired
+
     private RepositoryManager repositoryManager;
-
-    @Autowired
     private RepositoryService repositoryService;
-
-    @Autowired
     private BGAreaManager areaManager;
-
-    @Autowired
     private BusinessGroupService businessGroupService;
+    private CampusCourseConfiguration campusCourseConfiguration;
+    private CampusCourseDescriptionBuilder campusCourseDescriptionBuilder;
 
     @Autowired
-    private CampusCourseConfiguration campusCourseConfiguration;
+    public CampusCourseCreator(RepositoryManager repositoryManager, RepositoryService repositoryService, BGAreaManager areaManager, BusinessGroupService businessGroupService, CampusCourseConfiguration campusCourseConfiguration, CampusCourseDescriptionBuilder campusCourseDescriptionBuilder) {
+        this.repositoryManager = repositoryManager;
+        this.repositoryService = repositoryService;
+        this.areaManager = areaManager;
+        this.businessGroupService = businessGroupService;
+        this.campusCourseConfiguration = campusCourseConfiguration;
+        this.campusCourseDescriptionBuilder = campusCourseDescriptionBuilder;
+    }
 
-    CampusCourse createCampusCourseFromTemplate(Long templateCourseResourceableId, Identity owner, String displayname, String description, boolean isDefaultTemplateUsed) {
+    public CampusCourse createCampusCourseFromTemplate(CampusCourseImportTO campusCourseImportData, Long templateCourseResourceableId, Identity owner, boolean isDefaultTemplateUsed) {
 
         // 1. Lookup template
         ICourse template = CourseFactory.loadCourse(templateCourseResourceableId);
@@ -68,10 +72,13 @@ public class CampusCourseCreator {
         // NB: New displayname must be set when calling repositoryService.copy(). Otherwise copyCourse.getCourseTitle()
         // (see 4.) will still yield the old displayname from sourceRepositoryName. Reason: copyCourse.getCourseTitle()
         // gets its value from a cache, which is not updated when displayname of repositoryEntry is changed!
+        String displayname = CampusCourseTool.getTruncatedDisplayname(campusCourseImportData.getTitle());
         RepositoryEntry cloneOfRepositoryEntry = repositoryService.copy(sourceRepositoryEntry, owner, displayname);
         OLATResourceable cloneOfCourseOlatResourcable = repositoryService.loadRepositoryEntryResource(cloneOfRepositoryEntry.getKey());
 
         // 3. Set correct description and access and update repository entry
+        String lvLanguage = campusCourseConfiguration.getTemplateLanguage(campusCourseImportData.getLanguage());
+        String description = campusCourseDescriptionBuilder.buildDescriptionFrom(campusCourseImportData, lvLanguage);
         cloneOfRepositoryEntry.setDescription(description);
         if (isDefaultTemplateUsed) {
             cloneOfRepositoryEntry.setAccess(RepositoryEntry.ACC_USERS_GUESTS);
@@ -84,7 +91,7 @@ public class CampusCourseCreator {
         return new CampusCourse(copyCourse, cloneOfRepositoryEntry);
     }
 
-    void createCampusLearningAreaAndCampusBusinessGroups(RepositoryEntry repositoryEntry, Identity creatorIdentity, String lvLanguage) {
+    public void createCampusLearningAreaAndCampusBusinessGroups(RepositoryEntry repositoryEntry, Identity creatorIdentity, String lvLanguage) {
 
         Translator translator = getTranslator(lvLanguage);
 
@@ -131,7 +138,7 @@ public class CampusCourseCreator {
      * Adds the vvzLink to the learning objectives, if not null. <br>
      * Sets SentFromCourse in the @OLAT-Support email node, if the node exists.
      */
-    void updateCourseRunAndEditorModels(CampusCourse campusCourse, String title, String vvzLink, boolean isDefaultTemplateUsed, String lvLanguage) {
+    public void updateCourseRunAndEditorModels(CampusCourse campusCourse, String title, String vvzLink, boolean isDefaultTemplateUsed, String lvLanguage) {
 
         ICourse course = campusCourse.getCourse();
         String truncatedDisplayname = CampusCourseTool.getTruncatedDisplayname(title);

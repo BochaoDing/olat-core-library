@@ -25,11 +25,8 @@ import ch.uzh.campus.CampusCourseImportTO;
 import ch.uzh.campus.service.CampusCourse;
 import ch.uzh.campus.service.core.impl.CampusCourseFactory;
 import ch.uzh.campus.service.core.impl.syncer.statistic.SynchronizedGroupStatistic;
-import org.olat.core.commons.persistence.DB;
 import org.olat.core.logging.OLog;
 import org.olat.core.logging.Tracing;
-import org.olat.course.CourseFactory;
-import org.olat.course.ICourse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -67,7 +64,7 @@ public class CampusCourseSynchronizer {
             LOG.debug("synchronizeCourse Lecturer size=" + sapCourse.getLecturers().size());
             LOG.debug("synchronizeCourse Participants size=" + sapCourse.getParticipants().size());
 
-            CampusCourse campusCourse = campusCourseFactory.getCampusCourse(sapCourse.getSapCourseId(), sapCourse.getOlatResourceableId());
+            CampusCourse campusCourse = campusCourseFactory.getCampusCourse(sapCourse.getSapCourseId());
 
             courseGroupSynchronizer.addAllLecturesAsOwner(campusCourse, sapCourse.getLecturers());
             SynchronizedGroupStatistic groupStatistic = courseGroupSynchronizer.synchronizeCourseGroups(campusCourse, sapCourse);

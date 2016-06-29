@@ -18,6 +18,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import static ch.uzh.campus.olat.CampusVelocityContainerBeanFactory.*;
+
 /**
  * Initial date: 2016-06-15<br />
  * @author sev26 (UZH)
@@ -25,7 +27,15 @@ import java.util.List;
 @Service
 public class CampusMyCourseRepositoryQuery implements MyCourseRepositoryQuery {
 
-	private final static OLATResource CAMPUSKURS_RESOURCE_DUMMY = new OLATResource() {
+	final static class CampusOLATResource implements OLATResource {
+
+		private final Long key;
+
+		public CampusOLATResource(Long key) {
+			assert key != null;
+			this.key = key;
+		}
+
 		@Override
 		public Date getCreationDate() {
 			return null;
@@ -33,24 +43,27 @@ public class CampusMyCourseRepositoryQuery implements MyCourseRepositoryQuery {
 
 		@Override
 		public String getResourceableTypeName() {
-			return "Campuskurs";
+			return RESOURCEABLE_TYPE_NAME;
 		}
 
 		@Override
 		public Long getResourceableId() {
-			return 0L;
+			return NOT_CREATED_CAMPUSKURS_RESOURCE_ID;
 		}
 
 		@Override
 		public Long getKey() {
-			return 0L;
+			return key;
 		}
 
 		@Override
 		public boolean equalsByPersistableKey(Persistable persistable) {
-			return false;
+			return this == persistable ||
+					(this.getClass() == persistable.getClass() && getKey().equals(persistable.getKey()));
 		}
 	};
+
+	private final static OLATResource CAMPUSKURS_RESOURCE_DUMMY = new CampusOLATResource(NOT_CREATED_CAMPUSKURS_KEY);
 
 	private final CampusCourseService campusCourseService;
 	private final RepositoryModule repositoryModule;
@@ -88,6 +101,7 @@ public class CampusMyCourseRepositoryQuery implements MyCourseRepositoryQuery {
 
 	private static RepositoryEntry getRepositoryEntry(SapCampusCourseTo sapCampusCourseTo) {
 		RepositoryEntry result = new RepositoryEntry();
+		result.setKey(sapCampusCourseTo.getSapCourseId());
 		result.setDisplayname(sapCampusCourseTo.getTitle());
 		result.setOlatResource(CAMPUSKURS_RESOURCE_DUMMY);
 		return result;
