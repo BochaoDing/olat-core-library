@@ -25,20 +25,10 @@ import ch.uzh.campus.data.ImportStatisticDao;
 import ch.uzh.campus.metric.CampusNotifier;
 import org.olat.core.logging.OLog;
 import org.olat.core.logging.Tracing;
-//import org.olat.lms.core.course.campus.impl.metric.CampusNotifier;
 import org.springframework.batch.core.*;
-import org.springframework.batch.core.launch.JobExecutionNotRunningException;
-import org.springframework.batch.core.launch.JobOperator;
-import org.springframework.batch.core.launch.NoSuchJobExecutionException;
-import org.springframework.batch.core.launch.support.SimpleJobOperator;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.net.URI;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Initial Date: 08.01.2014 <br>
