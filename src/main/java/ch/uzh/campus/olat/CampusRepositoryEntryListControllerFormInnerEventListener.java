@@ -1,11 +1,14 @@
 package ch.uzh.campus.olat;
 
 import ch.uzh.campus.CampusCourseConfiguration;
+import ch.uzh.campus.service.CampusCourse;
 import ch.uzh.campus.service.learn.CampusCourseService;
+import org.olat.NewControllerFactory;
 import org.olat.core.gui.UserRequest;
 import org.olat.core.gui.components.form.flexible.FormItem;
 import org.olat.core.gui.components.form.flexible.elements.FormLink;
 import org.olat.core.gui.components.form.flexible.impl.FormEvent;
+import org.olat.core.gui.control.WindowControl;
 import org.olat.repository.ui.list.RepositoryEntryListController.RepositoryEntryListControllerFormInnerEventListener;
 import org.olat.repository.ui.list.RepositoryEntryRow;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,21 +33,24 @@ public class CampusRepositoryEntryListControllerFormInnerEventListener extends R
 	}
 
 	@Override
-	public void event(UserRequest ureq, FormItem source, FormEvent event) {
+	public void event(UserRequest ureq, FormItem source, FormEvent event,
+					  WindowControl windowControl) {
 		if (source instanceof FormLink) {
 			FormLink formLink = (FormLink) source;
 			if ("create".equals(formLink.getCmd())) {
+				RepositoryEntryRow row = (RepositoryEntryRow) formLink.getUserObject();
 				/**
 				 * TODO sev26
-				 * Set language.
+				 * Resourceable id + set language.
 				 */
-				RepositoryEntryRow row = (RepositoryEntryRow) formLink.getUserObject();
-				// TODO sev26
-				//Long courseResourceableId = campusConfiguration.getTemplateCourseResourcableId(null);
-				Long courseResourceableId = 93901196447328L;
+				//Long courseResourceableId = campusCourseConfiguration.getTemplateCourseResourcableId(null);
+				Long courseResourceableId = 93901584917897L;
 				Long sapCampusCourseId = row.getKey();
-				campusCourseService.createCampusCourseFromTemplate(courseResourceableId,
+				CampusCourse campusCourse = campusCourseService.createCampusCourseFromTemplate(courseResourceableId,
 						sapCampusCourseId, ureq.getIdentity());
+
+				String businessPath = "[RepositoryEntry:" + campusCourse.getRepositoryEntry().getKey() + "]";
+				NewControllerFactory.getInstance().launch(businessPath, ureq, windowControl);
 			}
 		}
 	}

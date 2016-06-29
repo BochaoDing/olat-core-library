@@ -90,7 +90,8 @@ public class RepositoryEntryListController extends FormBasicController
 	@org.springframework.stereotype.Component
 	@Scope(BeanDefinition.SCOPE_SINGLETON)
 	public static class RepositoryEntryListControllerFormInnerEventListener {
-		public void event(UserRequest ureq, FormItem source, FormEvent event) {
+		public void event(UserRequest ureq, FormItem source, FormEvent event,
+						  WindowControl windowControl) {
 		}
 	}
 
@@ -312,7 +313,7 @@ public class RepositoryEntryListController extends FormBasicController
 	@Override
 	protected void formInnerEvent(UserRequest ureq, FormItem source, FormEvent event) {
 		for (RepositoryEntryListControllerFormInnerEventListener formInnerEventListerner : formInnerEventListerners) {
-			formInnerEventListerner.event(ureq, source, event);
+			formInnerEventListerner.event(ureq, source, event, getWindowControl());
 		}
 		if(source instanceof RatingWithAverageFormItem && event instanceof RatingFormEvent) {
 			RatingFormEvent ratingEvent = (RatingFormEvent)event;
