@@ -25,9 +25,6 @@ public interface CampusCourseCoreService {
 
     CampusCourse loadCampusCourse(Long sapCampusCourseId);
 
-    /**
-     * TODO: olatng: this used to be called from CourseRepositoryHandler, this doesn't exist in OpenOLAT anymore. Wo aufrufen?
-     */
     void resetResourceableIdReference(OLATResourceable res);
 
     RepositoryEntry getRepositoryEntryFor(Long sapCourseId);

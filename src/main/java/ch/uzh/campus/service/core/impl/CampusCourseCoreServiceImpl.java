@@ -178,14 +178,10 @@ public class CampusCourseCoreServiceImpl implements CampusCourseCoreService {
         return campusCourseFactory.getCampusCourse(sapCampusCourseId);
     }
 
-    //TODO olatng: not yet used anywhere in the code
-    // In OLAT 7.8, it is used in CourseRepositoryHandler.cleanupOnDelete(final OLATResourceable res);
-    // and in OpenOLAT this class does not exist
     @Override
     public void resetResourceableIdReference(OLATResourceable res) {
         LOG.info("deleteResourceableIdReference for resourceableId=" + res.getResourceableId());
         daoManager.resetResourceableId(res.getResourceableId());
-        dbInstance.intermediateCommit();
 
         // Notify possible listeners about DELETED event
         CoordinatorManager.getInstance().getCoordinator().getEventBus().fireEventToListenersOf(
