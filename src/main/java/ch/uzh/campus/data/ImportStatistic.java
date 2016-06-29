@@ -18,7 +18,9 @@ import java.util.Date;
 @Table(name = "ck_import_statistic")
 @NamedQueries({
         @NamedQuery(name = ImportStatistic.GET_LAST_COMPLETED_IMPORT_STATISTIC, query = "select s from ImportStatistic s where s.stepName like 'import_%' and s.status='COMPLETED'"
-        + " and s.startTime >= (select max(s2.startTime) from ImportStatistic s2 where s2.stepName='import_controlFile')")
+        + " and s.startTime >= (select max(s2.startTime) from ImportStatistic s2 where s2.stepName='import_controlFile')"),
+        @NamedQuery(name = ImportStatistic.GET_IMPORT_STATISTICS_OF_TODAY, query = "select s from ImportStatistic s where s.stepName like 'import_%' and s.status='COMPLETED'"
+        + " and s.startTime >= :midnight")
 })
 public class ImportStatistic {
 
@@ -66,6 +68,7 @@ public class ImportStatistic {
     private Date endTime;
 
     static final String GET_LAST_COMPLETED_IMPORT_STATISTIC = "getLastCompletedImportStatistic";
+    static final String GET_IMPORT_STATISTICS_OF_TODAY = "getImportStatisticOfToday";
 
     public Long getId() {
         return id;

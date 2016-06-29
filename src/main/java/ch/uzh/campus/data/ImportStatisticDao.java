@@ -1,9 +1,12 @@
 package ch.uzh.campus.data;
 
+import org.apache.commons.lang.time.DateUtils;
 import org.olat.core.commons.persistence.DB;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 @Repository
@@ -37,6 +40,14 @@ public class ImportStatisticDao implements CampusDao<ImportStatistic> {
     public List<ImportStatistic> getLastCompletedImportedStatistic() {
         return dbInstance.getCurrentEntityManager()
                 .createNamedQuery(ImportStatistic.GET_LAST_COMPLETED_IMPORT_STATISTIC, ImportStatistic.class)
+                .getResultList();
+    }
+
+    public List<ImportStatistic> getImportStatisticOfToday() {
+        Date midnight = DateUtils.truncate(new Date(), Calendar.DATE);
+        return dbInstance.getCurrentEntityManager()
+                .createNamedQuery(ImportStatistic.GET_IMPORT_STATISTICS_OF_TODAY, ImportStatistic.class)
+                .setParameter("midnight", midnight)
                 .getResultList();
     }
 }

@@ -20,16 +20,24 @@
  */
 package ch.uzh.campus.connectors;
 
+import ch.uzh.campus.data.ImportStatistic;
+import ch.uzh.campus.data.ImportStatisticDao;
 import ch.uzh.campus.metric.CampusNotifier;
 import org.olat.core.logging.OLog;
 import org.olat.core.logging.Tracing;
 //import org.olat.lms.core.course.campus.impl.metric.CampusNotifier;
 import org.springframework.batch.core.*;
+import org.springframework.batch.core.launch.JobExecutionNotRunningException;
+import org.springframework.batch.core.launch.JobOperator;
+import org.springframework.batch.core.launch.NoSuchJobExecutionException;
+import org.springframework.batch.core.launch.support.SimpleJobOperator;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -41,6 +49,9 @@ public class CampusJobInterceptor implements JobExecutionListener {
 
     @Autowired
     private CampusNotifier campusNotifier;
+
+    @Autowired
+    private ImportStatisticDao importStatisticDao;
 
 	private static final OLog LOG = Tracing.createLoggerFor(CampusJobInterceptor.class);
 
@@ -57,7 +68,12 @@ public class CampusJobInterceptor implements JobExecutionListener {
 //            case "importJob":
 //                break;
             case "userMappingJob":
-                // TODO OLATng: check if "importJob" has ran today
+                // Check if "importJob" has ran today
+                List<ImportStatistic> importStatsOfToday = importStatisticDao.getImportStatisticOfToday();
+                if (importStatsOfToday.size() == 0) {
+                    LOG.warn("Import procedure did not run today! Mapping does not make so much sense!");
+                    // TODO OLATng: is there a way to stop execution of a job? should we stop it now?
+                }
                 break;
         }
     }
