@@ -33,7 +33,6 @@ import java.util.Date;
 @Entity
 @Table(name = "ck_delegation")
 @NamedQueries({
-        @NamedQuery(name = Delegation.DELETE_BY_DELEGATOR_AND_DELEGATEE, query = "delete from Delegation d where d.delegator = :delegator and d.delegatee = :delegatee"),
         @NamedQuery(name = Delegation.GET_BY_DELEGATOR_AND_DELEGATEE, query = "select d from Delegation d where d.delegator = :delegator and d.delegatee = :delegatee"),
         @NamedQuery(name = Delegation.GET_BY_DELEGATOR, query = "select d from Delegation d where d.delegator = :delegator"),
         @NamedQuery(name = Delegation.GET_BY_DELEGATEE, query = "select d from Delegation d where d.delegatee = :delegatee")
@@ -54,7 +53,6 @@ public class Delegation {
     @Column(name = "delegatee", nullable = false)
     private String delegatee;
 
-    static final String DELETE_BY_DELEGATOR_AND_DELEGATEE = "deleteByDelegatorAndDelegatee";
     static final String GET_BY_DELEGATOR_AND_DELEGATEE = "getByDelegatorAndDelegatee";
     static final String GET_BY_DELEGATOR = "getByDelegator";
     static final String GET_BY_DELEGATEE = "getByDelegatee";

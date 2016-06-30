@@ -403,7 +403,7 @@ public class DaoManager {
     }
 
     public void deleteDelegation(Identity delegator, Identity delegatee) {
-        delegationDao.deleteByDelegatorAndDelegateeAsBulkDelete(delegator.getName(), delegatee.getName());
+        delegationDao.deleteByDelegatorAndDelegatee(delegator.getName(), delegatee.getName());
     }
 
     public boolean checkImportedData() {

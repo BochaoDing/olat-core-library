@@ -57,15 +57,15 @@ public class DelegationDao implements CampusDao<Delegation> {
         dbInstance.saveObject(delegation);
     }
 
-    /**
-     * Bulk delete for efficient deletion of a big number of entries. Does not update persistence context!
-     */
-    public void deleteByDelegatorAndDelegateeAsBulkDelete(String delegator, String delegatee) {
-        dbInstance.getCurrentEntityManager()
-                .createNamedQuery(Delegation.DELETE_BY_DELEGATOR_AND_DELEGATEE)
+    public void deleteByDelegatorAndDelegatee(String delegator, String delegatee) {
+        List<Delegation> delegationsToBeDelted = dbInstance.getCurrentEntityManager()
+                .createNamedQuery(Delegation.GET_BY_DELEGATOR_AND_DELEGATEE)
                 .setParameter("delegator", delegator)
                 .setParameter("delegatee", delegatee)
-                .executeUpdate();
+                .getResultList();
+        for (Delegation delegation : delegationsToBeDelted) {
+            dbInstance.deleteObject(delegation);
+        }
     }
 
     public List<Delegation> getDelegationsByDelegator(String delegator) {

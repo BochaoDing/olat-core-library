@@ -110,13 +110,16 @@ public class DelegationDaoTest extends OlatTestCase {
     }
 
     @Test
-    public void testDeleteByDelegatorAndDelegateeAsBulkDelete() {
+    public void testDeleteByDelegatorAndDelegatee() {
         delegationDao.save(delegations.subList(5, 6));
         dbInstance.flush();
 
         assertTrue(delegationDao.existDelegation("delegator5", "delegatee50"));
 
-        delegationDao.deleteByDelegatorAndDelegateeAsBulkDelete("delegator5", "delegatee50");
+        delegationDao.deleteByDelegatorAndDelegatee("delegator5", "delegatee50");
+
+        // Check before flush
+        assertFalse(delegationDao.existDelegation("delegator5", "delegatee50"));
 
         dbInstance.flush();
         dbInstance.clear();
