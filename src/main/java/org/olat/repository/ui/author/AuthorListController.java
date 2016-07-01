@@ -85,7 +85,9 @@ import org.olat.core.logging.activity.ThreadLocalUserActivityLogger;
 import org.olat.core.util.StringHelper;
 import org.olat.core.util.Util;
 import org.olat.core.util.coordinate.LockResult;
+import org.olat.core.util.event.GenericEventListener;
 import org.olat.core.util.resource.OresHelper;
+import org.olat.core.util.resource.Resourceable;
 import org.olat.course.CorruptedCourseException;
 import org.olat.course.CourseModule;
 import org.olat.repository.RepositoryEntry;
@@ -180,6 +182,18 @@ public class AuthorListController extends FormBasicController implements Activat
 
 		dataSource = new AuthoringEntryDataSource(searchParams, this);
 		initForm(ureq);
+
+		/**
+		 * TODO sev26
+		 * Verify if this is the best way to inform the controller about list
+		 * entry changes.
+		 */
+		ureq.getUserSession().getSingleUserEventCenter().registerFor(new GenericEventListener() {
+			@Override
+			public void event(Event event) {
+				reloadRows();
+			}
+		}, ureq.getIdentity(), new Resourceable("CourseModule", null));
 
 		stackPanel = new TooledStackedPanel(i18nName, getTranslator(), this);
 		stackPanel.pushController(translate(i18nName), this);

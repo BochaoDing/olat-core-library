@@ -9,10 +9,15 @@ import org.olat.core.gui.components.form.flexible.FormItem;
 import org.olat.core.gui.components.form.flexible.elements.FormLink;
 import org.olat.core.gui.components.form.flexible.impl.FormEvent;
 import org.olat.core.gui.control.WindowControl;
+import org.olat.core.util.event.EventBus;
+import org.olat.repository.ui.author.AuthorListController;
+import org.olat.repository.ui.author.AuthoringListChangeEvent;
 import org.olat.repository.ui.list.RepositoryEntryListController.RepositoryEntryListControllerFormInnerEventListener;
 import org.olat.repository.ui.list.RepositoryEntryRow;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import static ch.uzh.campus.olat.CampusVelocityContainerBeanFactory.RESOURCEABLE_TYPE_NAME;
 
 /**
  * Initial date: 2016-06-29<br />
@@ -51,6 +56,15 @@ public class CampusRepositoryEntryListControllerFormInnerEventListener extends R
 
 				String businessPath = "[RepositoryEntry:" + campusCourse.getRepositoryEntry().getKey() + "]";
 				NewControllerFactory.getInstance().launch(businessPath, ureq, windowControl);
+
+				/**
+				 * Inform the {@link AuthorListController} about the new list
+				 * entry.
+				 */
+				EventBus singleUserEventBus = ureq.getUserSession().getSingleUserEventCenter();
+				singleUserEventBus.fireEventToListenersOf(
+						new AuthoringListChangeEvent(RESOURCEABLE_TYPE_NAME),
+						campusCourse.getRepositoryEntry().getOlatResource());
 			}
 		}
 	}
