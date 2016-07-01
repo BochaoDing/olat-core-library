@@ -27,6 +27,7 @@ import org.olat.repository.RepositoryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
@@ -85,7 +86,12 @@ public class CampusCourseCreator {
         }
         repositoryService.update(cloneOfRepositoryEntry);
 
-        // 4. Load copy of course
+        // 4. Set access permissions
+        cloneOfRepositoryEntry.setAccess(RepositoryEntry.ACC_OWNERS);
+        cloneOfRepositoryEntry.setMembersOnly(true);
+        cloneOfRepositoryEntry.setLastModified(new Date());
+
+        // 5. Load copy of course
         ICourse copyCourse = CourseFactory.loadCourse(cloneOfCourseOlatResourcable.getResourceableId());
 
         return new CampusCourse(copyCourse, cloneOfRepositoryEntry);
