@@ -1,10 +1,14 @@
 package ch.uzh.campus.olat;
 
+import ch.uzh.campus.olat.popup.CampusCourseCreationController;
+import ch.uzh.campus.service.core.CampusCourseCoreService;
 import org.olat.core.dispatcher.mapper.MapperService;
 import org.olat.core.gui.UserRequest;
 import org.olat.core.gui.components.velocity.VelocityContainer;
+import org.olat.core.gui.control.WindowControl;
 import org.olat.core.util.Util;
 import org.olat.repository.RepositoryEntryMyView;
+import org.olat.repository.RepositoryManager;
 import org.olat.repository.RepositoryModule;
 import org.olat.repository.ui.list.RepositoryEntryListController;
 import org.olat.repository.ui.list.RepositoryEntryRow;
@@ -21,7 +25,7 @@ import org.springframework.context.annotation.Scope;
  * @author sev26 (UZH)
  */
 @Configuration
-public class CampusVelocityContainerBeanFactory {
+public class CampusBeanFactory {
 
 	final static String RESOURCEABLE_TYPE_NAME = "Campuskurs";
 	final static Long NOT_CREATED_CAMPUSKURS_KEY = 0L;
@@ -33,13 +37,19 @@ public class CampusVelocityContainerBeanFactory {
 	@Autowired
 	private MapperService mapperService;
 
+	@Autowired
+	private CampusCourseCoreService campusCourseCoreService;
+
+	@Autowired
+	private RepositoryManager repositoryManager;
+
 	@Bean(name={"row_1"})
 	@Scope(BeanDefinition.SCOPE_PROTOTYPE)
 	@Primary
 	protected VelocityContainer createRow1(RepositoryEntryListController caller) {
 		VelocityContainer result = new VelocityContainer(null,
 				"vc_" + "row_1",
-				Util.getPackageVelocityRoot(CampusVelocityContainerBeanFactory.class) + "/row_1.html",
+				Util.getPackageVelocityRoot(CampusBeanFactory.class) + "/row_1.html",
 				Util.createPackageTranslator(caller.getClass(), caller.getLocale()),
 				caller
 		);
@@ -60,5 +70,16 @@ public class CampusVelocityContainerBeanFactory {
 					return super.create(entry);
 			};
 		};
+	}
+
+	CampusCourseCreationController createCampusCourseCreationController(
+			String campuskursTitle, WindowControl windowControl,
+			UserRequest userRequest) {
+		return new CampusCourseCreationController(windowControl, userRequest,
+				campuskursTitle,
+				campusCourseCoreService,
+				repositoryManager
+
+		);
 	}
 }

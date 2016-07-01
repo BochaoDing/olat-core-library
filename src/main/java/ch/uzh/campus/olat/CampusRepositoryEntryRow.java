@@ -13,6 +13,7 @@ import org.olat.repository.ui.list.RepositoryEntryRow;
 public class CampusRepositoryEntryRow extends RepositoryEntryRow {
 
 	private final FormLink createLink;
+	private final FormLink createByCopying;
 
 	public CampusRepositoryEntryRow(RepositoryEntryMyView entry) {
 		super(entry);
@@ -22,16 +23,29 @@ public class CampusRepositoryEntryRow extends RepositoryEntryRow {
 		createLink.setUserObject(this);
 		createLink.setCustomEnabledLinkCSS("o_create btn-block");
 		createLink.setIconRightCSS("o_icon o_icon_create");
+
+		createByCopying = FormUIFactory.getInstance()
+				.addFormLink("create_by_copying_" + this.getKey(), "create_by_copying", "create_by_copying", null, null, Link.LINK);
+		createByCopying.setUserObject(this);
+		createByCopying.setCustomEnabledLinkCSS("o_create_by_copying btn-block");
+		createByCopying.setIconRightCSS("o_icon o_icon_create_by_copying");
 	}
 
 	public FormLink getCreateLink() {
 		return createLink;
 	}
 
+	public FormLink getCreateByCopying() {
+		return createByCopying;
+	}
+
 	@Override
 	public Object getValueAt(int col) {
 		switch(col) {
-			case 0: return getCreateLink();
+			case 0:
+				return getCreateLink();
+			case 3:
+				return getCreateByCopying();
 		}
 		return null;
 	}

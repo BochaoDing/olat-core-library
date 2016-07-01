@@ -18,7 +18,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import static ch.uzh.campus.olat.CampusVelocityContainerBeanFactory.*;
+import static ch.uzh.campus.olat.CampusBeanFactory.*;
 
 /**
  * Initial date: 2016-06-15<br />
@@ -83,6 +83,10 @@ public class CampusMyCourseRepositoryQuery implements MyCourseRepositoryQuery {
 	@Override
 	public List<RepositoryEntryMyView> searchViews(SearchMyRepositoryEntryViewParams param, int firstResult, int maxResults) {
 		List<RepositoryEntryMyView> result = new ArrayList<>();
+		/**
+		 * TODO sev26
+		 * Distinguish type of user (student or lecturer).
+		 */
 		List<SapCampusCourseTo> sapCampusCourseTos = campusCourseService.getCoursesWhichCouldBeCreated(param.getIdentity(),
 				SapOlatUser.SapUserType.LECTURER,
 				param.getIdRefsAndTitle());

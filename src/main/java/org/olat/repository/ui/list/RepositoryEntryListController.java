@@ -47,6 +47,7 @@ import org.olat.core.gui.components.rating.RatingWithAverageFormItem;
 import org.olat.core.gui.components.stack.BreadcrumbPanel;
 import org.olat.core.gui.components.velocity.VelocityContainer;
 import org.olat.core.gui.control.Controller;
+import org.olat.core.gui.control.ControllerEventListener;
 import org.olat.core.gui.control.Event;
 import org.olat.core.gui.control.WindowControl;
 import org.olat.core.gui.control.generic.closablewrapper.CloseableModalController;
@@ -91,7 +92,7 @@ public class RepositoryEntryListController extends FormBasicController
 	@Scope(BeanDefinition.SCOPE_SINGLETON)
 	public static class RepositoryEntryListControllerFormInnerEventListener {
 		public void event(UserRequest ureq, FormItem source, FormEvent event,
-						  WindowControl windowControl) {
+						  WindowControl windowControl, ControllerEventListener parent) {
 		}
 	}
 
@@ -313,7 +314,7 @@ public class RepositoryEntryListController extends FormBasicController
 	@Override
 	protected void formInnerEvent(UserRequest ureq, FormItem source, FormEvent event) {
 		for (RepositoryEntryListControllerFormInnerEventListener formInnerEventListerner : formInnerEventListerners) {
-			formInnerEventListerner.event(ureq, source, event, getWindowControl());
+			formInnerEventListerner.event(ureq, source, event, getWindowControl(), this);
 		}
 		if(source instanceof RatingWithAverageFormItem && event instanceof RatingFormEvent) {
 			RatingFormEvent ratingEvent = (RatingFormEvent)event;

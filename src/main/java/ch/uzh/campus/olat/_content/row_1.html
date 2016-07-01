@@ -1,6 +1,7 @@
 #if($row.getOLATResourceable().getResourceableId() == 0)
     <p>Campuskurs</p>
     $r.render($row.getCreateLink().getComponent().getComponentName())
+    $r.render($row.getCreateByCopying().getComponent().getComponentName())
 #else
     #parse("org/olat/repository/ui/list/_content/row_1.html")
 #end
