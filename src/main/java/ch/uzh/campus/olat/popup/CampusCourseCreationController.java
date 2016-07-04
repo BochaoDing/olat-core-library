@@ -59,6 +59,7 @@ import java.util.List;
 
 /**
  * Initial Date: 23.10.2012<br />
+ *
  * @author aabouc, sev26 (UZH)
  */
 public class CampusCourseCreationController extends BasicController {
@@ -95,22 +96,22 @@ public class CampusCourseCreationController extends BasicController {
     private final RepositoryManager repositoryManager;
 
     public CampusCourseCreationController(WindowControl wControl,
-										  UserRequest ureq,
-										  String campusCourseTitle,
-										  CampusCourseCoreService campusCourseCoreService,
-										  RepositoryManager repositoryManager
-	) {
+                                          UserRequest ureq,
+                                          String campusCourseTitle,
+                                          CampusCourseCoreService campusCourseCoreService,
+                                          RepositoryManager repositoryManager
+    ) {
         super(ureq, wControl);
 
-		this.campusCourseCoreService = campusCourseCoreService;
-		this.repositoryManager = repositoryManager;
+        this.campusCourseCoreService = campusCourseCoreService;
+        this.repositoryManager = repositoryManager;
 
         setCampusCourseTitle(campusCourseTitle);
 
         this.campusCourseVC = this.createVelocityContainer("campusCourseCreation");
 
         Translator resourceTrans = Util.createPackageTranslator(
-				RepositoryTableModel.class, ureq.getLocale(), getTranslator());
+                RepositoryTableModel.class, ureq.getLocale(), getTranslator());
 
         // Create the CourseCreationChoiceController
         courseCreationChoiceCtrl = new CourseCreationChoiceController(wControl, ureq);
@@ -122,11 +123,11 @@ public class CampusCourseCreationController extends BasicController {
         tableConfig.setPreferencesOffered(true, "CampusCourseCreationTableGuiPrefs");
 
         // Create the RepositoryTableModel
-		/**
-		 * TODO sev26
-		 * Use "resourceTrans" as class constructor parameter. In order to be
-		 * able to, extend the {@link RepositoryTableModel} class.
-		 */
+        /**
+         * TODO sev26
+         * Use "resourceTrans" as class constructor parameter. In order to be
+         * able to, extend the {@link RepositoryTableModel} class.
+         */
         creationTableModel = new RepositoryTableModel(ureq.getLocale());
         continuationTableModel = new RepositoryTableModel(ureq.getLocale());
 
@@ -147,13 +148,13 @@ public class CampusCourseCreationController extends BasicController {
 
         putInitialPanel(campusCourseVC);
 
-		update(COURSE_CREATION_BY_COPYING, ureq);
+        update(COURSE_CREATION_BY_COPYING, ureq);
     }
 
     private TableController createTableCtrl(Translator resourceTrans, TableGuiConfiguration tableConfig, UserRequest ureq, final String SUBMIT) {
         TableController tableCtrl = new TableController(tableConfig, ureq, getWindowControl(), resourceTrans, true);
 
-        tableCtrl.addColumnDescriptor(new DefaultColumnDescriptor("campus.course.table.header.displayname", 1, null, resourceTrans.getLocale()));
+//        tableCtrl.addColumnDescriptor(new DefaultColumnDescriptor("campus.course.table.header.displayname", 1, null, resourceTrans.getLocale()));
         tableCtrl.addColumnDescriptor(new DefaultColumnDescriptor("table.header.author", 2, null, resourceTrans.getLocale()));
         tableCtrl.addColumnDescriptor(false, new DefaultColumnDescriptor("campus.course.table.header.access", 3, null, resourceTrans.getLocale()));
         tableCtrl.addColumnDescriptor(new DefaultColumnDescriptor("table.header.date", 4, null, resourceTrans.getLocale()));
@@ -161,7 +162,7 @@ public class CampusCourseCreationController extends BasicController {
 
         tableCtrl.setSortColumn(0, true);
 
-		tableCtrl.setMultiSelect(false);
+        tableCtrl.setMultiSelect(false);
 // TODO sev26
 //        tableCtrl.setSingleSelect(true);
 //        tableCtrl.addSingleSelectAction(CANCEL, CANCEL);
@@ -200,38 +201,32 @@ public class CampusCourseCreationController extends BasicController {
 
     private void update(int courseCreationSelection, UserRequest ureq) {
         switch (courseCreationSelection) {
-        case COURSE_CREATION_BY_TEMPLATE:
-            campusCourseVC.remove(infoTextComp);
-            campusCourseVC.remove(creationTableCtrl.getInitialComponent());
-            campusCourseVC.remove(continuationTableCtrl.getInitialComponent());
-            campusCourseVC.contextPut("createByTemplate", true);
-            break;
-        case COURSE_CREATION_BY_COPYING:
-            campusCourseVC.remove(continuationTableCtrl.getInitialComponent());
-            refreshCreationModel(repositoryManager.queryByOwner(ureq.getIdentity(), "CourseModule"));
-            campusCourseVC.put("tableController", creationTableCtrl.getInitialComponent());
-            campusCourseVC.contextPut("createByTemplate", false);
-            break;
+            case COURSE_CREATION_BY_COPYING:
+                campusCourseVC.remove(continuationTableCtrl.getInitialComponent());
+                refreshCreationModel(repositoryManager.queryByOwner(ureq.getIdentity(), "CourseModule"));
+                campusCourseVC.put("tableController", creationTableCtrl.getInitialComponent());
+                campusCourseVC.contextPut("createByTemplate", false);
+                break;
 
-        case COURSE_CONTINUATION:
-            campusCourseVC.remove(creationTableCtrl.getInitialComponent());
-            List<RepositoryEntry> campusCourseEntries = new ArrayList<RepositoryEntry>();
-            List<RepositoryEntry> entries = repositoryManager.queryByOwner(ureq.getIdentity(), "CourseModule");
-            if (!entries.isEmpty()) {
-                List<Long> allCreatedSapCourcesResourceableIds = campusCourseCoreService.getAllCreatedSapCourcesResourceableIds();
-                for (RepositoryEntry entry : entries) {
-                    Long resourcableId = entry.getOlatResource().getResourceableId();
-                    if (allCreatedSapCourcesResourceableIds.contains(resourcableId)) {
-                        if (StringUtils.left(getCampusCourseTitle(), 4).compareTo(StringUtils.left(entry.getDisplayname(), 4)) > 0) {
-                            campusCourseEntries.add(entry);
+            case COURSE_CONTINUATION:
+                campusCourseVC.remove(creationTableCtrl.getInitialComponent());
+                List<RepositoryEntry> campusCourseEntries = new ArrayList<RepositoryEntry>();
+                List<RepositoryEntry> entries = repositoryManager.queryByOwner(ureq.getIdentity(), "CourseModule");
+                if (!entries.isEmpty()) {
+                    List<Long> allCreatedSapCourcesResourceableIds = campusCourseCoreService.getAllCreatedSapCourcesResourceableIds();
+                    for (RepositoryEntry entry : entries) {
+                        Long resourcableId = entry.getOlatResource().getResourceableId();
+                        if (allCreatedSapCourcesResourceableIds.contains(resourcableId)) {
+                            if (StringUtils.left(getCampusCourseTitle(), 4).compareTo(StringUtils.left(entry.getDisplayname(), 4)) > 0) {
+                                campusCourseEntries.add(entry);
+                            }
                         }
                     }
                 }
-            }
-            refreshContinuationModel(campusCourseEntries);
-            campusCourseVC.put("tableController", continuationTableCtrl.getInitialComponent());
-            campusCourseVC.contextPut("createByTemplate", false);
-            break;
+                refreshContinuationModel(campusCourseEntries);
+                campusCourseVC.put("tableController", continuationTableCtrl.getInitialComponent());
+                campusCourseVC.contextPut("createByTemplate", false);
+                break;
         }
         campusCourseVC.setDirty(true);
     }
@@ -251,11 +246,9 @@ public class CampusCourseCreationController extends BasicController {
 
     @Override
     protected void event(final UserRequest ureq, final Controller source, final Event event) {
-		if (source == courseCreationChoiceCtrl) {
-			update(courseCreationChoiceCtrl.campusCourseCreationRadioButtons.getSelected(), ureq);
-		}
-
-        else if (source == courseContinuationDialog) {
+        if (source == courseCreationChoiceCtrl) {
+            update(courseCreationChoiceCtrl.campusCourseCreationRadioButtons.getSelected(), ureq);
+        } else if (source == courseContinuationDialog) {
             if (event.equals(Event.CANCELLED_EVENT)) {
                 // nothing to do
             } else if (DialogBoxUIFactory.getButtonPos(event) == 0) {
@@ -315,7 +308,7 @@ public class CampusCourseCreationController extends BasicController {
         static final String CC_CREATION_BY_COPYING = "campus.course.creation.by.copying";
         static final String CC_CONTINUATION = "campus.course.continuation";
 
-        String[] campusCourseCreationKeys = new String[] { CC_CREATION_BY_TEMPLTE, CC_CREATION_BY_COPYING, CC_CONTINUATION };
+        String[] campusCourseCreationKeys = new String[]{CC_CREATION_BY_TEMPLTE, CC_CREATION_BY_COPYING, CC_CONTINUATION};
         String[] campusCourseCreationOptions = new String[campusCourseCreationKeys.length];
 
         public CourseCreationChoiceController(final WindowControl wControl, final UserRequest ureq) {
