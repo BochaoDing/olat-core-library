@@ -101,7 +101,7 @@ public class CampusCourseCreatorTest extends OlatTestCase {
         assertEquals("Wrong initialAuthor in copy", ownerName, campusCourse.getRepositoryEntry().getInitialAuthor());
         assertEquals(TITLE, campusCourse.getRepositoryEntry().getDisplayname());
         assertEquals(DESCRIPTION, campusCourse.getRepositoryEntry().getDescription());
-        assertEquals(RepositoryEntry.ACC_USERS_GUESTS, campusCourse.getRepositoryEntry().getAccess());
+        assertEquals(RepositoryEntry.ACC_OWNERS, campusCourse.getRepositoryEntry().getAccess());
 
         assertNotNull(campusCourse.getCourse());
         assertEquals(TITLE, campusCourse.getCourse().getCourseTitle());

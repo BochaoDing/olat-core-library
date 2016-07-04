@@ -81,17 +81,12 @@ public class CampusCourseCreator {
         String lvLanguage = campusCourseConfiguration.getTemplateLanguage(campusCourseImportData.getLanguage());
         String description = campusCourseDescriptionBuilder.buildDescriptionFrom(campusCourseImportData, lvLanguage);
         cloneOfRepositoryEntry.setDescription(description);
-        if (isDefaultTemplateUsed) {
-            cloneOfRepositoryEntry.setAccess(RepositoryEntry.ACC_USERS_GUESTS);
-        }
-        repositoryService.update(cloneOfRepositoryEntry);
-
-        // 4. Set access permissions
-        cloneOfRepositoryEntry.setAccess(RepositoryEntry.ACC_OWNERS);
+        cloneOfRepositoryEntry.setAccess(RepositoryEntry.ACC_OWNERS); // Earlier, it was set to RepositoryEntry.ACC_USERS_GUESTS when isDefaultTemplateUsed = true
         cloneOfRepositoryEntry.setMembersOnly(true);
         cloneOfRepositoryEntry.setLastModified(new Date());
+        repositoryService.update(cloneOfRepositoryEntry);
 
-        // 5. Load copy of course
+        // 4. Load copy of course
         ICourse copyCourse = CourseFactory.loadCourse(cloneOfCourseOlatResourcable.getResourceableId());
 
         return new CampusCourse(copyCourse, cloneOfRepositoryEntry);
