@@ -34,16 +34,19 @@ public class CampusRepositoryEntryListControllerFormInnerEventListener extends R
 	private final CampusCourseService campusCourseService;
 	private final CampusCourseConfiguration campusCourseConfiguration;
 	private final CampusBeanFactory campusBeanFactory;
+	private final CampusCourseOlatHelper campusCourseOlatHelper;
 
 	@Autowired
 	public CampusRepositoryEntryListControllerFormInnerEventListener(
 			CampusCourseService campusCourseService,
 			CampusCourseConfiguration campusCourseConfiguration,
-			CampusBeanFactory campusBeanFactory
+			CampusBeanFactory campusBeanFactory,
+			CampusCourseOlatHelper campusCourseOlatHelper
 	) {
 		this.campusCourseService = campusCourseService;
 		this.campusCourseConfiguration = campusCourseConfiguration;
 		this.campusBeanFactory = campusBeanFactory;
+		this.campusCourseOlatHelper = campusCourseOlatHelper;
 	}
 
 	@Override
@@ -52,50 +55,42 @@ public class CampusRepositoryEntryListControllerFormInnerEventListener extends R
 		if (source instanceof FormLink) {
 			FormLink formLink = (FormLink) source;
 
+			RepositoryEntryRow row = (RepositoryEntryRow) formLink.getUserObject();
 			switch (formLink.getCmd()) {
 				case "create":
-					RepositoryEntryRow row = (RepositoryEntryRow) formLink.getUserObject();
 					/**
 					 * TODO sev26
 					 * Resourceable id + set language.
 					 */
 					//Long courseResourceableId = campusCourseConfiguration.getTemplateCourseResourcableId(null);
 					Long courseResourceableId = 93901584917897L;
-					Long sapCampusCourseId = row.getKey();
-					CampusCourse campusCourse = campusCourseService.createCampusCourseFromTemplate(courseResourceableId,
-							sapCampusCourseId, userRequest.getIdentity());
-
-					String businessPath = "[RepositoryEntry:" + campusCourse.getRepositoryEntry().getKey() + "]";
-					NewControllerFactory.getInstance().launch(businessPath, userRequest, windowControl);
-
-					/**
-					 * Inform the {@link AuthorListController} about the new list
-					 * entry.
-					 */
-					EventBus singleUserEventBus = userRequest.getUserSession().getSingleUserEventCenter();
-					singleUserEventBus.fireEventToListenersOf(
-							new AuthoringListChangeEvent(RESOURCEABLE_TYPE_NAME),
-							campusCourse.getRepositoryEntry().getOlatResource());
+					campusCourseOlatHelper.createCampusCourseFromResourcableId(userRequest, windowControl, row.getKey(), courseResourceableId);
 					break;
 				case "create_by_copying":
+				case "continue":
 					Translator translator = Util.createPackageTranslator(
 							CampusCourseCreationController.class,
 							userRequest.getLocale());
 
 					CampusCourseCreationController campusCourseCreationController = campusBeanFactory
-							.createCampusCourseCreationController("FooBar",
-									windowControl, userRequest);
+							.createCampusCourseCreationController("FooBar", windowControl, userRequest, formLink.getCmd(), row.getKey());
 					campusCourseCreationController.addControllerListener(parent);
 
-					{
-						CloseableModalController cmc = new CloseableModalController(
-								windowControl, translator.translate("close"),
-								campusCourseCreationController.getInitialComponent(),
-								true, translator.translate("campus.course.creation.title"));
-						cmc.addControllerListener(parent);
-						cmc.activate();
-					}
+					String titleKey = formLink.getCmd().equals("continue") ? "campus.course.continue.title" : "campus.course.creation.title";
+					CloseableModalController cmc = new CloseableModalController(
+							windowControl, translator.translate("close"),
+							campusCourseCreationController.getInitialComponent(),
+							true, translator.translate(titleKey));
+					cmc.addControllerListener(parent);
+					cmc.activate();
+
+					campusCourseCreationController.setCmc(cmc);
+
+					break;
+
 			}
 		}
 	}
+
+
 }

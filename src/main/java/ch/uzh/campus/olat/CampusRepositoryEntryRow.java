@@ -32,7 +32,7 @@ public class CampusRepositoryEntryRow extends RepositoryEntryRow {
 		createByCopying.setIconRightCSS("o_icon o_icon_create_by_copying");
 
 		createByContinuation = FormUIFactory.getInstance()
-				.addFormLink("create_by_continuation_" + this.getKey(), "create_by_continuation", "create_by_continuation", null, null, Link.LINK);
+				.addFormLink("create_by_continuation_" + this.getKey(), "continue", "continue", null, null, Link.LINK);
 		createByContinuation.setUserObject(this);
 		createByContinuation.setCustomEnabledLinkCSS("o_create_by_continuation btn-block");
 		createByContinuation.setIconRightCSS("o_icon o_icon_create_by_continuation");
@@ -46,6 +46,10 @@ public class CampusRepositoryEntryRow extends RepositoryEntryRow {
 		return createByCopying;
 	}
 
+	public FormLink getCreateByContinuation() {
+		return createByContinuation;
+	}
+
 	@Override
 	public Object getValueAt(int col) {
 		switch(col) {
@@ -53,6 +57,8 @@ public class CampusRepositoryEntryRow extends RepositoryEntryRow {
 				return getCreateLink();
 			case 3:
 				return getCreateByCopying();
+			case 4:
+				return getCreateByContinuation();
 		}
 		return null;
 	}

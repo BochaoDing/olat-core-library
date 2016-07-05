@@ -43,6 +43,9 @@ public class CampusBeanFactory {
 	@Autowired
 	private RepositoryManager repositoryManager;
 
+	@Autowired
+	private CampusCourseOlatHelper campusCourseOlatHelper;
+
 	@Bean(name={"row_1"})
 	@Scope(BeanDefinition.SCOPE_PROTOTYPE)
 	@Primary
@@ -73,13 +76,21 @@ public class CampusBeanFactory {
 	}
 
 	CampusCourseCreationController createCampusCourseCreationController(
-			String campuskursTitle, WindowControl windowControl,
-			UserRequest userRequest) {
-		return new CampusCourseCreationController(windowControl, userRequest,
+			String campuskursTitle,
+			WindowControl windowControl,
+			UserRequest userRequest,
+			String variation,
+			Long sapCampusCourseId
+	) {
+		return new CampusCourseCreationController(
+				windowControl,
+				userRequest,
+				variation,
+				sapCampusCourseId,
 				campuskursTitle,
 				campusCourseCoreService,
-				repositoryManager
-
+				repositoryManager,
+				campusCourseOlatHelper
 		);
 	}
 }

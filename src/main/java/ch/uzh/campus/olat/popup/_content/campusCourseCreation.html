@@ -1,13 +1,13 @@
 $r.contextHelpWithWrapper("CampusKurs#_course_creation")
 
-#if ($createByTemplate == false)
-	$r.translate("info.campus.course.creation.by.copying")
-	<p>
-		$r.render("tableController")
-	</p>
-<!--#else-->
-	<div style="float:right" class="b_clearfix b_button_group">
-		 $r.render("cancel")
-		 <!--$r.render("campus.course.creation.submit")-->
+$r.translate($infoKey)
+<p>
+	$r.render("tableController")
+</p>
+<div class="row">
+	<div class="col-md-12">
+		<div style="float:right" class="b_clearfix b_button_group">
+			$r.render("cancel")
+		</div>
 	</div>
-#end
+</div>

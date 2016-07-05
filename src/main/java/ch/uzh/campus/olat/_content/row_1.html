@@ -2,6 +2,7 @@
     <p>Campuskurs</p>
     $r.render($row.getCreateLink().getComponent().getComponentName())
     $r.render($row.getCreateByCopying().getComponent().getComponentName())
+    $r.render($row.getCreateByContinuation().getComponent().getComponentName())
 #else
     #parse("org/olat/repository/ui/list/_content/row_1.html")
 #end

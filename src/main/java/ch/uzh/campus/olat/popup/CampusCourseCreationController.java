@@ -21,6 +21,7 @@
 
 package ch.uzh.campus.olat.popup;
 
+import ch.uzh.campus.olat.CampusCourseOlatHelper;
 import ch.uzh.campus.service.core.CampusCourseCoreService;
 import org.apache.commons.lang.StringUtils;
 import org.olat.core.gui.UserRequest;
@@ -39,10 +40,10 @@ import org.olat.core.gui.control.Controller;
 import org.olat.core.gui.control.Event;
 import org.olat.core.gui.control.WindowControl;
 import org.olat.core.gui.control.controller.BasicController;
+import org.olat.core.gui.control.generic.closablewrapper.CloseableModalController;
 import org.olat.core.gui.control.generic.modal.DialogBoxController;
 import org.olat.core.gui.control.generic.modal.DialogBoxUIFactory;
 import org.olat.core.gui.translator.Translator;
-import org.olat.core.logging.AssertException;
 import org.olat.core.util.StringHelper;
 import org.olat.core.util.Util;
 import org.olat.repository.RepositoryEntry;
@@ -54,6 +55,9 @@ import org.olat.resource.OLATResourceManager;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.olat.admin.sysinfo.HibernateQueriesController.QueryCols.row;
+import static org.olat.core.gui.control.generic.closablewrapper.CloseableModalController.CLOSE_MODAL_EVENT;
+
 /**
  * Initial Date: 23.10.2012<br />
  *
@@ -61,19 +65,14 @@ import java.util.List;
  */
 public class CampusCourseCreationController extends BasicController {
 
-    public static final int COURSE_CREATION_BY_TEMPLATE = 0;
-    public static final int COURSE_CREATION_BY_COPYING = 1;
-    public static final int COURSE_CONTINUATION = 2;
+    public static final String COURSE_CREATION_BY_COPYING = "create_by_copying";
+    public static final String COURSE_CONTINUATION = "continue";
 
-    private static final String CREATION_SUBMIT = "campus.course.creation.submit";
-    private static final String CONTINUATION_SUBMIT = "campus.course.continuation.submit";
     private static final String CANCEL = "cancel";
 
     private static final int RESULTS_PER_PAGE = 5;
 
     private final VelocityContainer campusCourseVC;
-
-    private CourseCreationChoiceController courseCreationChoiceCtrl;
 
     private RepositoryTableModel creationTableModel, continuationTableModel;
 
@@ -83,36 +82,44 @@ public class CampusCourseCreationController extends BasicController {
 
     private DialogBoxController courseContinuationDialog;
 
-    private Link cancelButton, submitButton;
+    private Link cancelButton;
 
     private long selectedResouceableId;
 
-    private String campusCourseTitle;
+    private final Long sapCampusCourseId;
+    private final String campusCourseTitle;
 
     private final CampusCourseCoreService campusCourseCoreService;
     private final RepositoryManager repositoryManager;
+    private final CampusCourseOlatHelper campusCourseOlatHelper;
+
+    private CloseableModalController cmc;
+
+    public void setCmc(CloseableModalController cmc) {
+        this.cmc = cmc;
+    }
 
     public CampusCourseCreationController(WindowControl wControl,
                                           UserRequest ureq,
+                                          String variation,
+                                          Long sapCampusCourseId,
                                           String campusCourseTitle,
                                           CampusCourseCoreService campusCourseCoreService,
-                                          RepositoryManager repositoryManager
+                                          RepositoryManager repositoryManager,
+                                          CampusCourseOlatHelper campusCourseOlatHelper
     ) {
         super(ureq, wControl);
 
+        this.sapCampusCourseId = sapCampusCourseId;
+        this.campusCourseTitle = campusCourseTitle;
         this.campusCourseCoreService = campusCourseCoreService;
         this.repositoryManager = repositoryManager;
-
-        setCampusCourseTitle(campusCourseTitle);
+        this.campusCourseOlatHelper = campusCourseOlatHelper;
 
         this.campusCourseVC = this.createVelocityContainer("campusCourseCreation");
 
         Translator resourceTrans = Util.createPackageTranslator(
                 RepositoryTableModel.class, ureq.getLocale(), getTranslator());
-
-        // Create the CourseCreationChoiceController
-        courseCreationChoiceCtrl = new CourseCreationChoiceController(wControl, ureq);
-        listenTo(courseCreationChoiceCtrl);
 
         // Create the TableGuiConfiguration
         final TableGuiConfiguration tableConfig = new TableGuiConfiguration();
@@ -129,26 +136,24 @@ public class CampusCourseCreationController extends BasicController {
         continuationTableModel = new RepositoryTableModel(ureq.getLocale());
 
         // Create the TableController
-        creationTableCtrl = createTableCtrl(resourceTrans, tableConfig, ureq, CREATION_SUBMIT);
+        creationTableCtrl = createTableCtrl(resourceTrans, tableConfig, ureq);
         creationTableCtrl.setTableDataModel(creationTableModel);
 
-        continuationTableCtrl = createTableCtrl(resourceTrans, tableConfig, ureq, CONTINUATION_SUBMIT);
+        continuationTableCtrl = createTableCtrl(resourceTrans, tableConfig, ureq);
         continuationTableCtrl.setTableDataModel(continuationTableModel);
 
         // Create the submit and the cancel Buttons
         cancelButton = LinkFactory.createButton(CANCEL, campusCourseVC, this);
-//        submitButton = LinkFactory.createButton(CREATION_SUBMIT, campusCourseVC, this);
 
-        campusCourseVC.put("courseCreationChoice", courseCreationChoiceCtrl.getInitialComponent());
-
-        campusCourseVC.contextPut("createByTemplate", true);
+        campusCourseVC.contextPut("variation", variation);
+        campusCourseVC.contextPut("infoKey", variation.equals("continue") ? "info.campus.course.continue" : "info.campus.course.creation.by.copying");
 
         putInitialPanel(campusCourseVC);
 
-        update(COURSE_CREATION_BY_COPYING, ureq);
+        update(variation, ureq);
     }
 
-    private TableController createTableCtrl(Translator resourceTrans, TableGuiConfiguration tableConfig, UserRequest ureq, final String SUBMIT) {
+    private TableController createTableCtrl(Translator resourceTrans, TableGuiConfiguration tableConfig, UserRequest ureq) {
         TableController tableCtrl = new TableController(tableConfig, ureq, getWindowControl(), resourceTrans, true);
 
         tableCtrl.addColumnDescriptor(new DefaultColumnDescriptor("campus.course.table.header.displayname", RepositoryTableModel.RepoCols.displayname.ordinal(), RepositoryTableModel.TABLE_ACTION_SELECT_LINK, resourceTrans.getLocale()));
@@ -163,20 +168,12 @@ public class CampusCourseCreationController extends BasicController {
         return tableCtrl;
     }
 
-//    public int getCourseCreationSelected() {
-//        return courseCreationChoiceCtrl.campusCourseCreationRadioButtons.getSelected();
-//    }
-
     public long getSelectedResouceableId() {
         return selectedResouceableId;
     }
 
     public String getCampusCourseTitle() {
         return campusCourseTitle;
-    }
-
-    public void setCampusCourseTitle(String campusCourseTitle) {
-        this.campusCourseTitle = campusCourseTitle;
     }
 
     private void refreshCreationModel(List<RepositoryEntry> entries) {
@@ -189,8 +186,8 @@ public class CampusCourseCreationController extends BasicController {
         continuationTableCtrl.modelChanged(true);
     }
 
-    private void update(int courseCreationSelection, UserRequest ureq) {
-        switch (courseCreationSelection) {
+    private void update(String courseCreationVariation, UserRequest ureq) {
+        switch (courseCreationVariation) {
             case COURSE_CREATION_BY_COPYING:
                 campusCourseVC.remove(continuationTableCtrl.getInitialComponent());
                 refreshCreationModel(repositoryManager.queryByOwner(ureq.getIdentity(), "CourseModule"));
@@ -225,27 +222,26 @@ public class CampusCourseCreationController extends BasicController {
         showError(errorText);
     }
 
+    private void closeDialog(final UserRequest ureq) {
+        if (cmc != null) {
+            cmc.deactivate();
+        }
+    }
+
     @Override
     protected void event(final UserRequest ureq, final Component source, final Event event) {
         if (source == cancelButton) {
-            fireEvent(ureq, Event.CANCELLED_EVENT);
-        } else if (source == submitButton) {
-            fireEvent(ureq, Event.DONE_EVENT);
+            closeDialog(ureq);
         }
     }
 
     @Override
     protected void event(final UserRequest ureq, final Controller source, final Event event) {
-        if (source == courseCreationChoiceCtrl) {
-            update(courseCreationChoiceCtrl.campusCourseCreationRadioButtons.getSelected(), ureq);
-        } else if (source == courseContinuationDialog) {
+        if (source == courseContinuationDialog) {
             if (event.equals(Event.CANCELLED_EVENT)) {
-                // nothing to do
-            } else if (DialogBoxUIFactory.getButtonPos(event) == 0) {
-                fireEvent(ureq, Event.DONE_EVENT);
+                closeDialog(ureq);
             }
         } else if (source == creationTableCtrl || source == continuationTableCtrl) {
-
             if (event instanceof TableEvent) {
                 TableEvent te = (TableEvent)event;
                 int rowId = te.getRowId();
@@ -254,13 +250,13 @@ public class CampusCourseCreationController extends BasicController {
                     final OLATResource ores = OLATResourceManager.getInstance().findResourceable(selectedEntry.getOlatResource());
                     selectedResouceableId = ores.getResourceableId();
                     if (source == creationTableCtrl) {
-                        fireEvent(ureq, Event.DONE_EVENT);
+                        campusCourseOlatHelper.createCampusCourseFromResourcableId(ureq, getWindowControl(), sapCampusCourseId, selectedResouceableId);
+                        closeDialog(ureq);
                     } else if (source == continuationTableCtrl) {
                         openCourseContinuationDialog(ureq, selectedEntry.getDisplayname());
                     }
                 }
             }
-
         }
     }
 
@@ -276,52 +272,4 @@ public class CampusCourseCreationController extends BasicController {
     protected void doDispose() {
     }
 
-    class CourseCreationChoiceController extends FormBasicController {
-        SingleSelection campusCourseCreationRadioButtons;
-
-        static final String CC_CREATION_BY_TEMPLTE = "campus.course.creation.by.template";
-        static final String CC_CREATION_BY_COPYING = "campus.course.creation.by.copying";
-        static final String CC_CONTINUATION = "campus.course.continuation";
-
-        String[] campusCourseCreationKeys = new String[]{CC_CREATION_BY_TEMPLTE, CC_CREATION_BY_COPYING, CC_CONTINUATION};
-        String[] campusCourseCreationOptions = new String[campusCourseCreationKeys.length];
-
-        public CourseCreationChoiceController(final WindowControl wControl, final UserRequest ureq) {
-            super(ureq, wControl, LAYOUT_VERTICAL);
-            initForm(ureq);
-        }
-
-        @Override
-        protected void initForm(final FormItemContainer formLayout, final Controller listener, final UserRequest ureq) {
-            this.addSelections(formLayout);
-        }
-
-        private void addSelections(final FormItemContainer formLayout) {
-            for (int i = 0; i < campusCourseCreationKeys.length; i++) {
-                campusCourseCreationOptions[i] = translate(campusCourseCreationKeys[i]);
-            }
-            campusCourseCreationRadioButtons = uifactory.addRadiosVertical("campus.course.creation.radio", formLayout, campusCourseCreationKeys,
-                    campusCourseCreationOptions);
-            campusCourseCreationRadioButtons.select(campusCourseCreationKeys[0], true);
-// TODO sev26
-//            campusCourseCreationRadioButtons.addActionListener(this, FormEvent.ONCLICK);
-        }
-
-        public int getSelection() {
-            return campusCourseCreationRadioButtons.getSelected();
-        }
-
-        @Override
-        protected void doDispose() {
-        }
-
-        @Override
-        protected void formOK(UserRequest ureq) {
-        }
-
-        @Override
-        protected void formInnerEvent(final UserRequest ureq, final FormItem source, final FormEvent event) {
-            fireEvent(ureq, event);
-        }
-    }
 }
