@@ -154,11 +154,11 @@ public class CampusCourseCreationController extends BasicController {
     private TableController createTableCtrl(Translator resourceTrans, TableGuiConfiguration tableConfig, UserRequest ureq, final String SUBMIT) {
         TableController tableCtrl = new TableController(tableConfig, ureq, getWindowControl(), resourceTrans, true);
 
-//        tableCtrl.addColumnDescriptor(new DefaultColumnDescriptor("campus.course.table.header.displayname", 1, null, resourceTrans.getLocale()));
-        tableCtrl.addColumnDescriptor(new DefaultColumnDescriptor("table.header.author", 2, null, resourceTrans.getLocale()));
-        tableCtrl.addColumnDescriptor(false, new DefaultColumnDescriptor("campus.course.table.header.access", 3, null, resourceTrans.getLocale()));
-        tableCtrl.addColumnDescriptor(new DefaultColumnDescriptor("table.header.date", 4, null, resourceTrans.getLocale()));
-        tableCtrl.addColumnDescriptor(false, new DefaultColumnDescriptor("table.header.lastusage", 5, null, resourceTrans.getLocale()));
+        tableCtrl.addColumnDescriptor(new DefaultColumnDescriptor("campus.course.table.header.displayname", RepositoryTableModel.RepoCols.displayname.ordinal(), null, resourceTrans.getLocale()));
+        tableCtrl.addColumnDescriptor(new DefaultColumnDescriptor("table.header.author", RepositoryTableModel.RepoCols.author.ordinal(), null, resourceTrans.getLocale()));
+        tableCtrl.addColumnDescriptor(false, new DefaultColumnDescriptor("campus.course.table.header.access", RepositoryTableModel.RepoCols.access.ordinal(), null, resourceTrans.getLocale()));
+        tableCtrl.addColumnDescriptor(new DefaultColumnDescriptor("table.header.date", RepositoryTableModel.RepoCols.creationDate.ordinal(), null, resourceTrans.getLocale()));
+        tableCtrl.addColumnDescriptor(false, new DefaultColumnDescriptor("table.header.lastusage", RepositoryTableModel.RepoCols.lastUsage.ordinal(), null, resourceTrans.getLocale()));
 
         tableCtrl.setSortColumn(0, true);
 
