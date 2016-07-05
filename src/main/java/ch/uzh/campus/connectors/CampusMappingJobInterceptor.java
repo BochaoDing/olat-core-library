@@ -35,36 +35,34 @@ import java.util.List;
  * 
  * @author aabouc
  */
-public class CampusJobInterceptor implements JobExecutionListener {
+public class CampusMappingJobInterceptor implements JobExecutionListener {
+
+    private static final OLog LOG = Tracing.createLoggerFor(CampusMappingJobInterceptor.class);
+
+    private final CampusNotifier campusNotifier;
+    private final ImportStatisticDao importStatisticDao;
 
     @Autowired
-    private CampusNotifier campusNotifier;
-
-    @Autowired
-    private ImportStatisticDao importStatisticDao;
-
-	private static final OLog LOG = Tracing.createLoggerFor(CampusJobInterceptor.class);
-
-    @Override
-    public void afterJob(JobExecution je) {
-        LOG.info("afterJob " + je.getJobInstance().getJobName());
-        campusNotifier.notifyJobExecution(je);
+    public CampusMappingJobInterceptor(ImportStatisticDao importStatisticDao, CampusNotifier campusNotifier) {
+        this.importStatisticDao = importStatisticDao;
+        this.campusNotifier = campusNotifier;
     }
 
     @Override
-    public void beforeJob(JobExecution je) {
-        LOG.info("beforeJob " + je.getJobInstance().getJobName());
-        switch (je.getJobInstance().getJobName()) {
-//            case "importJob":
-//                break;
-            case "userMappingJob":
-                // Check if "importJob" has ran today
-                List<ImportStatistic> importStatsOfToday = importStatisticDao.getImportStatisticOfToday();
-                if (importStatsOfToday.size() == 0) {
-                    LOG.warn("Import procedure did not run today! Mapping does not make so much sense!");
-                    // TODO OLATng: is there a way to stop execution of a job? should we stop it now?
-                }
-                break;
+    public void afterJob(JobExecution jobExecution) {
+        LOG.info("afterJob " + jobExecution.getJobInstance().getJobName());
+        campusNotifier.notifyJobExecution(jobExecution);
+    }
+
+    @Override
+    public void beforeJob(JobExecution jobExecution) {
+        LOG.info("beforeJob " + jobExecution.getJobInstance().getJobName());
+        // Check if "importJob" has ran today
+        List<ImportStatistic> importStatsOfToday = importStatisticDao.getImportStatisticOfToday();
+        if (importStatsOfToday.size() == 0) {
+            LOG.warn("Import procedure did not run today! Mapping does not make so much sense!");
+            // TODO OLATng: is there a way to stop execution of a job? should we stop it now?
+            jobExecution.setStatus(BatchStatus.STOPPED);
         }
     }
 

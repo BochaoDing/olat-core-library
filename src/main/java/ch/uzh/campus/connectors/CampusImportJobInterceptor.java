@@ -3,6 +3,7 @@ package ch.uzh.campus.connectors;
 import ch.uzh.campus.data.DaoManager;
 import ch.uzh.campus.data.LecturerIdCourseId;
 import ch.uzh.campus.data.StudentIdCourseId;
+import ch.uzh.campus.metric.CampusNotifier;
 import org.olat.core.commons.persistence.DB;
 import org.olat.core.logging.OLog;
 import org.olat.core.logging.Tracing;
@@ -29,20 +30,25 @@ public class CampusImportJobInterceptor implements JobExecutionListener {
 
     private final DB dbInstance;
 	private final DaoManager daoManager;
+	private final CampusNotifier campusNotifier;
 
 	@Autowired
-	public CampusImportJobInterceptor(DB dbInstance, DaoManager daoManager) {
+	public CampusImportJobInterceptor(DB dbInstance, DaoManager daoManager, CampusNotifier campusNotifier) {
 		this.dbInstance = dbInstance;
 		this.daoManager = daoManager;
+		this.campusNotifier = campusNotifier;
 	}
 
 	@Override
 	public void beforeJob(JobExecution jobExecution) {
+		LOG.info("beforeJob " + jobExecution.getJobInstance().getJobName());
 	}
 
 	@Override
 	public void afterJob(JobExecution jobExecution) {
+		LOG.info("afterJob " + jobExecution.getJobInstance().getJobName());
 		removeOldDataIfExist(jobExecution);
+		campusNotifier.notifyJobExecution(jobExecution);
 	}
 
 	/**

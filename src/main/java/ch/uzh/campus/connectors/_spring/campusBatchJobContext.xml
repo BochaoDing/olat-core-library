@@ -15,7 +15,6 @@
 	<batch:job id="importJob" >
 		<batch:listeners>
             <batch:listener ref="campusImportJobInterceptor" />
-			<batch:listener ref="campusJobInterceptor" />
 		</batch:listeners>
 		<batch:step id="import_controlFile" parent="campusStep" >
 			<batch:tasklet>
@@ -100,7 +99,7 @@
 	<!-- ======================================================================================= -->
 	<batch:job id="userMappingJob">
 		<batch:listeners>
-			<batch:listener ref="campusJobInterceptor" />
+			<batch:listener ref="campusMappingJobInterceptor" />
 		</batch:listeners>
 
 		<batch:split id="userMapping" task-executor="splitTaskExecutor">
@@ -483,7 +482,7 @@
 
     <bean id="campusImportJobInterceptor" class="ch.uzh.campus.connectors.CampusImportJobInterceptor" scope="singleton"/>
 
-	<bean id="campusJobInterceptor" class="ch.uzh.campus.connectors.CampusJobInterceptor" scope="prototype"/>
+	<bean id="campusMappingJobInterceptor" class="ch.uzh.campus.connectors.CampusMappingJobInterceptor" scope="prototype"/>
 	
 	<bean id="statisticDao" class="ch.uzh.campus.data.ImportStatisticDao"/>
 
