@@ -17,7 +17,7 @@ import java.util.Set;
  */
 @Entity
 @NamedQueries({
-        @NamedQuery(name = Course.GET_ALL_CREATED_COURSES, query = "select c from Course c  where c.resourceableId is not null and c.shortSemester = (select max(c2.shortSemester) from Course c2)"),
+        @NamedQuery(name = Course.GET_ALL_CREATED_COURSES, query = "select c from Course c where c.resourceableId is not null and c.shortSemester = (select max(c2.shortSemester) from Course c2)"),
         @NamedQuery(name = Course.GET_IDS_OF_ALL_CREATED_COURSES, query = "select c.id from Course c where c.resourceableId is not null and c.synchronizable = true and c.shortSemester = (select max(c2.shortSemester) from Course c2)"),
         @NamedQuery(name = Course.GET_RESOURCEABLEIDS_OF_ALL_CREATED_COURSES, query = "select c.resourceableId from Course c where c.resourceableId is not null and c.shortSemester = (select max(c2.shortSemester) from Course c2)"),
         @NamedQuery(name = Course.GET_IDS_OF_ALL_NOT_CREATED_COURSES, query = "select c.id from Course c where c.resourceableId is null and c.enabled = '1' and c.shortSemester = (select max(c2.shortSemester) from Course c2)"),
@@ -53,7 +53,7 @@ import java.util.Set;
                 "or exists (select c3 from Course c3 join c3.parentCourse.parentCourse.lecturerCourses lc3 where c3.id = c.id and lc3.lecturer.personalNr = :lecturerId) " +
                 "or exists (select c4 from Course c4 join c4.parentCourse.parentCourse.parentCourse.lecturerCourses lc4 where c4.id = c.id and lc4.lecturer.personalNr = :lecturerId)) " +
                 "and c.enabled = '1' and c.shortSemester = (select max(c5.shortSemester) from Course c5) "),
-        @NamedQuery(name = Course.GET_ALL_NOT_UPDATED_COURSES, query = "select c.id from Course c where c.resourceableId is null and c.modifiedDate < :lastImportDate"),
+        @NamedQuery(name = Course.GET_ALL_NOT_CREATED_ORPHANED_COURSES, query = "select c.id from Course c where c.resourceableId is null and c.id not in (select lc.course.id from LecturerCourse lc) and c.id not in (select sc.course.id from StudentCourse sc)"),
         @NamedQuery(name = Course.GET_COURSE_IDS_BY_RESOURCEABLE_ID, query = "select c.id from Course c where c.resourceableId = :resourceableId"),
         @NamedQuery(name = Course.GET_COURSE_BY_RESOURCEABLE_ID, query = "select c from Course c where c.resourceableId = :resourceableId"),
 
@@ -109,21 +109,29 @@ public class Course {
     @Column(name = "enabled", nullable = false)
     private String enabled = "0";
 
+    // Disable import and synchronization
+    // Used in OLAT 7.x for a continued campus course (for the new course). May still be used in OLAT 10.x if the
+    // lecturer/student tables of the campus course from the former semester is not available any more
     @Column(name = "synchronizable", nullable = false)
     private boolean synchronizable = true;
 
+    // Attribute of courses CSV file used to decide if a course should be set as enabled when reading the courses; not saved in DB
     @Transient
     private Long org1;
 
+    // see comment of org1
     @Transient
     private Long org2;
 
+    // see comment of org1
     @Transient
     private Long org3;
 
+    // see comment of org1
     @Transient
     private Long org4;
 
+    // see comment of org1
     @Transient
     private Long org5;
 
@@ -158,7 +166,7 @@ public class Course {
     static final String GET_NOT_CREATED_COURSES_BY_LECTURER_ID = "getNotCreatedCoursesByLecturerId";
     static final String GET_CREATED_COURSES_BY_STUDENT_ID = "getCreatedCoursesByStudentId";
     static final String GET_NOT_CREATED_COURSES_BY_STUDENT_ID = "getNotCreatedCoursesByStudentId";
-    static final String GET_ALL_NOT_UPDATED_COURSES = "getAllNotUpdatedCourses";
+    static final String GET_ALL_NOT_CREATED_ORPHANED_COURSES = "getAllNotCreatedOrphanedCourses";
     static final String GET_COURSE_IDS_BY_RESOURCEABLE_ID = "getCourseIdsByResourceableId";
     static final String GET_PILOT_COURSES_BY_LECTURER_ID = "getPilotCoursesByLecturerId";
     static final String GET_PILOT_COURSES_BY_STUDENT_ID = "getPilotCoursesByStudentId";

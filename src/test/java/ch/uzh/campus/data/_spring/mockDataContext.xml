@@ -22,8 +22,8 @@
         <property name="textCourseIds" ref="textCourseIds" />
         <property name="eventCourseIds" ref="eventCourseIds" />
         <property name="importStatistics" ref="importStatistics" />
-        <property name="studentIdCourseIds" ref="studentIdCourseIds" />
-        <property name="lecturerIdCourseIds" ref="lecturerIdCourseIds"/>
+        <property name="studentIdCourseIdModifiedDates" ref="studentIdCourseIdModifiedDates" />
+        <property name="lecturerIdCourseIdModifiedDates" ref="lecturerIdCourseIdModifiedDates"/>
     </bean>
 
     <!-- ======================================================================================= -->
@@ -79,29 +79,29 @@
     <!-- ======================================================================================= -->
     <!-- ===============StudentIdCourseIds================= -->
     <!-- ======================================================================================= -->
-    <util:list id = 'studentIdCourseIds' scope="prototype" >
-        <bean class="ch.uzh.campus.data.StudentIdCourseId" p:studentId="2100" p:courseId="100" p:modifiedDate="10.10.2014 10:10" scope="prototype" />
-        <bean class="ch.uzh.campus.data.StudentIdCourseId" p:studentId="2200" p:courseId="100" p:modifiedDate="10.10.2014 10:10" scope="prototype" />
-        <bean class="ch.uzh.campus.data.StudentIdCourseId" p:studentId="2100" p:courseId="200" p:modifiedDate="10.10.2014 10:10" scope="prototype" />
-        <bean class="ch.uzh.campus.data.StudentIdCourseId" p:studentId="2200" p:courseId="200" p:modifiedDate="10.10.2014 10:10" scope="prototype" />
-        <bean class="ch.uzh.campus.data.StudentIdCourseId" p:studentId="2100" p:courseId="300" p:modifiedDate="10.10.2014 10:10" scope="prototype" />
-        <bean class="ch.uzh.campus.data.StudentIdCourseId" p:studentId="2400" p:courseId="400" p:modifiedDate="10.10.2014 10:10" scope="prototype" />
-        <bean class="ch.uzh.campus.data.StudentIdCourseId" p:studentId="2500" p:courseId="500" p:modifiedDate="10.10.2014 10:10" scope="prototype" />
-        <bean class="ch.uzh.campus.data.StudentIdCourseId" p:studentId="2600" p:courseId="600" p:modifiedDate="10.10.2014 10:10" scope="prototype" />
+    <util:list id = 'studentIdCourseIdModifiedDates' scope="prototype" >
+        <bean class="ch.uzh.campus.data.StudentIdCourseIdModifiedDate" p:studentId="2100" p:courseId="100" p:modifiedDate="10.10.2014 10:10" scope="prototype" />
+        <bean class="ch.uzh.campus.data.StudentIdCourseIdModifiedDate" p:studentId="2200" p:courseId="100" p:modifiedDate="10.10.2014 10:10" scope="prototype" />
+        <bean class="ch.uzh.campus.data.StudentIdCourseIdModifiedDate" p:studentId="2100" p:courseId="200" p:modifiedDate="10.10.2014 10:10" scope="prototype" />
+        <bean class="ch.uzh.campus.data.StudentIdCourseIdModifiedDate" p:studentId="2200" p:courseId="200" p:modifiedDate="10.10.2014 10:10" scope="prototype" />
+        <bean class="ch.uzh.campus.data.StudentIdCourseIdModifiedDate" p:studentId="2100" p:courseId="300" p:modifiedDate="10.10.2014 10:10" scope="prototype" />
+        <bean class="ch.uzh.campus.data.StudentIdCourseIdModifiedDate" p:studentId="2400" p:courseId="400" p:modifiedDate="10.10.2014 10:10" scope="prototype" />
+        <bean class="ch.uzh.campus.data.StudentIdCourseIdModifiedDate" p:studentId="2500" p:courseId="500" p:modifiedDate="10.10.2014 10:10" scope="prototype" />
+        <bean class="ch.uzh.campus.data.StudentIdCourseIdModifiedDate" p:studentId="2600" p:courseId="600" p:modifiedDate="10.10.2014 10:10" scope="prototype" />
     </util:list>
       
 
     <!-- ======================================================================================= -->
     <!-- ===============LecturerIdCourseIds================= -->
     <!-- ======================================================================================= -->
-    <util:list id="lecturerIdCourseIds" scope="prototype" >
-        <bean id="lecturerIdCourseId1" class="ch.uzh.campus.data.LecturerIdCourseId" p:courseId="100" p:lecturerId="1100" p:modifiedDate="10.10.2014 10:10" scope="prototype" />
-        <bean id="lecturerIdCourseId2" class="ch.uzh.campus.data.LecturerIdCourseId" p:courseId="200" p:lecturerId="1100" p:modifiedDate="10.10.2014 10:10" scope="prototype" />
-        <bean id="lecturerIdCourseId3" class="ch.uzh.campus.data.LecturerIdCourseId" p:courseId="200" p:lecturerId="1200" p:modifiedDate="10.10.2014 10:10" scope="prototype" />
-        <bean id="lecturerIdCourseId4" class="ch.uzh.campus.data.LecturerIdCourseId" p:courseId="300" p:lecturerId="1300" p:modifiedDate="10.10.2014 10:10" scope="prototype" />
-        <bean id="lecturerIdCourseId5" class="ch.uzh.campus.data.LecturerIdCourseId" p:courseId="400" p:lecturerId="1400" p:modifiedDate="10.10.2014 10:10" scope="prototype" />
-        <bean id="lecturerIdCourseId6" class="ch.uzh.campus.data.LecturerIdCourseId" p:courseId="500" p:lecturerId="1500" p:modifiedDate="10.10.2014 10:10" scope="prototype" />
-        <bean id="lecturerIdCourseId7" class="ch.uzh.campus.data.LecturerIdCourseId" p:courseId="600" p:lecturerId="1600" p:modifiedDate="10.10.2014 10:10" scope="prototype" />
+    <util:list id="lecturerIdCourseIdModifiedDates" scope="prototype" >
+        <bean id="lecturerIdCourseId1" class="ch.uzh.campus.data.LecturerIdCourseIdModifiedDate" p:courseId="100" p:lecturerId="1100" p:modifiedDate="10.10.2014 10:10" scope="prototype" />
+        <bean id="lecturerIdCourseId2" class="ch.uzh.campus.data.LecturerIdCourseIdModifiedDate" p:courseId="200" p:lecturerId="1100" p:modifiedDate="10.10.2014 10:10" scope="prototype" />
+        <bean id="lecturerIdCourseId3" class="ch.uzh.campus.data.LecturerIdCourseIdModifiedDate" p:courseId="200" p:lecturerId="1200" p:modifiedDate="10.10.2014 10:10" scope="prototype" />
+        <bean id="lecturerIdCourseId4" class="ch.uzh.campus.data.LecturerIdCourseIdModifiedDate" p:courseId="300" p:lecturerId="1300" p:modifiedDate="10.10.2014 10:10" scope="prototype" />
+        <bean id="lecturerIdCourseId5" class="ch.uzh.campus.data.LecturerIdCourseIdModifiedDate" p:courseId="400" p:lecturerId="1400" p:modifiedDate="10.10.2014 10:10" scope="prototype" />
+        <bean id="lecturerIdCourseId6" class="ch.uzh.campus.data.LecturerIdCourseIdModifiedDate" p:courseId="500" p:lecturerId="1500" p:modifiedDate="10.10.2014 10:10" scope="prototype" />
+        <bean id="lecturerIdCourseId7" class="ch.uzh.campus.data.LecturerIdCourseIdModifiedDate" p:courseId="600" p:lecturerId="1600" p:modifiedDate="10.10.2014 10:10" scope="prototype" />
     </util:list>
 
     <!-- ======================================================================================= -->

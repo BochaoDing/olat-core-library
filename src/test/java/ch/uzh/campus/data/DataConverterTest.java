@@ -116,11 +116,11 @@ public class DataConverterTest extends OlatTestCase {
 	private Course getCourseWithStudents() {
 		Course course = dataGenerator.getCourses().get(0);
 		
-        List<StudentIdCourseId> studentIdCourseIds = dataGenerator.getStudentIdCourseIds();
+        List<StudentIdCourseIdModifiedDate> studentIdCourseIdModifiedDates = dataGenerator.getStudentIdCourseIdModifiedDates();
         List<Long> studentIds = new ArrayList<>();
-        for (StudentIdCourseId studentIdCourseId : studentIdCourseIds ) {
-        	if (course.getId().equals(studentIdCourseId.getCourseId())) {
-        		studentIds.add(studentIdCourseId.getStudentId());
+        for (StudentIdCourseIdModifiedDate studentIdCourseIdModifiedDate : studentIdCourseIdModifiedDates) {
+        	if (course.getId().equals(studentIdCourseIdModifiedDate.getCourseId())) {
+        		studentIds.add(studentIdCourseIdModifiedDate.getStudentId());
         	}
         }
         List<Student> students = dataGenerator.getStudents();
@@ -138,11 +138,11 @@ public class DataConverterTest extends OlatTestCase {
 	private Course getCourseWithLecturers() {
 		Course course = dataGenerator.getCourses().get(0);
 		
-        List<LecturerIdCourseId> lecturerIdCourseIds = dataGenerator.getLecturerIdCourseIds();
+        List<LecturerIdCourseIdModifiedDate> lecturerIdCourseIdModifiedDates = dataGenerator.getLecturerIdCourseIdModifiedDates();
         List<Long> lecturerIds = new ArrayList<>();
-        for (LecturerIdCourseId lecturerIdCourseId : lecturerIdCourseIds ) {
-        	if (course.getId().equals(lecturerIdCourseId.getCourseId())) {
-        		lecturerIds.add(lecturerIdCourseId.getLecturerId());
+        for (LecturerIdCourseIdModifiedDate lecturerIdCourseIdModifiedDate : lecturerIdCourseIdModifiedDates) {
+        	if (course.getId().equals(lecturerIdCourseIdModifiedDate.getCourseId())) {
+        		lecturerIds.add(lecturerIdCourseIdModifiedDate.getLecturerId());
         	}
         }
         List<Lecturer> lecturers = dataGenerator.getLecturers();

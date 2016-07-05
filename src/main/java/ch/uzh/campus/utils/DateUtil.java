@@ -163,6 +163,34 @@ public class DateUtil {
         return calendar.getTime();
     }
 
+    /**
+     * Add or subtract hours from a date.
+     *
+     * @param date will not be modified
+     * @param numberOfHours to be added / subtracted
+     * @return modified date
+     */
+    public static Date addHoursToDate (Date date, int numberOfHours) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(date);
+        calendar.add(Calendar.HOUR, numberOfHours);
+        return calendar.getTime();
+    }
+
+    /**
+     * Add or subtract years from a date.
+     *
+     * @param date will not be modified
+     * @param numberOfYears to be added / subtracted
+     * @return modified date
+     */
+    public static Date addYearsToDate (Date date, int numberOfYears) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(date);
+        calendar.add(Calendar.YEAR, numberOfYears);
+        return calendar.getTime();
+    }
+
     public static Date parseDateFromTimestamp(String timestampAsString) throws ParseException {
         String timestampStringWithoutNanos = timestampAsString.substring(0, 23) + timestampAsString.substring(29);
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS Z");

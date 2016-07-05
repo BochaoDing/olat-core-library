@@ -58,7 +58,7 @@ public class DataConverter {
 
     public List<Identity> convertStudentsToIdentities(Set<StudentCourse> studentCourses) {
         List<Identity> identitiesOfParticipant = new ArrayList<>();
-        SapOlatUser sapOlatUser = null;
+        SapOlatUser sapOlatUser;
         for (StudentCourse studentCourse : studentCourses) {
             sapOlatUser = sapOlatUserDao.getSapOlatUserBySapUserId(studentCourse.getStudent().getId());
             if (sapOlatUser == null) {
@@ -74,7 +74,7 @@ public class DataConverter {
 
     public List<Identity> convertLecturersToIdentities(Set<LecturerCourse> lecturerCourses) {
         List<Identity> identitiesOfLecturers = new ArrayList<>();
-        SapOlatUser sapOlatUser = null;
+        SapOlatUser sapOlatUser;
         for (LecturerCourse lecturerCourse : lecturerCourses) {
             sapOlatUser = sapOlatUserDao.getSapOlatUserBySapUserId(lecturerCourse.getLecturer().getPersonalNr());
             if (sapOlatUser == null) {
@@ -97,8 +97,8 @@ public class DataConverter {
     }
 
     public List<Identity> convertDelegateesToIdentities(Set<LecturerCourse> lecturerCourses) {
-        List<Identity> identitiesOfLecturers = new ArrayList<>();
-        SapOlatUser sapOlatUser = null;
+        List<Identity> identitiesOfDelegatees = new ArrayList<>();
+        SapOlatUser sapOlatUser;
         for (LecturerCourse lecturerCourse : lecturerCourses) {
             sapOlatUser = sapOlatUserDao.getSapOlatUserBySapUserId(lecturerCourse.getLecturer().getPersonalNr());
             if (sapOlatUser == null) {
@@ -108,11 +108,11 @@ public class DataConverter {
             for (Delegation delegation : delegations) {
                 Identity delegatee = findIdentity(delegation.getDelegatee());
                 if (delegatee != null) {
-                    identitiesOfLecturers.add(delegatee);
+                    identitiesOfDelegatees.add(delegatee);
                 }
             }
         }
-        return identitiesOfLecturers;
+        return identitiesOfDelegatees;
     }
 
     public List getDelegatees(Identity delegator) {

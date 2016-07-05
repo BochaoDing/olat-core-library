@@ -8,7 +8,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 
 import javax.inject.Provider;
-import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -71,20 +70,30 @@ public class LecturerDaoTest extends OlatTestCase {
     }
 
     @Test
-    public void testGetAllNotUpdatedLecturers_foundSevenLecturers() {
-        int numberOfLecturersFoundBeforeInsertingTestData = lecturerDao.getAllNotUpdatedLecturers(new Date()).size();
+    public void testGetAllOrphanedLecturers() throws InterruptedException {
+        int numberOfLecturersFoundBeforeInsertingTestData = lecturerDao.getAllOrphanedLecturers().size();
         insertTestData();
-        assertEquals(numberOfLecturersFoundBeforeInsertingTestData + 7, lecturerDao.getAllNotUpdatedLecturers(new Date()).size());
-    }
 
-    @Test
-    public void testGetAllNotUpdatedLecturers_foundSixLecturers() throws InterruptedException {
-        Date now = new Date();
-        int numberOfLecturersFoundBeforeInsertingTestData = lecturerDao.getAllNotUpdatedLecturers(now).size();
-        insertTestData();
-        lecturers.get(0).setModifiedDate(now);
+        // Lecturer 1700 has no courses. i.e. it is orphaned
+        Lecturer lecturer = lecturerDao.getLecturerById(1700L);
+        assertEquals(0, lecturer.getLecturerCourses().size());
+
+        assertEquals(numberOfLecturersFoundBeforeInsertingTestData + 1, lecturerDao.getAllOrphanedLecturers().size());
+
+        lecturer = lecturerDao.getLecturerById(1100L);
+        assertEquals(2, lecturer.getLecturerCourses().size());
+
+        // Remove all courses of lecturers, i.e. make it orphaned
+        List<LecturerIdCourseId> lecturerIdCourseIds = new LinkedList<>();
+        lecturerIdCourseIds.add(new LecturerIdCourseId(1100L, 100L));
+        lecturerIdCourseIds.add(new LecturerIdCourseId(1100L, 200L));
+
+        lecturerCourseDao.deleteByLecturerIdCourseIdsAsBulkDelete(lecturerIdCourseIds);
         dbInstance.flush();
-        assertEquals(numberOfLecturersFoundBeforeInsertingTestData + 6, lecturerDao.getAllNotUpdatedLecturers(now).size());
+
+        List<Long> lecturerIdsFound = lecturerDao.getAllOrphanedLecturers();
+        assertEquals(numberOfLecturersFoundBeforeInsertingTestData + 2, lecturerIdsFound.size());
+        assertTrue(lecturerIdsFound.contains(1100L));
     }
 
     @Test
@@ -184,8 +193,8 @@ public class LecturerDaoTest extends OlatTestCase {
         dbInstance.flush();
 
         // Insert some lecturerIdCourseIds
-        List<LecturerIdCourseId> lecturerIdCourseIds = mockDataGeneratorProvider.get().getLecturerIdCourseIds();
-        lecturerCourseDao.save(lecturerIdCourseIds);
+        List<LecturerIdCourseIdModifiedDate> lecturerIdCourseIdModifiedDates = mockDataGeneratorProvider.get().getLecturerIdCourseIdModifiedDates();
+        lecturerCourseDao.save(lecturerIdCourseIdModifiedDates);
         dbInstance.flush();
     }
 }

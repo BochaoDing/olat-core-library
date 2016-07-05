@@ -1,5 +1,6 @@
 package ch.uzh.campus.data;
 
+import ch.uzh.campus.CampusCourseConfiguration;
 import ch.uzh.campus.utils.DateUtil;
 import org.olat.core.commons.persistence.DB;
 import org.olat.core.logging.OLog;
@@ -16,7 +17,7 @@ import java.util.List;
  * @author Martin Schraner
  */
 @Repository
-public class LecturerCourseDao implements CampusDao<LecturerIdCourseId> {
+public class LecturerCourseDao implements CampusDao<LecturerIdCourseIdModifiedDate> {
 
     private static final OLog LOG = Tracing.createLoggerFor(LecturerCourseDao.class);
 
@@ -32,22 +33,22 @@ public class LecturerCourseDao implements CampusDao<LecturerIdCourseId> {
         lecturerCourse.getCourse().getLecturerCourses().add(lecturerCourse);
     }
 
-    public void save(LecturerIdCourseId lecturerIdCourseId) {
+    public void save(LecturerIdCourseIdModifiedDate lecturerIdCourseIdModifiedDate) {
         EntityManager em = dbInstance.getCurrentEntityManager();
-        Lecturer lecturer = em.find(Lecturer.class, lecturerIdCourseId.getLecturerId());
-        Course course = em.find(Course.class, lecturerIdCourseId.getCourseId());
+        Lecturer lecturer = em.find(Lecturer.class, lecturerIdCourseIdModifiedDate.getLecturerId());
+        Course course = em.find(Course.class, lecturerIdCourseIdModifiedDate.getCourseId());
         if (lecturer == null || course == null) {
-            logLecturerCourseNotFoundAndThrowException(lecturerIdCourseId, lecturer, course);
+            logLecturerCourseNotFoundAndThrowException(lecturerIdCourseIdModifiedDate, lecturer, course);
             return;
         }
-        LecturerCourse lecturerCourse = new LecturerCourse(lecturer, course, lecturerIdCourseId.getModifiedDate());
+        LecturerCourse lecturerCourse = new LecturerCourse(lecturer, course, lecturerIdCourseIdModifiedDate.getModifiedDate());
         save(lecturerCourse);
     }
 
     @Override
-    public void save(List<LecturerIdCourseId> lecturerIdCourseIds) {
-        for (LecturerIdCourseId lecturerIdCourseId : lecturerIdCourseIds) {
-            save(lecturerIdCourseId);
+    public void save(List<LecturerIdCourseIdModifiedDate> lecturerIdCourseIdModifiedDates) {
+        for (LecturerIdCourseIdModifiedDate lecturerIdCourseIdModifiedDate : lecturerIdCourseIdModifiedDates) {
+            save(lecturerIdCourseIdModifiedDate);
         }
     }
 
@@ -57,34 +58,34 @@ public class LecturerCourseDao implements CampusDao<LecturerIdCourseId> {
         lecturerCourse.getCourse().getLecturerCourses().add(lecturerCourse);
     }
 
-    public void saveOrUpdate(LecturerIdCourseId lecturerIdCourseId) {
+    public void saveOrUpdate(LecturerIdCourseIdModifiedDate lecturerIdCourseIdModifiedDate) {
         EntityManager em = dbInstance.getCurrentEntityManager();
-        Lecturer lecturer = em.find(Lecturer.class, lecturerIdCourseId.getLecturerId());
-        Course course = em.find(Course.class, lecturerIdCourseId.getCourseId());
+        Lecturer lecturer = em.find(Lecturer.class, lecturerIdCourseIdModifiedDate.getLecturerId());
+        Course course = em.find(Course.class, lecturerIdCourseIdModifiedDate.getCourseId());
         if (lecturer == null || course == null) {
-            logLecturerCourseNotFoundAndThrowException(lecturerIdCourseId, lecturer, course);
+            logLecturerCourseNotFoundAndThrowException(lecturerIdCourseIdModifiedDate, lecturer, course);
             return;
         }
-        LecturerCourse lecturerCourse = new LecturerCourse(lecturer, course, lecturerIdCourseId.getModifiedDate());
+        LecturerCourse lecturerCourse = new LecturerCourse(lecturer, course, lecturerIdCourseIdModifiedDate.getModifiedDate());
         saveOrUpdate(lecturerCourse);
     }
 
     @Override
-    public void saveOrUpdate(List<LecturerIdCourseId> lecturerIdCourseIds) {
-        for (LecturerIdCourseId lecturerIdCourseId : lecturerIdCourseIds) {
-            saveOrUpdate(lecturerIdCourseId);
+    public void saveOrUpdate(List<LecturerIdCourseIdModifiedDate> lecturerIdCourseIdModifiedDates) {
+        for (LecturerIdCourseIdModifiedDate lecturerIdCourseIdModifiedDate : lecturerIdCourseIdModifiedDates) {
+            saveOrUpdate(lecturerIdCourseIdModifiedDate);
         }
     }
 
-    private void logLecturerCourseNotFoundAndThrowException(LecturerIdCourseId lecturerIdCourseId, Lecturer lecturer, Course course) {
+    private void logLecturerCourseNotFoundAndThrowException(LecturerIdCourseIdModifiedDate lecturerIdCourseIdModifiedDate, Lecturer lecturer, Course course) {
         String warningMessage = "";
         if (lecturer == null) {
-            warningMessage = "No lecturer found with id " + lecturerIdCourseId.getLecturerId();
+            warningMessage = "No lecturer found with id " + lecturerIdCourseIdModifiedDate.getLecturerId();
         }
         if (course == null) {
-            warningMessage = "No course found with id " + lecturerIdCourseId.getCourseId();
+            warningMessage = "No course found with id " + lecturerIdCourseIdModifiedDate.getCourseId();
         }
-        warningMessage = warningMessage + ". Skipping entry " + lecturerIdCourseId.getLecturerId() + ", " + lecturerIdCourseId.getCourseId() + " for table ck_lecturer_course.";
+        warningMessage = warningMessage + ". Skipping entry " + lecturerIdCourseIdModifiedDate.getLecturerId() + ", " + lecturerIdCourseIdModifiedDate.getCourseId() + " for table ck_lecturer_course.";
         LOG.warn(warningMessage);
         throw new EntityNotFoundException(warningMessage);
     }
@@ -93,30 +94,25 @@ public class LecturerCourseDao implements CampusDao<LecturerIdCourseId> {
         return dbInstance.getCurrentEntityManager().find(LecturerCourse.class, new LecturerCourseId(lecturerId, courseId));
     }
 
-    public void delete(LecturerCourse lecturerCourse) {
-        deleteLecturerCourseBidirectionally(lecturerCourse);
-    }
-
-    public int deleteAllNotUpdatedLCBooking(Date date) {
-        // Subtract one second from date since modifiedDate (used in query) is rounded to seconds
-        List<LecturerCourse> lecturerCoursesToBeDeleted = dbInstance.getCurrentEntityManager()
-                .createNamedQuery(LecturerCourse.GET_ALL_NOT_UPDATED_LC_BOOKING, LecturerCourse.class)
+    public List<LecturerIdCourseId> getAllNotUpdatedLCBookingOfCurrentSemester(Date date) {
+        // Subtract one second since modifiedDate (used in query) is rounded to seconds
+        return dbInstance.getCurrentEntityManager()
+                .createNamedQuery(LecturerCourse.GET_ALL_NOT_UPDATED_LC_BOOKING_OF_CURRENT_SEMESTER, LecturerIdCourseId.class)
                 .setParameter("lastImportDate", DateUtil.addSecondsToDate(date, -1))
                 .getResultList();
-        for (LecturerCourse lecturerCourse : lecturerCoursesToBeDeleted) {
-            deleteLecturerCourseBidirectionally(lecturerCourse);
-        }
-        return lecturerCoursesToBeDeleted.size();
+    }
+
+    public void delete(LecturerCourse lecturerCourse) {
+        deleteLecturerCourseBidirectionally(lecturerCourse);
     }
 
     /**
      * Bulk delete for efficient deletion of a big number of entries. Does not update persistence context!
      */
-    public int deleteAllNotUpdatedLCBookingAsBulkDelete(Date date) {
-        // Subtract one second from date since modifiedDate (used in query) is rounded to seconds
+    public int deleteAllLCBookingTooFarInThePastAsBulkDelete(Date date) {
         return dbInstance.getCurrentEntityManager()
-                .createNamedQuery(LecturerCourse.DELETE_ALL_NOT_UPDATED_LC_BOOKING)
-                .setParameter("lastImportDate", DateUtil.addSecondsToDate(date, -1))
+                .createNamedQuery(LecturerCourse.DELETE_ALL_LC_BOOKING_TOO_FAR_IN_THE_PAST)
+                .setParameter("nYearsInThePast", DateUtil.addYearsToDate(date, -CampusCourseConfiguration.MAX_YEARS_TO_KEEP_CK_DATA))
                 .executeUpdate();
     }
 
@@ -138,6 +134,21 @@ public class LecturerCourseDao implements CampusDao<LecturerIdCourseId> {
                 .createNamedQuery(LecturerCourse.DELETE_BY_COURSE_IDS)
                 .setParameter("courseIds", courseIds)
                 .executeUpdate();
+    }
+
+    /**
+     * Bulk delete for efficient deletion of a big number of entries. Does not update persistence context!
+     */
+    public int deleteByLecturerIdCourseIdsAsBulkDelete(List<LecturerIdCourseId> lecturerIdCourseIds) {
+        int count = 0;
+        for (LecturerIdCourseId lecturerIdCourseId : lecturerIdCourseIds) {
+            count += dbInstance.getCurrentEntityManager()
+                    .createNamedQuery(LecturerCourse.DELETE_BY_LECTURER_ID_COURSE_ID)
+                    .setParameter("lecturerId", lecturerIdCourseId.getLecturerId())
+                    .setParameter("courseId", lecturerIdCourseId.getCourseId())
+                    .executeUpdate();
+        }
+        return count;
     }
 
     private void deleteLecturerCourseBidirectionally(LecturerCourse lecturerCourse) {

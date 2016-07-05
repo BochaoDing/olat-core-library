@@ -1,41 +1,33 @@
 package ch.uzh.campus.data;
 
-import java.util.Date;
-
 /**
- * Initial Date: 04.06.2012 <p>
- * 
- * @author aabouc
- * @author lavinia
  * @author Martin Schraner
  */
-public class StudentIdCourseId {
+public class StudentIdCourseId extends JoinTableIds {
 
-	private Long studentId;
-	private Long courseId;
-	private Date modifiedDate;
-    
-	public Long getStudentId() {
-		return studentId;
+	// Required by Spring
+	public StudentIdCourseId() {}
+
+	public StudentIdCourseId(long studentId, long courseId) {
+		firstReference = studentId;
+		secondReference = courseId;
 	}
 
-	public void setStudentId(Long studentId) {
-		this.studentId = studentId;
+	public long getStudentId() {
+		return firstReference;
 	}
 
-	public Long getCourseId() {
-		return courseId;
+	// Required by Spring
+	public void setStudentId(long studentId) {
+		firstReference = studentId;
 	}
 
-	public void setCourseId(Long courseId) {
-		this.courseId = courseId;
+	public long getCourseId() {
+		return secondReference;
 	}
 
-	public Date getModifiedDate() {
-		return modifiedDate;
-	}
-
-	public void setModifiedDate(Date modifiedDate) {
-		this.modifiedDate = modifiedDate;
+	// Required by Spring
+	public void setCourseId(long courseId) {
+		this.secondReference = courseId;
 	}
 }

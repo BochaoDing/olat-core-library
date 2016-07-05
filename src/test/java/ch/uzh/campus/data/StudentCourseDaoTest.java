@@ -1,5 +1,7 @@
 package ch.uzh.campus.data;
 
+import ch.uzh.campus.CampusCourseConfiguration;
+import ch.uzh.campus.utils.DateUtil;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -88,13 +90,13 @@ public class StudentCourseDaoTest extends OlatTestCase {
 
     @Test
     public void testSaveStudentCourse_NotExistingCourse() {
-        StudentIdCourseId studentIdCourseId = new StudentIdCourseId();
-        studentIdCourseId.setStudentId(2100L);
-        studentIdCourseId.setCourseId(999L);
-        studentIdCourseId.setModifiedDate(new Date());
+        StudentIdCourseIdModifiedDate studentIdCourseIdModifiedDate = new StudentIdCourseIdModifiedDate();
+        studentIdCourseIdModifiedDate.setStudentId(2100L);
+        studentIdCourseIdModifiedDate.setCourseId(999L);
+        studentIdCourseIdModifiedDate.setModifiedDate(new Date());
 
         try {
-            studentCourseDao.save(studentIdCourseId);
+            studentCourseDao.save(studentIdCourseIdModifiedDate);
             fail("Expected exception has not occurred.");
         } catch(EntityNotFoundException e) {
             // All good, that's exactly what we expect
@@ -110,13 +112,13 @@ public class StudentCourseDaoTest extends OlatTestCase {
 
     @Test
     public void testSaveStudentCourse_NotExistingStudent() {
-        StudentIdCourseId studentIdCourseId = new StudentIdCourseId();
-        studentIdCourseId.setStudentId(999L);
-        studentIdCourseId.setCourseId(100L);
-        studentIdCourseId.setModifiedDate(new Date());
+        StudentIdCourseIdModifiedDate studentIdCourseIdModifiedDate = new StudentIdCourseIdModifiedDate();
+        studentIdCourseIdModifiedDate.setStudentId(999L);
+        studentIdCourseIdModifiedDate.setCourseId(100L);
+        studentIdCourseIdModifiedDate.setModifiedDate(new Date());
 
         try {
-            studentCourseDao.save(studentIdCourseId);
+            studentCourseDao.save(studentIdCourseIdModifiedDate);
             fail("Expected exception has not occurred.");
         } catch(EntityNotFoundException e) {
             // All good, that's exactly what we expect
@@ -182,6 +184,46 @@ public class StudentCourseDaoTest extends OlatTestCase {
     }
 
     @Test
+    public void testGetAllNotUpdatedLCBookingOfCurrentSemester() {
+        Student student = studentDao.getStudentById(2100L);
+        Course course1CurrentSemester = courseDao.getCourseById(100L);
+        Course course2CurrentSemester = courseDao.getCourseById(200L);
+        Course course3FormerSemester = courseDao.getCourseById(400L);
+        assertNull(studentCourseDao.getStudentCourseById(1100L, 100L));
+        assertNull(studentCourseDao.getStudentCourseById(1100L, 200L));
+        assertNull(studentCourseDao.getStudentCourseById(1100L, 400L));
+
+        Date referenceImportDate = new Date();
+
+        // Insert student to course of current semester with import date in the past (-> should be returned by method)
+        StudentCourse studentCourse1 = new StudentCourse(student, course1CurrentSemester, DateUtil.addHoursToDate(referenceImportDate, -1));
+        studentCourseDao.saveOrUpdate(studentCourse1);
+
+        // Insert student to course of current semester with import date in the future (-> should not be returned by method)
+        StudentCourse studentCourse2 = new StudentCourse(student, course2CurrentSemester, DateUtil.addHoursToDate(referenceImportDate, 1));
+        studentCourseDao.saveOrUpdate(studentCourse2);
+
+        // Insert student to course from former semester with import date in the past (-> should not be returned by method)
+        StudentCourse studentCourse3 = new StudentCourse(student, course3FormerSemester, DateUtil.addHoursToDate(referenceImportDate, -1));
+        studentCourseDao.saveOrUpdate(studentCourse3);
+
+        dbInstance.flush();
+
+        assertNotNull(studentCourseDao.getStudentCourseById(2100L, 100L));
+        assertNotNull(studentCourseDao.getStudentCourseById(2100L, 200L));
+        assertNotNull(studentCourseDao.getStudentCourseById(2100L, 400L));
+
+        List<StudentIdCourseId> studentIdCourseIds = studentCourseDao.getAllNotUpdatedSCBookingOfCurrentSemester(new Date());
+
+        dbInstance.flush();
+
+        assertEquals(1, studentIdCourseIds.size());
+        StudentIdCourseId studentIdCourseId = studentIdCourseIds.get(0);
+        assertEquals(2100L, studentIdCourseId.getStudentId());
+        assertEquals(100L, studentIdCourseId.getCourseId());
+    }
+
+    @Test
     public void testDeleteStudentCourse() {
         // Insert student to course
         Student student = studentDao.getStudentById(2100L);
@@ -212,55 +254,21 @@ public class StudentCourseDaoTest extends OlatTestCase {
     }
 
     @Test
-    public void testDeleteAllNotUpdatedSCBooking() {
+    public void testDeleteAllSCBookingTooFarInThePastAsBulkDelete() {
         Student student = studentDao.getStudentById(2100L);
         Course course1 = courseDao.getCourseById(100L);
         Course course2 = courseDao.getCourseById(200L);
         assertNull(studentCourseDao.getStudentCourseById(2100L, 100L));
         assertNull(studentCourseDao.getStudentCourseById(2100L, 200L));
 
-        // Insert student to course with date in the past
-        StudentCourse studentCourse1 = new StudentCourse(student, course1, new GregorianCalendar(2000, Calendar.JANUARY, 1).getTime());
+        Date referenceImportDate = new Date();
+
+        // Insert student to course with date too far in the past (-> should be deleted)
+        StudentCourse studentCourse1 = new StudentCourse(student, course1, DateUtil.addYearsToDate(referenceImportDate, -CampusCourseConfiguration.MAX_YEARS_TO_KEEP_CK_DATA - 1));
         studentCourseDao.saveOrUpdate(studentCourse1);
 
-        // Insert student to course with date in the future
-        StudentCourse studentCourse2 = new StudentCourse(student, course2, new GregorianCalendar(2035, Calendar.JANUARY, 1).getTime());
-        studentCourseDao.saveOrUpdate(studentCourse2);
-
-        dbInstance.flush();
-
-        assertNotNull(studentCourseDao.getStudentCourseById(2100L, 100L));
-        assertNotNull(studentCourseDao.getStudentCourseById(2100L, 200L));
-        assertEquals(2, student.getStudentCourses().size());
-        assertEquals(1, course1.getStudentCourses().size());
-        assertEquals(1, course2.getStudentCourses().size());
-
-        studentCourseDao.deleteAllNotUpdatedSCBooking(new Date());
-
-        dbInstance.flush();
-        dbInstance.clear();
-
-        assertNull(studentCourseDao.getStudentCourseById(2100L, 100L));
-        assertNotNull(studentCourseDao.getStudentCourseById(2100L, 200L));
-        assertEquals(1, student.getStudentCourses().size());
-        assertEquals(0, course1.getStudentCourses().size());
-        assertEquals(1, course2.getStudentCourses().size());
-    }
-
-    @Test
-    public void testDeleteAllNotUpdatedSCBookingAsBulkDelete() {
-        Student student = studentDao.getStudentById(2100L);
-        Course course1 = courseDao.getCourseById(100L);
-        Course course2 = courseDao.getCourseById(200L);
-        assertNull(studentCourseDao.getStudentCourseById(2100L, 100L));
-        assertNull(studentCourseDao.getStudentCourseById(2100L, 200L));
-
-        // Insert student to course with date in the past
-        StudentCourse studentCourse1 = new StudentCourse(student, course1, new GregorianCalendar(2000, Calendar.JANUARY, 1).getTime());
-        studentCourseDao.saveOrUpdate(studentCourse1);
-
-        // Insert student to course with date in the future
-        StudentCourse studentCourse2 = new StudentCourse(student, course2, new GregorianCalendar(2035, Calendar.JANUARY, 1).getTime());
+        // Insert student to course with date not too far in the past (-> should not be deleted)
+        StudentCourse studentCourse2 = new StudentCourse(student, course2, DateUtil.addYearsToDate(referenceImportDate, -CampusCourseConfiguration.MAX_YEARS_TO_KEEP_CK_DATA + 1));
         studentCourseDao.saveOrUpdate(studentCourse2);
 
         dbInstance.flush();
@@ -268,7 +276,7 @@ public class StudentCourseDaoTest extends OlatTestCase {
         assertNotNull(studentCourseDao.getStudentCourseById(2100L, 100L));
         assertNotNull(studentCourseDao.getStudentCourseById(2100L, 200L));
 
-        studentCourseDao.deleteAllNotUpdatedSCBookingAsBulkDelete(new Date());
+        studentCourseDao.deleteAllSCBookingTooFarInThePastAsBulkDelete(new Date());
 
         dbInstance.flush();
         dbInstance.clear();
@@ -317,9 +325,30 @@ public class StudentCourseDaoTest extends OlatTestCase {
         assertNull(studentCourseDao.getStudentCourseById(2100L, 200L));
     }
 
+    @Test
+    public void testDeleteByStudentIdCourseIdsAsBulkDelete() {
+        insertStudentIdCourseIds();
+
+        assertNotNull(studentCourseDao.getStudentCourseById(2100L, 100L));
+        assertNotNull(studentCourseDao.getStudentCourseById(2100L, 200L));
+
+        List<StudentIdCourseId> studentIdCourseIds = new LinkedList<>();
+        studentIdCourseIds.add(new StudentIdCourseId(2100L, 100L));
+        studentIdCourseIds.add(new StudentIdCourseId(2100L, 200L));
+
+        int numberOfDeletedEntities = studentCourseDao.deleteByStudentIdCourseIdsAsBulkDelete(studentIdCourseIds);
+
+        dbInstance.flush();
+        dbInstance.clear();
+
+        assertEquals(2, numberOfDeletedEntities);
+        assertNull(studentCourseDao.getStudentCourseById(2100L, 100L));
+        assertNull(studentCourseDao.getStudentCourseById(2100L, 200L));
+    }
+
     private void insertStudentIdCourseIds() {
-        List<StudentIdCourseId> studentIdCourseIds = mockDataGeneratorProvider.get().getStudentIdCourseIds();
-        studentCourseDao.save(studentIdCourseIds);
+        List<StudentIdCourseIdModifiedDate> studentIdCourseIdModifiedDates = mockDataGeneratorProvider.get().getStudentIdCourseIdModifiedDates();
+        studentCourseDao.save(studentIdCourseIdModifiedDates);
         dbInstance.flush();
     }
 

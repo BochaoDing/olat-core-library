@@ -20,25 +20,17 @@
  */
 package ch.uzh.campus.connectors;
 
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import ch.uzh.campus.data.Course;
+import ch.uzh.campus.data.DaoManager;
+import org.apache.commons.lang.StringUtils;
+import org.olat.core.logging.OLog;
+import org.olat.core.logging.Tracing;
+import org.springframework.batch.item.ItemProcessor;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
-
-import ch.uzh.campus.data.DaoManager;
-import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
-import org.olat.core.logging.OLog;
-import org.olat.core.logging.Tracing;
-import ch.uzh.campus.data.Course;
-
-import org.springframework.batch.item.ItemProcessor;
-import org.springframework.beans.factory.annotation.Autowired;
+import java.util.*;
 
 /**
  * This is an implementation of {@link ItemProcessor} that validates the input Course item, <br>
@@ -59,13 +51,13 @@ public class CourseProcessor implements ItemProcessor<Course, Course> {
 
     private List<Long> enabledOrgs;
 
-    private Map<String, String> semesterMap = new HashMap<String, String>();
+    private Map<String, String> semesterMap = new HashMap<>();
 
     private static final String WHITESPACE = " ";
 
     @PostConstruct
     public void init() {
-        processedIdsSet = new HashSet<Long>();
+        processedIdsSet = new HashSet<>();
         enabledOrgs = daoManager.getIdsOfAllEnabledOrgs();
     }
 

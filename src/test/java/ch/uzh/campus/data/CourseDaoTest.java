@@ -8,7 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 
 import javax.inject.Provider;
-import java.util.Date;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -403,22 +403,25 @@ public class CourseDaoTest extends OlatTestCase {
     }
 
     @Test
-    public void tesGetAllNotUpdatedCourses() {
-        Date now = new Date();
-        int numberOfCoursesFoundBeforeInsertingTestData = courseDao.getAllNotUpdatedCourses(now).size();
+    public void tesGetAllNotUpdatedOrphanedCourses() {
+        int numberOfCoursesFoundBeforeInsertingTestData = courseDao.getAllNotCreatedOrphanedCourses().size();
         insertTestData();
-    	List<Long> courseIds = courseDao.getAllNotUpdatedCourses(now);
-        // Only courses with resourceableId = null
-    	assertEquals(numberOfCoursesFoundBeforeInsertingTestData + 3, courseIds.size());
 
-        assertNull(courses.get(2).getResourceableId());
-        courses.get(2).setModifiedDate(now);
+        assertEquals(numberOfCoursesFoundBeforeInsertingTestData, courseDao.getAllNotCreatedOrphanedCourses().size());
 
+        // Remove lecturerCourse and student course entries of course 100 (not created course) and 300 (created course)-> courses are orphaned
+        List<Long> courseIds = new ArrayList<>();
+        courseIds.add(100L);
+        courseIds.add(300L);
+        lecturerCourseDao.deleteByCourseIdsAsBulkDelete(courseIds);
+        studentCourseDao.deleteByCourseIdsAsBulkDelete(courseIds);
         dbInstance.flush();
-        dbInstance.clear();
 
-        courseIds = courseDao.getAllNotUpdatedCourses(now);
-        assertEquals(numberOfCoursesFoundBeforeInsertingTestData + 2, courseIds.size());
+        List<Long> courseIdsFound = courseDao.getAllNotCreatedOrphanedCourses();
+
+        assertEquals(numberOfCoursesFoundBeforeInsertingTestData + 1, courseIdsFound.size());
+        assertFalse(courseIdsFound.contains(100L));   // not created course
+        assertTrue(courseIdsFound.contains(300L));    // created course
     }
 
     @Test
@@ -674,8 +677,8 @@ public class CourseDaoTest extends OlatTestCase {
         dbInstance.flush();
 
         // Add lecturers to courses
-        List<LecturerIdCourseId> lecturerIdCourseIds = mockDataGeneratorProvider.get().getLecturerIdCourseIds();
-        lecturerCourseDao.save(lecturerIdCourseIds);
+        List<LecturerIdCourseIdModifiedDate> lecturerIdCourseIdModifiedDates = mockDataGeneratorProvider.get().getLecturerIdCourseIdModifiedDates();
+        lecturerCourseDao.save(lecturerIdCourseIdModifiedDates);
         dbInstance.flush();
 
         // Insert some students
@@ -684,8 +687,8 @@ public class CourseDaoTest extends OlatTestCase {
         dbInstance.flush();
 
         // Add students to courses
-        List<StudentIdCourseId> studentIdCourseIds = mockDataGeneratorProvider.get().getStudentIdCourseIds();
-        studentCourseDao.save(studentIdCourseIds);
+        List<StudentIdCourseIdModifiedDate> studentIdCourseIdModifiedDates = mockDataGeneratorProvider.get().getStudentIdCourseIdModifiedDates();
+        studentCourseDao.save(studentIdCourseIdModifiedDates);
         dbInstance.flush();
 
         // Add some texts

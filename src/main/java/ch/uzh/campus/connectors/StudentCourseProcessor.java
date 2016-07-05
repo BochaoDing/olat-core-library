@@ -21,24 +21,20 @@
 package ch.uzh.campus.connectors;
 
 import ch.uzh.campus.data.StudentIdCourseId;
+import ch.uzh.campus.data.StudentIdCourseIdModifiedDate;
 
 import org.springframework.batch.item.ItemProcessor;
 
 import java.util.Date;
 
 /**
- * This is an implementation of {@link ItemProcessor} that converts the input StudentCoursePK item <br>
- * to the output StudentIdCourseId item. <br>
- * 
- * Initial Date: 11.06.2012 <br>
- * 
  * @author aabouc
+ * @author Martin Schraner
  */
-public class StudentCourseProcessor implements ItemProcessor<StudentIdCourseId, StudentIdCourseId> {
+public class StudentCourseProcessor implements ItemProcessor<StudentIdCourseId, StudentIdCourseIdModifiedDate> {
 
-    public StudentIdCourseId process(StudentIdCourseId studentIdCourseId) throws Exception {
-        studentIdCourseId.setModifiedDate(new Date());
-    	return studentIdCourseId;
+    public StudentIdCourseIdModifiedDate process(StudentIdCourseId studentIdCourseId) {
+        return new StudentIdCourseIdModifiedDate(studentIdCourseId.getStudentId(), studentIdCourseId.getCourseId(), new Date());
     }
 
 }

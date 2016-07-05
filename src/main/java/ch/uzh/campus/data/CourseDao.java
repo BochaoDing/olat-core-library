@@ -8,7 +8,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import javax.persistence.EntityManager;
-import javax.persistence.EntityNotFoundException;
 import java.util.Date;
 import java.util.List;
 
@@ -191,11 +190,9 @@ public class CourseDao implements CampusDao<Course> {
                 .getResultList();
     }
 
-    public List<Long> getAllNotUpdatedCourses(Date date) {
-        // Subtract one second from date since modifiedDate (used in query) is rounded to seconds
+    public List<Long> getAllNotCreatedOrphanedCourses() {
         return dbInstance.getCurrentEntityManager()
-                .createNamedQuery(Course.GET_ALL_NOT_UPDATED_COURSES, Long.class)  
-                .setParameter("lastImportDate", DateUtil.addSecondsToDate(date, -1))
+                .createNamedQuery(Course.GET_ALL_NOT_CREATED_ORPHANED_COURSES, Long.class)
                 .getResultList();
     }
 

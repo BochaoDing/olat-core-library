@@ -84,20 +84,31 @@ public class StudentDaoTest extends OlatTestCase {
     }
 
     @Test
-    public void testGetAllNotUpdatedStudents_foundSixStudents() {
-        int numberOfStudentsFoundBeforeInsertingTestData = studentDao.getAllNotUpdatedStudents(new Date()).size();
+    public void testGetAllOrphanedStudents() throws InterruptedException {
+        int numberOfStudentsFoundBeforeInsertingTestData = studentDao.getAllOrphanedStudents().size();
         insertTestData();
-        assertEquals(numberOfStudentsFoundBeforeInsertingTestData + 6, studentDao.getAllNotUpdatedStudents(new Date()).size());
-    }
-    
-    @Test
-    public void testGetAllNotUpdatedStudents_foundFiveStudents() throws InterruptedException {
-        Date now = new Date();
-        int numberOfStudentsFoundBeforeInsertingTestData = studentDao.getAllNotUpdatedStudents(now).size();
-        insertTestData();
-        students.get(0).setModifiedDate(now);
+
+        // Student 2300 has no courses. i.e. it is orphaned
+        Student student = studentDao.getStudentById(2300L);
+        assertEquals(0, student.getStudentCourses().size());
+
+        assertEquals(numberOfStudentsFoundBeforeInsertingTestData + 1, studentDao.getAllOrphanedStudents().size());
+
+        student = studentDao.getStudentById(2100L);
+        assertEquals(3, student.getStudentCourses().size());
+
+        // Remove all courses of students, i.e. make it orphaned
+        List<StudentIdCourseId> studentIdCourseIds = new LinkedList<>();
+        studentIdCourseIds.add(new StudentIdCourseId(2100L, 100L));
+        studentIdCourseIds.add(new StudentIdCourseId(2100L, 200L));
+        studentIdCourseIds.add(new StudentIdCourseId(2100L, 300L));
+
+        studentCourseDao.deleteByStudentIdCourseIdsAsBulkDelete(studentIdCourseIds);
         dbInstance.flush();
-        assertEquals(numberOfStudentsFoundBeforeInsertingTestData + 5, studentDao.getAllNotUpdatedStudents(now).size());
+
+        List<Long> studentIdsFound = studentDao.getAllOrphanedStudents();
+        assertEquals(numberOfStudentsFoundBeforeInsertingTestData + 2, studentIdsFound.size());
+        assertTrue(studentIdsFound.contains(2100L));
     }
 
     @Test
@@ -197,8 +208,8 @@ public class StudentDaoTest extends OlatTestCase {
         dbInstance.flush();
 
         // Insert some studentIdCourseIds
-        List<StudentIdCourseId> studentIdCourseIds = mockDataGeneratorProvider.get().getStudentIdCourseIds();
-        studentCourseDao.save(studentIdCourseIds);
+        List<StudentIdCourseIdModifiedDate> studentIdCourseIdModifiedDates = mockDataGeneratorProvider.get().getStudentIdCourseIdModifiedDates();
+        studentCourseDao.save(studentIdCourseIdModifiedDates);
         dbInstance.flush();
     }
 }

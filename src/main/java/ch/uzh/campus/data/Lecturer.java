@@ -20,8 +20,8 @@ import java.util.Set;
 @Table(name = "ck_lecturer")
 @NamedQueries({
         @NamedQuery(name = Lecturer.GET_LECTURER_BY_EMAIL, query = "select l from Lecturer l where l.email = :email"),
-        @NamedQuery(name = Lecturer.GET_ALL_PILOT_LECTURERS, query = "select distinct l from Lecturer l left join l.lecturerCourses lc where lc.course.enabled = '1' "),
-        @NamedQuery(name = Lecturer.GET_ALL_NOT_UPDATED_LECTURERS, query = "select l.personalNr from Lecturer l where l.modifiedDate < :lastImportDate"),
+        @NamedQuery(name = Lecturer.GET_ALL_PILOT_LECTURERS, query = "select distinct l from Lecturer l join l.lecturerCourses lc where lc.course.enabled = '1' "),
+        @NamedQuery(name = Lecturer.GET_ALL_ORPHANED_LECTURERS, query = "select l.personalNr from Lecturer l where l.personalNr not in (select lc.lecturer.personalNr from LecturerCourse lc)"),
         @NamedQuery(name = Lecturer.DELETE_BY_LECTURER_IDS, query = "delete from Lecturer l where l.personalNr in :lecturerIds")
 })
 public class Lecturer {
@@ -53,7 +53,7 @@ public class Lecturer {
 
     static final String GET_LECTURER_BY_EMAIL = "getLecturerByEmail";
     static final String GET_ALL_PILOT_LECTURERS = "getAllPilotLecturers";
-    static final String GET_ALL_NOT_UPDATED_LECTURERS = "getAllNotUpdatedLecturers";
+    static final String GET_ALL_ORPHANED_LECTURERS = "getAllOrphanedLecturers";
     static final String DELETE_BY_LECTURER_IDS = "deleteLecturerByLecturerIds";
 
     public Lecturer() {

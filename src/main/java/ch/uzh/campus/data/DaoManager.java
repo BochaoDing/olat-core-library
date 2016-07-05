@@ -130,8 +130,8 @@ public class DaoManager {
         }
     }
 
-    public List<Long> getAllCoursesToBeDeleted(Date date) {
-        return courseDao.getAllNotUpdatedCourses(date);
+    public List<Long> getAllCoursesToBeDeleted() {
+        return courseDao.getAllNotCreatedOrphanedCourses();
     }
 
     public Course getCourseById(Long id) {
@@ -161,12 +161,28 @@ public class DaoManager {
         studentDao.delete(student);
     }
 
-    public int deleteAllNotUpdatedLCBooking(Date date) {
-        return lecturerCourseDao.deleteAllNotUpdatedLCBookingAsBulkDelete(date);
+    public List<LecturerIdCourseId> getAllNotUpdatedLCBookingOfCurrentSemester(Date date) {
+        return lecturerCourseDao.getAllNotUpdatedLCBookingOfCurrentSemester(date);
     }
 
-    public int deleteAllNotUpdatedSCBooking(Date date) {
-        return studentCourseDao.deleteAllNotUpdatedSCBookingAsBulkDelete(date);
+    public int deleteLCBookingByLecturerIdCourseIds(List<LecturerIdCourseId> lecturerIdCourseIds) {
+        return lecturerCourseDao.deleteByLecturerIdCourseIdsAsBulkDelete(lecturerIdCourseIds);
+    }
+
+    public int deleteAllLCBookingTooFarInThePast(Date date) {
+        return lecturerCourseDao.deleteAllLCBookingTooFarInThePastAsBulkDelete(date);
+    }
+
+    public List<StudentIdCourseId> getAllNotUpdatedSCBookingOfCurrentSemester(Date date) {
+        return studentCourseDao.getAllNotUpdatedSCBookingOfCurrentSemester(date);
+    }
+
+    public int deleteSCBookingByStudentIdCourseIds(List<StudentIdCourseId> studentIdCourseIds) {
+        return studentCourseDao.deleteByStudentIdCourseIdsAsBulkDelete(studentIdCourseIds);
+    }
+
+    public int deleteAllSCBookingTooFarInThePast(Date date) {
+        return studentCourseDao.deleteAllSCBookingTooFarInThePastAsBulkDelete(date);
     }
 
     public void deleteLecturersAndBookingsByLecturerIds(List<Long> lecturerIds) {
@@ -200,8 +216,8 @@ public class DaoManager {
         return studentDao.getStudentByEmail(email);
     }
 
-    public List<Long> getAllStudentsToBeDeleted(Date date) {
-        return studentDao.getAllNotUpdatedStudents(date);
+    public List<Long> getAllStudentsToBeDeleted() {
+        return studentDao.getAllOrphanedStudents();
     }
 
     public void deleteEventsByCourseId(Long courseId) {
@@ -224,8 +240,8 @@ public class DaoManager {
         return lecturerDao.getLecturerByEmail(email);
     }
 
-    public List<Long> getAllLecturersToBeDeleted(Date date) {
-        return lecturerDao.getAllNotUpdatedLecturers(date);
+    public List<Long> getAllLecturersToBeDeleted() {
+        return lecturerDao.getAllOrphanedLecturers();
     }
 
     public List<Long> getAllOrgsToBeDeleted(Date date) {

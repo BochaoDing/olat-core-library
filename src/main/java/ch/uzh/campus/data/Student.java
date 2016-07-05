@@ -18,8 +18,8 @@ import java.util.Set;
  */
 @Entity
 @NamedQueries({
-        @NamedQuery(name = Student.GET_ALL_PILOT_STUDENTS, query = "select distinct s from Student s left join s.studentCourses sc where sc.course.enabled = '1' "),
-        @NamedQuery(name = Student.GET_ALL_NOT_UPDATED_STUDENTS, query = "select s.id from Student s where s.modifiedDate < :lastImportDate"),
+        @NamedQuery(name = Student.GET_ALL_PILOT_STUDENTS, query = "select distinct s from Student s join s.studentCourses sc where sc.course.enabled = '1' "),
+        @NamedQuery(name = Student.GET_ALL_ORPHANED_STUDENTS, query = "select s.id from Student s where s.id not in (select sc.student.id from StudentCourse sc)"),
         @NamedQuery(name = Student.GET_STUDENTS_BY_EMAIL, query = "select s from Student s where s.email = :email"),
         @NamedQuery(name = Student.GET_STUDENTS_WITH_REGISTRATION_NUMBER, query = "select s from Student s where s.registrationNr = :registrationNr"),
         @NamedQuery(name = Student.DELETE_BY_STUDENT_IDS, query = "delete from Student s where s.id in :studentIds")
@@ -50,7 +50,7 @@ public class Student {
     private Set<StudentCourse> studentCourses = new HashSet<>();
 
     static final String GET_ALL_PILOT_STUDENTS = "getAllPilotStudents";
-    static final String GET_ALL_NOT_UPDATED_STUDENTS = "getAllNotUpdatedStudents";
+    static final String GET_ALL_ORPHANED_STUDENTS = "getAllOrphanedStudents";
     static final String GET_STUDENTS_BY_EMAIL = "getStudentsWithEmail";
     static final String GET_STUDENTS_WITH_REGISTRATION_NUMBER = "getStudentsWithRegistrationNr";
     static final String DELETE_BY_STUDENT_IDS = "deleteStudentByStudentIds";

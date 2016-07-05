@@ -10,10 +10,12 @@ import java.util.Date;
 @Table(name="ck_student_course")
 @IdClass(StudentCourseId.class)
 @NamedQueries({
-        @NamedQuery(name = StudentCourse.GET_ALL_NOT_UPDATED_SC_BOOKING, query = "select sc from StudentCourse sc where sc.modifiedDate < :lastImportDate"),
+        @NamedQuery(name = StudentCourse.GET_ALL_NOT_UPDATED_SC_BOOKING_OF_CURRENT_SEMESTER, query = "select new ch.uzh.campus.data.StudentIdCourseId(sc.student.id, sc.course.id) from StudentCourse sc " +
+                "where sc.modifiedDate < :lastImportDate and sc.course.shortSemester = (select max(c.shortSemester) from Course c)"),
         @NamedQuery(name = StudentCourse.DELETE_BY_STUDENT_IDS, query = "delete from StudentCourse sc where sc.student.id in :studentIds"),
         @NamedQuery(name = StudentCourse.DELETE_BY_COURSE_IDS, query = "delete from StudentCourse sc where sc.course.id in :courseIds"),
-        @NamedQuery(name = StudentCourse.DELETE_ALL_NOT_UPDATED_SC_BOOKING, query = "delete from StudentCourse sc where sc.modifiedDate < :lastImportDate")
+        @NamedQuery(name = StudentCourse.DELETE_BY_STUDENT_ID_COURSE_ID, query = "delete from StudentCourse sc where sc.student.id = :studentId and sc.course.id = :courseId"),
+        @NamedQuery(name = StudentCourse.DELETE_ALL_SC_BOOKING_TOO_FAR_IN_THE_PAST, query = "delete from StudentCourse sc where sc.modifiedDate < :nYearsInThePast")
 })
 public class StudentCourse {
 
@@ -40,10 +42,11 @@ public class StudentCourse {
         this.modifiedDate = modifiedDate;
     }
 
-    static final String GET_ALL_NOT_UPDATED_SC_BOOKING = "getAllNotUpdatedSCBooking";
+    static final String GET_ALL_NOT_UPDATED_SC_BOOKING_OF_CURRENT_SEMESTER = "getAllNotUpdatedSCBookingOfCurrentSemester";
     static final String DELETE_BY_STUDENT_IDS = "deleteStudentCourseByStudentIds";
     static final String DELETE_BY_COURSE_IDS = "deleteStudentCourseByCourseIds";
-    static final String DELETE_ALL_NOT_UPDATED_SC_BOOKING = "deleteAllNotUpdatedSCBooking";
+    static final String DELETE_BY_STUDENT_ID_COURSE_ID = "deleteByStudentIdCourseId";
+    static final String DELETE_ALL_SC_BOOKING_TOO_FAR_IN_THE_PAST = "deleteAllSCBookingTooFarInThePast";
 
     public Student getStudent() {
         return student;

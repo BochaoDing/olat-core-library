@@ -64,11 +64,9 @@ public class StudentDao implements CampusDao<Student> {
         return null;
     }
 
-    public List<Long> getAllNotUpdatedStudents(Date date) {
-        // Subtract one second from date since modifiedDate (used in query) is rounded to seconds
+    public List<Long> getAllOrphanedStudents() {
         return dbInstance.getCurrentEntityManager()
-                .createNamedQuery(Student.GET_ALL_NOT_UPDATED_STUDENTS, Long.class)
-                .setParameter("lastImportDate", DateUtil.addSecondsToDate(date, -1))
+                .createNamedQuery(Student.GET_ALL_ORPHANED_STUDENTS, Long.class)
                 .getResultList();
     }
 

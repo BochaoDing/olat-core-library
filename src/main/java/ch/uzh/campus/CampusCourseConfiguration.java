@@ -5,11 +5,11 @@ import org.olat.core.id.Identity;
 import org.olat.core.id.OLATResourceable;
 import org.olat.core.logging.AssertException;
 import org.olat.group.BusinessGroup;
+import org.olat.properties.Property;
 import org.olat.properties.PropertyManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-import org.olat.properties.Property;
 
 /**
  * Simple campus-course configuration with Spring properties (olat.local.properties).
@@ -25,6 +25,8 @@ public class CampusCourseConfiguration {
 
     private static final String CAMPUS_COURSE_PROPERTY_CATEGORY = "campus.course.property";
     private static final String TEMPLATE_COURSE_RESOURCEABLE_ID_PROPERTY_KEY = "_template.course.resourceable.id";
+
+    public static final int MAX_YEARS_TO_KEEP_CK_DATA = 3;
 
     @Value("${campus.template.course.resourceable.id}")
     private String defaultTemplateCourseResourcableId;
