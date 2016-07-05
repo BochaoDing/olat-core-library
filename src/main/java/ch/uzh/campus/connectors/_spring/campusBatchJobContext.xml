@@ -14,6 +14,7 @@
 	<!-- ======================================================================================= -->
 	<batch:job id="importJob" >
 		<batch:listeners>
+            <batch:listener ref="campusImportJobInterceptor" />
 			<batch:listener ref="campusJobInterceptor" />
 		</batch:listeners>
 		<batch:step id="import_controlFile" parent="campusStep" >
@@ -92,7 +93,6 @@
 			</batch:flow>
 			 -->
 		</batch:split>
-
 	</batch:job>
 
 	<!-- ======================================================================================= -->
@@ -480,8 +480,10 @@
 	<bean id="campusInterceptor" class="ch.uzh.campus.connectors.CampusInterceptor" scope="step">
 		<property name="fixedNumberOfFilesToBeExported" value="8" />
 	</bean>
-	
-	<bean id="campusJobInterceptor" class="ch.uzh.campus.connectors.CampusJobInterceptor" scope="prototype"/>	
+
+    <bean id="campusImportJobInterceptor" class="ch.uzh.campus.connectors.CampusImportJobInterceptor" scope="singleton"/>
+
+	<bean id="campusJobInterceptor" class="ch.uzh.campus.connectors.CampusJobInterceptor" scope="prototype"/>
 	
 	<bean id="statisticDao" class="ch.uzh.campus.data.ImportStatisticDao"/>
 

@@ -119,14 +119,12 @@ public class CampusInterceptor<T, S> implements StepExecutionListener, ItemWrite
             LOG.info(se.toString());
             statisticDao.saveOrUpdate(createImportStatistic(se));
             notifyMetrics(se);
+			dbInstance.commitAndCloseSession();
             if (CampusProcessStep.IMPORT_CONTROLFILE.name().equalsIgnoreCase(se.getStepName())) {
                 if (se.getWriteCount() != getFixedNumberOfFilesToBeExported()) {
-                    dbInstance.commitAndCloseSession();
                     return ExitStatus.FAILED;
                 }
             }
-            removeOldDataIfExist(se);
-            dbInstance.commitAndCloseSession();
             return null;
         } catch (Throwable t) {
             dbInstance.rollbackAndCloseSession();
@@ -165,90 +163,6 @@ public class CampusInterceptor<T, S> implements StepExecutionListener, ItemWrite
 
         campusNotifier.notifyStepExecution(se);
 
-    }
-
-    /**
-     * Delegates the actual deletion of old data to the {@link DaoManager} in
-	 * the case of a successful batch processing.
-     * 
-     * @param se
-     *            the StepExecution
-     */
-    private void removeOldDataIfExist(StepExecution se) {
-		/*
-		 * Synchronized in order to prevent deadlocking during parallel
-		 * removal.
-		 * TODO sev26
-		 * Configure Spring Batch such that this method is only called once
-		 * (at the very end of the import). This would prevent threads to
-		 * block at this synchronization barrier. But even then keep the
-		 * barrier in order to prevent deadlocks cause by a configuration
-		 * change in the future!
-		 */
-
-        if (!BatchStatus.COMPLETED.equals(se.getStatus())) {
-            return;
-        }
-
-		synchronized(dbInstance) {
-
-			if (CampusProcessStep.IMPORT_ORGS.name().equalsIgnoreCase(se.getStepName())) {
-				List<Long> orgsToBeRemoved = daoManager.getAllOrgsToBeDeleted(se.getStartTime());
-				LOG.info("ORGS TO BE REMOVED [" + orgsToBeRemoved.size() + "]");
-				if (!orgsToBeRemoved.isEmpty()) {
-					daoManager.deleteOrgByIds(orgsToBeRemoved);
-				}
-				return;
-			}
-
-			if (CampusProcessStep.IMPORT_STUDENTS.name().equalsIgnoreCase(se.getStepName())) {
-				List<Long> studentsToBeRemoved = daoManager.getAllStudentsToBeDeleted();
-				LOG.info("STUDENTS TO BE REMOVED [" + studentsToBeRemoved.size() + "]");
-				if (!studentsToBeRemoved.isEmpty()) {
-					daoManager.deleteStudentsAndBookingsByStudentIds(studentsToBeRemoved);
-				}
-				return;
-			}
-
-			if (CampusProcessStep.IMPORT_LECTURERS.name().equalsIgnoreCase(se.getStepName())) {
-				List<Long> lecturersToBeRemoved = daoManager.getAllLecturersToBeDeleted();
-				LOG.info("LECTURERS TO BE REMOVED [" + lecturersToBeRemoved.size() + "]");
-				if (!lecturersToBeRemoved.isEmpty()) {
-					daoManager.deleteLecturersAndBookingsByLecturerIds(lecturersToBeRemoved);
-				}
-				return;
-			}
-
-			if (CampusProcessStep.IMPORT_COURSES.name().equalsIgnoreCase(se.getStepName())) {
-				List<Long> coursesToBeRemoved = daoManager.getAllCoursesToBeDeleted();
-				LOG.info("COURSES TO BE REMOVED[" + coursesToBeRemoved.size() + "]");
-				if (!coursesToBeRemoved.isEmpty()) {
-					daoManager.deleteCoursesAndBookingsByCourseIds(coursesToBeRemoved);
-				}
-				return;
-			}
-
-			if (CampusProcessStep.IMPORT_LECTURERS_COURSES.name().equalsIgnoreCase(se.getStepName())) {
-				int stornos = daoManager.deleteAllLCBookingTooFarInThePast(se.getStartTime());
-                dbInstance.intermediateCommit();
-                List<LecturerIdCourseId> lecturerIdCourseIdsToBeRemoved = daoManager.getAllNotUpdatedLCBookingOfCurrentSemester(se.getStartTime());
-                if (!lecturerIdCourseIdsToBeRemoved.isEmpty()) {
-                    stornos += daoManager.deleteLCBookingByLecturerIdCourseIds(lecturerIdCourseIdsToBeRemoved);
-                }
-				LOG.info("STORNOS(LECTURER_COURSE): " + stornos);
-				return;
-			}
-
-			if (CampusProcessStep.IMPORT_STUDENTS_COURSES.name().equalsIgnoreCase(se.getStepName())) {
-                int stornos = daoManager.deleteAllSCBookingTooFarInThePast(se.getStartTime());
-                dbInstance.intermediateCommit();
-                List<StudentIdCourseId> studentIdCourseIdsToBeRemoved = daoManager.getAllNotUpdatedSCBookingOfCurrentSemester(se.getStartTime());
-                if (!studentIdCourseIdsToBeRemoved.isEmpty()) {
-                    stornos += daoManager.deleteSCBookingByStudentIdCourseIds(studentIdCourseIdsToBeRemoved);
-                }
-				LOG.info("STORNOS(STUDENT_COURSE): " + stornos);
-			}
-		}
     }
 
     /**
