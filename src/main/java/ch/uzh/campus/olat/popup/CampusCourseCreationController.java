@@ -32,10 +32,7 @@ import org.olat.core.gui.components.form.flexible.impl.FormBasicController;
 import org.olat.core.gui.components.form.flexible.impl.FormEvent;
 import org.olat.core.gui.components.link.Link;
 import org.olat.core.gui.components.link.LinkFactory;
-import org.olat.core.gui.components.table.DefaultColumnDescriptor;
-import org.olat.core.gui.components.table.Table;
-import org.olat.core.gui.components.table.TableController;
-import org.olat.core.gui.components.table.TableGuiConfiguration;
+import org.olat.core.gui.components.table.*;
 import org.olat.core.gui.components.text.TextComponent;
 import org.olat.core.gui.components.velocity.VelocityContainer;
 import org.olat.core.gui.control.Controller;
@@ -154,20 +151,13 @@ public class CampusCourseCreationController extends BasicController {
     private TableController createTableCtrl(Translator resourceTrans, TableGuiConfiguration tableConfig, UserRequest ureq, final String SUBMIT) {
         TableController tableCtrl = new TableController(tableConfig, ureq, getWindowControl(), resourceTrans, true);
 
-        tableCtrl.addColumnDescriptor(new DefaultColumnDescriptor("campus.course.table.header.displayname", RepositoryTableModel.RepoCols.displayname.ordinal(), null, resourceTrans.getLocale()));
+        tableCtrl.addColumnDescriptor(new DefaultColumnDescriptor("campus.course.table.header.displayname", RepositoryTableModel.RepoCols.displayname.ordinal(), RepositoryTableModel.TABLE_ACTION_SELECT_LINK, resourceTrans.getLocale()));
         tableCtrl.addColumnDescriptor(new DefaultColumnDescriptor("table.header.author", RepositoryTableModel.RepoCols.author.ordinal(), null, resourceTrans.getLocale()));
         tableCtrl.addColumnDescriptor(false, new DefaultColumnDescriptor("campus.course.table.header.access", RepositoryTableModel.RepoCols.access.ordinal(), null, resourceTrans.getLocale()));
         tableCtrl.addColumnDescriptor(new DefaultColumnDescriptor("table.header.date", RepositoryTableModel.RepoCols.creationDate.ordinal(), null, resourceTrans.getLocale()));
         tableCtrl.addColumnDescriptor(false, new DefaultColumnDescriptor("table.header.lastusage", RepositoryTableModel.RepoCols.lastUsage.ordinal(), null, resourceTrans.getLocale()));
-
         tableCtrl.setSortColumn(0, true);
-
         tableCtrl.setMultiSelect(false);
-// TODO sev26
-//        tableCtrl.setSingleSelect(true);
-//        tableCtrl.addSingleSelectAction(CANCEL, CANCEL);
-//        tableCtrl.addSingleSelectAction(SUBMIT, SUBMIT);
-
         listenTo(tableCtrl);
 
         return tableCtrl;
@@ -255,37 +245,22 @@ public class CampusCourseCreationController extends BasicController {
                 fireEvent(ureq, Event.DONE_EVENT);
             }
         } else if (source == creationTableCtrl || source == continuationTableCtrl) {
-// TODO sev26
-//            if (!(event instanceof TableSingleSelectEvent)) {
-//                throw new AssertException("Expected TableSingleSelectEvent");
-//            }
-//            TableSingleSelectEvent tsse = (TableSingleSelectEvent) event;
-//            if (tsse.getAction().equals(CANCEL)) {
-//                fireEvent(ureq, Event.CANCELLED_EVENT);
-//            }
-//
-//            else if (tsse.getAction().equals(CREATION_SUBMIT)) {
-//                if (tsse.getSelection() == Table.NO_ROW_SELECTED || creationTableModel.getObject(tsse.getSelection()) == null) {
-//                    openErrorDialog(ureq, "popup.course.creation.noSelection.text");
-//                } else {
-//                    final RepositoryEntry repoEntry = (RepositoryEntry) creationTableCtrl.getTableDataModel().getObject(tsse.getSelection());
-//                    final OLATResource ores = OLATResourceManager.getInstance().findResourceable(repoEntry.getOlatResource());
-//                    selectedResouceableId = ores.getResourceableId();
-//                    fireEvent(ureq, Event.DONE_EVENT);
-//                }
-//            }
-//
-//            else if (tsse.getAction().equals(CONTINUATION_SUBMIT)) {
-//                if (tsse.getSelection() == Table.NO_ROW_SELECTED || continuationTableModel.getObject(tsse.getSelection()) == null) {
-//                    openErrorDialog(ureq, "popup.course.creation.noSelection.text");
-//                } else {
-//
-//                    final RepositoryEntry repoEntry = (RepositoryEntry) continuationTableCtrl.getTableDataModel().getObject(tsse.getSelection());
-//                    final OLATResource ores = OLATResourceManager.getInstance().findResourceable(repoEntry.getOlatResource());
-//                    selectedResouceableId = ores.getResourceableId();
-//                    openCourseContinuationDialog(ureq, repoEntry.getDisplayname());
-//                }
-//            }
+
+            if (event instanceof TableEvent) {
+                TableEvent te = (TableEvent)event;
+                int rowId = te.getRowId();
+                if (te.getActionId().equals(RepositoryTableModel.TABLE_ACTION_SELECT_LINK)) {
+                    final RepositoryEntry selectedEntry = (RepositoryEntry)((TableController)source).getTableDataModel().getObject(rowId);
+                    final OLATResource ores = OLATResourceManager.getInstance().findResourceable(selectedEntry.getOlatResource());
+                    selectedResouceableId = ores.getResourceableId();
+                    if (source == creationTableCtrl) {
+                        fireEvent(ureq, Event.DONE_EVENT);
+                    } else if (source == continuationTableCtrl) {
+                        openCourseContinuationDialog(ureq, selectedEntry.getDisplayname());
+                    }
+                }
+            }
+
         }
     }
 
