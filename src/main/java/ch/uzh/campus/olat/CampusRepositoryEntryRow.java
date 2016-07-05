@@ -14,6 +14,7 @@ public class CampusRepositoryEntryRow extends RepositoryEntryRow {
 
 	private final FormLink createLink;
 	private final FormLink createByCopying;
+	private final FormLink createByContinuation;
 
 	public CampusRepositoryEntryRow(RepositoryEntryMyView entry) {
 		super(entry);
@@ -29,6 +30,12 @@ public class CampusRepositoryEntryRow extends RepositoryEntryRow {
 		createByCopying.setUserObject(this);
 		createByCopying.setCustomEnabledLinkCSS("o_create_by_copying btn-block");
 		createByCopying.setIconRightCSS("o_icon o_icon_create_by_copying");
+
+		createByContinuation = FormUIFactory.getInstance()
+				.addFormLink("create_by_continuation_" + this.getKey(), "create_by_continuation", "create_by_continuation", null, null, Link.LINK);
+		createByContinuation.setUserObject(this);
+		createByContinuation.setCustomEnabledLinkCSS("o_create_by_continuation btn-block");
+		createByContinuation.setIconRightCSS("o_icon o_icon_create_by_continuation");
 	}
 
 	public FormLink getCreateLink() {

@@ -137,7 +137,7 @@ public class CampusCourseCreationController extends BasicController {
 
         // Create the submit and the cancel Buttons
         cancelButton = LinkFactory.createButton(CANCEL, campusCourseVC, this);
-        submitButton = LinkFactory.createButton(CREATION_SUBMIT, campusCourseVC, this);
+//        submitButton = LinkFactory.createButton(CREATION_SUBMIT, campusCourseVC, this);
 
         campusCourseVC.put("courseCreationChoice", courseCreationChoiceCtrl.getInitialComponent());
 
@@ -163,9 +163,9 @@ public class CampusCourseCreationController extends BasicController {
         return tableCtrl;
     }
 
-    public int getCourseCreationSelected() {
-        return courseCreationChoiceCtrl.campusCourseCreationRadioButtons.getSelected();
-    }
+//    public int getCourseCreationSelected() {
+//        return courseCreationChoiceCtrl.campusCourseCreationRadioButtons.getSelected();
+//    }
 
     public long getSelectedResouceableId() {
         return selectedResouceableId;
