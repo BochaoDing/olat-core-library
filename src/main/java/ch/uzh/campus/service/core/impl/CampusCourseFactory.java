@@ -51,12 +51,17 @@ public class CampusCourseFactory {
 
     public CampusCourse getCampusCourse(Long sapCampusCourseId) {
         CampusCourseImportTO campusCourseTo = daoManager.getSapCampusCourse(sapCampusCourseId);
-        LOG.debug("getRepositoryEntryFor sapCourseId=" + sapCampusCourseId + "  campusCourseTo.getOlatResourceableId()=" + campusCourseTo.getOlatResourceableId());
-        if (campusCourseTo.getOlatResourceableId() == null) {
+        Long resourceableId = campusCourseTo.getOlatResourceableId();
+        LOG.debug("getRepositoryEntryFor sapCourseId=" + sapCampusCourseId + "  campusCourseTo.getOlatResourceableId()=" + resourceableId);
+        if (resourceableId == null) {
             LOG.warn("sapCourseId = " + sapCampusCourseId + ": no OLAT course found");
             return null;
         }
-        ICourse olatCourse = CourseFactory.loadCourse(campusCourseTo.getOlatResourceableId());
+        return getCampusCourseByResourceable(resourceableId);
+    }
+
+    public CampusCourse getCampusCourseByResourceable(Long resourceableId) {
+        ICourse olatCourse = CourseFactory.loadCourse(resourceableId);
         RepositoryEntry repositoryEntry = repositoryManager.lookupRepositoryEntry(olatCourse, true);
         return new CampusCourse(olatCourse, repositoryEntry);
     }

@@ -185,6 +185,29 @@ public class CampusCourseCoreServiceImpl implements CampusCourseCoreService {
     }
 
     @Override
+    public CampusCourse loadCampusCourseByResourceable(Long resourceableId) {
+        return campusCourseFactory.getCampusCourseByResourceable(resourceableId);
+    }
+
+    @Override
+    public Course getLatestCourseByResourceable(Long resourceableId) {
+        // TODO OLATng - implement a new JPQL query that already returns the latest course
+        // get the entire list
+        List<Course> courses = daoManager.getCourseByResourceable(resourceableId);
+        // search for latest
+        Course latestCourse = null;
+        Long maxId = 0L;
+        for (Course course : courses) {
+            if (course.getId() > maxId) {
+                maxId = course.getId();
+                latestCourse = course;
+            }
+        }
+
+        return latestCourse;
+    }
+
+    @Override
     public void resetResourceableIdReference(OLATResourceable res) {
         LOG.info("deleteResourceableIdReference for resourceableId=" + res.getResourceableId());
         daoManager.resetResourceableId(res.getResourceableId());

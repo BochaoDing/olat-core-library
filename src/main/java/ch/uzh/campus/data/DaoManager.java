@@ -361,6 +361,10 @@ public class DaoManager {
         courseDao.disableSynchronization(courseId);
     }
 
+    public List<Course> getCourseByResourceable(Long resourcableId) {
+        return courseDao.getCourseByResourceable(resourcableId);
+    }
+
     public void resetResourceableId(Long resourceableId) {
         courseDao.resetResourceable(resourceableId);
     }

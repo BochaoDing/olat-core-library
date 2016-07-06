@@ -120,6 +120,13 @@ public class CourseDao implements CampusDao<Course> {
         }
     }
 
+    public List<Course> getCourseByResourceable(Long resourceableId) {
+        return dbInstance.getCurrentEntityManager()
+                .createNamedQuery(Course.GET_COURSE_BY_RESOURCEABLE_ID, Course.class)
+                .setParameter("resourceableId", resourceableId)
+                .getResultList();
+    }
+
     public void saveParentCourseId(Long courseId, Long parentCourseId) {
         Course course = getCourseById(courseId);
         Course parentCourse = getCourseById(parentCourseId);

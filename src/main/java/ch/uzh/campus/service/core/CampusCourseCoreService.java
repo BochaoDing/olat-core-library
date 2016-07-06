@@ -25,6 +25,10 @@ public interface CampusCourseCoreService {
 
     CampusCourse loadCampusCourse(Long sapCampusCourseId);
 
+    CampusCourse loadCampusCourseByResourceable(Long resourceableId);
+
+    Course getLatestCourseByResourceable(Long resourceableId);
+
     void resetResourceableIdReference(OLATResourceable res);
 
     RepositoryEntry getRepositoryEntryFor(Long sapCourseId);

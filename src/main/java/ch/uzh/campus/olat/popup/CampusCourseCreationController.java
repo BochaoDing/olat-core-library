@@ -21,16 +21,13 @@
 
 package ch.uzh.campus.olat.popup;
 
+import ch.uzh.campus.data.Course;
 import ch.uzh.campus.olat.CampusCourseOlatHelper;
+import ch.uzh.campus.service.CampusCourse;
 import ch.uzh.campus.service.core.CampusCourseCoreService;
 import org.apache.commons.lang.StringUtils;
 import org.olat.core.gui.UserRequest;
 import org.olat.core.gui.components.Component;
-import org.olat.core.gui.components.form.flexible.FormItem;
-import org.olat.core.gui.components.form.flexible.FormItemContainer;
-import org.olat.core.gui.components.form.flexible.elements.SingleSelection;
-import org.olat.core.gui.components.form.flexible.impl.FormBasicController;
-import org.olat.core.gui.components.form.flexible.impl.FormEvent;
 import org.olat.core.gui.components.link.Link;
 import org.olat.core.gui.components.link.LinkFactory;
 import org.olat.core.gui.components.table.*;
@@ -41,8 +38,8 @@ import org.olat.core.gui.control.Event;
 import org.olat.core.gui.control.WindowControl;
 import org.olat.core.gui.control.controller.BasicController;
 import org.olat.core.gui.control.generic.closablewrapper.CloseableModalController;
+import org.olat.core.gui.control.generic.modal.ButtonClickedEvent;
 import org.olat.core.gui.control.generic.modal.DialogBoxController;
-import org.olat.core.gui.control.generic.modal.DialogBoxUIFactory;
 import org.olat.core.gui.translator.Translator;
 import org.olat.core.util.StringHelper;
 import org.olat.core.util.Util;
@@ -54,9 +51,6 @@ import org.olat.resource.OLATResourceManager;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import static org.olat.admin.sysinfo.HibernateQueriesController.QueryCols.row;
-import static org.olat.core.gui.control.generic.closablewrapper.CloseableModalController.CLOSE_MODAL_EVENT;
 
 /**
  * Initial Date: 23.10.2012<br />
@@ -218,10 +212,6 @@ public class CampusCourseCreationController extends BasicController {
         campusCourseVC.setDirty(true);
     }
 
-    private void openErrorDialog(final UserRequest ureq, String errorText) {
-        showError(errorText);
-    }
-
     private void closeDialog(final UserRequest ureq) {
         if (cmc != null) {
             cmc.deactivate();
@@ -238,8 +228,16 @@ public class CampusCourseCreationController extends BasicController {
     @Override
     protected void event(final UserRequest ureq, final Controller source, final Event event) {
         if (source == courseContinuationDialog) {
-            if (event.equals(Event.CANCELLED_EVENT)) {
-                closeDialog(ureq);
+            if (event instanceof ButtonClickedEvent) {
+                int position = ((ButtonClickedEvent) event).getPosition();
+                if (position == 0) {
+                    CampusCourse continuedCourse = continueCampusCourse(ureq);
+                    if (continuedCourse == null) {
+                        showError("popup.course.notContinued.becauseOfRemovedDelegation.text", campusCourseTitle);
+                    }
+                } else if (position == 1) {
+                    closeDialog(ureq);
+                }
             }
         } else if (source == creationTableCtrl || source == continuationTableCtrl) {
             if (event instanceof TableEvent) {
@@ -258,6 +256,14 @@ public class CampusCourseCreationController extends BasicController {
                 }
             }
         }
+    }
+
+    private CampusCourse continueCampusCourse(final UserRequest ureq) {
+        if (!campusCourseCoreService.checkDelegation(sapCampusCourseId, ureq.getIdentity())) {
+            return null;
+        }
+        Course parentCourse = campusCourseCoreService.getLatestCourseByResourceable(selectedResouceableId);
+        return campusCourseCoreService.continueCampusCourse(sapCampusCourseId, parentCourse.getId(), ureq.getIdentity());
     }
 
     private void openCourseContinuationDialog(final UserRequest ureq, String courseTitle) {
