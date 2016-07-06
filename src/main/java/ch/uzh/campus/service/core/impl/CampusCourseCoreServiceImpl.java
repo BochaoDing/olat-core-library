@@ -133,8 +133,11 @@ public class CampusCourseCoreServiceImpl implements CampusCourseCoreService {
                 // Create the campus course by copying the appropriate template (default or custom)
                 campusCourse = campusCourseCreator.createCampusCourseFromTemplate(campusCourseImportData, templateCourseResourceableId, creator, isDefaultTemplateUsed);
                 campusCourse.updateCampusCourseCreatedFromTemplate(campusCourseImportData, creator, isDefaultTemplateUsed, campusCourseCreator, campusCoursePublisher, campusCourseGroupSynchronizer, campusCourseConfiguration);
-                daoManager.saveCampusCourseResoureableId(sapCampusCourseId, campusCourse.getRepositoryEntry().getOlatResource().getResourceableId());
+                Long resourceableId = campusCourse.getRepositoryEntry().getOlatResource().getResourceableId();
+                daoManager.saveCampusCourseResoureableId(sapCampusCourseId, resourceableId);
                 dbInstance.intermediateCommit();
+                // Notify possible listeners about CREATED event
+                sendCampusCourseEvent(resourceableId, CampusCourseEvent.DELETED);
                 return campusCourse;
 
             } catch (Exception ex) {
@@ -170,6 +173,9 @@ public class CampusCourseCoreServiceImpl implements CampusCourseCoreService {
         CampusCourse campusCourse = loadCampusCourse(parentSapCampusCourseId);
         campusCourse.continueCampusCourse(daoManager.getSapCampusCourse(sapCampusCourseId), creator, repositoryService, campusCourseDescriptionBuilder, campusCourseCreator, campusCourseGroupSynchronizer);
         dbInstance.intermediateCommit();
+        // Notify possible listeners about CONTINUED event
+        Long resourceableId = campusCourse.getRepositoryEntry().getOlatResource().getResourceableId();
+        sendCampusCourseEvent(resourceableId, CampusCourseEvent.CONTINUED);
         return campusCourse;
     }
 
@@ -184,11 +190,7 @@ public class CampusCourseCoreServiceImpl implements CampusCourseCoreService {
         daoManager.resetResourceableId(res.getResourceableId());
 
         // Notify possible listeners about DELETED event
-        CoordinatorManager.getInstance().getCoordinator().getEventBus().fireEventToListenersOf(
-                new CampusCourseEvent(
-                        res.getResourceableId(), CampusCourseEvent.DELETED
-                ), OresHelper.lookupType(CampusCourse.class)
-        );
+        sendCampusCourseEvent(res.getResourceableId(), CampusCourseEvent.DELETED);
     }
 
     /**
@@ -249,5 +251,12 @@ public class CampusCourseCoreServiceImpl implements CampusCourseCoreService {
     public void deleteDelegation(Identity delegator, Identity delegatee) {
         daoManager.deleteDelegation(delegator, delegatee);
         dbInstance.intermediateCommit();
+    }
+
+    private void sendCampusCourseEvent(Long resourceableId, int event) {
+        CoordinatorManager.getInstance().getCoordinator().getEventBus().fireEventToListenersOf(
+                new CampusCourseEvent(resourceableId, event), OresHelper.lookupType(CampusCourse.class)
+        );
+
     }
 }
