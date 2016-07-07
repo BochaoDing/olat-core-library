@@ -71,57 +71,51 @@ public class CampusImportJobInterceptor implements JobExecutionListener {
 				return;
 			}
 
-			{
-				int lecturerCoursesToBeRemoved = daoManager.deleteAllLCBookingTooFarInThePast(jobExecution.getStartTime());
-                dbInstance.intermediateCommit();
-                List<LecturerIdCourseId> lecturerIdCourseIdsToBeRemoved = daoManager.getAllNotUpdatedLCBookingOfCurrentSemester(jobExecution.getStartTime());
-                if (!lecturerIdCourseIdsToBeRemoved.isEmpty()) {
-                    lecturerCoursesToBeRemoved += daoManager.deleteLCBookingByLecturerIdCourseIds(lecturerIdCourseIdsToBeRemoved);
-                }
-				LOG.info("LECTURER_COURSES TO BE REMOVED ["  + lecturerCoursesToBeRemoved + "]");
+			int lecturerCoursesToBeRemoved = daoManager.deleteAllLCBookingTooFarInThePast(jobExecution.getStartTime());
+			dbInstance.intermediateCommit();
+			List<LecturerIdCourseId> lecturerIdCourseIdsToBeRemoved = daoManager.getAllNotUpdatedLCBookingOfCurrentSemester(jobExecution.getStartTime());
+			if (!lecturerIdCourseIdsToBeRemoved.isEmpty()) {
+				lecturerCoursesToBeRemoved += daoManager.deleteLCBookingByLecturerIdCourseIds(lecturerIdCourseIdsToBeRemoved);
+			}
+			LOG.info("LECTURER_COURSES TO BE REMOVED ["  + lecturerCoursesToBeRemoved + "]");
+
+			int studentCoursesToBeRemoved = daoManager.deleteAllSCBookingTooFarInThePast(jobExecution.getStartTime());
+			dbInstance.intermediateCommit();
+			List<StudentIdCourseId> studentIdCourseIdsToBeRemoved = daoManager.getAllNotUpdatedSCBookingOfCurrentSemester(jobExecution.getStartTime());
+			if (!studentIdCourseIdsToBeRemoved.isEmpty()) {
+				studentCoursesToBeRemoved += daoManager.deleteSCBookingByStudentIdCourseIds(studentIdCourseIdsToBeRemoved);
+			}
+			LOG.info("STUDENT_COURSES TO BE REMOVED [" + studentCoursesToBeRemoved + "]");
+
+			List<Long> orgsToBeRemoved = daoManager.getAllOrgsToBeDeleted(jobExecution.getStartTime());
+			LOG.info("ORGS TO BE REMOVED [" + orgsToBeRemoved.size() + "]");
+			if (!orgsToBeRemoved.isEmpty()) {
+				daoManager.deleteOrgByIds(orgsToBeRemoved);
+				dbInstance.intermediateCommit();
 			}
 
-			{
-                int studentCoursesToBeRemoved = daoManager.deleteAllSCBookingTooFarInThePast(jobExecution.getStartTime());
-                dbInstance.intermediateCommit();
-                List<StudentIdCourseId> studentIdCourseIdsToBeRemoved = daoManager.getAllNotUpdatedSCBookingOfCurrentSemester(jobExecution.getStartTime());
-                if (!studentIdCourseIdsToBeRemoved.isEmpty()) {
-                    studentCoursesToBeRemoved += daoManager.deleteSCBookingByStudentIdCourseIds(studentIdCourseIdsToBeRemoved);
-                }
-				LOG.info("STUDENT_COURSES TO BE REMOVED [" + studentCoursesToBeRemoved + "]");
+			List<Long> studentsToBeRemoved = daoManager.getAllStudentsToBeDeleted();
+			LOG.info("STUDENTS TO BE REMOVED [" + studentsToBeRemoved.size() + "]");
+			if (!studentsToBeRemoved.isEmpty()) {
+				daoManager.deleteStudentsAndBookingsByStudentIds(studentsToBeRemoved);
+				dbInstance.intermediateCommit();
 			}
 
-			{
-				List<Long> orgsToBeRemoved = daoManager.getAllOrgsToBeDeleted(jobExecution.getStartTime());
-				LOG.info("ORGS TO BE REMOVED [" + orgsToBeRemoved.size() + "]");
-				if (!orgsToBeRemoved.isEmpty()) {
-					daoManager.deleteOrgByIds(orgsToBeRemoved);
-				}
+			List<Long> lecturersToBeRemoved = daoManager.getAllLecturersToBeDeleted();
+			LOG.info("LECTURERS TO BE REMOVED [" + lecturersToBeRemoved.size() + "]");
+			if (!lecturersToBeRemoved.isEmpty()) {
+				daoManager.deleteLecturersAndBookingsByLecturerIds(lecturersToBeRemoved);
+				dbInstance.intermediateCommit();
 			}
 
-			{
-				List<Long> studentsToBeRemoved = daoManager.getAllStudentsToBeDeleted();
-				LOG.info("STUDENTS TO BE REMOVED [" + studentsToBeRemoved.size() + "]");
-				if (!studentsToBeRemoved.isEmpty()) {
-					daoManager.deleteStudentsAndBookingsByStudentIds(studentsToBeRemoved);
-				}
+			List<Long> coursesToBeRemoved = daoManager.getAllCoursesToBeDeleted();
+			LOG.info("COURSES TO BE REMOVED [" + coursesToBeRemoved.size() + "]");
+			if (!coursesToBeRemoved.isEmpty()) {
+				daoManager.deleteCoursesAndBookingsByCourseIds(coursesToBeRemoved);
+				dbInstance.intermediateCommit();
 			}
 
-			{
-				List<Long> lecturersToBeRemoved = daoManager.getAllLecturersToBeDeleted();
-				LOG.info("LECTURERS TO BE REMOVED [" + lecturersToBeRemoved.size() + "]");
-				if (!lecturersToBeRemoved.isEmpty()) {
-					daoManager.deleteLecturersAndBookingsByLecturerIds(lecturersToBeRemoved);
-				}
-			}
-
-			{
-				List<Long> coursesToBeRemoved = daoManager.getAllCoursesToBeDeleted();
-				LOG.info("COURSES TO BE REMOVED [" + coursesToBeRemoved.size() + "]");
-				if (!coursesToBeRemoved.isEmpty()) {
-					daoManager.deleteCoursesAndBookingsByCourseIds(coursesToBeRemoved);
-				}
-			}
+			dbInstance.closeSession();
 		}
 	}
 }
