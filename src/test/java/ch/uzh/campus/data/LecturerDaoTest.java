@@ -188,8 +188,8 @@ public class LecturerDaoTest extends OlatTestCase {
         dbInstance.flush();
 
         // Insert some courses
-        List<Course> courses = mockDataGeneratorProvider.get().getCourses();
-        courseDao.save(courses);
+        List<CourseOrgId> courseOrgIds = mockDataGeneratorProvider.get().getCourseOrgIds();
+        courseDao.save(courseOrgIds);
         dbInstance.flush();
 
         // Insert some lecturerIdCourseIds

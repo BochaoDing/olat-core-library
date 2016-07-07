@@ -70,7 +70,9 @@ public class DaoManager {
     
 
     public void saveCourses(List<Course> courses) {
-        courseDao.save(courses);
+        for (Course course : courses) {
+            courseDao.save(course);
+        }
     }
 
     public void saveOrgs(List<Org> orgs) {
@@ -121,11 +123,7 @@ public class DaoManager {
         List<List<Long>> listSplit = ListUtil.split(courseIds, campusCourseConfiguration.getEntitiesSublistMaxSize());
         for (List<Long> subList : listSplit) {
             if (!subList.isEmpty()) {
-                studentCourseDao.deleteByCourseIdsAsBulkDelete(subList);
-                lecturerCourseDao.deleteByCourseIdsAsBulkDelete(subList);
-                eventDao.deleteEventsByCourseIdsAsBulkDelete(subList);
-                textDao.deleteTextsByCourseIdsAsBulkDelete(subList);
-                courseDao.deleteByCourseIdsAsBulkDelete(subList);
+                courseDao.deleteByCourseIds(subList);
             }
         }
     }
@@ -248,8 +246,8 @@ public class DaoManager {
         return orgDao.getAllNotUpdatedOrgs(date);
     }
 
-    public int deleteOrgByIds(List<Long> orgIds) {
-        return orgDao.deleteByOrgIdsAsBulkDelete(orgIds);
+    public void deleteOrgByIds(List<Long> orgIds) {
+        orgDao.deleteByOrgIds(orgIds);
     }
 
     public SapOlatUser getStudentSapOlatUserByOlatUserName(String olatUserName) {

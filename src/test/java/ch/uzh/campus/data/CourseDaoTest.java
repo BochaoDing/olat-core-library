@@ -8,9 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 
 import javax.inject.Provider;
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 import static org.junit.Assert.*;
 
@@ -26,6 +24,9 @@ public class CourseDaoTest extends OlatTestCase {
 
     @Autowired
     private DB dbInstance;
+
+    @Autowired
+    private OrgDao orgDao;
 
     @Autowired
     private CourseDao courseDao;
@@ -51,11 +52,111 @@ public class CourseDaoTest extends OlatTestCase {
     @Autowired
     private Provider<MockDataGenerator> mockDataGeneratorProvider;
 
-    private List<Course> courses;
-
     @After
     public void after() {
         dbInstance.rollback();
+    }
+
+    @Test
+    public void testSaveCourseOrgId() {
+        // Insert some orgs
+        List<Org> orgs = mockDataGeneratorProvider.get().getOrgs();
+        orgDao.save(orgs);
+        dbInstance.flush();
+
+        assertNull(courseDao.getCourseById(100L));
+        assertNull(courseDao.getCourseById(300L));
+
+        // Insert some courseOrgIds
+        List<CourseOrgId> courseOrgIds = mockDataGeneratorProvider.get().getCourseOrgIds();
+        courseDao.save(courseOrgIds);
+
+        // Check before calling flush
+        assertSave();
+
+        dbInstance.flush();
+        dbInstance.clear();
+
+        assertSave();
+    }
+
+    private void assertSave() {
+        Course course = courseDao.getCourseById(100L);
+        assertNotNull(course);
+        assertEquals(1, course.getOrgs().size());
+
+        course = courseDao.getCourseById(300L);
+        assertNotNull(course);
+        assertEquals(9, course.getOrgs().size());
+
+        Set<Long> orgIds = new HashSet<>();
+        for (Org org1 : course.getOrgs()) {
+            orgIds.add(org1.getId());
+        }
+        assertTrue(orgIds.contains(9100L));
+        assertTrue(orgIds.contains(9200L));
+        assertTrue(orgIds.contains(9300L));
+        assertTrue(orgIds.contains(9400L));
+        assertTrue(orgIds.contains(9500L));
+        assertTrue(orgIds.contains(9600L));
+        assertTrue(orgIds.contains(9700L));
+        assertTrue(orgIds.contains(9800L));
+        assertTrue(orgIds.contains(9900L));
+
+        Org org = orgDao.getOrgById(9100L);
+        assertNotNull(org);
+        assertEquals(2, org.getCourses().size());
+
+        Set<Long> courseIds = new HashSet<>();
+        for (Course course1 : org.getCourses()) {
+            courseIds.add(course1.getId());
+        }
+        assertTrue(courseIds.contains(100L));
+        assertTrue(courseIds.contains(300L));
+    }
+
+    @Test
+    public void testSaveOrUpdateCourseOrgId() {
+        insertTestData();
+
+        Course course = courseDao.getCourseById(100L);
+        assertNotNull(course);
+        assertEquals(1, course.getOrgs().size());
+
+        // Modify orgs of course with id 100L
+        CourseOrgId courseOrgIdUpdated = mockDataGeneratorProvider.get().getCourseOrgIds().get(0);
+        assertEquals(100L, courseOrgIdUpdated.getId().longValue());
+        courseOrgIdUpdated.setOrg1(null);
+        courseOrgIdUpdated.setOrg2(9200L);
+        courseOrgIdUpdated.setOrg3(9300L);
+        courseOrgIdUpdated.setOrg4(9400L);
+        courseOrgIdUpdated.setOrg5(9500L);
+        courseOrgIdUpdated.setOrg6(9600L);
+        courseOrgIdUpdated.setOrg7(9700L);
+        courseOrgIdUpdated.setOrg8(9800L);
+        courseOrgIdUpdated.setOrg9(9900L);
+
+        courseDao.saveOrUpdate(courseOrgIdUpdated);
+
+        dbInstance.flush();
+        dbInstance.clear();
+
+        courseDao.getCourseById(100L);
+        assertNotNull(course);
+        assertEquals(8, course.getOrgs().size());
+
+        Set<Long> orgIds = new HashSet<>();
+        for (Org org : course.getOrgs()) {
+            orgIds.add(org.getId());
+        }
+        assertTrue(orgIds.contains(9200L));
+        assertTrue(orgIds.contains(9300L));
+        assertTrue(orgIds.contains(9400L));
+        assertTrue(orgIds.contains(9500L));
+        assertTrue(orgIds.contains(9600L));
+        assertTrue(orgIds.contains(9700L));
+        assertTrue(orgIds.contains(9800L));
+        assertTrue(orgIds.contains(9900L));
     }
 
     @Test
@@ -169,12 +270,17 @@ public class CourseDaoTest extends OlatTestCase {
         assertNotNull(student);
         assertEquals(3, student.getStudentCourses().size());
         assertNotNull(studentCourseDao.getStudentCourseById(2100L, 100L));
+        Org org = orgDao.getOrgById(9100L);
+        assertNotNull(org);
+        assertEquals(2, org.getCourses().size());
 
-        courseDao.delete(courses.get(0));
+        Course courseToBeDeleted = courseDao.getCourseById(100L);
+        courseDao.delete(courseToBeDeleted);
 
         // Check before flush
         assertEquals(1, lecturer.getLecturerCourses().size());
         assertEquals(2, student.getStudentCourses().size());
+        assertEquals(1, org.getCourses().size());
 
         dbInstance.flush();
         dbInstance.clear();
@@ -189,6 +295,9 @@ public class CourseDaoTest extends OlatTestCase {
         assertNotNull(student);
         assertEquals(2, student.getStudentCourses().size());
         assertNull(studentCourseDao.getStudentCourseById(2100L, 100L));
+        org = orgDao.getOrgById(9100L);
+        assertNotNull(org);
+        assertEquals(1, org.getCourses().size());
     }
 
     @Test
@@ -203,6 +312,9 @@ public class CourseDaoTest extends OlatTestCase {
         assertNotNull(student);
         assertEquals(3, student.getStudentCourses().size());
         assertNotNull(studentCourseDao.getStudentCourseById(2100L, 100L));
+        Org org = orgDao.getOrgById(9100L);
+        assertNotNull(org);
+        assertEquals(2, org.getCourses().size());
         assertFalse(textDao.getTextsByCourseId(100L).isEmpty());
         assertFalse(eventDao.getEventsByCourseId(100L).isEmpty());
 
@@ -211,6 +323,7 @@ public class CourseDaoTest extends OlatTestCase {
         // Check before flush
         assertEquals(1, lecturer.getLecturerCourses().size());
         assertEquals(2, student.getStudentCourses().size());
+        assertEquals(1, org.getCourses().size());
 
         dbInstance.flush();
         dbInstance.clear();
@@ -225,6 +338,9 @@ public class CourseDaoTest extends OlatTestCase {
         assertNotNull(student);
         assertEquals(2, student.getStudentCourses().size());
         assertNull(studentCourseDao.getStudentCourseById(2100L, 100L));
+        org = orgDao.getOrgById(9100L);
+        assertNotNull(org);
+        assertEquals(1, org.getCourses().size());
         assertTrue(textDao.getTextsByCourseId(100L).isEmpty());
         assertTrue(eventDao.getEventsByCourseId(100L).isEmpty());
     }
@@ -244,35 +360,6 @@ public class CourseDaoTest extends OlatTestCase {
         dbInstance.clear();
 
         assertEquals(0, courseDao.getAllCreatedCourses().size());
-    }
-
-    @Test
-    public void testDeleteByCourseIdsAsBulkDelete() {
-        insertTestData();
-        assertEquals(2, courseDao.getAllCreatedCourses().size());
-        assertNotNull(lecturerCourseDao.getLecturerCourseById(1100L, 100L));
-        assertNotNull(studentCourseDao.getStudentCourseById(2100L, 100L));
-        assertFalse(textDao.getTextsByCourseId(100L).isEmpty());
-        assertFalse(eventDao.getEventsByCourseId(100L).isEmpty());
-
-        List<Long> courseIds = new LinkedList<>();
-        courseIds.add(100L);
-        courseIds.add(200L);
-
-        studentCourseDao.deleteByCourseIdsAsBulkDelete(courseIds);
-        lecturerCourseDao.deleteByCourseIdsAsBulkDelete(courseIds);
-        textDao.deleteTextsByCourseIdsAsBulkDelete(courseIds);
-        eventDao.deleteEventsByCourseIdsAsBulkDelete(courseIds);
-        courseDao.deleteByCourseIdsAsBulkDelete(courseIds);
-
-        dbInstance.flush();
-        dbInstance.clear();
-
-        assertEquals(0, courseDao.getAllCreatedCourses().size());
-        assertNull(lecturerCourseDao.getLecturerCourseById(1100L, 100L));
-        assertNull(studentCourseDao.getStudentCourseById(2100L, 100L));
-        assertTrue(textDao.getTextsByCourseId(100L).isEmpty());
-        assertTrue(eventDao.getEventsByCourseId(100L).isEmpty());
     }
 
     @Test
@@ -409,7 +496,7 @@ public class CourseDaoTest extends OlatTestCase {
 
         assertEquals(numberOfCoursesFoundBeforeInsertingTestData, courseDao.getAllNotCreatedOrphanedCourses().size());
 
-        // Remove lecturerCourse and student course entries of course 100 (not created course) and 300 (created course)-> courses are orphaned
+        // Remove lecturerCourse and student course entries of course 100 (not created course) and 300 (created course)-> courseOrgIds are orphaned
         List<Long> courseIds = new ArrayList<>();
         courseIds.add(100L);
         courseIds.add(300L);
@@ -666,9 +753,14 @@ public class CourseDaoTest extends OlatTestCase {
     }
 
     private void insertTestData() {
-        // Insert some courses
-        courses = mockDataGeneratorProvider.get().getCourses();
-        courseDao.save(courses);
+        // Insert some orgs
+        List<Org> orgs = mockDataGeneratorProvider.get().getOrgs();
+        orgDao.save(orgs);
+        dbInstance.flush();
+
+        // Insert some courseOrgIds
+        List<CourseOrgId> courseOrgIds = mockDataGeneratorProvider.get().getCourseOrgIds();
+        courseDao.save(courseOrgIds);
         dbInstance.flush();
 
         // Insert some lecturers
@@ -676,7 +768,7 @@ public class CourseDaoTest extends OlatTestCase {
         lecturerDao.save(lecturers);
         dbInstance.flush();
 
-        // Add lecturers to courses
+        // Add lecturers to courseOrgIds
         List<LecturerIdCourseIdModifiedDate> lecturerIdCourseIdModifiedDates = mockDataGeneratorProvider.get().getLecturerIdCourseIdModifiedDates();
         lecturerCourseDao.save(lecturerIdCourseIdModifiedDates);
         dbInstance.flush();
@@ -686,7 +778,7 @@ public class CourseDaoTest extends OlatTestCase {
         studentDao.save(students);
         dbInstance.flush();
 
-        // Add students to courses
+        // Add students to courseOrgIds
         List<StudentIdCourseIdModifiedDate> studentIdCourseIdModifiedDates = mockDataGeneratorProvider.get().getStudentIdCourseIdModifiedDates();
         studentCourseDao.save(studentIdCourseIdModifiedDates);
         dbInstance.flush();

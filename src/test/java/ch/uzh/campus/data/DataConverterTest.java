@@ -114,7 +114,7 @@ public class DataConverterTest extends OlatTestCase {
      * Adds students to the first course found.
      */
 	private Course getCourseWithStudents() {
-		Course course = dataGenerator.getCourses().get(0);
+		Course course = dataGenerator.getCourseOrgIds().get(0);
 		
         List<StudentIdCourseIdModifiedDate> studentIdCourseIdModifiedDates = dataGenerator.getStudentIdCourseIdModifiedDates();
         List<Long> studentIds = new ArrayList<>();
@@ -136,7 +136,7 @@ public class DataConverterTest extends OlatTestCase {
 	}
 	
 	private Course getCourseWithLecturers() {
-		Course course = dataGenerator.getCourses().get(0);
+		Course course = dataGenerator.getCourseOrgIds().get(0);
 		
         List<LecturerIdCourseIdModifiedDate> lecturerIdCourseIdModifiedDates = dataGenerator.getLecturerIdCourseIdModifiedDates();
         List<Long> lecturerIds = new ArrayList<>();

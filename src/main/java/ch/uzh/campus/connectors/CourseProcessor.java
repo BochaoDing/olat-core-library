@@ -20,7 +20,7 @@
  */
 package ch.uzh.campus.connectors;
 
-import ch.uzh.campus.data.Course;
+import ch.uzh.campus.data.CourseOrgId;
 import ch.uzh.campus.data.DaoManager;
 import org.apache.commons.lang.StringUtils;
 import org.olat.core.logging.OLog;
@@ -40,7 +40,7 @@ import java.util.*;
  * 
  * @author aabouc
  */
-public class CourseProcessor implements ItemProcessor<Course, Course> {
+public class CourseProcessor implements ItemProcessor<CourseOrgId, CourseOrgId> {
 	
 	private static final OLog LOG = Tracing.createLoggerFor(CourseProcessor.class);
 
@@ -81,38 +81,66 @@ public class CourseProcessor implements ItemProcessor<Course, Course> {
      * Returns null if the input course has been already processed, <br>
      * otherwise modifies it according to some criteria and returns it as output
      * 
-     * @param course
+     * @param courseOrgId
      *            the Course to be processed
      */
-    public Course process(Course course) throws Exception {
+    public CourseOrgId process(CourseOrgId courseOrgId) throws Exception {
 
         // JUST IGNORE THE DUPLICATES
-        if (!CampusUtils.addIfNotAlreadyProcessed(processedIdsSet, course.getId())) {
-            LOG.debug("This is a duplicate of this course [" + course.getId() + "]");
+        if (!CampusUtils.addIfNotAlreadyProcessed(processedIdsSet, courseOrgId.getId())) {
+            LOG.debug("This is a duplicate of this course [" + courseOrgId.getId() + "]");
             return null;
         }
 
-        course.setModifiedDate(new Date());
+        courseOrgId.setModifiedDate(new Date());
 
-        if (course.getTitle().contains(CampusUtils.SEMICOLON_REPLACEMENT)) {
-            course.setTitle(StringUtils.replace(course.getTitle(), CampusUtils.SEMICOLON_REPLACEMENT, CampusUtils.SEMICOLON));
+        if (courseOrgId.getTitle().contains(CampusUtils.SEMICOLON_REPLACEMENT)) {
+            courseOrgId.setTitle(StringUtils.replace(courseOrgId.getTitle(), CampusUtils.SEMICOLON_REPLACEMENT, CampusUtils.SEMICOLON));
         }
 
-        String shortSemester = buildShortSemester(course.getSemester());
+        String shortSemester = buildShortSemester(courseOrgId.getSemester());
         if (shortSemester != null) {
-            course.setShortSemester(shortSemester);
+            courseOrgId.setShortSemester(shortSemester);
+        }
+
+        if (courseOrgId.getOrg1().equals(0L)) {
+            courseOrgId.setOrg1(null);
+        }
+        if (courseOrgId.getOrg2().equals(0L)) {
+            courseOrgId.setOrg2(null);
+        }
+        if (courseOrgId.getOrg3().equals(0L)) {
+            courseOrgId.setOrg3(null);
+        }
+        if (courseOrgId.getOrg4().equals(0L)) {
+            courseOrgId.setOrg4(null);
+        }
+        if (courseOrgId.getOrg5().equals(0L)) {
+            courseOrgId.setOrg5(null);
+        }
+        if (courseOrgId.getOrg6().equals(0L)) {
+            courseOrgId.setOrg6(null);
+        }
+        if (courseOrgId.getOrg7().equals(0L)) {
+            courseOrgId.setOrg7(null);
+        }
+        if (courseOrgId.getOrg8().equals(0L)) {
+            courseOrgId.setOrg8(null);
+        }
+        if (courseOrgId.getOrg9().equals(0L)) {
+            courseOrgId.setOrg9(null);
         }
 
         if (enabledOrgs.isEmpty()) {
-            if (course.getIpz().equalsIgnoreCase("X")) {
-                course.setEnabled("1");
+            if (courseOrgId.getIpz().equalsIgnoreCase("X")) {
+                courseOrgId.setEnabled("1");
             }
-        } else if (enabledOrgs.contains(course.getOrg1()) || enabledOrgs.contains(course.getOrg2()) || enabledOrgs.contains(course.getOrg3())
-                || enabledOrgs.contains(course.getOrg4()) || enabledOrgs.contains(course.getOrg5())) {
-            course.setEnabled("1");
+        } else if (enabledOrgs.contains(courseOrgId.getOrg1()) || enabledOrgs.contains(courseOrgId.getOrg2()) || enabledOrgs.contains(courseOrgId.getOrg3())
+                || enabledOrgs.contains(courseOrgId.getOrg4()) || enabledOrgs.contains(courseOrgId.getOrg5())) {
+            courseOrgId.setEnabled("1");
         }
 
-        return course;
+        return courseOrgId;
     }
 
     /**

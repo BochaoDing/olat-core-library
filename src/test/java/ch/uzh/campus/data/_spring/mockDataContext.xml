@@ -18,7 +18,7 @@
         <property name="delegations" ref="delegations" />
         <property name="students" ref="students" />
         <property name="lecturers" ref="lecturers" />
-        <property name="courses" ref="courses" />
+        <property name="courseOrgIds" ref="courseOrgIds" />
         <property name="textCourseIds" ref="textCourseIds" />
         <property name="eventCourseIds" ref="eventCourseIds" />
         <property name="importStatistics" ref="importStatistics" />
@@ -55,19 +55,79 @@
     <!-- ===============Course================= -->
     <!-- ======================================================================================= -->
     <!-- shortSemester must be in far into the future for robust JUnit tests! -->
-    <bean id="course_1" class="ch.uzh.campus.data.Course" p:id="100" p:resourceableId="100" p:shortTitle="shortTitle1" p:title="title1" p:vstNr="vstNr1" p:category="Seminar" p:language="EN" p:vvzLink="link" p:semester="hs" p:shortSemester="99HS" p:enabled="1" p:synchronizable="true" p:modifiedDate="10.10.2014 10:10" scope="prototype" />
-    <bean id="course_2" class="ch.uzh.campus.data.Course" p:id="200" p:resourceableId="200" p:shortTitle="shortTitle2" p:title="title2" p:vstNr="vstNr2" p:category="Seminar" p:language="EN" p:vvzLink="link" p:semester="hs" p:shortSemester="99HS" p:enabled="1" p:synchronizable="true" p:modifiedDate="10.10.2014 10:10" scope="prototype" />
-    <bean id="course_3" class="ch.uzh.campus.data.Course" p:id="300" p:shortTitle="shortTitle3" p:title="title3" p:vstNr="vstNr3" p:category="Seminar" p:language="EN" p:vvzLink="link" p:semester="hs" p:shortSemester="99HS" p:enabled="1" p:synchronizable="true" p:modifiedDate="10.10.2014 10:10" scope="prototype">
-        <property name="resourceableId"><null/></property>
+    <bean id="course_1" class="ch.uzh.campus.data.CourseOrgId" p:id="100" p:shortTitle="shortTitle1" p:title="title1" p:vstNr="vstNr1" p:category="Seminar" p:language="EN" p:vvzLink="link" p:semester="hs" p:shortSemester="99HS" p:enabled="1" p:synchronizable="true" p:modifiedDate="10.10.2014 10:10" scope="prototype">
+        <property name="resourceableId" value="100"/>
+        <property name="org1" value="9100"/>
+        <property name="org2"><null/></property>
+        <property name="org3"><null/></property>
+        <property name="org4"><null/></property>
+        <property name="org5"><null/></property>
+        <property name="org6"><null/></property>
+        <property name="org7"><null/></property>
+        <property name="org8"><null/></property>
+        <property name="org9"><null/></property>
     </bean>
-    <bean id="course_4" class="ch.uzh.campus.data.Course" p:id="400" p:shortTitle="shortTitle4" p:title="title4" p:vstNr="vstNr4" p:category="Seminar" p:language="EN" p:vvzLink="link" p:semester="fs" p:shortSemester="99FS" p:enabled="1" p:synchronizable="true" p:modifiedDate="10.10.2014 10:10" scope="prototype">
-        <property name="resourceableId"><null/></property>
+    <bean id="course_2" class="ch.uzh.campus.data.CourseOrgId" p:id="200" p:shortTitle="shortTitle2" p:title="title2" p:vstNr="vstNr2" p:category="Seminar" p:language="EN" p:vvzLink="link" p:semester="hs" p:shortSemester="99HS" p:enabled="1" p:synchronizable="true" p:modifiedDate="10.10.2014 10:10" scope="prototype">
+        <property name="resourceableId" value="200"/>
+        <property name="org1" value="9200"/>
+        <property name="org2"><null/></property>
+        <property name="org3"><null/></property>
+        <property name="org4"><null/></property>
+        <property name="org5"><null/></property>
+        <property name="org6"><null/></property>
+        <property name="org7"><null/></property>
+        <property name="org8"><null/></property>
+        <property name="org9"><null/></property>
     </bean>
-    <bean id="course_5" class="ch.uzh.campus.data.Course" p:id="500" p:shortTitle="shortTitle5" p:title="title5" p:vstNr="vstNr5" p:category="Seminar" p:language="EN" p:vvzLink="link" p:semester="hs" p:shortSemester="98HS" p:enabled="1" p:synchronizable="true" p:modifiedDate="10.10.2014 10:10" scope="prototype">
+    <bean id="course_3" class="ch.uzh.campus.data.CourseOrgId" p:id="300" p:shortTitle="shortTitle3" p:title="title3" p:vstNr="vstNr3" p:category="Seminar" p:language="EN" p:vvzLink="link" p:semester="hs" p:shortSemester="99HS" p:enabled="1" p:synchronizable="true" p:modifiedDate="10.10.2014 10:10" scope="prototype">
         <property name="resourceableId"><null/></property>
+        <property name="org1" value="9100"/>
+        <property name="org2" value="9200"/>
+        <property name="org3" value="9300"/>
+        <property name="org4" value="9400"/>
+        <property name="org5" value="9500"/>
+        <property name="org6" value="9600"/>
+        <property name="org7" value="9700"/>
+        <property name="org8" value="9800"/>
+        <property name="org9" value="9900"/>
     </bean>
-    <bean id="course_6" class="ch.uzh.campus.data.Course" p:id="600" p:resourceableId="600" p:shortTitle="shortTitle6" p:title="title6" p:vstNr="vstNr6" p:category="Seminar" p:language="EN" p:vvzLink="link" p:semester="fs" p:shortSemester="98FS" p:enabled="1" p:synchronizable="true" p:modifiedDate="10.10.2014 10:10" scope="prototype" />
-    <util:list id = 'courses' scope="prototype" >
+    <bean id="course_4" class="ch.uzh.campus.data.CourseOrgId" p:id="400" p:shortTitle="shortTitle4" p:title="title4" p:vstNr="vstNr4" p:category="Seminar" p:language="EN" p:vvzLink="link" p:semester="fs" p:shortSemester="99FS" p:enabled="1" p:synchronizable="true" p:modifiedDate="10.10.2014 10:10" scope="prototype">
+        <property name="resourceableId"><null/></property>
+        <property name="org1" value="9500"/>
+        <property name="org2"><null/></property>
+        <property name="org3"><null/></property>
+        <property name="org4"><null/></property>
+        <property name="org5"><null/></property>
+        <property name="org6"><null/></property>
+        <property name="org7"><null/></property>
+        <property name="org8"><null/></property>
+        <property name="org9"><null/></property>
+    </bean>
+    <bean id="course_5" class="ch.uzh.campus.data.CourseOrgId" p:id="500" p:shortTitle="shortTitle5" p:title="title5" p:vstNr="vstNr5" p:category="Seminar" p:language="EN" p:vvzLink="link" p:semester="hs" p:shortSemester="98HS" p:enabled="1" p:synchronizable="true" p:modifiedDate="10.10.2014 10:10" scope="prototype">
+        <property name="resourceableId"><null/></property>
+        <property name="org1" value="9600"/>
+        <property name="org2"><null/></property>
+        <property name="org3"><null/></property>
+        <property name="org4"><null/></property>
+        <property name="org5"><null/></property>
+        <property name="org6"><null/></property>
+        <property name="org7"><null/></property>
+        <property name="org8"><null/></property>
+        <property name="org9"><null/></property>
+    </bean>
+    <bean id="course_6" class="ch.uzh.campus.data.CourseOrgId" p:id="600" p:shortTitle="shortTitle6" p:title="title6" p:vstNr="vstNr6" p:category="Seminar" p:language="EN" p:vvzLink="link" p:semester="fs" p:shortSemester="98FS" p:enabled="1" p:synchronizable="true" p:modifiedDate="10.10.2014 10:10" scope="prototype">
+        <property name="resourceableId" value="600"/>
+        <property name="org1" value="9700"/>
+        <property name="org2"><null/></property>
+        <property name="org3"><null/></property>
+        <property name="org4"><null/></property>
+        <property name="org5"><null/></property>
+        <property name="org6"><null/></property>
+        <property name="org7"><null/></property>
+        <property name="org8"><null/></property>
+        <property name="org9"><null/></property>
+    </bean>
+    <util:list id = 'courseOrgIds' scope="prototype" >
         <ref bean="course_1"/>
         <ref bean="course_2"/>
         <ref bean="course_3"/>
@@ -114,7 +174,6 @@
         <bean class="ch.uzh.campus.data.TextCourseId" p:courseId="100" p:type="Unterrichtsmaterialien" p:lineSeq="2" p:line="download von homepage (s. link)" p:modifiedDate="10.10.2014 10:10" scope="prototype" />
         <bean class="ch.uzh.campus.data.TextCourseId" p:courseId="100" p:type="Hinweise" p:lineSeq="1" p:line="Selbsttestfragen:" p:modifiedDate="10.10.2014 10:10" scope="prototype" />
         <bean class="ch.uzh.campus.data.TextCourseId" p:courseId="100" p:type="Hinweise" p:lineSeq="2" p:line="Zugriff über www.vetpharm.uzh.ch/cyberpharm" p:modifiedDate="10.10.2014 10:10" scope="prototype" />
-
         <bean class="ch.uzh.campus.data.TextCourseId" p:courseId="200" p:type="Veranstaltungsinhalt" p:lineSeq="1" p:line="- praktische Tätigkeiten im chemischen Labor2" p:modifiedDate="10.10.2014 10:10" scope="prototype" />
         <bean class="ch.uzh.campus.data.TextCourseId" p:courseId="200" p:type="Veranstaltungsinhalt" p:lineSeq="2" p:line="- Herstellung von Lösungen unterschiedlicher Konzentration2" p:modifiedDate="10.10.2014 10:10" scope="prototype" />
     </util:list>
@@ -123,8 +182,15 @@
     <!-- ===============Org================= -->
     <!-- ======================================================================================= -->
     <util:list id = 'orgs' scope="prototype" >
-        <bean class="ch.uzh.campus.data.Org" p:id="100" p:shortName="1" p:name="Theologische Fakultät" p:modifiedDate="10.10.2014 10:10" scope="prototype" />
-        <bean class="ch.uzh.campus.data.Org" p:id="200" p:shortName="3" p:name="Wirtschaftswissenschaftliche Fakultät" p:modifiedDate="10.10.2014 10:10" scope="prototype" />
+        <bean class="ch.uzh.campus.data.Org" p:id="9100" p:shortName="1" p:name="Theologische Fakultät" p:modifiedDate="10.10.2014 10:10" scope="prototype" />
+        <bean class="ch.uzh.campus.data.Org" p:id="9200" p:shortName="2" p:name="Rechtswissenschaftliche Fakultät" p:modifiedDate="10.10.2014 10:10" scope="prototype" />
+        <bean class="ch.uzh.campus.data.Org" p:id="9300" p:shortName="3" p:name="Wirtschaftswissenschaftliche Fakultät" p:modifiedDate="10.10.2014 10:10" scope="prototype" />
+        <bean class="ch.uzh.campus.data.Org" p:id="9400" p:shortName="4_Dek" p:name="Humanmedizin" p:modifiedDate="10.10.2014 10:10" scope="prototype" />
+        <bean class="ch.uzh.campus.data.Org" p:id="9500" p:shortName="4_FB 1" p:name="Zentrum für Zahnmedizin" p:modifiedDate="10.10.2014 10:10" scope="prototype" />
+        <bean class="ch.uzh.campus.data.Org" p:id="9600" p:shortName="5" p:name="Vetsuisse-Fakultät" p:modifiedDate="10.10.2014 10:10" scope="prototype" />
+        <bean class="ch.uzh.campus.data.Org" p:id="9700" p:shortName="6" p:name="Philosophische Fakultät" p:modifiedDate="10.10.2014 10:10" scope="prototype" />
+        <bean class="ch.uzh.campus.data.Org" p:id="9800" p:shortName="7" p:name="Mathematisch-naturwissenschaftliche Fakultät" p:modifiedDate="10.10.2014 10:10" scope="prototype" />
+        <bean class="ch.uzh.campus.data.Org" p:id="9900" p:shortName="1_IFHR" p:name="Institut für Hermeneutik und Religionsphilosophie" p:modifiedDate="10.10.2014 10:10" scope="prototype" />
     </util:list>
 
     <!-- ======================================================================================= -->

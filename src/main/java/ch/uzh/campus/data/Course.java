@@ -55,9 +55,7 @@ import java.util.Set;
                 "and c.enabled = '1' and c.shortSemester = (select max(c5.shortSemester) from Course c5) "),
         @NamedQuery(name = Course.GET_ALL_NOT_CREATED_ORPHANED_COURSES, query = "select c.id from Course c where c.resourceableId is null and c.id not in (select lc.course.id from LecturerCourse lc) and c.id not in (select sc.course.id from StudentCourse sc)"),
         @NamedQuery(name = Course.GET_COURSE_IDS_BY_RESOURCEABLE_ID, query = "select c.id from Course c where c.resourceableId = :resourceableId"),
-        @NamedQuery(name = Course.GET_COURSE_BY_RESOURCEABLE_ID, query = "select c from Course c where c.resourceableId = :resourceableId"),
-
-        @NamedQuery(name = Course.DELETE_BY_COURSE_IDS, query = "delete from Course c where c.id in :courseIds"),
+        @NamedQuery(name = Course.GET_COURSE_BY_RESOURCEABLE_ID, query = "select c from Course c where c.resourceableId = :resourceableId")
 })
 @Table(name = "ck_course")
 public class Course {
@@ -115,26 +113,6 @@ public class Course {
     @Column(name = "synchronizable", nullable = false)
     private boolean synchronizable = true;
 
-    // Attribute of courses CSV file used to decide if a course should be set as enabled when reading the courses; not saved in DB
-    @Transient
-    private Long org1;
-
-    // see comment of org1
-    @Transient
-    private Long org2;
-
-    // see comment of org1
-    @Transient
-    private Long org3;
-
-    // see comment of org1
-    @Transient
-    private Long org4;
-
-    // see comment of org1
-    @Transient
-    private Long org5;
-
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "modified_date")
     private Date modifiedDate;
@@ -144,6 +122,12 @@ public class Course {
   
     @OneToMany(mappedBy = "course")
     private Set<StudentCourse> studentCourses = new HashSet<>();
+
+    @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    @JoinTable(name = "ck_course_org",
+            joinColumns = {@JoinColumn(name = "course_id")},
+            inverseJoinColumns = {@JoinColumn(name = "org_id")})
+    private Set<Org> orgs = new HashSet<>();
 
     @OneToMany(mappedBy = "course", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Event> events = new HashSet<>();
@@ -158,6 +142,28 @@ public class Course {
     @JoinColumn(name = "parent_course_id")
     private Course parentCourse;
 
+    public Course() {}
+
+    public Course(CourseOrgId courseOrgId) {
+        this.id = courseOrgId.getId();
+        this.resourceableId = courseOrgId.getResourceableId();
+        this.shortTitle = courseOrgId.getShortTitle();
+        this.title = courseOrgId.getTitle();
+        this.vstNr = courseOrgId.getVstNr();
+        this.isELearning = courseOrgId.getIsELearning();
+        this.language = courseOrgId.getLanguage();
+        this.category = courseOrgId.getCategory();
+        this.startDate = courseOrgId.getStartDate();
+        this.endDate = courseOrgId.getEndDate();
+        this.vvzLink = courseOrgId.getVvzLink();
+        this.semester = courseOrgId.getSemester();
+        this.shortSemester = courseOrgId.getShortSemester();
+        this.ipz = courseOrgId.getIpz();
+        this.enabled = courseOrgId.getEnabled();
+        this.synchronizable = courseOrgId.isSynchronizable();
+        this.modifiedDate = courseOrgId.getModifiedDate();
+    }
+
     static final String GET_IDS_OF_ALL_CREATED_COURSES = "getIdsOfAllCreatedCourses";
     static final String GET_RESOURCEABLEIDS_OF_ALL_CREATED_COURSES = "getResourceableIdsOfAllCreatedCourses";
     static final String GET_IDS_OF_ALL_NOT_CREATED_COURSES = "getIdsOfAllNotCreatedCourses";
@@ -171,7 +177,6 @@ public class Course {
     static final String GET_PILOT_COURSES_BY_LECTURER_ID = "getPilotCoursesByLecturerId";
     static final String GET_PILOT_COURSES_BY_STUDENT_ID = "getPilotCoursesByStudentId";
     static final String GET_COURSE_BY_RESOURCEABLE_ID = "getCourseByResourcableId";
-    static final String DELETE_BY_COURSE_IDS = "deleteCoursesByCourseId";
 
     public Long getId() {
         return id;
@@ -301,46 +306,6 @@ public class Course {
         this.enabled = enabled;
     }
 
-    public Long getOrg1() {
-        return org1;
-    }
-
-    public void setOrg1(Long org1) {
-        this.org1 = org1;
-    }
-
-    public Long getOrg2() {
-        return org2;
-    }
-
-    public void setOrg2(Long org2) {
-        this.org2 = org2;
-    }
-
-    public Long getOrg3() {
-        return org3;
-    }
-
-    public void setOrg3(Long org3) {
-        this.org3 = org3;
-    }
-
-    public Long getOrg4() {
-        return org4;
-    }
-
-    public void setOrg4(Long org4) {
-        this.org4 = org4;
-    }
-
-    public Long getOrg5() {
-        return org5;
-    }
-
-    public void setOrg5(Long org5) {
-        this.org5 = org5;
-    }
-
     public Date getModifiedDate() {
         return modifiedDate;
     }
@@ -355,6 +320,10 @@ public class Course {
 
     public Set<StudentCourse> getStudentCourses() {
        return studentCourses;
+    }
+
+    public Set<Org> getOrgs() {
+        return orgs;
     }
 
     public Set<Event> getEvents() {

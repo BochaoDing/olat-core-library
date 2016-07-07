@@ -38,11 +38,11 @@ public class StudentDao implements CampusDao<Student> {
         }
     }
 
-    public Student getStudentById(Long id) {
+    Student getStudentById(Long id) {
         return dbInstance.findObject(Student.class, id);
     }
 
-    public Student getStudentByEmail(String email) {
+    Student getStudentByEmail(String email) {
         List<Student> students = dbInstance.getCurrentEntityManager()
                 .createNamedQuery(Student.GET_STUDENTS_BY_EMAIL, Student.class)
                 .setParameter("email", email)
@@ -53,7 +53,7 @@ public class StudentDao implements CampusDao<Student> {
         return null;
     }
 
-    public Student getStudentByRegistrationNr(String registrationNr) {
+    Student getStudentByRegistrationNr(String registrationNr) {
         List<Student> students = dbInstance.getCurrentEntityManager()
                 .createNamedQuery(Student.GET_STUDENTS_WITH_REGISTRATION_NUMBER, Student.class)
                 .setParameter("registrationNr", registrationNr)
@@ -64,13 +64,13 @@ public class StudentDao implements CampusDao<Student> {
         return null;
     }
 
-    public List<Long> getAllOrphanedStudents() {
+    List<Long> getAllOrphanedStudents() {
         return dbInstance.getCurrentEntityManager()
                 .createNamedQuery(Student.GET_ALL_ORPHANED_STUDENTS, Long.class)
                 .getResultList();
     }
 
-    public List<Student> getAllPilotStudents() {
+    List<Student> getAllPilotStudents() {
         return dbInstance.getCurrentEntityManager()
                 .createNamedQuery(Student.GET_ALL_PILOT_STUDENTS, Student.class)
                 .getResultList();
@@ -79,14 +79,14 @@ public class StudentDao implements CampusDao<Student> {
     /**
      * Deletes also according entries of the join able ck_student_course.
      */
-    public void delete(Student student) {
+    void delete(Student student) {
         deleteStudentBidirectionally(student);
     }
 
     /**
      * Deletes also according entries of the join table ck_student_course.
      */
-    public void deleteByStudentIds(List<Long> studentIds) {
+    void deleteByStudentIds(List<Long> studentIds) {
         for (Long studentId : studentIds) {
             deleteStudentBidirectionally(dbInstance.getCurrentEntityManager().getReference(Student.class, studentId));
         }
@@ -97,7 +97,7 @@ public class StudentDao implements CampusDao<Student> {
      * Does not delete according entries of join table ck_student_course (-> must be deleted explicitly)!
      * Does not update persistence context!
      */
-    public int deleteByStudentIdsAsBulkDelete(List<Long> studentIds) {
+    int deleteByStudentIdsAsBulkDelete(List<Long> studentIds) {
         return dbInstance.getCurrentEntityManager()
                 .createNamedQuery(Student.DELETE_BY_STUDENT_IDS)
                 .setParameter("studentIds", studentIds)

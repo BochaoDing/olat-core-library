@@ -90,11 +90,11 @@ public class LecturerCourseDao implements CampusDao<LecturerIdCourseIdModifiedDa
         throw new EntityNotFoundException(warningMessage);
     }
 
-    public LecturerCourse getLecturerCourseById(Long lecturerId, Long courseId) {
+    LecturerCourse getLecturerCourseById(Long lecturerId, Long courseId) {
         return dbInstance.getCurrentEntityManager().find(LecturerCourse.class, new LecturerCourseId(lecturerId, courseId));
     }
 
-    public List<LecturerIdCourseId> getAllNotUpdatedLCBookingOfCurrentSemester(Date date) {
+    List<LecturerIdCourseId> getAllNotUpdatedLCBookingOfCurrentSemester(Date date) {
         // Subtract one second since modifiedDate (used in query) is rounded to seconds
         return dbInstance.getCurrentEntityManager()
                 .createNamedQuery(LecturerCourse.GET_ALL_NOT_UPDATED_LC_BOOKING_OF_CURRENT_SEMESTER, LecturerIdCourseId.class)
@@ -102,14 +102,14 @@ public class LecturerCourseDao implements CampusDao<LecturerIdCourseIdModifiedDa
                 .getResultList();
     }
 
-    public void delete(LecturerCourse lecturerCourse) {
+    void delete(LecturerCourse lecturerCourse) {
         deleteLecturerCourseBidirectionally(lecturerCourse);
     }
 
     /**
      * Bulk delete for efficient deletion of a big number of entries. Does not update persistence context!
      */
-    public int deleteAllLCBookingTooFarInThePastAsBulkDelete(Date date) {
+    int deleteAllLCBookingTooFarInThePastAsBulkDelete(Date date) {
         return dbInstance.getCurrentEntityManager()
                 .createNamedQuery(LecturerCourse.DELETE_ALL_LC_BOOKING_TOO_FAR_IN_THE_PAST)
                 .setParameter("nYearsInThePast", DateUtil.addYearsToDate(date, -CampusCourseConfiguration.MAX_YEARS_TO_KEEP_CK_DATA))
@@ -119,7 +119,7 @@ public class LecturerCourseDao implements CampusDao<LecturerIdCourseIdModifiedDa
     /**
      * Bulk delete for efficient deletion of a big number of entries. Does not update persistence context!
      */
-    public int deleteByLecturerIdsAsBulkDelete(List<Long> lecturerIds) {
+    int deleteByLecturerIdsAsBulkDelete(List<Long> lecturerIds) {
         return dbInstance.getCurrentEntityManager()
                 .createNamedQuery(LecturerCourse.DELETE_BY_LECTURER_IDS)
                 .setParameter("lecturerIds", lecturerIds)
@@ -129,7 +129,7 @@ public class LecturerCourseDao implements CampusDao<LecturerIdCourseIdModifiedDa
     /**
      * Bulk delete for efficient deletion of a big number of entries. Does not update persistence context!
      */
-    public int deleteByCourseIdsAsBulkDelete(List<Long> courseIds) {
+    int deleteByCourseIdsAsBulkDelete(List<Long> courseIds) {
         return dbInstance.getCurrentEntityManager()
                 .createNamedQuery(LecturerCourse.DELETE_BY_COURSE_IDS)
                 .setParameter("courseIds", courseIds)
@@ -139,7 +139,7 @@ public class LecturerCourseDao implements CampusDao<LecturerIdCourseIdModifiedDa
     /**
      * Bulk delete for efficient deletion of a big number of entries. Does not update persistence context!
      */
-    public int deleteByLecturerIdCourseIdsAsBulkDelete(List<LecturerIdCourseId> lecturerIdCourseIds) {
+    int deleteByLecturerIdCourseIdsAsBulkDelete(List<LecturerIdCourseId> lecturerIdCourseIds) {
         int count = 0;
         for (LecturerIdCourseId lecturerIdCourseId : lecturerIdCourseIds) {
             count += dbInstance.getCurrentEntityManager()

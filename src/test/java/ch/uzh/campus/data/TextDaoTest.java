@@ -42,8 +42,8 @@ public class TextDaoTest extends OlatTestCase {
     @Before
 	public void setup() {
         // Insert some courses
-        List<Course> courses = mockDataGeneratorProvider.get().getCourses();
-        courseDao.save(courses);
+        List<CourseOrgId> courseOrgIds = mockDataGeneratorProvider.get().getCourseOrgIds();
+        courseDao.save(courseOrgIds);
         dbInstance.flush();
 	}
 	    

@@ -8,7 +8,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 
 import javax.inject.Provider;
-import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -203,8 +202,8 @@ public class StudentDaoTest extends OlatTestCase {
         dbInstance.flush();
 
         // Insert some courses
-        List<Course> courses = mockDataGeneratorProvider.get().getCourses();
-        courseDao.save(courses);
+        List<CourseOrgId> courseOrgIds = mockDataGeneratorProvider.get().getCourseOrgIds();
+        courseDao.save(courseOrgIds);
         dbInstance.flush();
 
         // Insert some studentIdCourseIds

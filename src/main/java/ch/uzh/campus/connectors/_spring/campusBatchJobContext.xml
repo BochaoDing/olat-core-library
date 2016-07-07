@@ -198,7 +198,7 @@
 			<bean parent="lineMapper">
 				<property name="lineTokenizer" >
 					<bean parent="lineTokenizer">
-						<property name="names" value="PersonalNr,firstName,lastname,privateEmail,email, additionalPersonalNrs" />
+						<property name="names" value="PersonalNr,firstName,lastname,privateEmail,email,additionalPersonalNrs" />
 						<property name="strict" value="false"/>
 					</bean>
 				</property>
@@ -230,7 +230,7 @@
 			<bean parent="lineMapper">
 				<property name="lineTokenizer" >
 					<bean parent="lineTokenizer">
-						<property name="names" value="id,shortTitle,title,vstNr,language,category,isElearning,startDate,endDate,vzzLink, semester, isPilot, org1, org2, org3, org4, org5, ORG6(NOT_USED), ORG7(NOT_USED), ORG8(NOT_USED), ORG9(NOT_USED)" />
+						<property name="names" value="id, shortTitle, title, vstNr, language, category, isElearning, startDate, endDate, vzzLink, semester, ipz, org1, org2, org3, org4, org5, org6, org7, org8, org9" />
 						<property name="strict" value="false"/>
 					</bean>
 				</property>
@@ -258,7 +258,7 @@
 	
 	<bean id="courseDao" class="ch.uzh.campus.data.CourseDao"/>
 	
-	<bean id='course' class ='ch.uzh.campus.data.Course' scope="prototype" />
+	<bean id='course' class ='ch.uzh.campus.data.CourseOrgId' scope="prototype" />
 	
 	<!-- ======================================================================================= -->
 	<!-- ==============BUCHUNG:STUDENT-KURS(Reader, Writer, Processor, Entity, Dao)================== -->  

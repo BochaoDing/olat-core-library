@@ -8,11 +8,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 
 import javax.inject.Provider;
-import java.util.Date;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
+import static org.junit.Assert.assertTrue;
 
 /**
  * @author Martin Schraner
@@ -27,6 +26,9 @@ public class OrgDaoTest extends OlatTestCase {
     private OrgDao orgDao;
 
     @Autowired
+    private CourseDao courseDao;
+
+    @Autowired
     private Provider<MockDataGenerator> mockDataGeneratorProvider;
 
     private List<Org> orgs;
@@ -37,48 +39,80 @@ public class OrgDaoTest extends OlatTestCase {
     }
 
     @Test
-    public void testGetIdsOfAllEnabledOrgsFoundTwoOrgs() {
-        int numberOfOrgsFoundBeforeInsertingTestData = orgDao.getIdsOfAllEnabledOrgs().size();
+    public void getOrgById() {
         insertTestData();
-        assertEquals(numberOfOrgsFoundBeforeInsertingTestData + 2, orgDao.getIdsOfAllEnabledOrgs().size());
+        assertNull(orgDao.getOrgById(999L));
+        assertNotNull(orgDao.getOrgById(9100L));
     }
 
     @Test
-    public void testGetAllNotUpdatedOrgsFoundOneOrg() {
+    public void testGetIdsOfAllEnabledOrgsFoundEightOrgs() {
+        int numberOfOrgsFoundBeforeInsertingTestData = orgDao.getIdsOfAllEnabledOrgs().size();
+        insertTestData();
+        assertEquals(numberOfOrgsFoundBeforeInsertingTestData + 9, orgDao.getIdsOfAllEnabledOrgs().size());
+    }
+
+    @Test
+    public void testGetAllNotUpdatedOrgsFoundSevenOrg() {
         Date now = new Date();
         int numberOfOrgsFoundBeforeInsertingTestData = orgDao.getAllNotUpdatedOrgs(now).size();
         insertTestData();
-        assertEquals(numberOfOrgsFoundBeforeInsertingTestData + 2, orgDao.getAllNotUpdatedOrgs(now).size());
+        assertEquals(numberOfOrgsFoundBeforeInsertingTestData + 9, orgDao.getAllNotUpdatedOrgs(now).size());
 
         orgs.get(0).setModifiedDate(now);
 
         dbInstance.flush();
 
-        assertEquals(numberOfOrgsFoundBeforeInsertingTestData + 1, orgDao.getAllNotUpdatedOrgs(now).size());
+        assertEquals(numberOfOrgsFoundBeforeInsertingTestData + 8, orgDao.getAllNotUpdatedOrgs(now).size());
     }
 
     @Test
-    public void testDeleteByOrgIdsAsBulkDelete() {
-        int numberOfOrgsFoundBeforeInsertingTestData = orgDao.getIdsOfAllEnabledOrgs().size();
+    public void testDeleteByOrgIds() {
         insertTestData();
-        assertEquals(numberOfOrgsFoundBeforeInsertingTestData + 2, orgDao.getIdsOfAllEnabledOrgs().size());
+        Org org = orgDao.getOrgById(9100L);
+        assertNotNull(org);
+        assertEquals(2, org.getCourses().size());
+        Set<Long> courseIds = new HashSet<>();
+        for (Course course : org.getCourses()) {
+            courseIds.add(course.getId());
+        }
+        assertTrue(courseIds.contains(100L));
+        assertTrue(courseIds.contains(300L));
+        Course course1 = courseDao.getCourseById(100L);
+        assertNotNull(course1);
+        assertEquals(1, course1.getOrgs().size());
+        Course course2 = courseDao.getCourseById(300L);
+        assertNotNull(course2);
+        assertEquals(9, course2.getOrgs().size());
 
-        List<Long> orgIds = new LinkedList<>();
-        orgIds.add(100L);
-        orgIds.add(200L);
+        orgDao.deleteByOrgId(9100L);
 
-        orgDao.deleteByOrgIdsAsBulkDelete(orgIds);
+        // Check before flush
+        assertEquals(0, course1.getOrgs().size());
+        assertEquals(8, course2.getOrgs().size());
 
         dbInstance.flush();
         dbInstance.clear();
 
-        assertEquals(numberOfOrgsFoundBeforeInsertingTestData, orgDao.getIdsOfAllEnabledOrgs().size());
+        assertNull(orgDao.getOrgById(9100L));
+
+        course1 = courseDao.getCourseById(100L);
+        assertNotNull(course1);
+        assertEquals(0, course1.getOrgs().size());
+        course2 = courseDao.getCourseById(300L);
+        assertNotNull(course2);
+        assertEquals(8, course2.getOrgs().size());
     }
     
     private void insertTestData() {
         // Insert some orgs
         orgs = mockDataGeneratorProvider.get().getOrgs();
         orgDao.save(orgs);
+        dbInstance.flush();
+
+        // Insert some courses
+        List<CourseOrgId> courseOrgIds = mockDataGeneratorProvider.get().getCourseOrgIds();
+        courseDao.save(courseOrgIds);
         dbInstance.flush();
     }
 }

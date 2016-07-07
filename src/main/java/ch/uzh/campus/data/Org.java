@@ -6,6 +6,8 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 
 import javax.persistence.*;
 import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Initial Date: 07.12.2012 <br>
@@ -16,9 +18,7 @@ import java.util.Date;
 @Entity
 @Table(name = "ck_org")
 @NamedQueries({ @NamedQuery(name = Org.GET_IDS_OF_ALL_ENABLED_ORGS, query = "select id from Org"),
-        @NamedQuery(name = Org.GET_ALL_NOT_UPDATED_ORGS, query = "select o.id from Org o where o.modifiedDate < :lastImportDate"),
-        @NamedQuery(name = Org.DELETE_ALL_NOT_UPDATED_ORGS, query = "delete from Org o where o.modifiedDate < :lastImportDate"),
-        @NamedQuery(name = Org.DELETE_BY_ORG_IDS, query = "delete from Org o where o.id in :orgIds") })
+        @NamedQuery(name = Org.GET_ALL_NOT_UPDATED_ORGS, query = "select o.id from Org o where o.modifiedDate < :lastImportDate")})
 public class Org {
     @Id
     private Long id;
@@ -33,10 +33,11 @@ public class Org {
     @Column(name = "modified_date")
     private Date modifiedDate;
 
+    @ManyToMany(mappedBy = "orgs")
+    private Set<Course> courses = new HashSet<>();
+
     static final String GET_IDS_OF_ALL_ENABLED_ORGS = "getIdsOfAllEnabledOrgs";
     static final String GET_ALL_NOT_UPDATED_ORGS = "getAllNotUpdatedOrgs";
-    static final String DELETE_ALL_NOT_UPDATED_ORGS = "deleteAllNotUpdatedOrgs";
-    static final String DELETE_BY_ORG_IDS = "deleteOrgByIds";
 
     public Long getId() {
         return id;
@@ -68,6 +69,10 @@ public class Org {
 
     public void setModifiedDate(Date modifiedDate) {
         this.modifiedDate = modifiedDate;
+    }
+
+    public Set<Course> getCourses() {
+        return courses;
     }
 
     @Override

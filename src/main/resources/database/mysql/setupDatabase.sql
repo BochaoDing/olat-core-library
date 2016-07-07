@@ -2228,6 +2228,12 @@ create table if not exists ck_org (
 	primary key (id)
 )engine InnoDB;
 
+create table if not exists ck_course_org (
+   course_id bigint not null,
+   org_id bigint not null,
+   primary key (course_id, org_id)
+)engine InnoDB;
+
 create table if not exists ck_import_statistic (
     id bigint not null,
     step_id int,
@@ -2282,11 +2288,14 @@ alter table ck_lecturer_course add constraint ck_lecturer_course_f01 foreign key
 alter table ck_lecturer_course add constraint ck_lecturer_course_f02 foreign key (lecturer_id) references ck_lecturer (id);
 alter table ck_student_course add constraint ck_student_course_f01 foreign key (course_id) references ck_course (id);
 alter table ck_student_course add constraint ck_student_course_f02 foreign key (student_id) references ck_student (id);
+alter table ck_course_org add constraint ck_course_org_f01 foreign key (course_id) references ck_course (id);
+alter table ck_course_org add constraint ck_course_org_f02 foreign key (org_id) references ck_org (id);
 alter table ck_event add constraint ck_event_f01 foreign key (course_id) references ck_course (id);
 alter table ck_text add constraint ck_text_f01 foreign key (course_id) references ck_course (id);
 
 alter table ck_student_course add unique (student_id, course_id);
 alter table ck_lecturer_course add unique (lecturer_id, course_id);
+alter table ck_course_org add unique (course_id, org_id);
 alter table ck_delegation add unique (delegator,delegatee);
 
 

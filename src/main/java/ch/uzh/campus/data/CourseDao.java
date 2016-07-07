@@ -1,14 +1,11 @@
 package ch.uzh.campus.data;
 
-import ch.uzh.campus.utils.DateUtil;
 import org.olat.core.commons.persistence.DB;
 import org.olat.core.logging.OLog;
 import org.olat.core.logging.Tracing;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
-import javax.persistence.EntityManager;
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -19,33 +16,113 @@ import java.util.List;
  * @author Martin Schraner
  */
 @Repository
-public class CourseDao implements CampusDao<Course> {
+public class CourseDao implements CampusDao<CourseOrgId> {
 
     private static final OLog LOG = Tracing.createLoggerFor(CourseDao.class);
 
 	@Autowired
 	private DB dbInstance;
 
+    public void save(Course course) {
+        dbInstance.saveObject(course);
+    }
+
+    public void saveOrUpdate(Course course) {
+        dbInstance.getCurrentEntityManager().merge(course);
+    }
+
+    public void save(CourseOrgId courseOrgId) {
+        Course course = new Course(courseOrgId);
+        dbInstance.saveObject(course);
+        updateOrgsFromCourseOrgId(course, courseOrgId);
+    }
+
+    public void saveOrUpdate(CourseOrgId courseOrgId) {
+        Course course = new Course(courseOrgId);
+        course = dbInstance.getCurrentEntityManager().merge(course);
+        updateOrgsFromCourseOrgId(course, courseOrgId);
+    }
+
     @Override
-    public void save(List<Course> courses) {
-    	for (Course course : courses) {
-            dbInstance.saveObject(course);
+    public void save(List<CourseOrgId> courseOrgIds) {
+        for (CourseOrgId courseOrgId : courseOrgIds) {
+            save(courseOrgId);
         }
     }
 
     @Override
-    public void saveOrUpdate(List<Course> courses) {
-        EntityManager em = dbInstance.getCurrentEntityManager();
-    	for (Course course : courses) {
-            em.merge(course);
+    public void saveOrUpdate(List<CourseOrgId> courseOrgIds) {
+        for (CourseOrgId courseOrgId : courseOrgIds) {
+            saveOrUpdate(courseOrgId);
         }
     }
 
-    public Course getCourseById(Long id) {
+    private void updateOrgsFromCourseOrgId(Course course, CourseOrgId courseOrgId) {
+        // Remove org from course if it is not present any more
+        for (Org org : course.getOrgs()) {
+            if (!org.getId().equals(courseOrgId.getOrg1())
+                    && !org.getId().equals(courseOrgId.getOrg2())
+                    && !org.getId().equals(courseOrgId.getOrg3())
+                    && !org.getId().equals(courseOrgId.getOrg4())
+                    && !org.getId().equals(courseOrgId.getOrg5())
+                    && !org.getId().equals(courseOrgId.getOrg6())
+                    && !org.getId().equals(courseOrgId.getOrg7())
+                    && !org.getId().equals(courseOrgId.getOrg8())
+                    && !org.getId().equals(courseOrgId.getOrg9()))
+                removeOrgFromCourse(org, course);
+        }
+
+        // Add new orgs
+        if (courseOrgId.getOrg1() != null) {
+            addOrgToCourse(courseOrgId.getOrg1(), course);
+        }
+        if (courseOrgId.getOrg2() != null) {
+            addOrgToCourse(courseOrgId.getOrg2(), course);
+        }
+        if (courseOrgId.getOrg3() != null) {
+            addOrgToCourse(courseOrgId.getOrg3(), course);
+        }
+        if (courseOrgId.getOrg4() != null) {
+            addOrgToCourse(courseOrgId.getOrg4(), course);
+        }
+        if (courseOrgId.getOrg5() != null) {
+            addOrgToCourse(courseOrgId.getOrg5(), course);
+        }
+        if (courseOrgId.getOrg6() != null) {
+            addOrgToCourse(courseOrgId.getOrg6(), course);
+        }
+        if (courseOrgId.getOrg7() != null) {
+            addOrgToCourse(courseOrgId.getOrg7(), course);
+        }
+        if (courseOrgId.getOrg8() != null) {
+            addOrgToCourse(courseOrgId.getOrg8(), course);
+        }
+        if (courseOrgId.getOrg9() != null) {
+            addOrgToCourse(courseOrgId.getOrg9(), course);
+        }
+    }
+
+    private void addOrgToCourse(Long orgId, Course course) {
+        Org org = dbInstance.getCurrentEntityManager().find(Org.class, orgId);
+        if (org != null) {
+            org.getCourses().add(course);
+            course.getOrgs().add(org);
+        } else {
+            String warningMessage = "No org found with id " + orgId + " for entry " + course.getId() + " of table ck_course.";
+            LOG.warn(warningMessage);
+        }
+    }
+
+    private void removeOrgFromCourse(Org org, Course course) {
+        org.getCourses().remove(course);
+        course.getOrgs().remove(org);
+    }
+
+    Course getCourseById(Long id) {
         return dbInstance.findObject(Course.class, id);
     }
 
-    public List<Course> getCreatedCoursesByLecturerId(Long lecturerId, String searchString) {
+    List<Course> getCreatedCoursesByLecturerId(Long lecturerId, String searchString) {
         return dbInstance.getCurrentEntityManager()
                 .createNamedQuery(Course.GET_CREATED_COURSES_BY_LECTURER_ID, Course.class)
                 .setParameter("lecturerId", lecturerId)
@@ -53,7 +130,7 @@ public class CourseDao implements CampusDao<Course> {
                 .getResultList();
     }
 
-    public List<Course> getNotCreatedCoursesByLecturerId(Long lecturerId, String searchString) {
+    List<Course> getNotCreatedCoursesByLecturerId(Long lecturerId, String searchString) {
         return dbInstance.getCurrentEntityManager()
                 .createNamedQuery(Course.GET_NOT_CREATED_COURSES_BY_LECTURER_ID, Course.class)
                 .setParameter("lecturerId", lecturerId)
@@ -61,7 +138,7 @@ public class CourseDao implements CampusDao<Course> {
                 .getResultList();
     }
 
-    public List<Course> getCreatedCoursesByStudentId(Long studentId, String searchString) {
+    List<Course> getCreatedCoursesByStudentId(Long studentId, String searchString) {
         return dbInstance.getCurrentEntityManager()
                 .createNamedQuery(Course.GET_CREATED_COURSES_BY_STUDENT_ID, Course.class)
                 .setParameter("studentId", studentId)
@@ -69,7 +146,7 @@ public class CourseDao implements CampusDao<Course> {
                 .getResultList(); 
     }
 
-    public List<Course> getNotCreatedCoursesByStudentId(Long studentId, String searchString) {
+    List<Course> getNotCreatedCoursesByStudentId(Long studentId, String searchString) {
         return dbInstance.getCurrentEntityManager()
                 .createNamedQuery(Course.GET_NOT_CREATED_COURSES_BY_STUDENT_ID, Course.class)
                 .setParameter("studentId", studentId)
@@ -81,11 +158,11 @@ public class CourseDao implements CampusDao<Course> {
 		return searchString != null ? "%" + searchString + "%" : "%";
 	}
 
-    public void delete(Course course) {
+    void delete(Course course) {
         deleteCourseBidirectionally(course);
     }
 
-    public void saveResourceableId(Long courseId, Long resourceableId) {
+    void saveResourceableId(Long courseId, Long resourceableId) {
         Course course = getCourseById(courseId);
         if (course == null) {
             String warningMessage = "No course found with id " + courseId + ". Cannot save resourcable id;";
@@ -95,7 +172,7 @@ public class CourseDao implements CampusDao<Course> {
         course.setResourceableId(resourceableId);
     }
 
-    public void disableSynchronization(Long courseId) {
+    void disableSynchronization(Long courseId) {
         Course course = getCourseById(courseId);
         if (course == null) {
             String warningMessage = "No course found with id " + courseId + ". Cannot disable synchronization;";
@@ -105,7 +182,7 @@ public class CourseDao implements CampusDao<Course> {
         course.setSynchronizable(false);
     }
 
-    public void resetResourceable(Long resourceableId) {
+    void resetResourceable(Long resourceableId) {
         List<Course> courses =dbInstance.getCurrentEntityManager()
                 .createNamedQuery(Course.GET_COURSE_BY_RESOURCEABLE_ID, Course.class)
                 .setParameter("resourceableId", resourceableId)
@@ -120,14 +197,14 @@ public class CourseDao implements CampusDao<Course> {
         }
     }
 
-    public List<Course> getCourseByResourceable(Long resourceableId) {
+    List<Course> getCourseByResourceable(Long resourceableId) {
         return dbInstance.getCurrentEntityManager()
                 .createNamedQuery(Course.GET_COURSE_BY_RESOURCEABLE_ID, Course.class)
                 .setParameter("resourceableId", resourceableId)
                 .getResultList();
     }
 
-    public void saveParentCourseId(Long courseId, Long parentCourseId) {
+    void saveParentCourseId(Long courseId, Long parentCourseId) {
         Course course = getCourseById(courseId);
         Course parentCourse = getCourseById(parentCourseId);
         if (course == null) {
@@ -144,66 +221,61 @@ public class CourseDao implements CampusDao<Course> {
     }
 
     /**
-     * Deletes also according entries of the join tables ck_lecturer_course and ck_student_course and of the related tables ck_text and ck_event.
+     * Deletes also according entries of the join tables ck_lecturer_course, ck_student_course and ck_course_org and of the related tables ck_text and ck_event.
+     * We cannot use a bulk delete here, since deleting the join table ck_course_org is not possible.
      */
-    public void deleteByCourseId(Long courseId) {
+    void deleteByCourseId(Long courseId) {
         deleteCourseBidirectionally(dbInstance.getCurrentEntityManager().getReference(Course.class, courseId));
     }
 
     /**
-     * Deletes also according entries of the join tables ck_lecturer_course and ck_student_course and of the related tables ck_text and ck_event.
+     * Deletes also according entries of the join tables ck_lecturer_course, ck_student_course and ck_course_org and of the related tables ck_text and ck_event.
+     * We cannot use a bulk delete here, since deleting the join table ck_course_org is not possible.
      */
-    public void deleteByCourseIds(List<Long> courseIds) {
+    void deleteByCourseIds(List<Long> courseIds) {
+        int count = 0;
         for (Long courseId : courseIds) {
-            deleteCourseBidirectionally(dbInstance.getCurrentEntityManager().getReference(Course.class, courseId));
+            deleteByCourseId(courseId);
+            // Avoid memory problems caused by loading too many objects into the persistence context
+            // (cf. C. Bauer and G. King: Java Persistence mit Hibernate, 2nd edition, p. 477)
+            if (++count % 100 == 0) {
+                dbInstance.flush();
+                dbInstance.clear();
+            }
         }
     }
-
-    /**
-     * Bulk delete for efficient deletion of a big number of entries.
-     *
-     * Does not delete according entries of join tables ck_lecturer_course and ck_student_course (-> must be deleted explicitly)!
-     * Does not delete according entries of ck_text and ck_event (-> must be deleted explicitly)!
-     * Does not update persistence context!
-     */
-    public int deleteByCourseIdsAsBulkDelete(List<Long> courseIds) {
-        return dbInstance.getCurrentEntityManager()
-                .createNamedQuery(Course.DELETE_BY_COURSE_IDS)
-                .setParameter("courseIds", courseIds)
-                .executeUpdate();
-    }
     
-    public List<Long> getIdsOfAllCreatedCourses() {               
+    List<Long> getIdsOfAllCreatedCourses() {
         return dbInstance.getCurrentEntityManager()
                 .createNamedQuery(Course.GET_IDS_OF_ALL_CREATED_COURSES, Long.class)                			
                 .getResultList();
     }
 
-    public List<Long> getResourceableIdsOfAllCreatedCourses() {  
+    List<Long> getResourceableIdsOfAllCreatedCourses() {
         return dbInstance.getCurrentEntityManager()
                 .createNamedQuery(Course.GET_RESOURCEABLEIDS_OF_ALL_CREATED_COURSES, Long.class)                			
                 .getResultList();
     }
 
-    public List<Long> getIdsOfAllNotCreatedCourses() {     
+    List<Long> getIdsOfAllNotCreatedCourses() {
         return dbInstance.getCurrentEntityManager()
                 .createNamedQuery(Course.GET_IDS_OF_ALL_NOT_CREATED_COURSES, Long.class)                			
                 .getResultList();
     }
 
-    public List<Course> getAllCreatedCourses() {
+    List<Course> getAllCreatedCourses() {
         return dbInstance.getCurrentEntityManager()
                 .createNamedQuery(Course.GET_ALL_CREATED_COURSES, Course.class)
                 .getResultList();
     }
 
-    public List<Long> getAllNotCreatedOrphanedCourses() {
+    List<Long> getAllNotCreatedOrphanedCourses() {
         return dbInstance.getCurrentEntityManager()
                 .createNamedQuery(Course.GET_ALL_NOT_CREATED_ORPHANED_COURSES, Long.class)
                 .getResultList();
     }
 
-    public boolean existResourceableId(Long resourceableId) {
+    boolean existResourceableId(Long resourceableId) {
         List<Long> courseIds = dbInstance.getCurrentEntityManager()
                 .createNamedQuery(Course.GET_COURSE_IDS_BY_RESOURCEABLE_ID, Long.class)
                 .setParameter("resourceableId", resourceableId)
@@ -211,14 +283,14 @@ public class CourseDao implements CampusDao<Course> {
         return !courseIds.isEmpty();
     }
 
-    public List<Course> getPilotCoursesByLecturerId(Long lecturerId) {
+    List<Course> getPilotCoursesByLecturerId(Long lecturerId) {
         return dbInstance.getCurrentEntityManager()
                 .createNamedQuery(Course.GET_PILOT_COURSES_BY_LECTURER_ID, Course.class)
                 .setParameter("lecturerId", lecturerId)
                 .getResultList();
     }
 
-    public List<Course> getPilotCoursesByStudentId(Long studentId) {
+    List<Course> getPilotCoursesByStudentId(Long studentId) {
         return dbInstance.getCurrentEntityManager()
                 .createNamedQuery(Course.GET_PILOT_COURSES_BY_STUDENT_ID, Course.class)
                 .setParameter("studentId", studentId)
@@ -234,6 +306,9 @@ public class CourseDao implements CampusDao<Course> {
         for (StudentCourse studentCourse : course.getStudentCourses()) {
             studentCourse.getStudent().getStudentCourses().remove(studentCourse);
             dbInstance.deleteObject(studentCourse);
+        }
+        for (Org org : course.getOrgs()) {
+            org.getCourses().remove(course);
         }
         dbInstance.deleteObject(course);
     }

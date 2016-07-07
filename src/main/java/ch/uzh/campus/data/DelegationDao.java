@@ -57,9 +57,9 @@ public class DelegationDao implements CampusDao<Delegation> {
         dbInstance.saveObject(delegation);
     }
 
-    public void deleteByDelegatorAndDelegatee(String delegator, String delegatee) {
+    void deleteByDelegatorAndDelegatee(String delegator, String delegatee) {
         List<Delegation> delegationsToBeDelted = dbInstance.getCurrentEntityManager()
-                .createNamedQuery(Delegation.GET_BY_DELEGATOR_AND_DELEGATEE)
+                .createNamedQuery(Delegation.GET_BY_DELEGATOR_AND_DELEGATEE, Delegation.class)
                 .setParameter("delegator", delegator)
                 .setParameter("delegatee", delegatee)
                 .getResultList();
@@ -68,21 +68,21 @@ public class DelegationDao implements CampusDao<Delegation> {
         }
     }
 
-    public List<Delegation> getDelegationsByDelegator(String delegator) {
+    List<Delegation> getDelegationsByDelegator(String delegator) {
         return dbInstance.getCurrentEntityManager()
                 .createNamedQuery(Delegation.GET_BY_DELEGATOR, Delegation.class)
                 .setParameter("delegator", delegator)
                 .getResultList();
     }
 
-    public List<Delegation> getDelegationsByDelegatee(String delegatee) {
+    List<Delegation> getDelegationsByDelegatee(String delegatee) {
         return dbInstance.getCurrentEntityManager()
                 .createNamedQuery(Delegation.GET_BY_DELEGATEE, Delegation.class)
                 .setParameter("delegatee", delegatee)
                 .getResultList();
     }
 
-    public boolean existDelegation(String delegator, String delegatee) {
+    boolean existDelegation(String delegator, String delegatee) {
         boolean isEmpty = dbInstance.getCurrentEntityManager()
                 .createNamedQuery(Delegation.GET_BY_DELEGATOR_AND_DELEGATEE)
                 .setParameter("delegator", delegator)

@@ -29,7 +29,7 @@ public class SapOlatUserDao {
     	}
     }
 
-    public SapOlatUser getSapOlatUserBySapUserId(Long sapUserId) {
+    SapOlatUser getSapOlatUserBySapUserId(Long sapUserId) {
     	return dbInstance.findObject(SapOlatUser.class, sapUserId);
     }
 
@@ -40,7 +40,7 @@ public class SapOlatUserDao {
         		.getResultList();
     }
 
-    public SapOlatUser getSapOlatUserByOlatUserNameAndSapUserType(String olatUserName, SapOlatUser.SapUserType sapUserType) { 
+    SapOlatUser getSapOlatUserByOlatUserNameAndSapUserType(String olatUserName, SapOlatUser.SapUserType sapUserType) {
         List<SapOlatUser> sapOlatUsers = dbInstance.getCurrentEntityManager()
         		.createNamedQuery(SapOlatUser.GET_SAP_OLAT_USER_BY_OLAT_USERNAME_AND_TYPE, SapOlatUser.class)
         		.setParameter("olatUserName", olatUserName)
@@ -53,7 +53,7 @@ public class SapOlatUserDao {
     }
 
     
-    public SapOlatUser getSapOlatUsersByOlatUserNameAndSapUserType(String olatUserName, SapOlatUser.SapUserType sapUserType) {
+    SapOlatUser getSapOlatUsersByOlatUserNameAndSapUserType(String olatUserName, SapOlatUser.SapUserType sapUserType) {
 		try {
 			return dbInstance.getCurrentEntityManager()
 					.createNamedQuery(SapOlatUser.GET_SAP_OLAT_USER_BY_OLAT_USERNAME_AND_TYPE, SapOlatUser.class)
@@ -66,7 +66,7 @@ public class SapOlatUserDao {
     }
 
 
-    public List<SapOlatUser> getSapOlatUsersBySapIds(Set<Long> sapUserIds) {
+    List<SapOlatUser> getSapOlatUsersBySapIds(Set<Long> sapUserIds) {
         if (sapUserIds == null || sapUserIds.isEmpty()) {
             return new ArrayList<>();
         }
@@ -98,7 +98,7 @@ public class SapOlatUserDao {
     /**
      * Bulk delete for efficient deletion of a big number of entries. Does not update persistence context!
      */
-    public void deleteMappingBySapLecturerIdsAsBulkDelete(List<Long> sapIds) {
+    void deleteMappingBySapLecturerIdsAsBulkDelete(List<Long> sapIds) {
         dbInstance.getCurrentEntityManager().createNamedQuery(SapOlatUser.DELETE_SAP_OLAT_LECTURERS_BY_SAP_IDS)
                 .setParameter("sapIds", sapIds)
 		        .executeUpdate();
@@ -107,7 +107,7 @@ public class SapOlatUserDao {
     /**
      * Bulk delete for efficient deletion of a big number of entries. Does not update persistence context!
      */
-    public void deleteMappingBySapStudentIdsAsBulkDelete(List<Long> sapIds) {
+    void deleteMappingBySapStudentIdsAsBulkDelete(List<Long> sapIds) {
         dbInstance.getCurrentEntityManager().createNamedQuery(SapOlatUser.DELETE_SAP_OLAT_STUDENTS_BY_SAP_IDS)
                 .setParameter("sapIds", sapIds)
 		        .executeUpdate();
@@ -116,7 +116,7 @@ public class SapOlatUserDao {
     /**
      * Bulk delete for efficient deletion of a big number of entries. Does not update persistence context!
      */
-    public void deleteOldLecturerMappingAsBulkDelete() {
+    void deleteOldLecturerMappingAsBulkDelete() {
         dbInstance.getCurrentEntityManager()
                 .createNamedQuery(SapOlatUser.DELETE_SAP_OLAT_LECTURERS)
 		        .executeUpdate();
@@ -125,7 +125,7 @@ public class SapOlatUserDao {
     /**
      * Bulk delete for efficient deletion of a big number of entries. Does not update persistence context!
      */
-    public void deleteOldStudentMappingAsBulkDelete() {
+    void deleteOldStudentMappingAsBulkDelete() {
         dbInstance.getCurrentEntityManager()
                 .createNamedQuery(SapOlatUser.DELETE_SAP_OLAT_STUDENTS)
 		        .executeUpdate();

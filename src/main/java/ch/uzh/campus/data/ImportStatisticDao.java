@@ -37,7 +37,7 @@ public class ImportStatisticDao implements CampusDao<ImportStatistic> {
         dbInstance.getCurrentEntityManager().merge(statistic);
     }
 
-    public List<ImportStatistic> getLastCompletedImportedStatistic() {
+    List<ImportStatistic> getLastCompletedImportedStatistic() {
         return dbInstance.getCurrentEntityManager()
                 .createNamedQuery(ImportStatistic.GET_LAST_COMPLETED_IMPORT_STATISTIC, ImportStatistic.class)
                 .getResultList();

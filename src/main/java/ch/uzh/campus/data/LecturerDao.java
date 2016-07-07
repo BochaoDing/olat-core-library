@@ -35,11 +35,11 @@ public class LecturerDao implements CampusDao<Lecturer> {
         }
     }
 
-    public Lecturer getLecturerById(Long id) {
+    Lecturer getLecturerById(Long id) {
         return dbInstance.findObject(Lecturer.class, id);
     }
 
-    public Lecturer getLecturerByEmail(String email) {
+    Lecturer getLecturerByEmail(String email) {
         List<Lecturer> lecturers = dbInstance.getCurrentEntityManager()
                 .createNamedQuery(Lecturer.GET_LECTURER_BY_EMAIL, Lecturer.class)
                 .setParameter("email", email)
@@ -50,13 +50,13 @@ public class LecturerDao implements CampusDao<Lecturer> {
         return null;
     }
 
-    public List<Lecturer> getAllPilotLecturers() {
+    List<Lecturer> getAllPilotLecturers() {
         return dbInstance.getCurrentEntityManager()
                 .createNamedQuery(Lecturer.GET_ALL_PILOT_LECTURERS, Lecturer.class)
                 .getResultList();
     }
 
-    public List<Long> getAllOrphanedLecturers() {
+    List<Long> getAllOrphanedLecturers() {
         return dbInstance.getCurrentEntityManager()
                 .createNamedQuery(Lecturer.GET_ALL_ORPHANED_LECTURERS, Long.class)
                 .getResultList();
@@ -65,14 +65,14 @@ public class LecturerDao implements CampusDao<Lecturer> {
     /**
      * Deletes also according entries of the join table ck_lecturer_course.
      */
-    public void delete(Lecturer lecturer) {
+    void delete(Lecturer lecturer) {
         deleteLecturerBidirectionally(lecturer);
     }
 
     /**
      * Deletes also according entries of the join table ck_lecturer_course.
      */
-    public void deleteByLecturerIds(List<Long> lecturerIds) {
+    void deleteByLecturerIds(List<Long> lecturerIds) {
         for (Long lecturerId : lecturerIds) {
             deleteLecturerBidirectionally(dbInstance.getCurrentEntityManager().getReference(Lecturer.class, lecturerId));
         }
@@ -83,7 +83,7 @@ public class LecturerDao implements CampusDao<Lecturer> {
      * Does not delete according entries of join table ck_lecturer_course (-> must be deleted explicitly)!
      * Does not update persistence context!
      */
-    public int deleteByLecturerIdsAsBulkDelete(List<Long> lecturerIds) {
+    int deleteByLecturerIdsAsBulkDelete(List<Long> lecturerIds) {
         return dbInstance.getCurrentEntityManager()
                 .createNamedQuery(Lecturer.DELETE_BY_LECTURER_IDS)
                 .setParameter("lecturerIds", lecturerIds)

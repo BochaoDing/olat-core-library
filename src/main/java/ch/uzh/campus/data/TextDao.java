@@ -24,7 +24,7 @@ public class TextDao {
 	@Autowired
     private DB dbInstance;
 
-    public void addTextToCourse(Text text, Long courseId) {
+    private void addTextToCourse(Text text, Long courseId) {
         Course course = dbInstance.getCurrentEntityManager().find(Course.class, courseId);
         if (course == null) {
             String warningMessage = "No course found with id " + courseId + ". Skipping entry " + text.getId() + " for table ck_text.";
@@ -40,30 +40,30 @@ public class TextDao {
         addTextToCourse(text, textCourseId.getCourseId());
     }
 
-    public void addTextsToCourse(List<TextCourseId> textCourseIds) {
+    void addTextsToCourse(List<TextCourseId> textCourseIds) {
         for (TextCourseId textCourseId : textCourseIds) {
             addTextToCourse(textCourseId);
         }
     }
 
-    public List<Text> getTextsByCourseId(Long courseId) {        
+    List<Text> getTextsByCourseId(Long courseId) {
         return dbInstance.getCurrentEntityManager()
                 .createNamedQuery(Text.GET_TEXTS_BY_COURSE_ID, Text.class)
                 .setParameter("courseId", courseId)
                 .getResultList();
     }
 
-    public String getContentsByCourseId(Long courseId) {
+    String getContentsByCourseId(Long courseId) {
         List<Text> texts = getTextsByCourseIdAndType(courseId, Text.CONTENTS);
         return buildText(texts);
     }
 
-    public String getMaterialsByCourseId(Long courseId) {
+    String getMaterialsByCourseId(Long courseId) {
         List<Text> texts = getTextsByCourseIdAndType(courseId, Text.MATERIALS);
         return buildText(texts);
     }
 
-    public String getInfosByCourseId(Long courseId) {
+    String getInfosByCourseId(Long courseId) {
         List<Text> texts = getTextsByCourseIdAndType(courseId, Text.INFOS);
         return buildText(texts);
     }
@@ -85,7 +85,7 @@ public class TextDao {
         return content.toString();
     }
 
-    public int deleteAllTexts() {
+    int deleteAllTexts() {
         List<Long> idsOfTextsToBeDeleted = dbInstance.getCurrentEntityManager()
                 .createNamedQuery(Text.GET_IDS_OF_ALL_TEXTS, Long.class)
                 .getResultList();
@@ -96,13 +96,13 @@ public class TextDao {
     /**
      * Bulk delete for efficient deletion of a big number of entries. Does not update persistence context!
      */
-    public int deleteAllTextsAsBulkDelete() {
+    int deleteAllTextsAsBulkDelete() {
         return dbInstance.getCurrentEntityManager()
                 .createNamedQuery(Text.DELETE_ALL_TEXTS)
                 .executeUpdate();
     }
 
-    public int deleteTextsByCourseId(Long courseId) {
+    int deleteTextsByCourseId(Long courseId) {
         List<Long> idsOfTextsToBeDeleted = dbInstance.getCurrentEntityManager()
                 .createNamedQuery(Text.GET_TEXT_IDS_BY_COURSE_ID, Long.class)
                 .setParameter("courseId", courseId)
@@ -111,7 +111,7 @@ public class TextDao {
         return idsOfTextsToBeDeleted.size();
     }
 
-    public int deleteTextsByCourseIds(List<Long> courseIds) {
+    int deleteTextsByCourseIds(List<Long> courseIds) {
         List<Long> idsOfTextsToBeDeleted = dbInstance.getCurrentEntityManager()
                 .createNamedQuery(Text.GET_TEXT_IDS_BY_COURSE_IDS, Long.class)
                 .setParameter("courseIds", courseIds)
@@ -123,7 +123,7 @@ public class TextDao {
     /**
      * Bulk delete for efficient deletion of a big number of entries. Does not update persistence context!
      */
-    public int deleteTextsByCourseIdsAsBulkDelete(List<Long> courseIds) {
+    int deleteTextsByCourseIdsAsBulkDelete(List<Long> courseIds) {
         return dbInstance.getCurrentEntityManager()
                 .createNamedQuery(Text.DELETE_TEXTS_BY_COURSE_IDS)
                 .setParameter("courseIds", courseIds)
