@@ -28,6 +28,9 @@ import static org.junit.Assert.*;
 public class LecturerCourseDaoTest extends OlatTestCase {
 
     @Autowired
+    private CampusCourseConfiguration campusCourseConfiguration;
+
+    @Autowired
     private DB dbInstance;
 
     @Autowired
@@ -256,11 +259,11 @@ public class LecturerCourseDaoTest extends OlatTestCase {
         Date referenceImportDate = new Date();
 
         // Insert lecturer to course with date too far in the past (-> should be deleted)
-        LecturerCourse lecturerCourse1 = new LecturerCourse(lecturer, course1, DateUtil.addYearsToDate(referenceImportDate, -CampusCourseConfiguration.MAX_YEARS_TO_KEEP_CK_DATA - 1));
+        LecturerCourse lecturerCourse1 = new LecturerCourse(lecturer, course1, DateUtil.addYearsToDate(referenceImportDate, -campusCourseConfiguration.getMaxYearsToKeepCkData() - 1));
         lecturerCourseDao.saveOrUpdate(lecturerCourse1);
 
         // Insert lecturer to course with date not too far in the past (-> should not be deleted)
-        LecturerCourse lecturerCourse2 = new LecturerCourse(lecturer, course2, DateUtil.addYearsToDate(referenceImportDate, -CampusCourseConfiguration.MAX_YEARS_TO_KEEP_CK_DATA + 1));
+        LecturerCourse lecturerCourse2 = new LecturerCourse(lecturer, course2, DateUtil.addYearsToDate(referenceImportDate, -campusCourseConfiguration.getMaxYearsToKeepCkData() + 1));
         lecturerCourseDao.saveOrUpdate(lecturerCourse2);
 
         dbInstance.flush();

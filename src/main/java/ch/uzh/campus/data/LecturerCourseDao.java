@@ -22,6 +22,9 @@ public class LecturerCourseDao implements CampusDao<LecturerIdCourseIdModifiedDa
     private static final OLog LOG = Tracing.createLoggerFor(LecturerCourseDao.class);
 
     @Autowired
+    private CampusCourseConfiguration campusCourseConfiguration;
+
+    @Autowired
     private DB dbInstance;
 
     @Autowired
@@ -112,7 +115,7 @@ public class LecturerCourseDao implements CampusDao<LecturerIdCourseIdModifiedDa
     int deleteAllLCBookingTooFarInThePastAsBulkDelete(Date date) {
         return dbInstance.getCurrentEntityManager()
                 .createNamedQuery(LecturerCourse.DELETE_ALL_LC_BOOKING_TOO_FAR_IN_THE_PAST)
-                .setParameter("nYearsInThePast", DateUtil.addYearsToDate(date, -CampusCourseConfiguration.MAX_YEARS_TO_KEEP_CK_DATA))
+                .setParameter("nYearsInThePast", DateUtil.addYearsToDate(date, -campusCourseConfiguration.getMaxYearsToKeepCkData()))
                 .executeUpdate();
     }
 

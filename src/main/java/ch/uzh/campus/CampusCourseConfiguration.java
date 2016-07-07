@@ -26,7 +26,8 @@ public class CampusCourseConfiguration {
     private static final String CAMPUS_COURSE_PROPERTY_CATEGORY = "campus.course.property";
     private static final String TEMPLATE_COURSE_RESOURCEABLE_ID_PROPERTY_KEY = "_template.course.resourceable.id";
 
-    public static final int MAX_YEARS_TO_KEEP_CK_DATA = 3;
+    @Value("${campus.import.process.maxYearsToKeepCkData:3}")
+    private int maxYearsToKeepCkData;
 
     @Value("${campus.template.course.resourceable.id}")
     private String defaultTemplateCourseResourcableId;
@@ -175,6 +176,10 @@ public class CampusCourseConfiguration {
 
     public void setConnectionPoolTimeout(int connectionPoolTimeout) {
         this.connectionPoolTimeout = connectionPoolTimeout;
+    }
+
+    public int getMaxYearsToKeepCkData() {
+        return maxYearsToKeepCkData;
     }
 
     // TODO: How to handle start-date of semester ?

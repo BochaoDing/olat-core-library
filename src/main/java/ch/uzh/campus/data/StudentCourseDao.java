@@ -23,6 +23,9 @@ public class StudentCourseDao implements CampusDao<StudentIdCourseIdModifiedDate
     private static final OLog LOG = Tracing.createLoggerFor(StudentCourseDao.class);
 
     @Autowired
+    private CampusCourseConfiguration campusCourseConfiguration;
+
+    @Autowired
     private DB dbInstance;
 
     public void save(StudentCourse studentCourse) {
@@ -115,7 +118,7 @@ public class StudentCourseDao implements CampusDao<StudentIdCourseIdModifiedDate
     int deleteAllSCBookingTooFarInThePastAsBulkDelete(Date date) {
         return dbInstance.getCurrentEntityManager()
                 .createNamedQuery(StudentCourse.DELETE_ALL_SC_BOOKING_TOO_FAR_IN_THE_PAST)
-                .setParameter("nYearsInThePast", DateUtil.addYearsToDate(date, -CampusCourseConfiguration.MAX_YEARS_TO_KEEP_CK_DATA))
+                .setParameter("nYearsInThePast", DateUtil.addYearsToDate(date, -campusCourseConfiguration.getMaxYearsToKeepCkData()))
                 .executeUpdate();
     }
 
