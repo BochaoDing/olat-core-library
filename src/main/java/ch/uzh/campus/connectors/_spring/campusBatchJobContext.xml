@@ -505,7 +505,7 @@
 	<bean id="lineTokenizer"
 		class="org.springframework.batch.item.file.transform.DelimitedLineTokenizer" abstract="true" >
 		<property name="delimiter" value=";" />
-		<property name="quoteCharacter" value="${campus.import.process.lineTokenizer.quoteCharacter}" />
+		<property name="quoteCharacter" value="☠" />
 	</bean>
 	
 	<bean id="fieldSetMapper"
