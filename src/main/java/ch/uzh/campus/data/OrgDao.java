@@ -68,8 +68,9 @@ public class OrgDao implements CampusDao<Org> {
      */
     void deleteByOrgIds(List<Long> orgIds) {
         int count = 0;
+        EntityManager em = dbInstance.getCurrentEntityManager();
         for (Long orgId : orgIds) {
-            deleteByOrgId(orgId);
+            deleteOrgBidirectionally(em.getReference(Org.class, orgId));
             // Avoid memory problems caused by loading too many objects into the persistence context
             // (cf. C. Bauer and G. King: Java Persistence mit Hibernate, 2nd edition, p. 477)
             if (++count % 100 == 0) {
