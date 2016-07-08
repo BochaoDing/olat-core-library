@@ -102,7 +102,7 @@ public class CampusCourseCreationController extends BasicController {
                                           RepositoryManager repositoryManager,
                                           CampusCourseOlatHelper campusCourseOlatHelper
     ) {
-        super(ureq, wControl);
+        super(ureq, wControl, CampusCourseOlatHelper.getTranslator(ureq.getLocale()));
 
         this.sapCampusCourseId = sapCampusCourseId;
         this.campusCourseTitle = campusCourseTitle;
