@@ -122,33 +122,33 @@ public class CourseDao implements CampusDao<CourseOrgId> {
         return dbInstance.findObject(Course.class, id);
     }
 
-    List<Course> getCreatedCoursesByLecturerId(Long lecturerId, String searchString) {
+    List<Course> getCreatedCoursesOfCurrentSemesterByLecturerId(Long lecturerId, String searchString) {
         return dbInstance.getCurrentEntityManager()
-                .createNamedQuery(Course.GET_CREATED_COURSES_BY_LECTURER_ID, Course.class)
+                .createNamedQuery(Course.GET_CREATED_COURSES_OF_CURRENT_SEMESTER_BY_LECTURER_ID, Course.class)
                 .setParameter("lecturerId", lecturerId)
 				.setParameter("searchString", getWildcardLikeSearchString(searchString))
                 .getResultList();
     }
 
-    List<Course> getNotCreatedCoursesByLecturerId(Long lecturerId, String searchString) {
+    List<Course> getNotCreatedCreatableCoursesOfCurrentSemesterByLecturerId(Long lecturerId, String searchString) {
         return dbInstance.getCurrentEntityManager()
-                .createNamedQuery(Course.GET_NOT_CREATED_COURSES_BY_LECTURER_ID, Course.class)
+                .createNamedQuery(Course.GET_NOT_CREATED_CREATABLE_COURSES_OF_CURRENT_SEMESTER_BY_LECTURER_ID, Course.class)
                 .setParameter("lecturerId", lecturerId)
 				.setParameter("searchString", getWildcardLikeSearchString(searchString))
                 .getResultList();
     }
 
-    List<Course> getCreatedCoursesByStudentId(Long studentId, String searchString) {
+    List<Course> getCreatedCoursesOfCurrentSemesterByStudentId(Long studentId, String searchString) {
         return dbInstance.getCurrentEntityManager()
-                .createNamedQuery(Course.GET_CREATED_COURSES_BY_STUDENT_ID, Course.class)
+                .createNamedQuery(Course.GET_CREATED_COURSES_OF_CURRENT_SEMESTER_BY_STUDENT_ID, Course.class)
                 .setParameter("studentId", studentId)
 				.setParameter("searchString", getWildcardLikeSearchString(searchString))
                 .getResultList(); 
     }
 
-    List<Course> getNotCreatedCoursesByStudentId(Long studentId, String searchString) {
+    List<Course> getNotCreatedCreatableCoursesOfCurrentSemesterByStudentId(Long studentId, String searchString) {
         return dbInstance.getCurrentEntityManager()
-                .createNamedQuery(Course.GET_NOT_CREATED_COURSES_BY_STUDENT_ID, Course.class)
+                .createNamedQuery(Course.GET_NOT_CREATED_CREATABLE_COURSES_OF_CURRENT_SEMESTER_BY_STUDENT_ID, Course.class)
                 .setParameter("studentId", studentId)
 				.setParameter("searchString", getWildcardLikeSearchString(searchString))
                 .getResultList(); 
@@ -245,27 +245,27 @@ public class CourseDao implements CampusDao<CourseOrgId> {
         }
     }
     
-    List<Long> getIdsOfAllCreatedCourses() {
+    List<Long> getIdsOfAllCreatedSynchronizableCoursesOfCurrentSemester() {
         return dbInstance.getCurrentEntityManager()
-                .createNamedQuery(Course.GET_IDS_OF_ALL_CREATED_COURSES, Long.class)                			
+                .createNamedQuery(Course.GET_IDS_OF_ALL_CREATED_SYNCHRONIZABLE_COURSES_OF_CURRENT_SEMESTER, Long.class)
                 .getResultList();
     }
 
-    List<Long> getResourceableIdsOfAllCreatedCourses() {
+    List<Long> getResourceableIdsOfAllCreatedCoursesOfCurrentSemester() {
         return dbInstance.getCurrentEntityManager()
-                .createNamedQuery(Course.GET_RESOURCEABLEIDS_OF_ALL_CREATED_COURSES, Long.class)                			
+                .createNamedQuery(Course.GET_RESOURCEABLE_IDS_OF_ALL_CREATED_COURSES_OF_CURRENT_SEMESTER, Long.class)
                 .getResultList();
     }
 
-    List<Long> getIdsOfAllNotCreatedCourses() {
+    List<Long> getIdsOfAllNotCreatedCreatableCoursesOfCurrentSemester() {
         return dbInstance.getCurrentEntityManager()
-                .createNamedQuery(Course.GET_IDS_OF_ALL_NOT_CREATED_COURSES, Long.class)                			
+                .createNamedQuery(Course.GET_IDS_OF_ALL_NOT_CREATED_CREATABLE_COURSES_OF_CURRENT_SEMESTER, Long.class)
                 .getResultList();
     }
 
-    List<Course> getAllCreatedCourses() {
+    List<Course> getAllCreatedCoursesOfCurrentSemester() {
         return dbInstance.getCurrentEntityManager()
-                .createNamedQuery(Course.GET_ALL_CREATED_COURSES, Course.class)
+                .createNamedQuery(Course.GET_ALL_CREATED_COURSES_OF_CURRENT_SEMESTER, Course.class)
                 .getResultList();
     }
 
@@ -283,16 +283,16 @@ public class CourseDao implements CampusDao<CourseOrgId> {
         return !courseIds.isEmpty();
     }
 
-    List<Course> getPilotCoursesByLecturerId(Long lecturerId) {
+    List<Course> getCreatedAndNotCreatedCreatableCoursesOfCurrentSemesterByLecturerId(Long lecturerId) {
         return dbInstance.getCurrentEntityManager()
-                .createNamedQuery(Course.GET_PILOT_COURSES_BY_LECTURER_ID, Course.class)
+                .createNamedQuery(Course.GET_CREATED_AND_NOT_CREATED_CREATABLE_COURSES_OF_CURRENT_SEMESTER_BY_LECTURER_ID, Course.class)
                 .setParameter("lecturerId", lecturerId)
                 .getResultList();
     }
 
-    List<Course> getPilotCoursesByStudentId(Long studentId) {
+    List<Course> getCreatedAndNotCreatedCreatableCoursesOfCurrentSemesterByStudentId(Long studentId) {
         return dbInstance.getCurrentEntityManager()
-                .createNamedQuery(Course.GET_PILOT_COURSES_BY_STUDENT_ID, Course.class)
+                .createNamedQuery(Course.GET_CREATED_AND_NOT_CREATED_CREATABLE_COURSES_OF_CURRENT_SEMESTER_BY_STUDENT_ID, Course.class)
                 .setParameter("studentId", studentId)
                 .getResultList();
     }

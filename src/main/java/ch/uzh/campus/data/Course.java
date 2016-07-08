@@ -17,11 +17,15 @@ import java.util.Set;
  */
 @Entity
 @NamedQueries({
-        @NamedQuery(name = Course.GET_ALL_CREATED_COURSES, query = "select c from Course c where c.resourceableId is not null and c.shortSemester = (select max(c2.shortSemester) from Course c2)"),
-        @NamedQuery(name = Course.GET_IDS_OF_ALL_CREATED_COURSES, query = "select c.id from Course c where c.resourceableId is not null and c.synchronizable = true and c.shortSemester = (select max(c2.shortSemester) from Course c2)"),
-        @NamedQuery(name = Course.GET_RESOURCEABLEIDS_OF_ALL_CREATED_COURSES, query = "select c.resourceableId from Course c where c.resourceableId is not null and c.shortSemester = (select max(c2.shortSemester) from Course c2)"),
-        @NamedQuery(name = Course.GET_IDS_OF_ALL_NOT_CREATED_COURSES, query = "select c.id from Course c where c.resourceableId is null and c.enabled = '1' and c.shortSemester = (select max(c2.shortSemester) from Course c2)"),
-        @NamedQuery(name = Course.GET_CREATED_COURSES_BY_LECTURER_ID, query = "select c from Course c join c.lecturerCourses lc where " +
+        @NamedQuery(name = Course.GET_ALL_CREATED_COURSES_OF_CURRENT_SEMESTER, query = "select c from Course c where c.resourceableId is not null and c.shortSemester = (select max(c2.shortSemester) from Course c2)"),
+        @NamedQuery(name = Course.GET_IDS_OF_ALL_CREATED_SYNCHRONIZABLE_COURSES_OF_CURRENT_SEMESTER, query = "select c.id from Course c where c.resourceableId is not null and c.synchronizable = true and c.shortSemester = (select max(c2.shortSemester) from Course c2)"),
+        @NamedQuery(name = Course.GET_RESOURCEABLE_IDS_OF_ALL_CREATED_COURSES_OF_CURRENT_SEMESTER, query = "select c.resourceableId from Course c where c.resourceableId is not null and c.shortSemester = (select max(c2.shortSemester) from Course c2)"),
+        @NamedQuery(name = Course.GET_IDS_OF_ALL_NOT_CREATED_CREATABLE_COURSES_OF_CURRENT_SEMESTER, query = "select c.id from Course c where " +
+                "c.resourceableId is null " +
+                "and c.exclude = false " +
+                "and exists (select c1 from Course c1 join c1.orgs o where c1.id = c.id and o.enabled = true) " +
+                "and c.shortSemester = (select max(c2.shortSemester) from Course c2)"),
+        @NamedQuery(name = Course.GET_CREATED_COURSES_OF_CURRENT_SEMESTER_BY_LECTURER_ID, query = "select c from Course c join c.lecturerCourses lc where " +
                 "((c.resourceableId is not null and lc.lecturer.personalNr = :lecturerId) " +
                 "or exists (select c2 from Course c2 join c2.parentCourse.lecturerCourses lc2 " +
                 "where c2.id = c.id and ((c2.parentCourse.resourceableId is not null and (lc.lecturer.personalNr = :lecturerId or lc2.lecturer.personalNr = :lecturerId)) " +
@@ -29,9 +33,15 @@ import java.util.Set;
                 "where c3.id = c.id and ((c3.parentCourse.parentCourse.resourceableId is not null and (lc.lecturer.personalNr = :lecturerId or lc2.lecturer.personalNr = :lecturerId or lc3.lecturer.personalNr = :lecturerId)) " +
                 "or exists (select c4 from Course c4 join c4.parentCourse.parentCourse.parentCourse.lecturerCourses lc4 " +
                 "where c4.id = c.id and ((c4.parentCourse.parentCourse.parentCourse.resourceableId is not null and (lc.lecturer.personalNr = :lecturerId or lc2.lecturer.personalNr = :lecturerId or lc3.lecturer.personalNr = :lecturerId or lc4.lecturer.personalNr = :lecturerId))))))))) " +
-                "and c.enabled = '1' and c.shortSemester = (select max(c5.shortSemester) from Course c5) and c.title like :searchString"),
-        @NamedQuery(name = Course.GET_NOT_CREATED_COURSES_BY_LECTURER_ID, query = "select c from Course c join c.lecturerCourses lc where lc.lecturer.personalNr = :lecturerId and c.resourceableId is null and c.enabled = '1' and c.shortSemester= (select max(c2.shortSemester) from Course c2) and c.title like :searchString"),
-        @NamedQuery(name = Course.GET_CREATED_COURSES_BY_STUDENT_ID, query = "select c from Course c join c.studentCourses sc where " +
+                "and c.shortSemester = (select max(c5.shortSemester) from Course c5) and c.title like :searchString"),
+        @NamedQuery(name = Course.GET_NOT_CREATED_CREATABLE_COURSES_OF_CURRENT_SEMESTER_BY_LECTURER_ID, query = "select c from Course c join c.lecturerCourses lc where " +
+                "lc.lecturer.personalNr = :lecturerId " +
+                "and c.resourceableId is null " +
+                "and c.exclude = false " +
+                "and exists (select c1 from Course c1 join c1.orgs o where c1.id = c.id and o.enabled = true) " +
+                "and c.shortSemester= (select max(c2.shortSemester) from Course c2) " +
+                "and c.title like :searchString"),
+        @NamedQuery(name = Course.GET_CREATED_COURSES_OF_CURRENT_SEMESTER_BY_STUDENT_ID, query = "select c from Course c join c.studentCourses sc where " +
                 "((c.resourceableId is not null and sc.student.id = :studentId) " +
                 "or exists (select c2 from Course c2 join c2.parentCourse.studentCourses sc2 " +
                 "where c2.id = c.id and ((c2.parentCourse.resourceableId is not null and (sc.student.id = :studentId or sc2.student.id = :studentId)) " +
@@ -39,20 +49,30 @@ import java.util.Set;
                 "where c3.id = c.id and ((c3.parentCourse.parentCourse.resourceableId is not null and (sc.student.id = :studentId or sc2.student.id = :studentId or sc3.student.id = :studentId)) " +
                 "or exists (select c4 from Course c4 join c4.parentCourse.parentCourse.parentCourse.studentCourses sc4 " +
                 "where c4.id = c.id and ((c4.parentCourse.parentCourse.parentCourse.resourceableId is not null and (sc.student.id = :studentId or sc2.student.id = :studentId or sc3.student.id = :studentId or sc4.student.id = :studentId))))))))) " +
-                "and c.enabled = '1' and c.shortSemester = (select max(c5.shortSemester) from Course c5) and c.title like :searchString"),
-        @NamedQuery(name = Course.GET_NOT_CREATED_COURSES_BY_STUDENT_ID, query = "select c from Course c join c.studentCourses sc where sc.student.id = :studentId and c.resourceableId is null and c.enabled = '1' and c.shortSemester = (select max(c2.shortSemester) from Course c2) and c.title like :searchString"),
-        @NamedQuery(name = Course.GET_PILOT_COURSES_BY_STUDENT_ID, query = "select c from Course c left join c.studentCourses sc where " +
+                "and c.shortSemester = (select max(c5.shortSemester) from Course c5) and c.title like :searchString"),
+        @NamedQuery(name = Course.GET_NOT_CREATED_CREATABLE_COURSES_OF_CURRENT_SEMESTER_BY_STUDENT_ID, query = "select c from Course c join c.studentCourses sc where " +
+                "sc.student.id = :studentId " +
+                "and c.resourceableId is null " +
+                "and c.exclude = false " +
+                "and exists (select c1 from Course c1 join c1.orgs o where c1.id = c.id and o.enabled = true) " +
+                "and c.shortSemester = (select max(c2.shortSemester) from Course c2) " +
+                "and c.title like :searchString"),
+        @NamedQuery(name = Course.GET_CREATED_AND_NOT_CREATED_CREATABLE_COURSES_OF_CURRENT_SEMESTER_BY_STUDENT_ID, query = "select c from Course c left join c.studentCourses sc where " +
                 "(sc.student.id = :studentId " +
                 "or exists (select c2 from Course c2 join c2.parentCourse.studentCourses sc2 where c2.id = c.id and sc2.student.id = :studentId) " +
                 "or exists (select c3 from Course c3 join c3.parentCourse.parentCourse.studentCourses sc3 where c3.id = c.id and sc3.student.id = :studentId) " +
                 "or exists (select c4 from Course c4 join c4.parentCourse.parentCourse.parentCourse.studentCourses sc4 where c4.id = c.id and sc4.student.id = :studentId)) " +
-                "and c.enabled = '1' and c.shortSemester = (select max(c5.shortSemester) from Course c5)"),
-        @NamedQuery(name = Course.GET_PILOT_COURSES_BY_LECTURER_ID, query = "select c from Course c left join c.lecturerCourses lc where " +
+                "and c.exclude = false " +
+                "and exists (select c5 from Course c5 join c5.orgs o where c5.id = c.id and o.enabled = true) " +
+                "and c.shortSemester = (select max(c6.shortSemester) from Course c6)"),
+        @NamedQuery(name = Course.GET_CREATED_AND_NOT_CREATED_CREATABLE_COURSES_OF_CURRENT_SEMESTER_BY_LECTURER_ID, query = "select c from Course c left join c.lecturerCourses lc where " +
                 "(lc.lecturer.personalNr = :lecturerId " +
                 "or exists (select c2 from Course c2 join c2.parentCourse.lecturerCourses lc2 where c2.id = c.id and lc2.lecturer.personalNr = :lecturerId) " +
                 "or exists (select c3 from Course c3 join c3.parentCourse.parentCourse.lecturerCourses lc3 where c3.id = c.id and lc3.lecturer.personalNr = :lecturerId) " +
                 "or exists (select c4 from Course c4 join c4.parentCourse.parentCourse.parentCourse.lecturerCourses lc4 where c4.id = c.id and lc4.lecturer.personalNr = :lecturerId)) " +
-                "and c.enabled = '1' and c.shortSemester = (select max(c5.shortSemester) from Course c5) "),
+                "and c.exclude = false " +
+                "and exists (select c5 from Course c5 join c5.orgs o where c5.id = c.id and o.enabled = true) " +
+                "and c.shortSemester = (select max(c6.shortSemester) from Course c6) "),
         @NamedQuery(name = Course.GET_ALL_NOT_CREATED_ORPHANED_COURSES, query = "select c.id from Course c where c.resourceableId is null and c.id not in (select lc.course.id from LecturerCourse lc) and c.id not in (select sc.course.id from StudentCourse sc)"),
         @NamedQuery(name = Course.GET_COURSE_IDS_BY_RESOURCEABLE_ID, query = "select c.id from Course c where c.resourceableId = :resourceableId"),
         @NamedQuery(name = Course.GET_COURSE_BY_RESOURCEABLE_ID, query = "select c from Course c where c.resourceableId = :resourceableId")
@@ -101,11 +121,8 @@ public class Course {
     @Column(name = "short_semester")
     private String shortSemester;
 
-    @Column(name = "ipz")
-    private String ipz;
-
-    @Column(name = "enabled", nullable = false)
-    private String enabled = "0";
+    @Column(name = "exclude", nullable = false)
+    private boolean exclude = false;
 
     // Disable import and synchronization
     // Used in OLAT 7.x for a continued campus course (for the new course). May still be used in OLAT 10.x if the
@@ -158,24 +175,23 @@ public class Course {
         this.vvzLink = courseOrgId.getVvzLink();
         this.semester = courseOrgId.getSemester();
         this.shortSemester = courseOrgId.getShortSemester();
-        this.ipz = courseOrgId.getIpz();
-        this.enabled = courseOrgId.getEnabled();
+        this.exclude = courseOrgId.isExclude();
         this.synchronizable = courseOrgId.isSynchronizable();
         this.modifiedDate = courseOrgId.getModifiedDate();
     }
 
-    static final String GET_IDS_OF_ALL_CREATED_COURSES = "getIdsOfAllCreatedCourses";
-    static final String GET_RESOURCEABLEIDS_OF_ALL_CREATED_COURSES = "getResourceableIdsOfAllCreatedCourses";
-    static final String GET_IDS_OF_ALL_NOT_CREATED_COURSES = "getIdsOfAllNotCreatedCourses";
-    static final String GET_ALL_CREATED_COURSES = "getAllCreatedCourses";
-    static final String GET_CREATED_COURSES_BY_LECTURER_ID = "getCreatedCoursesByLecturerId";
-    static final String GET_NOT_CREATED_COURSES_BY_LECTURER_ID = "getNotCreatedCoursesByLecturerId";
-    static final String GET_CREATED_COURSES_BY_STUDENT_ID = "getCreatedCoursesByStudentId";
-    static final String GET_NOT_CREATED_COURSES_BY_STUDENT_ID = "getNotCreatedCoursesByStudentId";
+    static final String GET_IDS_OF_ALL_CREATED_SYNCHRONIZABLE_COURSES_OF_CURRENT_SEMESTER = "getIdsOfAllCreatedSynchronizableCoursesOfCurrentSemester";
+    static final String GET_RESOURCEABLE_IDS_OF_ALL_CREATED_COURSES_OF_CURRENT_SEMESTER = "getResourceableIdsOfAllCreatedCoursesOfCurrentSemester";
+    static final String GET_IDS_OF_ALL_NOT_CREATED_CREATABLE_COURSES_OF_CURRENT_SEMESTER = "getIdsOfAllNotCreatedCreatableCoursesOfCurrentSemester";
+    static final String GET_ALL_CREATED_COURSES_OF_CURRENT_SEMESTER = "getAllCreatedCoursesOfCurrentSemester";
+    static final String GET_CREATED_COURSES_OF_CURRENT_SEMESTER_BY_LECTURER_ID = "getCreatedCoursesOfCurrentSemesterByLecturerId";
+    static final String GET_NOT_CREATED_CREATABLE_COURSES_OF_CURRENT_SEMESTER_BY_LECTURER_ID = "getNotCreatedCreatableCoursesOfCurrentSemesterByLecturerId";
+    static final String GET_CREATED_COURSES_OF_CURRENT_SEMESTER_BY_STUDENT_ID = "getCreatedCoursesOfCurrentSemesterByStudentId";
+    static final String GET_NOT_CREATED_CREATABLE_COURSES_OF_CURRENT_SEMESTER_BY_STUDENT_ID = "getNotCreatedCreatableCoursesOfCurrentSemesterByStudentId";
     static final String GET_ALL_NOT_CREATED_ORPHANED_COURSES = "getAllNotCreatedOrphanedCourses";
     static final String GET_COURSE_IDS_BY_RESOURCEABLE_ID = "getCourseIdsByResourceableId";
-    static final String GET_PILOT_COURSES_BY_LECTURER_ID = "getPilotCoursesByLecturerId";
-    static final String GET_PILOT_COURSES_BY_STUDENT_ID = "getPilotCoursesByStudentId";
+    static final String GET_CREATED_AND_NOT_CREATED_CREATABLE_COURSES_OF_CURRENT_SEMESTER_BY_LECTURER_ID = "getCreatedAndNotCreatedCreatableCoursesOfCurrentSemesterByLecturerId";
+    static final String GET_CREATED_AND_NOT_CREATED_CREATABLE_COURSES_OF_CURRENT_SEMESTER_BY_STUDENT_ID = "getCreatedAndNotCreatedCreatableCoursesOfCurrentSemesterByStudentId";
     static final String GET_COURSE_BY_RESOURCEABLE_ID = "getCourseByResourcableId";
 
     public Long getId() {
@@ -290,20 +306,12 @@ public class Course {
         this.shortSemester = shortSemester;
     }
 
-    public String getIpz() {
-        return ipz;
+    public boolean isExclude() {
+        return exclude;
     }
 
-    public void setIpz(String ipz) {
-        this.ipz = ipz;
-    }
-
-    public String getEnabled() {
-        return enabled;
-    }
-
-    public void setEnabled(String enabled) {
-        this.enabled = enabled;
+    public void setExclude(boolean exclude) {
+        this.exclude = exclude;
     }
 
     public Date getModifiedDate() {
@@ -409,7 +417,7 @@ public class Course {
         builder.append("endDate", getEndDate());
         builder.append("vvzLink", getVvzLink());
         builder.append("resourceableId", getResourceableId());
-        builder.append("ipz", getIpz());
+        builder.append("exclude", isExclude());
 
         return builder.toString();
     }

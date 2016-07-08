@@ -203,7 +203,7 @@ public class DaoManager {
     }
 
     public List<Student> getAllStudents() {
-        return studentDao.getAllPilotStudents();
+        return studentDao.getAllStudentsWithCreatedOrNotCreatedCreatableCourses();
     }
 
     public Student getStudentByRegistrationNrId(String registrationNr) {
@@ -231,7 +231,7 @@ public class DaoManager {
     }
 
     public List<Lecturer> getAllLecturers() {
-        return lecturerDao.getAllPilotLecturers();
+        return lecturerDao.getAllLecturersWithCreatedOrNotCreatedCreatableCourses();
     }
 
     public Lecturer getLecturerByEmail(String email) {
@@ -282,28 +282,28 @@ public class DaoManager {
         return textDao.getMaterialsByCourseId(id);
     }
 
-    public List<Course> getPilotCoursesByStudentId(Long id) {
-        return courseDao.getPilotCoursesByStudentId(id);
+    public List<Course> getCreatedAndNotCreatedCreatableCoursesByStudentId(Long id) {
+        return courseDao.getCreatedAndNotCreatedCreatableCoursesOfCurrentSemesterByStudentId(id);
     }
 
     public List<Course> getCreatedCoursesByStudentId(Long id, String searchString) {
-        return courseDao.getCreatedCoursesByStudentId(id, searchString);
+        return courseDao.getCreatedCoursesOfCurrentSemesterByStudentId(id, searchString);
     }
 
     public List<Course> getNotCreatedCoursesByStudentId(Long id, String searchString) {
-        return courseDao.getNotCreatedCoursesByStudentId(id, searchString);
+        return courseDao.getNotCreatedCreatableCoursesOfCurrentSemesterByStudentId(id, searchString);
     }
 
-    public List<Course> getPilotCoursesByLecturerId(Long id) {
-        return courseDao.getPilotCoursesByLecturerId(id);
+    public List<Course> getCreatedAndNotCreatedCreatableCoursesByLecturerId(Long id) {
+        return courseDao.getCreatedAndNotCreatedCreatableCoursesOfCurrentSemesterByLecturerId(id);
     }
 
     public List<Course> getCreatedCoursesByLecturerIds(Long id, String searchString) {
-        return courseDao.getCreatedCoursesByLecturerId(id, searchString);
+        return courseDao.getCreatedCoursesOfCurrentSemesterByLecturerId(id, searchString);
     }
 
     public List<Course> getNotCreatedCoursesByLecturerId(Long id, String searchString) {
-        return courseDao.getNotCreatedCoursesByLecturerId(id, searchString);
+        return courseDao.getNotCreatedCreatableCoursesOfCurrentSemesterByLecturerId(id, searchString);
     }
 
     public Set<Course> getCampusCoursesWithoutResourceableId(Identity identity, SapOlatUser.SapUserType userType, String searchString) {
@@ -372,15 +372,15 @@ public class DaoManager {
     }
 
     public List<Long> getAllCreatedSapCourcesIds() {
-        return courseDao.getIdsOfAllCreatedCourses();
+        return courseDao.getIdsOfAllCreatedSynchronizableCoursesOfCurrentSemester();
     }
 
     public List<Long> getAllCreatedSapCourcesResourceableIds() {
-        return courseDao.getResourceableIdsOfAllCreatedCourses();
+        return courseDao.getResourceableIdsOfAllCreatedCoursesOfCurrentSemester();
     }
 
     public List<Long> getAllNotCreatedSapCourcesIds() {
-        return courseDao.getIdsOfAllNotCreatedCourses();
+        return courseDao.getIdsOfAllNotCreatedCreatableCoursesOfCurrentSemester();
     }
 
     public List<Long> getIdsOfAllEnabledOrgs() {
@@ -388,7 +388,7 @@ public class DaoManager {
     }
 
     public List<Course> getAllCreatedSapCources() {
-        return courseDao.getAllCreatedCourses();
+        return courseDao.getAllCreatedCoursesOfCurrentSemester();
     }
 
     public CampusCourseImportTO getSapCampusCourse(long courseId) {

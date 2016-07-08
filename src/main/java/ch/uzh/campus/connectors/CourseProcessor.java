@@ -131,13 +131,10 @@ public class CourseProcessor implements ItemProcessor<CourseOrgId, CourseOrgId> 
             courseOrgId.setOrg9(null);
         }
 
-        if (enabledOrgs.isEmpty()) {
-            if (courseOrgId.getIpz().equalsIgnoreCase("X")) {
-                courseOrgId.setEnabled("1");
-            }
-        } else if (enabledOrgs.contains(courseOrgId.getOrg1()) || enabledOrgs.contains(courseOrgId.getOrg2()) || enabledOrgs.contains(courseOrgId.getOrg3())
-                || enabledOrgs.contains(courseOrgId.getOrg4()) || enabledOrgs.contains(courseOrgId.getOrg5())) {
-            courseOrgId.setEnabled("1");
+        if (courseOrgId.getExcludeAsString().equalsIgnoreCase("X")) {
+            courseOrgId.setExclude(true);
+        } else {
+            courseOrgId.setExclude(false);
         }
 
         return courseOrgId;
@@ -153,7 +150,7 @@ public class CourseProcessor implements ItemProcessor<CourseOrgId, CourseOrgId> 
         String shortSemester = null;
 
         String[] split = StringUtils.split(semester, WHITESPACE);
-        if (split != null) {
+        if (split != null && split.length >= 2) {
             String yy = (split[1] != null) ? split[1].substring(2) : "";
             if (split[0] != null) {
                 shortSemester = yy.concat(semesterMap.get(split[0].substring(0, 1)));

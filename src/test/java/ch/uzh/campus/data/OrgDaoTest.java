@@ -9,6 +9,7 @@ import org.springframework.test.context.ContextConfiguration;
 
 import javax.inject.Provider;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static org.junit.Assert.*;
 import static org.junit.Assert.assertTrue;
@@ -46,14 +47,7 @@ public class OrgDaoTest extends OlatTestCase {
     }
 
     @Test
-    public void testGetIdsOfAllEnabledOrgsFoundEightOrgs() {
-        int numberOfOrgsFoundBeforeInsertingTestData = orgDao.getIdsOfAllEnabledOrgs().size();
-        insertTestData();
-        assertEquals(numberOfOrgsFoundBeforeInsertingTestData + 9, orgDao.getIdsOfAllEnabledOrgs().size());
-    }
-
-    @Test
-    public void testGetAllNotUpdatedOrgsFoundSevenOrg() {
+    public void testGetAllNotUpdatedOrgs() {
         Date now = new Date();
         int numberOfOrgsFoundBeforeInsertingTestData = orgDao.getAllNotUpdatedOrgs(now).size();
         insertTestData();
@@ -72,10 +66,7 @@ public class OrgDaoTest extends OlatTestCase {
         Org org = orgDao.getOrgById(9100L);
         assertNotNull(org);
         assertEquals(2, org.getCourses().size());
-        Set<Long> courseIds = new HashSet<>();
-        for (Course course : org.getCourses()) {
-            courseIds.add(course.getId());
-        }
+        Set<Long> courseIds = org.getCourses().stream().map(Course::getId).collect(Collectors.toSet());
         assertTrue(courseIds.contains(100L));
         assertTrue(courseIds.contains(300L));
         Course course1 = courseDao.getCourseById(100L);

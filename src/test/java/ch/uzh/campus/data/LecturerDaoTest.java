@@ -10,6 +10,7 @@ import org.springframework.test.context.ContextConfiguration;
 import javax.inject.Provider;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static org.junit.Assert.*;
 
@@ -30,6 +31,9 @@ public class LecturerDaoTest extends OlatTestCase {
     private LecturerDao lecturerDao;
 
     @Autowired
+    private OrgDao orgDao;
+
+    @Autowired
     private CourseDao courseDao;
 
     @Autowired
@@ -42,7 +46,7 @@ public class LecturerDaoTest extends OlatTestCase {
 
     @After
     public void after() {
-        dbInstance.rollback();
+       dbInstance.rollback();
     }
 
     @Test
@@ -175,13 +179,26 @@ public class LecturerDaoTest extends OlatTestCase {
     }
 
     @Test
-    public void testGetAllPilotLecturers() {
-        int numberOfLecturersFoundBeforeInsertingTestData = lecturerDao.getAllPilotLecturers().size();
+    public void testGetAllLecturersWithCreatedOrNotCreatedCreatableCourses() {
+        int numberOfLecturersFoundBeforeInsertingTestData = lecturerDao.getAllLecturersWithCreatedOrNotCreatedCreatableCourses().size();
         insertTestData();
-        assertEquals(numberOfLecturersFoundBeforeInsertingTestData + 6, lecturerDao.getAllPilotLecturers().size());
+        List<Lecturer> lecturersFound = lecturerDao.getAllLecturersWithCreatedOrNotCreatedCreatableCourses();
+        assertEquals(numberOfLecturersFoundBeforeInsertingTestData + 6, lecturersFound.size());
+        List<Long> idsFound = lecturersFound.stream().map(Lecturer::getPersonalNr).collect(Collectors.toList());
+        assertTrue(idsFound.contains(1100L));
+        assertTrue(idsFound.contains(1200L));
+        assertTrue(idsFound.contains(1300L));
+        assertTrue(idsFound.contains(1400L));
+        assertTrue(idsFound.contains(1500L));
+        assertTrue(idsFound.contains(1100L));
     }
 
     private void insertTestData() {
+        // Insert some orgs
+        List<Org> orgs = mockDataGeneratorProvider.get().getOrgs();
+        orgDao.save(orgs);
+        dbInstance.flush();
+
         // Insert some lecturers
         lecturers = mockDataGeneratorProvider.get().getLecturers();
         lecturerDao.save(lecturers);

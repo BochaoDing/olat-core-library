@@ -87,13 +87,6 @@ public class CampusImportJobInterceptor implements JobExecutionListener {
 			}
 			LOG.info("STUDENT_COURSES TO BE REMOVED [" + studentCoursesToBeRemoved + "]");
 
-			List<Long> orgsToBeRemoved = daoManager.getAllOrgsToBeDeleted(jobExecution.getStartTime());
-			LOG.info("ORGS TO BE REMOVED [" + orgsToBeRemoved.size() + "]");
-			if (!orgsToBeRemoved.isEmpty()) {
-				daoManager.deleteOrgByIds(orgsToBeRemoved);
-				dbInstance.intermediateCommit();
-			}
-
 			List<Long> studentsToBeRemoved = daoManager.getAllStudentsToBeDeleted();
 			LOG.info("STUDENTS TO BE REMOVED [" + studentsToBeRemoved.size() + "]");
 			if (!studentsToBeRemoved.isEmpty()) {
@@ -112,6 +105,13 @@ public class CampusImportJobInterceptor implements JobExecutionListener {
 			LOG.info("COURSES TO BE REMOVED [" + coursesToBeRemoved.size() + "]");
 			if (!coursesToBeRemoved.isEmpty()) {
 				daoManager.deleteCoursesAndBookingsByCourseIds(coursesToBeRemoved);
+				dbInstance.intermediateCommit();
+			}
+
+			List<Long> orgsToBeRemoved = daoManager.getAllOrgsToBeDeleted(jobExecution.getStartTime());
+			LOG.info("ORGS TO BE REMOVED [" + orgsToBeRemoved.size() + "]");
+			if (!orgsToBeRemoved.isEmpty()) {
+				daoManager.deleteOrgByIds(orgsToBeRemoved);
 				dbInstance.intermediateCommit();
 			}
 
