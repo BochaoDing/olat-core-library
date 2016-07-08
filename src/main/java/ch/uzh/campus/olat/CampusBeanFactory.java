@@ -53,7 +53,7 @@ public class CampusBeanFactory {
 		VelocityContainer result = new VelocityContainer(null,
 				"vc_" + "row_1",
 				Util.getPackageVelocityRoot(CampusBeanFactory.class) + "/row_1.html",
-				Util.createPackageTranslator(caller.getClass(), caller.getLocale()),
+				CampusCourseOlatHelper.getTranslator(caller.getLocale()),
 				caller
 		);
 		result.setDomReplacementWrapperRequired(false); // sets its own DOM id in velocity container

@@ -5,11 +5,15 @@ import ch.uzh.campus.service.learn.CampusCourseService;
 import org.olat.NewControllerFactory;
 import org.olat.core.gui.UserRequest;
 import org.olat.core.gui.control.WindowControl;
+import org.olat.core.gui.translator.Translator;
+import org.olat.core.util.Util;
 import org.olat.core.util.event.EventBus;
 import org.olat.repository.ui.author.AuthorListController;
 import org.olat.repository.ui.author.AuthoringListChangeEvent;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import java.util.Locale;
 
 import static ch.uzh.campus.olat.CampusBeanFactory.RESOURCEABLE_TYPE_NAME;
 
@@ -39,4 +43,8 @@ public class CampusCourseOlatHelper {
                 new AuthoringListChangeEvent(RESOURCEABLE_TYPE_NAME),
                 campusCourse.getRepositoryEntry().getOlatResource());
     }
+
+	public static Translator getTranslator(Locale locale) {
+		return Util.createPackageTranslator(CampusCourseOlatHelper.class, locale);
+	}
 }
