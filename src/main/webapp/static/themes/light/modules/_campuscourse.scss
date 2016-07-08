@@ -1,0 +1,33 @@
+
+.o_coursetable {
+  &.o_rendertype_custom {
+    .o_table_row {
+      .o_access {
+        .o_create {
+          padding: 4px;
+          color: #fff;
+          background-color: #5cb85c;
+          border-color: #4cae4c;
+        }
+
+        .o_create_by_copying {
+          padding: 4px;
+          color: #fff;
+          background-color: #d9534f;
+          border-color: #d9534f;
+        }
+
+        .o_continue {
+          padding: 4px;
+          color: #fff;
+          background-color: #337ab7;
+          border-color: #2e6da4;
+        }
+      }
+    }
+  }
+}
+
+.o_icon_create:before { content: $fa-var-chevron-right; }
+.o_icon_create_by_copying:before { content: $fa-var-chevron-right; }
+.o_icon_continue:before { content: $fa-var-chevron-right; }
