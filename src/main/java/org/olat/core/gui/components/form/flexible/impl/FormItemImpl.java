@@ -204,7 +204,17 @@ public abstract class FormItemImpl implements FormItem, InlineElement {
 	}
 
 	public void setTranslator(Translator translator) {
-		this.translator = translator;		
+		/**
+		 * TODO sev26
+		 * Report bug.
+		 * The bug cannot be fixed because a lot of {@link FormItem} set
+		 * during their initialization a custom {@link Translator} but
+		 * actually depend on the translator that is set here.
+		 */
+//		if (this.translator == null) {
+//			this.translator = translator;
+//		}
+		this.translator = translator;
 		//(re)translate label, error, example
 		//typically setTranslator is called form parent container if the FormItem
 		//is added.
