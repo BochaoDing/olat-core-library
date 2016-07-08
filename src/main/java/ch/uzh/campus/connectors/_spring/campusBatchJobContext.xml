@@ -127,6 +127,17 @@
 		</batch:step>
 	</batch:job>
 
+	<bean id="jobOperator" class="org.springframework.batch.core.launch.support.SimpleJobOperator">
+		<property name="jobExplorer" ref="jobExplorer"/>
+		<property name="jobRepository" ref="jobRepository" />
+		<property name="jobRegistry" ref="jobRegistry" />
+		<property name="jobLauncher" ref="jobLauncher" />
+	</bean>
+	<bean id="jobRegistry" class="org.springframework.batch.core.configuration.support.MapJobRegistry" />
+	<bean id="jobExplorer" class="org.springframework.batch.core.explore.support.JobExplorerFactoryBean">
+		<property name="dataSource" ref="${db.vendor}_${db.source}_DataSource"/>
+	</bean>
+
 	<!-- ======================================================================================= -->
 	<!-- ==============Export(Reader, Writer, Processor, Entity, Dao)================== -->  
 	<!-- ======================================================================================= -->

@@ -26,6 +26,9 @@ import ch.uzh.campus.metric.CampusNotifier;
 import org.olat.core.logging.OLog;
 import org.olat.core.logging.Tracing;
 import org.springframework.batch.core.*;
+import org.springframework.batch.core.launch.JobExecutionNotRunningException;
+import org.springframework.batch.core.launch.JobOperator;
+import org.springframework.batch.core.launch.NoSuchJobExecutionException;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
@@ -41,11 +44,13 @@ public class CampusMappingJobInterceptor implements JobExecutionListener {
 
     private final CampusNotifier campusNotifier;
     private final ImportStatisticDao importStatisticDao;
+    private JobOperator jobOperator;
 
     @Autowired
-    public CampusMappingJobInterceptor(ImportStatisticDao importStatisticDao, CampusNotifier campusNotifier) {
+    public CampusMappingJobInterceptor(ImportStatisticDao importStatisticDao, CampusNotifier campusNotifier, JobOperator jobOperator) {
         this.importStatisticDao = importStatisticDao;
         this.campusNotifier = campusNotifier;
+        this.jobOperator = jobOperator;
     }
 
     @Override
@@ -61,8 +66,18 @@ public class CampusMappingJobInterceptor implements JobExecutionListener {
         List<ImportStatistic> importStatsOfToday = importStatisticDao.getImportStatisticOfToday();
         if (importStatsOfToday.size() == 0) {
             LOG.warn("Import procedure did not run today! Mapping does not make so much sense!");
-            // TODO OLATng: is there a way to stop execution of a job? should we stop it now?
-            jobExecution.setStatus(BatchStatus.STOPPED);
+            // Stop execution of a job
+            try {
+                // Solution inspired by
+                //  https://numberformat.wordpress.com/2012/04/24/shutting-down-spring-batch-jobs-gracefully/
+                jobOperator.stop(jobExecution.getId());
+                // @TODO make it working propery
+                //  (now it just throws unhandled exception because batch_ tables are not present in the db)
+            } catch (NoSuchJobExecutionException e) { // ignore
+                LOG.info("beforeJob failed to be stopped " + jobExecution.getJobInstance().getJobName());
+            } catch (JobExecutionNotRunningException e) { // ignore
+                LOG.info("beforeJob failed to be stopped" + jobExecution.getJobInstance().getJobName());
+            }
         }
     }
 
