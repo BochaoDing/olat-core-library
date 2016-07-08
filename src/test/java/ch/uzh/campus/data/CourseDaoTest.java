@@ -9,6 +9,7 @@ import org.springframework.test.context.ContextConfiguration;
 
 import javax.inject.Provider;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static org.junit.Assert.*;
 
@@ -89,10 +90,7 @@ public class CourseDaoTest extends OlatTestCase {
         assertNotNull(course);
         assertEquals(9, course.getOrgs().size());
 
-        Set<Long> orgIds = new HashSet<>();
-        for (Org org1 : course.getOrgs()) {
-            orgIds.add(org1.getId());
-        }
+        Set<Long> orgIds = course.getOrgs().stream().map(Org::getId).collect(Collectors.toSet());
         assertTrue(orgIds.contains(9100L));
         assertTrue(orgIds.contains(9200L));
         assertTrue(orgIds.contains(9300L));
@@ -107,10 +105,7 @@ public class CourseDaoTest extends OlatTestCase {
         assertNotNull(org);
         assertEquals(2, org.getCourses().size());
 
-        Set<Long> courseIds = new HashSet<>();
-        for (Course course1 : org.getCourses()) {
-            courseIds.add(course1.getId());
-        }
+        Set<Long> courseIds = org.getCourses().stream().map(Course::getId).collect(Collectors.toSet());
         assertTrue(courseIds.contains(100L));
         assertTrue(courseIds.contains(300L));
     }
@@ -145,10 +140,7 @@ public class CourseDaoTest extends OlatTestCase {
         assertNotNull(course);
         assertEquals(8, course.getOrgs().size());
 
-        Set<Long> orgIds = new HashSet<>();
-        for (Org org : course.getOrgs()) {
-            orgIds.add(org.getId());
-        }
+        Set<Long> orgIds = course.getOrgs().stream().map(Org::getId).collect(Collectors.toSet());
         assertTrue(orgIds.contains(9200L));
         assertTrue(orgIds.contains(9300L));
         assertTrue(orgIds.contains(9400L));
@@ -172,22 +164,22 @@ public class CourseDaoTest extends OlatTestCase {
     }
 
     @Test
-    public void testGetCreatedCoursesByLecturerId() {
+    public void testGetCreatedCoursesOfCurrentSemesterByLecturerId() {
         insertTestData();
-        List<Course> courses = courseDao.getCreatedCoursesByLecturerId(1200L, null);
+        List<Course> courses = courseDao.getCreatedCoursesOfCurrentSemesterByLecturerId(1200L, null);
 
         assertEquals(1, courses.size());
         assertEquals(200L, courses.get(0).getId().longValue());
-        courses = courseDao.getCreatedCoursesByLecturerId(1400L, null);
+        courses = courseDao.getCreatedCoursesOfCurrentSemesterByLecturerId(1400L, null);
         assertEquals(0, courses.size());
-        courses = courseDao.getCreatedCoursesByLecturerId(1500L, null);
+        courses = courseDao.getCreatedCoursesOfCurrentSemesterByLecturerId(1500L, null);
         assertEquals(0, courses.size());
-        courses = courseDao.getCreatedCoursesByLecturerId(1600L, null);
+        courses = courseDao.getCreatedCoursesOfCurrentSemesterByLecturerId(1600L, null);
         assertEquals(0, courses.size());
     }
 
     @Test
-    public void testGetCreatedCoursesByLecturerId_TwoSemestersCampusCourse() {
+    public void testGetCreatedCoursesOfCurrentSemesterByLecturerId_TwoSemestersCampusCourse() {
         insertTestData();
 
         // Make course 400 to be the parent course of 300 and set a reourceableId for course 400
@@ -195,18 +187,18 @@ public class CourseDaoTest extends OlatTestCase {
         courseDao.saveResourceableId(400L, 1L);
 
         // Check that the students of both semesters can be found
-        List<Course> courses = courseDao.getCreatedCoursesByLecturerId(1300L, null);
+        List<Course> courses = courseDao.getCreatedCoursesOfCurrentSemesterByLecturerId(1300L, null);
         assertEquals(1, courses.size());
-        courses = courseDao.getCreatedCoursesByLecturerId(1400L, null);
+        courses = courseDao.getCreatedCoursesOfCurrentSemesterByLecturerId(1400L, null);
         assertEquals(1, courses.size());
-        courses = courseDao.getCreatedCoursesByLecturerId(1500L, null);
+        courses = courseDao.getCreatedCoursesOfCurrentSemesterByLecturerId(1500L, null);
         assertEquals(0, courses.size());
-        courses = courseDao.getCreatedCoursesByLecturerId(1600L, null);
+        courses = courseDao.getCreatedCoursesOfCurrentSemesterByLecturerId(1600L, null);
         assertEquals(0, courses.size());
     }
 
     @Test
-    public void testGetCreatedCoursesByLecturerId_ThreeSemestersCampusCourse() {
+    public void testGetCreatedCoursesOfCurrentSemesterByLecturerId_ThreeSemestersCampusCourse() {
         insertTestData();
 
         // Make course 400 to be the parent course of 300, 500 the parent of 400 and set a reourceableId for course 500
@@ -215,18 +207,18 @@ public class CourseDaoTest extends OlatTestCase {
         courseDao.saveResourceableId(500L, 1L);
 
         // Check that the students of all 3 semesters can be found
-        List<Course> courses = courseDao.getCreatedCoursesByLecturerId(1300L, null);
+        List<Course> courses = courseDao.getCreatedCoursesOfCurrentSemesterByLecturerId(1300L, null);
         assertEquals(1, courses.size());
-        courses = courseDao.getCreatedCoursesByLecturerId(1400L, null);
+        courses = courseDao.getCreatedCoursesOfCurrentSemesterByLecturerId(1400L, null);
         assertEquals(1, courses.size());
-        courses = courseDao.getCreatedCoursesByLecturerId(1500L, null);
+        courses = courseDao.getCreatedCoursesOfCurrentSemesterByLecturerId(1500L, null);
         assertEquals(1, courses.size());
-        courses = courseDao.getCreatedCoursesByLecturerId(1600L, null);
+        courses = courseDao.getCreatedCoursesOfCurrentSemesterByLecturerId(1600L, null);
         assertEquals(0, courses.size());
     }
 
     @Test
-    public void testGetCreatedCoursesByLecturerId_FourSemestersCampusCourse() {
+    public void testGetCreatedCoursesOfCurrentSemesterByLecturerId_FourSemestersCampusCourse() {
         insertTestData();
 
         // Make course 400 to be the parent course of 300, 500 the parent of 400 and 600 the parent of 500
@@ -235,26 +227,34 @@ public class CourseDaoTest extends OlatTestCase {
         courseDao.saveParentCourseId(500L, 600L);
 
         // Check that the students of all 4 semesters can be found
-        List<Course> courses = courseDao.getCreatedCoursesByLecturerId(1300L, null);
+        List<Course> courses = courseDao.getCreatedCoursesOfCurrentSemesterByLecturerId(1300L, null);
         assertEquals(1, courses.size());
-        courses = courseDao.getCreatedCoursesByLecturerId(1400L, null);
+        courses = courseDao.getCreatedCoursesOfCurrentSemesterByLecturerId(1400L, null);
         assertEquals(1, courses.size());
-        courses = courseDao.getCreatedCoursesByLecturerId(1500L, null);
+        courses = courseDao.getCreatedCoursesOfCurrentSemesterByLecturerId(1500L, null);
         assertEquals(1, courses.size());
-        courses = courseDao.getCreatedCoursesByLecturerId(1600L, null);
+        courses = courseDao.getCreatedCoursesOfCurrentSemesterByLecturerId(1600L, null);
         assertEquals(1, courses.size());
     }
 
     @Test
-    public void testGetNotCreatedCoursesByLecturerId() {
+    public void testGetNotCreatedCreatableCoursesOfCurrentSemesterByLecturerId() {
         insertTestData();
-        List<Course> courses = courseDao.getNotCreatedCoursesByLecturerId(1300L, null);
+        List<Course> courses = courseDao.getNotCreatedCreatableCoursesOfCurrentSemesterByLecturerId(1300L, null);
 
         assertNotNull(courses);
         assertEquals(1, courses.size());
 
-        // Ditto for lecturer 1200
-        courses = courseDao.getNotCreatedCoursesByLecturerId(1200L, null);
+        // Course already created
+        courses = courseDao.getNotCreatedCreatableCoursesOfCurrentSemesterByLecturerId(1200L, null);
+        assertTrue(courses.isEmpty());
+
+        // Course with disabled org
+        courses = courseDao.getNotCreatedCreatableCoursesOfCurrentSemesterByLecturerId(1800L, null);
+        assertTrue(courses.isEmpty());
+
+        // Excluded ourse
+        courses = courseDao.getNotCreatedCreatableCoursesOfCurrentSemesterByLecturerId(1900L, null);
         assertTrue(courses.isEmpty());
     }
 
@@ -348,7 +348,7 @@ public class CourseDaoTest extends OlatTestCase {
     @Test
     public void testDeleteByCourseIds() {
         insertTestData();
-        assertEquals(2, courseDao.getAllCreatedCourses().size());
+        assertEquals(2, courseDao.getAllCreatedCoursesOfCurrentSemester().size());
 
         List<Long> courseIds = new LinkedList<>();
         courseIds.add(100L);
@@ -359,7 +359,7 @@ public class CourseDaoTest extends OlatTestCase {
         dbInstance.flush();
         dbInstance.clear();
 
-        assertEquals(0, courseDao.getAllCreatedCourses().size());
+        assertEquals(0, courseDao.getAllCreatedCoursesOfCurrentSemester().size());
     }
 
     @Test
@@ -443,54 +443,60 @@ public class CourseDaoTest extends OlatTestCase {
     }
 
     @Test
-    public void testGetResourceableIdsOfAllCreatedCourses() {
+    public void testGetResourceableIdsOfAllCreatedCoursesOfCurrentSemester() {
         insertTestData();
-        List<Long> resourceableIdsOfAllCreatedCourses = courseDao.getResourceableIdsOfAllCreatedCourses();
+        List<Long> resourceableIdsOfAllCreatedCourses = courseDao.getResourceableIdsOfAllCreatedCoursesOfCurrentSemester();
         assertTrue(resourceableIdsOfAllCreatedCourses.contains(100L));
         assertFalse(resourceableIdsOfAllCreatedCourses.contains(999L));
     }
 
     @Test
-    public void testGetIdsOfAllCreatedCourses() {
+    public void testGetIdsOfAllCreatedSynchronizableCoursesOfCurrentSemester() {
         insertTestData();
-        assertEquals(2, courseDao.getIdsOfAllCreatedCourses().size());
+        assertEquals(2, courseDao.getIdsOfAllCreatedSynchronizableCoursesOfCurrentSemester().size());
 
         courseDao.resetResourceable(100L);
 
         dbInstance.flush();
         dbInstance.clear();
 
-        assertEquals(1, courseDao.getIdsOfAllCreatedCourses().size());
+        assertEquals(1, courseDao.getIdsOfAllCreatedSynchronizableCoursesOfCurrentSemester().size());
     }
 
     @Test
-    public void testGetIdsOfAllNotCreatedCourses() {
+    public void testGetIdsOfAllNotCreatedCreatableCoursesOfCurrentSemester() {
         insertTestData();
-        assertEquals(1, courseDao.getIdsOfAllNotCreatedCourses().size());
+        List<Long> idsFound = courseDao.getIdsOfAllNotCreatedCreatableCoursesOfCurrentSemester();
+        assertEquals(1, idsFound.size());
+        assertTrue(idsFound.contains(300L));
 
+        // Reset resourceable, i.e. undo create course
         courseDao.resetResourceable(100L);
 
         dbInstance.flush();
         dbInstance.clear();
 
-        assertEquals(2, courseDao.getIdsOfAllNotCreatedCourses().size());
+        idsFound = courseDao.getIdsOfAllNotCreatedCreatableCoursesOfCurrentSemester();
+        assertEquals(2, idsFound.size());
+        assertTrue(idsFound.contains(100L));
+        assertTrue(idsFound.contains(300L));
     }
 
     @Test
-    public void testGetAllCreatedCourses() {
+    public void testGetAllCreatedCoursesOfCurrentSemester() {
         insertTestData();
-        assertEquals(2, courseDao.getAllCreatedCourses().size());
+        assertEquals(2, courseDao.getAllCreatedCoursesOfCurrentSemester().size());
 
         courseDao.deleteByCourseId(100L);
 
         dbInstance.flush();
         dbInstance.clear();
 
-        assertEquals(1, courseDao.getAllCreatedCourses().size());
+        assertEquals(1, courseDao.getAllCreatedCoursesOfCurrentSemester().size());
     }
 
     @Test
-    public void tesGetAllNotUpdatedOrphanedCourses() {
+    public void tesGetAllNotCreatedOrphanedCourses() {
         int numberOfCoursesFoundBeforeInsertingTestData = courseDao.getAllNotCreatedOrphanedCourses().size();
         insertTestData();
 
@@ -525,31 +531,28 @@ public class CourseDaoTest extends OlatTestCase {
     }
 
     @Test
-    public void testGetCreatedCoursesByStudentId_noneFound() {
+    public void testGetCreatedCoursesOfCurrentSemesterByStudentId() {
         insertTestData();
-    	List<Course> courses = courseDao.getCreatedCoursesByStudentId(2300L, null);
 
-        assertNotNull(courses);
-    	assertEquals(0, courses.size());
-    }
-
-    @Test
-    public void testGetCreatedCoursesByStudentId() {
-        insertTestData();
-    	List<Course> courses = courseDao.getCreatedCoursesByStudentId(2100L, null);
-
+    	List<Course> courses = courseDao.getCreatedCoursesOfCurrentSemesterByStudentId(2100L, null);
         assertNotNull(courses);
     	assertEquals(2, courses.size());
-        courses = courseDao.getCreatedCoursesByStudentId(2400L, null);
+
+        // Student has no courses
+        courses = courseDao.getCreatedCoursesOfCurrentSemesterByStudentId(2400L, null);
         assertEquals(0, courses.size());
-        courses = courseDao.getCreatedCoursesByStudentId(2500L, null);
+
+        // Old courses
+        courses = courseDao.getCreatedCoursesOfCurrentSemesterByStudentId(2400L, null);
         assertEquals(0, courses.size());
-        courses = courseDao.getCreatedCoursesByStudentId(2600L, null);
+        courses = courseDao.getCreatedCoursesOfCurrentSemesterByStudentId(2500L, null);
+        assertEquals(0, courses.size());
+        courses = courseDao.getCreatedCoursesOfCurrentSemesterByStudentId(2600L, null);
         assertEquals(0, courses.size());
     }
 
     @Test
-    public void testGetCreatedCoursesByStudentId_TwoSemestersCampusCourse() {
+    public void testGetCreatedCoursesOfCurrentSemesterByStudentId_TwoSemestersCampusCourse() {
         insertTestData();
 
         // Make course 400 to be the parent course of 300 and set a reourceableId for course 400
@@ -557,18 +560,18 @@ public class CourseDaoTest extends OlatTestCase {
         courseDao.saveResourceableId(400L, 1L);
 
         // Check that the students of both semesters can be found
-        List<Course> courses = courseDao.getCreatedCoursesByStudentId(2100L, null);
+        List<Course> courses = courseDao.getCreatedCoursesOfCurrentSemesterByStudentId(2100L, null);
         assertEquals(3, courses.size());
-        courses = courseDao.getCreatedCoursesByStudentId(2400L, null);
+        courses = courseDao.getCreatedCoursesOfCurrentSemesterByStudentId(2400L, null);
         assertEquals(1, courses.size());
-        courses = courseDao.getCreatedCoursesByStudentId(2500L, null);
+        courses = courseDao.getCreatedCoursesOfCurrentSemesterByStudentId(2500L, null);
         assertEquals(0, courses.size());
-        courses = courseDao.getCreatedCoursesByStudentId(2600L, null);
+        courses = courseDao.getCreatedCoursesOfCurrentSemesterByStudentId(2600L, null);
         assertEquals(0, courses.size());
     }
 
     @Test
-    public void testGetCreatedCoursesByStudentId_ThreeSemestersCampusCourse() {
+    public void testGetCreatedCoursesOfCurrentSemesterByStudentId_ThreeSemestersCampusCourse() {
         insertTestData();
 
         // Make course 400 to be the parent course of 300, 500 the parent of 400 and set a reourceableId for course 500
@@ -577,18 +580,18 @@ public class CourseDaoTest extends OlatTestCase {
         courseDao.saveResourceableId(500L, 1L);
 
         // Check that the students of all 3 semesters can be found
-        List<Course> courses = courseDao.getCreatedCoursesByStudentId(2100L, null);
+        List<Course> courses = courseDao.getCreatedCoursesOfCurrentSemesterByStudentId(2100L, null);
         assertEquals(3, courses.size());
-        courses = courseDao.getCreatedCoursesByStudentId(2400L, null);
+        courses = courseDao.getCreatedCoursesOfCurrentSemesterByStudentId(2400L, null);
         assertEquals(1, courses.size());
-        courses = courseDao.getCreatedCoursesByStudentId(2500L, null);
+        courses = courseDao.getCreatedCoursesOfCurrentSemesterByStudentId(2500L, null);
         assertEquals(1, courses.size());
-        courses = courseDao.getCreatedCoursesByStudentId(2600L, null);
+        courses = courseDao.getCreatedCoursesOfCurrentSemesterByStudentId(2600L, null);
         assertEquals(0, courses.size());
     }
 
     @Test
-    public void testGetCreatedCoursesByStudentId_FourSemestersCampusCourse() {
+    public void testGetCreatedCoursesOfCurrentSemesterByStudentId_FourSemestersCampusCourse() {
         insertTestData();
 
         // Make course 400 to be the parent course of 300, 500 the parent of 400 and 600 the parent of 500
@@ -597,52 +600,80 @@ public class CourseDaoTest extends OlatTestCase {
         courseDao.saveParentCourseId(500L, 600L);
 
         // Check that the students of all 4 semesters can be found
-        List<Course> courses = courseDao.getCreatedCoursesByStudentId(2100L, null);
+        List<Course> courses = courseDao.getCreatedCoursesOfCurrentSemesterByStudentId(2100L, null);
         assertEquals(3, courses.size());
-        courses = courseDao.getCreatedCoursesByStudentId(2400L, null);
+        courses = courseDao.getCreatedCoursesOfCurrentSemesterByStudentId(2400L, null);
         assertEquals(1, courses.size());
-        courses = courseDao.getCreatedCoursesByStudentId(2500L, null);
+        courses = courseDao.getCreatedCoursesOfCurrentSemesterByStudentId(2500L, null);
         assertEquals(1, courses.size());
-        courses = courseDao.getCreatedCoursesByStudentId(2600L, null);
+        courses = courseDao.getCreatedCoursesOfCurrentSemesterByStudentId(2600L, null);
         assertEquals(1, courses.size());
     }
 
     @Test
-    public void testGetPilotCoursesByLecturerId() {
+    public void testGetNotCreatedCreatableCoursesOfCurrentSemesterByStudentId() {
         insertTestData();
-        List<Course> courses = courseDao.getPilotCoursesByLecturerId(1200L);
 
+        List<Course> courses = courseDao.getNotCreatedCreatableCoursesOfCurrentSemesterByStudentId(2100L, null);
+        assertEquals(1, courses.size());
+
+        // Course with disabled org
+        courses = courseDao.getNotCreatedCreatableCoursesOfCurrentSemesterByStudentId(2700L, null);
+        assertEquals(0, courses.size());
+
+        // Excluded course
+        courses = courseDao.getNotCreatedCreatableCoursesOfCurrentSemesterByStudentId(2800L, null);
+        assertEquals(0, courses.size());
+    }
+
+    @Test
+    public void testGetCreatedAndNotCreatedCreatableCoursesOfCurrentSemesterByLecturerId() {
+        insertTestData();
+
+        List<Course> courses = courseDao.getCreatedAndNotCreatedCreatableCoursesOfCurrentSemesterByLecturerId(1200L);
         assertNotNull(courses);
         assertEquals(1, courses.size());
         assertEquals(200L, courses.get(0).getId().longValue());
-        courses = courseDao.getPilotCoursesByLecturerId(1400L);
-        assertEquals(0, courses.size());
-        courses = courseDao.getPilotCoursesByLecturerId(1500L);
-        assertEquals(0, courses.size());
-        courses = courseDao.getPilotCoursesByLecturerId(1600L);
-        assertEquals(0, courses.size());
+
+        // Course already created
+        courses = courseDao.getCreatedAndNotCreatedCreatableCoursesOfCurrentSemesterByLecturerId(1400L);
+        assertTrue(courses.isEmpty());
+
+        // Courses of old semester
+        courses = courseDao.getCreatedAndNotCreatedCreatableCoursesOfCurrentSemesterByLecturerId(1500L);
+        assertTrue(courses.isEmpty());
+        courses = courseDao.getCreatedAndNotCreatedCreatableCoursesOfCurrentSemesterByLecturerId(1600L);
+        assertTrue(courses.isEmpty());
+
+        // Course with disabled org
+        courses = courseDao.getCreatedAndNotCreatedCreatableCoursesOfCurrentSemesterByLecturerId(1800L);
+        assertTrue(courses.isEmpty());
+
+        // Excluded course
+        courses = courseDao.getCreatedAndNotCreatedCreatableCoursesOfCurrentSemesterByLecturerId(1900L);
+        assertTrue(courses.isEmpty());
     }
 
     @Test
-    public void testGetPilotCoursesByLecturerId_TwoSemestersCampusCourse() {
+    public void testGetCreatedAndNotCreatedCreatableCoursesOfCurrentSemesterByLecturerId_TwoSemestersCampusCourse() {
         insertTestData();
 
         // Make course 400 to be the parent course of 300
         courseDao.saveParentCourseId(300L, 400L);
 
         // Check that the students of both semesters can be found
-        List<Course> courses = courseDao.getPilotCoursesByLecturerId(1300L);
+        List<Course> courses = courseDao.getCreatedAndNotCreatedCreatableCoursesOfCurrentSemesterByLecturerId(1300L);
         assertEquals(1, courses.size());
-        courses = courseDao.getPilotCoursesByLecturerId(1400L);
+        courses = courseDao.getCreatedAndNotCreatedCreatableCoursesOfCurrentSemesterByLecturerId(1400L);
         assertEquals(1, courses.size());
-        courses = courseDao.getPilotCoursesByLecturerId(1500L);
+        courses = courseDao.getCreatedAndNotCreatedCreatableCoursesOfCurrentSemesterByLecturerId(1500L);
         assertEquals(0, courses.size());
-        courses = courseDao.getPilotCoursesByLecturerId(1600L);
+        courses = courseDao.getCreatedAndNotCreatedCreatableCoursesOfCurrentSemesterByLecturerId(1600L);
         assertEquals(0, courses.size());
     }
 
     @Test
-    public void testGetPilotCoursesByLecturerId_ThreeSemestersCampusCourse() {
+    public void testGetCreatedAndNotCreatedCreatableCoursesOfCurrentSemesterByLecturerId_ThreeSemestersCampusCourse() {
         insertTestData();
 
         // Make course 400 to be the parent course of 300, 500 the parent of 400
@@ -650,18 +681,18 @@ public class CourseDaoTest extends OlatTestCase {
         courseDao.saveParentCourseId(400L, 500L);
 
         // Check that the students of all 3 semesters can be found
-        List<Course> courses = courseDao.getPilotCoursesByLecturerId(1300L);
+        List<Course> courses = courseDao.getCreatedAndNotCreatedCreatableCoursesOfCurrentSemesterByLecturerId(1300L);
         assertEquals(1, courses.size());
-        courses = courseDao.getPilotCoursesByLecturerId(1400L);
+        courses = courseDao.getCreatedAndNotCreatedCreatableCoursesOfCurrentSemesterByLecturerId(1400L);
         assertEquals(1, courses.size());
-        courses = courseDao.getPilotCoursesByLecturerId(1500L);
+        courses = courseDao.getCreatedAndNotCreatedCreatableCoursesOfCurrentSemesterByLecturerId(1500L);
         assertEquals(1, courses.size());
-        courses = courseDao.getPilotCoursesByLecturerId(1600L);
+        courses = courseDao.getCreatedAndNotCreatedCreatableCoursesOfCurrentSemesterByLecturerId(1600L);
         assertEquals(0, courses.size());
     }
 
     @Test
-    public void testGetPilotCoursesByLecturerId_FourSemestersCampusCourse() {
+    public void testGetCreatedAndNotCreatedCreatableCoursesOfCurrentSemesterByLecturerId_FourSemestersCampusCourse() {
         insertTestData();
 
         // Make course 400 to be the parent course of 300, 500 the parent of 400 and 600 the parent of 500
@@ -670,51 +701,61 @@ public class CourseDaoTest extends OlatTestCase {
         courseDao.saveParentCourseId(500L, 600L);
 
         // Check that the students of all 4 semesters can be found
-        List<Course> courses = courseDao.getPilotCoursesByLecturerId(1300L);
+        List<Course> courses = courseDao.getCreatedAndNotCreatedCreatableCoursesOfCurrentSemesterByLecturerId(1300L);
         assertEquals(1, courses.size());
-        courses = courseDao.getPilotCoursesByLecturerId(1400L);
+        courses = courseDao.getCreatedAndNotCreatedCreatableCoursesOfCurrentSemesterByLecturerId(1400L);
         assertEquals(1, courses.size());
-        courses = courseDao.getPilotCoursesByLecturerId(1500L);
+        courses = courseDao.getCreatedAndNotCreatedCreatableCoursesOfCurrentSemesterByLecturerId(1500L);
         assertEquals(1, courses.size());
-        courses = courseDao.getPilotCoursesByLecturerId(1600L);
+        courses = courseDao.getCreatedAndNotCreatedCreatableCoursesOfCurrentSemesterByLecturerId(1600L);
         assertEquals(1, courses.size());
     }
 
     @Test
-    public void testGetPilotCoursesByStudentId() {
+    public void testGetCreatedAndNotCreatedCreatableCoursesOfCurrentSemesterByStudentId() {
         insertTestData();
-        List<Course> courses = courseDao.getPilotCoursesByStudentId(2100L);
+        List<Course> courses = courseDao.getCreatedAndNotCreatedCreatableCoursesOfCurrentSemesterByStudentId(2100L);
 
         assertNotNull(courses);
         assertEquals(3, courses.size());
-        courses = courseDao.getPilotCoursesByStudentId(2400L);
+
+        // Old courses
+        courses = courseDao.getCreatedAndNotCreatedCreatableCoursesOfCurrentSemesterByStudentId(2400L);
         assertEquals(0, courses.size());
-        courses = courseDao.getPilotCoursesByStudentId(2500L);
+        courses = courseDao.getCreatedAndNotCreatedCreatableCoursesOfCurrentSemesterByStudentId(2500L);
         assertEquals(0, courses.size());
-        courses = courseDao.getPilotCoursesByStudentId(2600L);
+        courses = courseDao.getCreatedAndNotCreatedCreatableCoursesOfCurrentSemesterByStudentId(2600L);
+        assertEquals(0, courses.size());
+
+        // Course with disabled org
+        courses = courseDao.getCreatedAndNotCreatedCreatableCoursesOfCurrentSemesterByStudentId(2700L);
+        assertEquals(0, courses.size());
+
+        // Excluded course
+        courses = courseDao.getCreatedAndNotCreatedCreatableCoursesOfCurrentSemesterByStudentId(2800L);
         assertEquals(0, courses.size());
     }
 
     @Test
-    public void testGetPilotCoursesByStudentId_TwoSemestersCampusCourse() {
+    public void testGetCreatedAndNotCreatedCreatableCoursesOfCurrentSemesterByStudentId_TwoSemestersCampusCourse() {
         insertTestData();
 
         // Make course 400 to be the parent course of 300
         courseDao.saveParentCourseId(300L, 400L);
 
         // Check that the students of both semesters can be found
-        List<Course> courses = courseDao.getPilotCoursesByStudentId(2100L);
+        List<Course> courses = courseDao.getCreatedAndNotCreatedCreatableCoursesOfCurrentSemesterByStudentId(2100L);
         assertEquals(3, courses.size());
-        courses = courseDao.getPilotCoursesByStudentId(2400L);
+        courses = courseDao.getCreatedAndNotCreatedCreatableCoursesOfCurrentSemesterByStudentId(2400L);
         assertEquals(1, courses.size());
-        courses = courseDao.getPilotCoursesByStudentId(2500L);
+        courses = courseDao.getCreatedAndNotCreatedCreatableCoursesOfCurrentSemesterByStudentId(2500L);
         assertEquals(0, courses.size());
-        courses = courseDao.getPilotCoursesByStudentId(2600L);
+        courses = courseDao.getCreatedAndNotCreatedCreatableCoursesOfCurrentSemesterByStudentId(2600L);
         assertEquals(0, courses.size());
     }
 
     @Test
-    public void testGetPilotCoursesByStudentId_ThreeSemestersCampusCourse() {
+    public void testGetCreatedAndNotCreatedCreatableCoursesOfCurrentSemesterByStudentId_ThreeSemestersCampusCourse() {
         insertTestData();
 
         // Make course 400 to be the parent course of 300, 500 the parent of 400
@@ -722,18 +763,18 @@ public class CourseDaoTest extends OlatTestCase {
         courseDao.saveParentCourseId(400L, 500L);
 
         // Check that the students of all 3 semesters can be found
-        List<Course> courses = courseDao.getPilotCoursesByStudentId(2100L);
+        List<Course> courses = courseDao.getCreatedAndNotCreatedCreatableCoursesOfCurrentSemesterByStudentId(2100L);
         assertEquals(3, courses.size());
-        courses = courseDao.getPilotCoursesByStudentId(2400L);
+        courses = courseDao.getCreatedAndNotCreatedCreatableCoursesOfCurrentSemesterByStudentId(2400L);
         assertEquals(1, courses.size());
-        courses = courseDao.getPilotCoursesByStudentId(2500L);
+        courses = courseDao.getCreatedAndNotCreatedCreatableCoursesOfCurrentSemesterByStudentId(2500L);
         assertEquals(1, courses.size());
-        courses = courseDao.getPilotCoursesByStudentId(2600L);
+        courses = courseDao.getCreatedAndNotCreatedCreatableCoursesOfCurrentSemesterByStudentId(2600L);
         assertEquals(0, courses.size());
     }
 
     @Test
-    public void testGetPilotCoursesByStudentId_FourSemestersCampusCourse() {
+    public void testGetCreatedAndNotCreatedCreatableCoursesOfCurrentSemesterByStudentId_FourSemestersCampusCourse() {
         insertTestData();
 
         // Make course 400 to be the parent course of 300, 500 the parent of 400 and 600 the parent of 500
@@ -742,13 +783,13 @@ public class CourseDaoTest extends OlatTestCase {
         courseDao.saveParentCourseId(500L, 600L);
 
         // Check that the students of all 4 semesters can be found
-        List<Course> courses = courseDao.getPilotCoursesByStudentId(2100L);
+        List<Course> courses = courseDao.getCreatedAndNotCreatedCreatableCoursesOfCurrentSemesterByStudentId(2100L);
         assertEquals(3, courses.size());
-        courses = courseDao.getPilotCoursesByStudentId(2400L);
+        courses = courseDao.getCreatedAndNotCreatedCreatableCoursesOfCurrentSemesterByStudentId(2400L);
         assertEquals(1, courses.size());
-        courses = courseDao.getPilotCoursesByStudentId(2500L);
+        courses = courseDao.getCreatedAndNotCreatedCreatableCoursesOfCurrentSemesterByStudentId(2500L);
         assertEquals(1, courses.size());
-        courses = courseDao.getPilotCoursesByStudentId(2600L);
+        courses = courseDao.getCreatedAndNotCreatedCreatableCoursesOfCurrentSemesterByStudentId(2600L);
         assertEquals(1, courses.size());
     }
 

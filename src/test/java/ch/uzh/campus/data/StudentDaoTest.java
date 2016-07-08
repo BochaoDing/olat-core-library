@@ -10,6 +10,7 @@ import org.springframework.test.context.ContextConfiguration;
 import javax.inject.Provider;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static org.junit.Assert.*;
 
@@ -29,6 +30,9 @@ public class StudentDaoTest extends OlatTestCase {
 
     @Autowired
     private StudentDao studentDao;
+
+    @Autowired
+    private OrgDao orgDao;
 
     @Autowired
     private CourseDao courseDao;
@@ -189,13 +193,25 @@ public class StudentDaoTest extends OlatTestCase {
     }
 
     @Test
-    public void testGetAllPilotStudents() {
-        int numberOfStudentsFoundBeforeInsertingTestData = studentDao.getAllPilotStudents().size();
+    public void testGetAllStudentsWithCreatedOrNotCreatedCreatableCourses() {
+        int numberOfStudentsFoundBeforeInsertingTestData = studentDao.getAllStudentsWithCreatedOrNotCreatedCreatableCourses().size();
         insertTestData();
-        assertEquals(numberOfStudentsFoundBeforeInsertingTestData + 5, studentDao.getAllPilotStudents().size());
+        List<Student> studentsFound = studentDao.getAllStudentsWithCreatedOrNotCreatedCreatableCourses();
+        assertEquals(numberOfStudentsFoundBeforeInsertingTestData + 5, studentsFound.size());
+        List<Long> idsFound = studentsFound.stream().map(Student::getId).collect(Collectors.toList());
+        assertTrue(idsFound.contains(2100L));
+        assertTrue(idsFound.contains(2200L));
+        assertTrue(idsFound.contains(2400L));
+        assertTrue(idsFound.contains(2500L));
+        assertTrue(idsFound.contains(2600L));
     }
 
     private void insertTestData() {
+        // Insert some orgs
+        List<Org> orgs = mockDataGeneratorProvider.get().getOrgs();
+        orgDao.save(orgs);
+        dbInstance.flush();
+
         // Insert some students
         students = mockDataGeneratorProvider.get().getStudents();
         studentDao.save(students);

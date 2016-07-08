@@ -20,7 +20,10 @@ import java.util.Set;
 @Table(name = "ck_lecturer")
 @NamedQueries({
         @NamedQuery(name = Lecturer.GET_LECTURER_BY_EMAIL, query = "select l from Lecturer l where l.email = :email"),
-        @NamedQuery(name = Lecturer.GET_ALL_PILOT_LECTURERS, query = "select distinct l from Lecturer l join l.lecturerCourses lc where lc.course.enabled = '1' "),
+        @NamedQuery(name = Lecturer.GET_ALL_LECTURERS_WITH_CREATED_OR_NOT_CREATED_CREATABLE_COURSES, query = "select distinct l from Lecturer l join l.lecturerCourses lc where " +
+                "lc.course.resourceableId is not null or " +
+                "(lc.course.exclude = false " +
+                "and exists (select c1 from Course c1 join c1.orgs o where c1.id = lc.course.id and o.enabled = true))"),
         @NamedQuery(name = Lecturer.GET_ALL_ORPHANED_LECTURERS, query = "select l.personalNr from Lecturer l where l.personalNr not in (select lc.lecturer.personalNr from LecturerCourse lc)"),
         @NamedQuery(name = Lecturer.DELETE_BY_LECTURER_IDS, query = "delete from Lecturer l where l.personalNr in :lecturerIds")
 })
@@ -52,7 +55,7 @@ public class Lecturer {
     private Set<LecturerCourse> lecturerCourses = new HashSet<>();
 
     static final String GET_LECTURER_BY_EMAIL = "getLecturerByEmail";
-    static final String GET_ALL_PILOT_LECTURERS = "getAllPilotLecturers";
+    static final String GET_ALL_LECTURERS_WITH_CREATED_OR_NOT_CREATED_CREATABLE_COURSES = "getAllLecturersWithCreatedOrNotCreatedCreatableCourses";
     static final String GET_ALL_ORPHANED_LECTURERS = "getAllOrphanedLecturers";
     static final String DELETE_BY_LECTURER_IDS = "deleteLecturerByLecturerIds";
 

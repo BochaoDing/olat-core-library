@@ -5,6 +5,7 @@ package ch.uzh.campus.data;
  */
 public class CourseOrgId extends Course {
 
+    private String excludeAsString = "";
     private Long org1;
     private Long org2;
     private Long org3;
@@ -14,6 +15,14 @@ public class CourseOrgId extends Course {
     private Long org7;
     private Long org8;
     private Long org9;
+
+    public String getExcludeAsString() {
+        return excludeAsString;
+    }
+
+    public void setExcludeAsString(String excludeAsString) {
+        this.excludeAsString = excludeAsString;
+    }
 
     public Long getOrg1() {
         return org1;

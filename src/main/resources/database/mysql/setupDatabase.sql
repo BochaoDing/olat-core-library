@@ -2158,9 +2158,8 @@ create table if not exists ck_course (
 	vvz_link varchar(255) not null,
 	semester char(255),
 	short_semester char(4),
-	ipz char(1),
-	enabled char(1)  NOT NULL default '0',
-	synchronizable TINYINT(1) NOT NULL default 1,
+	exclude boolean not null default 0,
+	synchronizable boolean not null default 1,
   parent_course_id BIGINT,
 	modified_date datetime not null,
 	primary key (id)
@@ -2224,6 +2223,7 @@ create table if not exists ck_org (
 	id bigint not null,
 	short_name varchar(50) not null,
 	name varchar(255) not null,
+  enabled boolean not null default 0,
 	modified_date datetime not null,
 	primary key (id)
 )engine InnoDB;
@@ -2302,13 +2302,21 @@ alter table ck_delegation add unique (delegator,delegatee);
 create or replace view ck_not_mapped_students as 
 select * from ck_student s where s.id in
 (select sc.student_id from ck_student_course sc, ck_course c  
-where sc.course_id = c.id  and c.enabled='1')
+where sc.course_id = c.id and c.exclude = 0
+   and exists (select co.course_id from ck_course_org co
+      inner join ck_course c1 on c1.id = co.course_id
+      inner join ck_org o on o.id = co.org_id
+      where c1.id = c.id and o.enabled = 1))
 and s.id not in(select sap_user_id from ck_olat_user ou where ou.sap_user_type= 'STUDENT'); 
 
 create or replace view ck_not_mapped_lecturers as 
 select * from ck_lecturer l where l.id in
 (select lc.lecturer_id from ck_lecturer_course lc, ck_course c  
-where lc.course_id = c.id  and c.enabled='1')
+where lc.course_id = c.id and c.exclude = 0
+      and exists (select co.course_id from ck_course_org co
+   inner join ck_course c1 on c1.id = co.course_id
+   inner join ck_org o on o.id = co.org_id
+where c1.id = c.id and o.enabled = 1))
 and l.id not in(select sap_user_id from ck_olat_user ou where ou.sap_user_type= 'LECTURER'); 
 
 create or replace view ck_horizontal_userproperty as

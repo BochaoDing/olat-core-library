@@ -1,12 +1,10 @@
 package ch.uzh.campus.data;
 
-import ch.uzh.campus.utils.DateUtil;
 import org.olat.core.commons.persistence.DB;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import javax.persistence.EntityManager;
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -70,9 +68,9 @@ public class StudentDao implements CampusDao<Student> {
                 .getResultList();
     }
 
-    List<Student> getAllPilotStudents() {
+    List<Student> getAllStudentsWithCreatedOrNotCreatedCreatableCourses() {
         return dbInstance.getCurrentEntityManager()
-                .createNamedQuery(Student.GET_ALL_PILOT_STUDENTS, Student.class)
+                .createNamedQuery(Student.GET_ALL_STUDENTS_WITH_CREATED_OR_NOT_CREATED_CREATABLE_COURSES, Student.class)
                 .getResultList();
     }
 

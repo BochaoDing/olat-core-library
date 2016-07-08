@@ -230,7 +230,7 @@
 			<bean parent="lineMapper">
 				<property name="lineTokenizer" >
 					<bean parent="lineTokenizer">
-						<property name="names" value="id, shortTitle, title, vstNr, language, category, isElearning, startDate, endDate, vzzLink, semester, ipz, org1, org2, org3, org4, org5, org6, org7, org8, org9" />
+						<property name="names" value="id, shortTitle, title, vstNr, language, category, isElearning, startDate, endDate, vzzLink, semester, ipz (NOT USED), org1, org2, org3, org4, org5, org6, org7, org8, org9" />
 						<property name="strict" value="false"/>
 					</bean>
 				</property>
@@ -482,7 +482,7 @@
 
     <bean id="campusImportJobInterceptor" class="ch.uzh.campus.connectors.CampusImportJobInterceptor" scope="singleton"/>
 
-	<bean id="campusMappingJobInterceptor" class="ch.uzh.campus.connectors.CampusMappingJobInterceptor" scope="prototype"/>
+	<bean id="campusMappingJobInterceptor" class="ch.uzh.campus.connectors.CampusMappingJobInterceptor" scope="singleton"/>
 	
 	<bean id="statisticDao" class="ch.uzh.campus.data.ImportStatisticDao"/>
 

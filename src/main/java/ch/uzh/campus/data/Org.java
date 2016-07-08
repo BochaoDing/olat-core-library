@@ -23,11 +23,14 @@ public class Org {
     @Id
     private Long id;
 
-    @Column(name = "short_name")
+    @Column(name = "short_name", nullable = false)
     private String shortName;
 
-    @Column(name = "name")
+    @Column(name = "name", nullable = false)
     private String name;
+
+    @Column(name = "enabled", nullable = false)
+    private boolean enabled;
 
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "modified_date")
@@ -63,6 +66,14 @@ public class Org {
         this.name = name;
     }
 
+    public boolean isEnabled() {
+        return enabled;
+    }
+
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
+    }
+
     public Date getModifiedDate() {
         return modifiedDate;
     }
@@ -81,6 +92,7 @@ public class Org {
         builder.append("id", getId());
         builder.append("shortName", getShortName());
         builder.append("name", getName());
+        builder.append("enabled", isEnabled());
         builder.append("modifiedDate", getModifiedDate());
 
         return builder.toString();

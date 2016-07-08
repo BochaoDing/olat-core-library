@@ -18,7 +18,10 @@ import java.util.Set;
  */
 @Entity
 @NamedQueries({
-        @NamedQuery(name = Student.GET_ALL_PILOT_STUDENTS, query = "select distinct s from Student s join s.studentCourses sc where sc.course.enabled = '1' "),
+        @NamedQuery(name = Student.GET_ALL_STUDENTS_WITH_CREATED_OR_NOT_CREATED_CREATABLE_COURSES, query = "select distinct s from Student s join s.studentCourses sc where " +
+                "sc.course.resourceableId is not null or " +
+                "(sc.course.exclude = false " +
+                "and exists (select c1 from Course c1 join c1.orgs o where c1.id = sc.course.id and o.enabled = true))"),
         @NamedQuery(name = Student.GET_ALL_ORPHANED_STUDENTS, query = "select s.id from Student s where s.id not in (select sc.student.id from StudentCourse sc)"),
         @NamedQuery(name = Student.GET_STUDENTS_BY_EMAIL, query = "select s from Student s where s.email = :email"),
         @NamedQuery(name = Student.GET_STUDENTS_WITH_REGISTRATION_NUMBER, query = "select s from Student s where s.registrationNr = :registrationNr"),
@@ -49,7 +52,7 @@ public class Student {
     @OneToMany(mappedBy = "student")
     private Set<StudentCourse> studentCourses = new HashSet<>();
 
-    static final String GET_ALL_PILOT_STUDENTS = "getAllPilotStudents";
+    static final String GET_ALL_STUDENTS_WITH_CREATED_OR_NOT_CREATED_CREATABLE_COURSES = "getAllStudentsWithCreatedOrNotCreatedCreatableCourses";
     static final String GET_ALL_ORPHANED_STUDENTS = "getAllOrphanedStudents";
     static final String GET_STUDENTS_BY_EMAIL = "getStudentsWithEmail";
     static final String GET_STUDENTS_WITH_REGISTRATION_NUMBER = "getStudentsWithRegistrationNr";

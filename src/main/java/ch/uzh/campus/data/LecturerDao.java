@@ -50,9 +50,9 @@ public class LecturerDao implements CampusDao<Lecturer> {
         return null;
     }
 
-    List<Lecturer> getAllPilotLecturers() {
+    List<Lecturer> getAllLecturersWithCreatedOrNotCreatedCreatableCourses() {
         return dbInstance.getCurrentEntityManager()
-                .createNamedQuery(Lecturer.GET_ALL_PILOT_LECTURERS, Lecturer.class)
+                .createNamedQuery(Lecturer.GET_ALL_LECTURERS_WITH_CREATED_OR_NOT_CREATED_CREATABLE_COURSES, Lecturer.class)
                 .getResultList();
     }
 

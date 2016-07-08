@@ -47,13 +47,16 @@ public class OrgProcessor implements ItemProcessor<Org, Org> {
      *            the Org to be processed
      */
     public Org process(Org org) throws Exception {
+
         for (String identifier : identifiers) {
             if (org.getShortName() != null && org.getShortName().startsWith(identifier.trim())) {
-                org.setModifiedDate(new Date());
-                return org;
+                org.setEnabled(true);
             }
         }
-        return null;
+
+        org.setModifiedDate(new Date());
+
+        return org;
     }
 
 }
