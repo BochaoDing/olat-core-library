@@ -46,11 +46,9 @@ public class OrgDao implements CampusDao<Org> {
                 .getResultList();
     }
 
-    List<Long> getAllNotUpdatedOrgs(Date date) {
-        // Subtract one second from date since modifiedDate (used in query) is rounded to seconds
+    List<Long> getAllOrphanedOrgs() {
         return dbInstance.getCurrentEntityManager()
-                .createNamedQuery(Org.GET_ALL_NOT_UPDATED_ORGS, Long.class)
-                .setParameter("lastImportDate", DateUtil.addSecondsToDate(date, -1))
+                .createNamedQuery(Org.GET_ALL_ORPHANED_ORGS, Long.class)
                 .getResultList();
     }
 

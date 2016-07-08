@@ -225,6 +225,7 @@
         <bean class="ch.uzh.campus.data.Org" p:id="9700" p:shortName="6" p:name="Philosophische Fakultät" p:enabled="true" p:modifiedDate="10.10.2014 10:10" scope="prototype" />
         <bean class="ch.uzh.campus.data.Org" p:id="9800" p:shortName="7" p:name="Mathematisch-naturwissenschaftliche Fakultät" p:enabled="true" p:modifiedDate="10.10.2014 10:10" scope="prototype" />
         <bean class="ch.uzh.campus.data.Org" p:id="9900" p:shortName="1_IFHR" p:name="Institut für Hermeneutik und Religionsphilosophie" p:enabled="false" p:modifiedDate="10.10.2014 10:10" scope="prototype" />
+        <bean class="ch.uzh.campus.data.Org" p:id="9901" p:shortName="1_IFSR" p:name="Institut für Schweizerische Reformationsgeschichte" p:enabled="false" p:modifiedDate="10.10.2014 10:10" scope="prototype" />
     </util:list>
 
     <!-- ======================================================================================= -->

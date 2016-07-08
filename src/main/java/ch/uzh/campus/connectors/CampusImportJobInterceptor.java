@@ -108,7 +108,7 @@ public class CampusImportJobInterceptor implements JobExecutionListener {
 				dbInstance.intermediateCommit();
 			}
 
-			List<Long> orgsToBeRemoved = daoManager.getAllOrgsToBeDeleted(jobExecution.getStartTime());
+			List<Long> orgsToBeRemoved = daoManager.getAllOrgsToBeDeleted();
 			LOG.info("ORGS TO BE REMOVED [" + orgsToBeRemoved.size() + "]");
 			if (!orgsToBeRemoved.isEmpty()) {
 				daoManager.deleteOrgByIds(orgsToBeRemoved);

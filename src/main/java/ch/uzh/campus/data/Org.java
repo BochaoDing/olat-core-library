@@ -18,7 +18,7 @@ import java.util.Set;
 @Entity
 @Table(name = "ck_org")
 @NamedQueries({ @NamedQuery(name = Org.GET_IDS_OF_ALL_ENABLED_ORGS, query = "select id from Org"),
-        @NamedQuery(name = Org.GET_ALL_NOT_UPDATED_ORGS, query = "select o.id from Org o where o.modifiedDate < :lastImportDate")})
+        @NamedQuery(name = Org.GET_ALL_ORPHANED_ORGS, query = "select o.id from Org o where o.id not in (select o1.id from Course c join c.orgs o1)")})
 public class Org {
     @Id
     private Long id;
@@ -40,7 +40,7 @@ public class Org {
     private Set<Course> courses = new HashSet<>();
 
     static final String GET_IDS_OF_ALL_ENABLED_ORGS = "getIdsOfAllEnabledOrgs";
-    static final String GET_ALL_NOT_UPDATED_ORGS = "getAllNotUpdatedOrgs";
+    static final String GET_ALL_ORPHANED_ORGS = "getAllOrphanedOrgs";
 
     public Long getId() {
         return id;

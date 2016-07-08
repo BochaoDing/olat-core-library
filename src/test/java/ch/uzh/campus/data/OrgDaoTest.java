@@ -31,8 +31,6 @@ public class OrgDaoTest extends OlatTestCase {
 
     @Autowired
     private Provider<MockDataGenerator> mockDataGeneratorProvider;
-
-    private List<Org> orgs;
     
     @After
     public void after() {
@@ -47,17 +45,12 @@ public class OrgDaoTest extends OlatTestCase {
     }
 
     @Test
-    public void testGetAllNotUpdatedOrgs() {
-        Date now = new Date();
-        int numberOfOrgsFoundBeforeInsertingTestData = orgDao.getAllNotUpdatedOrgs(now).size();
+    public void testGetAllOrphanedOrgs() {
+        int numberOfOrgsFoundBeforeInsertingTestData = orgDao.getAllOrphanedOrgs().size();
         insertTestData();
-        assertEquals(numberOfOrgsFoundBeforeInsertingTestData + 9, orgDao.getAllNotUpdatedOrgs(now).size());
-
-        orgs.get(0).setModifiedDate(now);
-
-        dbInstance.flush();
-
-        assertEquals(numberOfOrgsFoundBeforeInsertingTestData + 8, orgDao.getAllNotUpdatedOrgs(now).size());
+        List<Long> idsFound = orgDao.getAllOrphanedOrgs();
+        assertEquals(numberOfOrgsFoundBeforeInsertingTestData + 1, idsFound.size());
+        assertTrue(idsFound.contains(9901L));
     }
 
     @Test
@@ -97,7 +90,7 @@ public class OrgDaoTest extends OlatTestCase {
     
     private void insertTestData() {
         // Insert some orgs
-        orgs = mockDataGeneratorProvider.get().getOrgs();
+        List<Org> orgs = mockDataGeneratorProvider.get().getOrgs();
         orgDao.save(orgs);
         dbInstance.flush();
 

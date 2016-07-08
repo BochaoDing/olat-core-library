@@ -242,8 +242,8 @@ public class DaoManager {
         return lecturerDao.getAllOrphanedLecturers();
     }
 
-    public List<Long> getAllOrgsToBeDeleted(Date date) {
-        return orgDao.getAllNotUpdatedOrgs(date);
+    public List<Long> getAllOrgsToBeDeleted() {
+        return orgDao.getAllOrphanedOrgs();
     }
 
     public void deleteOrgByIds(List<Long> orgIds) {
