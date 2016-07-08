@@ -6,6 +6,7 @@ import org.olat.core.logging.Tracing;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
+import javax.persistence.EntityManager;
 import java.util.List;
 
 /**
@@ -234,8 +235,9 @@ public class CourseDao implements CampusDao<CourseOrgId> {
      */
     void deleteByCourseIds(List<Long> courseIds) {
         int count = 0;
+        EntityManager em = dbInstance.getCurrentEntityManager();
         for (Long courseId : courseIds) {
-            deleteByCourseId(courseId);
+            deleteCourseBidirectionally(em.getReference(Course.class, courseId));
             // Avoid memory problems caused by loading too many objects into the persistence context
             // (cf. C. Bauer and G. King: Java Persistence mit Hibernate, 2nd edition, p. 477)
             if (++count % 100 == 0) {

@@ -85,8 +85,16 @@ public class StudentDao implements CampusDao<Student> {
      * Deletes also according entries of the join table ck_student_course.
      */
     void deleteByStudentIds(List<Long> studentIds) {
+        int count = 0;
+        EntityManager em = dbInstance.getCurrentEntityManager();
         for (Long studentId : studentIds) {
-            deleteStudentBidirectionally(dbInstance.getCurrentEntityManager().getReference(Student.class, studentId));
+            deleteStudentBidirectionally(em.getReference(Student.class, studentId));
+            // Avoid memory problems caused by loading too many objects into the persistence context
+            // (cf. C. Bauer and G. King: Java Persistence mit Hibernate, 2nd edition, p. 477)
+            if (++count % 100 == 0) {
+                dbInstance.flush();
+                dbInstance.clear();
+            }
         }
     }
 
