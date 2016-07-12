@@ -2158,7 +2158,7 @@ create table if not exists ck_course (
 	vvz_link varchar(255) not null,
 	semester char(255),
 	short_semester char(4),
-	exclude boolean not null default 0,
+	exclude boolean not null,
 	synchronizable boolean not null default 1,
   parent_course_id BIGINT,
 	modified_date datetime not null,
