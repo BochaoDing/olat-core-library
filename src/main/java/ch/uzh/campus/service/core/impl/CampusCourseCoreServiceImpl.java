@@ -190,8 +190,10 @@ public class CampusCourseCoreServiceImpl implements CampusCourseCoreService {
 		daoManager.saveParentCourseId(sapCampusCourseId, parentSapCampusCourseId);
 		parentCampusCourse.continueCampusCourse(campusCourseImportTO, creator, repositoryService, campusCourseDescriptionBuilder, campusCourseCreator, campusCourseGroupSynchronizer);
         dbInstance.intermediateCommit();
-        // Notify possible listeners about CONTINUED event
         Long resourceableId = parentCampusCourse.getRepositoryEntry().getOlatResource().getResourceableId();
+        daoManager.saveCampusCourseResoureableId(sapCampusCourseId, resourceableId);
+        dbInstance.intermediateCommit();
+        // Notify possible listeners about CONTINUED event
         sendCampusCourseEvent(resourceableId, CampusCourseEvent.CONTINUED);
         return parentCampusCourse;
     }
