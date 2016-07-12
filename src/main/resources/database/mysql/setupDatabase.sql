@@ -2223,7 +2223,7 @@ create table if not exists ck_org (
 	id bigint not null,
 	short_name varchar(50) not null,
 	name varchar(255) not null,
-  enabled boolean not null default 0,
+  enabled boolean not null,
 	modified_date datetime not null,
 	primary key (id)
 )engine InnoDB;
