@@ -102,14 +102,14 @@ public class CampusCourseCoreServiceImpl implements CampusCourseCoreService {
 
     @Override
     public CampusCourse createCampusCourseFromTemplate(Long courseResourceableId, Long sapCampusCourseId, Identity creator) {
-        CampusCourseImportTO campusCourseImportData = daoManager.getSapCampusCourse(sapCampusCourseId);
-        if (campusCourseImportData.isOlatResourceableIdUndefined()) {
+        CampusCourseImportTO campusCourseImportTO = daoManager.getSapCampusCourse(sapCampusCourseId);
+        if (campusCourseImportTO.isOlatResourceableIdUndefined()) {
             // Campus course has not been created yet
             Long templateCourseResourceableId;
             boolean isDefaultTemplateUsed = (courseResourceableId == null);
 
             if (isDefaultTemplateUsed) {
-                templateCourseResourceableId = campusCourseConfiguration.getTemplateCourseResourcableId(campusCourseImportData.getLanguage());
+                templateCourseResourceableId = campusCourseConfiguration.getTemplateCourseResourcableId(campusCourseImportTO.getLanguage());
 
                 // The case that no template was found
                 if (templateCourseResourceableId == null) {
@@ -131,8 +131,8 @@ public class CampusCourseCoreServiceImpl implements CampusCourseCoreService {
             CampusCourse campusCourse = null;
             try {
                 // Create the campus course by copying the appropriate template (default or custom)
-                campusCourse = campusCourseCreator.createCampusCourseFromTemplate(campusCourseImportData, templateCourseResourceableId, creator);
-                campusCourse.updateCampusCourseCreatedFromTemplate(campusCourseImportData, creator, isDefaultTemplateUsed, campusCourseCreator, campusCoursePublisher, campusCourseGroupSynchronizer, campusCourseConfiguration);
+                campusCourse = campusCourseCreator.createCampusCourseFromTemplate(campusCourseImportTO, templateCourseResourceableId, creator);
+                campusCourse.updateCampusCourseCreatedFromTemplate(campusCourseImportTO, creator, isDefaultTemplateUsed, campusCourseCreator, campusCoursePublisher, campusCourseGroupSynchronizer, campusCourseConfiguration);
                 Long resourceableId = campusCourse.getRepositoryEntry().getOlatResource().getResourceableId();
                 daoManager.saveCampusCourseResoureableId(sapCampusCourseId, resourceableId);
                 dbInstance.intermediateCommit();
@@ -163,35 +163,35 @@ public class CampusCourseCoreServiceImpl implements CampusCourseCoreService {
             }
         } else {
             // Campus course has already been created
-            return loadCampusCourse(sapCampusCourseId);
+            return loadCampusCourse(campusCourseImportTO);
         }
     }
 
     @Override
-    public CampusCourse continueCampusCourse(Long sapCampusCourseId,
+    public CampusCourse continueCampusCourse(Long childSapCampusCourseId,
 											 Long parentSapCampusCourseId,
 											 Identity creator) {
-		assert sapCampusCourseId != null;
+		assert childSapCampusCourseId != null;
 		assert parentSapCampusCourseId != null;
 		assert creator != null;
 
 		/**
 		 * Check first if ids exist.
 		 */
-		CampusCourseImportTO campusCourseImportTO = daoManager.getSapCampusCourse(sapCampusCourseId);
+		CampusCourseImportTO campusCourseImportTO = daoManager.getSapCampusCourse(childSapCampusCourseId);
 		if (campusCourseImportTO == null) {
-			throw new IllegalArgumentException("SAP campus course does not exists: " + sapCampusCourseId);
+			throw new IllegalArgumentException("SAP campus course does not exists: " + childSapCampusCourseId);
 		}
-		CampusCourse parentCampusCourse = loadCampusCourse(parentSapCampusCourseId);
+		CampusCourse parentCampusCourse = loadCampusCourse(daoManager.getSapCampusCourse(parentSapCampusCourseId));
 		if (parentCampusCourse == null) {
-			throw new IllegalArgumentException("Parent SAP campus course does not exists: " + sapCampusCourseId);
+			throw new IllegalArgumentException("Parent SAP campus course does not exists: " + childSapCampusCourseId);
 		}
 
-		daoManager.saveParentCourseId(sapCampusCourseId, parentSapCampusCourseId);
+		daoManager.saveParentCourseId(childSapCampusCourseId, parentSapCampusCourseId);
 		parentCampusCourse.continueCampusCourse(campusCourseImportTO, creator, repositoryService, campusCourseDescriptionBuilder, campusCourseCreator, campusCourseGroupSynchronizer);
         dbInstance.intermediateCommit();
         Long resourceableId = parentCampusCourse.getRepositoryEntry().getOlatResource().getResourceableId();
-        daoManager.saveCampusCourseResoureableId(sapCampusCourseId, resourceableId);
+        daoManager.saveCampusCourseResoureableId(childSapCampusCourseId, resourceableId);
         dbInstance.intermediateCommit();
         // Notify possible listeners about CONTINUED event
         sendCampusCourseEvent(resourceableId, CampusCourseEvent.CONTINUED);
@@ -199,8 +199,8 @@ public class CampusCourseCoreServiceImpl implements CampusCourseCoreService {
     }
 
     @Override
-    public CampusCourse loadCampusCourse(Long sapCampusCourseId) {
-        return campusCourseFactory.getCampusCourse(sapCampusCourseId);
+    public CampusCourse loadCampusCourse(CampusCourseImportTO campusCourseImportTO) {
+        return campusCourseFactory.getCampusCourse(campusCourseImportTO);
     }
 
     @Override
@@ -227,7 +227,7 @@ public class CampusCourseCoreServiceImpl implements CampusCourseCoreService {
      */
     @Override
     public RepositoryEntry getRepositoryEntryFor(Long sapCampusCourseId) {
-        CampusCourse campusCourse = campusCourseFactory.getCampusCourse(sapCampusCourseId);
+        CampusCourse campusCourse = campusCourseFactory.getCampusCourse(daoManager.getSapCampusCourse(sapCampusCourseId));
         return (campusCourse == null ? null : campusCourse.getRepositoryEntry());
     }
 

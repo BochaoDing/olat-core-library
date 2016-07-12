@@ -38,6 +38,7 @@ import java.util.Collections;
 import java.util.List;
 
 import static org.junit.Assert.*;
+import static org.mockito.Matchers.refEq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -82,7 +83,7 @@ public class CampusCourseSynchronizerTest {
         CampusCourseAttributeSynchronizer campusCourseAttributeSynchronizerMock = mock(CampusCourseAttributeSynchronizer.class);
         CampusCourseConfiguration campusCourseConfigurationMock = mock(CampusCourseConfiguration.class);
         CampusCourseFactory campusCourseFactoryMock = mock(CampusCourseFactory.class);
-        when(campusCourseFactoryMock.getCampusCourse(EXISTING_SAP_COURSE_ID)).thenReturn(campusCourse);
+        when(campusCourseFactoryMock.getCampusCourse(refEq(campusCourseImportTO))).thenReturn(campusCourse);
 
         campusCourseSynchronizerTestObject = new CampusCourseSynchronizer(
                 campusCourseGroupSynchronizerMock, campusCourseAttributeSynchronizerMock,

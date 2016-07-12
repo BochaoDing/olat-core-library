@@ -1,5 +1,6 @@
 package ch.uzh.campus.service.core;
 
+import ch.uzh.campus.CampusCourseImportTO;
 import ch.uzh.campus.data.Course;
 import ch.uzh.campus.data.SapOlatUser;
 import ch.uzh.campus.service.CampusCourse;
@@ -21,9 +22,9 @@ public interface CampusCourseCoreService {
 
     CampusCourse createCampusCourseFromTemplate(Long courseResourceableId, Long sapCampusCourseId, Identity creator);
 
-    CampusCourse continueCampusCourse(Long sapCampusCourseId, Long parentSapCampusCourseId, Identity creator);
+    CampusCourse continueCampusCourse(Long childSapCampusCourseId, Long parentSapCampusCourseId, Identity creator);
 
-    CampusCourse loadCampusCourse(Long sapCampusCourseId);
+    CampusCourse loadCampusCourse(CampusCourseImportTO campusCourseImportTO);
 
     CampusCourse loadCampusCourseByResourceable(Long resourceableId);
 
