@@ -354,13 +354,8 @@ public class DaoManager {
         courseDao.saveResourceableId(courseId, resourceableId);
     }
 
-    public void saveCampusCourseResoureableIdAndDisableSynchronization(Long courseId, Long resourceableId) {
-        courseDao.saveResourceableId(courseId, resourceableId);
-        courseDao.disableSynchronization(courseId);
-    }
-
-    public List<Course> getCourseByResourceable(Long resourcableId) {
-        return courseDao.getCourseByResourceable(resourcableId);
+    public Course getLatestCourseByResourceable(Long resourcableId) {
+        return courseDao.getLatestCourseByResourceable(resourcableId);
     }
 
     public void resetResourceableId(Long resourceableId) {

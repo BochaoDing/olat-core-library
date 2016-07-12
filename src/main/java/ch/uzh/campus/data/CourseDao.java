@@ -155,6 +155,24 @@ public class CourseDao implements CampusDao<CourseOrgId> {
                 .getResultList(); 
     }
 
+    Course getLatestCourseByResourceable(Long resourceableId) {
+        List<Course> courses = dbInstance.getCurrentEntityManager()
+                .createNamedQuery(Course.GET_LATEST_COURSE_BY_RESOURCEABLE_ID, Course.class)
+                .setParameter("resourceableId", resourceableId)
+                .getResultList();
+        if (courses.isEmpty()) {
+            String warningMessage = "No courses found with resourcable id " + resourceableId + ".";
+            LOG.warn(warningMessage);
+            return null;
+        }
+        if (courses.size() > 1) {
+            String warningMessage = "More than one course found with recourceable id " + resourceableId + " and the same end date.";
+            LOG.warn(warningMessage);
+            return null;
+        }
+        return courses.get(0);
+    }
+
 	private static String getWildcardLikeSearchString(String searchString) {
 		return searchString != null ? "%" + searchString + "%" : "%";
 	}
@@ -185,7 +203,7 @@ public class CourseDao implements CampusDao<CourseOrgId> {
 
     void resetResourceable(Long resourceableId) {
         List<Course> courses =dbInstance.getCurrentEntityManager()
-                .createNamedQuery(Course.GET_COURSE_BY_RESOURCEABLE_ID, Course.class)
+                .createNamedQuery(Course.GET_COURSES_BY_RESOURCEABLE_ID, Course.class)
                 .setParameter("resourceableId", resourceableId)
                 .getResultList();
         if (courses.isEmpty()) {
@@ -196,13 +214,6 @@ public class CourseDao implements CampusDao<CourseOrgId> {
         for (Course course : courses) {
             course.setResourceableId(null);
         }
-    }
-
-    List<Course> getCourseByResourceable(Long resourceableId) {
-        return dbInstance.getCurrentEntityManager()
-                .createNamedQuery(Course.GET_COURSE_BY_RESOURCEABLE_ID, Course.class)
-                .setParameter("resourceableId", resourceableId)
-                .getResultList();
     }
 
     void saveParentCourseId(Long courseId, Long parentCourseId) {

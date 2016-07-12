@@ -182,8 +182,9 @@ public class CourseDaoTest extends OlatTestCase {
     public void testGetCreatedCoursesOfCurrentSemesterByLecturerId_TwoSemestersCampusCourse() {
         insertTestData();
 
-        // Make course 400 to be the parent course of 300 and set a reourceableId for course 400
+        // Make course 400 to be the parent course of 300 and set a reourceableId for course 400 and set the same reourceableId for courses 300 and 400
         courseDao.saveParentCourseId(300L, 400L);
+        courseDao.saveResourceableId(300L, 1L);
         courseDao.saveResourceableId(400L, 1L);
 
         // Check that the students of both semesters can be found
@@ -201,9 +202,11 @@ public class CourseDaoTest extends OlatTestCase {
     public void testGetCreatedCoursesOfCurrentSemesterByLecturerId_ThreeSemestersCampusCourse() {
         insertTestData();
 
-        // Make course 400 to be the parent course of 300, 500 the parent of 400 and set a reourceableId for course 500
+        // Make course 400 to be the parent course of 300, 500 the parent of 400 and set the same reourceableId for courses 300, 400 and 500
         courseDao.saveParentCourseId(300L, 400L);
         courseDao.saveParentCourseId(400L, 500L);
+        courseDao.saveResourceableId(300L, 1L);
+        courseDao.saveResourceableId(400L, 1L);
         courseDao.saveResourceableId(500L, 1L);
 
         // Check that the students of all 3 semesters can be found
@@ -221,10 +224,14 @@ public class CourseDaoTest extends OlatTestCase {
     public void testGetCreatedCoursesOfCurrentSemesterByLecturerId_FourSemestersCampusCourse() {
         insertTestData();
 
-        // Make course 400 to be the parent course of 300, 500 the parent of 400 and 600 the parent of 500
+        // Make course 400 to be the parent course of 300, 500 the parent of 400 and 600 the parent of 500 and set for courses 300, 400 and 500 the recourceableId of course 600
         courseDao.saveParentCourseId(300L, 400L);
         courseDao.saveParentCourseId(400L, 500L);
         courseDao.saveParentCourseId(500L, 600L);
+        Course course = courseDao.getCourseById(600L);
+        courseDao.saveResourceableId(300L, course.getResourceableId());
+        courseDao.saveResourceableId(400L, course.getResourceableId());
+        courseDao.saveResourceableId(500L, course.getResourceableId());
 
         // Check that the students of all 4 semesters can be found
         List<Course> courses = courseDao.getCreatedCoursesOfCurrentSemesterByLecturerId(1300L, null);
@@ -256,6 +263,24 @@ public class CourseDaoTest extends OlatTestCase {
         // Excluded ourse
         courses = courseDao.getNotCreatedCreatableCoursesOfCurrentSemesterByLecturerId(1900L, null);
         assertTrue(courses.isEmpty());
+    }
+
+    @Test
+    public void testLatestCourseByResourceable() {
+        insertTestData();
+
+        // Make course 400 to be the parent course of 300, 500 the parent of 400 and 600 the parent of 500 and set for courses 300, 400 and 500 the recourceableId of course 600
+        courseDao.saveParentCourseId(300L, 400L);
+        courseDao.saveParentCourseId(400L, 500L);
+        courseDao.saveParentCourseId(500L, 600L);
+        Course course = courseDao.getCourseById(600L);
+        courseDao.saveResourceableId(300L, course.getResourceableId());
+        courseDao.saveResourceableId(400L, course.getResourceableId());
+        courseDao.saveResourceableId(500L, course.getResourceableId());
+
+        course = courseDao.getLatestCourseByResourceable(course.getResourceableId());
+        assertNotNull(course);
+        assertEquals(300L, course.getId().longValue());
     }
 
     @Test
@@ -366,7 +391,7 @@ public class CourseDaoTest extends OlatTestCase {
     public void testSaveResourceableId() {
         insertTestData();
         Course course = courseDao.getCourseById(100L);
-        assertEquals(100L, course.getResourceableId().longValue());
+        assertEquals(101L, course.getResourceableId().longValue());
 
         courseDao.saveResourceableId(100L, 1000L);
 
@@ -400,9 +425,9 @@ public class CourseDaoTest extends OlatTestCase {
     public void testDeleteResourceableId() {
         insertTestData();
         Course course = courseDao.getCourseById(100L);
-        assertEquals(100L, course.getResourceableId().longValue());
+        assertEquals(101L, course.getResourceableId().longValue());
 
-        courseDao.resetResourceable(100L);
+        courseDao.resetResourceable(101L);
 
         assertNull(course.getResourceableId());
 
@@ -446,7 +471,7 @@ public class CourseDaoTest extends OlatTestCase {
     public void testGetResourceableIdsOfAllCreatedCoursesOfCurrentSemester() {
         insertTestData();
         List<Long> resourceableIdsOfAllCreatedCourses = courseDao.getResourceableIdsOfAllCreatedCoursesOfCurrentSemester();
-        assertTrue(resourceableIdsOfAllCreatedCourses.contains(100L));
+        assertTrue(resourceableIdsOfAllCreatedCourses.contains(101L));
         assertFalse(resourceableIdsOfAllCreatedCourses.contains(999L));
     }
 
@@ -455,7 +480,7 @@ public class CourseDaoTest extends OlatTestCase {
         insertTestData();
         assertEquals(2, courseDao.getIdsOfAllCreatedSynchronizableCoursesOfCurrentSemester().size());
 
-        courseDao.resetResourceable(100L);
+        courseDao.resetResourceable(101L);
 
         dbInstance.flush();
         dbInstance.clear();
@@ -471,7 +496,7 @@ public class CourseDaoTest extends OlatTestCase {
         assertTrue(idsFound.contains(300L));
 
         // Reset resourceable, i.e. undo create course
-        courseDao.resetResourceable(100L);
+        courseDao.resetResourceable(101L);
 
         dbInstance.flush();
         dbInstance.clear();
@@ -520,7 +545,7 @@ public class CourseDaoTest extends OlatTestCase {
     @Test
     public void testExistResourceableId() {
         insertTestData();
-        assertTrue(courseDao.existResourceableId(100L));
+        assertTrue(courseDao.existResourceableId(101L));
 
         courseDao.resetResourceable(100L);
 
@@ -555,8 +580,9 @@ public class CourseDaoTest extends OlatTestCase {
     public void testGetCreatedCoursesOfCurrentSemesterByStudentId_TwoSemestersCampusCourse() {
         insertTestData();
 
-        // Make course 400 to be the parent course of 300 and set a reourceableId for course 400
+        // Make course 400 to be the parent course of 300 and set set the same reourceableId for courses 300 and 400
         courseDao.saveParentCourseId(300L, 400L);
+        courseDao.saveResourceableId(300L, 1L);
         courseDao.saveResourceableId(400L, 1L);
 
         // Check that the students of both semesters can be found
@@ -574,9 +600,11 @@ public class CourseDaoTest extends OlatTestCase {
     public void testGetCreatedCoursesOfCurrentSemesterByStudentId_ThreeSemestersCampusCourse() {
         insertTestData();
 
-        // Make course 400 to be the parent course of 300, 500 the parent of 400 and set a reourceableId for course 500
+        // Make course 400 to be the parent course of 300, 500 the parent of 400 and set the same reourceableId for courses 300, 400 and 500
         courseDao.saveParentCourseId(300L, 400L);
         courseDao.saveParentCourseId(400L, 500L);
+        courseDao.saveResourceableId(300L, 1L);
+        courseDao.saveResourceableId(400L, 1L);
         courseDao.saveResourceableId(500L, 1L);
 
         // Check that the students of all 3 semesters can be found
@@ -594,10 +622,14 @@ public class CourseDaoTest extends OlatTestCase {
     public void testGetCreatedCoursesOfCurrentSemesterByStudentId_FourSemestersCampusCourse() {
         insertTestData();
 
-        // Make course 400 to be the parent course of 300, 500 the parent of 400 and 600 the parent of 500
+        // Make course 400 to be the parent course of 300, 500 the parent of 400 and 600 the parent of 500 and set for courses 300, 400 and 500 the recourceableId of course 600
         courseDao.saveParentCourseId(300L, 400L);
         courseDao.saveParentCourseId(400L, 500L);
         courseDao.saveParentCourseId(500L, 600L);
+        Course course = courseDao.getCourseById(600L);
+        courseDao.saveResourceableId(300L, course.getResourceableId());
+        courseDao.saveResourceableId(400L, course.getResourceableId());
+        courseDao.saveResourceableId(500L, course.getResourceableId());
 
         // Check that the students of all 4 semesters can be found
         List<Course> courses = courseDao.getCreatedCoursesOfCurrentSemesterByStudentId(2100L, null);
@@ -658,8 +690,10 @@ public class CourseDaoTest extends OlatTestCase {
     public void testGetCreatedAndNotCreatedCreatableCoursesOfCurrentSemesterByLecturerId_TwoSemestersCampusCourse() {
         insertTestData();
 
-        // Make course 400 to be the parent course of 300
+        // Make course 400 to be the parent course of 300 and set a reourceableId for courses 300 and 400
         courseDao.saveParentCourseId(300L, 400L);
+        courseDao.saveResourceableId(300L, 1L);
+        courseDao.saveResourceableId(400L, 1L);
 
         // Check that the students of both semesters can be found
         List<Course> courses = courseDao.getCreatedAndNotCreatedCreatableCoursesOfCurrentSemesterByLecturerId(1300L);
@@ -676,9 +710,12 @@ public class CourseDaoTest extends OlatTestCase {
     public void testGetCreatedAndNotCreatedCreatableCoursesOfCurrentSemesterByLecturerId_ThreeSemestersCampusCourse() {
         insertTestData();
 
-        // Make course 400 to be the parent course of 300, 500 the parent of 400
+        // Make course 400 to be the parent course of 300, 500 the parent of 400 and set a reourceableId for courses 300, 400 and 500
         courseDao.saveParentCourseId(300L, 400L);
         courseDao.saveParentCourseId(400L, 500L);
+        courseDao.saveResourceableId(300L, 1L);
+        courseDao.saveResourceableId(400L, 1L);
+        courseDao.saveResourceableId(500L, 1L);
 
         // Check that the students of all 3 semesters can be found
         List<Course> courses = courseDao.getCreatedAndNotCreatedCreatableCoursesOfCurrentSemesterByLecturerId(1300L);
@@ -695,10 +732,14 @@ public class CourseDaoTest extends OlatTestCase {
     public void testGetCreatedAndNotCreatedCreatableCoursesOfCurrentSemesterByLecturerId_FourSemestersCampusCourse() {
         insertTestData();
 
-        // Make course 400 to be the parent course of 300, 500 the parent of 400 and 600 the parent of 500
+        // Make course 400 to be the parent course of 300, 500 the parent of 400 and 600 the parent of 500 and set for courses 300, 400 and 500 the recourceableId of course 600
         courseDao.saveParentCourseId(300L, 400L);
         courseDao.saveParentCourseId(400L, 500L);
         courseDao.saveParentCourseId(500L, 600L);
+        Course course = courseDao.getCourseById(600L);
+        courseDao.saveResourceableId(300L, course.getResourceableId());
+        courseDao.saveResourceableId(400L, course.getResourceableId());
+        courseDao.saveResourceableId(500L, course.getResourceableId());
 
         // Check that the students of all 4 semesters can be found
         List<Course> courses = courseDao.getCreatedAndNotCreatedCreatableCoursesOfCurrentSemesterByLecturerId(1300L);
@@ -740,8 +781,10 @@ public class CourseDaoTest extends OlatTestCase {
     public void testGetCreatedAndNotCreatedCreatableCoursesOfCurrentSemesterByStudentId_TwoSemestersCampusCourse() {
         insertTestData();
 
-        // Make course 400 to be the parent course of 300
+        // Make course 400 to be the parent course of 300 and set a reourceableId for courses 300 and 400
         courseDao.saveParentCourseId(300L, 400L);
+        courseDao.saveResourceableId(300L, 1L);
+        courseDao.saveResourceableId(400L, 1L);
 
         // Check that the students of both semesters can be found
         List<Course> courses = courseDao.getCreatedAndNotCreatedCreatableCoursesOfCurrentSemesterByStudentId(2100L);
@@ -758,9 +801,12 @@ public class CourseDaoTest extends OlatTestCase {
     public void testGetCreatedAndNotCreatedCreatableCoursesOfCurrentSemesterByStudentId_ThreeSemestersCampusCourse() {
         insertTestData();
 
-        // Make course 400 to be the parent course of 300, 500 the parent of 400
+        // Make course 400 to be the parent course of 300, 500 the parent of 400 and set a reourceableId for courses 300, 400 and 500
         courseDao.saveParentCourseId(300L, 400L);
         courseDao.saveParentCourseId(400L, 500L);
+        courseDao.saveResourceableId(300L, 1L);
+        courseDao.saveResourceableId(400L, 1L);
+        courseDao.saveResourceableId(500L, 1L);
 
         // Check that the students of all 3 semesters can be found
         List<Course> courses = courseDao.getCreatedAndNotCreatedCreatableCoursesOfCurrentSemesterByStudentId(2100L);
@@ -777,10 +823,14 @@ public class CourseDaoTest extends OlatTestCase {
     public void testGetCreatedAndNotCreatedCreatableCoursesOfCurrentSemesterByStudentId_FourSemestersCampusCourse() {
         insertTestData();
 
-        // Make course 400 to be the parent course of 300, 500 the parent of 400 and 600 the parent of 500
+        // Make course 400 to be the parent course of 300, 500 the parent of 400 and 600 the parent of 500 and set for courses 300, 400 and 500 the recourceableId of course 600
         courseDao.saveParentCourseId(300L, 400L);
         courseDao.saveParentCourseId(400L, 500L);
         courseDao.saveParentCourseId(500L, 600L);
+        Course course = courseDao.getCourseById(600L);
+        courseDao.saveResourceableId(300L, course.getResourceableId());
+        courseDao.saveResourceableId(400L, course.getResourceableId());
+        courseDao.saveResourceableId(500L, course.getResourceableId());
 
         // Check that the students of all 4 semesters can be found
         List<Course> courses = courseDao.getCreatedAndNotCreatedCreatableCoursesOfCurrentSemesterByStudentId(2100L);

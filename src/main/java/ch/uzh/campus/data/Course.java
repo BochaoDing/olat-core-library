@@ -75,7 +75,8 @@ import java.util.Set;
                 "and c.shortSemester = (select max(c6.shortSemester) from Course c6) "),
         @NamedQuery(name = Course.GET_ALL_NOT_CREATED_ORPHANED_COURSES, query = "select c.id from Course c where c.resourceableId is null and c.id not in (select lc.course.id from LecturerCourse lc) and c.id not in (select sc.course.id from StudentCourse sc)"),
         @NamedQuery(name = Course.GET_COURSE_IDS_BY_RESOURCEABLE_ID, query = "select c.id from Course c where c.resourceableId = :resourceableId"),
-        @NamedQuery(name = Course.GET_COURSE_BY_RESOURCEABLE_ID, query = "select c from Course c where c.resourceableId = :resourceableId")
+        @NamedQuery(name = Course.GET_COURSES_BY_RESOURCEABLE_ID, query = "select c from Course c where c.resourceableId = :resourceableId"),
+        @NamedQuery(name = Course.GET_LATEST_COURSE_BY_RESOURCEABLE_ID, query = "select c from Course c where c.resourceableId = :resourceableId and c.endDate = (select max(c1.endDate) from Course c1 where c1.resourceableId = :resourceableId)")
 })
 @Table(name = "ck_course")
 public class Course {
@@ -106,19 +107,19 @@ public class Course {
     @Column(name = "category", nullable = false)
     private String category;
 
-    @Column(name = "start_date")
+    @Column(name = "start_date", nullable = false)
     private Date startDate;
 
-    @Column(name = "end_date")
+    @Column(name = "end_date", nullable = false)
     private Date endDate;
 
     @Column(name = "vvz_link", nullable = false)
     private String vvzLink;
 
-    @Column(name = "semester")
+    @Column(name = "semester", nullable = false)
     private String semester;
 
-    @Column(name = "short_semester")
+    @Column(name = "short_semester", nullable = false)
     private String shortSemester;
 
     @Column(name = "exclude", nullable = false)
@@ -192,7 +193,8 @@ public class Course {
     static final String GET_COURSE_IDS_BY_RESOURCEABLE_ID = "getCourseIdsByResourceableId";
     static final String GET_CREATED_AND_NOT_CREATED_CREATABLE_COURSES_OF_CURRENT_SEMESTER_BY_LECTURER_ID = "getCreatedAndNotCreatedCreatableCoursesOfCurrentSemesterByLecturerId";
     static final String GET_CREATED_AND_NOT_CREATED_CREATABLE_COURSES_OF_CURRENT_SEMESTER_BY_STUDENT_ID = "getCreatedAndNotCreatedCreatableCoursesOfCurrentSemesterByStudentId";
-    static final String GET_COURSE_BY_RESOURCEABLE_ID = "getCourseByResourcableId";
+    static final String GET_COURSES_BY_RESOURCEABLE_ID = "getCoursesByResourceableId";
+    static final String GET_LATEST_COURSE_BY_RESOURCEABLE_ID = "getLatestCourseByResourceableId";
 
     public Long getId() {
         return id;
