@@ -24,8 +24,6 @@ import java.util.List;
 
 import org.olat.core.id.Identity;
 
-
-
 /**
  * Initial Date: 31.05.2012 <br>
  * 
@@ -33,45 +31,36 @@ import org.olat.core.id.Identity;
  */
 public class CampusCourseImportTO {
 
-    private String title;
-    private String semester;
-    private String language;
-    private List<Identity> lecturersOfCourseAndParentCourses;
-    private List<Identity> delegateesOfCourseAndParentCourses;
-    private List<Identity> participantsOfCourseAndParentCourses;
-    private String eventDescription;
-    private Long resourceableId;
-    private Long sapCourseId;
+    private final String title;
+    private final String semester;
+    private final String language;
+    private final List<Identity> lecturersOfCourseAndParentCourses;
+    private final List<Identity> delegateesOfCourseAndParentCourses;
+    private final List<Identity> participantsOfCourseAndParentCourses;
+    private final String eventDescription;
+    private final Long resourceableId;
+    private final Long sapCourseId;
     private final String vvzLink;
 
-    /**
-     * just for testing
-     *
-     */
-    public CampusCourseImportTO(String title, String semester, List<Identity> lecturersOfCourseAndParentCourses, List<Identity> participantsOfCourseAndParentCourses, String eventDescription, Long resourceableId, String language) {
+    public CampusCourseImportTO(String title, String semester,
+								List<Identity> lecturersOfCourseAndParentCourses,
+								List<Identity> delegateesOfCourseAndParentCourses,
+								List<Identity> participantsOfCourseAndParentCourses,
+								String eventDescription, Long resourceableId,
+								Long sapCourseId, String language, String vvzLink) {
         this.title = title;
         this.semester = semester;
+		assert lecturersOfCourseAndParentCourses != null;
         this.lecturersOfCourseAndParentCourses = lecturersOfCourseAndParentCourses;
-        this.participantsOfCourseAndParentCourses = participantsOfCourseAndParentCourses;
-        this.eventDescription = eventDescription;
-        this.resourceableId = resourceableId;
-        this.language = language;
-        this.vvzLink = "";
-    }
-
-    public CampusCourseImportTO(String title, String semester, List<Identity> lecturersOfCourseAndParentCourses, List<Identity> delegateesOfCourseAndParentCourses, List<Identity> participantsOfCourseAndParentCourses, String eventDescription,
-                                Long resourceableId, Long sapCourseId, String language, String vvzLink) {
-        this.title = title;
-        this.semester = semester;
-        this.lecturersOfCourseAndParentCourses = lecturersOfCourseAndParentCourses;
+		assert delegateesOfCourseAndParentCourses != null;
         this.delegateesOfCourseAndParentCourses = delegateesOfCourseAndParentCourses;
+		assert participantsOfCourseAndParentCourses != null;
         this.participantsOfCourseAndParentCourses = participantsOfCourseAndParentCourses;
         this.eventDescription = eventDescription;
         this.resourceableId = resourceableId;
         this.sapCourseId = sapCourseId;
         this.language = language;
         this.vvzLink = vvzLink;
-
     }
 
     public String getSemester() {
@@ -123,5 +112,4 @@ public class CampusCourseImportTO {
     public String getVvzLink() {
         return vvzLink;
     }
-
 }

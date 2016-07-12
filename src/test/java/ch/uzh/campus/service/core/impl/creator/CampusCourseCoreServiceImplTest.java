@@ -13,7 +13,6 @@ import ch.uzh.campus.service.core.impl.syncer.CampusCourseGroupFinder;
 import ch.uzh.campus.service.core.impl.syncer.CampusCourseGroupSynchronizer;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.olat.basesecurity.Group;
 import org.olat.basesecurity.GroupRoles;
@@ -38,6 +37,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import static org.junit.Assert.*;
@@ -114,9 +114,12 @@ public class CampusCourseCoreServiceImplTest extends OlatTestCase {
         RepositoryEntry sourceRepositoryEntry = JunitTestHelper.deployDemoCourse(ownerIdentity);
         sourceResourceableId = sourceRepositoryEntry.getOlatResource().getResourceableId();
         
-        CampusCourseJunitTestHelper.setupCampusCourseGroupForTest(sourceRepositoryEntry, TEST_COURSE_GROUP_A_NAME, businessGroupService);
+        CampusCourseJunitTestHelper.setupCampusCourseGroupForTest(sourceRepositoryEntry,
+				TEST_COURSE_GROUP_A_NAME, businessGroupService);
         dbInstance.commitAndCloseSession();
-        CampusCourseJunitTestHelper.setupCampusCourseGroupForTest(sourceRepositoryEntry, TEST_COURSE_GROUP_B_NAME, businessGroupService);
+
+        CampusCourseJunitTestHelper.setupCampusCourseGroupForTest(sourceRepositoryEntry,
+				TEST_COURSE_GROUP_B_NAME, businessGroupService);
         dbInstance.commitAndCloseSession();
 
         campusCourseConfigurationMock = mock(CampusCourseConfiguration.class);
@@ -129,22 +132,30 @@ public class CampusCourseCoreServiceImplTest extends OlatTestCase {
         testIdentity = JunitTestHelper.createAndPersistIdentityAsUser("TestUser");
         secondTestIdentity = JunitTestHelper.createAndPersistIdentityAsUser("SecondTestUser");
 
-        String semester = "Herbstsemester 2012";
         List<Identity> lecturers = new ArrayList<>();
         lecturers.add(ownerIdentity);
         lecturers.add(secondOwnerIdentity);
+
         List<Identity> participants = new ArrayList<>();
         participants.add(testIdentity);
         participants.add(secondTestIdentity);
-        CampusCourseImportTO campusCourseImportData1 = new CampusCourseImportTO(TEST_TITLE_TEXT, semester, lecturers, participants, TEST_EVENT_DESCRIPTION_TEXT,
-                null, null);
+
+		String semester = "Herbstsemester 2012";
+
+        CampusCourseImportTO campusCourseImportData1 = new CampusCourseImportTO(
+				TEST_TITLE_TEXT, semester, lecturers, Collections.emptyList(), participants,
+				TEST_EVENT_DESCRIPTION_TEXT, null, null, null, null);
 
         daoManagerMock = mock(DaoManager.class);
         when(daoManagerMock.getSapCampusCourse(anyLong())).thenReturn(campusCourseImportData1);
 
         CampusCourseGroupSynchronizer campusCourseGroupSynchronizerMock = new CampusCourseGroupSynchronizer(campusCourseConfigurationMock, campusCourseCoOwners, repositoryService, businessGroupService, campusCourseGroupFinder);
         CampusCoursePublisher campusCoursePublisherMock = mock(CampusCoursePublisher.class);
-        campusCourseCoreService = new CampusCourseCoreServiceImpl(dbInstance, daoManagerMock, repositoryService, campusCourseFactory, campusCourseDescriptionBuilder, campusCourseCreator, campusCoursePublisherMock, campusCourseConfigurationMock, campusCourseGroupSynchronizerMock, olatResourceManager);
+        campusCourseCoreService = new CampusCourseCoreServiceImpl(dbInstance,
+				daoManagerMock, repositoryService, campusCourseFactory,
+				campusCourseDescriptionBuilder, campusCourseCreator,
+				campusCoursePublisherMock, campusCourseConfigurationMock,
+				campusCourseGroupSynchronizerMock, olatResourceManager);
     }
 
 	@After
@@ -265,36 +276,41 @@ public class CampusCourseCoreServiceImplTest extends OlatTestCase {
         List<Identity> participants = new ArrayList<>();
         participants.add(testIdentity_3);
 
-        CampusCourseImportTO campusCourseImportData = new CampusCourseImportTO(TEST_TITLE_TEXT, semester, lecturers, participants, TEST_EVENT_DESCRIPTION_TEXT,
-                null, null);
+        CampusCourseImportTO campusCourseImportData = new CampusCourseImportTO(
+				TEST_TITLE_TEXT, semester, lecturers, Collections.emptyList(),
+				participants, TEST_EVENT_DESCRIPTION_TEXT, null, null, null, null);
 
         when(daoManagerMock.getSapCampusCourse(100L)).thenReturn(campusCourseImportData);
         
         //uses an existing course
-        CampusCourse campusCourse = campusCourseCoreService.createCampusCourseFromTemplate(sourceResourceableId, 100L, ownerIdentity);
+        CampusCourse campusCourse = campusCourseCoreService.createCampusCourseFromTemplate(
+				sourceResourceableId, 100L, ownerIdentity);
         
-        BusinessGroup campusCourseGroup = campusCourseGroupFinder.lookupCampusGroup(campusCourse.getCourse(), campusCourseConfigurationMock.getCourseGroupAName());
+        BusinessGroup campusCourseGroup = campusCourseGroupFinder.lookupCampusGroup(
+				campusCourse.getCourse(), campusCourseConfigurationMock.getCourseGroupAName());
         
         List<Identity> coaches = businessGroupService.getMembers(campusCourseGroup, GroupRoles.coach.name());        
-        assertTrue("Missing identity (" + ownerIdentity + ") in owner-group of course-group", coaches.contains(testIdentity_2));
+        assertTrue("Missing identity (" + ownerIdentity + ") in owner-group of course-group",
+				coaches.contains(testIdentity_2));
         
-        List<Identity> readParticipants = businessGroupService.getMembers(campusCourseGroup, GroupRoles.participant.name());
-        assertTrue("Missing identity (" + secondOwnerIdentity + ")in owner-group of course-group", readParticipants.contains(testIdentity_3));
+        List<Identity> readParticipants = businessGroupService.getMembers(campusCourseGroup,
+				GroupRoles.participant.name());
+        assertTrue("Missing identity (" + secondOwnerIdentity + ")in owner-group of course-group",
+				readParticipants.contains(testIdentity_3));
         
-        List<BGArea> areas = areaManager.findBGAreasInContext(campusCourse.getRepositoryEntry().getOlatResource());
+        List<BGArea> areas = areaManager.findBGAreasInContext(
+				campusCourse.getRepositoryEntry().getOlatResource());
         assertEquals(1,areas.size());
     }
-    
-    //TODO: olatng
-    @Ignore
-    @Test
-    public void continueCampusCourse() {
-    	fail("Not yet implemented");
-    }
+
+	//TODO: olatng
+	@Test
+	public void continueCampusCourse() {
+		fail("Not yet implemented");
+	}
 
     private RepositoryEntry loadRepositoryEntryFromDatabase(Long key) {
         dbInstance.clear();
         return repositoryEntryDAO.loadByKey(key);
     }
-
 }

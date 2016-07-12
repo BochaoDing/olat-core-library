@@ -34,6 +34,7 @@ import org.olat.course.ICourse;
 import org.olat.repository.RepositoryEntry;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import static org.junit.Assert.*;
@@ -70,7 +71,7 @@ public class CampusCourseSynchronizerTest {
 
         // Prepare a test CampusCourseImportTO
         campusCourseImportTO = new CampusCourseImportTO(
-                title, "HS2012", lecturers, null, participants, eventDescription,
+                title, "HS2012", lecturers, Collections.emptyList(), participants, eventDescription,
                 1045L, EXISTING_SAP_COURSE_ID, null, null
         );
 

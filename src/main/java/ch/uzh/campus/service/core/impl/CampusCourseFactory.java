@@ -51,6 +51,9 @@ public class CampusCourseFactory {
 
     public CampusCourse getCampusCourse(Long sapCampusCourseId) {
         CampusCourseImportTO campusCourseTo = daoManager.getSapCampusCourse(sapCampusCourseId);
+		if (campusCourseTo == null) {
+			return null;
+		}
         Long resourceableId = campusCourseTo.getOlatResourceableId();
         LOG.debug("getRepositoryEntryFor sapCourseId=" + sapCampusCourseId + "  campusCourseTo.getOlatResourceableId()=" + resourceableId);
         if (resourceableId == null) {

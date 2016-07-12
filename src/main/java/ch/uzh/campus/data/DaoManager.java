@@ -393,13 +393,9 @@ public class DaoManager {
 
     public CampusCourseImportTO getSapCampusCourse(long courseId) {
         Course course = getCourseById(courseId);
-        return getSapCampusCourse(course);
-    }
-
-    private CampusCourseImportTO getSapCampusCourse(Course course) {
-        if (course == null) {
-            return null;
-        }
+		if (course == null) {
+			return null;
+		}
 
         // Determine lecturerCourses and studentCourses of course and parent courses
         Set<LecturerCourse> lecturerCoursesOfCourseAndParentCourses;
@@ -411,9 +407,13 @@ public class DaoManager {
             courseIt = course.getParentCourse();
         } while (course.getParentCourse() != null);
 
-        return new CampusCourseImportTO(course.getTitleToBeDisplayed(shortTitleActivated), course.getSemester(), dataConverter.convertLecturersToIdentities(lecturerCoursesOfCourseAndParentCourses),
-                dataConverter.convertDelegateesToIdentities(lecturerCoursesOfCourseAndParentCourses), dataConverter.convertStudentsToIdentities(studentCoursesOfCourseAndParentCourses),
-                textDao.getContentsByCourseId(course.getId()), course.getResourceableId(), course.getId(), course.getLanguage(), course.getVvzLink());
+        return new CampusCourseImportTO(course.getTitleToBeDisplayed(shortTitleActivated),
+				course.getSemester(),
+				dataConverter.convertLecturersToIdentities(lecturerCoursesOfCourseAndParentCourses),
+                dataConverter.convertDelegateesToIdentities(lecturerCoursesOfCourseAndParentCourses),
+				dataConverter.convertStudentsToIdentities(studentCoursesOfCourseAndParentCourses),
+                textDao.getContentsByCourseId(course.getId()), course.getResourceableId(),
+				course.getId(), course.getLanguage(), course.getVvzLink());
     }
 
     public List getDelegatees(Identity delegator) {

@@ -20,6 +20,7 @@ import org.olat.test.OlatTestCase;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
@@ -88,12 +89,15 @@ public class CampusCourseCreatorTest extends OlatTestCase {
         groupNameB = translator.translate("campus.course.businessGroupB.name");
         groupDescriptionB = translator.translate("campus.course.businessGroupB.desc");
 
-        campusCourseImportData = new CampusCourseImportTO(TITLE, "Herbstemester", null, null, DESCRIPTION, null, "DE");
+        campusCourseImportData = new CampusCourseImportTO(TITLE,
+				"Herbstemester", Collections.emptyList(),
+				Collections.emptyList(), Collections.emptyList(), DESCRIPTION,
+				null, null, "DE", null);
     }
 
     @Test
     public void createCampusCourseFromTemplateTest() {
-        CampusCourse campusCourse = campusCourseCreatorTestObject.createCampusCourseFromTemplate(campusCourseImportData, templateResourceableId, ownerIdentity, true);
+        CampusCourse campusCourse = campusCourseCreatorTestObject.createCampusCourseFromTemplate(campusCourseImportData, templateResourceableId, ownerIdentity);
         assertNotNull(campusCourse);
 
         assertNotNull(campusCourse.getRepositoryEntry());
@@ -141,7 +145,5 @@ public class CampusCourseCreatorTest extends OlatTestCase {
         assertNotNull(businessGroupFound);
         assertEquals(groupDescription, businessGroupFound.getDescription());
     }
-
-
 }
 
