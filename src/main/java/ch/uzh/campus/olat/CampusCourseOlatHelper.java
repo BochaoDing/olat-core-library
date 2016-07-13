@@ -27,7 +27,10 @@ public class CampusCourseOlatHelper {
         this.campusCourseService = campusCourseService;
     }
 
-    public void createCampusCourseFromResourcableId(UserRequest userRequest, WindowControl windowControl, Long sapCampusCourseId, Long courseResourceableId) {
+    public void createCampusCourseFromResourcableId(UserRequest userRequest,
+													WindowControl windowControl,
+													Long sapCampusCourseId,
+													Long courseResourceableId) throws Exception {
         CampusCourse campusCourse = campusCourseService.createCampusCourseFromTemplate(courseResourceableId,
                 sapCampusCourseId, userRequest.getIdentity());
 
@@ -35,8 +38,7 @@ public class CampusCourseOlatHelper {
         NewControllerFactory.getInstance().launch(businessPath, userRequest, windowControl);
 
         /**
-         * Inform the {@link AuthorListController} about the new list
-         * entry.
+         * Inform the {@link AuthorListController} about the new list entry.
          */
         EventBus singleUserEventBus = userRequest.getUserSession().getSingleUserEventCenter();
         singleUserEventBus.fireEventToListenersOf(

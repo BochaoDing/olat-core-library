@@ -248,8 +248,13 @@ public class CampusCourseCreationController extends BasicController {
                     final OLATResource ores = OLATResourceManager.getInstance().findResourceable(selectedEntry.getOlatResource());
                     selectedResouceableId = ores.getResourceableId();
                     if (source == creationTableCtrl) {
-                        campusCourseOlatHelper.createCampusCourseFromResourcableId(ureq, getWindowControl(), sapCampusCourseId, selectedResouceableId);
-                        closeDialog(ureq);
+						try {
+							campusCourseOlatHelper.createCampusCourseFromResourcableId(ureq, getWindowControl(), sapCampusCourseId, selectedResouceableId);
+						} catch (Exception e) {
+							// TODO sev26
+							e.printStackTrace();
+						}
+						closeDialog(ureq);
                     } else if (source == continuationTableCtrl) {
                         openCourseContinuationDialog(ureq, selectedEntry.getDisplayname());
                     }
@@ -277,5 +282,4 @@ public class CampusCourseCreationController extends BasicController {
     @Override
     protected void doDispose() {
     }
-
 }

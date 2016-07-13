@@ -38,7 +38,7 @@ public class CampusCourseServiceImpl implements CampusCourseService {
 	}
 
 	@Override
-	public CampusCourse createCampusCourseFromTemplate(Long courseResourceableId, Long sapCampusCourseId, Identity creator) {
+	public CampusCourse createCampusCourseFromTemplate(Long courseResourceableId, Long sapCampusCourseId, Identity creator) throws Exception {
 		return campusCourseCoreService.createCampusCourseFromTemplate(courseResourceableId, sapCampusCourseId, creator);
 	}
 

@@ -100,38 +100,50 @@ public class CampusCourseCoreServiceImpl implements CampusCourseCoreService {
         return false;
     }
 
+	@Override
+    public CampusCourse createCampusCourseFromTemplate(Long sapCampusCourseId, Identity creator) throws Exception {
+		assert sapCampusCourseId != null;
+
+		CampusCourseImportTO campusCourseImportTO = daoManager.getSapCampusCourse(sapCampusCourseId);
+		Long courseResourceableId = campusCourseConfiguration.getTemplateCourseResourcableId(campusCourseImportTO.getLanguage());
+
+		if (courseResourceableId == null) {
+			throw new IllegalArgumentException("The template for Campuskurs not be found: " + sapCampusCourseId);
+		}
+
+		// Check if template has unpublished changes. If so return.
+		ICourse defaultTemplateCourse = CourseFactory.loadCourse(courseResourceableId);
+		PublishTreeModel publishTreeModel = new PublishTreeModel(defaultTemplateCourse.getEditorTreeModel(), defaultTemplateCourse.getRunStructure());
+		if (publishTreeModel.hasPublishableChanges()) {
+			LOG.warn("Campuskurs template course " + defaultTemplateCourse.getCourseTitle() + " (" + defaultTemplateCourse.getResourceableId()
+					+ ") is not published completely.");
+			return null;
+		}
+
+		return createCampusCourseFromTemplate(courseResourceableId, sapCampusCourseId, creator, true);
+	}
+
     @Override
-    public CampusCourse createCampusCourseFromTemplate(Long courseResourceableId, Long sapCampusCourseId, Identity creator) {
-        CampusCourseImportTO campusCourseImportTO = daoManager.getSapCampusCourse(sapCampusCourseId);
+    public CampusCourse createCampusCourseFromTemplate(Long courseResourceableId,
+													   Long sapCampusCourseId,
+													   Identity creator) throws Exception {
+		return createCampusCourseFromTemplate(courseResourceableId, sapCampusCourseId, creator, false);
+	}
+
+	private CampusCourse createCampusCourseFromTemplate(Long courseResourceableId,
+														Long sapCampusCourseId,
+														Identity creator,
+														boolean isDefaultTemplateUsed) throws Exception {
+		assert courseResourceableId != null;
+		assert sapCampusCourseId != null;
+		assert creator != null;
+
+		CampusCourseImportTO campusCourseImportTO = daoManager.getSapCampusCourse(sapCampusCourseId);
         if (campusCourseImportTO.isOlatResourceableIdUndefined()) {
-            // Campus course has not been created yet
-            Long templateCourseResourceableId;
-            boolean isDefaultTemplateUsed = (courseResourceableId == null);
-
-            if (isDefaultTemplateUsed) {
-                templateCourseResourceableId = campusCourseConfiguration.getTemplateCourseResourcableId(campusCourseImportTO.getLanguage());
-
-                // The case that no template was found
-                if (templateCourseResourceableId == null) {
-                    return null;
-                }
-
-                // Check if template has unpublished changes. If so return.
-                ICourse defaultTemplateCourse = CourseFactory.loadCourse(templateCourseResourceableId);
-                PublishTreeModel publishTreeModel = new PublishTreeModel(defaultTemplateCourse.getEditorTreeModel(), defaultTemplateCourse.getRunStructure());
-                if (publishTreeModel.hasPublishableChanges()) {
-                    LOG.warn("Campuskurs template course " + defaultTemplateCourse.getCourseTitle() + " (" + defaultTemplateCourse.getResourceableId()
-                            + ") is not published completely.");
-                    return null;
-                }
-            } else {
-                templateCourseResourceableId = courseResourceableId;
-            }
-
             CampusCourse campusCourse = null;
             try {
                 // Create the campus course by copying the appropriate template (default or custom)
-                campusCourse = campusCourseCreator.createCampusCourseFromTemplate(campusCourseImportTO, templateCourseResourceableId, creator);
+                campusCourse = campusCourseCreator.createCampusCourseFromTemplate(campusCourseImportTO, courseResourceableId, creator);
                 campusCourse.updateCampusCourseCreatedFromTemplate(campusCourseImportTO, creator, isDefaultTemplateUsed, campusCourseCreator, campusCoursePublisher, campusCourseGroupSynchronizer, campusCourseConfiguration);
                 Long resourceableId = campusCourse.getRepositoryEntry().getOlatResource().getResourceableId();
                 daoManager.saveCampusCourseResoureableId(sapCampusCourseId, resourceableId);
@@ -139,27 +151,27 @@ public class CampusCourseCoreServiceImpl implements CampusCourseCoreService {
                 // Notify possible listeners about CREATED event
                 sendCampusCourseEvent(resourceableId, CampusCourseEvent.DELETED);
                 return campusCourse;
-
-            } catch (Exception ex) {
+            } catch (Exception e1) {
                 // CLEAN UP TO ENSURE CONSISTENT STATE
                 if (campusCourse != null) {
                     if (campusCourse.getRepositoryEntry() != null) {
                         try {
                             repositoryService.deleteRepositoryEntryAndBaseGroups(campusCourse.getRepositoryEntry());
-                        } catch (Exception e) {
+                        } catch (Exception e2) {
                             // we tried best to delete entry - ignore exceptions during deletion
                         }
                     }
                     if (campusCourse.getCourse() != null) {
                         try {
                             olatResourceManager.deleteOLATResourceable(campusCourse.getCourse());
-                        } catch (Exception e) {
+                        } catch (Exception e2) {
                             // we tried best to delete entry - ignore exceptions during deletion
                         }
                     }
                 }
                 dbInstance.rollbackAndCloseSession();
-                return null;
+
+				throw e1;
             }
         } else {
             // Campus course has already been created

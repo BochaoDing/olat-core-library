@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 
+import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -35,8 +36,11 @@ public class CombineMyCourseRepositoryQuery implements MyCourseRepositoryQuery {
 
 	@Override
 	public List<RepositoryEntryMyView> searchViews(SearchMyRepositoryEntryViewParams param, int firstResult, int maxResults) {
-		List<RepositoryEntryMyView> result = repositoryEntryMyCourseQueries.searchViews(param, firstResult, maxResults);
-		result.addAll(campusMyCourseRepositoryQuery.searchViews(param, firstResult, maxResults));
+		List<RepositoryEntryMyView> result = new LinkedList<>();
+		if (param.getMarked() == null || param.getMarked() == Boolean.FALSE) {
+			result.addAll(campusMyCourseRepositoryQuery.searchViews(param, firstResult, maxResults));
+		}
+		result.addAll(repositoryEntryMyCourseQueries.searchViews(param, firstResult, maxResults));
 		return result;
 	}
 }

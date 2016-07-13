@@ -21,7 +21,7 @@ public interface CampusCourseService {
     /**
      * Create a new campus-course from a course template. Copy template and update title, description, owner and participants.
      */
-    CampusCourse createCampusCourseFromTemplate(Long courseResourceableId, Long sapCampusCourseId, Identity creator);
+    CampusCourse createCampusCourseFromTemplate(Long courseResourceableId, Long sapCampusCourseId, Identity creator) throws Exception;
 
     /**
      * Uses an existing campus-course. It updates the title, description (including the vvz link), owner and participants.

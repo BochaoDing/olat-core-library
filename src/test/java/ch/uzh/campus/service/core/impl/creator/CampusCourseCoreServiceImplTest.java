@@ -168,23 +168,22 @@ public class CampusCourseCoreServiceImplTest extends OlatTestCase {
         }
     }
 
-    private CampusCourse createCampusCourseTestObject() {
+    private CampusCourse createCampusCourseTestObject() throws Exception {
         // Create campus course from a template
-        CampusCourse campusCourse = campusCourseCoreService.createCampusCourseFromTemplate(null, 100L, ownerIdentity);
+        CampusCourse campusCourse = campusCourseCoreService.createCampusCourseFromTemplate(100L, ownerIdentity);
         dbInstance.flush();
         return campusCourse;
     }
     
     @Test
-    public void testCreateCampusCourse() {
+    public void testCreateCampusCourse() throws Exception {
         CampusCourse createdCampusCourseTestObject = createCampusCourseTestObject();
-        assertNotNull("campusCourse is null, could not create course", createdCampusCourseTestObject);
         assertNotNull("Missing repositoryEntry in CampusCourse return-object", createdCampusCourseTestObject.getRepositoryEntry());
         assertNotNull("Missing Course in CampusCourse return-object", createdCampusCourseTestObject.getCourse());
     }
    
     @Test
-    public void testCreateCampusCourse_CheckAccess() {
+    public void testCreateCampusCourse_CheckAccess() throws Exception {
         CampusCourse createdCampusCourseTestObject = createCampusCourseTestObject();
         assertAccess(createdCampusCourseTestObject.getRepositoryEntry());
         // Ditto, but read from DB
@@ -196,7 +195,7 @@ public class CampusCourseCoreServiceImplTest extends OlatTestCase {
     }
 
     @Test
-    public void testCreateCampusCourse_CheckTitle() {
+    public void testCreateCampusCourse_CheckTitle() throws Exception {
         CampusCourse createdCampusCourseTestObject = createCampusCourseTestObject();
         assertTitle(createdCampusCourseTestObject.getRepositoryEntry());
         // Ditto, but read from DB
@@ -208,7 +207,7 @@ public class CampusCourseCoreServiceImplTest extends OlatTestCase {
     }
     
     @Test
-    public void testCreateCampusCourse_CheckDescription() {
+    public void testCreateCampusCourse_CheckDescription() throws Exception {
         CampusCourse createdCampusCourseTestObject = createCampusCourseTestObject();
         System.out.println("### TEST createdCampusCourseTestObject.getRepositoryEntry().getDescription()="
                 + createdCampusCourseTestObject.getRepositoryEntry().getDescription());
@@ -235,26 +234,26 @@ public class CampusCourseCoreServiceImplTest extends OlatTestCase {
     }
 
     @Test
-    public void testCreateCampusCourse_CheckOwners() {
+    public void testCreateCampusCourse_CheckOwners() throws Exception {
         CampusCourse createdCampusCourseTestObject = createCampusCourseTestObject();
-        
+
         Group defaultGroup = repositoryService.getDefaultGroup( createdCampusCourseTestObject.getRepositoryEntry());
         List<Identity> ownerIdentities = groupDAO.getMembers(defaultGroup, "owner");
-        
+
         assertTrue("Missing identity (" + ownerIdentity + ") in owner-group", ownerIdentities.contains(ownerIdentity));
         assertTrue("Missing identity (" + secondOwnerIdentity + ")in owner-group", ownerIdentities.contains(secondOwnerIdentity));
     }
     
     @Test
-    public void testCreateCampusCourse_CheckCourseGroup() {
+    public void testCreateCampusCourse_CheckCourseGroup() throws Exception {
         CampusCourse createdCampusCourseTestObject = createCampusCourseTestObject();
         BusinessGroup campusCourseGroup = campusCourseGroupFinder.lookupCampusGroup(createdCampusCourseTestObject.getCourse(), campusCourseConfigurationMock.getCourseGroupAName());
 
         List<Identity> coaches = businessGroupService.getMembers(campusCourseGroup, GroupRoles.coach.name());
-        
+
         assertTrue("Missing identity (" + ownerIdentity + ") in owner-group of course-group", coaches.contains(ownerIdentity));
         assertTrue("Missing identity (" + secondOwnerIdentity + ")in owner-group of course-group", coaches.contains(secondOwnerIdentity));
-        
+
         List<Identity> participants = businessGroupService.getMembers(campusCourseGroup, GroupRoles.participant.name());
 
         assertTrue("Missing identity (" + testIdentity + ") in participant-group of course-group", participants.contains(testIdentity));
@@ -263,7 +262,7 @@ public class CampusCourseCoreServiceImplTest extends OlatTestCase {
     }
     
     @Test
-    public void testCreateCampusCourse_checkArea() {
+    public void testCreateCampusCourse_checkArea() throws Exception {
     	//change the test setup: to do not use a template course
     	when(campusCourseConfigurationMock.getTemplateCourseResourcableId(null)).thenReturn(null);
     	
@@ -282,7 +281,7 @@ public class CampusCourseCoreServiceImplTest extends OlatTestCase {
 
         when(daoManagerMock.getSapCampusCourse(campusCourseImportData.getSapCourseId()))
 				.thenReturn(campusCourseImportData);
-        
+
         //uses an existing course
         CampusCourse campusCourse = campusCourseCoreService.createCampusCourseFromTemplate(
 				sourceResourceableId, campusCourseImportData.getSapCourseId(),
@@ -306,7 +305,7 @@ public class CampusCourseCoreServiceImplTest extends OlatTestCase {
     }
 
 	@Test
-	public void testContinueCampusCourse() {
+	public void testContinueCampusCourse() throws Exception {
 		//change the test setup: to do not use a template course
 		when(campusCourseConfigurationMock.getTemplateCourseResourcableId(null)).thenReturn(null);
 

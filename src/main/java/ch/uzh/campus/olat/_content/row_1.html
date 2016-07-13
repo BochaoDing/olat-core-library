@@ -1,5 +1,4 @@
 #if($row.getOLATResourceable().getResourceableId() == 0)
-
     <div class="o_visual">
         <div class="o_visual_not_available"></div>
     </div>
@@ -21,7 +20,6 @@
             $r.render($row.getCreateByContinuation().getComponent().getComponentName())
         </div>
     </div>
-
 #else
     #parse("org/olat/repository/ui/list/_content/row_1.html")
 #end
