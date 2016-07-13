@@ -78,7 +78,7 @@ public class StudentDao implements CampusDao<Student> {
      * Deletes also according entries of the join able ck_student_course.
      */
     void delete(Student student) {
-        deleteStudentBidirectionally(student);
+        deleteStudentBidirectionally(student, dbInstance.getCurrentEntityManager());
     }
 
     /**
@@ -88,12 +88,12 @@ public class StudentDao implements CampusDao<Student> {
         int count = 0;
         EntityManager em = dbInstance.getCurrentEntityManager();
         for (Long studentId : studentIds) {
-            deleteStudentBidirectionally(em.getReference(Student.class, studentId));
+            deleteStudentBidirectionally(em.getReference(Student.class, studentId), em);
             // Avoid memory problems caused by loading too many objects into the persistence context
             // (cf. C. Bauer and G. King: Java Persistence mit Hibernate, 2nd edition, p. 477)
             if (++count % 100 == 0) {
-                dbInstance.flush();
-                dbInstance.clear();
+                em.flush();
+                em.clear();
             }
         }
     }
@@ -110,12 +110,14 @@ public class StudentDao implements CampusDao<Student> {
                 .executeUpdate();
     }
 
-    private void deleteStudentBidirectionally(Student student) {
+    private void deleteStudentBidirectionally(Student student, EntityManager em) {
         for (StudentCourse studentCourse : student.getStudentCourses()) {
             studentCourse.getCourse().getStudentCourses().remove(studentCourse);
-            dbInstance.deleteObject(studentCourse);
+            // Use em.remove() instead of dbInstance.deleteObject() since the latter calls dbInstance.getCurrentEntityManager()
+            // at every call, which may has an impact on the performance
+            em.remove(studentCourse);
         }
-        dbInstance.deleteObject(student);
+        em.remove(student);
     }
 
 }
