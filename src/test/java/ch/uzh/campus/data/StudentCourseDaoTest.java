@@ -93,13 +93,13 @@ public class StudentCourseDaoTest extends OlatTestCase {
 
     @Test
     public void testSaveStudentCourse_NotExistingCourse() {
-        StudentIdCourseIdModifiedDate studentIdCourseIdModifiedDate = new StudentIdCourseIdModifiedDate();
-        studentIdCourseIdModifiedDate.setStudentId(2100L);
-        studentIdCourseIdModifiedDate.setCourseId(999L);
-        studentIdCourseIdModifiedDate.setModifiedDate(new Date());
+        StudentIdCourseIdDateOfImport studentIdCourseIdDateOfImport = new StudentIdCourseIdDateOfImport();
+        studentIdCourseIdDateOfImport.setStudentId(2100L);
+        studentIdCourseIdDateOfImport.setCourseId(999L);
+        studentIdCourseIdDateOfImport.setDateOfImport(new Date());
 
         try {
-            studentCourseDao.save(studentIdCourseIdModifiedDate);
+            studentCourseDao.save(studentIdCourseIdDateOfImport);
             fail("Expected exception has not occurred.");
         } catch(EntityNotFoundException e) {
             // All good, that's exactly what we expect
@@ -115,13 +115,13 @@ public class StudentCourseDaoTest extends OlatTestCase {
 
     @Test
     public void testSaveStudentCourse_NotExistingStudent() {
-        StudentIdCourseIdModifiedDate studentIdCourseIdModifiedDate = new StudentIdCourseIdModifiedDate();
-        studentIdCourseIdModifiedDate.setStudentId(999L);
-        studentIdCourseIdModifiedDate.setCourseId(100L);
-        studentIdCourseIdModifiedDate.setModifiedDate(new Date());
+        StudentIdCourseIdDateOfImport studentIdCourseIdDateOfImport = new StudentIdCourseIdDateOfImport();
+        studentIdCourseIdDateOfImport.setStudentId(999L);
+        studentIdCourseIdDateOfImport.setCourseId(100L);
+        studentIdCourseIdDateOfImport.setDateOfImport(new Date());
 
         try {
-            studentCourseDao.save(studentIdCourseIdModifiedDate);
+            studentCourseDao.save(studentIdCourseIdDateOfImport);
             fail("Expected exception has not occurred.");
         } catch(EntityNotFoundException e) {
             // All good, that's exactly what we expect
@@ -350,8 +350,8 @@ public class StudentCourseDaoTest extends OlatTestCase {
     }
 
     private void insertStudentIdCourseIds() {
-        List<StudentIdCourseIdModifiedDate> studentIdCourseIdModifiedDates = mockDataGeneratorProvider.get().getStudentIdCourseIdModifiedDates();
-        studentCourseDao.save(studentIdCourseIdModifiedDates);
+        List<StudentIdCourseIdDateOfImport> studentIdCourseIdDateOfImports = mockDataGeneratorProvider.get().getStudentIdCourseIdDateOfImports();
+        studentCourseDao.save(studentIdCourseIdDateOfImports);
         dbInstance.flush();
     }
 

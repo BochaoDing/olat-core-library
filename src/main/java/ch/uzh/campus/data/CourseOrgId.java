@@ -34,7 +34,7 @@ public class CourseOrgId {
     private Long org7;
     private Long org8;
     private Long org9;
-    private Date modifiedDate;
+    private Date dateOfImport;
 
     public Long getId() {
         return id;
@@ -220,11 +220,11 @@ public class CourseOrgId {
         this.org9 = org9;
     }
 
-    public Date getModifiedDate() {
-        return modifiedDate;
+    public Date getDateOfImport() {
+        return dateOfImport;
     }
 
-    public void setModifiedDate(Date modifiedDate) {
-        this.modifiedDate = modifiedDate;
+    public void setDateOfImport(Date dateOfImport) {
+        this.dateOfImport = dateOfImport;
     }
 }

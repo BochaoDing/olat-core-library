@@ -37,8 +37,8 @@ public class Event {
     private String end;
 
     @Temporal(TemporalType.TIMESTAMP)
-    @Column(name = "modified_date", nullable = false)
-    private Date modifiedDate;
+    @Column(name = "date_of_import", nullable = false)
+    private Date dateOfImport;
 
     @ManyToOne
     @JoinColumn(name = "course_id", nullable = false)
@@ -47,11 +47,11 @@ public class Event {
     public Event() {
     }
 
-    public Event(Date date, String start, String end, Date modifiedDate) {
+    public Event(Date date, String start, String end, Date dateOfImport) {
         this.date = date;
         this.start = start;
         this.end = end;
-        this.modifiedDate = modifiedDate;
+        this.dateOfImport = dateOfImport;
     }
 
     static final String GET_IDS_OF_ALL_EVENTS = "getIdsOfAllEvents";
@@ -93,12 +93,12 @@ public class Event {
         this.end = end;
     }
 
-    public Date getModifiedDate() {
-        return modifiedDate;
+    public Date getDateOfImport() {
+        return dateOfImport;
     }
 
-    public void setModifiedDate(Date modifiedDate) {
-        this.modifiedDate = new Date();
+    public void setDateOfImport(Date dateOfImport) {
+        this.dateOfImport = dateOfImport;
     }
 
     public Course getCourse() {

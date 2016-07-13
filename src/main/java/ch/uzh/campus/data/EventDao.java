@@ -36,7 +36,7 @@ public class EventDao {
     }
 
     public void addEventToCourse(EventCourseId eventCourseId) {
-        Event event = new Event(eventCourseId.getDate(), eventCourseId.getStart(), eventCourseId.getEnd(), eventCourseId.getModifiedDate());
+        Event event = new Event(eventCourseId.getDate(), eventCourseId.getStart(), eventCourseId.getEnd(), eventCourseId.getDateOfImport());
         addEventToCourse(event, eventCourseId.getCourseId());
     }
 

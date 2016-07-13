@@ -69,7 +69,7 @@ public class StudentProcessor implements ItemProcessor<Student, Student> {
             LOG.debug("This is a duplicate of this student [" + student.getId() + "]");
             return null;
         }
-        student.setModifiedDate(new Date());
+        student.setDateOfImport(new Date());
         return student;
     }
 

@@ -17,7 +17,7 @@ import java.util.List;
  * @author Martin Schraner
  */
 @Repository
-public class LecturerCourseDao implements CampusDao<LecturerIdCourseIdModifiedDate> {
+public class LecturerCourseDao implements CampusDao<LecturerIdCourseIdDateOfImport> {
 
     private static final OLog LOG = Tracing.createLoggerFor(LecturerCourseDao.class);
 
@@ -36,22 +36,22 @@ public class LecturerCourseDao implements CampusDao<LecturerIdCourseIdModifiedDa
         lecturerCourse.getCourse().getLecturerCourses().add(lecturerCourse);
     }
 
-    public void save(LecturerIdCourseIdModifiedDate lecturerIdCourseIdModifiedDate) {
+    public void save(LecturerIdCourseIdDateOfImport lecturerIdCourseIdDateOfImport) {
         EntityManager em = dbInstance.getCurrentEntityManager();
-        Lecturer lecturer = em.find(Lecturer.class, lecturerIdCourseIdModifiedDate.getLecturerId());
-        Course course = em.find(Course.class, lecturerIdCourseIdModifiedDate.getCourseId());
+        Lecturer lecturer = em.find(Lecturer.class, lecturerIdCourseIdDateOfImport.getLecturerId());
+        Course course = em.find(Course.class, lecturerIdCourseIdDateOfImport.getCourseId());
         if (lecturer == null || course == null) {
-            logLecturerCourseNotFoundAndThrowException(lecturerIdCourseIdModifiedDate, lecturer, course);
+            logLecturerCourseNotFoundAndThrowException(lecturerIdCourseIdDateOfImport, lecturer, course);
             return;
         }
-        LecturerCourse lecturerCourse = new LecturerCourse(lecturer, course, lecturerIdCourseIdModifiedDate.getModifiedDate());
+        LecturerCourse lecturerCourse = new LecturerCourse(lecturer, course, lecturerIdCourseIdDateOfImport.getDateOfImport());
         save(lecturerCourse);
     }
 
     @Override
-    public void save(List<LecturerIdCourseIdModifiedDate> lecturerIdCourseIdModifiedDates) {
-        for (LecturerIdCourseIdModifiedDate lecturerIdCourseIdModifiedDate : lecturerIdCourseIdModifiedDates) {
-            save(lecturerIdCourseIdModifiedDate);
+    public void save(List<LecturerIdCourseIdDateOfImport> lecturerIdCourseIdDateOfImports) {
+        for (LecturerIdCourseIdDateOfImport lecturerIdCourseIdDateOfImport : lecturerIdCourseIdDateOfImports) {
+            save(lecturerIdCourseIdDateOfImport);
         }
     }
 
@@ -61,34 +61,34 @@ public class LecturerCourseDao implements CampusDao<LecturerIdCourseIdModifiedDa
         lecturerCourse.getCourse().getLecturerCourses().add(lecturerCourse);
     }
 
-    public void saveOrUpdate(LecturerIdCourseIdModifiedDate lecturerIdCourseIdModifiedDate) {
+    public void saveOrUpdate(LecturerIdCourseIdDateOfImport lecturerIdCourseIdDateOfImport) {
         EntityManager em = dbInstance.getCurrentEntityManager();
-        Lecturer lecturer = em.find(Lecturer.class, lecturerIdCourseIdModifiedDate.getLecturerId());
-        Course course = em.find(Course.class, lecturerIdCourseIdModifiedDate.getCourseId());
+        Lecturer lecturer = em.find(Lecturer.class, lecturerIdCourseIdDateOfImport.getLecturerId());
+        Course course = em.find(Course.class, lecturerIdCourseIdDateOfImport.getCourseId());
         if (lecturer == null || course == null) {
-            logLecturerCourseNotFoundAndThrowException(lecturerIdCourseIdModifiedDate, lecturer, course);
+            logLecturerCourseNotFoundAndThrowException(lecturerIdCourseIdDateOfImport, lecturer, course);
             return;
         }
-        LecturerCourse lecturerCourse = new LecturerCourse(lecturer, course, lecturerIdCourseIdModifiedDate.getModifiedDate());
+        LecturerCourse lecturerCourse = new LecturerCourse(lecturer, course, lecturerIdCourseIdDateOfImport.getDateOfImport());
         saveOrUpdate(lecturerCourse);
     }
 
     @Override
-    public void saveOrUpdate(List<LecturerIdCourseIdModifiedDate> lecturerIdCourseIdModifiedDates) {
-        for (LecturerIdCourseIdModifiedDate lecturerIdCourseIdModifiedDate : lecturerIdCourseIdModifiedDates) {
-            saveOrUpdate(lecturerIdCourseIdModifiedDate);
+    public void saveOrUpdate(List<LecturerIdCourseIdDateOfImport> lecturerIdCourseIdDateOfImports) {
+        for (LecturerIdCourseIdDateOfImport lecturerIdCourseIdDateOfImport : lecturerIdCourseIdDateOfImports) {
+            saveOrUpdate(lecturerIdCourseIdDateOfImport);
         }
     }
 
-    private void logLecturerCourseNotFoundAndThrowException(LecturerIdCourseIdModifiedDate lecturerIdCourseIdModifiedDate, Lecturer lecturer, Course course) {
+    private void logLecturerCourseNotFoundAndThrowException(LecturerIdCourseIdDateOfImport lecturerIdCourseIdDateOfImport, Lecturer lecturer, Course course) {
         String warningMessage = "";
         if (lecturer == null) {
-            warningMessage = "No lecturer found with id " + lecturerIdCourseIdModifiedDate.getLecturerId();
+            warningMessage = "No lecturer found with id " + lecturerIdCourseIdDateOfImport.getLecturerId();
         }
         if (course == null) {
-            warningMessage = "No course found with id " + lecturerIdCourseIdModifiedDate.getCourseId();
+            warningMessage = "No course found with id " + lecturerIdCourseIdDateOfImport.getCourseId();
         }
-        warningMessage = warningMessage + ". Skipping entry " + lecturerIdCourseIdModifiedDate.getLecturerId() + ", " + lecturerIdCourseIdModifiedDate.getCourseId() + " for table ck_lecturer_course.";
+        warningMessage = warningMessage + ". Skipping entry " + lecturerIdCourseIdDateOfImport.getLecturerId() + ", " + lecturerIdCourseIdDateOfImport.getCourseId() + " for table ck_lecturer_course.";
         LOG.warn(warningMessage);
         throw new EntityNotFoundException(warningMessage);
     }

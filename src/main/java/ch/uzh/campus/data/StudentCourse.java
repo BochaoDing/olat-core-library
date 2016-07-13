@@ -11,11 +11,11 @@ import java.util.Date;
 @IdClass(StudentCourseId.class)
 @NamedQueries({
         @NamedQuery(name = StudentCourse.GET_ALL_NOT_UPDATED_SC_BOOKING_OF_CURRENT_SEMESTER, query = "select new ch.uzh.campus.data.StudentIdCourseId(sc.student.id, sc.course.id) from StudentCourse sc " +
-                "where sc.modifiedDate < :lastImportDate and sc.course.shortSemester = (select max(c.shortSemester) from Course c)"),
+                "where sc.dateOfImport < :lastImportDate and sc.course.shortSemester = (select max(c.shortSemester) from Course c)"),
         @NamedQuery(name = StudentCourse.DELETE_BY_STUDENT_IDS, query = "delete from StudentCourse sc where sc.student.id in :studentIds"),
         @NamedQuery(name = StudentCourse.DELETE_BY_COURSE_IDS, query = "delete from StudentCourse sc where sc.course.id in :courseIds"),
         @NamedQuery(name = StudentCourse.DELETE_BY_STUDENT_ID_COURSE_ID, query = "delete from StudentCourse sc where sc.student.id = :studentId and sc.course.id = :courseId"),
-        @NamedQuery(name = StudentCourse.DELETE_ALL_SC_BOOKING_TOO_FAR_IN_THE_PAST, query = "delete from StudentCourse sc where sc.modifiedDate < :nYearsInThePast")
+        @NamedQuery(name = StudentCourse.DELETE_ALL_SC_BOOKING_TOO_FAR_IN_THE_PAST, query = "delete from StudentCourse sc where sc.dateOfImport < :nYearsInThePast")
 })
 public class StudentCourse {
 
@@ -30,16 +30,16 @@ public class StudentCourse {
     private Course course;
 
     @Temporal(TemporalType.TIMESTAMP)
-    @Column(name = "modified_date", nullable = false)
-    private Date modifiedDate;
+    @Column(name = "date_of_import", nullable = false)
+    private Date dateOfImport;
 
     public StudentCourse() {
     }
 
-    public StudentCourse(Student student, Course course, Date modifiedDate) {
+    public StudentCourse(Student student, Course course, Date dateOfImport) {
         this.student = student;
         this.course = course;
-        this.modifiedDate = modifiedDate;
+        this.dateOfImport = dateOfImport;
     }
 
     static final String GET_ALL_NOT_UPDATED_SC_BOOKING_OF_CURRENT_SEMESTER = "getAllNotUpdatedSCBookingOfCurrentSemester";
@@ -64,12 +64,12 @@ public class StudentCourse {
         this.course = course;
     }
 
-    public Date getModifiedDate() {
-        return modifiedDate;
+    public Date getDateOfImport() {
+        return dateOfImport;
     }
 
-    public void setModifiedDate(Date modifiedDate) {
-        this.modifiedDate = modifiedDate;
+    public void setDateOfImport(Date dateOfImport) {
+        this.dateOfImport = dateOfImport;
     }
 
     @Override

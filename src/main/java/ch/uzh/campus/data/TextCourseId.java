@@ -7,7 +7,7 @@ public class TextCourseId {
     private String type;
     private int lineSeq;
     private String line;
-    private Date modifiedDate;
+    private Date dateOfImport;
 
     public String getType() {
         return type;
@@ -33,12 +33,12 @@ public class TextCourseId {
         this.line = line;
     }
 
-    public Date getModifiedDate() {
-        return modifiedDate;
+    public Date getDateOfImport() {
+        return dateOfImport;
     }
 
-    public void setModifiedDate(Date modifiedDate) {
-        this.modifiedDate = modifiedDate;
+    public void setDateOfImport(Date dateOfImport) {
+        this.dateOfImport = dateOfImport;
     }
 
     public Long getCourseId() {

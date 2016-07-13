@@ -46,8 +46,8 @@ public class Student {
     private String email;
 
     @Temporal(TemporalType.TIMESTAMP)
-    @Column(name = "modified_date", nullable = false)
-    private Date modifiedDate;
+    @Column(name = "date_of_import", nullable = false)
+    private Date dateOfImport;
 
     @OneToMany(mappedBy = "student")
     private Set<StudentCourse> studentCourses = new HashSet<>();
@@ -105,12 +105,12 @@ public class Student {
         this.registrationNr = registrationNr;
     }
 
-    public Date getModifiedDate() {
-        return modifiedDate;
+    public Date getDateOfImport() {
+        return dateOfImport;
     }
 
-    public void setModifiedDate(Date modifiedDate) {
-        this.modifiedDate = modifiedDate;
+    public void setDateOfImport(Date modifiedDate) {
+        this.dateOfImport = modifiedDate;
     }
 
     public Set<StudentCourse> getStudentCourses() {
@@ -151,7 +151,7 @@ public class Student {
         builder.append(this.firstName);
         builder.append(this.lastName);
         builder.append(this.email);
-        builder.append(this.modifiedDate);
+        builder.append(this.dateOfImport);
 
         return builder.toHashCode();
     }

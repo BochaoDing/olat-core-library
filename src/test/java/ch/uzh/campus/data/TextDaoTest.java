@@ -106,7 +106,7 @@ public class TextDaoTest extends OlatTestCase {
         textCourseId.setType("Veranstaltungsinhalt");
         textCourseId.setLineSeq(1);
         textCourseId.setLine("- praktische Tätigkeiten im chemischen Labor");
-        textCourseId.setModifiedDate(new Date());
+        textCourseId.setDateOfImport(new Date());
 
         try {
             textDao.addTextToCourse(textCourseId);

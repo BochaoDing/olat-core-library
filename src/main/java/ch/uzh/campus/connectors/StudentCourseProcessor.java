@@ -21,7 +21,7 @@
 package ch.uzh.campus.connectors;
 
 import ch.uzh.campus.data.StudentIdCourseId;
-import ch.uzh.campus.data.StudentIdCourseIdModifiedDate;
+import ch.uzh.campus.data.StudentIdCourseIdDateOfImport;
 
 import org.springframework.batch.item.ItemProcessor;
 
@@ -31,10 +31,10 @@ import java.util.Date;
  * @author aabouc
  * @author Martin Schraner
  */
-public class StudentCourseProcessor implements ItemProcessor<StudentIdCourseId, StudentIdCourseIdModifiedDate> {
+public class StudentCourseProcessor implements ItemProcessor<StudentIdCourseId, StudentIdCourseIdDateOfImport> {
 
-    public StudentIdCourseIdModifiedDate process(StudentIdCourseId studentIdCourseId) {
-        return new StudentIdCourseIdModifiedDate(studentIdCourseId.getStudentId(), studentIdCourseId.getCourseId(), new Date());
+    public StudentIdCourseIdDateOfImport process(StudentIdCourseId studentIdCourseId) {
+        return new StudentIdCourseIdDateOfImport(studentIdCourseId.getStudentId(), studentIdCourseId.getCourseId(), new Date());
     }
 
 }

@@ -45,7 +45,7 @@ public class TextProcessor implements ItemProcessor<TextCourseId, TextCourseId> 
      */
     public TextCourseId process(TextCourseId text) throws Exception {
         text.setLine(StringUtils.replace(text.getLine(), CampusUtils.SEMICOLON_REPLACEMENT, CampusUtils.SEMICOLON));
-        text.setModifiedDate(new Date());
+        text.setDateOfImport(new Date());
         return text;
     }
 }

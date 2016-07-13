@@ -125,7 +125,7 @@ public class EventDaoTest extends OlatTestCase {
         eventCourseId.setDate(new Date());
         eventCourseId.setStart("10:00");
         eventCourseId.setEnd("13:00");
-        eventCourseId.setModifiedDate(new Date());
+        eventCourseId.setDateOfImport(new Date());
 
         try {
             eventDao.addEventToCourse(eventCourseId);

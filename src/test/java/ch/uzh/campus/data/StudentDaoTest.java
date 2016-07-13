@@ -223,8 +223,8 @@ public class StudentDaoTest extends OlatTestCase {
         dbInstance.flush();
 
         // Insert some studentIdCourseIds
-        List<StudentIdCourseIdModifiedDate> studentIdCourseIdModifiedDates = mockDataGeneratorProvider.get().getStudentIdCourseIdModifiedDates();
-        studentCourseDao.save(studentIdCourseIdModifiedDates);
+        List<StudentIdCourseIdDateOfImport> studentIdCourseIdDateOfImports = mockDataGeneratorProvider.get().getStudentIdCourseIdDateOfImports();
+        studentCourseDao.save(studentIdCourseIdDateOfImports);
         dbInstance.flush();
     }
 }

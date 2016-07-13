@@ -860,8 +860,8 @@ public class CourseDaoTest extends OlatTestCase {
         dbInstance.flush();
 
         // Add lecturers to courseOrgIds
-        List<LecturerIdCourseIdModifiedDate> lecturerIdCourseIdModifiedDates = mockDataGeneratorProvider.get().getLecturerIdCourseIdModifiedDates();
-        lecturerCourseDao.save(lecturerIdCourseIdModifiedDates);
+        List<LecturerIdCourseIdDateOfImport> lecturerIdCourseIdDateOfImports = mockDataGeneratorProvider.get().getLecturerIdCourseIdDateOfImports();
+        lecturerCourseDao.save(lecturerIdCourseIdDateOfImports);
         dbInstance.flush();
 
         // Insert some students
@@ -870,8 +870,8 @@ public class CourseDaoTest extends OlatTestCase {
         dbInstance.flush();
 
         // Add students to courseOrgIds
-        List<StudentIdCourseIdModifiedDate> studentIdCourseIdModifiedDates = mockDataGeneratorProvider.get().getStudentIdCourseIdModifiedDates();
-        studentCourseDao.save(studentIdCourseIdModifiedDates);
+        List<StudentIdCourseIdDateOfImport> studentIdCourseIdDateOfImports = mockDataGeneratorProvider.get().getStudentIdCourseIdDateOfImports();
+        studentCourseDao.save(studentIdCourseIdDateOfImports);
         dbInstance.flush();
 
         // Add some texts

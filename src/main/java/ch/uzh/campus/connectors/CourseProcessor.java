@@ -92,7 +92,7 @@ public class CourseProcessor implements ItemProcessor<CourseOrgId, CourseOrgId> 
             return null;
         }
 
-        courseOrgId.setModifiedDate(new Date());
+        courseOrgId.setDateOfImport(new Date());
 
         if (courseOrgId.getTitle().contains(CampusUtils.SEMICOLON_REPLACEMENT)) {
             courseOrgId.setTitle(StringUtils.replace(courseOrgId.getTitle(), CampusUtils.SEMICOLON_REPLACEMENT, CampusUtils.SEMICOLON));

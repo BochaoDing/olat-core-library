@@ -93,9 +93,9 @@ public class LecturerCourseDaoTest extends OlatTestCase {
 
     @Test
     public void testSaveLecturerCourse_NotExistingCourse() {
-        LecturerIdCourseIdModifiedDate lecturerIdCourseIdModifiedDate = new LecturerIdCourseIdModifiedDate(1100L, 999L, new Date());
+        LecturerIdCourseIdDateOfImport lecturerIdCourseIdDateOfImport = new LecturerIdCourseIdDateOfImport(1100L, 999L, new Date());
         try {
-            lecturerCourseDao.save(lecturerIdCourseIdModifiedDate);
+            lecturerCourseDao.save(lecturerIdCourseIdDateOfImport);
             fail("Expected exception has not occurred.");
         } catch(EntityNotFoundException e) {
             // All good, that's exactly what we expect
@@ -111,9 +111,9 @@ public class LecturerCourseDaoTest extends OlatTestCase {
 
     @Test
     public void testSaveLecturerCourse_NotExistingLecturer() {
-        LecturerIdCourseIdModifiedDate lecturerIdCourseIdModifiedDate = new LecturerIdCourseIdModifiedDate(999L, 100L, new Date());
+        LecturerIdCourseIdDateOfImport lecturerIdCourseIdDateOfImport = new LecturerIdCourseIdDateOfImport(999L, 100L, new Date());
         try {
-            lecturerCourseDao.save(lecturerIdCourseIdModifiedDate);
+            lecturerCourseDao.save(lecturerIdCourseIdDateOfImport);
             fail("Expected exception has not occurred.");
         } catch(EntityNotFoundException e) {
             // All good, that's exactly what we expect
@@ -342,8 +342,8 @@ public class LecturerCourseDaoTest extends OlatTestCase {
     }
 
     private void insertLecturerIdCourseIds() {
-        List<LecturerIdCourseIdModifiedDate> lecturerIdCourseIdModifiedDates = mockDataGeneratorProvider.get().getLecturerIdCourseIdModifiedDates();
-        lecturerCourseDao.save(lecturerIdCourseIdModifiedDates);
+        List<LecturerIdCourseIdDateOfImport> lecturerIdCourseIdDateOfImports = mockDataGeneratorProvider.get().getLecturerIdCourseIdDateOfImports();
+        lecturerCourseDao.save(lecturerIdCourseIdDateOfImports);
         dbInstance.flush();
     }
 }

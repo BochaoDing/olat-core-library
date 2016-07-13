@@ -48,8 +48,8 @@ public class Lecturer {
     private String privateEmail;
 
     @Temporal(TemporalType.TIMESTAMP)
-    @Column(name = "modified_date", nullable = false)
-    private Date modifiedDate;
+    @Column(name = "date_of_import", nullable = false)
+    private Date dateOfImport;
 
     @OneToMany(mappedBy = "lecturer")
     private Set<LecturerCourse> lecturerCourses = new HashSet<>();
@@ -106,12 +106,12 @@ public class Lecturer {
         this.privateEmail = privateEmail;
     }
 
-    public Date getModifiedDate() {
-        return modifiedDate;
+    public Date getDateOfImport() {
+        return dateOfImport;
     }
 
-    public void setModifiedDate(Date modifiedDate) {
-        this.modifiedDate = modifiedDate;
+    public void setDateOfImport(Date dateOfImport) {
+        this.dateOfImport = dateOfImport;
     }
 
     public String getAdditionalPersonalNrs() {

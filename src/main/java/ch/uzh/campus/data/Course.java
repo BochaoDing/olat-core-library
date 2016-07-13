@@ -132,8 +132,8 @@ public class Course {
     private boolean synchronizable = true;
 
     @Temporal(TemporalType.TIMESTAMP)
-    @Column(name = "modified_date")
-    private Date modifiedDate;
+    @Column(name = "date_of_import")
+    private Date dateOfImport;
 
     @OneToMany(mappedBy = "course")
     private Set<LecturerCourse> lecturerCourses = new HashSet<>();
@@ -177,7 +177,7 @@ public class Course {
         this.semester = courseOrgId.getSemester();
         this.shortSemester = courseOrgId.getShortSemester();
         this.exclude = courseOrgId.getExclude().equalsIgnoreCase("X");
-        this.modifiedDate = courseOrgId.getModifiedDate();
+        this.dateOfImport = courseOrgId.getDateOfImport();
     }
 
     static final String GET_IDS_OF_ALL_CREATED_SYNCHRONIZABLE_COURSES_OF_CURRENT_SEMESTER = "getIdsOfAllCreatedSynchronizableCoursesOfCurrentSemester";
@@ -315,12 +315,12 @@ public class Course {
         this.exclude = exclude;
     }
 
-    public Date getModifiedDate() {
-        return modifiedDate;
+    public Date getDateOfImport() {
+        return dateOfImport;
     }
 
-    public void setModifiedDate(Date modifiedDate) {
-        this.modifiedDate = modifiedDate;
+    public void setDateOfImport(Date dateOfImport) {
+        this.dateOfImport = dateOfImport;
     }
 
     public Set<LecturerCourse> getLecturerCourses() {
