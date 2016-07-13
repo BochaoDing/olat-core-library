@@ -5,7 +5,7 @@ package ch.uzh.campus.data;
  */
 public class CourseOrgId extends Course {
 
-    private String excludeAsString = "";
+    private String excl = "";
     private Long org1;
     private Long org2;
     private Long org3;
@@ -16,12 +16,13 @@ public class CourseOrgId extends Course {
     private Long org8;
     private Long org9;
 
-    public String getExcludeAsString() {
-        return excludeAsString;
+    public String getExcl() {
+        return excl;
     }
 
-    public void setExcludeAsString(String excludeAsString) {
-        this.excludeAsString = excludeAsString;
+    // Required by Spring
+    public void setExcl(String excl) {
+        this.excl = excl;
     }
 
     public Long getOrg1() {

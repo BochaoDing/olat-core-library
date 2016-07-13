@@ -131,7 +131,7 @@ public class CourseProcessor implements ItemProcessor<CourseOrgId, CourseOrgId> 
             courseOrgId.setOrg9(null);
         }
 
-        if (courseOrgId.getExcludeAsString().equalsIgnoreCase("X")) {
+        if (courseOrgId.getExcl().equalsIgnoreCase("X")) {
             courseOrgId.setExclude(true);
         } else {
             courseOrgId.setExclude(false);

@@ -241,7 +241,7 @@
 			<bean parent="lineMapper">
 				<property name="lineTokenizer" >
 					<bean parent="lineTokenizer">
-						<property name="names" value="id, shortTitle, title, vstNr, language, category, isElearning, startDate, endDate, vzzLink, semester, ipz (NOT USED), org1, org2, org3, org4, org5, org6, org7, org8, org9" />
+						<property name="names" value="id, shortTitle, title, vstNr, language, category, isElearning, startDate, endDate, vzzLink, semester, excl, org1, org2, org3, org4, org5, org6, org7, org8, org9" />
 						<property name="strict" value="false"/>
 					</bean>
 				</property>
