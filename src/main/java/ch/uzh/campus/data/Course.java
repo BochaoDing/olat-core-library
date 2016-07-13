@@ -176,8 +176,7 @@ public class Course {
         this.vvzLink = courseOrgId.getVvzLink();
         this.semester = courseOrgId.getSemester();
         this.shortSemester = courseOrgId.getShortSemester();
-        this.exclude = courseOrgId.isExclude();
-        this.synchronizable = courseOrgId.isSynchronizable();
+        this.exclude = courseOrgId.getExclude().equalsIgnoreCase("X");
         this.modifiedDate = courseOrgId.getModifiedDate();
     }
 

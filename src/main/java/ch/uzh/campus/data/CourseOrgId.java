@@ -1,11 +1,30 @@
 package ch.uzh.campus.data;
 
+import java.util.Date;
+
 /**
+ * Class to save the entries from the CSV file.
+ * Cannot be inherited from Course, since "exclude" is a boolean in Course, but a String in this class.
+ * (Inheritance and overwriting the setter of exclude did not work, since Spring ignored the overwritten setter.)
+ *
  * @author Martin Schraner
  */
-public class CourseOrgId extends Course {
+public class CourseOrgId {
 
-    private String excl = "";
+    private Long id;
+    private Long resourceableId;
+    private String shortTitle;
+    private String title;
+    private String vstNr;
+    private String isELearning;
+    private String language;
+    private String category;
+    private Date startDate;
+    private Date endDate;
+    private String vvzLink;
+    private String semester;
+    private String shortSemester;
+    private String exclude;
     private Long org1;
     private Long org2;
     private Long org3;
@@ -15,14 +34,118 @@ public class CourseOrgId extends Course {
     private Long org7;
     private Long org8;
     private Long org9;
+    private Date modifiedDate;
 
-    public String getExcl() {
-        return excl;
+    public Long getId() {
+        return id;
     }
 
-    // Required by Spring
-    public void setExcl(String excl) {
-        this.excl = excl;
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public Long getResourceableId() {
+        return resourceableId;
+    }
+
+    public void setResourceableId(Long resourceableId) {
+        this.resourceableId = resourceableId;
+    }
+
+    public String getShortTitle() {
+        return shortTitle;
+    }
+
+    public void setShortTitle(String shortTitle) {
+        this.shortTitle = shortTitle;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public String getVstNr() {
+        return vstNr;
+    }
+
+    public void setVstNr(String vstNr) {
+        this.vstNr = vstNr;
+    }
+
+    public String getIsELearning() {
+        return isELearning;
+    }
+
+    public void setIsELearning(String isELearning) {
+        this.isELearning = isELearning;
+    }
+
+    public String getLanguage() {
+        return language;
+    }
+
+    public void setLanguage(String language) {
+        this.language = language;
+    }
+
+    public String getCategory() {
+        return category;
+    }
+
+    public void setCategory(String category) {
+        this.category = category;
+    }
+
+    public Date getStartDate() {
+        return startDate;
+    }
+
+    public void setStartDate(Date startDate) {
+        this.startDate = startDate;
+    }
+
+    public Date getEndDate() {
+        return endDate;
+    }
+
+    public void setEndDate(Date endDate) {
+        this.endDate = endDate;
+    }
+
+    public String getVvzLink() {
+        return vvzLink;
+    }
+
+    public void setVvzLink(String vvzLink) {
+        this.vvzLink = vvzLink;
+    }
+
+    public String getSemester() {
+        return semester;
+    }
+
+    public void setSemester(String semester) {
+        this.semester = semester;
+    }
+
+    public String getShortSemester() {
+        return shortSemester;
+    }
+
+    public void setShortSemester(String shortSemester) {
+        this.shortSemester = shortSemester;
+    }
+
+    public String getExclude() {
+        return exclude;
+    }
+
+    public void setExclude(String exclude) {
+        this.exclude = exclude;
     }
 
     public Long getOrg1() {
@@ -95,5 +218,13 @@ public class CourseOrgId extends Course {
 
     public void setOrg9(Long org9) {
         this.org9 = org9;
+    }
+
+    public Date getModifiedDate() {
+        return modifiedDate;
+    }
+
+    public void setModifiedDate(Date modifiedDate) {
+        this.modifiedDate = modifiedDate;
     }
 }
