@@ -99,7 +99,7 @@ public class Course {
     private String vstNr;
 
     @Column(name = "e_learning_supported")
-    private String isELearning;
+    private boolean eLearningSupported;
 
     @Column(name = "language", nullable = false)
     private String language;
@@ -168,7 +168,7 @@ public class Course {
         this.shortTitle = courseOrgId.getShortTitle();
         this.title = courseOrgId.getTitle();
         this.vstNr = courseOrgId.getVstNr();
-        this.isELearning = courseOrgId.getIsELearning();
+        this.eLearningSupported = "X".equalsIgnoreCase(courseOrgId.getELearningSupported());
         this.language = courseOrgId.getLanguage();
         this.category = courseOrgId.getCategory();
         this.startDate = courseOrgId.getStartDate();
@@ -176,7 +176,7 @@ public class Course {
         this.vvzLink = courseOrgId.getVvzLink();
         this.semester = courseOrgId.getSemester();
         this.shortSemester = courseOrgId.getShortSemester();
-        this.exclude = courseOrgId.getExclude().equalsIgnoreCase("X");
+        this.exclude = "X".equalsIgnoreCase(courseOrgId.getExclude());
         this.dateOfImport = courseOrgId.getDateOfImport();
     }
 
@@ -243,12 +243,12 @@ public class Course {
         this.vstNr = vstNr;
     }
 
-    public String getIsELearning() {
-        return isELearning;
+    public boolean isELearningSupported() {
+        return eLearningSupported;
     }
 
-    public void setIsELearning(String isELearning) {
-        this.isELearning = isELearning;
+    public void setELearningSupported(boolean eLearningSupported) {
+        this.eLearningSupported = eLearningSupported;
     }
 
     public String getLanguage() {
@@ -411,7 +411,7 @@ public class Course {
         builder.append("shortTitle", getShortTitle());
         builder.append("title", getTitle());
         builder.append("vstNr", getVstNr());
-        builder.append("isELearning", getIsELearning());
+        builder.append("isELearning", isELearningSupported());
         builder.append("language", getLanguage());
         builder.append("category", getCategory());
         builder.append("startDate", getStartDate());

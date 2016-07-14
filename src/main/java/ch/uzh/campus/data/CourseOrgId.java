@@ -16,7 +16,7 @@ public class CourseOrgId {
     private String shortTitle;
     private String title;
     private String vstNr;
-    private String isELearning;
+    private String eLearningSupported;
     private String language;
     private String category;
     private Date startDate;
@@ -76,12 +76,12 @@ public class CourseOrgId {
         this.vstNr = vstNr;
     }
 
-    public String getIsELearning() {
-        return isELearning;
+    public String getELearningSupported() {
+        return eLearningSupported;
     }
 
-    public void setIsELearning(String isELearning) {
-        this.isELearning = isELearning;
+    public void setELearningSupported(String eLearningSupported) {
+        this.eLearningSupported = eLearningSupported;
     }
 
     public String getLanguage() {
