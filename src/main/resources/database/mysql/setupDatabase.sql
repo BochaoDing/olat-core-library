@@ -2149,7 +2149,7 @@ create table if not exists ck_course (
 	olat_id bigint,
 	title varchar(255) not null,
 	short_title varchar(255) not null,
-	e_learning_supported char(1),
+	e_learning_supported boolean not null,
 	language varchar(255) not null,
 	category varchar(255) not null,
 	lv_nr varchar(255) not null,
