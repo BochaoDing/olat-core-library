@@ -101,7 +101,7 @@ public class LecturerCourseDao implements CampusDao<LecturerIdCourseIdDateOfImpo
         // Subtract one second since modifiedDate (used in query) is rounded to seconds
         return dbInstance.getCurrentEntityManager()
                 .createNamedQuery(LecturerCourse.GET_ALL_NOT_UPDATED_LC_BOOKING_OF_CURRENT_SEMESTER, LecturerIdCourseId.class)
-                .setParameter("lastImportDate", DateUtil.addSecondsToDate(date, -1))
+                .setParameter("lastDateOfImport", DateUtil.addSecondsToDate(date, -1))
                 .getResultList();
     }
 

@@ -104,7 +104,7 @@ public class StudentCourseDao implements CampusDao<StudentIdCourseIdDateOfImport
         // Subtract one second since modifiedDate (used in query) is rounded to seconds
         return dbInstance.getCurrentEntityManager()
                 .createNamedQuery(StudentCourse.GET_ALL_NOT_UPDATED_SC_BOOKING_OF_CURRENT_SEMESTER, StudentIdCourseId.class)
-                .setParameter("lastImportDate", DateUtil.addSecondsToDate(date, -1))
+                .setParameter("lastDateOfImport", DateUtil.addSecondsToDate(date, -1))
                 .getResultList();
     }
 
