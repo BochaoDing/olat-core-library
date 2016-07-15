@@ -266,7 +266,7 @@ public class CourseDaoTest extends OlatTestCase {
     }
 
     @Test
-    public void testLatestCourseByResourceable() {
+    public void testLatestCourseByResourceable() throws Exception {
         insertTestData();
 
         // Make course 400 to be the parent course of 300, 500 the parent of 400 and 600 the parent of 500 and set for courses 300, 400 and 500 the recourceableId of course 600

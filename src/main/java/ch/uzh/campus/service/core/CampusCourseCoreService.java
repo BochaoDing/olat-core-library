@@ -30,7 +30,7 @@ public interface CampusCourseCoreService {
 
     CampusCourse loadCampusCourseByResourceable(Long resourceableId);
 
-    Course getLatestCourseByResourceable(Long resourceableId);
+    Course getLatestCourseByResourceable(Long resourceableId) throws Exception;
 
     void resetResourceableIdReference(OLATResourceable res);
 
@@ -61,5 +61,4 @@ public interface CampusCourseCoreService {
     List getDelegatees(Identity delegator);
 
     void deleteDelegation(Identity delegator, Identity delegatee);
-
 }

@@ -221,7 +221,7 @@ public class CampusCourseCoreServiceImpl implements CampusCourseCoreService {
     }
 
     @Override
-    public Course getLatestCourseByResourceable(Long resourceableId) {
+    public Course getLatestCourseByResourceable(Long resourceableId) throws Exception {
         return daoManager.getLatestCourseByResourceable(resourceableId);
     }
 

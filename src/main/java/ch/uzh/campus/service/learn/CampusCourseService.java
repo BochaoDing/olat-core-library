@@ -1,5 +1,6 @@
 package ch.uzh.campus.service.learn;
 
+import ch.uzh.campus.data.Course;
 import ch.uzh.campus.data.SapOlatUser;
 import ch.uzh.campus.service.CampusCourse;
 import org.olat.core.id.Identity;
@@ -37,6 +38,8 @@ public interface CampusCourseService {
      * Get a list of SAP campus-courses which are already created and identity is owner or participant.
      */
     List<SapCampusCourseTo> getCoursesWhichCouldBeOpened(Identity identity, SapOlatUser.SapUserType userType, String searchString);
+
+	Course getLatestCourseByResourceable(Long resourceableId) throws Exception;
 
     RepositoryEntry getRepositoryEntryFor(Long sapCourseId);
 

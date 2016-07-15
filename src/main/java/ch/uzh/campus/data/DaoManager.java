@@ -354,7 +354,7 @@ public class DaoManager {
         courseDao.saveResourceableId(courseId, resourceableId);
     }
 
-    public Course getLatestCourseByResourceable(Long resourcableId) {
+    public Course getLatestCourseByResourceable(Long resourcableId) throws Exception {
         return courseDao.getLatestCourseByResourceable(resourcableId);
     }
 

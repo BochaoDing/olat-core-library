@@ -27,26 +27,47 @@ public class CampusCourseOlatHelper {
         this.campusCourseService = campusCourseService;
     }
 
-    public void createCampusCourseFromResourcableId(UserRequest userRequest,
-													WindowControl windowControl,
+    public CampusCourse createCampusCourseFromResourcableId(UserRequest userRequest,
 													Long sapCampusCourseId,
 													Long courseResourceableId) throws Exception {
-        CampusCourse campusCourse = campusCourseService.createCampusCourseFromTemplate(courseResourceableId,
+        return campusCourseService.createCampusCourseFromTemplate(courseResourceableId,
                 sapCampusCourseId, userRequest.getIdentity());
-
-        String businessPath = "[RepositoryEntry:" + campusCourse.getRepositoryEntry().getKey() + "]";
-        NewControllerFactory.getInstance().launch(businessPath, userRequest, windowControl);
-
-        /**
-         * Inform the {@link AuthorListController} about the new list entry.
-         */
-        EventBus singleUserEventBus = userRequest.getUserSession().getSingleUserEventCenter();
-        singleUserEventBus.fireEventToListenersOf(
-                new AuthoringListChangeEvent(RESOURCEABLE_TYPE_NAME),
-                campusCourse.getRepositoryEntry().getOlatResource());
     }
+
+	public void openCourseInNewTab(CampusCourse campusCourse,
+								   WindowControl windowControl,
+								   UserRequest userRequest) {
+		/**
+		 * Open the OLAT course in a new tab.
+		 */
+		String businessPath = "[RepositoryEntry:" + campusCourse.getRepositoryEntry().getKey() + "]";
+		NewControllerFactory.getInstance().launch(businessPath, userRequest, windowControl);
+
+		/**
+		 * Inform the {@link AuthorListController} about the new list entry.
+		 */
+		EventBus singleUserEventBus = userRequest.getUserSession().getSingleUserEventCenter();
+		singleUserEventBus.fireEventToListenersOf(
+				new AuthoringListChangeEvent(RESOURCEABLE_TYPE_NAME),
+				campusCourse.getRepositoryEntry().getOlatResource());
+	}
 
 	public static Translator getTranslator(Locale locale) {
 		return Util.createPackageTranslator(CampusCourseOlatHelper.class, locale);
+	}
+
+	private final static String CONTACT_OLAT_SUPPORT = "Please contact the OLAT support.";
+
+	public static void showErrorCreatingCampusCourseFromDefaultTemplate(WindowControl windowControl,
+																		Locale locale) {
+		windowControl.setError("An error occurred while crating a Campuskurs from the default template. " +
+				CONTACT_OLAT_SUPPORT
+		);
+	}
+
+	public static void showErrorCreatingCampusCourse(WindowControl windowControl,
+													 Locale locale) {
+		windowControl.setError("An error occurred while crating the Campuskurs. " +
+				CONTACT_OLAT_SUPPORT);
 	}
 }

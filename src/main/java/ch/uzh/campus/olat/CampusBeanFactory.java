@@ -1,7 +1,8 @@
 package ch.uzh.campus.olat;
 
-import ch.uzh.campus.olat.popup.CampusCourseCreationController;
-import ch.uzh.campus.service.core.CampusCourseCoreService;
+import ch.uzh.campus.olat.controller.ContinueCampusCourseSelectionController;
+import ch.uzh.campus.olat.controller.CreationCampusCourseSelectionController;
+import ch.uzh.campus.service.learn.CampusCourseService;
 import org.olat.core.dispatcher.mapper.MapperService;
 import org.olat.core.gui.UserRequest;
 import org.olat.core.gui.components.velocity.VelocityContainer;
@@ -38,7 +39,7 @@ public class CampusBeanFactory {
 	private MapperService mapperService;
 
 	@Autowired
-	private CampusCourseCoreService campusCourseCoreService;
+	private CampusCourseService campusCourseService;
 
 	@Autowired
 	private RepositoryManager repositoryManager;
@@ -75,22 +76,36 @@ public class CampusBeanFactory {
 		};
 	}
 
-	CampusCourseCreationController createCampusCourseCreationController(
-			String campuskursTitle,
+	CreationCampusCourseSelectionController createCreationCampusCourseSelectionTableController(
 			WindowControl windowControl,
 			UserRequest userRequest,
-			String variation,
 			Long sapCampusCourseId
 	) {
-		return new CampusCourseCreationController(
-				windowControl,
-				userRequest,
-				variation,
+		return new CreationCampusCourseSelectionController(
 				sapCampusCourseId,
-				campuskursTitle,
-				campusCourseCoreService,
+				campusCourseService,
 				repositoryManager,
-				campusCourseOlatHelper
+				campusCourseOlatHelper,
+				windowControl,
+				userRequest
+		);
+	}
+
+
+	ContinueCampusCourseSelectionController createContinueCampusCourseSelectionTableController(
+			String campusCourseTitle,
+			WindowControl windowControl,
+			UserRequest userRequest,
+			Long sapCampusCourseId
+	) {
+		return new ContinueCampusCourseSelectionController(
+				campusCourseTitle,
+				sapCampusCourseId,
+				campusCourseService,
+				repositoryManager,
+				campusCourseOlatHelper,
+				windowControl,
+				userRequest
 		);
 	}
 }

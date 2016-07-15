@@ -70,6 +70,11 @@ public class CampusCourseServiceImpl implements CampusCourseService {
 	}
 
 	@Override
+	public Course getLatestCourseByResourceable(Long resourceableId) throws Exception {
+		return campusCourseCoreService.getLatestCourseByResourceable(resourceableId);
+	}
+
+	@Override
 	public RepositoryEntry getRepositoryEntryFor(Long sapCourseId) {
 		return campusCourseCoreService.getRepositoryEntryFor(sapCourseId);
 	}

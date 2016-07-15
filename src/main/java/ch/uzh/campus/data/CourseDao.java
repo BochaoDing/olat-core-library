@@ -155,22 +155,11 @@ public class CourseDao implements CampusDao<CourseOrgId> {
                 .getResultList(); 
     }
 
-    Course getLatestCourseByResourceable(Long resourceableId) {
-        List<Course> courses = dbInstance.getCurrentEntityManager()
+    Course getLatestCourseByResourceable(Long resourceableId) throws Exception {
+        return dbInstance.getCurrentEntityManager()
                 .createNamedQuery(Course.GET_LATEST_COURSE_BY_RESOURCEABLE_ID, Course.class)
                 .setParameter("resourceableId", resourceableId)
-                .getResultList();
-        if (courses.isEmpty()) {
-            String warningMessage = "No courses found with resourcable id " + resourceableId + ".";
-            LOG.warn(warningMessage);
-            return null;
-        }
-        if (courses.size() > 1) {
-            String warningMessage = "More than one course found with recourceable id " + resourceableId + " and the same end date.";
-            LOG.warn(warningMessage);
-            return null;
-        }
-        return courses.get(0);
+                .getSingleResult();
     }
 
 	private static String getWildcardLikeSearchString(String searchString) {
