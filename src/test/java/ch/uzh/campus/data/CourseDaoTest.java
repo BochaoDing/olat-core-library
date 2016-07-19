@@ -538,8 +538,8 @@ public class CourseDaoTest extends OlatTestCase {
         List<Long> courseIdsFound = courseDao.getAllNotCreatedOrphanedCourses();
 
         assertEquals(numberOfCoursesFoundBeforeInsertingTestData + 1, courseIdsFound.size());
-        assertFalse(courseIdsFound.contains(100L));   // not created course
-        assertTrue(courseIdsFound.contains(300L));    // created course
+        assertFalse(courseIdsFound.contains(100L));   // created course
+        assertTrue(courseIdsFound.contains(300L));    // not created course
     }
 
     @Test

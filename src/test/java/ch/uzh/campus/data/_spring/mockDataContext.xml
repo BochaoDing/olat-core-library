@@ -96,7 +96,7 @@
         <property name="org9" value="9900"/>
     </bean>
     <bean id="course_4" class="ch.uzh.campus.data.CourseOrgId" p:id="400" p:shortTitle="OldSemester" p:title="title4" p:vstNr="vstNr4" p:category="Seminar" p:language="EN" p:vvzLink="link" p:startDate="10.04.2099 00:00" p:endDate="10.07.2099 00:00" p:semester="fs" p:shortSemester="99FS" p:exclude="" p:dateOfImport="10.10.2014 10:10" scope="prototype">
-        <property name="resourceableId"><null/></property>
+        <property name="resourceableId" value="401"/>
         <property name="org1" value="9700"/>
         <property name="org2"><null/></property>
         <property name="org3"><null/></property>
@@ -108,7 +108,7 @@
         <property name="org9"><null/></property>
     </bean>
     <bean id="course_5" class="ch.uzh.campus.data.CourseOrgId" p:id="500" p:shortTitle="OldSemester" p:title="title5" p:vstNr="vstNr5" p:category="Seminar" p:language="EN" p:vvzLink="link" p:startDate="10.10.2098 00:00" p:endDate="10.02.2099 00:00" p:semester="hs" p:shortSemester="98HS" p:exclude="" p:dateOfImport="10.10.2014 10:10" scope="prototype">
-        <property name="resourceableId"><null/></property>
+        <property name="resourceableId" value="501"/>
         <property name="org1" value="9700"/>
         <property name="org2"><null/></property>
         <property name="org3"><null/></property>
