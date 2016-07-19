@@ -87,7 +87,7 @@ public class CampusCourseConfiguration {
         String propertyStringValue = null;
         try {
             propertyStringValue = getPropertyOrDefaultValue(language.concat(TEMPLATE_COURSE_RESOURCEABLE_ID_PROPERTY_KEY), defaultTemplateCourseResourcableId);
-            return Long.valueOf(propertyStringValue);
+            return (propertyStringValue == null ? null : Long.valueOf(propertyStringValue));
         } catch (NumberFormatException ex) {
             throw new AssertException("Could not convert to Long-value '" + propertyStringValue + "' , check properties");
         }
@@ -119,6 +119,14 @@ public class CampusCourseConfiguration {
         } else {
             property.setStringValue(propertyValue);
             propertyManager.updateProperty(property);
+        }
+    }
+
+    void deleteTemplateCourseResourcableIdPropertyIfExists(String language) {
+        language = getTemplateLanguage(language);
+        Property property = findCampusProperty(language.concat(TEMPLATE_COURSE_RESOURCEABLE_ID_PROPERTY_KEY));
+        if (property != null) {
+            propertyManager.deleteProperty(property);
         }
     }
 
