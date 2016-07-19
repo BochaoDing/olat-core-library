@@ -527,7 +527,7 @@ public class CourseDaoTest extends OlatTestCase {
 
         assertEquals(numberOfCoursesFoundBeforeInsertingTestData, courseDao.getAllNotCreatedOrphanedCourses().size());
 
-        // Remove lecturerCourse and student course entries of course 100 (not created course) and 300 (created course)-> courseOrgIds are orphaned
+        // Remove lecturerCourse and studentCourse entries of course 100 (not created course) and 300 (created course)-> courses 100 and 300 are orphaned
         List<Long> courseIds = new ArrayList<>();
         courseIds.add(100L);
         courseIds.add(300L);
