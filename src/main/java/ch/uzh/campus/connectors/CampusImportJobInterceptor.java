@@ -76,6 +76,7 @@ public class CampusImportJobInterceptor implements JobExecutionListener {
 			List<LecturerIdCourseId> lecturerIdCourseIdsToBeRemoved = daoManager.getAllNotUpdatedLCBookingOfCurrentSemester(jobExecution.getStartTime());
 			if (!lecturerIdCourseIdsToBeRemoved.isEmpty()) {
 				lecturerCoursesToBeRemoved += daoManager.deleteLCBookingByLecturerIdCourseIds(lecturerIdCourseIdsToBeRemoved);
+				dbInstance.intermediateCommit();
 			}
 			LOG.info("LECTURER_COURSES TO BE REMOVED ["  + lecturerCoursesToBeRemoved + "]");
 
@@ -84,6 +85,7 @@ public class CampusImportJobInterceptor implements JobExecutionListener {
 			List<StudentIdCourseId> studentIdCourseIdsToBeRemoved = daoManager.getAllNotUpdatedSCBookingOfCurrentSemester(jobExecution.getStartTime());
 			if (!studentIdCourseIdsToBeRemoved.isEmpty()) {
 				studentCoursesToBeRemoved += daoManager.deleteSCBookingByStudentIdCourseIds(studentIdCourseIdsToBeRemoved);
+				dbInstance.intermediateCommit();
 			}
 			LOG.info("STUDENT_COURSES TO BE REMOVED [" + studentCoursesToBeRemoved + "]");
 
