@@ -45,7 +45,7 @@
 			<batch:flow>
 				<batch:step id="import_lecturers" parent="campusStep">
 					<batch:tasklet>
-						<batch:chunk reader="lecturerReader" processor="lecturerProcessor" writer="lecturerWriter"  commit-interval="20" skip-limit="500" retry-limit="5"/>
+						<batch:chunk reader="lecturerReader" processor="lecturerProcessor" writer="lecturerWriter" commit-interval="20" skip-limit="500" retry-limit="5"/>
 					</batch:tasklet>
 				</batch:step>
 			</batch:flow>

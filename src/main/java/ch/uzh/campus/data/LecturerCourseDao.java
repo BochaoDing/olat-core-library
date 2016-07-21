@@ -89,7 +89,8 @@ public class LecturerCourseDao implements CampusDao<LecturerIdCourseIdDateOfImpo
             warningMessage = "No course found with id " + lecturerIdCourseIdDateOfImport.getCourseId();
         }
         warningMessage = warningMessage + ". Skipping entry " + lecturerIdCourseIdDateOfImport.getLecturerId() + ", " + lecturerIdCourseIdDateOfImport.getCourseId() + " for table ck_lecturer_course.";
-        LOG.warn(warningMessage);
+        // Here we only log on the debug level to avoid duplicated warnings (LOG.warn is already called by CampusWriter)
+        LOG.debug(warningMessage);
         throw new EntityNotFoundException(warningMessage);
     }
 
