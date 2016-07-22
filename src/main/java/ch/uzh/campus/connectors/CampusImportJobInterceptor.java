@@ -74,20 +74,22 @@ public class CampusImportJobInterceptor implements JobExecutionListener {
 			int lecturerCoursesToBeRemoved = daoManager.deleteAllLCBookingTooFarInThePast(jobExecution.getStartTime());
 			dbInstance.intermediateCommit();
 			List<LecturerIdCourseId> lecturerIdCourseIdsToBeRemoved = daoManager.getAllNotUpdatedLCBookingOfCurrentSemester(jobExecution.getStartTime());
+			lecturerCoursesToBeRemoved += lecturerIdCourseIdsToBeRemoved.size();
+			LOG.info("LECTURER_COURSES TO BE REMOVED ["  + lecturerCoursesToBeRemoved + "]");
 			if (!lecturerIdCourseIdsToBeRemoved.isEmpty()) {
-				lecturerCoursesToBeRemoved += daoManager.deleteLCBookingByLecturerIdCourseIds(lecturerIdCourseIdsToBeRemoved);
+				daoManager.deleteLCBookingByLecturerIdCourseIds(lecturerIdCourseIdsToBeRemoved);
 				dbInstance.intermediateCommit();
 			}
-			LOG.info("LECTURER_COURSES TO BE REMOVED ["  + lecturerCoursesToBeRemoved + "]");
 
 			int studentCoursesToBeRemoved = daoManager.deleteAllSCBookingTooFarInThePast(jobExecution.getStartTime());
 			dbInstance.intermediateCommit();
 			List<StudentIdCourseId> studentIdCourseIdsToBeRemoved = daoManager.getAllNotUpdatedSCBookingOfCurrentSemester(jobExecution.getStartTime());
+			studentCoursesToBeRemoved += studentIdCourseIdsToBeRemoved.size();
+			LOG.info("STUDENT_COURSES TO BE REMOVED [" + studentCoursesToBeRemoved + "]");
 			if (!studentIdCourseIdsToBeRemoved.isEmpty()) {
-				studentCoursesToBeRemoved += daoManager.deleteSCBookingByStudentIdCourseIds(studentIdCourseIdsToBeRemoved);
+				daoManager.deleteSCBookingByStudentIdCourseIds(studentIdCourseIdsToBeRemoved);
 				dbInstance.intermediateCommit();
 			}
-			LOG.info("STUDENT_COURSES TO BE REMOVED [" + studentCoursesToBeRemoved + "]");
 
 			List<Long> studentsToBeRemoved = daoManager.getAllStudentsToBeDeleted();
 			LOG.info("STUDENTS TO BE REMOVED [" + studentsToBeRemoved.size() + "]");

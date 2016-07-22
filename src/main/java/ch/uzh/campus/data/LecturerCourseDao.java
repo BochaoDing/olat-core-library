@@ -144,9 +144,10 @@ public class LecturerCourseDao implements CampusDao<LecturerIdCourseIdDateOfImpo
      * Bulk delete for efficient deletion of a big number of entries. Does not update persistence context!
      */
     int deleteByLecturerIdCourseIdsAsBulkDelete(List<LecturerIdCourseId> lecturerIdCourseIds) {
+        EntityManager entityManager = dbInstance.getCurrentEntityManager();
         int count = 0;
         for (LecturerIdCourseId lecturerIdCourseId : lecturerIdCourseIds) {
-            count += dbInstance.getCurrentEntityManager()
+            count += entityManager
                     .createNamedQuery(LecturerCourse.DELETE_BY_LECTURER_ID_COURSE_ID)
                     .setParameter("lecturerId", lecturerIdCourseId.getLecturerId())
                     .setParameter("courseId", lecturerIdCourseId.getCourseId())
