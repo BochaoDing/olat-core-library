@@ -467,6 +467,10 @@ public class IQDisplayController extends DefaultController implements GenericEve
 				ItemsInput iInp = iqm.getItemsInput(ureq);
 				if(iInp.getItemCount() > 0) {
 					navig.submitItems(iInp);
+				} else {
+					// OLATNG-200 (back-porting OLAT-7130)
+					getWindowControl().setInfo(translator.translate("status.results.notsaved.noparams"));
+					return;
 				}
 				if (ai.isClosed()) { // do all the finishing stuff
 					if(navig.getInfo().isFeedback()) {
