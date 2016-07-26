@@ -38,7 +38,7 @@ public class CampusCourseServiceImpl implements CampusCourseService {
 	}
 
 	@Override
-	public CampusCourse createCampusCourseFromTemplate(Long courseResourceableId, Long sapCampusCourseId, Identity creator) {
+	public CampusCourse createCampusCourseFromTemplate(Long courseResourceableId, Long sapCampusCourseId, Identity creator) throws Exception {
 		return campusCourseCoreService.createCampusCourseFromTemplate(courseResourceableId, sapCampusCourseId, creator);
 	}
 
@@ -67,6 +67,11 @@ public class CampusCourseServiceImpl implements CampusCourseService {
 		}
 		Collections.sort(courseList);
 		return courseList;
+	}
+
+	@Override
+	public Course getLatestCourseByResourceable(Long resourceableId) throws Exception {
+		return campusCourseCoreService.getLatestCourseByResourceable(resourceableId);
 	}
 
 	@Override

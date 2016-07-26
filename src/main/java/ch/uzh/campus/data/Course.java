@@ -75,7 +75,8 @@ import java.util.Set;
                 "and c.shortSemester = (select max(c6.shortSemester) from Course c6) "),
         @NamedQuery(name = Course.GET_ALL_NOT_CREATED_ORPHANED_COURSES, query = "select c.id from Course c where c.resourceableId is null and c.id not in (select lc.course.id from LecturerCourse lc) and c.id not in (select sc.course.id from StudentCourse sc)"),
         @NamedQuery(name = Course.GET_COURSE_IDS_BY_RESOURCEABLE_ID, query = "select c.id from Course c where c.resourceableId = :resourceableId"),
-        @NamedQuery(name = Course.GET_COURSE_BY_RESOURCEABLE_ID, query = "select c from Course c where c.resourceableId = :resourceableId")
+        @NamedQuery(name = Course.GET_COURSES_BY_RESOURCEABLE_ID, query = "select c from Course c where c.resourceableId = :resourceableId"),
+        @NamedQuery(name = Course.GET_LATEST_COURSE_BY_RESOURCEABLE_ID, query = "select c from Course c where c.resourceableId = :resourceableId and c.endDate = (select max(c1.endDate) from Course c1 where c1.resourceableId = :resourceableId)")
 })
 @Table(name = "ck_course")
 public class Course {
@@ -98,7 +99,7 @@ public class Course {
     private String vstNr;
 
     @Column(name = "e_learning_supported")
-    private String isELearning;
+    private boolean eLearningSupported;
 
     @Column(name = "language", nullable = false)
     private String language;
@@ -106,19 +107,19 @@ public class Course {
     @Column(name = "category", nullable = false)
     private String category;
 
-    @Column(name = "start_date")
+    @Column(name = "start_date", nullable = false)
     private Date startDate;
 
-    @Column(name = "end_date")
+    @Column(name = "end_date", nullable = false)
     private Date endDate;
 
     @Column(name = "vvz_link", nullable = false)
     private String vvzLink;
 
-    @Column(name = "semester")
+    @Column(name = "semester", nullable = false)
     private String semester;
 
-    @Column(name = "short_semester")
+    @Column(name = "short_semester", nullable = false)
     private String shortSemester;
 
     @Column(name = "exclude", nullable = false)
@@ -131,8 +132,8 @@ public class Course {
     private boolean synchronizable = true;
 
     @Temporal(TemporalType.TIMESTAMP)
-    @Column(name = "modified_date")
-    private Date modifiedDate;
+    @Column(name = "date_of_import")
+    private Date dateOfImport;
 
     @OneToMany(mappedBy = "course")
     private Set<LecturerCourse> lecturerCourses = new HashSet<>();
@@ -167,7 +168,7 @@ public class Course {
         this.shortTitle = courseOrgId.getShortTitle();
         this.title = courseOrgId.getTitle();
         this.vstNr = courseOrgId.getVstNr();
-        this.isELearning = courseOrgId.getIsELearning();
+        this.eLearningSupported = "X".equalsIgnoreCase(courseOrgId.getELearningSupported());
         this.language = courseOrgId.getLanguage();
         this.category = courseOrgId.getCategory();
         this.startDate = courseOrgId.getStartDate();
@@ -175,9 +176,8 @@ public class Course {
         this.vvzLink = courseOrgId.getVvzLink();
         this.semester = courseOrgId.getSemester();
         this.shortSemester = courseOrgId.getShortSemester();
-        this.exclude = courseOrgId.isExclude();
-        this.synchronizable = courseOrgId.isSynchronizable();
-        this.modifiedDate = courseOrgId.getModifiedDate();
+        this.exclude = "X".equalsIgnoreCase(courseOrgId.getExclude());
+        this.dateOfImport = courseOrgId.getDateOfImport();
     }
 
     static final String GET_IDS_OF_ALL_CREATED_SYNCHRONIZABLE_COURSES_OF_CURRENT_SEMESTER = "getIdsOfAllCreatedSynchronizableCoursesOfCurrentSemester";
@@ -192,7 +192,8 @@ public class Course {
     static final String GET_COURSE_IDS_BY_RESOURCEABLE_ID = "getCourseIdsByResourceableId";
     static final String GET_CREATED_AND_NOT_CREATED_CREATABLE_COURSES_OF_CURRENT_SEMESTER_BY_LECTURER_ID = "getCreatedAndNotCreatedCreatableCoursesOfCurrentSemesterByLecturerId";
     static final String GET_CREATED_AND_NOT_CREATED_CREATABLE_COURSES_OF_CURRENT_SEMESTER_BY_STUDENT_ID = "getCreatedAndNotCreatedCreatableCoursesOfCurrentSemesterByStudentId";
-    static final String GET_COURSE_BY_RESOURCEABLE_ID = "getCourseByResourcableId";
+    static final String GET_COURSES_BY_RESOURCEABLE_ID = "getCoursesByResourceableId";
+    static final String GET_LATEST_COURSE_BY_RESOURCEABLE_ID = "getLatestCourseByResourceableId";
 
     public Long getId() {
         return id;
@@ -242,12 +243,12 @@ public class Course {
         this.vstNr = vstNr;
     }
 
-    public String getIsELearning() {
-        return isELearning;
+    public boolean isELearningSupported() {
+        return eLearningSupported;
     }
 
-    public void setIsELearning(String isELearning) {
-        this.isELearning = isELearning;
+    public void setELearningSupported(boolean eLearningSupported) {
+        this.eLearningSupported = eLearningSupported;
     }
 
     public String getLanguage() {
@@ -314,12 +315,12 @@ public class Course {
         this.exclude = exclude;
     }
 
-    public Date getModifiedDate() {
-        return modifiedDate;
+    public Date getDateOfImport() {
+        return dateOfImport;
     }
 
-    public void setModifiedDate(Date modifiedDate) {
-        this.modifiedDate = modifiedDate;
+    public void setDateOfImport(Date dateOfImport) {
+        this.dateOfImport = dateOfImport;
     }
 
     public Set<LecturerCourse> getLecturerCourses() {
@@ -410,7 +411,7 @@ public class Course {
         builder.append("shortTitle", getShortTitle());
         builder.append("title", getTitle());
         builder.append("vstNr", getVstNr());
-        builder.append("isELearning", getIsELearning());
+        builder.append("isELearning", isELearningSupported());
         builder.append("language", getLanguage());
         builder.append("category", getCategory());
         builder.append("startDate", getStartDate());

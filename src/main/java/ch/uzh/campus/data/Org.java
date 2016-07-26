@@ -18,7 +18,7 @@ import java.util.Set;
 @Entity
 @Table(name = "ck_org")
 @NamedQueries({ @NamedQuery(name = Org.GET_IDS_OF_ALL_ENABLED_ORGS, query = "select id from Org"),
-        @NamedQuery(name = Org.GET_ALL_NOT_UPDATED_ORGS, query = "select o.id from Org o where o.modifiedDate < :lastImportDate")})
+        @NamedQuery(name = Org.GET_ALL_ORPHANED_ORGS, query = "select o.id from Org o where o.id not in (select o1.id from Course c join c.orgs o1)")})
 public class Org {
     @Id
     private Long id;
@@ -33,14 +33,14 @@ public class Org {
     private boolean enabled;
 
     @Temporal(TemporalType.TIMESTAMP)
-    @Column(name = "modified_date")
-    private Date modifiedDate;
+    @Column(name = "date_of_import")
+    private Date dateOfImport;
 
     @ManyToMany(mappedBy = "orgs")
     private Set<Course> courses = new HashSet<>();
 
     static final String GET_IDS_OF_ALL_ENABLED_ORGS = "getIdsOfAllEnabledOrgs";
-    static final String GET_ALL_NOT_UPDATED_ORGS = "getAllNotUpdatedOrgs";
+    static final String GET_ALL_ORPHANED_ORGS = "getAllOrphanedOrgs";
 
     public Long getId() {
         return id;
@@ -74,12 +74,12 @@ public class Org {
         this.enabled = enabled;
     }
 
-    public Date getModifiedDate() {
-        return modifiedDate;
+    public Date getDateOfImport() {
+        return dateOfImport;
     }
 
-    public void setModifiedDate(Date modifiedDate) {
-        this.modifiedDate = modifiedDate;
+    public void setDateOfImport(Date dateOfImport) {
+        this.dateOfImport = dateOfImport;
     }
 
     public Set<Course> getCourses() {
@@ -93,7 +93,7 @@ public class Org {
         builder.append("shortName", getShortName());
         builder.append("name", getName());
         builder.append("enabled", isEnabled());
-        builder.append("modifiedDate", getModifiedDate());
+        builder.append("modifiedDate", getDateOfImport());
 
         return builder.toString();
     }
@@ -103,7 +103,7 @@ public class Org {
         HashCodeBuilder builder = new HashCodeBuilder(1239, 5475);
         builder.append(shortName);
         builder.append(name);
-        builder.append(modifiedDate);
+        builder.append(dateOfImport);
 
         return builder.toHashCode();
     }
@@ -119,7 +119,7 @@ public class Org {
         EqualsBuilder builder = new EqualsBuilder();
         builder.append(this.shortName, theOther.shortName);
         builder.append(this.name, theOther.name);
-        builder.append(this.modifiedDate, theOther.modifiedDate);
+        builder.append(this.dateOfImport, theOther.dateOfImport);
 
         return builder.isEquals();
     }

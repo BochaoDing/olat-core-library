@@ -35,6 +35,7 @@ import org.olat.test.OlatTestCase;
 import org.springframework.test.context.ContextConfiguration;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import static org.junit.Assert.*;
@@ -74,16 +75,15 @@ public class CampusCourseAttributeSynchronizerTest extends OlatTestCase {
         when(repositoryEntry.getDisplayname()).thenReturn(title);
         when(repositoryEntry.getDescription()).thenReturn(eventDescription);
         campusCourse = new CampusCourse(course, repositoryEntry);
-        when(campusCourseFactoryMock.getCampusCourse(sapCampusCourseId)).thenReturn(campusCourse);
     }
 
     @Test
     public void synchronizeTitleAndDescription_nothingToUpdate() {
-
-        CampusCourseImportTO campusCourseTO = new CampusCourseImportTO(title, semester, lecturers, null, participants, eventDescription, resourceableId, sapCampusCourseId, null, null);
-        when(campusCourseDescriptionBuilderMock.buildDescriptionFrom(campusCourseTO, "de")).thenReturn(campusCourseTO.getEventDescription());
-        when(campusCourseConfigurationMock.getTemplateLanguage(campusCourseTO.getLanguage())).thenReturn("de");
-        TitleAndDescriptionStatistik titleAndDescriptionStatistik = campusCourseAttributeSynchronizerTestObject.synchronizeTitleAndDescription(campusCourseTO);
+		CampusCourseImportTO campusCourseImportTO = new CampusCourseImportTO(title, semester, lecturers, Collections.emptyList(), participants, eventDescription, resourceableId, sapCampusCourseId, null, null);
+		when(campusCourseFactoryMock.getCampusCourse(refEq(campusCourseImportTO))).thenReturn(campusCourse);
+		when(campusCourseDescriptionBuilderMock.buildDescriptionFrom(campusCourseImportTO, "de")).thenReturn(campusCourseImportTO.getEventDescription());
+        when(campusCourseConfigurationMock.getTemplateLanguage(campusCourseImportTO.getLanguage())).thenReturn("de");
+        TitleAndDescriptionStatistik titleAndDescriptionStatistik = campusCourseAttributeSynchronizerTestObject.synchronizeTitleAndDescription(campusCourseImportTO);
 
         assertNotNull("Missing TitleAndDescriptionStatistik", titleAndDescriptionStatistik);
         assertFalse("Title should not be updated", titleAndDescriptionStatistik.isTitleUpdated());
@@ -92,10 +92,10 @@ public class CampusCourseAttributeSynchronizerTest extends OlatTestCase {
 
     @Test
     public void synchronizeTitleAndDescription_updateDescription() {
+        CampusCourseImportTO campusCourseImportTO = new CampusCourseImportTO(title, semester, lecturers, Collections.emptyList(), participants, eventDescription + "_new", resourceableId, sapCampusCourseId, null, null);
+		when(campusCourseFactoryMock.getCampusCourse(refEq(campusCourseImportTO))).thenReturn(campusCourse);
 
-        CampusCourseImportTO campusCourseTO = new CampusCourseImportTO(title, semester, lecturers, null, participants, eventDescription + "_new", resourceableId, sapCampusCourseId, null, null);
-
-        TitleAndDescriptionStatistik titleAndDescriptionStatistik = campusCourseAttributeSynchronizerTestObject.synchronizeTitleAndDescription(campusCourseTO);
+        TitleAndDescriptionStatistik titleAndDescriptionStatistik = campusCourseAttributeSynchronizerTestObject.synchronizeTitleAndDescription(campusCourseImportTO);
 
         assertNotNull("Missing TitleAndDescriptionStatistik", titleAndDescriptionStatistik);
         assertFalse("Title should not be updated", titleAndDescriptionStatistik.isTitleUpdated());
@@ -104,17 +104,15 @@ public class CampusCourseAttributeSynchronizerTest extends OlatTestCase {
 
     @Test
     public void synchronizeTitleAndDescription_updateTitle() {
-
-        CampusCourseImportTO campusCourseTO = new CampusCourseImportTO(title + "_new", semester, lecturers, null, participants, eventDescription, resourceableId, sapCampusCourseId, null, null);
+        CampusCourseImportTO campusCourseImportTO = new CampusCourseImportTO(title + "_new", semester, lecturers, Collections.emptyList(), participants, eventDescription, resourceableId, sapCampusCourseId, null, null);
         // do not call real CampusCourse.setTruncatedTitle(..) because there is a static call which try to save runstructure.xml
         CampusCourse spyCampusCourse = spy(campusCourse);
-        when(campusCourseFactoryMock.getCampusCourse(sapCampusCourseId)).thenReturn(spyCampusCourse);
-        when(campusCourseDescriptionBuilderMock.buildDescriptionFrom(campusCourseTO, campusCourseTO.getLanguage())).thenReturn(campusCourseTO.getEventDescription());
-        TitleAndDescriptionStatistik titleAndDescriptionStatistik = campusCourseAttributeSynchronizerTestObject.synchronizeTitleAndDescription(campusCourseTO);
+        when(campusCourseFactoryMock.getCampusCourse(any())).thenReturn(spyCampusCourse);
+        when(campusCourseDescriptionBuilderMock.buildDescriptionFrom(campusCourseImportTO, campusCourseImportTO.getLanguage())).thenReturn(campusCourseImportTO.getEventDescription());
+        TitleAndDescriptionStatistik titleAndDescriptionStatistik = campusCourseAttributeSynchronizerTestObject.synchronizeTitleAndDescription(campusCourseImportTO);
 
         assertNotNull("Missing TitleAndDescriptionStatistik", titleAndDescriptionStatistik);
         assertTrue("Title should not be updated", titleAndDescriptionStatistik.isTitleUpdated());
         assertFalse("Description should be updated", titleAndDescriptionStatistik.isDescriptionUpdated());
     }
-
 }

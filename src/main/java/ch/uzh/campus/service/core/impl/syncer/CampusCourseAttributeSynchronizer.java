@@ -51,15 +51,15 @@ public class CampusCourseAttributeSynchronizer {
     }
 
     TitleAndDescriptionStatistik synchronizeTitleAndDescription(CampusCourseImportTO campusCourseTO) {
-        boolean titleUpdated = synchronizeTitle(getCampusCourse(campusCourseTO.getSapCourseId()), campusCourseTO.getTitle());
-        boolean descriptionUpdated = synchronizeDescription(getCampusCourse(campusCourseTO.getSapCourseId()),
+        boolean titleUpdated = synchronizeTitle(getCampusCourse(campusCourseTO), campusCourseTO.getTitle());
+        boolean descriptionUpdated = synchronizeDescription(getCampusCourse(campusCourseTO),
                 campusCourseDescriptionBuilder.buildDescriptionFrom(campusCourseTO, campusCourseConfiguration.getTemplateLanguage(campusCourseTO.getLanguage())));
 
         return new TitleAndDescriptionStatistik(titleUpdated, descriptionUpdated);
     }
 
-    private CampusCourse getCampusCourse(long sapCampusCourseId) {
-        return campusCourseFactory.getCampusCourse(sapCampusCourseId);
+    private CampusCourse getCampusCourse(CampusCourseImportTO campusCourseImportTO) {
+        return campusCourseFactory.getCampusCourse(campusCourseImportTO);
     }
 
     /**

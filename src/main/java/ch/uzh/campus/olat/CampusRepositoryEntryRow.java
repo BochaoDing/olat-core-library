@@ -52,13 +52,23 @@ public class CampusRepositoryEntryRow extends RepositoryEntryRow {
 
 	@Override
 	public Object getValueAt(int col) {
+		/**
+		 * TODO sev26
+		 * Use enums of super class.
+		 */
 		switch(col) {
 			case 0:
 				return getCreateLink();
 			case 3:
 				return getCreateByCopying();
-			case 4:
+			case 9:
 				return getCreateByContinuation();
+			case 10:
+				return getDisplayName();
+			case 11:
+				return getCreateLink();
+			case 14:
+				return "Not ready.";
 		}
 		return null;
 	}

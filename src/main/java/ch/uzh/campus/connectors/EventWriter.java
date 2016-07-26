@@ -54,7 +54,15 @@ public class EventWriter implements ItemWriter<EventCourseId> {
             dbInstance.commitAndCloseSession();
         } catch (Throwable t) {
             dbInstance.rollbackAndCloseSession();
-            LOG.warn(t.getMessage());
+            // In the case of an exception, Spring Batch calls this method several times:
+            // First for the eventCourseIds according to commit-interval in campusBatchJobContext.xml, and then (after rollbacking)
+            // for each entry of the original eventCourseIds separately enabling commits containing only one entry.
+            // To avoid duplicated warnings we only log a warning in the latter case.
+            if (eventCourseIds.size() == 1) {
+                LOG.warn(t.getMessage());
+            } else {
+                LOG.debug(t.getMessage());
+            }
             throw t;
         }
     }

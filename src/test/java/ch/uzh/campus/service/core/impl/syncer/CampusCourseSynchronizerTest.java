@@ -34,9 +34,11 @@ import org.olat.course.ICourse;
 import org.olat.repository.RepositoryEntry;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import static org.junit.Assert.*;
+import static org.mockito.Matchers.refEq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -70,7 +72,7 @@ public class CampusCourseSynchronizerTest {
 
         // Prepare a test CampusCourseImportTO
         campusCourseImportTO = new CampusCourseImportTO(
-                title, "HS2012", lecturers, null, participants, eventDescription,
+                title, "HS2012", lecturers, Collections.emptyList(), participants, eventDescription,
                 1045L, EXISTING_SAP_COURSE_ID, null, null
         );
 
@@ -81,7 +83,7 @@ public class CampusCourseSynchronizerTest {
         CampusCourseAttributeSynchronizer campusCourseAttributeSynchronizerMock = mock(CampusCourseAttributeSynchronizer.class);
         CampusCourseConfiguration campusCourseConfigurationMock = mock(CampusCourseConfiguration.class);
         CampusCourseFactory campusCourseFactoryMock = mock(CampusCourseFactory.class);
-        when(campusCourseFactoryMock.getCampusCourse(EXISTING_SAP_COURSE_ID)).thenReturn(campusCourse);
+        when(campusCourseFactoryMock.getCampusCourse(refEq(campusCourseImportTO))).thenReturn(campusCourse);
 
         campusCourseSynchronizerTestObject = new CampusCourseSynchronizer(
                 campusCourseGroupSynchronizerMock, campusCourseAttributeSynchronizerMock,

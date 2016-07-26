@@ -100,7 +100,7 @@ public class StudentDaoTest extends OlatTestCase {
         student = studentDao.getStudentById(2100L);
         assertEquals(3, student.getStudentCourses().size());
 
-        // Remove all courses of students, i.e. make it orphaned
+        // Remove all courses of student, i.e. make it orphaned
         List<StudentIdCourseId> studentIdCourseIds = new LinkedList<>();
         studentIdCourseIds.add(new StudentIdCourseId(2100L, 100L));
         studentIdCourseIds.add(new StudentIdCourseId(2100L, 200L));
@@ -223,8 +223,8 @@ public class StudentDaoTest extends OlatTestCase {
         dbInstance.flush();
 
         // Insert some studentIdCourseIds
-        List<StudentIdCourseIdModifiedDate> studentIdCourseIdModifiedDates = mockDataGeneratorProvider.get().getStudentIdCourseIdModifiedDates();
-        studentCourseDao.save(studentIdCourseIdModifiedDates);
+        List<StudentIdCourseIdDateOfImport> studentIdCourseIdDateOfImports = mockDataGeneratorProvider.get().getStudentIdCourseIdDateOfImports();
+        studentCourseDao.save(studentIdCourseIdDateOfImports);
         dbInstance.flush();
     }
 }

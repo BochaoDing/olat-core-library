@@ -23,6 +23,7 @@ package ch.uzh.campus.connectors;
 import ch.uzh.campus.data.ImportStatistic;
 import ch.uzh.campus.data.ImportStatisticDao;
 import ch.uzh.campus.metric.CampusNotifier;
+import org.olat.core.commons.persistence.DB;
 import org.olat.core.logging.OLog;
 import org.olat.core.logging.Tracing;
 import org.springframework.batch.core.*;
@@ -43,11 +44,13 @@ public class CampusMappingJobInterceptor implements JobExecutionListener {
     private static final OLog LOG = Tracing.createLoggerFor(CampusMappingJobInterceptor.class);
 
     private final CampusNotifier campusNotifier;
+    private final DB dbInstance;
     private final ImportStatisticDao importStatisticDao;
     private JobOperator jobOperator;
 
     @Autowired
-    public CampusMappingJobInterceptor(ImportStatisticDao importStatisticDao, CampusNotifier campusNotifier, JobOperator jobOperator) {
+    public CampusMappingJobInterceptor(DB dbInstance, ImportStatisticDao importStatisticDao, CampusNotifier campusNotifier, JobOperator jobOperator) {
+        this.dbInstance = dbInstance;
         this.importStatisticDao = importStatisticDao;
         this.campusNotifier = campusNotifier;
         this.jobOperator = jobOperator;
@@ -67,18 +70,19 @@ public class CampusMappingJobInterceptor implements JobExecutionListener {
         if (importStatsOfToday.size() == 0) {
             LOG.warn("Import procedure did not run today! Mapping does not make so much sense!");
             // Stop execution of a job
-            try {
-                // Solution inspired by
-                //  https://numberformat.wordpress.com/2012/04/24/shutting-down-spring-batch-jobs-gracefully/
-                jobOperator.stop(jobExecution.getId());
-                // @TODO make it working propery
-                //  (now it just throws unhandled exception because batch_ tables are not present in the db)
-            } catch (NoSuchJobExecutionException e) { // ignore
-                LOG.info("beforeJob failed to be stopped " + jobExecution.getJobInstance().getJobName());
-            } catch (JobExecutionNotRunningException e) { // ignore
-                LOG.info("beforeJob failed to be stopped" + jobExecution.getJobInstance().getJobName());
-            }
+            // @TODO make it working properly. Now it throws an exception!
+//            try {
+//                // Solution inspired by
+//                //  https://numberformat.wordpress.com/2012/04/24/shutting-down-spring-batch-jobs-gracefully/
+//                jobOperator.stop(jobExecution.getId());
+//                //  (now it just throws unhandled exception because batch_ tables are not present in the db)
+//            } catch (NoSuchJobExecutionException e) { // ignore
+//                LOG.info("beforeJob failed to be stopped " + jobExecution.getJobInstance().getJobName());
+//            } catch (JobExecutionNotRunningException e) { // ignore
+//                LOG.info("beforeJob failed to be stopped" + jobExecution.getJobInstance().getJobName());
+//            }
         }
+        dbInstance.closeSession();
     }
 
 }

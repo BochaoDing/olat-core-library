@@ -92,7 +92,7 @@ public class CourseProcessor implements ItemProcessor<CourseOrgId, CourseOrgId> 
             return null;
         }
 
-        courseOrgId.setModifiedDate(new Date());
+        courseOrgId.setDateOfImport(new Date());
 
         if (courseOrgId.getTitle().contains(CampusUtils.SEMICOLON_REPLACEMENT)) {
             courseOrgId.setTitle(StringUtils.replace(courseOrgId.getTitle(), CampusUtils.SEMICOLON_REPLACEMENT, CampusUtils.SEMICOLON));
@@ -129,12 +129,6 @@ public class CourseProcessor implements ItemProcessor<CourseOrgId, CourseOrgId> 
         }
         if (courseOrgId.getOrg9().equals(0L)) {
             courseOrgId.setOrg9(null);
-        }
-
-        if (courseOrgId.getExcludeAsString().equalsIgnoreCase("X")) {
-            courseOrgId.setExclude(true);
-        } else {
-            courseOrgId.setExclude(false);
         }
 
         return courseOrgId;

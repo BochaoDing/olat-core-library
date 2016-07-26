@@ -13,7 +13,6 @@ import org.olat.course.ICourse;
 import org.olat.repository.RepositoryEntry;
 import org.olat.repository.RepositoryService;
 
-
 /**
  * Initial Date: 31.05.2012 <br>
  * 
@@ -37,7 +36,16 @@ public class CampusCourse {
         return repositoryEntry;
     }
 
-    public void continueCampusCourse(CampusCourseImportTO newCampusCourseImportData, Identity creator, RepositoryService repositoryService, CampusCourseDescriptionBuilder campusCourseDescriptionBuilder, CampusCourseCreator campusCourseCreator, CampusCourseGroupSynchronizer campusCourseGroupSynchronizer) {
+    public void continueCampusCourse(CampusCourseImportTO newCampusCourseImportData,
+									 Identity creator, RepositoryService repositoryService,
+									 CampusCourseDescriptionBuilder campusCourseDescriptionBuilder,
+									 CampusCourseCreator campusCourseCreator,
+									 CampusCourseGroupSynchronizer campusCourseGroupSynchronizer) {
+		assert newCampusCourseImportData != null;
+		assert creator != null;
+		assert repositoryService != null;
+		assert campusCourseDescriptionBuilder != null;
+		assert campusCourseCreator != null;
 
         // Update display name, description and initial author
         String oldTitle = repositoryEntry.getDisplayname();
@@ -80,5 +88,4 @@ public class CampusCourse {
         campusCourseGroupSynchronizer.addDefaultCoOwnersAsOwner(this);
         campusCourseGroupSynchronizer.synchronizeCourseGroups(this, campusCourseImportData);
     }
-
 }

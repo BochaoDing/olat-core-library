@@ -155,12 +155,19 @@ public class CourseDao implements CampusDao<CourseOrgId> {
                 .getResultList(); 
     }
 
+    Course getLatestCourseByResourceable(Long resourceableId) throws Exception {
+        return dbInstance.getCurrentEntityManager()
+                .createNamedQuery(Course.GET_LATEST_COURSE_BY_RESOURCEABLE_ID, Course.class)
+                .setParameter("resourceableId", resourceableId)
+                .getSingleResult();
+    }
+
 	private static String getWildcardLikeSearchString(String searchString) {
 		return searchString != null ? "%" + searchString + "%" : "%";
 	}
 
     void delete(Course course) {
-        deleteCourseBidirectionally(course);
+        deleteCourseBidirectionally(course, dbInstance.getCurrentEntityManager());
     }
 
     void saveResourceableId(Long courseId, Long resourceableId) {
@@ -185,7 +192,7 @@ public class CourseDao implements CampusDao<CourseOrgId> {
 
     void resetResourceable(Long resourceableId) {
         List<Course> courses =dbInstance.getCurrentEntityManager()
-                .createNamedQuery(Course.GET_COURSE_BY_RESOURCEABLE_ID, Course.class)
+                .createNamedQuery(Course.GET_COURSES_BY_RESOURCEABLE_ID, Course.class)
                 .setParameter("resourceableId", resourceableId)
                 .getResultList();
         if (courses.isEmpty()) {
@@ -196,13 +203,6 @@ public class CourseDao implements CampusDao<CourseOrgId> {
         for (Course course : courses) {
             course.setResourceableId(null);
         }
-    }
-
-    List<Course> getCourseByResourceable(Long resourceableId) {
-        return dbInstance.getCurrentEntityManager()
-                .createNamedQuery(Course.GET_COURSE_BY_RESOURCEABLE_ID, Course.class)
-                .setParameter("resourceableId", resourceableId)
-                .getResultList();
     }
 
     void saveParentCourseId(Long courseId, Long parentCourseId) {
@@ -226,7 +226,8 @@ public class CourseDao implements CampusDao<CourseOrgId> {
      * We cannot use a bulk delete here, since deleting the join table ck_course_org is not possible.
      */
     void deleteByCourseId(Long courseId) {
-        deleteCourseBidirectionally(dbInstance.getCurrentEntityManager().getReference(Course.class, courseId));
+        EntityManager em = dbInstance.getCurrentEntityManager();
+        deleteCourseBidirectionally(dbInstance.getCurrentEntityManager().getReference(Course.class, courseId), em);
     }
 
     /**
@@ -237,12 +238,12 @@ public class CourseDao implements CampusDao<CourseOrgId> {
         int count = 0;
         EntityManager em = dbInstance.getCurrentEntityManager();
         for (Long courseId : courseIds) {
-            deleteCourseBidirectionally(em.getReference(Course.class, courseId));
+            deleteCourseBidirectionally(em.getReference(Course.class, courseId), em);
             // Avoid memory problems caused by loading too many objects into the persistence context
             // (cf. C. Bauer and G. King: Java Persistence mit Hibernate, 2nd edition, p. 477)
             if (++count % 100 == 0) {
-                dbInstance.flush();
-                dbInstance.clear();
+                em.flush();
+                em.clear();
             }
         }
     }
@@ -299,19 +300,21 @@ public class CourseDao implements CampusDao<CourseOrgId> {
                 .getResultList();
     }
 
-    private void deleteCourseBidirectionally(Course course) {
+    private void deleteCourseBidirectionally(Course course, EntityManager em) {
         // Delete join table entries
         for (LecturerCourse lecturerCourse : course.getLecturerCourses()) {
             lecturerCourse.getLecturer().getLecturerCourses().remove(lecturerCourse);
-            dbInstance.deleteObject(lecturerCourse);
+            // Use em.remove() instead of dbInstance.deleteObject() since the latter calls dbInstance.getCurrentEntityManager()
+            // at every call, which may has an impact on the performance
+            em.remove(lecturerCourse);
         }
         for (StudentCourse studentCourse : course.getStudentCourses()) {
             studentCourse.getStudent().getStudentCourses().remove(studentCourse);
-            dbInstance.deleteObject(studentCourse);
+            em.remove(studentCourse);
         }
         for (Org org : course.getOrgs()) {
             org.getCourses().remove(course);
         }
-        dbInstance.deleteObject(course);
+        em.remove(course);
     }
 }

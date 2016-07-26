@@ -42,7 +42,7 @@ public class EventProcessor implements ItemProcessor<Event, Event> {
      *            the Event to be processed
      */
     public Event process(Event event) throws Exception {
-        event.setModifiedDate(new Date());
+        event.setDateOfImport(new Date());
         return event;
     }
 }

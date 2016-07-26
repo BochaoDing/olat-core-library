@@ -22,7 +22,6 @@ package ch.uzh.campus.service.core.impl;
 
 
 import ch.uzh.campus.CampusCourseImportTO;
-import ch.uzh.campus.data.DaoManager;
 import ch.uzh.campus.service.CampusCourse;
 import org.olat.core.logging.OLog;
 import org.olat.core.logging.Tracing;
@@ -45,16 +44,15 @@ public class CampusCourseFactory {
 
 	@Autowired
 	private RepositoryManager repositoryManager;
-	
-    @Autowired
-    private DaoManager daoManager;
 
-    public CampusCourse getCampusCourse(Long sapCampusCourseId) {
-        CampusCourseImportTO campusCourseTo = daoManager.getSapCampusCourse(sapCampusCourseId);
+    public CampusCourse getCampusCourse(CampusCourseImportTO campusCourseTo) {
+		if (campusCourseTo == null) {
+			return null;
+		}
         Long resourceableId = campusCourseTo.getOlatResourceableId();
-        LOG.debug("getRepositoryEntryFor sapCourseId=" + sapCampusCourseId + "  campusCourseTo.getOlatResourceableId()=" + resourceableId);
+        LOG.debug("getRepositoryEntryFor sapCourseId=" + campusCourseTo.getSapCourseId() + "  campusCourseTo.getOlatResourceableId()=" + resourceableId);
         if (resourceableId == null) {
-            LOG.warn("sapCourseId = " + sapCampusCourseId + ": no OLAT course found");
+            LOG.warn("sapCourseId = " + campusCourseTo.getSapCourseId() + ": no OLAT course found");
             return null;
         }
         return getCampusCourseByResourceable(resourceableId);

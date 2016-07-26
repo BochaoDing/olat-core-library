@@ -1,5 +1,6 @@
 package ch.uzh.campus.service.learn;
 
+import ch.uzh.campus.data.Course;
 import ch.uzh.campus.data.SapOlatUser;
 import ch.uzh.campus.service.CampusCourse;
 import org.olat.core.id.Identity;
@@ -21,7 +22,7 @@ public interface CampusCourseService {
     /**
      * Create a new campus-course from a course template. Copy template and update title, description, owner and participants.
      */
-    CampusCourse createCampusCourseFromTemplate(Long courseResourceableId, Long sapCampusCourseId, Identity creator);
+    CampusCourse createCampusCourseFromTemplate(Long courseResourceableId, Long sapCampusCourseId, Identity creator) throws Exception;
 
     /**
      * Uses an existing campus-course. It updates the title, description (including the vvz link), owner and participants.
@@ -37,6 +38,8 @@ public interface CampusCourseService {
      * Get a list of SAP campus-courses which are already created and identity is owner or participant.
      */
     List<SapCampusCourseTo> getCoursesWhichCouldBeOpened(Identity identity, SapOlatUser.SapUserType userType, String searchString);
+
+	Course getLatestCourseByResourceable(Long resourceableId) throws Exception;
 
     RepositoryEntry getRepositoryEntryFor(Long sapCourseId);
 

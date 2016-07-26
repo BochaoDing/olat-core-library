@@ -93,9 +93,9 @@ public class LecturerCourseDaoTest extends OlatTestCase {
 
     @Test
     public void testSaveLecturerCourse_NotExistingCourse() {
-        LecturerIdCourseIdModifiedDate lecturerIdCourseIdModifiedDate = new LecturerIdCourseIdModifiedDate(1100L, 999L, new Date());
+        LecturerIdCourseIdDateOfImport lecturerIdCourseIdDateOfImport = new LecturerIdCourseIdDateOfImport(1100L, 999L, new Date());
         try {
-            lecturerCourseDao.save(lecturerIdCourseIdModifiedDate);
+            lecturerCourseDao.save(lecturerIdCourseIdDateOfImport);
             fail("Expected exception has not occurred.");
         } catch(EntityNotFoundException e) {
             // All good, that's exactly what we expect
@@ -111,9 +111,9 @@ public class LecturerCourseDaoTest extends OlatTestCase {
 
     @Test
     public void testSaveLecturerCourse_NotExistingLecturer() {
-        LecturerIdCourseIdModifiedDate lecturerIdCourseIdModifiedDate = new LecturerIdCourseIdModifiedDate(999L, 100L, new Date());
+        LecturerIdCourseIdDateOfImport lecturerIdCourseIdDateOfImport = new LecturerIdCourseIdDateOfImport(999L, 100L, new Date());
         try {
-            lecturerCourseDao.save(lecturerIdCourseIdModifiedDate);
+            lecturerCourseDao.save(lecturerIdCourseIdDateOfImport);
             fail("Expected exception has not occurred.");
         } catch(EntityNotFoundException e) {
             // All good, that's exactly what we expect
@@ -188,18 +188,18 @@ public class LecturerCourseDaoTest extends OlatTestCase {
         assertNull(lecturerCourseDao.getLecturerCourseById(1100L, 200L));
         assertNull(lecturerCourseDao.getLecturerCourseById(1100L, 400L));
 
-        Date referenceImportDate = new Date();
+        Date referenceDateOfImport = new Date();
 
-        // Insert lecturer to course of current semester with import date in the past (-> should be returned by method)
-        LecturerCourse lecturerCourse1 = new LecturerCourse(lecturer, course1CurrentSemester, DateUtil.addHoursToDate(referenceImportDate, -1));
+        // Insert lecturer to course of current semester with date of import in the past (-> should be returned by method)
+        LecturerCourse lecturerCourse1 = new LecturerCourse(lecturer, course1CurrentSemester, DateUtil.addHoursToDate(referenceDateOfImport, -1));
         lecturerCourseDao.saveOrUpdate(lecturerCourse1);
 
-        // Insert lecturer to course of current semester with import date in the future (-> should not be returned by method)
-        LecturerCourse lecturerCourse2 = new LecturerCourse(lecturer, course2CurrentSemester, DateUtil.addHoursToDate(referenceImportDate, 1));
+        // Insert lecturer to course of current semester with date of import in the future (-> should not be returned by method)
+        LecturerCourse lecturerCourse2 = new LecturerCourse(lecturer, course2CurrentSemester, DateUtil.addHoursToDate(referenceDateOfImport, 1));
         lecturerCourseDao.saveOrUpdate(lecturerCourse2);
 
-        // Insert lecturer to course from former semester with import date in the past (-> should not be returned by method)
-        LecturerCourse lecturerCourse3 = new LecturerCourse(lecturer, course3FormerSemester, DateUtil.addHoursToDate(referenceImportDate, -1));
+        // Insert lecturer to course from former semester with date of import in the past (-> should not be returned by method)
+        LecturerCourse lecturerCourse3 = new LecturerCourse(lecturer, course3FormerSemester, DateUtil.addHoursToDate(referenceDateOfImport, -1));
         lecturerCourseDao.saveOrUpdate(lecturerCourse3);
 
         dbInstance.flush();
@@ -256,14 +256,14 @@ public class LecturerCourseDaoTest extends OlatTestCase {
         assertNull(lecturerCourseDao.getLecturerCourseById(1100L, 100L));
         assertNull(lecturerCourseDao.getLecturerCourseById(1100L, 200L));
 
-        Date referenceImportDate = new Date();
+        Date referenceDateOfImport = new Date();
 
         // Insert lecturer to course with date too far in the past (-> should be deleted)
-        LecturerCourse lecturerCourse1 = new LecturerCourse(lecturer, course1, DateUtil.addYearsToDate(referenceImportDate, -campusCourseConfiguration.getMaxYearsToKeepCkData() - 1));
+        LecturerCourse lecturerCourse1 = new LecturerCourse(lecturer, course1, DateUtil.addYearsToDate(referenceDateOfImport, -campusCourseConfiguration.getMaxYearsToKeepCkData() - 1));
         lecturerCourseDao.saveOrUpdate(lecturerCourse1);
 
         // Insert lecturer to course with date not too far in the past (-> should not be deleted)
-        LecturerCourse lecturerCourse2 = new LecturerCourse(lecturer, course2, DateUtil.addYearsToDate(referenceImportDate, -campusCourseConfiguration.getMaxYearsToKeepCkData() + 1));
+        LecturerCourse lecturerCourse2 = new LecturerCourse(lecturer, course2, DateUtil.addYearsToDate(referenceDateOfImport, -campusCourseConfiguration.getMaxYearsToKeepCkData() + 1));
         lecturerCourseDao.saveOrUpdate(lecturerCourse2);
 
         dbInstance.flush();
@@ -342,8 +342,8 @@ public class LecturerCourseDaoTest extends OlatTestCase {
     }
 
     private void insertLecturerIdCourseIds() {
-        List<LecturerIdCourseIdModifiedDate> lecturerIdCourseIdModifiedDates = mockDataGeneratorProvider.get().getLecturerIdCourseIdModifiedDates();
-        lecturerCourseDao.save(lecturerIdCourseIdModifiedDates);
+        List<LecturerIdCourseIdDateOfImport> lecturerIdCourseIdDateOfImports = mockDataGeneratorProvider.get().getLecturerIdCourseIdDateOfImports();
+        lecturerCourseDao.save(lecturerIdCourseIdDateOfImports);
         dbInstance.flush();
     }
 }

@@ -53,93 +53,119 @@
             <list>
                 <bean class="org.olat.user.DefaultUser">
                     <!-- constructor arg is userName -->
-                    <constructor-arg type="java.lang.String" value="jama"/>
-                    <property name="firstName" value="Jacob"/>
-                    <property name="lastName" value="Macload"/>
-                    <property name="email" value="jacob.macload@dummy.ch"/>
-                    <property name="password" value="Tetris2020!"/>
-                    <property name="language" value="${defaultlang}"/>
-                    <property name="guest" value="false"/>
-                    <property name="author" value="true"/>
-                    <property name="admin" value="false"/>
+                    <constructor-arg type="java.lang.String" value="jama" />
+                    <property name="firstName" value="Jacob" />
+                    <property name="lastName" value="Macload" />
+                    <property name="email" value="jacob.macload@dummi.ch" />
+                    <property name="password" value="Tetris2020!" />
+                    <property name="language" value="${defaultlang}" />
+                    <property name="guest" value="false" />
+                    <property name="author" value="true" />
+                    <property name="admin" value="false" />
                 </bean>
 
                 <bean class="org.olat.user.DefaultUser">
                     <!-- constructor arg is userName -->
-                    <constructor-arg type="java.lang.String" value="anmc"/>
-                    <property name="firstName" value="Andrew"/>
-                    <property name="lastName" value="McDonald"/>
-                    <property name="email" value="andrew.macdonald@dummy.ch"/>
-                    <property name="password" value="Tetris2020!"/>
-                    <property name="language" value="${defaultlang}"/>
-                    <property name="guest" value="false"/>
-                    <property name="author" value="true"/>
-                    <property name="admin" value="false"/>
+                    <constructor-arg type="java.lang.String" value="anmc" />
+                    <property name="firstName" value="Andrew" />
+                    <property name="lastName" value="McDonald" />
+                    <property name="email" value="andrew.macdonald@dummi.ch" />
+                    <property name="password" value="Tetris2020!" />
+                    <property name="language" value="${defaultlang}" />
+                    <property name="guest" value="false" />
+                    <property name="author" value="true" />
+                    <property name="admin" value="false" />
                 </bean>
 
                 <bean class="org.olat.user.DefaultUser">
                     <!-- constructor arg is userName -->
-                    <constructor-arg type="java.lang.String" value="alla"/>
-                    <property name="firstName" value="Alison"/>
-                    <property name="lastName" value="Lambert"/>
-                    <property name="email" value="alison.lambert@dummy.ch"/>
-                    <property name="password" value="Tetris2020!"/>
-                    <property name="language" value="${defaultlang}"/>
-                    <property name="guest" value="false"/>
-                    <property name="author" value="true"/>
-                    <property name="admin" value="false"/>
+                    <constructor-arg type="java.lang.String" value="alla" />
+                    <property name="firstName" value="Alison" />
+                    <property name="lastName" value="Lambert" />
+                    <property name="email" value="alison.lambert@dummi.ch" />
+                    <property name="password" value="Tetris2020!" />
+                    <property name="language" value="${defaultlang}" />
+                    <property name="guest" value="false" />
+                    <property name="author" value="true" />
+                    <property name="admin" value="false" />
                 </bean>
 
                 <bean class="org.olat.user.DefaultUser">
                     <!-- constructor arg is userName -->
-                    <constructor-arg type="java.lang.String" value="damu"/>
-                    <property name="firstName" value="Dan"/>
-                    <property name="lastName" value="Murray"/>
-                    <property name="email" value="dan.murray@dummy.ch"/>
-                    <property name="password" value="Tetris2020!"/>
-                    <property name="language" value="${defaultlang}"/>
-                    <property name="guest" value="false"/>
-                    <property name="author" value="false"/>
-                    <property name="admin" value="false"/>
+                    <constructor-arg type="java.lang.String" value="damu" />
+                    <property name="firstName" value="Dan" />
+                    <property name="lastName" value="Murray" />
+                    <property name="email" value="dan.murray@dummi.ch" />
+                    <property name="password" value="Tetris2020!" />
+                    <property name="language" value="${defaultlang}" />
+                    <property name="guest" value="false" />
+                    <property name="author" value="false" />
+                    <property name="admin" value="false" />
                 </bean>
 
                 <bean class="org.olat.user.DefaultUser">
                     <!-- constructor arg is userName -->
-                    <constructor-arg type="java.lang.String" value="feja"/>
-                    <property name="firstName" value="Felicity"/>
-                    <property name="lastName" value="Jackson"/>
-                    <property name="email" value="felicity.jackson@dummy.ch"/>
-                    <property name="password" value="Tetris2020!"/>
-                    <property name="language" value="${defaultlang}"/>
-                    <property name="guest" value="false"/>
-                    <property name="author" value="false"/>
-                    <property name="admin" value="false"/>
+                    <constructor-arg type="java.lang.String" value="feja" />
+                    <property name="firstName" value="Felicity" />
+                    <property name="lastName" value="Jackson" />
+                    <property name="email" value="felicity.jackson@dummi.ch" />
+                    <property name="password" value="Tetris2020!" />
+                    <property name="language" value="${defaultlang}" />
+                    <property name="guest" value="false" />
+                    <property name="author" value="false" />
+                    <property name="admin" value="false" />
                 </bean>
 
                 <bean class="org.olat.user.DefaultUser">
                     <!-- constructor arg is userName -->
-                    <constructor-arg type="java.lang.String" value="chco"/>
-                    <property name="firstName" value="Chloe"/>
-                    <property name="lastName" value="Coleman"/>
-                    <property name="email" value="chloe.coleman@dummy.ch"/>
-                    <property name="password" value="Tetris2020!"/>
-                    <property name="language" value="${defaultlang}"/>
-                    <property name="guest" value="false"/>
-                    <property name="author" value="false"/>
-                    <property name="admin" value="false"/>
+                    <constructor-arg type="java.lang.String" value="chco" />
+                    <property name="firstName" value="Chloe" />
+                    <property name="lastName" value="Coleman" />
+                    <property name="email" value="chloe.coleman@dummi.ch" />
+                    <property name="password" value="Tetris2020!" />
+                    <property name="language" value="${defaultlang}" />
+                    <property name="guest" value="false" />
+                    <property name="author" value="false" />
+                    <property name="admin" value="false" />
                 </bean>
 
                 <bean class="org.olat.user.DefaultUser">
                     <!-- constructor arg is userName -->
-                    <constructor-arg type="java.lang.String" value="jash"/>
-                    <property name="firstName" value="James"/>
-                    <property name="lastName" value="Sharp"/>
-                    <property name="email" value="james.sharp@dummy.ch"/>
-                    <property name="password" value="Tetris2020!"/>
-                    <property name="language" value="${defaultlang}"/>
-                    <property name="guest" value="false"/>
-                    <property name="author" value="false"/>
-                    <property name="admin" value="false"/>
+                    <constructor-arg type="java.lang.String" value="jash" />
+                    <property name="firstName" value="James" />
+                    <property name="lastName" value="Sharp" />
+                    <property name="email" value="james.sharp@dummi.ch" />
+                    <property name="password" value="Tetris2020!" />
+                    <property name="language" value="${defaultlang}" />
+                    <property name="guest" value="false" />
+                    <property name="author" value="false" />
+                    <property name="admin" value="false" />
+                </bean>
+
+                <bean class="org.olat.user.DefaultUser">
+                    <!-- constructor arg is userName -->
+                    <constructor-arg type="java.lang.String" value="josh" />
+                    <property name="firstName" value="John" />
+                    <property name="lastName" value="Sheppard" />
+                    <property name="email" value="john.sheppard@dummi.ch" />
+                    <property name="password" value="Tetris2020!" />
+                    <property name="language" value="${defaultlang}" />
+                    <property name="guest" value="false" />
+                    <property name="author" value="false" />
+                    <property name="admin" value="false" />
+                </bean>
+
+                <bean class="org.olat.user.DefaultUser">
+                    <!-- constructor arg is userName -->
+                    <constructor-arg type="java.lang.String" value="rode" />
+                    <property name="firstName" value="Ronon" />
+                    <property name="lastName" value="Dex" />
+                    <property name="email" value="ronon.dex@dummi.ch" />
+                    <property name="password" value="Tetris2020!" />
+                    <property name="language" value="${defaultlang}" />
+                    <property name="guest" value="false" />
+                    <property name="author" value="false" />
+                    <property name="admin" value="false" />
                 </bean>
             </list>
         </property>

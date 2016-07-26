@@ -52,8 +52,14 @@ public class CampusCourseConfigurationTest extends OlatTestCase {
 
     @Test
     public void getTemplateCourseResourcableId_DefaultValue() {
+        // Delete property entry (if exists)
+        Long oldValue = campusCourseConfiguration.getTemplateCourseResourcableId(defaultTemplateLanguage);
+        campusCourseConfiguration.deleteTemplateCourseResourcableIdPropertyIfExists(null);
+
         Long configValue = campusCourseConfiguration.getTemplateCourseResourcableId(null);
         assertEquals("Wrong default value, config-value is different to value in olat.properties", defaultValue, configValue.toString());
+
+        campusCourseConfiguration.saveTemplateCourseResourcableId(oldValue, defaultTemplateLanguage);
     }
 
     @Test

@@ -114,13 +114,13 @@ public class DataConverterTest extends OlatTestCase {
      * Adds students to the first course found.
      */
 	private Course getCourseWithStudents() {
-		Course course = dataGenerator.getCourseOrgIds().get(0);
+		Course course = new Course(dataGenerator.getCourseOrgIds().get(0));
 		
-        List<StudentIdCourseIdModifiedDate> studentIdCourseIdModifiedDates = dataGenerator.getStudentIdCourseIdModifiedDates();
+        List<StudentIdCourseIdDateOfImport> studentIdCourseIdDateOfImports = dataGenerator.getStudentIdCourseIdDateOfImports();
         List<Long> studentIds = new ArrayList<>();
-        for (StudentIdCourseIdModifiedDate studentIdCourseIdModifiedDate : studentIdCourseIdModifiedDates) {
-        	if (course.getId().equals(studentIdCourseIdModifiedDate.getCourseId())) {
-        		studentIds.add(studentIdCourseIdModifiedDate.getStudentId());
+        for (StudentIdCourseIdDateOfImport studentIdCourseIdDateOfImport : studentIdCourseIdDateOfImports) {
+        	if (course.getId().equals(studentIdCourseIdDateOfImport.getCourseId())) {
+        		studentIds.add(studentIdCourseIdDateOfImport.getStudentId());
         	}
         }
         List<Student> students = dataGenerator.getStudents();
@@ -136,13 +136,13 @@ public class DataConverterTest extends OlatTestCase {
 	}
 	
 	private Course getCourseWithLecturers() {
-		Course course = dataGenerator.getCourseOrgIds().get(0);
+		Course course = new Course(dataGenerator.getCourseOrgIds().get(0));
 		
-        List<LecturerIdCourseIdModifiedDate> lecturerIdCourseIdModifiedDates = dataGenerator.getLecturerIdCourseIdModifiedDates();
+        List<LecturerIdCourseIdDateOfImport> lecturerIdCourseIdDateOfImports = dataGenerator.getLecturerIdCourseIdDateOfImports();
         List<Long> lecturerIds = new ArrayList<>();
-        for (LecturerIdCourseIdModifiedDate lecturerIdCourseIdModifiedDate : lecturerIdCourseIdModifiedDates) {
-        	if (course.getId().equals(lecturerIdCourseIdModifiedDate.getCourseId())) {
-        		lecturerIds.add(lecturerIdCourseIdModifiedDate.getLecturerId());
+        for (LecturerIdCourseIdDateOfImport lecturerIdCourseIdDateOfImport : lecturerIdCourseIdDateOfImports) {
+        	if (course.getId().equals(lecturerIdCourseIdDateOfImport.getCourseId())) {
+        		lecturerIds.add(lecturerIdCourseIdDateOfImport.getLecturerId());
         	}
         }
         List<Lecturer> lecturers = dataGenerator.getLecturers();

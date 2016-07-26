@@ -28,7 +28,8 @@ public class EventDao {
         Course course = dbInstance.getCurrentEntityManager().find(Course.class, courseId);
         if (course == null) {
             String warningMessage = "No course found with id " + courseId + ". Skipping entry " + event.getId() + " for table ck_event.";
-            LOG.warn(warningMessage);
+            // Here we only log on the debug level to avoid duplicated warnings (LOG.warn is already called by EventWriter)
+            LOG.debug(warningMessage);
             throw new EntityNotFoundException(warningMessage);
         }
         event.setCourse(course);
@@ -36,7 +37,7 @@ public class EventDao {
     }
 
     public void addEventToCourse(EventCourseId eventCourseId) {
-        Event event = new Event(eventCourseId.getDate(), eventCourseId.getStart(), eventCourseId.getEnd(), eventCourseId.getModifiedDate());
+        Event event = new Event(eventCourseId.getDate(), eventCourseId.getStart(), eventCourseId.getEnd(), eventCourseId.getDateOfImport());
         addEventToCourse(event, eventCourseId.getCourseId());
     }
 

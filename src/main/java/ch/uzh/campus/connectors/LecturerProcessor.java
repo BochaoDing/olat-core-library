@@ -74,7 +74,7 @@ public class LecturerProcessor implements ItemProcessor<Lecturer, Lecturer> {
         if (StringUtils.isBlank(lecturer.getEmail())) {
             lecturer.setEmail(lecturer.getPrivateEmail());
         }
-        lecturer.setModifiedDate(new Date());
+        lecturer.setDateOfImport(new Date());
         return lecturer;
     }
 

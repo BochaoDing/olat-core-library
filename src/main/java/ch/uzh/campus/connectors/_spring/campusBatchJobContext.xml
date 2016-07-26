@@ -45,7 +45,7 @@
 			<batch:flow>
 				<batch:step id="import_lecturers" parent="campusStep">
 					<batch:tasklet>
-						<batch:chunk reader="lecturerReader" processor="lecturerProcessor" writer="lecturerWriter"  commit-interval="20" skip-limit="500" retry-limit="5"/>
+						<batch:chunk reader="lecturerReader" processor="lecturerProcessor" writer="lecturerWriter" commit-interval="20" skip-limit="500" retry-limit="5"/>
 					</batch:tasklet>
 				</batch:step>
 			</batch:flow>
@@ -241,13 +241,13 @@
 			<bean parent="lineMapper">
 				<property name="lineTokenizer" >
 					<bean parent="lineTokenizer">
-						<property name="names" value="id, shortTitle, title, vstNr, language, category, isElearning, startDate, endDate, vzzLink, semester, ipz (NOT USED), org1, org2, org3, org4, org5, org6, org7, org8, org9" />
+						<property name="names" value="id, shortTitle, title, vstNr, language, category, eLearningSupported, startDate, endDate, vzzLink, semester, exclude, org1, org2, org3, org4, org5, org6, org7, org8, org9" />
 						<property name="strict" value="false"/>
 					</bean>
 				</property>
 				<property name="fieldSetMapper" >
 					<bean parent="fieldSetMapper">
-						<property name="prototypeBeanName" value="course" />
+						<property name="prototypeBeanName" value="courseOrgId" />
 					</bean>
 				</property>
 			</bean>
@@ -269,7 +269,7 @@
 	
 	<bean id="courseDao" class="ch.uzh.campus.data.CourseDao"/>
 	
-	<bean id='course' class ='ch.uzh.campus.data.CourseOrgId' scope="prototype" />
+	<bean id="courseOrgId" class ='ch.uzh.campus.data.CourseOrgId' scope="prototype" />
 	
 	<!-- ======================================================================================= -->
 	<!-- ==============BUCHUNG:STUDENT-KURS(Reader, Writer, Processor, Entity, Dao)================== -->  

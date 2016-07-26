@@ -2149,19 +2149,19 @@ create table if not exists ck_course (
 	olat_id bigint,
 	title varchar(255) not null,
 	short_title varchar(255) not null,
-	e_learning_supported char(1),
+	e_learning_supported boolean not null,
 	language varchar(255) not null,
 	category varchar(255) not null,
 	lv_nr varchar(255) not null,
-	start_date date,
-	end_date date,
+	start_date date not null,
+	end_date date not null,
 	vvz_link varchar(255) not null,
-	semester char(255),
-	short_semester char(4),
-	exclude boolean not null default 0,
+	semester char(255) not null,
+	short_semester char(4) not null,
+	exclude boolean not null,
 	synchronizable boolean not null default 1,
   parent_course_id BIGINT,
-	modified_date datetime not null,
+	date_of_import datetime not null,
 	primary key (id)
 )engine InnoDB;
 
@@ -2171,14 +2171,14 @@ create table if not exists ck_lecturer (
 	last_name varchar(255) not null,
 	email varchar(255) not null,
 	additionalPersonalNrs varchar(255),
-	modified_date datetime not null,
+	date_of_import datetime not null,
 	primary key (id)
 )engine InnoDB;
 
 create table if not exists ck_lecturer_course (
 	course_id bigint not null,
 	lecturer_id bigint not null,
-	modified_date datetime not null,
+	date_of_import datetime not null,
 	primary key (course_id, lecturer_id)
 )engine InnoDB;
 
@@ -2188,14 +2188,14 @@ create table if not exists ck_student (
 	first_name varchar(255) not null,
 	last_name varchar(255) not null,
 	email varchar(255) not null,
-	modified_date datetime not null,
+	date_of_import datetime not null,
 	primary key (id)
 )engine InnoDB;
 
 create table if not exists ck_student_course (
 	course_id bigint not null,
 	student_id bigint not null,
-	modified_date datetime not null,
+	date_of_import datetime not null,
 	primary key (course_id, student_id)
 )engine InnoDB;
 
@@ -2205,7 +2205,7 @@ create table if not exists ck_event (
 	date date not null,
 	start time not null,
 	end time not null,
-	modified_date datetime not null,
+	date_of_import datetime not null,
 	primary key (id)
 )engine InnoDB;
 
@@ -2215,7 +2215,7 @@ create table if not exists ck_text (
 	type varchar(255) not null,
 	line_seq bigint not null,
 	line varchar(255) not null,
-	modified_date datetime not null,
+	date_of_import datetime not null,
 	primary key (id)
 )engine InnoDB;
 
@@ -2223,8 +2223,8 @@ create table if not exists ck_org (
 	id bigint not null,
 	short_name varchar(50) not null,
 	name varchar(255) not null,
-  enabled boolean not null default 0,
-	modified_date datetime not null,
+  enabled boolean not null,
+	date_of_import datetime not null,
 	primary key (id)
 )engine InnoDB;
 

@@ -17,8 +17,8 @@ public class MockDataGenerator {
     private List<Student> students;
     private List<Lecturer> lecturers;
     private List<CourseOrgId> courseOrgIds;
-    private List<LecturerIdCourseIdModifiedDate> lecturerIdCourseIdModifiedDates;
-    private List<StudentIdCourseIdModifiedDate> studentIdCourseIdModifiedDates;
+    private List<LecturerIdCourseIdDateOfImport> lecturerIdCourseIdDateOfImports;
+    private List<StudentIdCourseIdDateOfImport> studentIdCourseIdDateOfImports;
     private List<TextCourseId> textCourseIds;
     private List<EventCourseId> eventCourseIds;
     private List<ImportStatistic> importStatistics;
@@ -87,12 +87,12 @@ public class MockDataGenerator {
         this.importStatistics = importStatistics;
     }
 
-    List<StudentIdCourseIdModifiedDate> getStudentIdCourseIdModifiedDates() {
-        return studentIdCourseIdModifiedDates;
+    List<StudentIdCourseIdDateOfImport> getStudentIdCourseIdDateOfImports() {
+        return studentIdCourseIdDateOfImports;
     }
 
-    public void setStudentIdCourseIdModifiedDates(List<StudentIdCourseIdModifiedDate> studentIdCourseIdModifiedDates) {
-        this.studentIdCourseIdModifiedDates = studentIdCourseIdModifiedDates;
+    public void setStudentIdCourseIdDateOfImports(List<StudentIdCourseIdDateOfImport> studentIdCourseIdDateOfImports) {
+        this.studentIdCourseIdDateOfImports = studentIdCourseIdDateOfImports;
     }
 
     List<TextCourseId> getTextCourseIds() {
@@ -103,11 +103,11 @@ public class MockDataGenerator {
         this.textCourseIds = textCourseIds;
     }
 
-    List<LecturerIdCourseIdModifiedDate> getLecturerIdCourseIdModifiedDates() {
-        return lecturerIdCourseIdModifiedDates;
+    List<LecturerIdCourseIdDateOfImport> getLecturerIdCourseIdDateOfImports() {
+        return lecturerIdCourseIdDateOfImports;
     }
 
-    public void setLecturerIdCourseIdModifiedDates(List<LecturerIdCourseIdModifiedDate> lecturerIdCourseIdModifiedDates) {
-        this.lecturerIdCourseIdModifiedDates = lecturerIdCourseIdModifiedDates;
+    public void setLecturerIdCourseIdDateOfImports(List<LecturerIdCourseIdDateOfImport> lecturerIdCourseIdDateOfImports) {
+        this.lecturerIdCourseIdDateOfImports = lecturerIdCourseIdDateOfImports;
     }
 }

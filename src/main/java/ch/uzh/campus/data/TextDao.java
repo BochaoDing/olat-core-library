@@ -28,7 +28,8 @@ public class TextDao {
         Course course = dbInstance.getCurrentEntityManager().find(Course.class, courseId);
         if (course == null) {
             String warningMessage = "No course found with id " + courseId + ". Skipping entry " + text.getId() + " for table ck_text.";
-            LOG.warn(warningMessage);
+            // Here we only log on the debug level to avoid duplicated warnings (LOG.warn is already called by TextWriter)
+            LOG.debug(warningMessage);
             throw new EntityNotFoundException(warningMessage);
         }
         text.setCourse(course);
@@ -36,7 +37,7 @@ public class TextDao {
     }
 
     public void addTextToCourse(TextCourseId textCourseId) {
-        Text text = new Text(textCourseId.getType(), textCourseId.getLineSeq(), textCourseId.getLine(), textCourseId.getModifiedDate());
+        Text text = new Text(textCourseId.getType(), textCourseId.getLineSeq(), textCourseId.getLine(), textCourseId.getDateOfImport());
         addTextToCourse(text, textCourseId.getCourseId());
     }
 

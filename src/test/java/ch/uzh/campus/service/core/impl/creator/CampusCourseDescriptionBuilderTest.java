@@ -10,11 +10,11 @@ import org.olat.core.id.UserConstants;
 import org.olat.user.UserImpl;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.*;
-
 
 /**
  * Initial Date: 31.05.2012 <br>
@@ -68,7 +68,10 @@ public class CampusCourseDescriptionBuilderTest {
         argsMock[2] = eventDescription;
 
         List<Identity> participants = new ArrayList<>();
-        CampusCourseImportTO campusCourseData = new CampusCourseImportTO(title, semester, lecturers, participants, eventDescription, TEST_RESOURCEABLE_ID, null);
+        CampusCourseImportTO campusCourseData = new CampusCourseImportTO(
+				title, semester, lecturers, participants,
+				Collections.emptyList(), eventDescription,
+				TEST_RESOURCEABLE_ID, null, null, null);
         Translator translatorMock = mock(Translator.class);
         campusCourseDescriptionBuilder.translator = translatorMock;
         // Description example :
@@ -80,5 +83,4 @@ public class CampusCourseDescriptionBuilderTest {
         // Check if argsMock contains the right parameter (argsMock[0] = semester; argsMock[1] = LECTURE_SOLL; argsMock[2] = eventDescription;)
         verify(translatorMock).translate(CampusCourseDescriptionBuilder.KEY_DESCRIPTION_TEMPLATE, argsMock);
     }
-
 }

@@ -54,7 +54,7 @@ public class OrgProcessor implements ItemProcessor<Org, Org> {
             }
         }
 
-        org.setModifiedDate(new Date());
+        org.setDateOfImport(new Date());
 
         return org;
     }

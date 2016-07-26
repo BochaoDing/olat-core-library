@@ -242,8 +242,8 @@ public class DaoManager {
         return lecturerDao.getAllOrphanedLecturers();
     }
 
-    public List<Long> getAllOrgsToBeDeleted(Date date) {
-        return orgDao.getAllNotUpdatedOrgs(date);
+    public List<Long> getAllOrgsToBeDeleted() {
+        return orgDao.getAllOrphanedOrgs();
     }
 
     public void deleteOrgByIds(List<Long> orgIds) {
@@ -354,13 +354,8 @@ public class DaoManager {
         courseDao.saveResourceableId(courseId, resourceableId);
     }
 
-    public void saveCampusCourseResoureableIdAndDisableSynchronization(Long courseId, Long resourceableId) {
-        courseDao.saveResourceableId(courseId, resourceableId);
-        courseDao.disableSynchronization(courseId);
-    }
-
-    public List<Course> getCourseByResourceable(Long resourcableId) {
-        return courseDao.getCourseByResourceable(resourcableId);
+    public Course getLatestCourseByResourceable(Long resourcableId) throws Exception {
+        return courseDao.getLatestCourseByResourceable(resourcableId);
     }
 
     public void resetResourceableId(Long resourceableId) {
@@ -393,13 +388,9 @@ public class DaoManager {
 
     public CampusCourseImportTO getSapCampusCourse(long courseId) {
         Course course = getCourseById(courseId);
-        return getSapCampusCourse(course);
-    }
-
-    private CampusCourseImportTO getSapCampusCourse(Course course) {
-        if (course == null) {
-            return null;
-        }
+		if (course == null) {
+			return null;
+		}
 
         // Determine lecturerCourses and studentCourses of course and parent courses
         Set<LecturerCourse> lecturerCoursesOfCourseAndParentCourses;
@@ -411,9 +402,13 @@ public class DaoManager {
             courseIt = course.getParentCourse();
         } while (course.getParentCourse() != null);
 
-        return new CampusCourseImportTO(course.getTitleToBeDisplayed(shortTitleActivated), course.getSemester(), dataConverter.convertLecturersToIdentities(lecturerCoursesOfCourseAndParentCourses),
-                dataConverter.convertDelegateesToIdentities(lecturerCoursesOfCourseAndParentCourses), dataConverter.convertStudentsToIdentities(studentCoursesOfCourseAndParentCourses),
-                textDao.getContentsByCourseId(course.getId()), course.getResourceableId(), course.getId(), course.getLanguage(), course.getVvzLink());
+        return new CampusCourseImportTO(course.getTitleToBeDisplayed(shortTitleActivated),
+				course.getSemester(),
+				dataConverter.convertLecturersToIdentities(lecturerCoursesOfCourseAndParentCourses),
+                dataConverter.convertDelegateesToIdentities(lecturerCoursesOfCourseAndParentCourses),
+				dataConverter.convertStudentsToIdentities(studentCoursesOfCourseAndParentCourses),
+                textDao.getContentsByCourseId(course.getId()), course.getResourceableId(),
+				course.getId(), course.getLanguage(), course.getVvzLink());
     }
 
     public List getDelegatees(Identity delegator) {

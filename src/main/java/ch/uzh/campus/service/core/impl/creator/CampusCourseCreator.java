@@ -63,7 +63,7 @@ public class CampusCourseCreator {
         this.campusCourseDescriptionBuilder = campusCourseDescriptionBuilder;
     }
 
-    public CampusCourse createCampusCourseFromTemplate(CampusCourseImportTO campusCourseImportData, Long templateCourseResourceableId, Identity owner, boolean isDefaultTemplateUsed) {
+    public CampusCourse createCampusCourseFromTemplate(CampusCourseImportTO campusCourseImportData, Long templateCourseResourceableId, Identity owner) {
 
         // 1. Lookup template
         ICourse template = CourseFactory.loadCourse(templateCourseResourceableId);

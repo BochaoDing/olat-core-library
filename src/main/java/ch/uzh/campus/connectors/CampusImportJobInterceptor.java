@@ -74,18 +74,22 @@ public class CampusImportJobInterceptor implements JobExecutionListener {
 			int lecturerCoursesToBeRemoved = daoManager.deleteAllLCBookingTooFarInThePast(jobExecution.getStartTime());
 			dbInstance.intermediateCommit();
 			List<LecturerIdCourseId> lecturerIdCourseIdsToBeRemoved = daoManager.getAllNotUpdatedLCBookingOfCurrentSemester(jobExecution.getStartTime());
-			if (!lecturerIdCourseIdsToBeRemoved.isEmpty()) {
-				lecturerCoursesToBeRemoved += daoManager.deleteLCBookingByLecturerIdCourseIds(lecturerIdCourseIdsToBeRemoved);
-			}
+			lecturerCoursesToBeRemoved += lecturerIdCourseIdsToBeRemoved.size();
 			LOG.info("LECTURER_COURSES TO BE REMOVED ["  + lecturerCoursesToBeRemoved + "]");
+			if (!lecturerIdCourseIdsToBeRemoved.isEmpty()) {
+				daoManager.deleteLCBookingByLecturerIdCourseIds(lecturerIdCourseIdsToBeRemoved);
+				dbInstance.intermediateCommit();
+			}
 
 			int studentCoursesToBeRemoved = daoManager.deleteAllSCBookingTooFarInThePast(jobExecution.getStartTime());
 			dbInstance.intermediateCommit();
 			List<StudentIdCourseId> studentIdCourseIdsToBeRemoved = daoManager.getAllNotUpdatedSCBookingOfCurrentSemester(jobExecution.getStartTime());
-			if (!studentIdCourseIdsToBeRemoved.isEmpty()) {
-				studentCoursesToBeRemoved += daoManager.deleteSCBookingByStudentIdCourseIds(studentIdCourseIdsToBeRemoved);
-			}
+			studentCoursesToBeRemoved += studentIdCourseIdsToBeRemoved.size();
 			LOG.info("STUDENT_COURSES TO BE REMOVED [" + studentCoursesToBeRemoved + "]");
+			if (!studentIdCourseIdsToBeRemoved.isEmpty()) {
+				daoManager.deleteSCBookingByStudentIdCourseIds(studentIdCourseIdsToBeRemoved);
+				dbInstance.intermediateCommit();
+			}
 
 			List<Long> studentsToBeRemoved = daoManager.getAllStudentsToBeDeleted();
 			LOG.info("STUDENTS TO BE REMOVED [" + studentsToBeRemoved.size() + "]");
@@ -108,7 +112,7 @@ public class CampusImportJobInterceptor implements JobExecutionListener {
 				dbInstance.intermediateCommit();
 			}
 
-			List<Long> orgsToBeRemoved = daoManager.getAllOrgsToBeDeleted(jobExecution.getStartTime());
+			List<Long> orgsToBeRemoved = daoManager.getAllOrgsToBeDeleted();
 			LOG.info("ORGS TO BE REMOVED [" + orgsToBeRemoved.size() + "]");
 			if (!orgsToBeRemoved.isEmpty()) {
 				daoManager.deleteOrgByIds(orgsToBeRemoved);

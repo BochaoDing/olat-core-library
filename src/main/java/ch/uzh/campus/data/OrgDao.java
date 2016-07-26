@@ -46,11 +46,9 @@ public class OrgDao implements CampusDao<Org> {
                 .getResultList();
     }
 
-    List<Long> getAllNotUpdatedOrgs(Date date) {
-        // Subtract one second from date since modifiedDate (used in query) is rounded to seconds
+    List<Long> getAllOrphanedOrgs() {
         return dbInstance.getCurrentEntityManager()
-                .createNamedQuery(Org.GET_ALL_NOT_UPDATED_ORGS, Long.class)
-                .setParameter("lastImportDate", DateUtil.addSecondsToDate(date, -1))
+                .createNamedQuery(Org.GET_ALL_ORPHANED_ORGS, Long.class)
                 .getResultList();
     }
 
@@ -59,7 +57,8 @@ public class OrgDao implements CampusDao<Org> {
      * We cannot use a bulk delete here, since deleting the join table is not possible.
      */
     void deleteByOrgId(Long orgId) {
-        deleteOrgBidirectionally(dbInstance.getCurrentEntityManager().getReference(Org.class, orgId));
+        EntityManager em = dbInstance.getCurrentEntityManager();
+        deleteOrgBidirectionally(em.getReference(Org.class, orgId), em);
     }
 
     /**
@@ -70,21 +69,23 @@ public class OrgDao implements CampusDao<Org> {
         int count = 0;
         EntityManager em = dbInstance.getCurrentEntityManager();
         for (Long orgId : orgIds) {
-            deleteOrgBidirectionally(em.getReference(Org.class, orgId));
+            deleteOrgBidirectionally(em.getReference(Org.class, orgId), em);
             // Avoid memory problems caused by loading too many objects into the persistence context
             // (cf. C. Bauer and G. King: Java Persistence mit Hibernate, 2nd edition, p. 477)
             if (++count % 100 == 0) {
-                dbInstance.flush();
-                dbInstance.clear();
+                em.flush();
+                em.clear();
             }
         }
     }
 
-    private void deleteOrgBidirectionally(Org org) {
+    private void deleteOrgBidirectionally(Org org, EntityManager em) {
         for (Course course : org.getCourses()) {
             course.getOrgs().remove(org);
         }
-        dbInstance.deleteObject(org);
+        // Use em.remove() instead of dbInstance.deleteObject() since the latter calls dbInstance.getCurrentEntityManager()
+        // at every call, which may has an impact on the performance
+        em.remove(org);
     }
 
 }

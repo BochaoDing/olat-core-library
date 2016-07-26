@@ -7,7 +7,7 @@ public class EventCourseId {
     private Date date;
     private String start;
     private String end;
-    private Date modifiedDate;
+    private Date dateOfImport;
     private Long courseId;
 
     public Date getDate() {
@@ -34,12 +34,12 @@ public class EventCourseId {
         this.end = end;
     }
 
-    public Date getModifiedDate() {
-        return modifiedDate;
+    public Date getDateOfImport() {
+        return dateOfImport;
     }
 
-    public void setModifiedDate(Date modifiedDate) {
-        this.modifiedDate = modifiedDate;
+    public void setDateOfImport(Date dateOfImport) {
+        this.dateOfImport = dateOfImport;
     }
 
     public Long getCourseId() {

@@ -1,5 +1,6 @@
 package ch.uzh.campus.service.core;
 
+import ch.uzh.campus.CampusCourseImportTO;
 import ch.uzh.campus.data.Course;
 import ch.uzh.campus.data.SapOlatUser;
 import ch.uzh.campus.service.CampusCourse;
@@ -19,15 +20,17 @@ public interface CampusCourseCoreService {
 
     boolean checkDelegation(Long sapCampusCourseId, Identity creator);
 
-    CampusCourse createCampusCourseFromTemplate(Long courseResourceableId, Long sapCampusCourseId, Identity creator);
+	CampusCourse createCampusCourseFromTemplate(Long sapCampusCourseId, Identity creator) throws Exception;
 
-    CampusCourse continueCampusCourse(Long sapCampusCourseId, Long parentSapCampusCourseId, Identity creator);
+    CampusCourse createCampusCourseFromTemplate(Long courseResourceableId, Long sapCampusCourseId, Identity creator) throws Exception;
 
-    CampusCourse loadCampusCourse(Long sapCampusCourseId);
+    CampusCourse continueCampusCourse(Long childSapCampusCourseId, Long parentSapCampusCourseId, Identity creator);
+
+    CampusCourse loadCampusCourse(CampusCourseImportTO campusCourseImportTO);
 
     CampusCourse loadCampusCourseByResourceable(Long resourceableId);
 
-    Course getLatestCourseByResourceable(Long resourceableId);
+    Course getLatestCourseByResourceable(Long resourceableId) throws Exception;
 
     void resetResourceableIdReference(OLATResourceable res);
 
@@ -58,5 +61,4 @@ public interface CampusCourseCoreService {
     List getDelegatees(Identity delegator);
 
     void deleteDelegation(Identity delegator, Identity delegatee);
-
 }
