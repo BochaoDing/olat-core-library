@@ -188,6 +188,7 @@ public class QTIEditHelper {
 
 		ChoiceResponse newChoice = new ChoiceResponse();
 		newChoice.setCorrect(true);
+		newChoice.setPoints(1.0f);
 		newChoice.getContent().add(new Mattext(trans.translate("editor.newresponsetext")));
 		question.getResponses().add(newChoice);
 
@@ -216,7 +217,7 @@ public class QTIEditHelper {
 		controls.add(control);
 		newItem.setItemcontrols(controls);
 		
-		// pepare question
+		// prepare question
 		ChoiceQuestion question = new ChoiceQuestion();
 		question.setLable(trans.translate("editor.newquestion"));
 		question.getQuestion().getElements().add(new Mattext(trans.translate("editor.newquestiontext")));
@@ -227,7 +228,7 @@ public class QTIEditHelper {
 		ChoiceResponse newChoice = new ChoiceResponse();
 		newChoice.getContent().add(new Mattext(trans.translate("editor.newresponsetext")));
 		newChoice.setCorrect(true);
-		newChoice.setPoints(1);
+		newChoice.setPoints(1.0f);
 		question.getResponses().add(newChoice);
 		newItem.setQuestion(question);
 		
