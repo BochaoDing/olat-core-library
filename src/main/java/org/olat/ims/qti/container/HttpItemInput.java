@@ -25,6 +25,8 @@
 
 package org.olat.ims.qti.container;
 
+import org.olat.core.util.filter.FilterFactory;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -65,8 +67,10 @@ public class HttpItemInput implements ItemInput, Serializable {
 		if (l == null) {
 			l = new ArrayList<String>();
 		}
-		l.add(value.trim());
-		return m.put(key, l);	
+		// OLATNG-199 (back-porting OLAT-6989: filter html tags)
+		String filteredValue = FilterFactory.getHtmlTagsFilter().filter(value.trim());
+		l.add(filteredValue);
+		return m.put(key, l);
 	}
 	
 	/* (non-Javadoc)
