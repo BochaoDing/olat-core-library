@@ -1,3 +1,14 @@
+package ch.uzh.campus.connectors;
+
+import ch.uzh.campus.data.CampusDao;
+import org.olat.core.commons.persistence.DB;
+import org.olat.core.logging.OLog;
+import org.olat.core.logging.Tracing;
+import org.springframework.batch.item.ItemWriter;
+import org.springframework.beans.factory.annotation.Autowired;
+
+import java.util.List;
+
 /**
  * OLAT - Online Learning and Training<br>
  * http://www.olat.org
@@ -17,19 +28,7 @@
  * Copyright (c) since 2004 at Multimedia- & E-Learning Services (MELS),<br>
  * University of Zurich, Switzerland.
  * <p>
- */
-package ch.uzh.campus.connectors;
-
-import ch.uzh.campus.data.CampusDao;
-import org.olat.core.commons.persistence.DB;
-import org.olat.core.logging.OLog;
-import org.olat.core.logging.Tracing;
-import org.springframework.batch.item.ItemWriter;
-import org.springframework.beans.factory.annotation.Autowired;
-
-import java.util.List;
-
-/**
+ *
  * This class is a generic {@link ItemWriter} that writes data to the database. <br>
  * It delegates the actual writing (save or update) of data to the database to a <br>
  * concrete implementation of {@link CampusDao}.<br>
@@ -42,10 +41,14 @@ public class CampusWriter<T> implements ItemWriter<T> {
 
     private static final OLog LOG = Tracing.createLoggerFor(CampusWriter.class);
 
+    private final DB dbInstance;
+
     private CampusDao<T> campuskursDao;
 
     @Autowired
-    private DB dbInstance;
+    public CampusWriter(DB dbInstance) {
+        this.dbInstance = dbInstance;
+    }
 
     /**
      * Sets the CampusDao to be used to save or update the items in {@link #write(List)}.
@@ -67,7 +70,11 @@ public class CampusWriter<T> implements ItemWriter<T> {
     /**
      * Delegates the actual saving or updating of the given list of items to the <br>
      * concrete implementation of {@link CampusDao}
-     * 
+     *
+     * Ensure no active {@link DB} session is open i.e. bound to the
+     * {@link ThreadLocal}. If this is not the case, do not try to close
+     * the session here. Close it where it was opened.
+     *
      * @param items
      *            the items to send
      * 
@@ -75,11 +82,6 @@ public class CampusWriter<T> implements ItemWriter<T> {
      */
     @SuppressWarnings({ "unchecked", "rawtypes" })
     public void write(List<? extends T> items) throws Exception {
-        /**
-         * Ensure no active {@link DB} session is open i.e. bound to the
-         * {@link ThreadLocal}. If this is not the case, do not try to close
-         * the session here. Close it where it was opened.
-         */
         try {
             campuskursDao.saveOrUpdate((List) items);
             dbInstance.commitAndCloseSession();

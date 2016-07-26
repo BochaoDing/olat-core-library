@@ -1,3 +1,17 @@
+package ch.uzh.campus.connectors;
+
+import ch.uzh.campus.data.TextCourseId;
+import ch.uzh.campus.data.TextDao;
+import org.olat.core.commons.persistence.DB;
+import org.olat.core.logging.OLog;
+import org.olat.core.logging.Tracing;
+import org.springframework.batch.item.ItemWriter;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
+
+import java.util.List;
+
 /**
  * OLAT - Online Learning and Training<br>
  * http://www.olat.org
@@ -17,33 +31,25 @@
  * Copyright (c) since 2004 at Multimedia- & E-Learning Services (MELS),<br>
  * University of Zurich, Switzerland.
  * <p>
- */
-package ch.uzh.campus.connectors;
-
-import ch.uzh.campus.data.TextCourseId;
-import ch.uzh.campus.data.TextDao;
-import org.olat.core.commons.persistence.DB;
-import org.olat.core.logging.OLog;
-import org.olat.core.logging.Tracing;
-import org.springframework.batch.item.ItemWriter;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-
-import java.util.List;
-
-/**
+ *
  * @author Martin Schraner
  */
+@Scope("step")
 @Component
 public class TextWriter implements ItemWriter<TextCourseId> {
 
     private static final OLog LOG = Tracing.createLoggerFor(TextWriter.class);
 
-    @Autowired
-    public TextDao textDao;
+    private final TextDao textDao;
+    private final DB dbInstance;
+
+    private Long courseIdOfLatestWarning = null;
 
     @Autowired
-    DB dbInstance;
+    public TextWriter(TextDao textDao, DB dbInstance) {
+        this.textDao = textDao;
+        this.dbInstance = dbInstance;
+    }
 
     @Override
     public void write(List<? extends TextCourseId> textCourseIds) throws Exception {
@@ -58,8 +64,10 @@ public class TextWriter implements ItemWriter<TextCourseId> {
             // First for the textCourseIds according to commit-interval in campusBatchJobContext.xml, and then (after rollbacking)
             // for each entry of the original textCourseIds separately enabling commits containing only one entry.
             // To avoid duplicated warnings we only log a warning in the latter case.
-            if (textCourseIds.size() == 1) {
+            // Furthermore, if the same course has several associated texts, the warning should only logged once.
+            if (textCourseIds.size() == 1 && textCourseIds.get(0).getCourseId() != null && !textCourseIds.get(0).getCourseId().equals(courseIdOfLatestWarning)) {
                 LOG.warn(t.getMessage());
+                courseIdOfLatestWarning = textCourseIds.get(0).getCourseId();
             } else {
                 LOG.debug(t.getMessage());
             }

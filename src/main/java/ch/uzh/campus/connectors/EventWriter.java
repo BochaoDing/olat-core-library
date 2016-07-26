@@ -1,3 +1,17 @@
+package ch.uzh.campus.connectors;
+
+import ch.uzh.campus.data.EventCourseId;
+import ch.uzh.campus.data.EventDao;
+import org.olat.core.commons.persistence.DB;
+import org.olat.core.logging.OLog;
+import org.olat.core.logging.Tracing;
+import org.springframework.batch.item.ItemWriter;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
+
+import java.util.List;
+
 /**
  * OLAT - Online Learning and Training<br>
  * http://www.olat.org
@@ -17,33 +31,24 @@
  * Copyright (c) since 2004 at Multimedia- & E-Learning Services (MELS),<br>
  * University of Zurich, Switzerland.
  * <p>
- */
-package ch.uzh.campus.connectors;
-
-import ch.uzh.campus.data.EventCourseId;
-import ch.uzh.campus.data.EventDao;
-import org.olat.core.commons.persistence.DB;
-import org.olat.core.logging.OLog;
-import org.olat.core.logging.Tracing;
-import org.springframework.batch.item.ItemWriter;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-
-import java.util.List;
-
-/**
  * @author Martin Schraner
  */
+@Scope("step")
 @Component
 public class EventWriter implements ItemWriter<EventCourseId> {
 
     private static final OLog LOG = Tracing.createLoggerFor(EventWriter.class);
 
-    @Autowired
-    public EventDao eventDao;
+    private final EventDao eventDao;
+    private final DB dbInstance;
+
+    private Long courseIdOfLatestWarning = null;
 
     @Autowired
-    DB dbInstance;
+    public EventWriter(EventDao eventDao, DB dbInstance) {
+        this.eventDao = eventDao;
+        this.dbInstance = dbInstance;
+    }
 
     @Override
     public void write(List<? extends EventCourseId> eventCourseIds) throws Exception {
@@ -58,8 +63,10 @@ public class EventWriter implements ItemWriter<EventCourseId> {
             // First for the eventCourseIds according to commit-interval in campusBatchJobContext.xml, and then (after rollbacking)
             // for each entry of the original eventCourseIds separately enabling commits containing only one entry.
             // To avoid duplicated warnings we only log a warning in the latter case.
-            if (eventCourseIds.size() == 1) {
+            // Furthermore, if the same course has several associated events, the warning should only logged once.
+            if (eventCourseIds.size() == 1 && eventCourseIds.get(0).getCourseId() != null && !eventCourseIds.get(0).getCourseId().equals(courseIdOfLatestWarning)) {
                 LOG.warn(t.getMessage());
+                courseIdOfLatestWarning = eventCourseIds.get(0).getCourseId();
             } else {
                 LOG.debug(t.getMessage());
             }
