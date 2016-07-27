@@ -55,7 +55,7 @@ public class SectionContext implements Serializable {
 	private Objectives objectives;
 	private List<ItemContext> itemContexts;
 
-	private float totalScore; // only floats and integers supported at the moment
+	private double totalScore; // OLATNG-21/OLAT-7129: use double for computing score
 	private int cutvalue;
 	private int currentItemContextPos;
 	private long timeOfStart;
@@ -82,7 +82,7 @@ public class SectionContext implements Serializable {
 	 * 
 	 */
 	public void init() {
-		totalScore = 0.0f;
+		totalScore = 0.0;
 		currentItemContextPos = -1;
 		timeOfStart = -1; // not started yet
 		timesAnswered = 0; // not answered yet (this flag has no direct meaning in
@@ -403,7 +403,7 @@ public class SectionContext implements Serializable {
 					if (itemscore >= itemcutval) tmpscore++; // count items correct
 				}
 			}
-			if (tmpscore >= cutvalue) totalScore = 1.0f; // cutvalue of the section
+			if (tmpscore >= cutvalue) totalScore = 1.0; // cutvalue of the section
 		} else {
 			throw new RuntimeException("scoring algorithm " + scoremodel + " not supported");
 		}
@@ -414,7 +414,7 @@ public class SectionContext implements Serializable {
 	 */
 	public float getScore() {
 		calcScore();
-		return totalScore;
+		return (float) totalScore;
 	}
 
 	/**

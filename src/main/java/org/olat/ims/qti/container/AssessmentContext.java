@@ -529,13 +529,13 @@ public class AssessmentContext implements Serializable {
 	 */
 	public float getScore() {
 		if (scoremodel == null || scoremodel.equalsIgnoreCase("SumOfScores")) { // sumofScores
-
-			float count = 0;
+			// OLATNG-201 (back-porting OLAT-7129): Calculate with double precision
+			double count = 0;
 			for (Iterator<SectionContext> iter = sectionContexts.iterator(); iter.hasNext();) {
 				SectionContext sc = iter.next();
 				count += sc.getScore();
 			}
-			return count;
+			return (float) count;
 		} else if (scoremodel.equalsIgnoreCase("NumberCorrect")) {
 			float tmpscore = 0.0f;
 			// calculate correct number of sections: an section is correct if its
