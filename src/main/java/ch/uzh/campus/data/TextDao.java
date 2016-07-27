@@ -21,13 +21,17 @@ public class TextDao {
 
     private static final OLog LOG = Tracing.createLoggerFor(TextDao.class);
 
-	@Autowired
-    private DB dbInstance;
+    private final DB dbInstance;
+
+    @Autowired
+    public TextDao(DB dbInstance) {
+        this.dbInstance = dbInstance;
+    }
 
     private void addTextToCourse(Text text, Long courseId) {
         Course course = dbInstance.getCurrentEntityManager().find(Course.class, courseId);
         if (course == null) {
-            String warningMessage = "No course found with id " + courseId + ". Skipping entry " + text.getId() + " for table ck_text.";
+            String warningMessage = "No course found with id " + courseId + ". Skipping all texts of this course for table ck_text.";
             // Here we only log on the debug level to avoid duplicated warnings (LOG.warn is already called by TextWriter)
             LOG.debug(warningMessage);
             throw new EntityNotFoundException(warningMessage);
