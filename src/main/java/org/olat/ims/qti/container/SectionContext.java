@@ -44,6 +44,7 @@ import org.olat.ims.qti.process.elements.ScoreBooleanEvaluable;
 /**
  * @author Potable Shop 
  */
+@SuppressWarnings("serial")
 public class SectionContext implements Serializable {
 	private String ident;
 	//private String title;
@@ -169,8 +170,8 @@ public class SectionContext implements Serializable {
 		// determine which items (sections not implemented) will be chosen/selected
 		// for this section
 		// --- 1. take all items and resolved itemrefs which are in the section
-		List items = el_section.selectNodes("item|itemref");
-		for (Iterator iter = items.iterator(); iter.hasNext();) {
+		List<?> items = el_section.selectNodes("item|itemref");
+		for (Iterator<?> iter = items.iterator(); iter.hasNext();) {
 			Element el_item = (Element) iter.next();
 			//<!ELEMENT itemref (#PCDATA)> <!ATTLIST itemref %I_LinkRefId; > <!ENTITY
 			// % I_LinkRefId " linkrefid CDATA #REQUIRED">

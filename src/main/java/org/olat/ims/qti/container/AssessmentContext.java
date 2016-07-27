@@ -156,7 +156,7 @@ public class AssessmentContext implements Serializable {
 
 			// set the cutvalue if given (only variable score)
 			cutvalue = QTIHelper.getFloatAttribute(el_outpro, "outcomes/decvar[@varname='SCORE']", "cutvalue");
-			List el_oft = el_outpro.selectNodes("outcomes_feedback_test");
+			List<?> el_oft = el_outpro.selectNodes("outcomes_feedback_test");
 			if (el_oft.size() != 0) {
 				feedbacktesting = true;
 			}
@@ -174,8 +174,8 @@ public class AssessmentContext implements Serializable {
 
 		//<!ELEMENT sectionref (#PCDATA)>
 		//<!ATTLIST sectionref %I_LinkRefId; >
-		List sections = assessment.selectNodes("section|sectionref");
-		for (Iterator iter = sections.iterator(); iter.hasNext();) {
+		List<?> sections = assessment.selectNodes("section|sectionref");
+		for (Iterator<?> iter = sections.iterator(); iter.hasNext();) {
 			Element el_section = (Element) iter.next();
 			
 			// resolve sectionref into the correct sections
@@ -441,7 +441,6 @@ public class AssessmentContext implements Serializable {
 			// count all items in previous section
 			currentPos += getSectionContext(i).getItemContextCount();
 		}
-		getCurrentSectionContext();
 		if (getCurrentSectionContextPos()>-1) {
 			currentPos += getSectionContext(getCurrentSectionContextPos()).getItemContextCount();
 		}
@@ -601,9 +600,9 @@ public class AssessmentContext implements Serializable {
 	 */
 	private void calcFeedBack() {
 		if (feedbacktesting) {
-			List el_ofts = el_assessment.selectNodes("outcomes_processing/outcomes_feedback_test");
+			List<?> el_ofts = el_assessment.selectNodes("outcomes_processing/outcomes_feedback_test");
 			feedbackavailable = false;
-			for (Iterator it_oft = el_ofts.iterator(); it_oft.hasNext();) {
+			for (Iterator<?> it_oft = el_ofts.iterator(); it_oft.hasNext();) {
 				Element el_oft = (Element) it_oft.next();
 				//<!ELEMENT outcomes_feedback_test (test_variable , displayfeedback+)>
 				Element el_testvar = (Element) el_oft.selectSingleNode("test_variable");

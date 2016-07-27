@@ -76,8 +76,8 @@ public class HttpItemInput implements ItemInput, Serializable {
 	/* (non-Javadoc)
 	 * @see org.olat.qti.process.ItemInput#getAsString(java.lang.String)
 	 */
-	public String getSingle(String varName) {
-		List<String> li = getAsList(varName);
+	public String getSingle(final String varName) {
+		final List<String> li = getAsList(varName);
 		if(li==null) {			
 			return "";
 		}
@@ -88,9 +88,8 @@ public class HttpItemInput implements ItemInput, Serializable {
 	/**
 	 * @see org.olat.qti.process.ItemInput#getAsSet(java.lang.String)
 	 */
-	public List<String> getAsList(String varName) {
-		List<String> li = m.get(varName);
-		return li;
+	public List<String> getAsList(final String varName) {
+		return m.get(varName);
 	}
 	
 	/**
@@ -126,8 +125,8 @@ public class HttpItemInput implements ItemInput, Serializable {
 			// throw new RuntimeException("variable "+varName+" was not declared!");
 			return false;
 		}	
-		for (Iterator<String> iter = li.iterator(); iter.hasNext();) {
-				String element = iter.next();
+		for (final Iterator<String> iter = li.iterator(); iter.hasNext();) {
+				final String element = iter.next();
 				if (element.equalsIgnoreCase(value)) return true;	
 		}
 		return false;
