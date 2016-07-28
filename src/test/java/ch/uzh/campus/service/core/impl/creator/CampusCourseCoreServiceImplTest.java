@@ -58,8 +58,6 @@ public class CampusCourseCoreServiceImplTest extends OlatTestCase {
     private static final String TEST_TITLE_TEXT = "Test Title";
     private static final String TEST_SEMESTER_TEXT = "Herbstsemester 2012";
     private static final String TEST_EVENT_DESCRIPTION_TEXT = "Event description";
-    private static final String TEST_COURSE_GROUP_A_NAME = "Campusgroup A";
-    private static final String TEST_COURSE_GROUP_B_NAME = "Campusgroup B";
 
     private CampusCourseCoreService campusCourseCoreService;
 
@@ -76,7 +74,7 @@ public class CampusCourseCoreServiceImplTest extends OlatTestCase {
     private GroupDAO groupDAO;
 
     @Autowired
-    private BGAreaManager areaManager;
+    private BGAreaManager bgAreaManager;
     
     @Autowired
     private DB dbInstance;
@@ -99,6 +97,9 @@ public class CampusCourseCoreServiceImplTest extends OlatTestCase {
     @Autowired
     private CampusCourseFactory campusCourseFactory;
 
+    @Autowired
+    private CampusCourseConfiguration campusCourseConfiguration;
+
     private Long sourceResourceableId;
     private Identity ownerIdentity;
     private Identity secondOwnerIdentity;
@@ -114,18 +115,14 @@ public class CampusCourseCoreServiceImplTest extends OlatTestCase {
         RepositoryEntry sourceRepositoryEntry = JunitTestHelper.deployDemoCourse(ownerIdentity);
         sourceResourceableId = sourceRepositoryEntry.getOlatResource().getResourceableId();
         
-        CampusCourseJunitTestHelper.setupCampusCourseGroupForTest(sourceRepositoryEntry,
-				TEST_COURSE_GROUP_A_NAME, businessGroupService);
-        dbInstance.commitAndCloseSession();
-
-        CampusCourseJunitTestHelper.setupCampusCourseGroupForTest(sourceRepositoryEntry,
-				TEST_COURSE_GROUP_B_NAME, businessGroupService);
-        dbInstance.commitAndCloseSession();
+        CampusCourseJunitTestHelper.setupCampusCourseGroupsForTest(ownerIdentity, sourceRepositoryEntry, campusCourseConfiguration, bgAreaManager, businessGroupService);
+        dbInstance.flush();
 
         campusCourseConfigurationMock = mock(CampusCourseConfiguration.class);
         when(campusCourseConfigurationMock.getTemplateCourseResourcableId(null)).thenReturn(sourceResourceableId);
-        when(campusCourseConfigurationMock.getCourseGroupAName()).thenReturn(TEST_COURSE_GROUP_A_NAME);
-        when(campusCourseConfigurationMock.getCourseGroupBName()).thenReturn(TEST_COURSE_GROUP_B_NAME);
+        when(campusCourseConfigurationMock.getCampusCourseLearningAreaName()).thenReturn(campusCourseConfiguration.getCampusCourseLearningAreaName());
+        when(campusCourseConfigurationMock.getCourseGroupAName()).thenReturn(campusCourseConfiguration.getCourseGroupAName());
+        when(campusCourseConfigurationMock.getCourseGroupBName()).thenReturn(campusCourseConfiguration.getCourseGroupBName());
         when(campusCourseConfigurationMock.getTemplateLanguage(null)).thenReturn("DE");
 
         secondOwnerIdentity = JunitTestHelper.createAndPersistIdentityAsUser("SecondTestOwner");
@@ -183,7 +180,7 @@ public class CampusCourseCoreServiceImplTest extends OlatTestCase {
     }
    
     @Test
-    public void testCreateCampusCourse_CheckAccess() throws Exception {
+    public void testCreateCampusCourse_checkAccess() throws Exception {
         CampusCourse createdCampusCourseTestObject = createCampusCourseTestObject();
         assertAccess(createdCampusCourseTestObject.getRepositoryEntry());
         // Ditto, but read from DB
@@ -195,7 +192,7 @@ public class CampusCourseCoreServiceImplTest extends OlatTestCase {
     }
 
     @Test
-    public void testCreateCampusCourse_CheckTitle() throws Exception {
+    public void testCreateCampusCourse_checkTitle() throws Exception {
         CampusCourse createdCampusCourseTestObject = createCampusCourseTestObject();
         assertTitle(createdCampusCourseTestObject.getRepositoryEntry());
         // Ditto, but read from DB
@@ -207,7 +204,7 @@ public class CampusCourseCoreServiceImplTest extends OlatTestCase {
     }
     
     @Test
-    public void testCreateCampusCourse_CheckDescription() throws Exception {
+    public void testCreateCampusCourse_checkDescription() throws Exception {
         CampusCourse createdCampusCourseTestObject = createCampusCourseTestObject();
         System.out.println("### TEST createdCampusCourseTestObject.getRepositoryEntry().getDescription()="
                 + createdCampusCourseTestObject.getRepositoryEntry().getDescription());
@@ -234,7 +231,7 @@ public class CampusCourseCoreServiceImplTest extends OlatTestCase {
     }
 
     @Test
-    public void testCreateCampusCourse_CheckOwners() throws Exception {
+    public void testCreateCampusCourse_checkOwners() throws Exception {
         CampusCourse createdCampusCourseTestObject = createCampusCourseTestObject();
 
         Group defaultGroup = repositoryService.getDefaultGroup( createdCampusCourseTestObject.getRepositoryEntry());
@@ -245,9 +242,9 @@ public class CampusCourseCoreServiceImplTest extends OlatTestCase {
     }
     
     @Test
-    public void testCreateCampusCourse_CheckCourseGroup() throws Exception {
+    public void testCreateCampusCourse_checkCourseGroup() throws Exception {
         CampusCourse createdCampusCourseTestObject = createCampusCourseTestObject();
-        BusinessGroup campusCourseGroup = campusCourseGroupFinder.lookupCampusGroup(createdCampusCourseTestObject.getCourse(), campusCourseConfigurationMock.getCourseGroupAName());
+        BusinessGroup campusCourseGroup = campusCourseGroupFinder.lookupCampusGroup(createdCampusCourseTestObject.getRepositoryEntry(), campusCourseConfigurationMock.getCourseGroupAName());
 
         List<Identity> coaches = businessGroupService.getMembers(campusCourseGroup, GroupRoles.coach.name());
 
@@ -288,7 +285,7 @@ public class CampusCourseCoreServiceImplTest extends OlatTestCase {
 				ownerIdentity);
         
         BusinessGroup campusCourseGroup = campusCourseGroupFinder.lookupCampusGroup(
-				campusCourse.getCourse(), campusCourseConfigurationMock.getCourseGroupAName());
+				campusCourse.getRepositoryEntry(), campusCourseConfigurationMock.getCourseGroupAName());
         
         List<Identity> coaches = businessGroupService.getMembers(campusCourseGroup, GroupRoles.coach.name());        
         assertTrue("Missing identity (" + ownerIdentity + ") in owner-group of course-group",
@@ -299,7 +296,7 @@ public class CampusCourseCoreServiceImplTest extends OlatTestCase {
         assertTrue("Missing identity (" + secondOwnerIdentity + ")in owner-group of course-group",
 				readParticipants.contains(testIdentity_3));
         
-        List<BGArea> areas = areaManager.findBGAreasInContext(
+        List<BGArea> areas = bgAreaManager.findBGAreasInContext(
 				campusCourse.getRepositoryEntry().getOlatResource());
         assertEquals(1,areas.size());
     }
@@ -340,7 +337,7 @@ public class CampusCourseCoreServiceImplTest extends OlatTestCase {
 				childCampusCourseImportData.getSapCourseId(),
 				parentCampusCourseImportData.getSapCourseId(), ownerIdentity);
 
-		/**
+		/*
 		 * TODO sev26
 		 * Add FS/HS prefix to test course title.
 		 */

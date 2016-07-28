@@ -1,3 +1,13 @@
+package ch.uzh.campus;
+
+import ch.uzh.campus.service.CampusCourseGroups;
+import org.olat.core.id.Identity;
+import org.olat.group.BusinessGroup;
+import org.olat.group.BusinessGroupService;
+import org.olat.group.area.BGArea;
+import org.olat.group.area.BGAreaManager;
+import org.olat.repository.RepositoryEntry;
+
 /**
  * OLAT - Online Learning and Training<br>
  * http://www.olat.org
@@ -17,20 +27,26 @@
  * Copyright (c) since 2004 at Multimedia- & E-Learning Services (MELS),<br>
  * University of Zurich, Switzerland.
  * <p>
- */
-package ch.uzh.campus;
-
-import org.olat.group.BusinessGroupService;
-import org.olat.repository.RepositoryEntry;
-
-/**
+ *
  * Initial Date: 04.06.2012 <br>
  * 
  * @author cg
  */
 public class CampusCourseJunitTestHelper {
 
-    public static void setupCampusCourseGroupForTest(RepositoryEntry repositoryEntry, String groupName, BusinessGroupService businessGroupService) {
-    	businessGroupService.createBusinessGroup(null, groupName, null, 0, -1, false, false, repositoryEntry);
+    public static CampusCourseGroups setupCampusCourseGroupsForTest(Identity creatorIdentity, RepositoryEntry repositoryEntry, CampusCourseConfiguration campusCourseConfiguration, BGAreaManager bgAreaManager, BusinessGroupService businessGroupService) {
+        // Create learning area
+        String learningAreaName = campusCourseConfiguration.getCampusCourseLearningAreaName();
+        BGArea campusLearningArea = bgAreaManager.createAndPersistBGArea(learningAreaName, "Campuslernbereich Test", repositoryEntry.getOlatResource());
+
+        // Create Campusgruppe A
+        BusinessGroup bgA = businessGroupService.createBusinessGroup(creatorIdentity, campusCourseConfiguration.getCourseGroupAName(), "Campusgruppe A Test", null, null, false, false, repositoryEntry);
+        bgAreaManager.addBGToBGArea(bgA, campusLearningArea);
+
+        // Create Campusgruppe B
+        BusinessGroup bgB = businessGroupService.createBusinessGroup(creatorIdentity, campusCourseConfiguration.getCourseGroupBName(), "Campusgruppe B Test", null, null, false, false, repositoryEntry);
+        bgAreaManager.addBGToBGArea(bgB, campusLearningArea);
+
+        return new CampusCourseGroups(bgA, bgB);
 	}
 }

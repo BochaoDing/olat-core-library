@@ -1,3 +1,16 @@
+package ch.uzh.campus.service.core.impl.syncer;
+
+
+import ch.uzh.campus.CampusCourseConfiguration;
+import org.olat.group.BusinessGroup;
+import org.olat.group.area.BGArea;
+import org.olat.group.area.BGAreaManager;
+import org.olat.repository.RepositoryEntry;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+
 /**
  * OLAT - Online Learning and Training<br>
  * http://www.olat.org
@@ -17,22 +30,7 @@
  * Copyright (c) since 2004 at Multimedia- & E-Learning Services (MELS),<br>
  * University of Zurich, Switzerland.
  * <p>
- */
-package ch.uzh.campus.service.core.impl.syncer;
-
-
-import org.olat.core.logging.AssertException;
-import org.olat.core.logging.OLog;
-import org.olat.core.logging.Tracing;
-import org.olat.course.ICourse;
-import org.olat.course.groupsandrights.CourseGroupManager;
-import org.olat.group.BusinessGroup;
-import org.springframework.stereotype.Service;
-
-
-import java.util.List;
-
-/**
+ *
  * Initial Date: 25.06.2012 <br>
  * 
  * @author cg
@@ -40,20 +38,35 @@ import java.util.List;
 @Service
 public class CampusCourseGroupFinder {
 
-    private static final OLog LOG = Tracing.createLoggerFor(CampusCourseGroupFinder.class);
+    private final BGAreaManager bgAreaManager;
+    private final CampusCourseConfiguration campusCourseConfiguration;
 
-    public BusinessGroup lookupCampusGroup(ICourse course, String campusGruppe) {
-        CourseGroupManager courseGroupManager = course.getCourseEnvironment().getCourseGroupManager();
-        
-        List <BusinessGroup> foundCampusGroups = courseGroupManager.getAllBusinessGroups();
-        
-        for (BusinessGroup businessGroup : foundCampusGroups ) {
-        	if (businessGroup.getName().equals(campusGruppe)) {
+    @Autowired
+    public CampusCourseGroupFinder(BGAreaManager bgAreaManager, CampusCourseConfiguration campusCourseConfiguration) {
+        this.bgAreaManager = bgAreaManager;
+        this.campusCourseConfiguration = campusCourseConfiguration;
+    }
+
+    /**
+     * @return campus group found or null, if no campus group has been found
+     */
+    public BusinessGroup lookupCampusGroup(RepositoryEntry repositoryEntry, String campusGroupName) {
+
+        // Find learning learning area
+        String campusLearningAreaName = campusCourseConfiguration.getCampusCourseLearningAreaName();
+        BGArea campusLearningArea = bgAreaManager.findBGArea(campusLearningAreaName, repositoryEntry.getOlatResource());
+        if (campusLearningArea == null) {
+            return null;
+        }
+
+        // Find group in learning area
+        List<BusinessGroup> groupsOfArea = bgAreaManager.findBusinessGroupsOfArea(campusLearningArea);
+        for (BusinessGroup businessGroup : groupsOfArea ) {
+        	if (businessGroup.getName().equals(campusGroupName)) {
         		return businessGroup;
         	}
         }
-        LOG.error("Found no course-group with name=" + campusGruppe);
-        throw new AssertException("Found no course-group with name=" + campusGruppe);
+        return null;
     }
 
 }

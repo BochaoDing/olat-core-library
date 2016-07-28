@@ -68,17 +68,27 @@ public class CampusCourseGroupSynchronizer {
    }
      
    public List<Identity> getCampusGroupAParticipants(CampusCourse campusCourse) {
-        BusinessGroup campusGroupA = campusCourseGroupFinder.lookupCampusGroup(campusCourse.getCourse(), campusCourseConfiguration.getCourseGroupAName());
+        BusinessGroup campusGroupA = campusCourseGroupFinder.lookupCampusGroup(campusCourse.getRepositoryEntry(), campusCourseConfiguration.getCourseGroupAName());
         return businessGroupService.getMembers(campusGroupA, GroupRoles.participant.name());
+   }
+
+   public SynchronizedGroupStatistic synchronizeCourseGroups(CampusCourse campusCourse,
+                                                             CampusCourseImportTO campusCourseImportData) {
+       BusinessGroup campusGroupA = campusCourseGroupFinder.lookupCampusGroup(campusCourse.getRepositoryEntry(), campusCourseConfiguration.getCourseGroupAName());
+       BusinessGroup campusGroupB = campusCourseGroupFinder.lookupCampusGroup(campusCourse.getRepositoryEntry(), campusCourseConfiguration.getCourseGroupBName());
+       return synchronizeCourseGroups(campusCourse, campusCourseImportData, campusGroupA, campusGroupB);
    }
 
    /**
     * Synchronizes the coaches of the GroupB, and the coaches and participants of the GroupA.
     */
-    public SynchronizedGroupStatistic synchronizeCourseGroups(CampusCourse campusCourse, CampusCourseImportTO campusCourseImportData) {
-        BusinessGroup campusGroupA = campusCourseGroupFinder.lookupCampusGroup(campusCourse.getCourse(), campusCourseConfiguration.getCourseGroupAName());
-        BusinessGroup campusGroupB = campusCourseGroupFinder.lookupCampusGroup(campusCourse.getCourse(), campusCourseConfiguration.getCourseGroupBName());
-        
+    public SynchronizedGroupStatistic synchronizeCourseGroups(CampusCourse campusCourse,
+                                                              CampusCourseImportTO campusCourseImportData,
+                                                              BusinessGroup campusGroupA,
+                                                              BusinessGroup campusGroupB) {
+        assert campusGroupA != null;
+        assert campusGroupB != null;
+
         // Get the course owner identities
         List<Identity> courseOwners = repositoryService.getMembers(campusCourse.getRepositoryEntry(), GroupRoles.owner.name());
 

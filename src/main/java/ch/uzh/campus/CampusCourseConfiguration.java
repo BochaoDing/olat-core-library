@@ -26,6 +26,13 @@ public class CampusCourseConfiguration {
     private static final String CAMPUS_COURSE_PROPERTY_CATEGORY = "campus.course.property";
     private static final String TEMPLATE_COURSE_RESOURCEABLE_ID_PROPERTY_KEY = "_template.course.resourceable.id";
 
+    private final PropertyManager propertyManager;
+
+    @Autowired
+    public CampusCourseConfiguration(PropertyManager propertyManager) {
+        this.propertyManager = propertyManager;
+    }
+
     @Value("${campus.import.process.maxYearsToKeepCkData:3}")
     private int maxYearsToKeepCkData;
 
@@ -34,6 +41,9 @@ public class CampusCourseConfiguration {
 
     @Value("${campus.template.supportedLanguages}")
     private String templateSupportedLanguages;
+
+    @Value("${campus.template.course.learningArea.name}")
+    private String campusCourseLearningAreaName;
 
     @Value("${campus.template.course.groupA.name}")
     private String courseGroupAName;
@@ -64,9 +74,6 @@ public class CampusCourseConfiguration {
 
     @Value("${db.hibernate.hikari.leakDetectionThreshold}")
     private int connectionPoolTimeout;
-
-    @Autowired
-    PropertyManager propertyManager;
 
     // @Value("${campus.start.autumn.semester}")
     // private String startDateAutumnSemester;
@@ -128,6 +135,10 @@ public class CampusCourseConfiguration {
         if (property != null) {
             propertyManager.deleteProperty(property);
         }
+    }
+
+    public String getCampusCourseLearningAreaName() {
+        return campusCourseLearningAreaName;
     }
 
     public String getCourseGroupAName() {

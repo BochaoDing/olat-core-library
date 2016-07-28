@@ -61,7 +61,9 @@ public class CampusCourse {
         campusCourseCreator.updateCourseRunAndEditorModels(this, displayName, newCampusCourseImportData.getVvzLink(), false, newCampusCourseImportData.getLanguage());
 
         // Execute synchronization
-        excecuteCampusCourseGroupSynchronization(newCampusCourseImportData, campusCourseGroupSynchronizer);
+        campusCourseGroupSynchronizer.addAllLecturesAsOwner(this, newCampusCourseImportData.getLecturersOfCourseAndParentCourses());
+        campusCourseGroupSynchronizer.addDefaultCoOwnersAsOwner(this);
+        campusCourseGroupSynchronizer.synchronizeCourseGroups(this, newCampusCourseImportData);
     }
 
     public void updateCampusCourseCreatedFromTemplate(CampusCourseImportTO campusCourseImportData, Identity creator, boolean isDefaultTemplateUsed, CampusCourseCreator campusCourseCreator, CampusCoursePublisher campusCoursePublisher, CampusCourseGroupSynchronizer campusCourseGroupSynchronizer, CampusCourseConfiguration campusCourseConfiguration) {
@@ -77,15 +79,11 @@ public class CampusCourse {
         }
 
         // Create campus learning area and business groups A and B if necessary
-        campusCourseCreator.createCampusLearningAreaAndCampusBusinessGroups(repositoryEntry, creator, lvLanguage);
+        CampusCourseGroups campusCourseGroups = campusCourseCreator.createCampusLearningAreaAndCampusBusinessGroups(course, repositoryEntry, creator, lvLanguage);
 
         // Execute the first synchronization
-        excecuteCampusCourseGroupSynchronization(campusCourseImportData, campusCourseGroupSynchronizer);
-    }
-
-    private void excecuteCampusCourseGroupSynchronization(CampusCourseImportTO campusCourseImportData, CampusCourseGroupSynchronizer campusCourseGroupSynchronizer) {
         campusCourseGroupSynchronizer.addAllLecturesAsOwner(this, campusCourseImportData.getLecturersOfCourseAndParentCourses());
         campusCourseGroupSynchronizer.addDefaultCoOwnersAsOwner(this);
-        campusCourseGroupSynchronizer.synchronizeCourseGroups(this, campusCourseImportData);
+        campusCourseGroupSynchronizer.synchronizeCourseGroups(this, campusCourseImportData, campusCourseGroups.getCampusCourseGroupA(), campusCourseGroups.getCampusCourseGroupB());
     }
 }

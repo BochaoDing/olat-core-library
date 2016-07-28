@@ -3,11 +3,14 @@ package ch.uzh.campus.service.core.impl.creator;
 import ch.uzh.campus.CampusCourseConfiguration;
 import ch.uzh.campus.CampusCourseImportTO;
 import ch.uzh.campus.service.CampusCourse;
+import ch.uzh.campus.service.core.impl.syncer.CampusCourseGroupFinder;
 import org.junit.Before;
 import org.junit.Test;
 import org.olat.core.commons.persistence.DBFactory;
 import org.olat.core.gui.translator.Translator;
 import org.olat.core.id.Identity;
+import org.olat.course.CourseFactory;
+import org.olat.course.ICourse;
 import org.olat.group.BusinessGroup;
 import org.olat.group.BusinessGroupService;
 import org.olat.group.area.BGArea;
@@ -56,10 +59,14 @@ public class CampusCourseCreatorTest extends OlatTestCase {
     @Autowired
     CampusCourseConfiguration campusCourseConfiguration;
 
+    @Autowired
+    CampusCourseGroupFinder campusCourseGroupFinder;
+
     private CampusCourseCreator campusCourseCreatorTestObject;
     private Long templateResourceableId;
     private Identity ownerIdentity;
     private RepositoryEntry sourceRepositoryEntry;
+    private ICourse sourceCourse;
     private String ownerName = "owner";
     private String lvLanguage = "DE";
     private String areaName;
@@ -80,6 +87,7 @@ public class CampusCourseCreatorTest extends OlatTestCase {
         ownerIdentity = JunitTestHelper.createAndPersistIdentityAsUser(ownerName);
         sourceRepositoryEntry = JunitTestHelper.deployDemoCourse(ownerIdentity);
         templateResourceableId = sourceRepositoryEntry.getOlatResource().getResourceableId();
+        sourceCourse = CourseFactory.loadCourse(templateResourceableId);
         DBFactory.getInstance().closeSession();
 
         Translator translator = campusCourseCreatorTestObject.getTranslator(lvLanguage);
@@ -116,7 +124,7 @@ public class CampusCourseCreatorTest extends OlatTestCase {
 
         assertNull(areaManager.findBGArea(areaName, sourceRepositoryEntry.getOlatResource()));
 
-        campusCourseCreatorTestObject.createCampusLearningAreaAndCampusBusinessGroups(sourceRepositoryEntry, ownerIdentity, lvLanguage);
+        campusCourseCreatorTestObject.createCampusLearningAreaAndCampusBusinessGroups(sourceCourse, sourceRepositoryEntry, ownerIdentity, lvLanguage);
 
         // Check learning area
         BGArea campusLearningArea = areaManager.findBGArea(areaName, sourceRepositoryEntry.getOlatResource());
@@ -130,7 +138,7 @@ public class CampusCourseCreatorTest extends OlatTestCase {
         // Call method again -> no other business groups must be created
         int numberOfGroupsOfAreaBeforeCallingMethod = groupsOfArea.size();
 
-        campusCourseCreatorTestObject.createCampusLearningAreaAndCampusBusinessGroups(sourceRepositoryEntry, ownerIdentity, lvLanguage);
+        campusCourseCreatorTestObject.createCampusLearningAreaAndCampusBusinessGroups(sourceCourse, sourceRepositoryEntry, ownerIdentity, lvLanguage);
 
         assertEquals(numberOfGroupsOfAreaBeforeCallingMethod, areaManager.findBusinessGroupsOfArea(campusLearningArea).size());
     }
