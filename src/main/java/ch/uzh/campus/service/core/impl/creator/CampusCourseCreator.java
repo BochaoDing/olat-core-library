@@ -43,10 +43,6 @@ import java.util.Locale;
 @Component
 public class CampusCourseCreator {
 
-    private static final String DEFAULT_VVZ_LINK = "http://www.vorlesungen.uzh.ch/";     // this is expected to be found in the defaultTemplate
-    private static final String OLAT_SUPPORT_EMAIL_NODE_TYPE = "co";                     // this is expected to be found in the defaultTemplate
-    private static final String OLAT_SUPPORT_EMAIL_NODE_SHORT_TITLE_SUBSTRING = "@OLAT"; // this is expected to be found in the defaultTemplate
-
     private final RepositoryManager repositoryManager;
     private final RepositoryService repositoryService;
     private final BGAreaManager bgAreaManager;
@@ -239,21 +235,20 @@ public class CampusCourseCreator {
         if (!isDefaultTemplateUsed) {
             newObjective = translator.translate("campus.course.learningObj", new String[] { vvzLink });
         } else {
-            // replace DEFAULT_VVZ_LINK with vvzLink
-            newObjective = root.getLearningObjectives().replaceFirst(DEFAULT_VVZ_LINK, vvzLink);
+            // replace template course vvz link with vvzLink
+            newObjective = root.getLearningObjectives().replaceFirst(campusCourseConfiguration.getTemplateCourseVvzLink(), vvzLink);
         }
         return newObjective;
     }
 
     /**
      * Find the @OLAT-Support email node. Returns null if no such node could be found.
-     * This is only CampusCourse relevant.
      */
     private CourseNode findOlatSupportEmailNode(CourseNode rootNode) {
         CourseNode olatSupportEmailNode = null;
         for (int i = 0; i < rootNode.getChildCount(); i++) {
             CourseNode element = (CourseNode) rootNode.getChildAt(i);
-            if (element.getType().equals(OLAT_SUPPORT_EMAIL_NODE_TYPE) && element.getShortTitle().contains(OLAT_SUPPORT_EMAIL_NODE_SHORT_TITLE_SUBSTRING)) {
+            if (element.getType().equals(campusCourseConfiguration.getTemplateCourseOlatSupportEmailNodeType()) && element.getShortTitle().contains(campusCourseConfiguration.getTemplateCourseOlatSupportShortTitleSubstring())) {
                 olatSupportEmailNode = element;
                 break;
             }
@@ -263,7 +258,6 @@ public class CampusCourseCreator {
 
     /**
      * Sets SentFromCourse in the @OLAT-Support email node.
-     * This is only CampusCourse relevant.
      */
     private void setSentFromCourse(CourseNode olatSupportEmailNode, String sentFromCourse) {
     	ModuleConfiguration moduleConfiguration = olatSupportEmailNode.getModuleConfiguration();

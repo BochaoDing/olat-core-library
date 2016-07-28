@@ -51,6 +51,15 @@ public class CampusCourseConfiguration {
     @Value("${campus.template.course.groupB.name}")
     private String courseGroupBName;
 
+    @Value("${campus.template.course.vvzLink}")
+    private String templateCourseVvzLink;
+
+    @Value("${campus.template.course.olat.support.emailNodeType}")
+    private String templateCourseOlatSupportEmailNodeType;
+
+    @Value("${campus.template.course.olat.support.shortTitleSubstring}")
+    private String templateCourseOlatSupportShortTitleSubstring;
+
     @Value("${campus.course.default.co.owner.usernames}")
     private String defaultCoOwnerUserNames;
 
@@ -147,6 +156,18 @@ public class CampusCourseConfiguration {
 
     public String getCourseGroupBName() {
         return courseGroupBName;
+    }
+
+    public String getTemplateCourseVvzLink() {
+        return templateCourseVvzLink;
+    }
+
+    public String getTemplateCourseOlatSupportEmailNodeType() {
+        return templateCourseOlatSupportEmailNodeType;
+    }
+
+    public String getTemplateCourseOlatSupportShortTitleSubstring() {
+        return templateCourseOlatSupportShortTitleSubstring;
     }
 
     public String getDefaultCoOwnerUserNames() {
