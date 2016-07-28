@@ -352,6 +352,14 @@ public class Course {
         childCourse.parentCourse = this;
     }
 
+    public void removeChildCourse() {
+        if (childCourse == null) {
+            return;
+        }
+        childCourse.parentCourse = null;
+        childCourse = null;
+    }
+
     public Course getParentCourse() {
         return parentCourse;
     }
@@ -359,6 +367,14 @@ public class Course {
     public void setParentCourse(Course parentCourse) {
         this.parentCourse = parentCourse;
         parentCourse.childCourse = this;
+    }
+
+    public void removeParentCourse() {
+        if (parentCourse == null) {
+            return;
+        }
+        parentCourse.childCourse = null;
+        parentCourse = null;
     }
 
     @Transient

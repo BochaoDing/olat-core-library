@@ -224,9 +224,9 @@ public class CampusCourseCoreServiceImpl implements CampusCourseCoreService {
     }
 
     @Override
-    public void resetResourceableIdReference(OLATResourceable res) {
-        LOG.info("deleteResourceableIdReference for resourceableId=" + res.getResourceableId());
-        daoManager.resetResourceableId(res.getResourceableId());
+    public void resetResourceableIdAndParentCourseReference(OLATResourceable res) {
+        LOG.info("resetResourceableIdAndParentCourseReference for resourceableId=" + res.getResourceableId());
+        daoManager.resetResourceableIdAndParentCourseReference(res.getResourceableId());
 
         // Notify possible listeners about DELETED event
         sendCampusCourseEvent(res.getResourceableId(), CampusCourseEvent.DELETED);
