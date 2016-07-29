@@ -1,8 +1,8 @@
 package ch.uzh.campus.service.core.impl.syncer;
 
-import ch.uzh.campus.CampusCourseConfiguration;
 import ch.uzh.campus.CampusCourseImportTO;
 import ch.uzh.campus.service.CampusCourse;
+import ch.uzh.campus.service.CampusCourseGroups;
 import ch.uzh.campus.service.core.impl.syncer.statistic.SynchronizedGroupStatistic;
 import ch.uzh.campus.service.core.impl.syncer.statistic.SynchronizedSecurityGroupStatistic;
 import org.olat.basesecurity.GroupRoles;
@@ -33,19 +33,20 @@ public class CampusCourseGroupSynchronizer {
     
 	private static final OLog LOG = Tracing.createLoggerFor(CampusCourseGroupSynchronizer.class);
 
-    private final CampusCourseConfiguration campusCourseConfiguration;
     private final CampusCourseCoOwners campusCourseCoOwners;
     private final RepositoryService repositoryService;
     private final BusinessGroupService businessGroupService;
-    private final CampusCourseGroupFinder campusCourseGroupFinder;
+    private final CampusCourseGroupsFinder campusCourseGroupsFinder;
 
     @Autowired
-    public CampusCourseGroupSynchronizer(CampusCourseConfiguration campusCourseConfiguration, CampusCourseCoOwners campusCourseCoOwners, RepositoryService repositoryService, BusinessGroupService businessGroupService, CampusCourseGroupFinder campusCourseGroupFinder) {
-        this.campusCourseConfiguration = campusCourseConfiguration;
+    public CampusCourseGroupSynchronizer(CampusCourseCoOwners campusCourseCoOwners,
+                                         RepositoryService repositoryService,
+                                         BusinessGroupService businessGroupService,
+                                         CampusCourseGroupsFinder campusCourseGroupsFinder) {
         this.campusCourseCoOwners = campusCourseCoOwners;
         this.repositoryService = repositoryService;
         this.businessGroupService = businessGroupService;
-        this.campusCourseGroupFinder = campusCourseGroupFinder;
+        this.campusCourseGroupsFinder = campusCourseGroupsFinder;
     }
 
     public void addAllLecturesAsOwner(CampusCourse campusCourse, List<Identity> lecturers) {
@@ -68,15 +69,17 @@ public class CampusCourseGroupSynchronizer {
    }
      
    public List<Identity> getCampusGroupAParticipants(CampusCourse campusCourse) {
-        BusinessGroup campusGroupA = campusCourseGroupFinder.lookupCampusGroup(campusCourse.getRepositoryEntry(), campusCourseConfiguration.getCourseGroupAName());
-        return businessGroupService.getMembers(campusGroupA, GroupRoles.participant.name());
+       CampusCourseGroups campusCourseGroups = campusCourseGroupsFinder.findCampusCourseGroups(campusCourse.getRepositoryEntry());
+       assert campusCourseGroups != null;
+       BusinessGroup campusGroupA = campusCourseGroups.getCampusCourseGroupA();
+       assert campusGroupA != null;
+       return businessGroupService.getMembers(campusGroupA, GroupRoles.participant.name());
    }
 
    public SynchronizedGroupStatistic synchronizeCourseGroups(CampusCourse campusCourse,
                                                              CampusCourseImportTO campusCourseImportData) {
-       BusinessGroup campusGroupA = campusCourseGroupFinder.lookupCampusGroup(campusCourse.getRepositoryEntry(), campusCourseConfiguration.getCourseGroupAName());
-       BusinessGroup campusGroupB = campusCourseGroupFinder.lookupCampusGroup(campusCourse.getRepositoryEntry(), campusCourseConfiguration.getCourseGroupBName());
-       return synchronizeCourseGroups(campusCourse, campusCourseImportData, campusGroupA, campusGroupB);
+       CampusCourseGroups campusCourseGroups = campusCourseGroupsFinder.findCampusCourseGroups(campusCourse.getRepositoryEntry());
+       return synchronizeCourseGroups(campusCourse, campusCourseImportData, campusCourseGroups);
    }
 
    /**
@@ -84,8 +87,12 @@ public class CampusCourseGroupSynchronizer {
     */
     public SynchronizedGroupStatistic synchronizeCourseGroups(CampusCourse campusCourse,
                                                               CampusCourseImportTO campusCourseImportData,
-                                                              BusinessGroup campusGroupA,
-                                                              BusinessGroup campusGroupB) {
+                                                              CampusCourseGroups campusCourseGroups) {
+        assert campusCourseGroups != null;
+
+        BusinessGroup campusGroupA = campusCourseGroups.getCampusCourseGroupA();
+        BusinessGroup campusGroupB = campusCourseGroups.getCampusCourseGroupB();
+
         assert campusGroupA != null;
         assert campusGroupB != null;
 

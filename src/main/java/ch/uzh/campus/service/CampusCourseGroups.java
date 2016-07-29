@@ -19,7 +19,7 @@ public class CampusCourseGroups {
         return campusCourseGroupA;
     }
 
-    BusinessGroup getCampusCourseGroupB() {
+    public BusinessGroup getCampusCourseGroupB() {
         return campusCourseGroupB;
     }
 }

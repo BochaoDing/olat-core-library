@@ -7,10 +7,12 @@ import ch.uzh.campus.data.DaoManager;
 import ch.uzh.campus.data.SapOlatUser;
 import ch.uzh.campus.presentation.CampusCourseEvent;
 import ch.uzh.campus.service.CampusCourse;
+import ch.uzh.campus.service.CampusCourseGroups;
 import ch.uzh.campus.service.core.CampusCourseCoreService;
 import ch.uzh.campus.service.core.impl.creator.CampusCourseCreator;
 import ch.uzh.campus.service.core.impl.creator.CampusCourseDescriptionBuilder;
 import ch.uzh.campus.service.core.impl.creator.CampusCoursePublisher;
+import ch.uzh.campus.service.core.impl.syncer.CampusCourseGroupsFinder;
 import ch.uzh.campus.service.core.impl.syncer.CampusCourseGroupSynchronizer;
 import org.olat.core.commons.persistence.DB;
 import org.olat.core.id.Identity;
@@ -22,6 +24,8 @@ import org.olat.core.util.resource.OresHelper;
 import org.olat.course.CourseFactory;
 import org.olat.course.ICourse;
 import org.olat.course.tree.PublishTreeModel;
+import org.olat.group.BusinessGroup;
+import org.olat.group.BusinessGroupService;
 import org.olat.repository.RepositoryEntry;
 import org.olat.repository.RepositoryService;
 import org.olat.resource.OLATResourceManager;
@@ -72,9 +76,22 @@ public class CampusCourseCoreServiceImpl implements CampusCourseCoreService {
     private final CampusCourseConfiguration campusCourseConfiguration;
     private final CampusCourseGroupSynchronizer campusCourseGroupSynchronizer;
     private final OLATResourceManager olatResourceManager;
+    private final CampusCourseGroupsFinder campusCourseGroupsFinder;
+    private final BusinessGroupService businessGroupService;
 
     @Autowired
-    public CampusCourseCoreServiceImpl(DB dbInstance, DaoManager daoManager, RepositoryService repositoryService, CampusCourseFactory campusCourseFactory, CampusCourseDescriptionBuilder campusCourseDescriptionBuilder, CampusCourseCreator campusCourseCreator, CampusCoursePublisher campusCoursePublisher, CampusCourseConfiguration campusCourseConfiguration, CampusCourseGroupSynchronizer campusCourseGroupSynchronizer, OLATResourceManager olatResourceManager) {
+    public CampusCourseCoreServiceImpl(DB dbInstance,
+                                       DaoManager daoManager,
+                                       RepositoryService repositoryService,
+                                       CampusCourseFactory campusCourseFactory,
+                                       CampusCourseDescriptionBuilder campusCourseDescriptionBuilder,
+                                       CampusCourseCreator campusCourseCreator,
+                                       CampusCoursePublisher campusCoursePublisher,
+                                       CampusCourseConfiguration campusCourseConfiguration,
+                                       CampusCourseGroupSynchronizer campusCourseGroupSynchronizer,
+                                       OLATResourceManager olatResourceManager,
+                                       CampusCourseGroupsFinder campusCourseGroupsFinder,
+                                       BusinessGroupService businessGroupService) {
         this.dbInstance = dbInstance;
         this.daoManager = daoManager;
         this.repositoryService = repositoryService;
@@ -85,6 +102,8 @@ public class CampusCourseCoreServiceImpl implements CampusCourseCoreService {
         this.campusCourseConfiguration = campusCourseConfiguration;
         this.campusCourseGroupSynchronizer = campusCourseGroupSynchronizer;
         this.olatResourceManager = olatResourceManager;
+        this.campusCourseGroupsFinder = campusCourseGroupsFinder;
+        this.businessGroupService = businessGroupService;
     }
 
     @Override
@@ -230,6 +249,22 @@ public class CampusCourseCoreServiceImpl implements CampusCourseCoreService {
 
         // Notify possible listeners about DELETED event
         sendCampusCourseEvent(res.getResourceableId(), CampusCourseEvent.DELETED);
+    }
+
+    @Override
+    public void deleteCampusCourseGroupsIfExist(RepositoryEntry repositoryEntry) {
+        CampusCourseGroups campusCourseGroups = campusCourseGroupsFinder.findCampusCourseGroups(repositoryEntry);
+        if (campusCourseGroups == null) {
+            return;
+        }
+        BusinessGroup campusCourseGroupA = campusCourseGroups.getCampusCourseGroupA();
+        if (campusCourseGroupA != null) {
+            businessGroupService.deleteBusinessGroup(campusCourseGroupA);
+        }
+        BusinessGroup campusCourseGroupB = campusCourseGroups.getCampusCourseGroupB();
+        if (campusCourseGroupB != null) {
+            businessGroupService.deleteBusinessGroup(campusCourseGroupB);
+        }
     }
 
     /**

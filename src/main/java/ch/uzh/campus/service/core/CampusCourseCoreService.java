@@ -34,6 +34,8 @@ public interface CampusCourseCoreService {
 
     void resetResourceableIdAndParentCourseReference(OLATResourceable res);
 
+    void deleteCampusCourseGroupsIfExist(RepositoryEntry repositoryEntry);
+
     RepositoryEntry getRepositoryEntryFor(Long sapCourseId);
 
     /**

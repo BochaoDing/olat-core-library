@@ -3,7 +3,6 @@ package ch.uzh.campus.service.core.impl.creator;
 import ch.uzh.campus.CampusCourseConfiguration;
 import ch.uzh.campus.CampusCourseImportTO;
 import ch.uzh.campus.service.CampusCourse;
-import ch.uzh.campus.service.core.impl.syncer.CampusCourseGroupFinder;
 import org.junit.Before;
 import org.junit.Test;
 import org.olat.core.commons.persistence.DBFactory;
@@ -58,9 +57,6 @@ public class CampusCourseCreatorTest extends OlatTestCase {
 
     @Autowired
     CampusCourseConfiguration campusCourseConfiguration;
-
-    @Autowired
-    CampusCourseGroupFinder campusCourseGroupFinder;
 
     private CampusCourseCreator campusCourseCreatorTestObject;
     private Long templateResourceableId;

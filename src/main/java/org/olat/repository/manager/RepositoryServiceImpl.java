@@ -71,6 +71,7 @@ import org.olat.repository.RepositoryService;
 import org.olat.repository.handlers.RepositoryHandler;
 import org.olat.repository.handlers.RepositoryHandlerFactory;
 import org.olat.repository.listener.AfterRepositoryEntryDeletionListener;
+import org.olat.repository.listener.BeforeRepositoryEntryDeletionListener;
 import org.olat.repository.manager.coursequery.MyCourseRepositoryQuery;
 import org.olat.repository.model.RepositoryEntryLifecycle;
 import org.olat.repository.model.RepositoryEntryStatistics;
@@ -143,6 +144,8 @@ public class RepositoryServiceImpl implements RepositoryService {
 	private AssessmentModeDAO assessmentModeDao;
 	@Autowired
 	private ReminderDAO reminderDao;
+	@Autowired
+	private BeforeRepositoryEntryDeletionListener[] beforeRepositoryEntryDeletionListeners;
 	@Autowired
 	private AfterRepositoryEntryDeletionListener[] afterRepositoryEntryDeletionListeners;
 
@@ -339,6 +342,11 @@ public class RepositoryServiceImpl implements RepositoryService {
 		if(debug) log.debug("deleteRepositoryEntry after load entry=" + entry);
 		RepositoryHandler handler = repositoryHandlerFactory.getRepositoryHandler(entry);
 		OLATResource resource = entry.getOlatResource();
+
+		for (BeforeRepositoryEntryDeletionListener beforeRepositoryEntryDeletionListener : beforeRepositoryEntryDeletionListeners) {
+			beforeRepositoryEntryDeletionListener.onAction(entry, resource);
+		}
+
 		//delete old context
 		if (!handler.readyToDelete(entry, identity, roles, locale, errors)) {
 			return errors;

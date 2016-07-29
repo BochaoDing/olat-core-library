@@ -84,6 +84,6 @@ public class CampusCourse {
         // Execute the first synchronization
         campusCourseGroupSynchronizer.addAllLecturesAsOwner(this, campusCourseImportData.getLecturersOfCourseAndParentCourses());
         campusCourseGroupSynchronizer.addDefaultCoOwnersAsOwner(this);
-        campusCourseGroupSynchronizer.synchronizeCourseGroups(this, campusCourseImportData, campusCourseGroups.getCampusCourseGroupA(), campusCourseGroups.getCampusCourseGroupB());
+        campusCourseGroupSynchronizer.synchronizeCourseGroups(this, campusCourseImportData, campusCourseGroups);
     }
 }

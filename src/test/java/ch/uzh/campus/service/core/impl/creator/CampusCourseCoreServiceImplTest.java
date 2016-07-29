@@ -5,11 +5,12 @@ import ch.uzh.campus.CampusCourseImportTO;
 import ch.uzh.campus.CampusCourseJunitTestHelper;
 import ch.uzh.campus.data.DaoManager;
 import ch.uzh.campus.service.CampusCourse;
+import ch.uzh.campus.service.CampusCourseGroups;
 import ch.uzh.campus.service.core.CampusCourseCoreService;
 import ch.uzh.campus.service.core.impl.CampusCourseCoreServiceImpl;
 import ch.uzh.campus.service.core.impl.CampusCourseFactory;
 import ch.uzh.campus.service.core.impl.syncer.CampusCourseCoOwners;
-import ch.uzh.campus.service.core.impl.syncer.CampusCourseGroupFinder;
+import ch.uzh.campus.service.core.impl.syncer.CampusCourseGroupsFinder;
 import ch.uzh.campus.service.core.impl.syncer.CampusCourseGroupSynchronizer;
 import org.junit.After;
 import org.junit.Before;
@@ -89,7 +90,7 @@ public class CampusCourseCoreServiceImplTest extends OlatTestCase {
     private OLATResourceManager olatResourceManager;
 
     @Autowired
-    private CampusCourseGroupFinder campusCourseGroupFinder;
+    private CampusCourseGroupsFinder campusCourseGroupsFinder;
 
     @Autowired
     private CampusCourseCreator campusCourseCreator;
@@ -146,13 +147,13 @@ public class CampusCourseCoreServiceImplTest extends OlatTestCase {
         daoManagerMock = mock(DaoManager.class);
         when(daoManagerMock.getSapCampusCourse(anyLong())).thenReturn(campusCourseImportData1);
 
-        CampusCourseGroupSynchronizer campusCourseGroupSynchronizerMock = new CampusCourseGroupSynchronizer(campusCourseConfigurationMock, campusCourseCoOwners, repositoryService, businessGroupService, campusCourseGroupFinder);
+        CampusCourseGroupSynchronizer campusCourseGroupSynchronizerMock = new CampusCourseGroupSynchronizer(campusCourseCoOwners, repositoryService, businessGroupService, campusCourseGroupsFinder);
         CampusCoursePublisher campusCoursePublisherMock = mock(CampusCoursePublisher.class);
         campusCourseCoreService = new CampusCourseCoreServiceImpl(dbInstance,
 				daoManagerMock, repositoryService, campusCourseFactory,
 				campusCourseDescriptionBuilder, campusCourseCreator,
 				campusCoursePublisherMock, campusCourseConfigurationMock,
-				campusCourseGroupSynchronizerMock, olatResourceManager);
+				campusCourseGroupSynchronizerMock, olatResourceManager, campusCourseGroupsFinder, businessGroupService);
     }
 
 	@After
@@ -244,14 +245,17 @@ public class CampusCourseCoreServiceImplTest extends OlatTestCase {
     @Test
     public void testCreateCampusCourse_checkCourseGroup() throws Exception {
         CampusCourse createdCampusCourseTestObject = createCampusCourseTestObject();
-        BusinessGroup campusCourseGroup = campusCourseGroupFinder.lookupCampusGroup(createdCampusCourseTestObject.getRepositoryEntry(), campusCourseConfigurationMock.getCourseGroupAName());
+        CampusCourseGroups campusCourseGroups = campusCourseGroupsFinder.findCampusCourseGroups(createdCampusCourseTestObject.getRepositoryEntry());
+        assertNotNull(campusCourseGroups);
+        BusinessGroup campusCourseGroupA = campusCourseGroups.getCampusCourseGroupA();
+        assertNotNull(campusCourseGroupA);
 
-        List<Identity> coaches = businessGroupService.getMembers(campusCourseGroup, GroupRoles.coach.name());
+        List<Identity> coaches = businessGroupService.getMembers(campusCourseGroupA, GroupRoles.coach.name());
 
         assertTrue("Missing identity (" + ownerIdentity + ") in owner-group of course-group", coaches.contains(ownerIdentity));
         assertTrue("Missing identity (" + secondOwnerIdentity + ")in owner-group of course-group", coaches.contains(secondOwnerIdentity));
 
-        List<Identity> participants = businessGroupService.getMembers(campusCourseGroup, GroupRoles.participant.name());
+        List<Identity> participants = businessGroupService.getMembers(campusCourseGroupA, GroupRoles.participant.name());
 
         assertTrue("Missing identity (" + testIdentity + ") in participant-group of course-group", participants.contains(testIdentity));
         assertTrue("Missing identity (" + secondTestIdentity + ")in participant-group of course-group", participants.contains(secondTestIdentity));
@@ -284,20 +288,18 @@ public class CampusCourseCoreServiceImplTest extends OlatTestCase {
 				sourceResourceableId, campusCourseImportData.getSapCourseId(),
 				ownerIdentity);
         
-        BusinessGroup campusCourseGroup = campusCourseGroupFinder.lookupCampusGroup(
-				campusCourse.getRepositoryEntry(), campusCourseConfigurationMock.getCourseGroupAName());
+        CampusCourseGroups campusCourseGroups = campusCourseGroupsFinder.findCampusCourseGroups(campusCourse.getRepositoryEntry());
+        assertNotNull(campusCourseGroups);
+        BusinessGroup campusCourseGroupA = campusCourseGroups.getCampusCourseGroupA();
+        assertNotNull(campusCourseGroupA);
         
-        List<Identity> coaches = businessGroupService.getMembers(campusCourseGroup, GroupRoles.coach.name());        
-        assertTrue("Missing identity (" + ownerIdentity + ") in owner-group of course-group",
-				coaches.contains(testIdentity_2));
+        List<Identity> coaches = businessGroupService.getMembers(campusCourseGroupA, GroupRoles.coach.name());
+        assertTrue("Missing identity (" + ownerIdentity + ") in owner-group of course-group", coaches.contains(testIdentity_2));
         
-        List<Identity> readParticipants = businessGroupService.getMembers(campusCourseGroup,
-				GroupRoles.participant.name());
-        assertTrue("Missing identity (" + secondOwnerIdentity + ")in owner-group of course-group",
-				readParticipants.contains(testIdentity_3));
+        List<Identity> readParticipants = businessGroupService.getMembers(campusCourseGroupA,  GroupRoles.participant.name());
+        assertTrue("Missing identity (" + secondOwnerIdentity + ")in owner-group of course-group", readParticipants.contains(testIdentity_3));
         
-        List<BGArea> areas = bgAreaManager.findBGAreasInContext(
-				campusCourse.getRepositoryEntry().getOlatResource());
+        List<BGArea> areas = bgAreaManager.findBGAreasInContext(campusCourse.getRepositoryEntry().getOlatResource());
         assertEquals(1,areas.size());
     }
 

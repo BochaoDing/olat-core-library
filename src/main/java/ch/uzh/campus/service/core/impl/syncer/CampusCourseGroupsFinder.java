@@ -2,6 +2,7 @@ package ch.uzh.campus.service.core.impl.syncer;
 
 
 import ch.uzh.campus.CampusCourseConfiguration;
+import ch.uzh.campus.service.CampusCourseGroups;
 import org.olat.group.BusinessGroup;
 import org.olat.group.area.BGArea;
 import org.olat.group.area.BGAreaManager;
@@ -36,21 +37,21 @@ import java.util.List;
  * @author cg
  */
 @Service
-public class CampusCourseGroupFinder {
+public class CampusCourseGroupsFinder {
 
     private final BGAreaManager bgAreaManager;
     private final CampusCourseConfiguration campusCourseConfiguration;
 
     @Autowired
-    public CampusCourseGroupFinder(BGAreaManager bgAreaManager, CampusCourseConfiguration campusCourseConfiguration) {
+    public CampusCourseGroupsFinder(BGAreaManager bgAreaManager, CampusCourseConfiguration campusCourseConfiguration) {
         this.bgAreaManager = bgAreaManager;
         this.campusCourseConfiguration = campusCourseConfiguration;
     }
 
     /**
-     * @return campus group found or null, if no campus group has been found
+     * @return campus course groups found or null, if no campus groups have been found
      */
-    public BusinessGroup lookupCampusGroup(RepositoryEntry repositoryEntry, String campusGroupName) {
+    public CampusCourseGroups findCampusCourseGroups(RepositoryEntry repositoryEntry) {
 
         // Find learning learning area
         String campusLearningAreaName = campusCourseConfiguration.getCampusCourseLearningAreaName();
@@ -59,12 +60,24 @@ public class CampusCourseGroupFinder {
             return null;
         }
 
-        // Find group in learning area
-        List<BusinessGroup> groupsOfArea = bgAreaManager.findBusinessGroupsOfArea(campusLearningArea);
-        for (BusinessGroup businessGroup : groupsOfArea ) {
-        	if (businessGroup.getName().equals(campusGroupName)) {
-        		return businessGroup;
-        	}
+        // Find campus course groups in learning area
+        List<BusinessGroup> groupsOfLearningArea = bgAreaManager.findBusinessGroupsOfArea(campusLearningArea);
+        BusinessGroup campusCourseGroupA = findCampusGroup(campusCourseConfiguration.getCourseGroupAName(), groupsOfLearningArea);
+        BusinessGroup campusCourseGroupB = findCampusGroup(campusCourseConfiguration.getCourseGroupBName(), groupsOfLearningArea);
+
+        // No campus course groups found
+        if (campusCourseGroupA == null && campusCourseGroupB == null) {
+            return null;
+        }
+
+        return new CampusCourseGroups(campusCourseGroupA, campusCourseGroupB);
+    }
+
+    private BusinessGroup findCampusGroup(String campusGroupName, List<BusinessGroup> groupsOfLearningArea) {
+        for (BusinessGroup businessGroup : groupsOfLearningArea) {
+            if (businessGroup.getName().equals(campusGroupName)) {
+                return businessGroup;
+            }
         }
         return null;
     }

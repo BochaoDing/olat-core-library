@@ -48,7 +48,7 @@ public class CampusCourseGroupSynchronizerTest extends OlatTestCase {
     RepositoryService repositoryService;
 
     @Autowired
-    CampusCourseGroupFinder campusCourseGroupFinder;
+    CampusCourseGroupsFinder campusCourseGroupsFinder;
 
     @Autowired
     CampusCourseConfiguration campusCourseConfiguration;
@@ -84,7 +84,7 @@ public class CampusCourseGroupSynchronizerTest extends OlatTestCase {
         coOwnerList.add(secondCoOwnerIdentity);
         
         // Setup Test Configuration
-        courseGroupSynchronizerTestObject = new CampusCourseGroupSynchronizer(campusCourseConfiguration, mock(CampusCourseCoOwners.class), repositoryService, businessGroupService, campusCourseGroupFinder);
+        courseGroupSynchronizerTestObject = new CampusCourseGroupSynchronizer(mock(CampusCourseCoOwners.class), repositoryService, businessGroupService, campusCourseGroupsFinder);
         when(courseGroupSynchronizerTestObject.getCampusCourseCoOwners().getDefaultCoOwners()).thenReturn(coOwnerList);
 
         // Setup test-course
@@ -144,8 +144,11 @@ public class CampusCourseGroupSynchronizerTest extends OlatTestCase {
         assertEquals("Wrong number of added identity in statistic", 0, statistic.getParticipantGroupStatistic().getAddedStatistic());
         assertEquals("Wrong number of removed identity in statistic", 0, statistic.getParticipantGroupStatistic().getRemovedStatistic());
         
-        BusinessGroup campusCourseGroup = campusCourseGroupFinder.lookupCampusGroup(sourceRepositoryEntry, campusCourseConfiguration.getCourseGroupAName());
-        List<Identity> groupCoaches = businessGroupService.getMembers(campusCourseGroup, GroupRoles.coach.name());
+        CampusCourseGroups campusCourseGroups = campusCourseGroupsFinder.findCampusCourseGroups(sourceRepositoryEntry);
+        assertNotNull(campusCourseGroups);
+        BusinessGroup campusCourseGroupA = campusCourseGroups.getCampusCourseGroupA();
+        assertNotNull(campusCourseGroupA);
+        List<Identity> groupCoaches = businessGroupService.getMembers(campusCourseGroupA, GroupRoles.coach.name());
         // 2. assert members
         assertEquals("Wrong number of owners", 2, groupCoaches.size());
         assertTrue("Missing identity (" + ownerIdentity + ") as coach of course-group", groupCoaches.contains(ownerIdentity));
