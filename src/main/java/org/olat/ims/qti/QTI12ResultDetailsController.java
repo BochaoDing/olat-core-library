@@ -235,9 +235,8 @@ public class QTI12ResultDetailsController extends BasicController {
 	}
 	
 	/**
-	 * Retrieve the test: load the course, close the assessment instamce, persist the QTI
+	 * Retrieve the test: load the course, close the assessment instance, persist the QTI
 	 * result set, pass the score to the course node.
-	 * @param ureq
 	 */
 	private void doRetrieveTest() {
 		ICourse course = CourseFactory.loadCourse(courseResourceableId);
