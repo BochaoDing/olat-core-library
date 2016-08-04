@@ -1,3 +1,40 @@
+package ch.uzh.campus.service.core.impl;
+
+import ch.uzh.campus.CampusCourseConfiguration;
+import ch.uzh.campus.CampusCourseImportTO;
+import ch.uzh.campus.data.Course;
+import ch.uzh.campus.data.DaoManager;
+import ch.uzh.campus.data.SapOlatUser;
+import ch.uzh.campus.presentation.CampusCourseEvent;
+import ch.uzh.campus.service.CampusCourse;
+import ch.uzh.campus.service.CampusCourseGroups;
+import ch.uzh.campus.service.core.CampusCourseCoreService;
+import ch.uzh.campus.service.core.impl.creator.CampusCourseCreator;
+import ch.uzh.campus.service.core.impl.creator.CampusCourseDescriptionBuilder;
+import ch.uzh.campus.service.core.impl.creator.CampusCoursePublisher;
+import ch.uzh.campus.service.core.impl.syncer.CampusCourseGroupsFinder;
+import ch.uzh.campus.service.core.impl.syncer.CampusCourseGroupSynchronizer;
+import org.olat.core.commons.persistence.DB;
+import org.olat.core.id.Identity;
+import org.olat.core.id.OLATResourceable;
+import org.olat.core.logging.OLog;
+import org.olat.core.logging.Tracing;
+import org.olat.core.util.coordinate.CoordinatorManager;
+import org.olat.core.util.resource.OresHelper;
+import org.olat.course.CourseFactory;
+import org.olat.course.ICourse;
+import org.olat.course.tree.PublishTreeModel;
+import org.olat.group.BusinessGroup;
+import org.olat.group.BusinessGroupService;
+import org.olat.repository.RepositoryEntry;
+import org.olat.repository.RepositoryService;
+import org.olat.resource.OLATResourceManager;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.Set;
+
 /**
  * OLAT - Online Learning and Training<br>
  * http://www.olat.org
@@ -17,41 +54,6 @@
  * Copyright (c) since 2004 at Multimedia- & E-Learning Services (MELS),<br>
  * University of Zurich, Switzerland.
  * <p>
- */
-package ch.uzh.campus.service.core.impl;
-
-import ch.uzh.campus.CampusCourseConfiguration;
-import ch.uzh.campus.CampusCourseImportTO;
-import ch.uzh.campus.data.Course;
-import ch.uzh.campus.data.DaoManager;
-import ch.uzh.campus.data.SapOlatUser;
-import ch.uzh.campus.presentation.CampusCourseEvent;
-import ch.uzh.campus.service.CampusCourse;
-import ch.uzh.campus.service.core.CampusCourseCoreService;
-import ch.uzh.campus.service.core.impl.creator.CampusCourseCreator;
-import ch.uzh.campus.service.core.impl.creator.CampusCourseDescriptionBuilder;
-import ch.uzh.campus.service.core.impl.creator.CampusCoursePublisher;
-import ch.uzh.campus.service.core.impl.syncer.CampusCourseGroupSynchronizer;
-import org.olat.core.commons.persistence.DB;
-import org.olat.core.id.Identity;
-import org.olat.core.id.OLATResourceable;
-import org.olat.core.logging.OLog;
-import org.olat.core.logging.Tracing;
-import org.olat.core.util.coordinate.CoordinatorManager;
-import org.olat.core.util.resource.OresHelper;
-import org.olat.course.CourseFactory;
-import org.olat.course.ICourse;
-import org.olat.course.tree.PublishTreeModel;
-import org.olat.repository.RepositoryEntry;
-import org.olat.repository.RepositoryService;
-import org.olat.resource.OLATResourceManager;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
-import java.util.List;
-import java.util.Set;
-
-/**
  *
  * Use this service only within a {@link javax.servlet.Servlet}. Otherwise commitAndCloseSession / closeSession would be needed.
  *
@@ -74,9 +76,22 @@ public class CampusCourseCoreServiceImpl implements CampusCourseCoreService {
     private final CampusCourseConfiguration campusCourseConfiguration;
     private final CampusCourseGroupSynchronizer campusCourseGroupSynchronizer;
     private final OLATResourceManager olatResourceManager;
+    private final CampusCourseGroupsFinder campusCourseGroupsFinder;
+    private final BusinessGroupService businessGroupService;
 
     @Autowired
-    public CampusCourseCoreServiceImpl(DB dbInstance, DaoManager daoManager, RepositoryService repositoryService, CampusCourseFactory campusCourseFactory, CampusCourseDescriptionBuilder campusCourseDescriptionBuilder, CampusCourseCreator campusCourseCreator, CampusCoursePublisher campusCoursePublisher, CampusCourseConfiguration campusCourseConfiguration, CampusCourseGroupSynchronizer campusCourseGroupSynchronizer, OLATResourceManager olatResourceManager) {
+    public CampusCourseCoreServiceImpl(DB dbInstance,
+                                       DaoManager daoManager,
+                                       RepositoryService repositoryService,
+                                       CampusCourseFactory campusCourseFactory,
+                                       CampusCourseDescriptionBuilder campusCourseDescriptionBuilder,
+                                       CampusCourseCreator campusCourseCreator,
+                                       CampusCoursePublisher campusCoursePublisher,
+                                       CampusCourseConfiguration campusCourseConfiguration,
+                                       CampusCourseGroupSynchronizer campusCourseGroupSynchronizer,
+                                       OLATResourceManager olatResourceManager,
+                                       CampusCourseGroupsFinder campusCourseGroupsFinder,
+                                       BusinessGroupService businessGroupService) {
         this.dbInstance = dbInstance;
         this.daoManager = daoManager;
         this.repositoryService = repositoryService;
@@ -87,6 +102,8 @@ public class CampusCourseCoreServiceImpl implements CampusCourseCoreService {
         this.campusCourseConfiguration = campusCourseConfiguration;
         this.campusCourseGroupSynchronizer = campusCourseGroupSynchronizer;
         this.olatResourceManager = olatResourceManager;
+        this.campusCourseGroupsFinder = campusCourseGroupsFinder;
+        this.businessGroupService = businessGroupService;
     }
 
     @Override
@@ -149,7 +166,7 @@ public class CampusCourseCoreServiceImpl implements CampusCourseCoreService {
                 daoManager.saveCampusCourseResoureableId(sapCampusCourseId, resourceableId);
                 dbInstance.intermediateCommit();
                 // Notify possible listeners about CREATED event
-                sendCampusCourseEvent(resourceableId, CampusCourseEvent.DELETED);
+                sendCampusCourseEvent(resourceableId, CampusCourseEvent.CREATED);
                 return campusCourse;
             } catch (Exception e1) {
                 // CLEAN UP TO ENSURE CONSISTENT STATE
@@ -187,7 +204,7 @@ public class CampusCourseCoreServiceImpl implements CampusCourseCoreService {
 		assert parentSapCampusCourseId != null;
 		assert creator != null;
 
-		/**
+		/*
 		 * Check first if ids exist.
 		 */
 		CampusCourseImportTO campusCourseImportTO = daoManager.getSapCampusCourse(childSapCampusCourseId);
@@ -226,12 +243,28 @@ public class CampusCourseCoreServiceImpl implements CampusCourseCoreService {
     }
 
     @Override
-    public void resetResourceableIdReference(OLATResourceable res) {
-        LOG.info("deleteResourceableIdReference for resourceableId=" + res.getResourceableId());
-        daoManager.resetResourceableId(res.getResourceableId());
+    public void resetResourceableIdAndParentCourseReference(OLATResourceable res) {
+        LOG.info("resetResourceableIdAndParentCourseReference for resourceableId=" + res.getResourceableId());
+        daoManager.resetResourceableIdAndParentCourseReference(res.getResourceableId());
 
         // Notify possible listeners about DELETED event
         sendCampusCourseEvent(res.getResourceableId(), CampusCourseEvent.DELETED);
+    }
+
+    @Override
+    public void deleteCampusCourseGroupsIfExist(RepositoryEntry repositoryEntry) {
+        CampusCourseGroups campusCourseGroups = campusCourseGroupsFinder.findCampusCourseGroups(repositoryEntry);
+        if (campusCourseGroups == null) {
+            return;
+        }
+        BusinessGroup campusCourseGroupA = campusCourseGroups.getCampusCourseGroupA();
+        if (campusCourseGroupA != null) {
+            businessGroupService.deleteBusinessGroup(campusCourseGroupA);
+        }
+        BusinessGroup campusCourseGroupB = campusCourseGroups.getCampusCourseGroupB();
+        if (campusCourseGroupB != null) {
+            businessGroupService.deleteBusinessGroup(campusCourseGroupB);
+        }
     }
 
     /**

@@ -3,6 +3,7 @@ package ch.uzh.campus.service.core.impl.creator;
 import ch.uzh.campus.CampusCourseConfiguration;
 import ch.uzh.campus.CampusCourseImportTO;
 import ch.uzh.campus.service.CampusCourse;
+import ch.uzh.campus.service.CampusCourseGroups;
 import ch.uzh.campus.service.core.impl.CampusCourseTool;
 import org.olat.core.gui.translator.Translator;
 import org.olat.core.helpers.Settings;
@@ -13,6 +14,7 @@ import org.olat.core.util.Util;
 import org.olat.course.CourseFactory;
 import org.olat.course.ICourse;
 import org.olat.course.editor.NodeConfigFormController;
+import org.olat.course.groupsandrights.CourseGroupManager;
 import org.olat.course.nodes.CourseNode;
 import org.olat.course.nodes.co.COEditController;
 import org.olat.course.tree.CourseEditorTreeModel;
@@ -41,23 +43,18 @@ import java.util.Locale;
 @Component
 public class CampusCourseCreator {
 
-    private static final String DEFAULT_VVZ_LINK = "http://www.vorlesungen.uzh.ch/";     // this is expected to be found in the defaultTemplate
-    private static final String OLAT_SUPPORT_EMAIL_NODE_TYPE = "co";                     // this is expected to be found in the defaultTemplate
-    private static final String OLAT_SUPPORT_EMAIL_NODE_SHORT_TITLE_SUBSTRING = "@OLAT"; // this is expected to be found in the defaultTemplate
-
-
-    private RepositoryManager repositoryManager;
-    private RepositoryService repositoryService;
-    private BGAreaManager areaManager;
-    private BusinessGroupService businessGroupService;
-    private CampusCourseConfiguration campusCourseConfiguration;
-    private CampusCourseDescriptionBuilder campusCourseDescriptionBuilder;
+    private final RepositoryManager repositoryManager;
+    private final RepositoryService repositoryService;
+    private final BGAreaManager bgAreaManager;
+    private final BusinessGroupService businessGroupService;
+    private final CampusCourseConfiguration campusCourseConfiguration;
+    private final CampusCourseDescriptionBuilder campusCourseDescriptionBuilder;
 
     @Autowired
-    public CampusCourseCreator(RepositoryManager repositoryManager, RepositoryService repositoryService, BGAreaManager areaManager, BusinessGroupService businessGroupService, CampusCourseConfiguration campusCourseConfiguration, CampusCourseDescriptionBuilder campusCourseDescriptionBuilder) {
+    public CampusCourseCreator(RepositoryManager repositoryManager, RepositoryService repositoryService, BGAreaManager bgAreaManager, BusinessGroupService businessGroupService, CampusCourseConfiguration campusCourseConfiguration, CampusCourseDescriptionBuilder campusCourseDescriptionBuilder) {
         this.repositoryManager = repositoryManager;
         this.repositoryService = repositoryService;
-        this.areaManager = areaManager;
+        this.bgAreaManager = bgAreaManager;
         this.businessGroupService = businessGroupService;
         this.campusCourseConfiguration = campusCourseConfiguration;
         this.campusCourseDescriptionBuilder = campusCourseDescriptionBuilder;
@@ -92,47 +89,77 @@ public class CampusCourseCreator {
         return new CampusCourse(copyCourse, cloneOfRepositoryEntry);
     }
 
-    public void createCampusLearningAreaAndCampusBusinessGroups(RepositoryEntry repositoryEntry, Identity creatorIdentity, String lvLanguage) {
+    public CampusCourseGroups createCampusLearningAreaAndCampusBusinessGroups(ICourse course, RepositoryEntry repositoryEntry, Identity creatorIdentity, String lvLanguage) {
 
         Translator translator = getTranslator(lvLanguage);
 
-        // Check if course has an area called campus.course.learningArea.name. If not, create an area with this name.
-        String areaName = translator.translate("campus.course.learningArea.name");
-        BGArea campusLearningArea = areaManager.findBGArea(areaName, repositoryEntry.getOlatResource());
+        // Check if course has a learning area called campusCourseConfiguration.getCampusCourseLearningAreaName(). If not, create an area with this name.
+        String learningAreaName = campusCourseConfiguration.getCampusCourseLearningAreaName();
+        BGArea campusLearningArea = bgAreaManager.findBGArea(learningAreaName, repositoryEntry.getOlatResource());
         if (campusLearningArea == null) {
-            campusLearningArea = areaManager.createAndPersistBGArea(areaName, translator.translate("campus.course.learningArea.desc"), repositoryEntry.getOlatResource());
+            campusLearningArea = bgAreaManager.createAndPersistBGArea(learningAreaName, translator.translate("campus.course.learningArea.desc"), repositoryEntry.getOlatResource());
         }
 
-        // Check if the learning area contains business groups campus.course.businessGroupA.name and campus.course.businessGroupB.name.
+        // Check if the learning area contains the business groups called campusCourseConfiguration.getCourseGroupAName() and campusCourseConfiguration.getCourseGroupBName().
+        // If not, check if such groups exist outside the learning area. If so, add them to the learning area.
         // If not, create them and add them to the learning area.
-        String groupNameA = translator.translate("campus.course.businessGroupA.name");
+        String groupNameA = campusCourseConfiguration.getCourseGroupAName();
         String groupDescriptionA = translator.translate("campus.course.businessGroupA.desc");
-        String groupNameB = translator.translate("campus.course.businessGroupB.name");
+        String groupNameB = campusCourseConfiguration.getCourseGroupBName();
         String groupDescriptionB = translator.translate("campus.course.businessGroupB.desc");
-        List<BusinessGroup> groupsOfArea = areaManager.findBusinessGroupsOfArea(campusLearningArea);
-        if (!doesBusinessGroupExist(groupsOfArea, groupNameA)) {
-            createBusinessGroupAndAddItToArea(campusLearningArea, businessGroupService, creatorIdentity, groupNameA, groupDescriptionA);
-        }
-        if (!doesBusinessGroupExist(groupsOfArea, groupNameB)) {
-            createBusinessGroupAndAddItToArea(campusLearningArea, businessGroupService, creatorIdentity, groupNameB, groupDescriptionB);
-        }
-    }
-
-    private static boolean doesBusinessGroupExist(List<BusinessGroup> groupsOfArea, String groupName) {
-        for (BusinessGroup businessGroup : groupsOfArea) {
-            if (businessGroup.getName().equals(groupName)) {
-                return true;
+        List<BusinessGroup> groupsOfArea = bgAreaManager.findBusinessGroupsOfArea(campusLearningArea);
+        BusinessGroup bgA = findCampusCourseGroupInGroupArea(groupsOfArea, groupNameA);
+        if (bgA == null) {
+            bgA = findCampusCourseGroupInCourseAndAddItToBusinessGroup(course, groupNameA, campusLearningArea);
+            if (bgA == null) {
+                bgA = createCampusCourseGroupAndAddItToArea(campusLearningArea, creatorIdentity, groupNameA, groupDescriptionA, repositoryEntry);
             }
         }
-        return false;
+        BusinessGroup bgB = findCampusCourseGroupInGroupArea(groupsOfArea, groupNameB);
+        if (bgB == null) {
+            bgB = findCampusCourseGroupInCourseAndAddItToBusinessGroup(course, groupNameB, campusLearningArea);
+            if (bgB == null) {
+                bgB = createCampusCourseGroupAndAddItToArea(campusLearningArea, creatorIdentity, groupNameB, groupDescriptionB, repositoryEntry);
+            }
+        }
+        return new CampusCourseGroups(bgA, bgB);
     }
 
-    private void createBusinessGroupAndAddItToArea(BGArea campusLernArea, BusinessGroupService businessGroupService, Identity creatorIdentity, String groupName, String description) {
-        BusinessGroup bgA = businessGroupService.createBusinessGroup(creatorIdentity, groupName, description, null, null, false, false, null);
-        areaManager.addBGToBGArea(bgA, campusLernArea);
+    private BusinessGroup findCampusCourseGroupInGroupArea(List<BusinessGroup> groupsOfArea, String groupName) {
+        for (BusinessGroup businessGroup : groupsOfArea) {
+            if (businessGroup.getName().equals(groupName)) {
+                return businessGroup;
+            }
+        }
+        return null;
     }
 
+    private BusinessGroup findCampusCourseGroupInCourseAndAddItToBusinessGroup(ICourse course, String groupName, BGArea campusLearningArea) {
+        BusinessGroup bg = findCampusCourseInCourse(course, groupName);
+        if (bg != null) {
+            bgAreaManager.addBGToBGArea(bg, campusLearningArea);
+        }
+        return bg;
+    }
 
+    private BusinessGroup findCampusCourseInCourse(ICourse course, String groupName) {
+        CourseGroupManager courseGroupManager = course.getCourseEnvironment().getCourseGroupManager();
+
+        List <BusinessGroup> foundCampusGroups = courseGroupManager.getAllBusinessGroups();
+
+        for (BusinessGroup businessGroup : foundCampusGroups ) {
+            if (businessGroup.getName().equals(groupName)) {
+                return businessGroup;
+            }
+        }
+        return null;
+    }
+
+    private BusinessGroup createCampusCourseGroupAndAddItToArea(BGArea campusLearningArea, Identity creatorIdentity, String groupName, String description, RepositoryEntry repositoryEntry) {
+        BusinessGroup bg = businessGroupService.createBusinessGroup(creatorIdentity, groupName, description, null, null, false, false, repositoryEntry);
+        bgAreaManager.addBGToBGArea(bg, campusLearningArea);
+        return bg;
+    }
 
     /**
      * Sets the short title, long title and the learning objective for both course-run and course-editor model. <br>
@@ -208,21 +235,20 @@ public class CampusCourseCreator {
         if (!isDefaultTemplateUsed) {
             newObjective = translator.translate("campus.course.learningObj", new String[] { vvzLink });
         } else {
-            // replace DEFAULT_VVZ_LINK with vvzLink
-            newObjective = root.getLearningObjectives().replaceFirst(DEFAULT_VVZ_LINK, vvzLink);
+            // replace template course vvz link with vvzLink
+            newObjective = root.getLearningObjectives().replaceFirst(campusCourseConfiguration.getTemplateCourseVvzLink(), vvzLink);
         }
         return newObjective;
     }
 
     /**
      * Find the @OLAT-Support email node. Returns null if no such node could be found.
-     * This is only CampusCourse relevant.
      */
     private CourseNode findOlatSupportEmailNode(CourseNode rootNode) {
         CourseNode olatSupportEmailNode = null;
         for (int i = 0; i < rootNode.getChildCount(); i++) {
             CourseNode element = (CourseNode) rootNode.getChildAt(i);
-            if (element.getType().equals(OLAT_SUPPORT_EMAIL_NODE_TYPE) && element.getShortTitle().contains(OLAT_SUPPORT_EMAIL_NODE_SHORT_TITLE_SUBSTRING)) {
+            if (element.getType().equals(campusCourseConfiguration.getTemplateCourseOlatSupportEmailNodeType()) && element.getShortTitle().contains(campusCourseConfiguration.getTemplateCourseOlatSupportShortTitleSubstring())) {
                 olatSupportEmailNode = element;
                 break;
             }
@@ -232,7 +258,6 @@ public class CampusCourseCreator {
 
     /**
      * Sets SentFromCourse in the @OLAT-Support email node.
-     * This is only CampusCourse relevant.
      */
     private void setSentFromCourse(CourseNode olatSupportEmailNode, String sentFromCourse) {
     	ModuleConfiguration moduleConfiguration = olatSupportEmailNode.getModuleConfiguration();

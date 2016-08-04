@@ -358,8 +358,8 @@ public class DaoManager {
         return courseDao.getLatestCourseByResourceable(resourcableId);
     }
 
-    public void resetResourceableId(Long resourceableId) {
-        courseDao.resetResourceable(resourceableId);
+    public void resetResourceableIdAndParentCourseReference(Long resourceableId) {
+        courseDao.resetResourceableIdAndParentCourse(resourceableId);
     }
 
     public void saveParentCourseId(Long courseId, Long parentCourseId) {

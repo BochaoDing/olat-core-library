@@ -32,7 +32,9 @@ public interface CampusCourseCoreService {
 
     Course getLatestCourseByResourceable(Long resourceableId) throws Exception;
 
-    void resetResourceableIdReference(OLATResourceable res);
+    void resetResourceableIdAndParentCourseReference(OLATResourceable res);
+
+    void deleteCampusCourseGroupsIfExist(RepositoryEntry repositoryEntry);
 
     RepositoryEntry getRepositoryEntryFor(Long sapCourseId);
 

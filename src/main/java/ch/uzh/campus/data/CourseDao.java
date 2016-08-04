@@ -21,8 +21,12 @@ public class CourseDao implements CampusDao<CourseOrgId> {
 
     private static final OLog LOG = Tracing.createLoggerFor(CourseDao.class);
 
-	@Autowired
-	private DB dbInstance;
+	private final DB dbInstance;
+
+    @Autowired
+    public CourseDao(DB dbInstance) {
+        this.dbInstance = dbInstance;
+    }
 
     public void save(Course course) {
         dbInstance.saveObject(course);
@@ -190,7 +194,7 @@ public class CourseDao implements CampusDao<CourseOrgId> {
         course.setSynchronizable(false);
     }
 
-    void resetResourceable(Long resourceableId) {
+    void resetResourceableIdAndParentCourse(Long resourceableId) {
         List<Course> courses =dbInstance.getCurrentEntityManager()
                 .createNamedQuery(Course.GET_COURSES_BY_RESOURCEABLE_ID, Course.class)
                 .setParameter("resourceableId", resourceableId)
@@ -202,6 +206,7 @@ public class CourseDao implements CampusDao<CourseOrgId> {
         }
         for (Course course : courses) {
             course.setResourceableId(null);
+            course.removeParentCourse();
         }
     }
 

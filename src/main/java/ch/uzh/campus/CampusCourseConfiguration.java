@@ -26,6 +26,13 @@ public class CampusCourseConfiguration {
     private static final String CAMPUS_COURSE_PROPERTY_CATEGORY = "campus.course.property";
     private static final String TEMPLATE_COURSE_RESOURCEABLE_ID_PROPERTY_KEY = "_template.course.resourceable.id";
 
+    private final PropertyManager propertyManager;
+
+    @Autowired
+    public CampusCourseConfiguration(PropertyManager propertyManager) {
+        this.propertyManager = propertyManager;
+    }
+
     @Value("${campus.import.process.maxYearsToKeepCkData:3}")
     private int maxYearsToKeepCkData;
 
@@ -35,11 +42,23 @@ public class CampusCourseConfiguration {
     @Value("${campus.template.supportedLanguages}")
     private String templateSupportedLanguages;
 
+    @Value("${campus.template.course.learningArea.name}")
+    private String campusCourseLearningAreaName;
+
     @Value("${campus.template.course.groupA.name}")
     private String courseGroupAName;
 
     @Value("${campus.template.course.groupB.name}")
     private String courseGroupBName;
+
+    @Value("${campus.template.course.vvzLink}")
+    private String templateCourseVvzLink;
+
+    @Value("${campus.template.course.olat.support.emailNodeType}")
+    private String templateCourseOlatSupportEmailNodeType;
+
+    @Value("${campus.template.course.olat.support.shortTitleSubstring}")
+    private String templateCourseOlatSupportShortTitleSubstring;
 
     @Value("${campus.course.default.co.owner.usernames}")
     private String defaultCoOwnerUserNames;
@@ -64,9 +83,6 @@ public class CampusCourseConfiguration {
 
     @Value("${db.hibernate.hikari.leakDetectionThreshold}")
     private int connectionPoolTimeout;
-
-    @Autowired
-    PropertyManager propertyManager;
 
     // @Value("${campus.start.autumn.semester}")
     // private String startDateAutumnSemester;
@@ -130,12 +146,28 @@ public class CampusCourseConfiguration {
         }
     }
 
+    public String getCampusCourseLearningAreaName() {
+        return campusCourseLearningAreaName;
+    }
+
     public String getCourseGroupAName() {
         return courseGroupAName;
     }
 
     public String getCourseGroupBName() {
         return courseGroupBName;
+    }
+
+    public String getTemplateCourseVvzLink() {
+        return templateCourseVvzLink;
+    }
+
+    public String getTemplateCourseOlatSupportEmailNodeType() {
+        return templateCourseOlatSupportEmailNodeType;
+    }
+
+    public String getTemplateCourseOlatSupportShortTitleSubstring() {
+        return templateCourseOlatSupportShortTitleSubstring;
     }
 
     public String getDefaultCoOwnerUserNames() {

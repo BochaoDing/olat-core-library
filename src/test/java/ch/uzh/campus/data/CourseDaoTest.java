@@ -422,20 +422,34 @@ public class CourseDaoTest extends OlatTestCase {
     }
 
     @Test
-    public void testDeleteResourceableId() {
+    public void testDeleteResourceableIdAndParentCourse() {
         insertTestData();
-        Course course = courseDao.getCourseById(100L);
-        assertEquals(101L, course.getResourceableId().longValue());
+        Course courseWithoutParentCourse = courseDao.getCourseById(100L);
+        Course courseWithParentCourse = courseDao.getCourseById(200L);
+        // Make course 400 to be the parent course of 200
+        courseDao.saveParentCourseId(200L, 400L);
+        assertEquals(101L, courseWithoutParentCourse.getResourceableId().longValue());
+        assertNull(courseWithoutParentCourse.getParentCourse());
+        assertEquals(201L, courseWithParentCourse.getResourceableId().longValue());
+        assertNotNull(courseWithParentCourse.getParentCourse());
 
-        courseDao.resetResourceable(101L);
+        courseDao.resetResourceableIdAndParentCourse(101L);
+        courseDao.resetResourceableIdAndParentCourse(201L);
 
-        assertNull(course.getResourceableId());
+        assertNull(courseWithoutParentCourse.getResourceableId());
+        assertNull(courseWithoutParentCourse.getParentCourse());
+        assertNull(courseWithParentCourse.getResourceableId());
+        assertNull(courseWithParentCourse.getParentCourse());
 
         dbInstance.flush();
         dbInstance.clear();
 
-        Course updatedCourse = courseDao.getCourseById(100L);
-        assertNull(updatedCourse.getResourceableId());
+        Course updatedCourseWithoutParentCourse = courseDao.getCourseById(100L);
+        assertNull(updatedCourseWithoutParentCourse.getResourceableId());
+        assertNull(updatedCourseWithoutParentCourse.getParentCourse());
+        Course updatedCourseWithParentCourse = courseDao.getCourseById(200L);
+        assertNull(updatedCourseWithParentCourse.getResourceableId());
+        assertNull(updatedCourseWithParentCourse.getParentCourse());
     }
 
     @Test
@@ -480,7 +494,7 @@ public class CourseDaoTest extends OlatTestCase {
         insertTestData();
         assertEquals(2, courseDao.getIdsOfAllCreatedSynchronizableCoursesOfCurrentSemester().size());
 
-        courseDao.resetResourceable(101L);
+        courseDao.resetResourceableIdAndParentCourse(101L);
 
         dbInstance.flush();
         dbInstance.clear();
@@ -496,7 +510,7 @@ public class CourseDaoTest extends OlatTestCase {
         assertTrue(idsFound.contains(300L));
 
         // Reset resourceable, i.e. undo create course
-        courseDao.resetResourceable(101L);
+        courseDao.resetResourceableIdAndParentCourse(101L);
 
         dbInstance.flush();
         dbInstance.clear();
@@ -547,7 +561,7 @@ public class CourseDaoTest extends OlatTestCase {
         insertTestData();
         assertTrue(courseDao.existResourceableId(101L));
 
-        courseDao.resetResourceable(100L);
+        courseDao.resetResourceableIdAndParentCourse(100L);
 
         dbInstance.flush();
         dbInstance.clear();

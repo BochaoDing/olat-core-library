@@ -4,6 +4,7 @@ import ch.uzh.campus.CampusCourseConfiguration;
 import ch.uzh.campus.CampusCourseImportTO;
 import ch.uzh.campus.CampusCourseJunitTestHelper;
 import ch.uzh.campus.service.CampusCourse;
+import ch.uzh.campus.service.CampusCourseGroups;
 import ch.uzh.campus.service.core.impl.syncer.statistic.SynchronizedGroupStatistic;
 import org.junit.After;
 import org.junit.Before;
@@ -11,10 +12,9 @@ import org.junit.Test;
 import org.olat.basesecurity.GroupRoles;
 import org.olat.core.commons.persistence.DB;
 import org.olat.core.id.Identity;
-import org.olat.course.CourseFactory;
-import org.olat.course.ICourse;
 import org.olat.group.BusinessGroup;
 import org.olat.group.BusinessGroupService;
+import org.olat.group.area.BGAreaManager;
 import org.olat.repository.RepositoryEntry;
 import org.olat.repository.RepositoryService;
 import org.olat.test.JunitTestHelper;
@@ -32,9 +32,7 @@ import static org.mockito.Mockito.when;
 
 @ContextConfiguration(locations = {"classpath:ch/uzh/campus/data/_spring/mockDataContext.xml"})
 public class CampusCourseGroupSynchronizerTest extends OlatTestCase {
-	
-	private static final String TEST_COURSE_GROUP_A_NAME = "Campusgroup A SynchronizeTest";
-    private static final String TEST_COURSE_GROUP_B_NAME = "Campusgroup B SynchronizeTest";
+
     private static final Long TEST_RESOURCEABLE_ID = 1234L;
 
     @Autowired
@@ -42,12 +40,18 @@ public class CampusCourseGroupSynchronizerTest extends OlatTestCase {
 
     @Autowired
     private BusinessGroupService businessGroupService;
+
+    @Autowired
+    private BGAreaManager bgAreaManager;
     
     @Autowired
     RepositoryService repositoryService;
 
     @Autowired
-    CampusCourseGroupFinder campusCourseGroupFinder;
+    CampusCourseGroupsFinder campusCourseGroupsFinder;
+
+    @Autowired
+    CampusCourseConfiguration campusCourseConfiguration;
 
     @Autowired
     private DB dbInstance;
@@ -57,12 +61,10 @@ public class CampusCourseGroupSynchronizerTest extends OlatTestCase {
     private Identity firstTestIdentity;
     private Identity secondTestIdentity;
     private Identity thirdTestIdentity;
-    private ICourse course;
-    private BusinessGroup campusCourseGroup; //GroupA
+    private BusinessGroup campusCourseGroupA;
     private Identity firstCoOwnerIdentity;
     private Identity secondCoOwnerIdentity;
     private CampusCourse campusCourseMock;
-    private CampusCourseConfiguration campusCourseConfigurationMock;
     private RepositoryEntry sourceRepositoryEntry;
 
     @Before
@@ -82,26 +84,19 @@ public class CampusCourseGroupSynchronizerTest extends OlatTestCase {
         coOwnerList.add(secondCoOwnerIdentity);
         
         // Setup Test Configuration
-        campusCourseConfigurationMock = mock(CampusCourseConfiguration.class);
-        when(campusCourseConfigurationMock.getCourseGroupAName()).thenReturn(TEST_COURSE_GROUP_A_NAME);
-        when(campusCourseConfigurationMock.getCourseGroupBName()).thenReturn(TEST_COURSE_GROUP_B_NAME);
-
-        courseGroupSynchronizerTestObject = new CampusCourseGroupSynchronizer(campusCourseConfigurationMock, mock(CampusCourseCoOwners.class), repositoryService, businessGroupService, campusCourseGroupFinder);
+        courseGroupSynchronizerTestObject = new CampusCourseGroupSynchronizer(mock(CampusCourseCoOwners.class), repositoryService, businessGroupService, campusCourseGroupsFinder);
         when(courseGroupSynchronizerTestObject.getCampusCourseCoOwners().getDefaultCoOwners()).thenReturn(coOwnerList);
 
         // Setup test-course
         sourceRepositoryEntry = JunitTestHelper.deployDemoCourse(ownerIdentity);
-        course = CourseFactory.loadCourse(sourceRepositoryEntry.getOlatResource().getResourceableId());
 
         // Setup campus-groups
-        CampusCourseJunitTestHelper.setupCampusCourseGroupForTest(sourceRepositoryEntry, TEST_COURSE_GROUP_A_NAME, businessGroupService);
-        CampusCourseJunitTestHelper.setupCampusCourseGroupForTest(sourceRepositoryEntry, TEST_COURSE_GROUP_B_NAME, businessGroupService);
+        CampusCourseGroups campusCourseGroups = CampusCourseJunitTestHelper.setupCampusCourseGroupsForTest(ownerIdentity, sourceRepositoryEntry, campusCourseConfiguration, bgAreaManager, businessGroupService);
         dbInstance.flush();
-        campusCourseGroup = campusCourseGroupFinder.lookupCampusGroup(course, campusCourseConfigurationMock.getCourseGroupAName());
+        campusCourseGroupA = campusCourseGroups.getCampusCourseGroupA();
         
         campusCourseMock = mock(CampusCourse.class);       
         when(campusCourseMock.getRepositoryEntry()).thenReturn(sourceRepositoryEntry);
-        when(campusCourseMock.getCourse()).thenReturn(course);
     }
 
     @After
@@ -144,18 +139,20 @@ public class CampusCourseGroupSynchronizerTest extends OlatTestCase {
         SynchronizedGroupStatistic statistic = courseGroupSynchronizerTestObject.synchronizeCourseGroups(campusCourseMock, campusCourseImportData);
         
         // 1. assert statistic
-        assertEquals("Wrong number of added identity in statistic", 2, statistic.getOwnerGroupStatistic().getAddedStatistic());
+        assertEquals("Wrong number of added identity in statistic", 1, statistic.getOwnerGroupStatistic().getAddedStatistic());  // ownerIdentity is already in group (as owner of the group) and is not added a second time
         assertEquals("Wrong number of removed identity in statistic", 0, statistic.getOwnerGroupStatistic().getRemovedStatistic());
         assertEquals("Wrong number of added identity in statistic", 0, statistic.getParticipantGroupStatistic().getAddedStatistic());
         assertEquals("Wrong number of removed identity in statistic", 0, statistic.getParticipantGroupStatistic().getRemovedStatistic());
         
-        BusinessGroup campusCourseGroup = campusCourseGroupFinder.lookupCampusGroup(course, campusCourseConfigurationMock.getCourseGroupAName());
-        List<Identity> groupCoaches = businessGroupService.getMembers(campusCourseGroup, GroupRoles.coach.name());
+        CampusCourseGroups campusCourseGroups = campusCourseGroupsFinder.findCampusCourseGroups(sourceRepositoryEntry);
+        assertNotNull(campusCourseGroups);
+        BusinessGroup campusCourseGroupA = campusCourseGroups.getCampusCourseGroupA();
+        assertNotNull(campusCourseGroupA);
+        List<Identity> groupCoaches = businessGroupService.getMembers(campusCourseGroupA, GroupRoles.coach.name());
         // 2. assert members
         assertEquals("Wrong number of owners", 2, groupCoaches.size());
         assertTrue("Missing identity (" + ownerIdentity + ") as coach of course-group", groupCoaches.contains(ownerIdentity));
         assertTrue("Missing identity (" + secondOwnerIdentity + ") as coach of course-group", groupCoaches.contains(secondOwnerIdentity));
-                
     }
 
     /**
@@ -177,10 +174,12 @@ public class CampusCourseGroupSynchronizerTest extends OlatTestCase {
         assertEquals("Wrong number of added identity in statistic", 2, statistic.getParticipantGroupStatistic().getAddedStatistic());
         assertEquals("Wrong number of removed identity in statistic", 0, statistic.getParticipantGroupStatistic().getRemovedStatistic());
                 
-        //BusinessGroup campusCourseGroup = CampusGroupHelper.lookupCampusGroup(course, campusConfigurationMock.getCourseGroupAName());
-        List<Identity> groupParticipants = businessGroupService.getMembers(campusCourseGroup, GroupRoles.participant.name());
+        List<Identity> ownerIdentities =  repositoryService.getMembers(sourceRepositoryEntry, GroupRoles.owner.name());
+        List<Identity> groupParticipants = businessGroupService.getMembers(campusCourseGroupA, GroupRoles.participant.name());
         // 2. assert members
-        assertEquals("Wrong number of owners", 0, businessGroupService.getMembers(campusCourseGroup, GroupRoles.coach.name()).size());
+        // The creator of a group is always owner of the group
+        assertEquals("Wrong number of owners", 1, ownerIdentities.size());
+        assertTrue("Missing identity (" + ownerIdentity + ") as coach of course-group", ownerIdentities.contains(ownerIdentity));
         assertEquals("Wrong number of participants", 2, groupParticipants.size());
         assertTrue("Missing identity (" + firstTestIdentity + ") as participant of course-group", groupParticipants.contains(firstTestIdentity));
         assertTrue("Missing identity (" + secondTestIdentity + ") as participant of course-group", groupParticipants.contains(secondTestIdentity));
@@ -214,8 +213,8 @@ public class CampusCourseGroupSynchronizerTest extends OlatTestCase {
 
         // 1. Setup Campus-Group with owners (ownerIdentity, secondOwnerIdentity)        
         courseGroupSynchronizerTestObject.synchronizeCourseGroups(campusCourseMock, campusCourseImportData);
-        assertEquals("Wrong number of owners after init", 2, businessGroupService.getMembers(campusCourseGroup, GroupRoles.coach.name()).size());
-        assertEquals("Wrong number of participants after init", 0, businessGroupService.getMembers(campusCourseGroup, GroupRoles.participant.name()).size());
+        assertEquals("Wrong number of owners after init", 2, businessGroupService.getMembers(campusCourseGroupA, GroupRoles.coach.name()).size());
+        assertEquals("Wrong number of participants after init", 0, businessGroupService.getMembers(campusCourseGroupA, GroupRoles.participant.name()).size());
 
         // 2. Synchronize Campus-Group, remove one owner (secondOwnerIdentity), add a new owner (thirdTestIdentity)
         List<Identity> newOwnerIdentites = new ArrayList<>();
@@ -231,15 +230,14 @@ public class CampusCourseGroupSynchronizerTest extends OlatTestCase {
         assertEquals("Wrong number of added identity in statistic", 0, statistic.getParticipantGroupStatistic().getAddedStatistic());
         assertEquals("Wrong number of removed identity in statistic", 0, statistic.getParticipantGroupStatistic().getRemovedStatistic());
         
-        List<Identity> coaches = businessGroupService.getMembers(campusCourseGroup, GroupRoles.coach.name());
-        List<Identity> particiants = businessGroupService.getMembers(campusCourseGroup, GroupRoles.participant.name());
+        List<Identity> coaches = businessGroupService.getMembers(campusCourseGroupA, GroupRoles.coach.name());
+        List<Identity> particiants = businessGroupService.getMembers(campusCourseGroupA, GroupRoles.participant.name());
         // 2. assert members
         assertEquals("Wrong number of coaches after synchronize", 3, coaches.size());
         assertEquals("Wrong number of participants after synchronize", 0, particiants.size());
         assertTrue("Missing identity (" + ownerIdentity + ") as coach of course-group", coaches.contains(ownerIdentity));
         assertTrue("Missing identity (" + thirdTestIdentity + ") as coach of course-group", coaches.contains(thirdTestIdentity));
         assertTrue("Missing identity (" + secondOwnerIdentity + ") as coach of course-group", coaches.contains(secondOwnerIdentity));
-
     }
 
     /**
@@ -253,8 +251,9 @@ public class CampusCourseGroupSynchronizerTest extends OlatTestCase {
 
         // 1. Setup Campus-Group with participants (testIdentity, secondTestIdentity)
         courseGroupSynchronizerTestObject.synchronizeCourseGroups(campusCourseMock, campusCourseImportData);
-        assertEquals("Wrong number of owners after init", 0, businessGroupService.getMembers(campusCourseGroup, GroupRoles.coach.name()).size());
-        assertEquals("Wrong number of participants after init", 2, businessGroupService.getMembers(campusCourseGroup, GroupRoles.participant.name()).size());
+        // The creator of a group is always coach of the group
+        assertEquals("Wrong number of coaches after init", 1, businessGroupService.getMembers(campusCourseGroupA, GroupRoles.coach.name()).size());
+        assertEquals("Wrong number of participants after init", 2, businessGroupService.getMembers(campusCourseGroupA, GroupRoles.participant.name()).size());
 
         // 2. Synchronize Campus-Group, remove one participant (secondTestIdentity), add a new participant (thirdTestIdentity)
         List<Identity> newParticipantsIdentites = new ArrayList<>();
@@ -270,12 +269,13 @@ public class CampusCourseGroupSynchronizerTest extends OlatTestCase {
         assertEquals("Wrong number of added identity in statistic", 1, statistic.getParticipantGroupStatistic().getAddedStatistic());
         assertEquals("Wrong number of removed identity in statistic", 1, statistic.getParticipantGroupStatistic().getRemovedStatistic());
         
-        List<Identity> coaches = businessGroupService.getMembers(campusCourseGroup, GroupRoles.coach.name());
-        List<Identity> particiants = businessGroupService.getMembers(campusCourseGroup, GroupRoles.participant.name());
+        List<Identity> coaches = businessGroupService.getMembers(campusCourseGroupA, GroupRoles.coach.name());
+        List<Identity> particiants = businessGroupService.getMembers(campusCourseGroupA, GroupRoles.participant.name());
         
         // 2. assert members
-        assertEquals("Wrong number of coaches after synchronize", 0, coaches.size());
+        assertEquals("Wrong number of coaches after synchronize", 1, coaches.size());
         assertEquals("Wrong number of participants after synchronize", 2, particiants.size());
+        assertTrue("Missing identity (" + ownerIdentity + ") as coach of course-group", coaches.contains(ownerIdentity));
         assertTrue("Missing identity (" + firstTestIdentity + ") in participant-group of course-group", particiants.contains(firstTestIdentity));
         assertTrue("Missing identity (" + thirdTestIdentity + ")in participant-group of course-group", particiants.contains(thirdTestIdentity));
         assertFalse("Identity (" + secondTestIdentity + ")is no longer member of participant-group of course-group", particiants.contains(secondTestIdentity));
