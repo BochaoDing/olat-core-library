@@ -33,6 +33,8 @@
 				SendDocLinkOnly=${folder.sendDocumentLinkOnly}
 				<!--   max edit filesize for online-editing in Bytes -->
 				EditFileSizeLimit=${folder.editFileSizeLimitBytes}
+				<!--   max size for zip -->
+				MaxZipSelectionSizeMb=${folder.zipSelectionMaxSizeMb}
 				forceDownload=${folder.force.download}
              </value>
       </property>

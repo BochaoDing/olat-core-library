@@ -49,6 +49,7 @@ public class FolderModule extends AbstractOLATModule {
 	private static final String CONFIG_EDITFILESIZELIMIT = "EditFileSizeLimit";
 	private static final String CONFIG_QUOTAMB = "QuotaMB";
 	private static final String CONFIG_SENDDOCLINKONLY = "SendDocLinkOnly";
+	private static final String CONFIG_ZIPSELECTIONMAXSIZEMB = "MaxZipSelectionSizeMb";
 	private static final String CONFIG_SENDDOCTOEXTERN = "SendDocToExtern";
 	private static final String CONFIG_FORCE_DOWNLOAD = "forceDownload";
 	private FolderVersioningConfigurator versioning;
@@ -86,7 +87,12 @@ public class FolderModule extends AbstractOLATModule {
 		FolderConfig.setLimitULKB(maxULMB * 1024);
 		
 		log.info("Maximum file upload size set to " + FolderConfig.getLimitULKB() + " KB.");
-		
+
+		int maxZipSelectionSizeMB = getIntConfigParameter(CONFIG_ZIPSELECTIONMAXSIZEMB, 500);
+		FolderConfig.setMaxZipSizeMB(maxZipSelectionSizeMB);
+
+		log.info("Maximum zip upload size set to " + FolderConfig.getMaxZipSizeMB() + " MB.");
+
 		// Set default quotas
 		int quotaMB = getIntConfigParameter(CONFIG_QUOTAMB, 100);
 		FolderConfig.setDefaultQuotaKB(quotaMB * 1024);
