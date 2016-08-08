@@ -1,4 +1,4 @@
-package org.olat.commons;
+package org.olat.commons.fileutil;
 
 import java.util.ArrayList;
 import java.util.Collections;

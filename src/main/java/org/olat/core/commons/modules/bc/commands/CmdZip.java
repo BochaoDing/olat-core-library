@@ -29,7 +29,7 @@ package org.olat.core.commons.modules.bc.commands;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.olat.commons.ZipConfig;
+import org.olat.commons.fileutil.ZipConfig;
 import org.olat.core.CoreSpringFactory;
 import org.olat.core.commons.modules.bc.FileSelection;
 import org.olat.core.commons.modules.bc.FolderEvent;
