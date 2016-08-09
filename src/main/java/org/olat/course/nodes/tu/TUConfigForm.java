@@ -27,6 +27,7 @@ package org.olat.course.nodes.tu;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Arrays;
 
 import org.olat.core.gui.UserRequest;
 import org.olat.core.gui.components.form.flexible.FormItem;
@@ -191,6 +192,12 @@ public class TUConfigForm extends FormBasicController {
 		boolean allOk = true;
 		try {
 			URL url = new URL(thost.getValue());
+			String protocol = url.getProtocol();
+			boolean validProtocol = isProtocolValid(protocol);
+			if (!validProtocol) {
+				thost.setErrorKey("TUConfigForm.invalidProtocol", null);
+				allOk &= false;
+			}
 			allOk &= StringHelper.containsNonWhitespace(url.getHost());
 		} catch (MalformedURLException e) {
 			thost.setErrorKey("TUConfigForm.invalidurl", null);
@@ -198,8 +205,18 @@ public class TUConfigForm extends FormBasicController {
 		}
 		return allOk & super.validateFormLogic(ureq);
 	}
-	
-	
+
+	private static boolean isProtocolValid(String protocol) {
+		return protocol != null && Arrays.asList(PROTOCOLS).contains(protocol);
+	}
+
+	/**
+	 * Utility method
+	 */
+	static boolean isProtocolValid(ModuleConfiguration config) {
+		return config != null && isProtocolValid(config.getStringValue(CONFIGKEY_PROTO));
+	}
+
 	private String convertConfigToNewStyle(ModuleConfiguration cfg) {
 		Boolean tunnel = cfg.getBooleanEntry(CONFIG_TUNNEL);
 		Boolean iframe = cfg.getBooleanEntry(CONFIG_IFRAME);
