@@ -419,10 +419,10 @@ public class ProfileFormController extends FormBasicController {
 			public void execute() {
 				UserManager um = UserManager.getInstance();
 				identityToModify = (Identity) DBFactory.getInstance().loadObject(identityToModify);
-				currentEmail = identityToModify.getUser().getProperty("email", null);
+				currentEmail = identityToModify.getUser().getProperty("email", null).toLowerCase();
 
 				identityToModify = updateIdentityFromFormData(identityToModify);
-				changedEmail = identityToModify.getUser().getProperty("email", null);
+				changedEmail = identityToModify.getUser().getProperty("email", null).toLowerCase();
 				//if ((currentEmail == null && StringHelper.containsNonWhitespace(changedEmail))
 				//		|| (currentEmail != null && !currentEmail.equals(changedEmail))) {
 				if (!currentEmail.equals(changedEmail)) {
