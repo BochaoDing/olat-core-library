@@ -182,7 +182,7 @@ public class RepositoryEditDescriptionController extends FormBasicController {
 		
 		uifactory.addSpacerElement("spacer1", descCont, false);
 
-		displayName = uifactory.addTextElement("cif.displayname", "cif.displayname", 100, repositoryEntry.getDisplayname(), descCont);
+		displayName = uifactory.addTextElement("cif.displayname", "cif.displayname", 255, repositoryEntry.getDisplayname(), descCont);
 		displayName.setDisplaySize(30);
 		displayName.setMandatory(true);
 		displayName.setEnabled(!RepositoryEntryManagedFlag.isManaged(repositoryEntry, RepositoryEntryManagedFlag.title));

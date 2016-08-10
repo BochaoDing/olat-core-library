@@ -493,8 +493,6 @@ public class RepositoryEntry implements CreateInfo, Persistable , RepositoryEntr
 	 * @param displayname The displayname to set.
 	 */
 	public void setDisplayname(String displayname) {
-		if (displayname.length() > 100)
-			throw new AssertException("DisplayName is limited to 100 characters.");
 		this.displayname = displayname;
 	}
 
