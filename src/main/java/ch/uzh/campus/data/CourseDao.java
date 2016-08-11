@@ -37,7 +37,8 @@ public class CourseDao implements CampusDao<CourseOrgId> {
     }
 
     public void save(CourseOrgId courseOrgId) {
-        Course course = new Course(courseOrgId);
+        Course course = new Course();
+		courseOrgId.merge(course);
         dbInstance.saveObject(course);
         updateOrgsFromCourseOrgId(course, courseOrgId);
     }
@@ -49,10 +50,9 @@ public class CourseDao implements CampusDao<CourseOrgId> {
 		 */
 		Course course = getCourseById(courseOrgId.getId());
 		if (course == null) {
-			course = new Course(courseOrgId);
-		} else {
-			course.merge(courseOrgId);
+			course = new Course();
 		}
+		courseOrgId.merge(course);
 		dbInstance.saveObject(course);
 		updateOrgsFromCourseOrgId(course, courseOrgId);
     }

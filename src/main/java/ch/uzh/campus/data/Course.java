@@ -161,27 +161,6 @@ public class Course {
 
     public Course() {}
 
-    public Course(CourseOrgId courseOrgId) {
-		merge(courseOrgId);
-    }
-
-	public void merge(CourseOrgId courseOrgId) {
-		this.id = courseOrgId.getId();
-		this.shortTitle = courseOrgId.getShortTitle();
-		this.title = courseOrgId.getTitle();
-		this.vstNr = courseOrgId.getVstNr();
-		this.eLearningSupported = "X".equalsIgnoreCase(courseOrgId.getELearningSupported());
-		this.language = courseOrgId.getLanguage();
-		this.category = courseOrgId.getCategory();
-		this.startDate = courseOrgId.getStartDate();
-		this.endDate = courseOrgId.getEndDate();
-		this.vvzLink = courseOrgId.getVvzLink();
-		this.semester = courseOrgId.getSemester();
-		this.shortSemester = courseOrgId.getShortSemester();
-		this.exclude = "X".equalsIgnoreCase(courseOrgId.getExclude());
-		this.dateOfImport = courseOrgId.getDateOfImport();
-	}
-
     static final String GET_IDS_OF_ALL_CREATED_SYNCHRONIZABLE_COURSES_OF_CURRENT_SEMESTER = "getIdsOfAllCreatedSynchronizableCoursesOfCurrentSemester";
     static final String GET_RESOURCEABLE_IDS_OF_ALL_CREATED_COURSES_OF_CURRENT_SEMESTER = "getResourceableIdsOfAllCreatedCoursesOfCurrentSemester";
     static final String GET_IDS_OF_ALL_NOT_CREATED_CREATABLE_COURSES_OF_CURRENT_SEMESTER = "getIdsOfAllNotCreatedCreatableCoursesOfCurrentSemester";
