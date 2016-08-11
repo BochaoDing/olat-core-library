@@ -14,14 +14,15 @@ import org.olat.repository.RepositoryModule;
  */
 public class RepositoryEntryRowFactory {
 
-	final RepositoryEntryDataSourceUIFactory uifactory;
+	private final RepositoryEntryDataSourceUIFactory uifactory;
+	private final RepositoryManager repositoryManager;
 
-	private final RepositoryManager repositoryManager = CoreSpringFactory.getImpl(RepositoryManager.class);
-
-	public RepositoryEntryRowFactory(RepositoryModule repositoryModule,
+	public RepositoryEntryRowFactory(RepositoryManager repositoryManager,
+									 RepositoryModule repositoryModule,
 									 MapperService mapperService,
 									 UserRequest userRequest) {
-		uifactory = new RepositoryEntryDataSourceUIFactory(repositoryModule,
+		this.repositoryManager = repositoryManager;
+		this.uifactory = new RepositoryEntryDataSourceUIFactory(repositoryModule,
 				mapperService, userRequest);
 	}
 
@@ -41,5 +42,9 @@ public class RepositoryEntryRowFactory {
 
 		uifactory.forgeLinks(row);
 		return row;
+	}
+
+	public RepositoryEntryDataSourceUIFactory getUiFactory() {
+		return uifactory;
 	}
 }

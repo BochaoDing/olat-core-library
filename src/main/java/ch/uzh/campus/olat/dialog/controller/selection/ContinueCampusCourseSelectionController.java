@@ -1,7 +1,8 @@
-package ch.uzh.campus.olat.controller;
+package ch.uzh.campus.olat.dialog.controller.selection;
 
 import ch.uzh.campus.data.Course;
 import ch.uzh.campus.olat.CampusCourseOlatHelper;
+import ch.uzh.campus.olat.dialog.controller.CreateCampusCourseCompletedEventListener;
 import ch.uzh.campus.service.CampusCourse;
 import ch.uzh.campus.service.learn.CampusCourseService;
 import org.apache.commons.lang.StringUtils;
@@ -23,7 +24,7 @@ import java.util.List;
  * Initial date: 2016-07-13<br />
  * @author sev26 (UZH)
  */
-public class ContinueCampusCourseSelectionController extends CampusCourseSelectionController {
+public class ContinueCampusCourseSelectionController extends CampusCourseDialogSelectionController {
 
 	private static List<String> getButtonLabels(Translator translator) {
 		List<String> result = new ArrayList<>();
@@ -62,9 +63,9 @@ public class ContinueCampusCourseSelectionController extends CampusCourseSelecti
 								.getOlatResource().getResourceableId());
 						CampusCourse campusCourse = campusCourseService.continueCampusCourse(sapCampusCourseId,
 								parentCourse.getId(), userRequest.getIdentity());
-						onSuccess(campusCourse);
+						listener.onSuccess(campusCourse);
 					} catch (Exception e) {
-						onError();
+						listener.onError();
 					}
 				}
 			}
@@ -76,10 +77,12 @@ public class ContinueCampusCourseSelectionController extends CampusCourseSelecti
 												   CampusCourseService campusCourseService,
 												   RepositoryManager repositoryManager,
 												   CampusCourseOlatHelper campusCourseOlatHelper,
+												   CreateCampusCourseCompletedEventListener listener,
 												   WindowControl windowControl,
 												   UserRequest userRequest
 	) {
-		super(sapCampusCourseId, campusCourseService, repositoryManager, campusCourseOlatHelper, windowControl, userRequest);
+		super(sapCampusCourseId, campusCourseService, repositoryManager,
+				campusCourseOlatHelper, listener, windowControl, userRequest);
 
 		List<RepositoryEntry> campusCourseEntries = new ArrayList<>();
 		List<RepositoryEntry> entries = repositoryManager.queryByOwner(userRequest.getIdentity(), "CourseModule");
@@ -93,7 +96,8 @@ public class ContinueCampusCourseSelectionController extends CampusCourseSelecti
 					 * Filtering only by comparing the first 4 characters
 					 * (FSXX/HSXX) is not stable.
 					 */
-					if (StringUtils.left(campusCourseTitle, 4).compareTo(StringUtils.left(entry.getDisplayname(), 4)) > 0) {
+					if (StringUtils.left(campusCourseTitle, 4)
+							.compareTo(StringUtils.left(entry.getDisplayname(), 4)) > 0) {
 						campusCourseEntries.add(entry);
 					}
 				}

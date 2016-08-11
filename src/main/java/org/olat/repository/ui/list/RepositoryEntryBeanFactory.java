@@ -5,6 +5,7 @@ import org.olat.core.gui.UserRequest;
 import org.olat.core.gui.components.velocity.VelocityContainer;
 import org.olat.core.gui.control.controller.BasicController;
 import org.olat.core.util.Util;
+import org.olat.repository.RepositoryManager;
 import org.olat.repository.RepositoryModule;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.BeanDefinition;
@@ -18,6 +19,9 @@ import org.springframework.context.annotation.Scope;
  */
 @Configuration
 public class RepositoryEntryBeanFactory {
+
+	@Autowired
+	private RepositoryManager repositoryManager;
 
 	@Autowired
 	private RepositoryModule repositoryModule;
@@ -41,6 +45,7 @@ public class RepositoryEntryBeanFactory {
 	@Bean(name={"RepositoryEntryRowFactory"})
 	@Scope(BeanDefinition.SCOPE_PROTOTYPE)
 	protected RepositoryEntryRowFactory createRepositoryEntryRowFactory(UserRequest userRequest) {
-		return new RepositoryEntryRowFactory(repositoryModule, mapperService, userRequest);
+		return new RepositoryEntryRowFactory(repositoryManager,
+				repositoryModule, mapperService, userRequest);
 	}
 }

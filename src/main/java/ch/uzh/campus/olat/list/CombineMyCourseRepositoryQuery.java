@@ -1,4 +1,4 @@
-package ch.uzh.campus.olat;
+package ch.uzh.campus.olat.list;
 
 import org.olat.repository.RepositoryEntryMyView;
 import org.olat.repository.manager.RepositoryEntryMyCourseQueries;
@@ -23,7 +23,8 @@ public class CombineMyCourseRepositoryQuery implements MyCourseRepositoryQuery {
 	private final CampusMyCourseRepositoryQuery campusMyCourseRepositoryQuery;
 
 	@Autowired
-	public CombineMyCourseRepositoryQuery(RepositoryEntryMyCourseQueries repositoryEntryMyCourseQueries, CampusMyCourseRepositoryQuery campusMyCourseRepositoryQuery) {
+	public CombineMyCourseRepositoryQuery(RepositoryEntryMyCourseQueries repositoryEntryMyCourseQueries,
+										  CampusMyCourseRepositoryQuery campusMyCourseRepositoryQuery) {
 		this.repositoryEntryMyCourseQueries = repositoryEntryMyCourseQueries;
 		this.campusMyCourseRepositoryQuery = campusMyCourseRepositoryQuery;
 	}
