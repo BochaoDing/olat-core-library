@@ -12,7 +12,6 @@ import java.util.Date;
 public class CourseOrgId {
 
     private Long id;
-    private Long resourceableId;
     private String shortTitle;
     private String title;
     private String vstNr;
@@ -42,14 +41,6 @@ public class CourseOrgId {
 
     public void setId(Long id) {
         this.id = id;
-    }
-
-    public Long getResourceableId() {
-        return resourceableId;
-    }
-
-    public void setResourceableId(Long resourceableId) {
-        this.resourceableId = resourceableId;
     }
 
     public String getShortTitle() {
