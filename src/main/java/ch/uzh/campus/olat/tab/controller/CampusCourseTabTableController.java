@@ -11,10 +11,12 @@ import ch.uzh.campus.service.learn.SapCampusCourseTo;
 import org.olat.core.gui.UserRequest;
 import org.olat.core.gui.components.Component;
 import org.olat.core.gui.components.table.DefaultColumnDescriptor;
-import org.olat.core.gui.components.table.TableEvent;
 import org.olat.core.gui.components.table.TableGuiConfiguration;
 import org.olat.core.gui.control.Event;
 import org.olat.core.gui.control.WindowControl;
+import org.olat.core.gui.control.navigation.DefaultNavElement;
+import org.olat.core.gui.control.navigation.NavElement;
+import org.olat.core.gui.translator.Translator;
 import org.olat.core.id.OLATResourceable;
 import org.olat.core.id.context.BusinessControlFactory;
 import org.olat.core.id.context.StateSite;
@@ -53,6 +55,7 @@ public class CampusCourseTabTableController extends CampusCourseTableController 
 
 	private final CampusCourseOlatHelper campusCourseOlatHelper;
 	private final CampusCourseBeanFactory campusCourseBeanFactory;
+	private final NavElement navElement;
 
 	public CampusCourseTabTableController(CampusCourseService campusCourseService,
 										  CampusCourseOlatHelper campusCourseOlatHelper,
@@ -72,32 +75,53 @@ public class CampusCourseTabTableController extends CampusCourseTableController 
 		this.campusCourseOlatHelper = campusCourseOlatHelper;
 		this.campusCourseBeanFactory = campusCourseBeanFactory;
 
-		SapOlatUser.SapUserType userType = userRequest.getUserSession().getRoles().isAuthor() ?
-				SapOlatUser.SapUserType.LECTURER : SapOlatUser.SapUserType.STUDENT;
+		if (userRequest.getUserSession().getRoles().isAuthor()) {
 
-		List<SapCampusCourseTo> sapCampusCourseTos = campusCourseService
-				.getCoursesWhichCouldBeCreated(userRequest.getIdentity(),
-						userType, "");
+			List<SapCampusCourseTo> sapCampusCourseTos = campusCourseService
+					.getCoursesWhichCouldBeCreated(userRequest.getIdentity(),
+							SapOlatUser.SapUserType.LECTURER, "");
 
-		List<RepositoryEntry> campusCourseEntries = new ArrayList<>(
-				sapCampusCourseTos.size());
+			if (sapCampusCourseTos.size() > 0) {
 
-		for (SapCampusCourseTo sapCampusCourseTo : sapCampusCourseTos) {
-			RepositoryEntry repositoryEntry = CampusCourseOlatHelper
-					.getRepositoryEntry(sapCampusCourseTo);
-			/**
-			 * TODO sev26
-			 * Value for the "create" link.
-			 * This is a hack but not other possible without rewriting
-			 * everything.
-			 */
-			repositoryEntry.setExternalId(
-					getTranslator().translate("tab.table.create.course"));
-			campusCourseEntries.add(repositoryEntry);
+				List<RepositoryEntry> campusCourseEntries = new ArrayList<>(
+						sapCampusCourseTos.size());
+
+				for (SapCampusCourseTo sapCampusCourseTo : sapCampusCourseTos) {
+					RepositoryEntry repositoryEntry = CampusCourseOlatHelper
+							.getRepositoryEntry(sapCampusCourseTo);
+					/**
+					 * TODO sev26
+					 * Value for the "create" link.
+					 * This is a hack but not other possible without rewriting
+					 * everything.
+					 */
+					repositoryEntry.setExternalId(
+							getTranslator().translate("tab.table.create.course"));
+					campusCourseEntries.add(repositoryEntry);
+				}
+
+				getTableDataModel().setObjects(campusCourseEntries);
+				modelChanged(true);
+
+				Translator translator = CampusCourseOlatHelper.getTranslator(
+						userRequest.getLocale());
+				NavElement tmp = new DefaultNavElement(translator
+						.translate("topnav.campuscourses"), translator
+						.translate("topnav.campuscourses.alt"),
+						"o_site_campuscourse");
+				tmp.setAccessKey("r".charAt(0));
+
+				/**
+				 * Only if the user has author rights and campus courses are
+				 * available, the tab is shown.
+				 */
+				navElement = new DefaultNavElement(tmp);
+
+				return;
+			}
 		}
 
-		getTableDataModel().setObjects(campusCourseEntries);
-		modelChanged(true);
+		navElement = null;
 	}
 
 	@Override
@@ -120,5 +144,9 @@ public class CampusCourseTabTableController extends CampusCourseTableController 
 			campusCourseOlatHelper.showDialog("campus.course.creation.title",
 					controller, userRequest, getWindowControl(), this);
 		}
+	}
+
+	public NavElement getNavElement() {
+		return navElement;
 	}
 }
