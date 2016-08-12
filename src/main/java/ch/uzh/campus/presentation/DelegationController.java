@@ -119,7 +119,7 @@ public class DelegationController extends BasicController {
             views.add(member);
         }
 
-        identitiesTableModel = new IdentitiesOfGroupTableDataModel(views, ureq.getLocale(), userPropertyHandlers, true);
+        identitiesTableModel = new DelegationIdentitiesOfGroupTableDataModel(views, ureq.getLocale(), userPropertyHandlers, true);
         tableCtr.setTableDataModel(identitiesTableModel);
         myContent.put("subjecttable", tableCtr.getInitialComponent());
 
