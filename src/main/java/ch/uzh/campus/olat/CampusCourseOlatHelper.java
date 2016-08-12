@@ -15,7 +15,6 @@ import org.olat.core.util.Util;
 import org.olat.core.util.event.EventBus;
 import org.olat.repository.RepositoryEntry;
 import org.olat.repository.ui.author.AuthorListController;
-import org.olat.repository.ui.author.AuthoringListChangeEvent;
 import org.olat.resource.OLATResource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -23,7 +22,6 @@ import org.springframework.stereotype.Component;
 import java.util.Locale;
 
 import static ch.uzh.campus.olat.CampusCourseBeanFactory.NOT_CREATED_CAMPUSKURS_KEY;
-import static ch.uzh.campus.olat.CampusCourseBeanFactory.RESOURCEABLE_TYPE_NAME;
 
 @Component
 public class CampusCourseOlatHelper {
@@ -56,7 +54,7 @@ public class CampusCourseOlatHelper {
 		 */
 		EventBus singleUserEventBus = userRequest.getUserSession().getSingleUserEventCenter();
 		singleUserEventBus.fireEventToListenersOf(
-				new AuthoringListChangeEvent(RESOURCEABLE_TYPE_NAME),
+				new CampusCourseChangeEvent(),
 				campusCourse.getRepositoryEntry().getOlatResource());
 	}
 

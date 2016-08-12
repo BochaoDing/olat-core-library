@@ -38,13 +38,13 @@ public class CampusRepositoryEntryRow extends RepositoryEntryRow {
 		 */
 		switch(col) {
 			case 0:
-				return getCreateLink();
+				return "";
 			case 10:
 				return getDisplayName();
 			case 11:
 				return getCreateLink();
 			case 14:
-				return "Not ready.";
+				return "";
 		}
 		return null;
 	}

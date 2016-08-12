@@ -21,7 +21,9 @@ import org.olat.core.id.OLATResourceable;
 import org.olat.core.id.context.BusinessControlFactory;
 import org.olat.core.id.context.StateSite;
 import org.olat.core.logging.activity.ThreadLocalUserActivityLogger;
+import org.olat.core.util.event.GenericEventListener;
 import org.olat.core.util.resource.OresHelper;
+import org.olat.core.util.resource.Resourceable;
 import org.olat.repository.RepositoryEntry;
 import org.olat.repository.ui.RepositoryTableModel;
 import org.olat.util.logging.activity.LoggingResourceable;
@@ -53,6 +55,7 @@ public class CampusCourseTabTableController extends CampusCourseTableController 
 						stateSite, windowControl, true);
 	}
 
+	private final CampusCourseService campusCourseService;
 	private final CampusCourseOlatHelper campusCourseOlatHelper;
 	private final CampusCourseBeanFactory campusCourseBeanFactory;
 	private final NavElement navElement;
@@ -72,56 +75,73 @@ public class CampusCourseTabTableController extends CampusCourseTableController 
 				RepositoryTableModel.RepoCols.externalId.ordinal(),
 				RepositoryTableModel.TABLE_ACTION_SELECT_LINK, getLocale()));
 
+		this.campusCourseService = campusCourseService;
 		this.campusCourseOlatHelper = campusCourseOlatHelper;
 		this.campusCourseBeanFactory = campusCourseBeanFactory;
 
-		if (userRequest.getUserSession().getRoles().isAuthor()) {
+		/**
+		 * Only if the user has author rights and campus courses are
+		 * available, the tab is shown.
+		 */
+		if (userRequest.getUserSession().getRoles().isAuthor() &&
+				reloadData() > 0) {
 
-			List<SapCampusCourseTo> sapCampusCourseTos = campusCourseService
-					.getCoursesWhichCouldBeCreated(userRequest.getIdentity(),
-							SapOlatUser.SapUserType.LECTURER, "");
-
-			if (sapCampusCourseTos.size() > 0) {
-
-				List<RepositoryEntry> campusCourseEntries = new ArrayList<>(
-						sapCampusCourseTos.size());
-
-				for (SapCampusCourseTo sapCampusCourseTo : sapCampusCourseTos) {
-					RepositoryEntry repositoryEntry = CampusCourseOlatHelper
-							.getRepositoryEntry(sapCampusCourseTo);
-					/**
-					 * TODO sev26
-					 * Value for the "create" link.
-					 * This is a hack but not other possible without rewriting
-					 * everything.
-					 */
-					repositoryEntry.setExternalId(
-							getTranslator().translate("tab.table.create.course"));
-					campusCourseEntries.add(repositoryEntry);
+			/**
+			 * TODO sev26
+			 * Verify if this is the best way to inform the controller about list
+			 * entry changes.
+			 */
+			userRequest.getUserSession().getSingleUserEventCenter()
+					.registerFor(new GenericEventListener() {
+				@Override
+				public void event(Event event) {
+					reloadData();
 				}
+			}, userRequest.getIdentity(), new Resourceable("CourseModule",
+					null));
 
-				getTableDataModel().setObjects(campusCourseEntries);
-				modelChanged(true);
+			Translator translator = CampusCourseOlatHelper.getTranslator(
+					userRequest.getLocale());
+			NavElement tmp = new DefaultNavElement(translator
+					.translate("topnav.campuscourses"), translator
+					.translate("topnav.campuscourses.alt"),
+					"o_site_campuscourse");
+			tmp.setAccessKey("r".charAt(0));
 
-				Translator translator = CampusCourseOlatHelper.getTranslator(
-						userRequest.getLocale());
-				NavElement tmp = new DefaultNavElement(translator
-						.translate("topnav.campuscourses"), translator
-						.translate("topnav.campuscourses.alt"),
-						"o_site_campuscourse");
-				tmp.setAccessKey("r".charAt(0));
+			navElement = new DefaultNavElement(tmp);
 
-				/**
-				 * Only if the user has author rights and campus courses are
-				 * available, the tab is shown.
-				 */
-				navElement = new DefaultNavElement(tmp);
-
-				return;
-			}
+			return;
 		}
 
 		navElement = null;
+	}
+
+	private int reloadData() {
+		List<SapCampusCourseTo> sapCampusCourseTos = campusCourseService
+				.getCoursesWhichCouldBeCreated(getIdentity(),
+						SapOlatUser.SapUserType.LECTURER, "");
+
+		List<RepositoryEntry> campusCourseEntries = new ArrayList<>(
+				sapCampusCourseTos.size());
+
+		for (SapCampusCourseTo sapCampusCourseTo : sapCampusCourseTos) {
+			RepositoryEntry repositoryEntry = CampusCourseOlatHelper
+					.getRepositoryEntry(sapCampusCourseTo);
+			/**
+			 * TODO sev26
+			 * Value for the "create" link.
+			 * This is a hack but not other possible without rewriting
+			 * everything.
+			 */
+			repositoryEntry.setExternalId(
+					getTranslator().translate("tab.table.create.course"));
+			campusCourseEntries.add(repositoryEntry);
+		}
+
+		getTableDataModel().setObjects(campusCourseEntries);
+		modelChanged(true);
+
+		return sapCampusCourseTos.size();
 	}
 
 	@Override

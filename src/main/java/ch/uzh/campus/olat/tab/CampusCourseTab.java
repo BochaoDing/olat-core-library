@@ -16,12 +16,16 @@ import org.olat.core.gui.control.navigation.SiteDefinition;
  */
 public class CampusCourseTab extends AbstractSiteInstance {
 
-	private final CampusCourseTabTableController campusCourseTabTableController;
+	private final CampusCourseBeanFactory campusCourseBeanFactory;
+
+	private CampusCourseTabTableController campusCourseTabTableController;
 
 	CampusCourseTab(SiteDefinition siteDefinition,
 					CampusCourseBeanFactory campusCourseBeanFactory,
 					WindowControl windowControl, UserRequest userRequest) {
 		super(siteDefinition);
+
+		this.campusCourseBeanFactory = campusCourseBeanFactory;
 
 		campusCourseTabTableController = campusCourseBeanFactory
 				.createCampusCourseTabController(this, windowControl,
@@ -37,6 +41,8 @@ public class CampusCourseTab extends AbstractSiteInstance {
 	protected Controller createController(UserRequest userRequest,
 										  WindowControl windowControl,
 										  SiteConfiguration siteConfiguration) {
-		return campusCourseTabTableController;
+		return campusCourseTabTableController = campusCourseBeanFactory
+				.createCampusCourseTabController(this, windowControl,
+						userRequest);
 	}
 }
