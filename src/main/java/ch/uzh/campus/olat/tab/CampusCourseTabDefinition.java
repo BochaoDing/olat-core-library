@@ -1,7 +1,6 @@
 package ch.uzh.campus.olat.tab;
 
 import ch.uzh.campus.olat.CampusCourseBeanFactory;
-import ch.uzh.campus.service.learn.CampusCourseService;
 import org.olat.core.gui.UserRequest;
 import org.olat.core.gui.control.WindowControl;
 import org.olat.core.gui.control.navigation.AbstractSiteDefinition;
@@ -27,6 +26,6 @@ public class CampusCourseTabDefinition extends AbstractSiteDefinition implements
 		 * Not created by a factory because this class act like a factory.
 		 */
 		return new CampusCourseTab(this, campusCourseBeanFactory,
-				userRequest.getLocale());
+				windowControl, userRequest);
 	}
 }
