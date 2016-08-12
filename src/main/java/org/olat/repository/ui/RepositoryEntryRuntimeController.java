@@ -23,6 +23,7 @@ import java.util.Collections;
 import java.util.List;
 
 import org.olat.NewControllerFactory;
+import org.olat.commons.fileutil.FileSizeLimitExceededException;
 import org.olat.core.commons.services.mark.Mark;
 import org.olat.core.commons.services.mark.MarkManager;
 import org.olat.core.gui.UserRequest;
@@ -55,6 +56,7 @@ import org.olat.core.logging.activity.ThreadLocalUserActivityLogger;
 import org.olat.core.util.StringHelper;
 import org.olat.core.util.UserSession;
 import org.olat.core.util.Util;
+import org.olat.core.util.WebappHelper;
 import org.olat.core.util.coordinate.LockResult;
 import org.olat.core.util.resource.OresHelper;
 import org.olat.course.CourseModule;
@@ -142,6 +144,8 @@ public class RepositoryEntryRuntimeController extends MainLayoutBasicController 
 	private final RepositoryHandler handler;
 	
 	private HistoryPoint launchedFromPoint;
+
+	private final String supportAddr;
 	
 	@Autowired
 	protected ACService acService;
@@ -172,7 +176,9 @@ public class RepositoryEntryRuntimeController extends MainLayoutBasicController 
 		
 		ThreadLocalUserActivityLogger.addLoggingResourceInfo(LoggingResourceable
 				.wrapBusinessPath(OresHelper.createOLATResourceableType("RepositorySite")));
-		
+
+		supportAddr = WebappHelper.getMailConfig("mailSupport");
+
 		//! check corrupted
 		corrupted = isCorrupted(re);
 		assessmentLock = isAssessmentLock(ureq, re, reSecurity);
@@ -804,16 +810,43 @@ public class RepositoryEntryRuntimeController extends MainLayoutBasicController 
 	}
 	
 	private void doCopy(UserRequest ureq) {
-		removeAsListenerAndDispose(cmc);
-		removeAsListenerAndDispose(copyCtrl);
+		RepositoryEntry entry = repositoryService.loadByKey(re.getKey());
+		OLATResourceable ores = entry.getOlatResource();
+		if (ores == null) {
+			showError("error.createcopy");
+			return;
+		}
 
-		copyCtrl = new CopyRepositoryEntryController(ureq, getWindowControl(), re);
-		listenTo(copyCtrl);
-		
-		String title = translate("details.copy");
-		cmc = new CloseableModalController(getWindowControl(), translate("close"), copyCtrl.getInitialComponent(), true, title);
-		listenTo(cmc);
-		cmc.activate();
+		final boolean isAlreadyLocked = handler.isLocked(ores);
+		lockResult = handler.acquireLock(ores, ureq.getIdentity());
+		if (lockResult == null || isSuccessfullyLocked(lockResult, isAlreadyLocked)) {
+			removeAsListenerAndDispose(copyCtrl);
+			try {
+				copyCtrl = new CopyRepositoryEntryController(ureq, getWindowControl(), re);
+			} catch (FileSizeLimitExceededException e) {
+				String exportMaxSize = String.valueOf(FileSizeLimitExceededException.getExportMaxSizeMB());
+				showError("error.copy.failed.too.big");
+				return;
+			} finally {
+				// release lock in any case, no matter copy was successful or not
+				if (isSuccessfullyLocked(lockResult, isAlreadyLocked)) {
+					handler.releaseLock(lockResult);
+					lockResult = null;
+				}
+			}
+			listenTo(copyCtrl);
+
+			removeAsListenerAndDispose(cmc);
+			String title = translate("details.copy");
+			cmc = new CloseableModalController(getWindowControl(), translate("close"), copyCtrl.getInitialComponent(), true, title);
+			listenTo(cmc);
+			cmc.activate();
+		} else if (lockResult != null && lockResult.isSuccess() && isAlreadyLocked) {
+			showWarning("warning.course.alreadylocked.bySameUser");
+			lockResult = null;
+		} else {
+			showWarning("warning.course.alreadylocked", lockResult.getOwner().getName());
+		}
 	}
 	
 	private void doDownload(UserRequest ureq) {
@@ -836,7 +869,7 @@ public class RepositoryEntryRuntimeController extends MainLayoutBasicController 
 		try {
 			lockResult = handler.acquireLock(ores, ureq.getIdentity());
 			if (lockResult == null
-					|| (lockResult != null && lockResult.isSuccess() && !isAlreadyLocked)) {
+					|| isSuccessfullyLocked(lockResult, isAlreadyLocked)) {
 				MediaResource mr = handler.getAsMediaResource(ores, false);
 				if (mr != null) {
 					repositoryService.incrementDownloadCounter(entry);
@@ -856,14 +889,21 @@ public class RepositoryEntryRuntimeController extends MainLayoutBasicController 
 						.getOwner());
 				showInfo("warning.course.alreadylocked", fullName);
 			}
+		} catch (FileSizeLimitExceededException e) {
+			String exportMaxSize = String.valueOf(FileSizeLimitExceededException.getExportMaxSizeMB());
+			showError("error.export.failed.too.big", new String[] { exportMaxSize, supportAddr });
 		} finally {
-			if ((lockResult != null && lockResult.isSuccess() && !isAlreadyLocked)) {
+			if (isSuccessfullyLocked(lockResult, isAlreadyLocked)) {
 				handler.releaseLock(lockResult);
 				lockResult = null;
 			}
 		}
 	}
-	
+
+	private boolean isSuccessfullyLocked(LockResult lockResult, boolean isAlreadyLocked) {
+		return lockResult != null && lockResult.isSuccess() && !isAlreadyLocked;
+	}
+
 	private void doLifeCycleChange(UserRequest ureq) {
 		List<Link> breadCrumbs = toolbarPanel.getBreadCrumbs();
 		BreadCrumb lastCrumb = null;

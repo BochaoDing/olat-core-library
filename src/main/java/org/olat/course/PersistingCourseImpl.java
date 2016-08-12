@@ -29,6 +29,8 @@ import java.io.File;
 import java.io.Serializable;
 
 import org.olat.admin.quota.QuotaConstants;
+import org.olat.commons.fileutil.CourseConfigUtil;
+import org.olat.commons.fileutil.FileSizeLimitExceededException;
 import org.olat.core.CoreSpringFactory;
 import org.olat.core.commons.modules.bc.vfs.OlatRootFolderImpl;
 import org.olat.core.commons.persistence.DBFactory;
@@ -282,10 +284,11 @@ public class PersistingCourseImpl implements ICourse, OLATResourceable, Serializ
 	 */
 	@Override
 	public void exportToFilesystem(OLATResource originalCourseResource, File exportDirectory,
-			boolean runtimeDatas, boolean backwardsCompatible) {
+			boolean runtimeDatas, boolean backwardsCompatible) throws FileSizeLimitExceededException {
 		long s = System.currentTimeMillis();
 		log.info("exportToFilesystem: exporting course "+this+" to "+exportDirectory+"...");
 		File fCourseBase = getCourseBaseContainer().getBasefile();
+		CourseConfigUtil.checkAgainstConfiguredMaxSize(fCourseBase); // check source dir first
 		//make the folder structure
 		File fExportedDataDir = new File(exportDirectory, EXPORTED_DATA_FOLDERNAME);
 		fExportedDataDir.mkdirs();
@@ -335,6 +338,8 @@ public class PersistingCourseImpl implements ICourse, OLATResourceable, Serializ
 		//  pro increased transaction timeout: would fix OLAT-5368 but only move the problem
 		//@TODO OLAT-2597: real solution is a long-running background-task concept...
 		DBFactory.getInstance().intermediateCommit();
+		// OLATNG-26: limit course size when exporting/copying
+		CourseConfigUtil.checkAgainstConfiguredMaxSize(exportDirectory);
 
 		// export shared folder
 		CourseConfig config = getCourseConfig();
@@ -356,6 +361,8 @@ public class PersistingCourseImpl implements ICourse, OLATResourceable, Serializ
 		//  pro increased transaction timeout: would fix OLAT-5368 but only move the problem
 		//@TODO OLAT-2597: real solution is a long-running background-task concept...
 		DBFactory.getInstance().intermediateCommit();
+		// OLATNG-26: limit course size when exporting/copying
+		CourseConfigUtil.checkAgainstConfiguredMaxSize(exportDirectory);
 
 		// export glossary
 		if (config.hasGlossary()) {
@@ -376,6 +383,8 @@ public class PersistingCourseImpl implements ICourse, OLATResourceable, Serializ
 		//  pro increased transaction timeout: would fix OLAT-5368 but only move the problem
 		//@TODO OLAT-2597: real solution is a long-running background-task concept...
 		DBFactory.getInstance().intermediateCommit();
+		// OLATNG-26: limit course size when exporting/copying
+		CourseConfigUtil.checkAgainstConfiguredMaxSize(exportDirectory);
 
 		log.info("exportToFilesystem: exporting course "+this+": configuration and repo data...");
 		// export configuration file
@@ -393,7 +402,9 @@ public class PersistingCourseImpl implements ICourse, OLATResourceable, Serializ
 		//  pro increased transaction timeout: would fix OLAT-5368 but only move the problem
 		//@TODO OLAT-2597: real solution is a long-running background-task concept...
 		DBFactory.getInstance().intermediateCommit();
-		
+		// OLATNG-26: limit course size when exporting/copying
+		CourseConfigUtil.checkAgainstConfiguredMaxSize(exportDirectory);
+
 		//export reminders
 		CoreSpringFactory.getImpl(ReminderService.class)
 			.exportReminders(myRE, fExportedDataDir);

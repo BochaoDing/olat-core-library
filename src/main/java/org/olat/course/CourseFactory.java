@@ -45,6 +45,8 @@ import org.olat.admin.quota.QuotaConstants;
 import org.olat.commons.calendar.CalendarManager;
 import org.olat.commons.calendar.CalendarNotificationManager;
 import org.olat.commons.calendar.ui.components.KalendarRenderWrapper;
+import org.olat.commons.fileutil.CourseConfigUtil;
+import org.olat.commons.fileutil.FileSizeLimitExceededException;
 import org.olat.core.CoreSpringFactory;
 import org.olat.core.commons.fullWebApp.LayoutMain3ColsController;
 import org.olat.core.commons.modules.bc.FolderConfig;
@@ -449,6 +451,20 @@ public class CourseFactory extends BasicManager {
 	 */
 	public static OLATResourceable copyCourse(OLATResourceable sourceRes, OLATResource targetRes) {
 		PersistingCourseImpl sourceCourse = (PersistingCourseImpl)loadCourse(sourceRes);
+
+		try {
+			// check if the source course is not too big
+			CourseConfigUtil.checkAgainstConfiguredMaxSize(sourceCourse.getCourseBaseContainer().getBasefile());
+		} catch (FileSizeLimitExceededException e){
+			log.warn("Course size exceeds the setting for copying", e);
+			/*
+			 	TODO
+				Should it also throw an exception further, so it can be handled in UI (see exportCourseToZIP())?
+				Right now exception handling is rather notificational, we just log the occurrences of big course.
+				Course gets copied anyway. Should we inforce returning null and then handle it in the calling code?
+			 */
+		}
+
 		PersistingCourseImpl targetCourse = new PersistingCourseImpl(targetRes);
 		File fTargetCourseBasePath = targetCourse.getCourseBaseContainer().getBasefile();
 		
@@ -470,13 +486,15 @@ public class CourseFactory extends BasicManager {
 			if (fSourceCourseFolder.exists()) FileUtils.copyDirToDir(fSourceCourseFolder, fTargetCourseBasePath, false, "copy course folder");
 			
 			// copy folder nodes directories
-			File fSourceFoldernodesFolder = new File(FolderConfig.getCanonicalRoot()
-					+ BCCourseNode.getFoldernodesPathRelToFolderBase(sourceCourse.getCourseEnvironment()));
+			File fSourceFoldernodesFolder = new File(
+					FolderConfig.getCanonicalRoot() + BCCourseNode.getFoldernodesPathRelToFolderBase(sourceCourse.getCourseEnvironment())
+			);
 			if (fSourceFoldernodesFolder.exists()) FileUtils.copyDirToDir(fSourceFoldernodesFolder, fTargetCourseBasePath, false, "copy folder nodes directories");
 
 			// copy task folder directories
-			File fSourceTaskfoldernodesFolder = new File(FolderConfig.getCanonicalRoot()
-					+ TACourseNode.getTaskFoldersPathRelToFolderRoot(sourceCourse.getCourseEnvironment()));
+			File fSourceTaskfoldernodesFolder = new File(
+					FolderConfig.getCanonicalRoot() + TACourseNode.getTaskFoldersPathRelToFolderRoot(sourceCourse.getCourseEnvironment())
+			);
 			if (fSourceTaskfoldernodesFolder.exists()) FileUtils.copyDirToDir(fSourceTaskfoldernodesFolder, fTargetCourseBasePath, false, "copy task folder directories");
 			
 			// update references
@@ -510,22 +528,28 @@ public class CourseFactory extends BasicManager {
 	 * @param fTargetZIP
 	 * @return true if successfully exported, false otherwise.
 	 */
-	public static void exportCourseToZIP(OLATResourceable sourceRes, File fTargetZIP, boolean runtimeDatas, boolean backwardsCompatible) {
+	public static void exportCourseToZIP(OLATResourceable sourceRes, File fTargetZIP, boolean runtimeDatas, boolean backwardsCompatible) throws FileSizeLimitExceededException {
 		PersistingCourseImpl sourceCourse = (PersistingCourseImpl) loadCourse(sourceRes);
 
 		// add files to ZIP
 		File fExportDir = new File(WebappHelper.getTmpDir(), CodeHelper.getUniqueID());
 		fExportDir.mkdirs();
 		log.info("Export folder: " + fExportDir);
-		synchronized (sourceCourse) { //o_clusterNOK - cannot be solved with doInSync since could take too long (leads to error: "Lock wait timeout exceeded")
-			OLATResource courseResource = sourceCourse.getCourseEnvironment().getCourseGroupManager().getCourseResource();
-			sourceCourse.exportToFilesystem(courseResource, fExportDir, runtimeDatas, backwardsCompatible);
+		try {
+			synchronized (sourceCourse) { //o_clusterNOK - cannot be solved with doInSync since could take too long (leads to error: "Lock wait timeout exceeded")
+				OLATResource courseResource = sourceCourse.getCourseEnvironment().getCourseGroupManager().getCourseResource();
+				sourceCourse.exportToFilesystem(courseResource, fExportDir, runtimeDatas, backwardsCompatible);
+			}
 			Set<String> fileSet = new HashSet<String>();
 			String[] files = fExportDir.list();
 			for (int i = 0; i < files.length; i++) {
 				fileSet.add(files[i]);
 			}
 			ZipUtil.zip(fileSet, fExportDir, fTargetZIP, false);
+		} catch (FileSizeLimitExceededException e) {
+			log.warn("exportCourseToZIP failed: ", e);
+			throw e; // throw to let the GUI notify the user about the exception
+		} finally {
 			log.info("Delete export folder: " + fExportDir);
 			FileUtils.deleteDirsAndFiles(fExportDir, true, true);
 		}
