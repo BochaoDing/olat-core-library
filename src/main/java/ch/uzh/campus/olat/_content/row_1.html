@@ -15,7 +15,11 @@
     </div>
     <div class="o_access container">
         <div class="row">
-            $r.render($row.getCreateLink().getComponent().getComponentName())
+            #if($row.getOLATResourceable().getResourceableTypeName() == "StudentCampusCourse")
+                $r.translate("list.course.progress")
+            #else
+                $r.render($row.getCreateLink().getComponent().getComponentName())
+            #end
         </div>
     </div>
 #else

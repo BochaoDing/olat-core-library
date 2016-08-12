@@ -21,7 +21,9 @@ import org.springframework.stereotype.Component;
 
 import java.util.Locale;
 
-import static ch.uzh.campus.olat.CampusCourseBeanFactory.NOT_CREATED_CAMPUSKURS_KEY;
+import static ch.uzh.campus.olat.CampusCourseBeanFactory.LECTURER_RESOURCEABLE_TYPE_NAME;
+import static ch.uzh.campus.olat.CampusCourseBeanFactory.NOT_CREATED_CAMPUS_COURSE_KEY;
+import static ch.uzh.campus.olat.CampusCourseBeanFactory.STUDENT_RESOURCEABLE_TYPE_NAME;
 
 @Component
 public class CampusCourseOlatHelper {
@@ -77,14 +79,30 @@ public class CampusCourseOlatHelper {
 				CONTACT_OLAT_SUPPORT);
 	}
 
-	private final static OLATResource CAMPUSKURS_RESOURCE_DUMMY =
-			new CampusCourseOlatResource(NOT_CREATED_CAMPUSKURS_KEY);
+	private final static OLATResource STUDENT_CAMPUS_COURSE_RESOURCE_DUMMY =
+			new CampusCourseOlatResource(NOT_CREATED_CAMPUS_COURSE_KEY,
+					STUDENT_RESOURCEABLE_TYPE_NAME);
 
-	public static RepositoryEntry getRepositoryEntry(SapCampusCourseTo sapCampusCourseTo) {
+	public static RepositoryEntry getStudentRepositoryEntry(SapCampusCourseTo sapCampusCourseTo) {
+		RepositoryEntry result = getRepositoryEntry(sapCampusCourseTo);
+		result.setOlatResource(STUDENT_CAMPUS_COURSE_RESOURCE_DUMMY);
+		return result;
+	}
+
+	private final static OLATResource LECTURER_CAMPUS_COURSE_RESOURCE_DUMMY =
+			new CampusCourseOlatResource(NOT_CREATED_CAMPUS_COURSE_KEY,
+					LECTURER_RESOURCEABLE_TYPE_NAME);
+
+	public static RepositoryEntry getLecturerRepositoryEntry(SapCampusCourseTo sapCampusCourseTo) {
+		RepositoryEntry result = getRepositoryEntry(sapCampusCourseTo);
+		result.setOlatResource(LECTURER_CAMPUS_COURSE_RESOURCE_DUMMY);
+		return result;
+	}
+
+	private static RepositoryEntry getRepositoryEntry(SapCampusCourseTo sapCampusCourseTo) {
 		RepositoryEntry result = new RepositoryEntry();
 		result.setKey(sapCampusCourseTo.getSapCourseId());
 		result.setDisplayname(sapCampusCourseTo.getTitle());
-		result.setOlatResource(CAMPUSKURS_RESOURCE_DUMMY);
 		return result;
 	}
 

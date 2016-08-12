@@ -68,6 +68,7 @@ public class CampusCourseSubmitController extends BasicController {
 								sapCampusCourseId,
 								courseResourceableId);
 
+				listener.onCancel();
 				campusCourseOlatHelper.openCourseInNewTab(campusCourse, getWindowControl(), userRequest);
 			} catch (Exception e) {
 				CampusCourseOlatHelper.showErrorCreatingCampusCourseFromDefaultTemplate(

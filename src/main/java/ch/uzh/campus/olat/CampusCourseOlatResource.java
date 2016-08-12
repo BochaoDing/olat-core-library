@@ -15,10 +15,13 @@ import static ch.uzh.campus.olat.CampusCourseBeanFactory.RESOURCEABLE_TYPE_NAME;
 final class CampusCourseOlatResource implements OLATResource {
 
 	private final Long key;
+	private final String resourceableTypeName;
 
-	public CampusCourseOlatResource(Long key) {
+	public CampusCourseOlatResource(Long key, String resourceableTypeName) {
 		assert key != null;
+		assert resourceableTypeName != null;
 		this.key = key;
+		this.resourceableTypeName = resourceableTypeName;
 	}
 
 	@Override
@@ -28,7 +31,7 @@ final class CampusCourseOlatResource implements OLATResource {
 
 	@Override
 	public String getResourceableTypeName() {
-		return RESOURCEABLE_TYPE_NAME;
+		return resourceableTypeName;
 	}
 
 	@Override

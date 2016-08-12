@@ -126,7 +126,7 @@ public class CampusCourseTabTableController extends CampusCourseTableController 
 
 		for (SapCampusCourseTo sapCampusCourseTo : sapCampusCourseTos) {
 			RepositoryEntry repositoryEntry = CampusCourseOlatHelper
-					.getRepositoryEntry(sapCampusCourseTo);
+					.getLecturerRepositoryEntry(sapCampusCourseTo);
 			/**
 			 * TODO sev26
 			 * Value for the "create" link.

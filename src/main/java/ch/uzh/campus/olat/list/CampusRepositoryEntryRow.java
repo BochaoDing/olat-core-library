@@ -19,7 +19,7 @@ public class CampusRepositoryEntryRow extends RepositoryEntryRow {
 
 		createLink = FormUIFactory.getInstance()
 				.addFormLink("create_" + getKey(), "createCampusCourse",
-						"list.create.course", null,
+						"list.course.create", null,
 						null, Link.LINK);
 		createLink.setUserObject(this);
 		createLink.setCustomEnabledLinkCSS("o_create btn-block");

@@ -38,9 +38,11 @@ import org.springframework.context.annotation.Scope;
 @Configuration
 public class CampusCourseBeanFactory {
 
-	public final static String RESOURCEABLE_TYPE_NAME = "Campuskurs";
-	final static Long NOT_CREATED_CAMPUSKURS_KEY = 0L;
-	final static Long NOT_CREATED_CAMPUSKURS_RESOURCE_ID = 0L;
+	public final static String RESOURCEABLE_TYPE_NAME = "CampusCourse";
+	public final static String STUDENT_RESOURCEABLE_TYPE_NAME = "Student" + RESOURCEABLE_TYPE_NAME;
+	public final static String LECTURER_RESOURCEABLE_TYPE_NAME = "Lecturer" + RESOURCEABLE_TYPE_NAME;
+	public final static Long NOT_CREATED_CAMPUS_COURSE_KEY = 0L;
+	public final static Long NOT_CREATED_CAMPUSKURS_RESOURCE_ID = 0L;
 
 	@Autowired
 	private RepositoryModule repositoryModule;
