@@ -1,6 +1,7 @@
-package ch.uzh.campus.olat.controller;
+package ch.uzh.campus.olat.dialog.controller.selection;
 
 import ch.uzh.campus.olat.CampusCourseOlatHelper;
+import ch.uzh.campus.olat.dialog.controller.CreateCampusCourseCompletedEventListener;
 import ch.uzh.campus.service.CampusCourse;
 import ch.uzh.campus.service.learn.CampusCourseService;
 import org.olat.core.gui.UserRequest;
@@ -17,19 +18,21 @@ import java.util.List;
  * Initial date: 2016-07-13<br />
  * @author sev26 (UZH)
  */
-public class CreationCampusCourseSelectionController extends CampusCourseSelectionController {
+public class CreationCampusCourseSelectionController extends CampusCourseDialogSelectionController {
 
 	public CreationCampusCourseSelectionController(Long sapCampusCourseId,
 												   CampusCourseService campusCourseService,
 												   RepositoryManager repositoryManager,
 												   CampusCourseOlatHelper campusCourseOlatHelper,
+												   CreateCampusCourseCompletedEventListener listener,
 												   WindowControl windowControl,
 												   UserRequest userRequest
 	) {
-		super(sapCampusCourseId, campusCourseService, repositoryManager, campusCourseOlatHelper, windowControl, userRequest);
+		super(sapCampusCourseId, campusCourseService, repositoryManager,
+				campusCourseOlatHelper, listener, windowControl, userRequest);
 
-		List<RepositoryEntry> entries = repositoryManager.queryByOwner(userRequest.getIdentity(),
-				"CourseModule");
+		List<RepositoryEntry> entries = repositoryManager.queryByOwner(
+				userRequest.getIdentity(), "CourseModule");
 		table.getTableDataModel().setObjects(entries);
 		table.modelChanged(true);
 	}
@@ -43,9 +46,9 @@ public class CreationCampusCourseSelectionController extends CampusCourseSelecti
 			CampusCourse campusCourse = campusCourseService.createCampusCourseFromTemplate(resourceableId,
 					sapCampusCourseId, userRequest.getIdentity());
 
-			onSuccess(campusCourse);
+			listener.onSuccess(campusCourse);
 		} catch (Exception e) {
-			onError();
+			listener.onError();
 		}
 	}
 }

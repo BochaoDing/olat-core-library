@@ -159,7 +159,10 @@ public class DefaultRepositoryEntryDataSource implements FlexiTableDataSourceDel
 				 * way because the entire block here should be in the factory
 				 * class or better in the {@link RepositoryEntryRow} class.
 				 */
-				types.add(new PriceMethod("", "o_ac_membersonly_icon", repositoryEntryRowFactory.uifactory.getTranslator().translate("cif.access.membersonly.short")));
+				types.add(new PriceMethod("", "o_ac_membersonly_icon",
+						repositoryEntryRowFactory.getUiFactory()
+								.getTranslator()
+								.translate("cif.access.membersonly.short")));
 			} else {
 				// collect access control method icons
 				OLATResource resource = entry.getOlatResource();
@@ -169,7 +172,9 @@ public class DefaultRepositoryEntryDataSource implements FlexiTableDataSourceDel
 							String type = (bundle.getMethod().getMethodCssClass() + "_icon").intern();
 							String price = bundle.getPrice() == null || bundle.getPrice().isEmpty() ? "" : PriceFormat.fullFormat(bundle.getPrice());
 							AccessMethodHandler amh = acModule.getAccessMethodHandler(bundle.getMethod().getType());
-							String displayName = amh.getMethodName(repositoryEntryRowFactory.uifactory.getTranslator().getLocale());
+							String displayName = amh.getMethodName(
+									repositoryEntryRowFactory.getUiFactory()
+											.getTranslator().getLocale());
 							types.add(new PriceMethod(price, type, displayName));
 						}
 					}

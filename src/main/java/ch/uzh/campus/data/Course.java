@@ -7,7 +7,6 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
-
 /**
  * Initial Date: 04.06.2012 <br>
  * 
@@ -161,24 +160,6 @@ public class Course {
     private Course parentCourse;
 
     public Course() {}
-
-    public Course(CourseOrgId courseOrgId) {
-        this.id = courseOrgId.getId();
-        this.resourceableId = courseOrgId.getResourceableId();
-        this.shortTitle = courseOrgId.getShortTitle();
-        this.title = courseOrgId.getTitle();
-        this.vstNr = courseOrgId.getVstNr();
-        this.eLearningSupported = "X".equalsIgnoreCase(courseOrgId.getELearningSupported());
-        this.language = courseOrgId.getLanguage();
-        this.category = courseOrgId.getCategory();
-        this.startDate = courseOrgId.getStartDate();
-        this.endDate = courseOrgId.getEndDate();
-        this.vvzLink = courseOrgId.getVvzLink();
-        this.semester = courseOrgId.getSemester();
-        this.shortSemester = courseOrgId.getShortSemester();
-        this.exclude = "X".equalsIgnoreCase(courseOrgId.getExclude());
-        this.dateOfImport = courseOrgId.getDateOfImport();
-    }
 
     static final String GET_IDS_OF_ALL_CREATED_SYNCHRONIZABLE_COURSES_OF_CURRENT_SEMESTER = "getIdsOfAllCreatedSynchronizableCoursesOfCurrentSemester";
     static final String GET_RESOURCEABLE_IDS_OF_ALL_CREATED_COURSES_OF_CURRENT_SEMESTER = "getResourceableIdsOfAllCreatedCoursesOfCurrentSemester";

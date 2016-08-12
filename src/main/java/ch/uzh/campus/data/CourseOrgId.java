@@ -12,7 +12,6 @@ import java.util.Date;
 public class CourseOrgId {
 
     private Long id;
-    private Long resourceableId;
     private String shortTitle;
     private String title;
     private String vstNr;
@@ -42,14 +41,6 @@ public class CourseOrgId {
 
     public void setId(Long id) {
         this.id = id;
-    }
-
-    public Long getResourceableId() {
-        return resourceableId;
-    }
-
-    public void setResourceableId(Long resourceableId) {
-        this.resourceableId = resourceableId;
     }
 
     public String getShortTitle() {
@@ -227,4 +218,21 @@ public class CourseOrgId {
     public void setDateOfImport(Date dateOfImport) {
         this.dateOfImport = dateOfImport;
     }
+
+	public void merge(Course course) {
+		course.setId(getId());
+		course.setShortTitle(getShortTitle());
+		course.setTitle(getTitle());
+		course.setVstNr(getVstNr());
+		course.setELearningSupported("X".equalsIgnoreCase(getELearningSupported()));
+		course.setLanguage(getLanguage());
+		course.setCategory(getCategory());
+		course.setStartDate(getStartDate());
+		course.setEndDate(getEndDate());
+		course.setVvzLink(getVvzLink());
+		course.setSemester(getSemester());
+		course.setShortSemester(getShortSemester());
+		course.setExclude("X".equalsIgnoreCase(getExclude()));
+		course.setDateOfImport(getDateOfImport());
+	}
 }

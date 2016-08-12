@@ -1,21 +1,29 @@
 package ch.uzh.campus.olat;
 
+import ch.uzh.campus.olat.dialog.controller.CampusCourseCreateDialogController;
+import ch.uzh.campus.olat.dialog.controller.CreateCampusCourseCompletedEventListener;
 import ch.uzh.campus.service.CampusCourse;
 import ch.uzh.campus.service.learn.CampusCourseService;
+import ch.uzh.campus.service.learn.SapCampusCourseTo;
 import org.olat.NewControllerFactory;
 import org.olat.core.gui.UserRequest;
+import org.olat.core.gui.control.ControllerEventListener;
 import org.olat.core.gui.control.WindowControl;
+import org.olat.core.gui.control.generic.closablewrapper.CloseableModalController;
 import org.olat.core.gui.translator.Translator;
 import org.olat.core.util.Util;
 import org.olat.core.util.event.EventBus;
+import org.olat.repository.RepositoryEntry;
 import org.olat.repository.ui.author.AuthorListController;
 import org.olat.repository.ui.author.AuthoringListChangeEvent;
+import org.olat.resource.OLATResource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.Locale;
 
-import static ch.uzh.campus.olat.CampusBeanFactory.RESOURCEABLE_TYPE_NAME;
+import static ch.uzh.campus.olat.CampusCourseBeanFactory.NOT_CREATED_CAMPUSKURS_KEY;
+import static ch.uzh.campus.olat.CampusCourseBeanFactory.RESOURCEABLE_TYPE_NAME;
 
 @Component
 public class CampusCourseOlatHelper {
@@ -69,5 +77,49 @@ public class CampusCourseOlatHelper {
 													 Locale locale) {
 		windowControl.setError("An error occurred while crating the Campuskurs. " +
 				CONTACT_OLAT_SUPPORT);
+	}
+
+	private final static OLATResource CAMPUSKURS_RESOURCE_DUMMY =
+			new CampusCourseOlatResource(NOT_CREATED_CAMPUSKURS_KEY);
+
+	public static RepositoryEntry getRepositoryEntry(SapCampusCourseTo sapCampusCourseTo) {
+		RepositoryEntry result = new RepositoryEntry();
+		result.setKey(sapCampusCourseTo.getSapCourseId());
+		result.setDisplayname(sapCampusCourseTo.getTitle());
+		result.setOlatResource(CAMPUSKURS_RESOURCE_DUMMY);
+		return result;
+	}
+
+	public void showDialog(String titleKey, CampusCourseCreateDialogController controller,
+								   UserRequest userRequest, WindowControl windowControl,
+								   ControllerEventListener parent) {
+		Translator translator = CampusCourseOlatHelper.getTranslator(userRequest.getLocale());
+		CloseableModalController cmc = new CloseableModalController(
+				windowControl, translator.translate("close"), controller.getInitialComponent(), true,
+				translator.translate(titleKey));
+		cmc.addControllerListener(parent);
+		cmc.activate();
+
+		controller.addCampusCourseCreateEventListener(new CreateCampusCourseCompletedEventListener() {
+
+			@Override
+			public void onSuccess(CampusCourse campusCourse) {
+				cmc.deactivate();
+				CampusCourseOlatHelper.this.openCourseInNewTab(campusCourse,
+						windowControl, userRequest);
+			}
+
+			@Override
+			public void onCancel() {
+				cmc.deactivate();
+			}
+
+			@Override
+			public void onError() {
+				CampusCourseOlatHelper.showErrorCreatingCampusCourse(windowControl,
+						userRequest.getLocale());
+				cmc.deactivate();
+			}
+		});
 	}
 }

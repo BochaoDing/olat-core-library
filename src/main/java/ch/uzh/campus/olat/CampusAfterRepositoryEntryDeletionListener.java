@@ -15,6 +15,5 @@ public class CampusAfterRepositoryEntryDeletionListener extends AfterRepositoryE
 	@Override
 	public void onAction(RepositoryEntry repositoryEntry,
 						 OLATResource resource) {
-
 	}
 }

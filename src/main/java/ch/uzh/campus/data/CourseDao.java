@@ -37,15 +37,24 @@ public class CourseDao implements CampusDao<CourseOrgId> {
     }
 
     public void save(CourseOrgId courseOrgId) {
-        Course course = new Course(courseOrgId);
+        Course course = new Course();
+		courseOrgId.merge(course);
         dbInstance.saveObject(course);
         updateOrgsFromCourseOrgId(course, courseOrgId);
     }
 
     public void saveOrUpdate(CourseOrgId courseOrgId) {
-        Course course = new Course(courseOrgId);
-        course = dbInstance.getCurrentEntityManager().merge(course);
-        updateOrgsFromCourseOrgId(course, courseOrgId);
+		/**
+		 * A database merge with a detached course entity would override the
+		 * "olat_id" attribute values with "null".
+		 */
+		Course course = getCourseById(courseOrgId.getId());
+		if (course == null) {
+			course = new Course();
+		}
+		courseOrgId.merge(course);
+		dbInstance.saveObject(course);
+		updateOrgsFromCourseOrgId(course, courseOrgId);
     }
 
     @Override
