@@ -27,7 +27,7 @@ public class CampusRepositoryEntryRow extends RepositoryEntryRow {
 				.getOlatResource().getResourceableTypeName())) {
 			FormLink tmp = FormUIFactory.getInstance()
 					.addFormLink("list.course.create", "createCampusCourse",
-							null, "list.course.create", null, Link.LINK);
+							null, null, null, Link.LINK);
 			tmp.setUserObject(this);
 			tmp.setCustomEnabledLinkCSS("o_create btn-block");
 			tmp.setIconRightCSS("o_icon o_icon_create");
@@ -50,8 +50,8 @@ public class CampusRepositoryEntryRow extends RepositoryEntryRow {
 			 * this feature is not provided by OpenOLAT.
 			 */
 			formItem = FormUIFactory.getInstance().addStaticExampleText(
-					"list.course.author.right.required",
-					translator.translate("list.course.progress"), null);
+					"list.course.progress", translator.translate(
+							"list.course.progress"), null);
 		}
 	}
 
