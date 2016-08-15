@@ -74,7 +74,7 @@ public class CampusCourseSelectionController<T> extends BasicController {
 
 	protected CampusCourseTableController<T> createTableController(WindowControl windowControl,
 																UserRequest userRequest) {
-		return new CampusCourseTableController(createTableGuiConfiguration(),
+		return new CampusCourseTableController<T>(createTableGuiConfiguration(),
 				null, windowControl, userRequest);
 	}
 
