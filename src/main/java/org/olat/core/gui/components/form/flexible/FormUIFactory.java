@@ -533,7 +533,13 @@ public class FormUIFactory {
 			}
 		};
 		setLabelIfNotNull(i18nLabel, fiWrapper);
-		formLayout.add(fiWrapper);
+		/**
+		 * TODO sev26
+		 * Adapt the behaviour of the other factory methods.
+		 */
+		if(formLayout != null) {
+			formLayout.add(fiWrapper);
+		}
 		return fiWrapper;
 	}
 	

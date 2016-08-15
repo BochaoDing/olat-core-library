@@ -39,8 +39,9 @@ import org.springframework.context.annotation.Scope;
 public class CampusCourseBeanFactory {
 
 	public final static String RESOURCEABLE_TYPE_NAME = "CampusCourse";
-	public final static String STUDENT_RESOURCEABLE_TYPE_NAME = "Student" + RESOURCEABLE_TYPE_NAME;
-	public final static String LECTURER_RESOURCEABLE_TYPE_NAME = "Lecturer" + RESOURCEABLE_TYPE_NAME;
+	public final static String STUDENT_RESOURCEABLE_TYPE_NAME = "Student" + RESOURCEABLE_TYPE_NAME;;
+	public final static String LECTURER_RESOURCEABLE_TYPE_NAME = "Lecturer"  + RESOURCEABLE_TYPE_NAME;;
+	public final static String AUTHOR_LECTURER_RESOURCEABLE_TYPE_NAME = "AuthorLecturer"  + RESOURCEABLE_TYPE_NAME;
 	public final static Long NOT_CREATED_CAMPUS_COURSE_KEY = 0L;
 	public final static Long NOT_CREATED_CAMPUSKURS_RESOURCE_ID = 0L;
 
@@ -86,7 +87,9 @@ public class CampusCourseBeanFactory {
 			@Override
 			public RepositoryEntryRow create(RepositoryEntryMyView entry) {
 				if (entry.getOlatResource().getResourceableId() == NOT_CREATED_CAMPUSKURS_RESOURCE_ID)
-					return new CampusRepositoryEntryRow(entry);
+					return new CampusRepositoryEntryRow(entry,
+							CampusCourseOlatHelper.getTranslator(
+									userRequest.getLocale()));
 				else
 					return super.create(entry);
 			}

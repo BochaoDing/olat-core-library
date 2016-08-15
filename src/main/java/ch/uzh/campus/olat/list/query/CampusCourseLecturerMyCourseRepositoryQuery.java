@@ -3,6 +3,7 @@ package ch.uzh.campus.olat.list.query;
 import ch.uzh.campus.olat.CampusCourseOlatHelper;
 import ch.uzh.campus.service.learn.CampusCourseService;
 import ch.uzh.campus.service.learn.SapCampusCourseTo;
+import org.olat.core.id.Roles;
 import org.olat.repository.RepositoryEntry;
 import org.olat.repository.RepositoryModule;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,7 +29,7 @@ public class CampusCourseLecturerMyCourseRepositoryQuery extends CampusCourseMyC
 	}
 
 	@Override
-	protected RepositoryEntry getRepositoryEntry(SapCampusCourseTo sapCampusCourseTo) {
-		return CampusCourseOlatHelper.getLecturerRepositoryEntry(sapCampusCourseTo);
+	protected RepositoryEntry getRepositoryEntry(SapCampusCourseTo sapCampusCourseTo, Roles roles) {
+		return CampusCourseOlatHelper.getLecturerRepositoryEntry(sapCampusCourseTo, roles);
 	}
 }

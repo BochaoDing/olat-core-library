@@ -11,6 +11,7 @@ import org.olat.core.gui.control.ControllerEventListener;
 import org.olat.core.gui.control.WindowControl;
 import org.olat.core.gui.control.generic.closablewrapper.CloseableModalController;
 import org.olat.core.gui.translator.Translator;
+import org.olat.core.id.Roles;
 import org.olat.core.util.Util;
 import org.olat.core.util.event.EventBus;
 import org.olat.repository.RepositoryEntry;
@@ -21,9 +22,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.Locale;
 
-import static ch.uzh.campus.olat.CampusCourseBeanFactory.LECTURER_RESOURCEABLE_TYPE_NAME;
-import static ch.uzh.campus.olat.CampusCourseBeanFactory.NOT_CREATED_CAMPUS_COURSE_KEY;
-import static ch.uzh.campus.olat.CampusCourseBeanFactory.STUDENT_RESOURCEABLE_TYPE_NAME;
+import static ch.uzh.campus.olat.CampusCourseBeanFactory.*;
 
 @Component
 public class CampusCourseOlatHelper {
@@ -93,9 +92,17 @@ public class CampusCourseOlatHelper {
 			new CampusCourseOlatResource(NOT_CREATED_CAMPUS_COURSE_KEY,
 					LECTURER_RESOURCEABLE_TYPE_NAME);
 
-	public static RepositoryEntry getLecturerRepositoryEntry(SapCampusCourseTo sapCampusCourseTo) {
+	private final static OLATResource AUTHOR_LECTURER_CAMPUS_COURSE_RESOURCE_DUMMY =
+			new CampusCourseOlatResource(NOT_CREATED_CAMPUS_COURSE_KEY,
+					AUTHOR_LECTURER_RESOURCEABLE_TYPE_NAME);
+
+	public static RepositoryEntry getLecturerRepositoryEntry(SapCampusCourseTo sapCampusCourseTo, Roles roles) {
 		RepositoryEntry result = getRepositoryEntry(sapCampusCourseTo);
-		result.setOlatResource(LECTURER_CAMPUS_COURSE_RESOURCE_DUMMY);
+		if (roles.isAuthor()) {
+			result.setOlatResource(AUTHOR_LECTURER_CAMPUS_COURSE_RESOURCE_DUMMY);
+		} else {
+			result.setOlatResource(LECTURER_CAMPUS_COURSE_RESOURCE_DUMMY);
+		}
 		return result;
 	}
 

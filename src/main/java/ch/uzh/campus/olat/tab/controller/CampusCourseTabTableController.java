@@ -18,6 +18,7 @@ import org.olat.core.gui.control.navigation.DefaultNavElement;
 import org.olat.core.gui.control.navigation.NavElement;
 import org.olat.core.gui.translator.Translator;
 import org.olat.core.id.OLATResourceable;
+import org.olat.core.id.Roles;
 import org.olat.core.id.context.BusinessControlFactory;
 import org.olat.core.id.context.StateSite;
 import org.olat.core.logging.activity.ThreadLocalUserActivityLogger;
@@ -83,8 +84,7 @@ public class CampusCourseTabTableController extends CampusCourseTableController 
 		 * Only if the user has author rights and campus courses are
 		 * available, the tab is shown.
 		 */
-		if (userRequest.getUserSession().getRoles().isAuthor() &&
-				reloadData() > 0) {
+		if (reloadData(userRequest.getUserSession().getRoles()) > 0) {
 
 			/**
 			 * TODO sev26
@@ -95,7 +95,7 @@ public class CampusCourseTabTableController extends CampusCourseTableController 
 					.registerFor(new GenericEventListener() {
 				@Override
 				public void event(Event event) {
-					reloadData();
+					reloadData(userRequest.getUserSession().getRoles());
 				}
 			}, userRequest.getIdentity(), new Resourceable("CourseModule",
 					null));
@@ -116,7 +116,7 @@ public class CampusCourseTabTableController extends CampusCourseTableController 
 		navElement = null;
 	}
 
-	private int reloadData() {
+	private int reloadData(Roles roles) {
 		List<SapCampusCourseTo> sapCampusCourseTos = campusCourseService
 				.getCoursesWhichCouldBeCreated(getIdentity(),
 						SapOlatUser.SapUserType.LECTURER, "");
@@ -126,7 +126,7 @@ public class CampusCourseTabTableController extends CampusCourseTableController 
 
 		for (SapCampusCourseTo sapCampusCourseTo : sapCampusCourseTos) {
 			RepositoryEntry repositoryEntry = CampusCourseOlatHelper
-					.getLecturerRepositoryEntry(sapCampusCourseTo);
+					.getLecturerRepositoryEntry(sapCampusCourseTo, roles);
 			/**
 			 * TODO sev26
 			 * Value for the "create" link.
