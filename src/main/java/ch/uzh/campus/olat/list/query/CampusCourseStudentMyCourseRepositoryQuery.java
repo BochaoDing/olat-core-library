@@ -29,8 +29,8 @@ public class CampusCourseStudentMyCourseRepositoryQuery extends CampusCourseMyCo
 	}
 
 	@Override
-	protected RepositoryEntry getRepositoryEntry(SapCampusCourseTo sapCampusCourseTo,
-												 Roles roles) {
+	protected RepositoryEntry getRepositoryEntry(
+			SapCampusCourseTo sapCampusCourseTo, Roles roles) {
 		return CampusCourseOlatHelper.getStudentRepositoryEntry(sapCampusCourseTo);
 	}
 }
