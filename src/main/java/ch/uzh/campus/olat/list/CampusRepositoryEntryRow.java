@@ -25,9 +25,12 @@ public class CampusRepositoryEntryRow extends RepositoryEntryRow {
 
         if (AUTHOR_LECTURER_RESOURCEABLE_TYPE_NAME.equals(entry
 				.getOlatResource().getResourceableTypeName())) {
+			/**
+			 * Link name must be unique!
+			 */
 			FormLink tmp = FormUIFactory.getInstance()
-					.addFormLink("list.course.create", "createCampusCourse",
-							null, null, null, Link.LINK);
+					.addFormLink("create_" + getKey(), "createCampusCourse",
+							"list.course.create", null, null, Link.LINK);
 			tmp.setUserObject(this);
 			tmp.setCustomEnabledLinkCSS("o_create btn-block");
 			tmp.setIconRightCSS("o_icon o_icon_create");
