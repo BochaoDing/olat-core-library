@@ -33,15 +33,14 @@ import org.olat.core.gui.components.velocity.VelocityContainer;
 import org.olat.core.gui.control.Event;
 import org.olat.core.gui.control.WindowControl;
 import org.olat.core.gui.control.controller.BasicController;
-import org.quartz.JobDetail;
+import org.olat.core.util.SchedulerHelper;
 import org.quartz.Scheduler;
-import org.quartz.SchedulerException;
 import org.springframework.scheduling.quartz.CronTriggerBean;
 
 
 /**
  * Description:<br>
- * Manually trigger sending of notification email which are normally sent only once a day.
+ * Manually triggerJob sending of notification email which are normally sent only once a day.
  * <P>
  * Initial Date: Dec 19, 2006 <br>
  * 
@@ -79,14 +78,7 @@ public class NotificationsEmailAdminController extends BasicController {
 	@Override
 	public void event(UserRequest ureq, Component source, Event event) {
 		if (source == startNotifyButton) {
-			//trigger the cron job
-			try {
-				Scheduler scheduler = CoreSpringFactory.getImpl(Scheduler.class);
-				JobDetail detail = scheduler.getJobDetail("org.olat.notifications.job.enabled", Scheduler.DEFAULT_GROUP);
-				scheduler.triggerJob(detail.getName(), detail.getGroup());
-			} catch (SchedulerException e) {
-				logError("", e);
-			}
+			SchedulerHelper.triggerJob("org.olat.notifications.job.enabled", Scheduler.DEFAULT_GROUP);
 		}
 	}
 

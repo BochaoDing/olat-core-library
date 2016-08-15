@@ -32,8 +32,8 @@ import javax.ws.rs.core.Response;
 import org.olat.core.CoreSpringFactory;
 import org.olat.core.logging.OLog;
 import org.olat.core.logging.Tracing;
+import org.olat.core.util.SchedulerHelper;
 import org.olat.restapi.system.vo.NotificationsStatus;
-import org.quartz.JobDetail;
 import org.quartz.JobExecutionContext;
 import org.quartz.Scheduler;
 import org.quartz.SchedulerException;
@@ -94,21 +94,15 @@ public class NotificationsAdminWebService {
 	/**
 	 * Update the status of the notifications job: running, stopped.
 	 * Running start the indexer, stopped, stop it.
-   * @response.representation.200.doc The status has changed
+     * @response.representation.200.doc The status has changed
 	 * @response.representation.401.doc The roles of the authenticated user are not sufficient
 	 * @return The status of the notification
 	 */
 	@POST
 	@Path("status")
 	public Response setStatus(@FormParam("status") String status) {
-		if("running".equals(status)) {
-			try {
-				Scheduler scheduler = CoreSpringFactory.getImpl(Scheduler.class);
-				JobDetail detail = scheduler.getJobDetail("org.olat.notifications.job.enabled", Scheduler.DEFAULT_GROUP);
-				scheduler.triggerJob(detail.getName(), detail.getGroup());
-			} catch (SchedulerException e) {
-				log.error("", e);
-			}
+		if ("running".equals(status)) {
+			SchedulerHelper.triggerJob("org.olat.notifications.job.enabled", Scheduler.DEFAULT_GROUP);
 		}
 		return Response.ok().build();
 	}
