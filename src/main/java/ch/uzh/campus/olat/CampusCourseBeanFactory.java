@@ -69,7 +69,7 @@ public class CampusCourseBeanFactory {
 	protected VelocityContainer createRow1(RepositoryEntryListController caller) {
 		VelocityContainer result = new VelocityContainer(null,
 				"vc_" + "row_1",
-				Util.getPackageVelocityRoot(CampusCourseBeanFactory.class) + "/row_1.html",
+				Util.getPackageVelocityRoot(CampusRepositoryEntryRow.class) + "/row_1.html",
 				CampusCourseOlatHelper.getTranslator(caller.getLocale()),
 				caller
 		);
