@@ -115,7 +115,8 @@ public class CampusCourseTabTableController extends CampusCourseTableController<
 						SapOlatUser.SapUserType.LECTURER, "");
 
 		setTableDataModel(new CampusCourseTableDataModel(sapCampusCourseTos,
-				userRequest));
+				userRequest.getUserSession().getRoles().isAuthor(),
+				userRequest.getLocale()));
 		modelChanged(true);
 
 		return sapCampusCourseTos.size();
