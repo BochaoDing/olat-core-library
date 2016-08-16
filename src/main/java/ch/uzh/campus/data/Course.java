@@ -18,7 +18,7 @@ import java.util.Set;
 @NamedQueries({
         @NamedQuery(name = Course.GET_ALL_CREATED_COURSES_OF_CURRENT_SEMESTER, query = "select c from Course c where c.resourceableId is not null and c.shortSemester = (select max(c2.shortSemester) from Course c2)"),
         @NamedQuery(name = Course.GET_IDS_OF_ALL_CREATED_SYNCHRONIZABLE_COURSES_OF_CURRENT_SEMESTER, query = "select c.id from Course c where c.resourceableId is not null and c.synchronizable = true and c.shortSemester = (select max(c2.shortSemester) from Course c2)"),
-        @NamedQuery(name = Course.GET_RESOURCEABLE_IDS_OF_ALL_CREATED_COURSES_OF_SPECIFIC_SEMESTER, query = "select c.resourceableId from Course c where c.resourceableId is not null and c.shortSemester = :shortSemester"),
+        @NamedQuery(name = Course.GET_RESOURCEABLE_IDS_OF_ALL_CREATED_COURSES_OF_SPECIFIC_SEMESTERS, query = "select c.resourceableId from Course c where c.resourceableId is not null and c.shortSemester in :shortSemesters"),
         @NamedQuery(name = Course.GET_IDS_OF_ALL_NOT_CREATED_CREATABLE_COURSES_OF_CURRENT_SEMESTER, query = "select c.id from Course c where " +
                 "c.resourceableId is null " +
                 "and c.exclude = false " +
@@ -163,7 +163,7 @@ public class Course {
     public Course() {}
 
     static final String GET_IDS_OF_ALL_CREATED_SYNCHRONIZABLE_COURSES_OF_CURRENT_SEMESTER = "getIdsOfAllCreatedSynchronizableCoursesOfCurrentSemester";
-    static final String GET_RESOURCEABLE_IDS_OF_ALL_CREATED_COURSES_OF_SPECIFIC_SEMESTER = "getResourceableIdsOfAllCreatedCoursesOfSpecificSemester";
+    static final String GET_RESOURCEABLE_IDS_OF_ALL_CREATED_COURSES_OF_SPECIFIC_SEMESTERS = "getResourceableIdsOfAllCreatedCoursesOfSpecificSemesters";
     static final String GET_IDS_OF_ALL_NOT_CREATED_CREATABLE_COURSES_OF_CURRENT_SEMESTER = "getIdsOfAllNotCreatedCreatableCoursesOfCurrentSemester";
     static final String GET_ALL_CREATED_COURSES_OF_CURRENT_SEMESTER = "getAllCreatedCoursesOfCurrentSemester";
     static final String GET_CREATED_COURSES_OF_CURRENT_SEMESTER_BY_LECTURER_ID = "getCreatedCoursesOfCurrentSemesterByLecturerId";

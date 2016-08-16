@@ -1,6 +1,8 @@
 package ch.uzh.campus.data;
 
+import ch.uzh.campus.CampusCourseConfiguration;
 import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 import org.olat.core.commons.persistence.DB;
 import org.olat.test.OlatTestCase;
@@ -8,7 +10,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 
 import javax.inject.Provider;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static org.junit.Assert.*;
@@ -24,13 +29,13 @@ import static org.junit.Assert.*;
 public class CourseDaoTest extends OlatTestCase {
 
     @Autowired
+    private CampusCourseConfiguration campusCourseConfiguration;
+
+    @Autowired
     private DB dbInstance;
 
     @Autowired
     private OrgDao orgDao;
-
-    @Autowired
-    private CourseDao courseDao;
 
     @Autowired
     private LecturerDao lecturerDao;
@@ -52,6 +57,14 @@ public class CourseDaoTest extends OlatTestCase {
 
     @Autowired
     private Provider<MockDataGenerator> mockDataGeneratorProvider;
+
+    private CourseDao courseDao;
+
+    @Before
+    public void before() {
+        campusCourseConfiguration.setMaxYearsToKeepCkData(1);
+        courseDao = new CourseDao(dbInstance, campusCourseConfiguration);
+    }
 
     @After
     public void after() {
@@ -482,20 +495,25 @@ public class CourseDaoTest extends OlatTestCase {
     }
 
     @Test
-    public void testGetResourceableIdsOfAllCreatedCoursesOfSpecificSemester() {
+    public void testGetResourceableIdsOfAllCreatedCoursesOfSpecificSemesters() {
         insertTestData();
-        List<Long> resourceableIdsOfAllCreatedCourses = courseDao.getResourceableIdsOfAllCreatedCoursesOfSpecificSemester("99HS");
-        assertEquals(2, resourceableIdsOfAllCreatedCourses.size());
-        assertTrue(resourceableIdsOfAllCreatedCourses.contains(101L));
-        assertTrue(resourceableIdsOfAllCreatedCourses.contains(201L));
+        List<String> shortSemesters = new ArrayList<>();
+        shortSemesters.add("99HS");
+        shortSemesters.add("99FS");
+        List<Long> resourceableIdsOfAllCreatedCoursesOfSpecificSemesters = courseDao.getResourceableIdsOfAllCreatedCoursesOfSpecificSemesters(shortSemesters);
+        assertEquals(3, resourceableIdsOfAllCreatedCoursesOfSpecificSemesters.size());
+        assertTrue(resourceableIdsOfAllCreatedCoursesOfSpecificSemesters.contains(101L));
+        assertTrue(resourceableIdsOfAllCreatedCoursesOfSpecificSemesters.contains(201L));
+        assertTrue(resourceableIdsOfAllCreatedCoursesOfSpecificSemesters.contains(401L));
     }
 
     @Test
-    public void testGetResourceableIdsOfAllCreatedCoursesOfPreviousSemester() {
+    public void testGetResourceableIdsOfAllCreatedCoursesOfPreviousSemestersNotTooFarInThePast() {
         insertTestData();
-        List<Long> resourceableIdsOfAllCreatedCourses = courseDao.getResourceableIdsOfAllCreatedCoursesOfPreviousSemester();
-        assertEquals(1, resourceableIdsOfAllCreatedCourses.size());
-        assertTrue(resourceableIdsOfAllCreatedCourses.contains(401L));
+        List<Long> resourceableIdsOfAllCreatedCoursesOfOldSemestersNotTooFarInThePast = courseDao.getResourceableIdsOfAllCreatedCoursesOfPreviousSemestersNotTooFarInThePast();
+        assertEquals(2, resourceableIdsOfAllCreatedCoursesOfOldSemestersNotTooFarInThePast.size());
+        assertTrue(resourceableIdsOfAllCreatedCoursesOfOldSemestersNotTooFarInThePast.contains(401L));
+        assertTrue(resourceableIdsOfAllCreatedCoursesOfOldSemestersNotTooFarInThePast.contains(501L));
     }
 
     @Test
@@ -864,6 +882,15 @@ public class CourseDaoTest extends OlatTestCase {
         assertEquals(1, courses.size());
         courses = courseDao.getCreatedAndNotCreatedCreatableCoursesOfCurrentSemesterByStudentId(2600L);
         assertEquals(1, courses.size());
+    }
+
+    @Test
+    public void testGetPreviousShortSemestersNotTooFarInThePast() {
+        insertTestData();
+        List<String> previousShortSemestersNotTooFarInThePast = courseDao.getPreviousShortSemestersNotTooFarInThePast();
+        assertEquals(2, previousShortSemestersNotTooFarInThePast.size());
+        assertTrue(previousShortSemestersNotTooFarInThePast.contains("99FS"));
+        assertTrue(previousShortSemestersNotTooFarInThePast.contains("98HS"));
     }
 
     @Test

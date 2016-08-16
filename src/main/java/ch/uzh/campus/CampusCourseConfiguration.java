@@ -146,6 +146,10 @@ public class CampusCourseConfiguration {
         }
     }
 
+    public void setMaxYearsToKeepCkData(int maxYearsToKeepCkData) {
+        this.maxYearsToKeepCkData = maxYearsToKeepCkData;
+    }
+
     public String getCampusCourseLearningAreaName() {
         return campusCourseLearningAreaName;
     }

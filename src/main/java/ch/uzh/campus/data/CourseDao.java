@@ -1,5 +1,6 @@
 package ch.uzh.campus.data;
 
+import ch.uzh.campus.CampusCourseConfiguration;
 import org.olat.core.commons.persistence.DB;
 import org.olat.core.logging.OLog;
 import org.olat.core.logging.Tracing;
@@ -23,10 +24,12 @@ public class CourseDao implements CampusDao<CourseOrgId> {
     private static final OLog LOG = Tracing.createLoggerFor(CourseDao.class);
 
 	private final DB dbInstance;
+    private final CampusCourseConfiguration campusCourseConfiguration;
 
     @Autowired
-    public CourseDao(DB dbInstance) {
+    public CourseDao(DB dbInstance, CampusCourseConfiguration campusCourseConfiguration) {
         this.dbInstance = dbInstance;
+        this.campusCourseConfiguration = campusCourseConfiguration;
     }
 
     public void save(Course course) {
@@ -269,19 +272,16 @@ public class CourseDao implements CampusDao<CourseOrgId> {
                 .getResultList();
     }
 
-    List<Long> getResourceableIdsOfAllCreatedCoursesOfSpecificSemester(String shortSemester) {
+    List<Long> getResourceableIdsOfAllCreatedCoursesOfSpecificSemesters(List<String> shortSemesters) {
         return dbInstance.getCurrentEntityManager()
-                .createNamedQuery(Course.GET_RESOURCEABLE_IDS_OF_ALL_CREATED_COURSES_OF_SPECIFIC_SEMESTER, Long.class)
-                .setParameter("shortSemester", shortSemester)
+                .createNamedQuery(Course.GET_RESOURCEABLE_IDS_OF_ALL_CREATED_COURSES_OF_SPECIFIC_SEMESTERS, Long.class)
+                .setParameter("shortSemesters", shortSemesters)
                 .getResultList();
     }
 
-    List<Long> getResourceableIdsOfAllCreatedCoursesOfPreviousSemester() {
-        String previousShortSemester = getPreviousShortSemester();
-        if (previousShortSemester == null) {
-            return new ArrayList<>();
-        }
-        return getResourceableIdsOfAllCreatedCoursesOfSpecificSemester(previousShortSemester);
+    List<Long> getResourceableIdsOfAllCreatedCoursesOfPreviousSemestersNotTooFarInThePast() {
+        List<String> previousShortSemestersNotTooFarInThePast = getPreviousShortSemestersNotTooFarInThePast();
+        return getResourceableIdsOfAllCreatedCoursesOfSpecificSemesters(previousShortSemestersNotTooFarInThePast);
     }
 
     List<Long> getIdsOfAllNotCreatedCreatableCoursesOfCurrentSemester() {
@@ -322,6 +322,17 @@ public class CourseDao implements CampusDao<CourseOrgId> {
                 .createNamedQuery(Course.GET_CREATED_AND_NOT_CREATED_CREATABLE_COURSES_OF_CURRENT_SEMESTER_BY_STUDENT_ID, Course.class)
                 .setParameter("studentId", studentId)
                 .getResultList();
+    }
+
+    List<String> getPreviousShortSemestersNotTooFarInThePast() {
+        List<String> shortSemesters = dbInstance.getCurrentEntityManager()
+                .createNamedQuery(Course.GET_ALL_SHORT_SEMESTERS_IN_DESCENDING_ORDER, String.class)
+                .getResultList();
+        int indexOfOldestSemesterNotTooFarInThePast = campusCourseConfiguration.getMaxYearsToKeepCkData() * 2 + 1;
+        if (shortSemesters.size() < 2 || indexOfOldestSemesterNotTooFarInThePast < 1) {
+            return new ArrayList<>();
+        }
+        return shortSemesters.subList(1, Math.min(indexOfOldestSemesterNotTooFarInThePast, shortSemesters.size()));
     }
 
     String getPreviousShortSemester() {

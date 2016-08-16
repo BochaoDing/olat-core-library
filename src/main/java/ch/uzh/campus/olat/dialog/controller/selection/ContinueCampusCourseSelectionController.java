@@ -5,7 +5,6 @@ import ch.uzh.campus.olat.CampusCourseOlatHelper;
 import ch.uzh.campus.olat.dialog.controller.CreateCampusCourseCompletedEventListener;
 import ch.uzh.campus.service.CampusCourse;
 import ch.uzh.campus.service.learn.CampusCourseService;
-import org.apache.commons.lang.StringUtils;
 import org.olat.core.gui.UserRequest;
 import org.olat.core.gui.components.Component;
 import org.olat.core.gui.control.Controller;
@@ -86,10 +85,10 @@ public class ContinueCampusCourseSelectionController extends CampusCourseDialogS
 		List<RepositoryEntry> campusCourseEntries = new ArrayList<>();
 		List<RepositoryEntry> entries = repositoryManager.queryByOwner(userRequest.getIdentity(), "CourseModule");
 		if (!entries.isEmpty()) {
-			List<Long> resourceableIdsOfAllCreatedCoursesOfPreviousSemester = campusCourseService.getResourceableIdsOfAllCreatedCoursesOfPreviousSemester();
+			List<Long> resourceableIdsOfAllCreatedCoursesOfPreviousSemesters = campusCourseService.getResourceableIdsOfAllCreatedCoursesOfPreviousSemesters();
 			for (RepositoryEntry entry : entries) {
 				Long resourcableId = entry.getOlatResource().getResourceableId();
-				if (resourceableIdsOfAllCreatedCoursesOfPreviousSemester.contains(resourcableId)) {
+				if (resourceableIdsOfAllCreatedCoursesOfPreviousSemesters.contains(resourcableId)) {
                     campusCourseEntries.add(entry);
 				}
 			}

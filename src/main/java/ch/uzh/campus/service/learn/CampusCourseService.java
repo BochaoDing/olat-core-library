@@ -49,7 +49,7 @@ public interface CampusCourseService {
 
     boolean existResourceableId(Long resourceableId);
 
-    List<Long> getResourceableIdsOfAllCreatedCoursesOfPreviousSemester();
+    List<Long> getResourceableIdsOfAllCreatedCoursesOfPreviousSemesters();
 
     List getDelegatees(Identity delegator);
 

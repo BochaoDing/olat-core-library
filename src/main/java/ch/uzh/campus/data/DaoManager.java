@@ -370,8 +370,8 @@ public class DaoManager {
         return courseDao.getIdsOfAllCreatedSynchronizableCoursesOfCurrentSemester();
     }
 
-    public List<Long> getResourceableIdsOfAllCreatedCoursesOfPreviousSemester() {
-        return courseDao.getResourceableIdsOfAllCreatedCoursesOfPreviousSemester();
+    public List<Long> getResourceableIdsOfAllCreatedCoursesOfPreviousSemesters() {
+        return courseDao.getResourceableIdsOfAllCreatedCoursesOfPreviousSemestersNotTooFarInThePast();
     }
 
     public List<Long> getAllNotCreatedSapCourcesIds() {
