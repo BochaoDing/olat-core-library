@@ -6,12 +6,16 @@ import ch.uzh.campus.service.learn.SapCampusCourseTo;
 import org.olat.core.id.Roles;
 import org.olat.repository.RepositoryEntry;
 import org.olat.repository.RepositoryModule;
+import org.olat.repository.model.SearchMyRepositoryEntryViewParams;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 import static ch.uzh.campus.data.SapOlatUser.SapUserType.STUDENT;
+import static org.olat.repository.model.SearchMyRepositoryEntryViewParams.Filter.asParticipant;
 
 /**
  * Initial date: 2016-08-12<br />
@@ -26,6 +30,11 @@ public class CampusCourseStudentMyCourseRepositoryQuery extends CampusCourseMyCo
 			CampusCourseService campusCourseService,
 			RepositoryModule repositoryModule) {
 		super(STUDENT, campusCourseService, repositoryModule);
+	}
+
+	@Override
+	protected boolean filter(List<SearchMyRepositoryEntryViewParams.Filter> filters) {
+		return filters.contains(asParticipant);
 	}
 
 	@Override

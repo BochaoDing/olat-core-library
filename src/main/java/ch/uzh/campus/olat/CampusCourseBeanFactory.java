@@ -16,6 +16,7 @@ import org.olat.core.gui.UserRequest;
 import org.olat.core.gui.components.velocity.VelocityContainer;
 import org.olat.core.gui.control.WindowControl;
 import org.olat.core.gui.control.navigation.SiteInstance;
+import org.olat.core.gui.translator.Translator;
 import org.olat.core.id.context.StateSite;
 import org.olat.core.util.Util;
 import org.olat.repository.RepositoryEntryMyView;
@@ -84,12 +85,14 @@ public class CampusCourseBeanFactory {
 			UserRequest userRequest) {
 		return new RepositoryEntryRowFactory(repositoryManager,
 				repositoryModule, mapperService, userRequest) {
+
+			Translator translator = CampusCourseOlatHelper
+					.getTranslator(userRequest.getLocale());
+
 			@Override
 			public RepositoryEntryRow create(RepositoryEntryMyView entry) {
 				if (entry.getOlatResource().getResourceableId() == NOT_CREATED_CAMPUSKURS_RESOURCE_ID)
-					return new CampusRepositoryEntryRow(entry,
-							CampusCourseOlatHelper.getTranslator(
-									userRequest.getLocale()));
+					return new CampusRepositoryEntryRow(entry, translator);
 				else
 					return super.create(entry);
 			}

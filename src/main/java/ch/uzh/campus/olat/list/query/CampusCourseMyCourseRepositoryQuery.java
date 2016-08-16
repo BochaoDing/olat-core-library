@@ -11,9 +11,11 @@ import org.olat.repository.model.RepositoryEntryMyCourseImpl;
 import org.olat.repository.model.SearchMyRepositoryEntryViewParams;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import static ch.uzh.campus.data.SapOlatUser.SapUserType;
+import static org.olat.repository.model.SearchMyRepositoryEntryViewParams.Filter;
 
 /**
  * Initial date: 2016-06-15<br />
@@ -42,25 +44,37 @@ public abstract class CampusCourseMyCourseRepositoryQuery implements MyCourseRep
 	public List<RepositoryEntryMyView> searchViews(SearchMyRepositoryEntryViewParams params,
 												   int firstResult,
 												   int maxResults) {
-		List<RepositoryEntryMyView> result = new ArrayList<>();
+		if ((params.getMarked() == null ||
+				params.getMarked() == Boolean.FALSE) &&
+				params.getParentEntry() == null && (params.getFilters() == null ||
+				params.getFilters().contains(Filter.showAll) ||
+				params.getFilters().contains(Filter.upcomingCourses) ||
+				filter(params.getFilters()))) {
 
-		List<SapCampusCourseTo> sapCampusCourseTos = campusCourseService.getCoursesWhichCouldBeCreated(
-				params.getIdentity(), userType, params.getIdRefsAndTitle());
+			List<RepositoryEntryMyView> result = new ArrayList<>();
 
-		boolean requiresStatistics = repositoryModule.isRatingEnabled() || repositoryModule.isCommentEnabled();
+			List<SapCampusCourseTo> sapCampusCourseTos = campusCourseService.getCoursesWhichCouldBeCreated(
+					params.getIdentity(), userType, params.getIdRefsAndTitle());
 
-		for (SapCampusCourseTo sapCampusCourseTo : sapCampusCourseTos) {
-			RepositoryEntry repositoryEntry = getRepositoryEntry(
-					sapCampusCourseTo, params.getRoles());
-			RepositoryEntryMyCourseImpl view = new RepositoryEntryMyCourseImpl(
-					repositoryEntry,
-					requiresStatistics ? repositoryEntry.getStatistics() : null, false,
-					0, 0);
-			result.add(view);
+			boolean requiresStatistics = repositoryModule.isRatingEnabled() || repositoryModule.isCommentEnabled();
+
+			for (SapCampusCourseTo sapCampusCourseTo : sapCampusCourseTos) {
+				RepositoryEntry repositoryEntry = getRepositoryEntry(
+						sapCampusCourseTo, params.getRoles());
+				RepositoryEntryMyCourseImpl view = new RepositoryEntryMyCourseImpl(
+						repositoryEntry,
+						requiresStatistics ? repositoryEntry.getStatistics() : null, false,
+						0, 0);
+				result.add(view);
+			}
+
+			return result;
+		} else {
+			return Collections.emptyList();
 		}
-
-		return result;
 	}
+
+	protected abstract boolean filter(List<Filter> filters);
 
 	protected abstract RepositoryEntry getRepositoryEntry(
 			SapCampusCourseTo sapCampusCourseTo, Roles roles);

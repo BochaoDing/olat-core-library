@@ -49,12 +49,34 @@ public class CombineMyCourseRepositoryQuery implements MyCourseRepositoryQuery {
 	@Override
 	public List<RepositoryEntryMyView> searchViews(SearchMyRepositoryEntryViewParams param, int firstResult, int maxResults) {
 		List<RepositoryEntryMyView> result = new LinkedList<>();
-		if (param.getMarked() == null || param.getMarked() == Boolean.FALSE) {
-			for (CampusCourseMyCourseRepositoryQuery campusCourseMyCourseRepositoryQuery : campusCourseMyCourseRepositoryQueries) {
-				result.addAll(campusCourseMyCourseRepositoryQuery.searchViews(param, firstResult, maxResults));
+
+		for (CampusCourseMyCourseRepositoryQuery campusCourseMyCourseRepositoryQuery : campusCourseMyCourseRepositoryQueries) {
+			result.addAll(campusCourseMyCourseRepositoryQuery.searchViews(
+					param, 0, Integer.MAX_VALUE));
+		}
+
+		int offset = result.size();
+
+		for (int slice = maxResults; slice < firstResult + maxResults; slice += maxResults) {
+			if (result.size() > maxResults) {
+				result.subList(0, maxResults).clear();
+				offset = result.size();
+			} else {
+				result.clear();
 			}
 		}
-		result.addAll(repositoryEntryMyCourseQueries.searchViews(param, firstResult, maxResults));
+
+		/*
+		 * OpenOLAT courses must always come last.
+		 */
+		if (result.size() > 0) {
+			result.addAll(repositoryEntryMyCourseQueries.searchViews(param,
+					firstResult, maxResults - offset));
+		} else {
+			result.addAll(repositoryEntryMyCourseQueries.searchViews(param,
+					firstResult + offset, maxResults));
+		}
+
 		return result;
 	}
 }
