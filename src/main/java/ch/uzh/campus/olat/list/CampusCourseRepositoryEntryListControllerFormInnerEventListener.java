@@ -20,14 +20,14 @@ import org.springframework.stereotype.Component;
  * @author sev26 (UZH)
  */
 @Component
-public class CampusRepositoryEntryListControllerFormInnerEventListener extends RepositoryEntryListControllerFormInnerEventListener {
+public class CampusCourseRepositoryEntryListControllerFormInnerEventListener extends RepositoryEntryListControllerFormInnerEventListener {
 
 	private final CampusCourseConfiguration campusCourseConfiguration;
 	private final CampusCourseBeanFactory campusCourseBeanFactory;
 	private final CampusCourseOlatHelper campusCourseOlatHelper;
 
 	@Autowired
-	public CampusRepositoryEntryListControllerFormInnerEventListener(
+	public CampusCourseRepositoryEntryListControllerFormInnerEventListener(
 			CampusCourseConfiguration campusCourseConfiguration,
 			CampusCourseBeanFactory campusCourseBeanFactory,
 			CampusCourseOlatHelper campusCourseOlatHelper

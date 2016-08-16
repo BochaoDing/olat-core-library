@@ -12,12 +12,12 @@ import org.springframework.stereotype.Component;
  * @author Martin Schraner
  */
 @Component
-public class CampusBeforeRepositoryEntryDeletionListener extends BeforeRepositoryEntryDeletionListener {
+public class CampusCourseBeforeRepositoryEntryDeletionListener extends BeforeRepositoryEntryDeletionListener {
 
 	private final CampusCourseCoreService campusCourseCoreService;
 
 	@Autowired
-	public CampusBeforeRepositoryEntryDeletionListener(
+	public CampusCourseBeforeRepositoryEntryDeletionListener(
 			CampusCourseCoreService campusCourseCoreService) {
 		this.campusCourseCoreService = campusCourseCoreService;
 

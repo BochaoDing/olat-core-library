@@ -15,12 +15,12 @@ import static ch.uzh.campus.olat.CampusCourseBeanFactory.LECTURER_RESOURCEABLE_T
  * Initial date: 2016-06-29<br />
  * @author sev26 (UZH)
  */
-public class CampusRepositoryEntryRow extends RepositoryEntryRow {
+public class CampusCourseRepositoryEntryRow extends RepositoryEntryRow {
 
 	private final FormItem formItem;
 
-	public CampusRepositoryEntryRow(RepositoryEntryMyView entry,
-									Translator translator) {
+	public CampusCourseRepositoryEntryRow(RepositoryEntryMyView entry,
+										  Translator translator) {
 		super(entry);
 
         if (AUTHOR_LECTURER_RESOURCEABLE_TYPE_NAME.equals(entry

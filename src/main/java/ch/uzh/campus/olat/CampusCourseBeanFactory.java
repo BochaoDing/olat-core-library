@@ -8,7 +8,7 @@ import ch.uzh.campus.olat.dialog.controller.CreateCampusCourseCompletedEventList
 import ch.uzh.campus.olat.dialog.controller.selection.CampusCourseSubmitController;
 import ch.uzh.campus.olat.dialog.controller.selection.ContinueCampusCourseSelectionController;
 import ch.uzh.campus.olat.dialog.controller.selection.CreationCampusCourseSelectionController;
-import ch.uzh.campus.olat.list.CampusRepositoryEntryRow;
+import ch.uzh.campus.olat.list.CampusCourseRepositoryEntryRow;
 import ch.uzh.campus.olat.tab.controller.CampusCourseTabTableController;
 import ch.uzh.campus.service.learn.CampusCourseService;
 import org.olat.core.dispatcher.mapper.MapperService;
@@ -70,7 +70,7 @@ public class CampusCourseBeanFactory {
 	protected VelocityContainer createRow1(RepositoryEntryListController caller) {
 		VelocityContainer result = new VelocityContainer(null,
 				"vc_" + "row_1",
-				Util.getPackageVelocityRoot(CampusRepositoryEntryRow.class) + "/row_1.html",
+				Util.getPackageVelocityRoot(CampusCourseRepositoryEntryRow.class) + "/row_1.html",
 				CampusCourseOlatHelper.getTranslator(caller.getLocale()),
 				caller
 		);
@@ -92,7 +92,7 @@ public class CampusCourseBeanFactory {
 			@Override
 			public RepositoryEntryRow create(RepositoryEntryMyView entry) {
 				if (entry.getOlatResource().getResourceableId() == NOT_CREATED_CAMPUSKURS_RESOURCE_ID)
-					return new CampusRepositoryEntryRow(entry, translator);
+					return new CampusCourseRepositoryEntryRow(entry, translator);
 				else
 					return super.create(entry);
 			}

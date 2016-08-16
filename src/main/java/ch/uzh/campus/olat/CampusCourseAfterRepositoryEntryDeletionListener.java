@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component;
  * @author sev26 (UZH)
  */
 @Component
-public class CampusAfterRepositoryEntryDeletionListener extends AfterRepositoryEntryDeletionListener {
+public class CampusCourseAfterRepositoryEntryDeletionListener extends AfterRepositoryEntryDeletionListener {
 
 	@Override
 	public void onAction(RepositoryEntry repositoryEntry,
