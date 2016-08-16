@@ -1,8 +1,8 @@
 package ch.uzh.campus.olat.list.query;
 
-import ch.uzh.campus.olat.CampusCourseOlatHelper;
 import ch.uzh.campus.service.learn.CampusCourseService;
 import ch.uzh.campus.service.learn.SapCampusCourseTo;
+import org.olat.core.id.Roles;
 import org.olat.repository.RepositoryEntry;
 import org.olat.repository.RepositoryEntryMyView;
 import org.olat.repository.RepositoryModule;
@@ -50,7 +50,8 @@ public abstract class CampusCourseMyCourseRepositoryQuery implements MyCourseRep
 		boolean requiresStatistics = repositoryModule.isRatingEnabled() || repositoryModule.isCommentEnabled();
 
 		for (SapCampusCourseTo sapCampusCourseTo : sapCampusCourseTos) {
-			RepositoryEntry repositoryEntry = getRepositoryEntry(sapCampusCourseTo);
+			RepositoryEntry repositoryEntry = getRepositoryEntry(
+					sapCampusCourseTo, params.getRoles());
 			RepositoryEntryMyCourseImpl view = new RepositoryEntryMyCourseImpl(
 					repositoryEntry,
 					requiresStatistics ? repositoryEntry.getStatistics() : null, false,
@@ -62,5 +63,5 @@ public abstract class CampusCourseMyCourseRepositoryQuery implements MyCourseRep
 	}
 
 	protected abstract RepositoryEntry getRepositoryEntry(
-			SapCampusCourseTo sapCampusCourseTo);
+			SapCampusCourseTo sapCampusCourseTo, Roles roles);
 }

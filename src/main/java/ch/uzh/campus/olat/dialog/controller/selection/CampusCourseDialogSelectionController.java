@@ -8,13 +8,15 @@ import ch.uzh.campus.olat.dialog.controller.table.CampusCourseDialogTableControl
 import ch.uzh.campus.service.learn.CampusCourseService;
 import org.olat.core.gui.UserRequest;
 import org.olat.core.gui.control.WindowControl;
+import org.olat.repository.RepositoryEntry;
 import org.olat.repository.RepositoryManager;
+import org.olat.repository.ui.RepositoryTableModel;
 
 /**
  * Initial date: 2016-07-13<br />
  * @author sev26 (UZH)
  */
-public class CampusCourseDialogSelectionController extends CampusCourseSelectionController {
+public class CampusCourseDialogSelectionController extends CampusCourseSelectionController<RepositoryEntry> {
 
 	CampusCourseDialogSelectionController(Long sapCampusCourseId,
 										  CampusCourseService campusCourseService,
@@ -28,9 +30,14 @@ public class CampusCourseDialogSelectionController extends CampusCourseSelection
 	}
 
 	@Override
-	protected CampusCourseTableController createTableController(WindowControl windowControl,
-																UserRequest userRequest) {
-		return new CampusCourseDialogTableController(createTableGuiConfiguration(),
-				windowControl, userRequest);
+	protected CampusCourseTableController<RepositoryEntry> createTableController(
+			WindowControl windowControl, UserRequest userRequest) {
+		CampusCourseDialogTableController tmp =
+				new CampusCourseDialogTableController(
+						createTableGuiConfiguration(), windowControl,
+						userRequest);
+
+		tmp.setTableDataModel(new RepositoryTableModel(getLocale()));
+		return tmp;
 	}
 }

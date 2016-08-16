@@ -10,7 +10,6 @@ import ch.uzh.campus.service.learn.CampusCourseService;
 import ch.uzh.campus.service.learn.SapCampusCourseTo;
 import org.olat.core.gui.UserRequest;
 import org.olat.core.gui.components.Component;
-import org.olat.core.gui.components.table.DefaultColumnDescriptor;
 import org.olat.core.gui.components.table.TableGuiConfiguration;
 import org.olat.core.gui.control.Event;
 import org.olat.core.gui.control.WindowControl;
@@ -24,18 +23,15 @@ import org.olat.core.logging.activity.ThreadLocalUserActivityLogger;
 import org.olat.core.util.event.GenericEventListener;
 import org.olat.core.util.resource.OresHelper;
 import org.olat.core.util.resource.Resourceable;
-import org.olat.repository.RepositoryEntry;
-import org.olat.repository.ui.RepositoryTableModel;
 import org.olat.util.logging.activity.LoggingResourceable;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
  * Initial date: 2016-08-05<br />
  * @author sev26 (UZH)
  */
-public class CampusCourseTabTableController extends CampusCourseTableController {
+public class CampusCourseTabTableController extends CampusCourseTableController<SapCampusCourseTo> {
 
 	private static TableGuiConfiguration createTableGuiConfiguration() {
 		TableGuiConfiguration result = new TableGuiConfiguration();
@@ -66,14 +62,12 @@ public class CampusCourseTabTableController extends CampusCourseTableController 
 										  StateSite stateSite,
 										  WindowControl windowControl,
 										  UserRequest userRequest) {
-		super(createTableGuiConfiguration(),
+		super(createTableGuiConfiguration(), null,
 				getBusinessWindowControl(stateSite, windowControl, userRequest),
 				userRequest);
 
-		addColumnDescriptor(new DefaultColumnDescriptor(
-				"tab.table.action.course",
-				RepositoryTableModel.RepoCols.externalId.ordinal(),
-				RepositoryTableModel.TABLE_ACTION_SELECT_LINK, getLocale()));
+		addColumnDescriptor(new CampusCourseActionColumnDescriptor(
+				"tab.table.action.course", userRequest));
 
 		this.campusCourseService = campusCourseService;
 		this.campusCourseOlatHelper = campusCourseOlatHelper;
@@ -83,19 +77,18 @@ public class CampusCourseTabTableController extends CampusCourseTableController 
 		 * Only if the user has author rights and campus courses are
 		 * available, the tab is shown.
 		 */
-		if (userRequest.getUserSession().getRoles().isAuthor() &&
-				reloadData() > 0) {
+		if (reloadData(userRequest) > 0) {
 
 			/**
 			 * TODO sev26
-			 * Verify if this is the best way to inform the controller about list
-			 * entry changes.
+			 * Verify if this is the best way to inform the controller about
+			 * list entry changes.
 			 */
 			userRequest.getUserSession().getSingleUserEventCenter()
 					.registerFor(new GenericEventListener() {
 				@Override
 				public void event(Event event) {
-					reloadData();
+					reloadData(userRequest);
 				}
 			}, userRequest.getIdentity(), new Resourceable("CourseModule",
 					null));
@@ -116,29 +109,14 @@ public class CampusCourseTabTableController extends CampusCourseTableController 
 		navElement = null;
 	}
 
-	private int reloadData() {
+	private int reloadData(UserRequest userRequest) {
 		List<SapCampusCourseTo> sapCampusCourseTos = campusCourseService
 				.getCoursesWhichCouldBeCreated(getIdentity(),
 						SapOlatUser.SapUserType.LECTURER, "");
 
-		List<RepositoryEntry> campusCourseEntries = new ArrayList<>(
-				sapCampusCourseTos.size());
-
-		for (SapCampusCourseTo sapCampusCourseTo : sapCampusCourseTos) {
-			RepositoryEntry repositoryEntry = CampusCourseOlatHelper
-					.getLecturerRepositoryEntry(sapCampusCourseTo);
-			/**
-			 * TODO sev26
-			 * Value for the "create" link.
-			 * This is a hack but not other possible without rewriting
-			 * everything.
-			 */
-			repositoryEntry.setExternalId(
-					getTranslator().translate("tab.table.create.course"));
-			campusCourseEntries.add(repositoryEntry);
-		}
-
-		getTableDataModel().setObjects(campusCourseEntries);
+		setTableDataModel(new CampusCourseTableDataModel(sapCampusCourseTos,
+				userRequest.getUserSession().getRoles().isAuthor(),
+				userRequest.getLocale()));
 		modelChanged(true);
 
 		return sapCampusCourseTos.size();
@@ -153,11 +131,12 @@ public class CampusCourseTabTableController extends CampusCourseTableController 
 		 * the surroundings like a "change sorting" event.
 		 */
 		if ("r".equals(event.getCommand())) {
-			RepositoryEntry repositoryEntry = getSelectedEntry(event);
+			SapCampusCourseTo sapCampusCourseTo = getSelectedEntry(event);
 
 			CampusCourseCreateDialogController controller = campusCourseBeanFactory
-					.createCampusCourseCreateDialogController(repositoryEntry.getKey(),
-							repositoryEntry.getDisplayname(), getWindowControl(),
+					.createCampusCourseCreateDialogController(
+							sapCampusCourseTo.getSapCourseId(),
+							sapCampusCourseTo.getTitle(), getWindowControl(),
 							userRequest);
 			controller.addControllerListener(this);
 

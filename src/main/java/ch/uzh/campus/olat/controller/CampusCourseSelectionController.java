@@ -18,7 +18,7 @@ import org.olat.repository.RepositoryManager;
  * Initial date: 2016-07-13<br />
  * @author sev26 (UZH)
  */
-public class CampusCourseSelectionController extends BasicController {
+public class CampusCourseSelectionController<T> extends BasicController {
 
 	private final static String CANCEL = "cancel";
 	private final static int RESULTS_PER_PAGE = 5;
@@ -31,7 +31,7 @@ public class CampusCourseSelectionController extends BasicController {
 	protected final UserRequest userRequest;
 
 	protected final VelocityContainer velocityContainer;
-	protected final CampusCourseTableController table;
+	protected final CampusCourseTableController<T> table;
 	protected final Link cancelButton;
 
 	protected static TableGuiConfiguration createTableGuiConfiguration() {
@@ -72,10 +72,10 @@ public class CampusCourseSelectionController extends BasicController {
 		putInitialPanel(velocityContainer);
 	}
 
-	protected CampusCourseTableController createTableController(WindowControl windowControl,
+	protected CampusCourseTableController<T> createTableController(WindowControl windowControl,
 																UserRequest userRequest) {
-		return new CampusCourseTableController(createTableGuiConfiguration(),
-				windowControl, userRequest);
+		return new CampusCourseTableController<T>(createTableGuiConfiguration(),
+				null, windowControl, userRequest);
 	}
 
 	@Override
