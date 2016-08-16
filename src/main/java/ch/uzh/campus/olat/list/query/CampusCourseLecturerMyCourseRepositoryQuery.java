@@ -22,7 +22,7 @@ import static org.olat.repository.model.SearchMyRepositoryEntryViewParams.Filter
  * Initial date: 2016-08-12<br />
  * @author sev26 (UZH)
  */
-@Service
+//@Service // Uncomment if courses of lecturers should be listed under "My courses".
 @Scope(BeanDefinition.SCOPE_SINGLETON)
 public class CampusCourseLecturerMyCourseRepositoryQuery extends CampusCourseMyCourseRepositoryQuery {
 
