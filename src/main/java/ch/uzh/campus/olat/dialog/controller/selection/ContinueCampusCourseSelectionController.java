@@ -72,8 +72,7 @@ public class ContinueCampusCourseSelectionController extends CampusCourseDialogS
 		}
 	}
 
-	public ContinueCampusCourseSelectionController(String campusCourseTitle,
-												   Long sapCampusCourseId,
+	public ContinueCampusCourseSelectionController(Long sapCampusCourseId,
 												   CampusCourseService campusCourseService,
 												   RepositoryManager repositoryManager,
 												   CampusCourseOlatHelper campusCourseOlatHelper,
@@ -87,19 +86,11 @@ public class ContinueCampusCourseSelectionController extends CampusCourseDialogS
 		List<RepositoryEntry> campusCourseEntries = new ArrayList<>();
 		List<RepositoryEntry> entries = repositoryManager.queryByOwner(userRequest.getIdentity(), "CourseModule");
 		if (!entries.isEmpty()) {
-			List<Long> allCreatedSapCourcesResourceableIds = campusCourseService.getAllCreatedSapCourcesResourceableIds();
+			List<Long> resourceableIdsOfAllCreatedCoursesOfPreviousSemester = campusCourseService.getResourceableIdsOfAllCreatedCoursesOfPreviousSemester();
 			for (RepositoryEntry entry : entries) {
 				Long resourcableId = entry.getOlatResource().getResourceableId();
-				if (allCreatedSapCourcesResourceableIds.contains(resourcableId)) {
-					/**
-					 * TODO sev26
-					 * Filtering only by comparing the first 4 characters
-					 * (FSXX/HSXX) is not stable.
-					 */
-					if (StringUtils.left(campusCourseTitle, 4)
-							.compareTo(StringUtils.left(entry.getDisplayname(), 4)) > 0) {
-						campusCourseEntries.add(entry);
-					}
+				if (resourceableIdsOfAllCreatedCoursesOfPreviousSemester.contains(resourcableId)) {
+                    campusCourseEntries.add(entry);
 				}
 			}
 		}

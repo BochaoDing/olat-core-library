@@ -482,11 +482,20 @@ public class CourseDaoTest extends OlatTestCase {
     }
 
     @Test
-    public void testGetResourceableIdsOfAllCreatedCoursesOfCurrentSemester() {
+    public void testGetResourceableIdsOfAllCreatedCoursesOfSpecificSemester() {
         insertTestData();
-        List<Long> resourceableIdsOfAllCreatedCourses = courseDao.getResourceableIdsOfAllCreatedCoursesOfCurrentSemester();
+        List<Long> resourceableIdsOfAllCreatedCourses = courseDao.getResourceableIdsOfAllCreatedCoursesOfSpecificSemester("99HS");
+        assertEquals(2, resourceableIdsOfAllCreatedCourses.size());
         assertTrue(resourceableIdsOfAllCreatedCourses.contains(101L));
-        assertFalse(resourceableIdsOfAllCreatedCourses.contains(999L));
+        assertTrue(resourceableIdsOfAllCreatedCourses.contains(201L));
+    }
+
+    @Test
+    public void testGetResourceableIdsOfAllCreatedCoursesOfPreviousSemester() {
+        insertTestData();
+        List<Long> resourceableIdsOfAllCreatedCourses = courseDao.getResourceableIdsOfAllCreatedCoursesOfPreviousSemester();
+        assertEquals(1, resourceableIdsOfAllCreatedCourses.size());
+        assertTrue(resourceableIdsOfAllCreatedCourses.contains(401L));
     }
 
     @Test
@@ -855,6 +864,12 @@ public class CourseDaoTest extends OlatTestCase {
         assertEquals(1, courses.size());
         courses = courseDao.getCreatedAndNotCreatedCreatableCoursesOfCurrentSemesterByStudentId(2600L);
         assertEquals(1, courses.size());
+    }
+
+    @Test
+    public void testGetPreviousShortSemester() {
+        insertTestData();
+        assertEquals("99FS", courseDao.getPreviousShortSemester());
     }
 
     private void insertTestData() {

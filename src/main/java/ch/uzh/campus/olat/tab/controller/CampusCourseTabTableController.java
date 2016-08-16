@@ -136,7 +136,7 @@ public class CampusCourseTabTableController extends CampusCourseTableController<
 			CampusCourseCreateDialogController controller = campusCourseBeanFactory
 					.createCampusCourseCreateDialogController(
 							sapCampusCourseTo.getSapCourseId(),
-							sapCampusCourseTo.getTitle(), getWindowControl(),
+							getWindowControl(),
 							userRequest);
 			controller.addControllerListener(this);
 

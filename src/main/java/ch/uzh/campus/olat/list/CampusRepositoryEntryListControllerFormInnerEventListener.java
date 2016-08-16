@@ -47,7 +47,7 @@ public class CampusRepositoryEntryListControllerFormInnerEventListener extends R
 
 				CampusCourseCreateDialogController controller = campusCourseBeanFactory
 						.createCampusCourseCreateDialogController(row.getKey(),
-								row.getDisplayName(), windowControl, userRequest);
+								windowControl, userRequest);
 				controller.addControllerListener(parent);
 				campusCourseOlatHelper.showDialog("campus.course.creation.title",
 						controller, userRequest, windowControl, parent);

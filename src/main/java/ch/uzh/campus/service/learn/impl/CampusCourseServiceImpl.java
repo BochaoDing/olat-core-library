@@ -94,8 +94,8 @@ public class CampusCourseServiceImpl implements CampusCourseService {
 		return campusCourseCoreService.existResourceableId(resourceableId);
 	}
 
-	public List<Long> getAllCreatedSapCourcesResourceableIds() {
-		return campusCourseCoreService.getAllCreatedSapCourcesResourceableIds();
+	public List<Long> getResourceableIdsOfAllCreatedCoursesOfPreviousSemester() {
+		return campusCourseCoreService.getResourceableIdsOfAllCreatedCoursesOfPreviousSemester();
 	}
 
 	public List getDelegatees(Identity delegator) {

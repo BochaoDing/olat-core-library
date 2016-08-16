@@ -25,7 +25,6 @@ public class CampusCourseCreateDialogController extends BasicController implemen
 	private final VelocityContainer velocityContainer;
 
 	public CampusCourseCreateDialogController(Long sapCampusCourseId,
-											  String displayName,
 											  CampusCourseBeanFactory campusCourseBeanFactory,
 											  WindowControl windowControl,
 											  UserRequest userRequest) {
@@ -47,7 +46,7 @@ public class CampusCourseCreateDialogController extends BasicController implemen
 							velocityContainer.put(CampusCourseDialogSelectionController.class.getSimpleName(),
 									campusCourseBeanFactory
 											.createContinueCampusCourseSelectionTableController(
-													displayName, sapCampusCourseId, this, w, u)
+													sapCampusCourseId, this, w, u)
 											.getInitialComponent());
 							break;
 						default:

@@ -98,12 +98,11 @@ public class CampusCourseBeanFactory {
 
 	public CampusCourseCreateDialogController createCampusCourseCreateDialogController(
 			Long sapCampusCourseId,
-			String displayName,
 			WindowControl windowControl,
 			UserRequest userRequest
 	) {
 		return new CampusCourseCreateDialogController(sapCampusCourseId,
-				displayName, this, windowControl, userRequest);
+				this, windowControl, userRequest);
 	}
 
 	public CampusCourseCreationChoiceController createCampusCourseCreationChoiceController(
@@ -141,12 +140,11 @@ public class CampusCourseBeanFactory {
 	}
 
 	public ContinueCampusCourseSelectionController createContinueCampusCourseSelectionTableController(
-			String campusCourseTitle, Long sapCampusCourseId,
+			Long sapCampusCourseId,
 			CreateCampusCourseCompletedEventListener listener,
 			WindowControl windowControl, UserRequest userRequest
 	) {
 		return new ContinueCampusCourseSelectionController(
-				campusCourseTitle,
 				sapCampusCourseId,
 				campusCourseService,
 				repositoryManager,

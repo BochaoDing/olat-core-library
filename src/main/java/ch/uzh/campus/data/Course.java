@@ -18,7 +18,7 @@ import java.util.Set;
 @NamedQueries({
         @NamedQuery(name = Course.GET_ALL_CREATED_COURSES_OF_CURRENT_SEMESTER, query = "select c from Course c where c.resourceableId is not null and c.shortSemester = (select max(c2.shortSemester) from Course c2)"),
         @NamedQuery(name = Course.GET_IDS_OF_ALL_CREATED_SYNCHRONIZABLE_COURSES_OF_CURRENT_SEMESTER, query = "select c.id from Course c where c.resourceableId is not null and c.synchronizable = true and c.shortSemester = (select max(c2.shortSemester) from Course c2)"),
-        @NamedQuery(name = Course.GET_RESOURCEABLE_IDS_OF_ALL_CREATED_COURSES_OF_CURRENT_SEMESTER, query = "select c.resourceableId from Course c where c.resourceableId is not null and c.shortSemester = (select max(c2.shortSemester) from Course c2)"),
+        @NamedQuery(name = Course.GET_RESOURCEABLE_IDS_OF_ALL_CREATED_COURSES_OF_SPECIFIC_SEMESTER, query = "select c.resourceableId from Course c where c.resourceableId is not null and c.shortSemester = :shortSemester"),
         @NamedQuery(name = Course.GET_IDS_OF_ALL_NOT_CREATED_CREATABLE_COURSES_OF_CURRENT_SEMESTER, query = "select c.id from Course c where " +
                 "c.resourceableId is null " +
                 "and c.exclude = false " +
@@ -75,7 +75,8 @@ import java.util.Set;
         @NamedQuery(name = Course.GET_ALL_NOT_CREATED_ORPHANED_COURSES, query = "select c.id from Course c where c.resourceableId is null and c.id not in (select lc.course.id from LecturerCourse lc) and c.id not in (select sc.course.id from StudentCourse sc)"),
         @NamedQuery(name = Course.GET_COURSE_IDS_BY_RESOURCEABLE_ID, query = "select c.id from Course c where c.resourceableId = :resourceableId"),
         @NamedQuery(name = Course.GET_COURSES_BY_RESOURCEABLE_ID, query = "select c from Course c where c.resourceableId = :resourceableId"),
-        @NamedQuery(name = Course.GET_LATEST_COURSE_BY_RESOURCEABLE_ID, query = "select c from Course c where c.resourceableId = :resourceableId and c.endDate = (select max(c1.endDate) from Course c1 where c1.resourceableId = :resourceableId)")
+        @NamedQuery(name = Course.GET_LATEST_COURSE_BY_RESOURCEABLE_ID, query = "select c from Course c where c.resourceableId = :resourceableId and c.endDate = (select max(c1.endDate) from Course c1 where c1.resourceableId = :resourceableId)"),
+        @NamedQuery(name = Course.GET_ALL_SHORT_SEMESTERS_IN_DESCENDING_ORDER, query = "select c.shortSemester from Course c group by c.shortSemester order by c.shortSemester desc")
 })
 @Table(name = "ck_course")
 public class Course {
@@ -162,7 +163,7 @@ public class Course {
     public Course() {}
 
     static final String GET_IDS_OF_ALL_CREATED_SYNCHRONIZABLE_COURSES_OF_CURRENT_SEMESTER = "getIdsOfAllCreatedSynchronizableCoursesOfCurrentSemester";
-    static final String GET_RESOURCEABLE_IDS_OF_ALL_CREATED_COURSES_OF_CURRENT_SEMESTER = "getResourceableIdsOfAllCreatedCoursesOfCurrentSemester";
+    static final String GET_RESOURCEABLE_IDS_OF_ALL_CREATED_COURSES_OF_SPECIFIC_SEMESTER = "getResourceableIdsOfAllCreatedCoursesOfSpecificSemester";
     static final String GET_IDS_OF_ALL_NOT_CREATED_CREATABLE_COURSES_OF_CURRENT_SEMESTER = "getIdsOfAllNotCreatedCreatableCoursesOfCurrentSemester";
     static final String GET_ALL_CREATED_COURSES_OF_CURRENT_SEMESTER = "getAllCreatedCoursesOfCurrentSemester";
     static final String GET_CREATED_COURSES_OF_CURRENT_SEMESTER_BY_LECTURER_ID = "getCreatedCoursesOfCurrentSemesterByLecturerId";
@@ -175,6 +176,7 @@ public class Course {
     static final String GET_CREATED_AND_NOT_CREATED_CREATABLE_COURSES_OF_CURRENT_SEMESTER_BY_STUDENT_ID = "getCreatedAndNotCreatedCreatableCoursesOfCurrentSemesterByStudentId";
     static final String GET_COURSES_BY_RESOURCEABLE_ID = "getCoursesByResourceableId";
     static final String GET_LATEST_COURSE_BY_RESOURCEABLE_ID = "getLatestCourseByResourceableId";
+    static final String GET_ALL_SHORT_SEMESTERS_IN_DESCENDING_ORDER = "getAllShortSemestersInDescendingOrder";
 
     public Long getId() {
         return id;

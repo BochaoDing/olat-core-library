@@ -313,8 +313,8 @@ public class CampusCourseCoreServiceImpl implements CampusCourseCoreService {
     }
 
     @Override
-    public List<Long> getAllCreatedSapCourcesResourceableIds() {
-        return daoManager.getAllCreatedSapCourcesResourceableIds();
+    public List<Long> getResourceableIdsOfAllCreatedCoursesOfPreviousSemester() {
+        return daoManager.getResourceableIdsOfAllCreatedCoursesOfPreviousSemester();
     }
 
     @Override

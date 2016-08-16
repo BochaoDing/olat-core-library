@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import javax.persistence.EntityManager;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -44,7 +45,7 @@ public class CourseDao implements CampusDao<CourseOrgId> {
     }
 
     public void saveOrUpdate(CourseOrgId courseOrgId) {
-		/**
+		/*
 		 * A database merge with a detached course entity would override the
 		 * "olat_id" attribute values with "null".
 		 */
@@ -268,10 +269,19 @@ public class CourseDao implements CampusDao<CourseOrgId> {
                 .getResultList();
     }
 
-    List<Long> getResourceableIdsOfAllCreatedCoursesOfCurrentSemester() {
+    List<Long> getResourceableIdsOfAllCreatedCoursesOfSpecificSemester(String shortSemester) {
         return dbInstance.getCurrentEntityManager()
-                .createNamedQuery(Course.GET_RESOURCEABLE_IDS_OF_ALL_CREATED_COURSES_OF_CURRENT_SEMESTER, Long.class)
+                .createNamedQuery(Course.GET_RESOURCEABLE_IDS_OF_ALL_CREATED_COURSES_OF_SPECIFIC_SEMESTER, Long.class)
+                .setParameter("shortSemester", shortSemester)
                 .getResultList();
+    }
+
+    List<Long> getResourceableIdsOfAllCreatedCoursesOfPreviousSemester() {
+        String previousShortSemester = getPreviousShortSemester();
+        if (previousShortSemester == null) {
+            return new ArrayList<>();
+        }
+        return getResourceableIdsOfAllCreatedCoursesOfSpecificSemester(previousShortSemester);
     }
 
     List<Long> getIdsOfAllNotCreatedCreatableCoursesOfCurrentSemester() {
@@ -312,6 +322,16 @@ public class CourseDao implements CampusDao<CourseOrgId> {
                 .createNamedQuery(Course.GET_CREATED_AND_NOT_CREATED_CREATABLE_COURSES_OF_CURRENT_SEMESTER_BY_STUDENT_ID, Course.class)
                 .setParameter("studentId", studentId)
                 .getResultList();
+    }
+
+    String getPreviousShortSemester() {
+        List<String> shortSemesters = dbInstance.getCurrentEntityManager()
+                .createNamedQuery(Course.GET_ALL_SHORT_SEMESTERS_IN_DESCENDING_ORDER, String.class)
+                .getResultList();
+        if (shortSemesters.size() < 2) {
+            return null;
+        }
+        return shortSemesters.get(1);
     }
 
     private void deleteCourseBidirectionally(Course course, EntityManager em) {
