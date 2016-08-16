@@ -281,6 +281,9 @@ public class CourseDao implements CampusDao<CourseOrgId> {
 
     List<Long> getResourceableIdsOfAllCreatedCoursesOfPreviousSemestersNotTooFarInThePast() {
         List<String> previousShortSemestersNotTooFarInThePast = getPreviousShortSemestersNotTooFarInThePast();
+        if (previousShortSemestersNotTooFarInThePast.isEmpty()) {
+            return new ArrayList<>();
+        }
         return getResourceableIdsOfAllCreatedCoursesOfSpecificSemesters(previousShortSemestersNotTooFarInThePast);
     }
 
