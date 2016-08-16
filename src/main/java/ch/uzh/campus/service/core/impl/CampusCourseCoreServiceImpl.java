@@ -160,7 +160,7 @@ public class CampusCourseCoreServiceImpl implements CampusCourseCoreService {
             CampusCourse campusCourse = null;
             try {
                 // Create the campus course by copying the appropriate template (default or custom)
-                campusCourse = campusCourseCreator.createCampusCourseFromTemplate(campusCourseImportTO, courseResourceableId, creator);
+                campusCourse = campusCourseCreator.createCampusCourseFromTemplate(campusCourseImportTO, courseResourceableId, creator, isDefaultTemplateUsed);
                 campusCourse.updateCampusCourseCreatedFromTemplate(campusCourseImportTO, creator, isDefaultTemplateUsed, campusCourseCreator, campusCoursePublisher, campusCourseGroupSynchronizer, campusCourseConfiguration);
                 Long resourceableId = campusCourse.getRepositoryEntry().getOlatResource().getResourceableId();
                 daoManager.saveCampusCourseResoureableId(sapCampusCourseId, resourceableId);

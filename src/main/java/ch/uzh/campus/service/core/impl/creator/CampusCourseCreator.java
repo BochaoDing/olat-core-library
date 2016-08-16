@@ -60,8 +60,7 @@ public class CampusCourseCreator {
         this.campusCourseDescriptionBuilder = campusCourseDescriptionBuilder;
     }
 
-    public CampusCourse createCampusCourseFromTemplate(CampusCourseImportTO campusCourseImportData, Long templateCourseResourceableId, Identity owner) {
-
+    public CampusCourse createCampusCourseFromTemplate(CampusCourseImportTO campusCourseImportData, Long templateCourseResourceableId, Identity owner, boolean isDefaultTemplateUsed) {
         // 1. Lookup template
         ICourse template = CourseFactory.loadCourse(templateCourseResourceableId);
         RepositoryEntry sourceRepositoryEntry = repositoryManager.lookupRepositoryEntry(template, true);
@@ -78,12 +77,17 @@ public class CampusCourseCreator {
         String lvLanguage = campusCourseConfiguration.getTemplateLanguage(campusCourseImportData.getLanguage());
         String description = campusCourseDescriptionBuilder.buildDescriptionFrom(campusCourseImportData, lvLanguage);
         cloneOfRepositoryEntry.setDescription(description);
-        repositoryService.update(cloneOfRepositoryEntry);
 
         // 4. Set access permissions
-        cloneOfRepositoryEntry.setAccess(RepositoryEntry.ACC_OWNERS);
+		if (isDefaultTemplateUsed) {
+			cloneOfRepositoryEntry.setAccess(RepositoryEntry.ACC_USERS_GUESTS);
+		} else {
+			cloneOfRepositoryEntry.setAccess(RepositoryEntry.ACC_OWNERS);
+		}
         cloneOfRepositoryEntry.setMembersOnly(true);
         cloneOfRepositoryEntry.setLastModified(new Date());
+
+		repositoryService.update(cloneOfRepositoryEntry);
 
         // 5. Load copy of course
         ICourse copyCourse = CourseFactory.loadCourse(cloneOfCourseOlatResourcable.getResourceableId());

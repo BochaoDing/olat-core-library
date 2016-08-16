@@ -189,7 +189,7 @@ public class CampusCourseCoreServiceImplTest extends OlatTestCase {
     }
 
     private void assertAccess(RepositoryEntry repositoryEntry) {
-        assertEquals("CampusCourse Access must be 'BARG'", RepositoryEntry.ACC_OWNERS, repositoryEntry.getAccess());
+        assertEquals("CampusCourse Access must be 'BARG'", RepositoryEntry.ACC_USERS_GUESTS, repositoryEntry.getAccess());
     }
 
     @Test
