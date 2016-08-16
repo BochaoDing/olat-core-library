@@ -342,8 +342,13 @@ public class RepositoryEntry implements CreateInfo, Persistable , RepositoryEntr
 	 * @param name The name to set.
 	 */
 	public void setResourcename(String name) {
-		if (name.length() > 100)
-			throw new AssertException("resourcename is limited to 100 characters.");
+		/*
+		 * TODO sev26
+		 * The size is now equal to the actual reasonable/possible (see
+		 * varchar index issue of MySQL) database table attribute size.
+		 */
+		if (name.length() > 255)
+			throw new AssertException("resourcename is limited to 255 characters.");
 		this.resourcename = name;
 	}
 
@@ -493,6 +498,11 @@ public class RepositoryEntry implements CreateInfo, Persistable , RepositoryEntr
 	 * @param displayname The displayname to set.
 	 */
 	public void setDisplayname(String displayname) {
+		/*
+		 * See comment of #setResourcename(String)
+		 */
+		if (displayname.length() > 255)
+			throw new AssertException("DisplayName is limited to 255 characters.");
 		this.displayname = displayname;
 	}
 
