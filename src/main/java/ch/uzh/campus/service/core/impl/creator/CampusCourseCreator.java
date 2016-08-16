@@ -84,7 +84,6 @@ public class CampusCourseCreator {
 		} else {
 			cloneOfRepositoryEntry.setAccess(RepositoryEntry.ACC_OWNERS);
 		}
-        cloneOfRepositoryEntry.setMembersOnly(true);
         cloneOfRepositoryEntry.setLastModified(new Date());
 
 		repositoryService.update(cloneOfRepositoryEntry);
