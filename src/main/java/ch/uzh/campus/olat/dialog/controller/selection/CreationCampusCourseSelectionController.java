@@ -43,7 +43,7 @@ public class CreationCampusCourseSelectionController extends CampusCourseDialogS
 				table.getSelectedEntry(event).getOlatResource())
 				.getResourceableId();
 		try {
-			CampusCourse campusCourse = campusCourseService.createCampusCourseFromTemplate(resourceableId,
+			CampusCourse campusCourse = campusCourseService.createCampusCourseFromStandardTemplate(resourceableId,
 					sapCampusCourseId, userRequest.getIdentity());
 
 			listener.onSuccess(campusCourse);

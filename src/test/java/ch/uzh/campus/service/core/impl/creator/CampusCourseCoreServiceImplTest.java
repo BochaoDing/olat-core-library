@@ -168,7 +168,7 @@ public class CampusCourseCoreServiceImplTest extends OlatTestCase {
 
     private CampusCourse createCampusCourseTestObject() throws Exception {
         // Create campus course from a template
-        CampusCourse campusCourse = campusCourseCoreService.createCampusCourseFromTemplate(100L, ownerIdentity);
+        CampusCourse campusCourse = campusCourseCoreService.createCampusCourseFromStandardTemplate(100L, ownerIdentity);
         dbInstance.flush();
         return campusCourse;
     }

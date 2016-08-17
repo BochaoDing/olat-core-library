@@ -1,9 +1,9 @@
 package ch.uzh.campus.olat.dialog.controller.selection;
 
-import ch.uzh.campus.CampusCourseConfiguration;
 import ch.uzh.campus.olat.CampusCourseOlatHelper;
 import ch.uzh.campus.olat.dialog.controller.CreateCampusCourseCompletedEventListener;
 import ch.uzh.campus.service.CampusCourse;
+import ch.uzh.campus.service.learn.CampusCourseService;
 import org.olat.core.gui.UserRequest;
 import org.olat.core.gui.components.Component;
 import org.olat.core.gui.components.link.Link;
@@ -23,7 +23,7 @@ public class CampusCourseSubmitController extends BasicController {
 	private final static String CANCEL = "cancel";
 
 	private final Long sapCampusCourseId;
-	private final CampusCourseConfiguration campusCourseConfiguration;
+	private final CampusCourseService campusCourseService;
 	private final CampusCourseOlatHelper campusCourseOlatHelper;
 	private final CreateCampusCourseCompletedEventListener listener;
 
@@ -31,7 +31,7 @@ public class CampusCourseSubmitController extends BasicController {
 	private final Link cancelButton;
 
 	public CampusCourseSubmitController(Long sapCampusCourseId,
-										CampusCourseConfiguration campusCourseConfiguration,
+										CampusCourseService campusCourseService,
 										CampusCourseOlatHelper campusCourseOlatHelper,
 			                            CreateCampusCourseCompletedEventListener listener,
 										WindowControl windowControl,
@@ -40,7 +40,7 @@ public class CampusCourseSubmitController extends BasicController {
 				.getTranslator(userRequest.getLocale()));
 
 		this.sapCampusCourseId = sapCampusCourseId;
-		this.campusCourseConfiguration = campusCourseConfiguration;
+		this.campusCourseService = campusCourseService;
 		this.campusCourseOlatHelper = campusCourseOlatHelper;
 		this.listener = listener;
 
@@ -60,13 +60,9 @@ public class CampusCourseSubmitController extends BasicController {
 	protected void event(UserRequest userRequest, Component source, Event event) {
 		if (source == createButton) {
 			try {
-				Long courseResourceableId = campusCourseConfiguration.getTemplateCourseResourcableId(
-						userRequest.getLocale().getLanguage());
-
-				CampusCourse campusCourse = campusCourseOlatHelper
-						.createCampusCourseFromResourcableId(userRequest,
-								sapCampusCourseId,
-								courseResourceableId);
+				CampusCourse campusCourse = campusCourseService
+						.createCampusCourseFromStandardTemplate(sapCampusCourseId,
+								userRequest.getIdentity());
 
 				listener.onCancel();
 				campusCourseOlatHelper.openCourseInNewTab(campusCourse, getWindowControl(), userRequest);

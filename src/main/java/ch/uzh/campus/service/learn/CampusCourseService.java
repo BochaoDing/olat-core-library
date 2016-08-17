@@ -19,10 +19,15 @@ public interface CampusCourseService {
 
     boolean checkDelegation(Long sapCampusCourseId, Identity creator);
 
+	/**
+     * Create a new campus-course from the standard course template. Copy template and update title, description, owner and participants.
+     */
+	CampusCourse createCampusCourseFromStandardTemplate(Long sapCampusCourseId, Identity creator) throws Exception;
+
     /**
      * Create a new campus-course from a course template. Copy template and update title, description, owner and participants.
      */
-    CampusCourse createCampusCourseFromTemplate(Long courseResourceableId, Long sapCampusCourseId, Identity creator) throws Exception;
+    CampusCourse createCampusCourseFromStandardTemplate(Long courseResourceableId, Long sapCampusCourseId, Identity creator) throws Exception;
 
     /**
      * Uses an existing campus-course. It updates the title, description (including the vvz link), owner and participants.

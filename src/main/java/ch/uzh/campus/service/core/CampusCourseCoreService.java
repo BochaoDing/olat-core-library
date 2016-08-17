@@ -20,7 +20,7 @@ public interface CampusCourseCoreService {
 
     boolean checkDelegation(Long sapCampusCourseId, Identity creator);
 
-	CampusCourse createCampusCourseFromTemplate(Long sapCampusCourseId, Identity creator) throws Exception;
+	CampusCourse createCampusCourseFromStandardTemplate(Long sapCampusCourseId, Identity creator) throws Exception;
 
     CampusCourse createCampusCourseFromTemplate(Long courseResourceableId, Long sapCampusCourseId, Identity creator) throws Exception;
 
