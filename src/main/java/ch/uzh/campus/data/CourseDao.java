@@ -10,6 +10,7 @@ import org.springframework.stereotype.Repository;
 import javax.persistence.EntityManager;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Initial Date: 04.06.2012 <br>
@@ -54,10 +55,10 @@ public class CourseDao implements CampusDao<CourseOrgId> {
 		 */
 		Course course = getCourseById(courseOrgId.getId());
 		if (course == null) {
-			course = new Course();
+			save(courseOrgId);
+            return;
 		}
 		courseOrgId.merge(course);
-		dbInstance.saveObject(course);
 		updateOrgsFromCourseOrgId(course, courseOrgId);
     }
 
@@ -90,38 +91,39 @@ public class CourseDao implements CampusDao<CourseOrgId> {
                 removeOrgFromCourse(org, course);
         }
 
-        // Add new orgs
-        if (courseOrgId.getOrg1() != null) {
+        // Add org to course if it is not present yet
+        List<Long> orgIdsOfCourse = course.getOrgs().stream().map(Org::getId).collect(Collectors.toList());
+        if (courseOrgId.getOrg1() != null && !orgIdsOfCourse.contains(courseOrgId.getOrg1())) {
             addOrgToCourse(courseOrgId.getOrg1(), course);
         }
-        if (courseOrgId.getOrg2() != null) {
+        if (courseOrgId.getOrg2() != null && !orgIdsOfCourse.contains(courseOrgId.getOrg2())) {
             addOrgToCourse(courseOrgId.getOrg2(), course);
         }
-        if (courseOrgId.getOrg3() != null) {
+        if (courseOrgId.getOrg3() != null && !orgIdsOfCourse.contains(courseOrgId.getOrg3())) {
             addOrgToCourse(courseOrgId.getOrg3(), course);
         }
-        if (courseOrgId.getOrg4() != null) {
+        if (courseOrgId.getOrg4() != null && !orgIdsOfCourse.contains(courseOrgId.getOrg4())) {
             addOrgToCourse(courseOrgId.getOrg4(), course);
         }
-        if (courseOrgId.getOrg5() != null) {
+        if (courseOrgId.getOrg5() != null && !orgIdsOfCourse.contains(courseOrgId.getOrg5())) {
             addOrgToCourse(courseOrgId.getOrg5(), course);
         }
-        if (courseOrgId.getOrg6() != null) {
+        if (courseOrgId.getOrg6() != null && !orgIdsOfCourse.contains(courseOrgId.getOrg6())) {
             addOrgToCourse(courseOrgId.getOrg6(), course);
         }
-        if (courseOrgId.getOrg7() != null) {
+        if (courseOrgId.getOrg7() != null && !orgIdsOfCourse.contains(courseOrgId.getOrg7())) {
             addOrgToCourse(courseOrgId.getOrg7(), course);
         }
-        if (courseOrgId.getOrg8() != null) {
+        if (courseOrgId.getOrg8() != null && !orgIdsOfCourse.contains(courseOrgId.getOrg8())) {
             addOrgToCourse(courseOrgId.getOrg8(), course);
         }
-        if (courseOrgId.getOrg9() != null) {
+        if (courseOrgId.getOrg9() != null && !orgIdsOfCourse.contains(courseOrgId.getOrg9())) {
             addOrgToCourse(courseOrgId.getOrg9(), course);
         }
     }
 
     private void addOrgToCourse(Long orgId, Course course) {
-        Org org = dbInstance.getCurrentEntityManager().find(Org.class, orgId);
+        Org org = dbInstance.findObject(Org.class, orgId);
         if (org != null) {
             org.getCourses().add(course);
             course.getOrgs().add(org);
