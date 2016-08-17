@@ -473,7 +473,7 @@
 					<batch:include 
 						class="org.hibernate.exception.ConstraintViolationException" />
 					<batch:include 
-						class="ch.uzh.campus.connectors.CampusException" />
+						class="ch.uzh.campus.CampusCourseException" />
 					<batch:include 
 						class="org.hibernate.LazyInitializationException" />
 					<batch:include 

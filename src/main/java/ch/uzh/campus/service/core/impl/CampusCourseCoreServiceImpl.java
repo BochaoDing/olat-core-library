@@ -1,6 +1,7 @@
 package ch.uzh.campus.service.core.impl;
 
 import ch.uzh.campus.CampusCourseConfiguration;
+import ch.uzh.campus.CampusCourseException;
 import ch.uzh.campus.CampusCourseImportTO;
 import ch.uzh.campus.data.Course;
 import ch.uzh.campus.data.DaoManager;
@@ -12,8 +13,8 @@ import ch.uzh.campus.service.core.CampusCourseCoreService;
 import ch.uzh.campus.service.core.impl.creator.CampusCourseCreator;
 import ch.uzh.campus.service.core.impl.creator.CampusCourseDescriptionBuilder;
 import ch.uzh.campus.service.core.impl.creator.CampusCoursePublisher;
-import ch.uzh.campus.service.core.impl.syncer.CampusCourseGroupsFinder;
 import ch.uzh.campus.service.core.impl.syncer.CampusCourseGroupSynchronizer;
+import ch.uzh.campus.service.core.impl.syncer.CampusCourseGroupsFinder;
 import org.olat.core.commons.persistence.DB;
 import org.olat.core.id.Identity;
 import org.olat.core.id.OLATResourceable;
@@ -132,9 +133,10 @@ public class CampusCourseCoreServiceImpl implements CampusCourseCoreService {
 		ICourse defaultTemplateCourse = CourseFactory.loadCourse(courseResourceableId);
 		PublishTreeModel publishTreeModel = new PublishTreeModel(defaultTemplateCourse.getEditorTreeModel(), defaultTemplateCourse.getRunStructure());
 		if (publishTreeModel.hasPublishableChanges()) {
-			LOG.warn("Campuskurs template course " + defaultTemplateCourse.getCourseTitle() + " (" + defaultTemplateCourse.getResourceableId()
-					+ ") is not published completely.");
-			return null;
+			throw new CampusCourseException("Campus course template " +
+					defaultTemplateCourse.getCourseTitle() + " (" +
+					defaultTemplateCourse.getResourceableId() +
+					") is not published completely.");
 		}
 
 		return createCampusCourseFromTemplate(courseResourceableId, sapCampusCourseId, creator, true);
