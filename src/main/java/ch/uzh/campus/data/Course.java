@@ -156,7 +156,7 @@ public class Course {
     @OneToOne(mappedBy = "parentCourse", cascade = CascadeType.ALL)
     private Course childCourse;
 
-    @OneToOne
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "parent_course_id")
     private Course parentCourse;
 
