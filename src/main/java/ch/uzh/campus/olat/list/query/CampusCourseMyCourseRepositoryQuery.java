@@ -37,30 +37,30 @@ public abstract class CampusCourseMyCourseRepositoryQuery implements MyCourseRep
 
 	@Override
 	public int countViews(SearchMyRepositoryEntryViewParams param) {
-		return 0;
+		return searchViews(param, 0, Integer.MAX_VALUE).size();
 	}
 
 	@Override
-	public List<RepositoryEntryMyView> searchViews(SearchMyRepositoryEntryViewParams params,
+	public List<RepositoryEntryMyView> searchViews(SearchMyRepositoryEntryViewParams param,
 												   int firstResult,
 												   int maxResults) {
-		if ((params.getMarked() == null ||
-				params.getMarked() == Boolean.FALSE) &&
-				params.getParentEntry() == null && (params.getFilters() == null ||
-				params.getFilters().contains(Filter.showAll) ||
-				params.getFilters().contains(Filter.upcomingCourses) ||
-				filter(params.getFilters()))) {
+		if ((param.getMarked() == null ||
+				param.getMarked() == Boolean.FALSE) &&
+				param.getParentEntry() == null && (param.getFilters() == null ||
+				param.getFilters().contains(Filter.showAll) ||
+				param.getFilters().contains(Filter.upcomingCourses) ||
+				filter(param.getFilters()))) {
 
 			List<RepositoryEntryMyView> result = new ArrayList<>();
 
 			List<SapCampusCourseTo> sapCampusCourseTos = campusCourseService.getCoursesWhichCouldBeCreated(
-					params.getIdentity(), userType, params.getIdRefsAndTitle());
+					param.getIdentity(), userType, param.getIdRefsAndTitle());
 
 			boolean requiresStatistics = repositoryModule.isRatingEnabled() || repositoryModule.isCommentEnabled();
 
 			for (SapCampusCourseTo sapCampusCourseTo : sapCampusCourseTos) {
 				RepositoryEntry repositoryEntry = getRepositoryEntry(
-						sapCampusCourseTo, params.getRoles());
+						sapCampusCourseTo, param.getRoles());
 				RepositoryEntryMyCourseImpl view = new RepositoryEntryMyCourseImpl(
 						repositoryEntry,
 						requiresStatistics ? repositoryEntry.getStatistics() : null, false,
