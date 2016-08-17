@@ -9,6 +9,7 @@ import org.springframework.stereotype.Repository;
 
 import javax.persistence.EntityManager;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -78,7 +79,9 @@ public class CourseDao implements CampusDao<CourseOrgId> {
 
     private void updateOrgsFromCourseOrgId(Course course, CourseOrgId courseOrgId) {
         // Remove org from course if it is not present any more
-        for (Org org : course.getOrgs()) {
+        Iterator<Org> iterator = course.getOrgs().iterator();
+        while (iterator.hasNext()) {
+            Org org = iterator.next();
             if (!org.getId().equals(courseOrgId.getOrg1())
                     && !org.getId().equals(courseOrgId.getOrg2())
                     && !org.getId().equals(courseOrgId.getOrg3())
@@ -87,8 +90,10 @@ public class CourseDao implements CampusDao<CourseOrgId> {
                     && !org.getId().equals(courseOrgId.getOrg6())
                     && !org.getId().equals(courseOrgId.getOrg7())
                     && !org.getId().equals(courseOrgId.getOrg8())
-                    && !org.getId().equals(courseOrgId.getOrg9()))
-                removeOrgFromCourse(org, course);
+                    && !org.getId().equals(courseOrgId.getOrg9())) {
+                org.getCourses().remove(course);
+                iterator.remove();
+            }
         }
 
         // Add org to course if it is not present yet
@@ -131,11 +136,6 @@ public class CourseDao implements CampusDao<CourseOrgId> {
             String warningMessage = "No org found with id " + orgId + " for entry " + course.getId() + " of table ck_course.";
             LOG.warn(warningMessage);
         }
-    }
-
-    private void removeOrgFromCourse(Org org, Course course) {
-        org.getCourses().remove(course);
-        course.getOrgs().remove(org);
     }
 
     Course getCourseById(Long id) {
