@@ -1,6 +1,5 @@
 package ch.uzh.campus.olat;
 
-import ch.uzh.campus.CampusCourseConfiguration;
 import ch.uzh.campus.olat.dialog.controller.CampusCourseCreateDialogController;
 import ch.uzh.campus.olat.dialog.controller.CampusCourseCreationChoiceController;
 import ch.uzh.campus.olat.dialog.controller.CampusCourseCreationChoiceController.CampusCourseCreationChoiceControllerListener;
@@ -61,9 +60,6 @@ public class CampusCourseBeanFactory {
 	@Autowired
 	private CampusCourseOlatHelper campusCourseOlatHelper;
 
-	@Autowired
-	private CampusCourseConfiguration campusCourseConfiguration;
-
 	@Bean(name={"row_1"})
 	@Scope(BeanDefinition.SCOPE_PROTOTYPE)
 	@Primary
@@ -123,7 +119,7 @@ public class CampusCourseBeanFactory {
 			WindowControl windowControl, UserRequest userRequest
 	) {
 		return new CampusCourseSubmitController(sapCampusCourseId,
-				campusCourseConfiguration, campusCourseOlatHelper, listener,
+				campusCourseService, campusCourseOlatHelper, listener,
 				windowControl, userRequest);
 	}
 

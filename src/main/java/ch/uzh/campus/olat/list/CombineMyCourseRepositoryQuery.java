@@ -66,6 +66,10 @@ public class CombineMyCourseRepositoryQuery implements MyCourseRepositoryQuery {
 			}
 		}
 
+		if (result.size() > maxResults) {
+			result = result.subList(0, maxResults);
+		}
+
 		/*
 		 * OpenOLAT courses must always come last.
 		 */

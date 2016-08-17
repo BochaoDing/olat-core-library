@@ -118,7 +118,7 @@ public class CampusCourseCoreServiceImpl implements CampusCourseCoreService {
     }
 
 	@Override
-    public CampusCourse createCampusCourseFromTemplate(Long sapCampusCourseId, Identity creator) throws Exception {
+    public CampusCourse createCampusCourseFromStandardTemplate(Long sapCampusCourseId, Identity creator) throws Exception {
 		assert sapCampusCourseId != null;
 
 		CampusCourseImportTO campusCourseImportTO = daoManager.getSapCampusCourse(sapCampusCourseId);

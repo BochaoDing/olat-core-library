@@ -34,13 +34,6 @@ public class CampusCourseOlatHelper {
         this.campusCourseService = campusCourseService;
     }
 
-    public CampusCourse createCampusCourseFromResourcableId(UserRequest userRequest,
-													Long sapCampusCourseId,
-													Long courseResourceableId) throws Exception {
-        return campusCourseService.createCampusCourseFromTemplate(courseResourceableId,
-                sapCampusCourseId, userRequest.getIdentity());
-    }
-
 	public void openCourseInNewTab(CampusCourse campusCourse,
 								   WindowControl windowControl,
 								   UserRequest userRequest) {

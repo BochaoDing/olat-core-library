@@ -29,7 +29,7 @@ public class EventDao {
     }
 
     private void addEventToCourse(Event event, Long courseId) {
-        Course course = dbInstance.getCurrentEntityManager().find(Course.class, courseId);
+        Course course = dbInstance.findObject(Course.class, courseId);
         if (course == null) {
             String warningMessage = "No course found with id " + courseId + ". Skipping all events of this course for table ck_event.";
             // Here we only log on the debug level to avoid duplicated warnings (LOG.warn is already called by EventWriter)

@@ -29,7 +29,7 @@ public class TextDao {
     }
 
     private void addTextToCourse(Text text, Long courseId) {
-        Course course = dbInstance.getCurrentEntityManager().find(Course.class, courseId);
+        Course course = dbInstance.findObject(Course.class, courseId);
         if (course == null) {
             String warningMessage = "No course found with id " + courseId + ". Skipping all texts of this course for table ck_text.";
             // Here we only log on the debug level to avoid duplicated warnings (LOG.warn is already called by TextWriter)
