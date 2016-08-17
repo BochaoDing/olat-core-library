@@ -4,7 +4,6 @@ import ch.uzh.campus.olat.list.query.CampusCourseMyCourseRepositoryQuery;
 import org.olat.repository.RepositoryEntryMyView;
 import org.olat.repository.manager.RepositoryEntryMyCourseQueries;
 import org.olat.repository.manager.coursequery.MyCourseRepositoryQuery;
-import org.olat.repository.model.RepositoryEntryMyCourseImpl;
 import org.olat.repository.model.SearchMyRepositoryEntryViewParams;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.BeanDefinition;
