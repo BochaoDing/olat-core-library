@@ -1,3 +1,15 @@
+package ch.uzh.campus.connectors;
+
+import ch.uzh.campus.data.CourseOrgId;
+import org.apache.commons.lang.StringUtils;
+import org.olat.core.logging.OLog;
+import org.olat.core.logging.Tracing;
+import org.springframework.batch.item.ItemProcessor;
+
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
+import java.util.*;
+
 /**
  * OLAT - Online Learning and Training<br>
  * http://www.olat.org
@@ -17,22 +29,7 @@
  * Copyright (c) since 2004 at Multimedia- & E-Learning Services (MELS),<br>
  * University of Zurich, Switzerland.
  * <p>
- */
-package ch.uzh.campus.connectors;
-
-import ch.uzh.campus.data.CourseOrgId;
-import ch.uzh.campus.data.DaoManager;
-import org.apache.commons.lang.StringUtils;
-import org.olat.core.logging.OLog;
-import org.olat.core.logging.Tracing;
-import org.springframework.batch.item.ItemProcessor;
-import org.springframework.beans.factory.annotation.Autowired;
-
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
-import java.util.*;
-
-/**
+ *
  * This is an implementation of {@link ItemProcessor} that validates the input Course item, <br>
  * modifies it according to some criteria and returns it as output Course item.<br>
  * 
@@ -44,12 +41,7 @@ public class CourseProcessor implements ItemProcessor<CourseOrgId, CourseOrgId> 
 	
 	private static final OLog LOG = Tracing.createLoggerFor(CourseProcessor.class);
 
-    @Autowired
-    DaoManager daoManager;
-
     private Set<Long> processedIdsSet;
-
-    private List<Long> enabledOrgs;
 
     private Map<String, String> semesterMap = new HashMap<>();
 
@@ -58,13 +50,11 @@ public class CourseProcessor implements ItemProcessor<CourseOrgId, CourseOrgId> 
     @PostConstruct
     public void init() {
         processedIdsSet = new HashSet<>();
-        enabledOrgs = daoManager.getIdsOfAllEnabledOrgs();
     }
 
     @PreDestroy
     public void cleanUp() {
         processedIdsSet.clear();
-        enabledOrgs.clear();
     }
 
     /**
@@ -84,6 +74,7 @@ public class CourseProcessor implements ItemProcessor<CourseOrgId, CourseOrgId> 
      * @param courseOrgId
      *            the Course to be processed
      */
+    @Override
     public CourseOrgId process(CourseOrgId courseOrgId) throws Exception {
 
         // JUST IGNORE THE DUPLICATES

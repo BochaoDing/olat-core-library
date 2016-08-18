@@ -1,3 +1,11 @@
+package ch.uzh.campus.connectors;
+
+import ch.uzh.campus.data.LecturerIdCourseId;
+import ch.uzh.campus.data.LecturerIdCourseIdDateOfImport;
+import org.springframework.batch.item.ItemProcessor;
+
+import java.util.Date;
+
 /**
  * OLAT - Online Learning and Training<br>
  * http://www.olat.org
@@ -17,16 +25,7 @@
  * Copyright (c) since 2004 at Multimedia- & E-Learning Services (MELS),<br>
  * University of Zurich, Switzerland.
  * <p>
- */
-package ch.uzh.campus.connectors;
-
-import ch.uzh.campus.data.LecturerIdCourseId;
-import ch.uzh.campus.data.LecturerIdCourseIdDateOfImport;
-import org.springframework.batch.item.ItemProcessor;
-
-import java.util.Date;
-
-/**
+ *
  * Initial Date: 11.06.2012 <br>
  * 
  * @author aabouc
@@ -34,6 +33,7 @@ import java.util.Date;
  */
 public class LecturerCourseProcessor implements ItemProcessor<LecturerIdCourseId, LecturerIdCourseIdDateOfImport> {
 
+    @Override
     public LecturerIdCourseIdDateOfImport process(LecturerIdCourseId lecturerIdCourseId) {
         return new LecturerIdCourseIdDateOfImport(lecturerIdCourseId.getLecturerId(), lecturerIdCourseId.getCourseId(), new Date());
     }
