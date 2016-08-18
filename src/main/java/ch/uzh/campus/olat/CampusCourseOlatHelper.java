@@ -53,7 +53,13 @@ public class CampusCourseOlatHelper {
 	}
 
 	public static Translator getTranslator(Locale locale) {
-		return Util.createPackageTranslator(CampusCourseOlatHelper.class, locale);
+		return Util.createPackageTranslator(CampusCourseOlatHelper.class,
+				locale);
+	}
+
+	public static Translator getTranslator(Locale locale, Class<?> fallbackTranslatorClazz) {
+		return Util.createPackageTranslator(CampusCourseOlatHelper.class,
+				locale, Util.createPackageTranslator(fallbackTranslatorClazz, locale));
 	}
 
 	private final static String CONTACT_OLAT_SUPPORT = "Please contact the OLAT support.";
