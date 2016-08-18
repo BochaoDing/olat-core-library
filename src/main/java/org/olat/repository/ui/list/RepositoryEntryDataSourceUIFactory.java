@@ -33,6 +33,7 @@ import org.olat.core.util.StringHelper;
 import org.olat.core.util.Util;
 import org.olat.repository.RepositoryEntry;
 import org.olat.repository.RepositoryModule;
+import org.olat.repository.RepositoryService;
 import org.olat.repository.ui.RepositoryEntryImageMapper;
 
 /**
@@ -57,7 +58,7 @@ public class RepositoryEntryDataSourceUIFactory {
 		this.repositoryModule = repositoryModule;
 		this.mapperThumbnailKey = mapperService.register(null,
 				"repositoryentryImage", new RepositoryEntryImageMapper());
-		this.translator = Util.createPackageTranslator(this.getClass(), userRequest.getLocale());
+		this.translator = Util.createPackageTranslator(RepositoryService.class, userRequest.getLocale());
 		this.guestOnly = userRequest.getUserSession().getRoles().isGuestOnly();
 	}
 
