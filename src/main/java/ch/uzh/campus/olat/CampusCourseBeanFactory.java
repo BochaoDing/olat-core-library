@@ -21,6 +21,7 @@ import org.olat.core.util.Util;
 import org.olat.repository.RepositoryEntryMyView;
 import org.olat.repository.RepositoryManager;
 import org.olat.repository.RepositoryModule;
+import org.olat.repository.RepositoryService;
 import org.olat.repository.ui.list.RepositoryEntryListController;
 import org.olat.repository.ui.list.RepositoryEntryRow;
 import org.olat.repository.ui.list.RepositoryEntryRowFactory;
@@ -67,7 +68,8 @@ public class CampusCourseBeanFactory {
 		VelocityContainer result = new VelocityContainer(null,
 				"vc_" + "row_1",
 				Util.getPackageVelocityRoot(CampusCourseRepositoryEntryRow.class) + "/row_1.html",
-				CampusCourseOlatHelper.getTranslator(caller.getLocale()),
+				CampusCourseOlatHelper.getTranslator(caller.getLocale(),
+						RepositoryService.class),
 				caller
 		);
 		result.setDomReplacementWrapperRequired(false); // sets its own DOM id in velocity container

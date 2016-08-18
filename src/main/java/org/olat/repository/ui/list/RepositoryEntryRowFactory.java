@@ -1,6 +1,5 @@
 package org.olat.repository.ui.list;
 
-import org.olat.core.CoreSpringFactory;
 import org.olat.core.dispatcher.mapper.MapperService;
 import org.olat.core.gui.UserRequest;
 import org.olat.core.util.vfs.VFSLeaf;

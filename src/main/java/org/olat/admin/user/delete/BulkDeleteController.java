@@ -119,6 +119,8 @@ public class BulkDeleteController extends BasicController {
 				lstLoginsNotfound.add(login);
 			} else if(ident.getStatus().intValue() == Identity.STATUS_DELETED.intValue()) {
 				lstLoginsNotfound.add(login);
+			} else if(ident.getStatus().intValue() == Identity.STATUS_PERMANENT.intValue()) {
+				lstLoginsNotfound.add(login);
 			} else {
 				// prevent double entries
 				if(!lstLoginsFound.contains(login)) {
