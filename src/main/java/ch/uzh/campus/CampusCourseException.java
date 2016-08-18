@@ -18,7 +18,7 @@
  * University of Zurich, Switzerland.
  * <p>
  */
-package ch.uzh.campus.connectors;
+package ch.uzh.campus;
 
 /**
  * This Exception can be used as business or wrapper exception for campuskurs.<br>
@@ -28,15 +28,15 @@ package ch.uzh.campus.connectors;
  * @author aabouc
  */
 @SuppressWarnings("serial")
-public class CampusException extends Exception {
+public class CampusCourseException extends Exception {
 
     /**
-     * Create a new CampusException with the given message.
+     * Create a new CampusCourseException with the given message.
      * 
-     * @param msg
+     * @param message
      *            the descriptive message
      */
-    public CampusException(final String msg) {
-        super(msg);
+    public CampusCourseException(String message) {
+        super(message);
     }
 }

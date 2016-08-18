@@ -86,9 +86,10 @@ public class CampusCourseCreator {
 		}
         cloneOfRepositoryEntry.setLastModified(new Date());
 
+		// 5. Persist
 		repositoryService.update(cloneOfRepositoryEntry);
 
-        // 5. Load copy of course
+        // 6. Load copy of course
         ICourse copyCourse = CourseFactory.loadCourse(cloneOfCourseOlatResourcable.getResourceableId());
 
         return new CampusCourse(copyCourse, cloneOfRepositoryEntry);

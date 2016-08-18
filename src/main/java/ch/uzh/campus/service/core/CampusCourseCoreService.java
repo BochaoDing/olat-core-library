@@ -2,7 +2,7 @@ package ch.uzh.campus.service.core;
 
 import ch.uzh.campus.CampusCourseImportTO;
 import ch.uzh.campus.data.Course;
-import ch.uzh.campus.data.SapOlatUser;
+import ch.uzh.campus.data.SapOlatUser.SapUserType;
 import ch.uzh.campus.service.CampusCourse;
 import org.olat.core.id.Identity;
 import org.olat.core.id.OLATResourceable;
@@ -41,16 +41,16 @@ public interface CampusCourseCoreService {
     /**
      * Get a list of Campus-courses which have resourceableId=null. resourceableId=null means no OLAT course is created in the OLAT course-repository yet.
      */
-    Set<Course> getCampusCoursesWithoutResourceableId(Identity identity, SapOlatUser.SapUserType userType);
+    Set<Course> getCampusCoursesWithoutResourceableId(Identity identity, SapUserType userType);
 
-	Set<Course> getCampusCoursesWithoutResourceableId(Identity identity, SapOlatUser.SapUserType userType, String searchString);
+	Set<Course> getCampusCoursesWithoutResourceableId(Identity identity, SapUserType userType, String searchString);
 
     /**
      * Get list of Campus courses which already are created in the OLAT course-repository.
      */
-    Set<Course> getCampusCoursesWithResourceableId(Identity identity, SapOlatUser.SapUserType userType);
+    Set<Course> getCampusCoursesWithResourceableId(Identity identity, SapUserType userType);
 
-    Set<Course> getCampusCoursesWithResourceableId(Identity identity, SapOlatUser.SapUserType userType, String searchString);
+    Set<Course> getCampusCoursesWithResourceableId(Identity identity, SapUserType userType, String searchString);
 
     void createDelegation(Identity delegator, Identity delegatee);
 

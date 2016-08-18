@@ -22,6 +22,7 @@ package ch.uzh.campus.connectors;
 
 import java.util.Date;
 
+import ch.uzh.campus.CampusCourseException;
 import ch.uzh.campus.data.Export;
 import ch.uzh.campus.CampusCourseConfiguration;
 import ch.uzh.campus.utils.DateUtil;
@@ -53,7 +54,7 @@ public class ExportProcessor implements ItemProcessor<Export, Export> {
      * 
      * @return the modified export
      * 
-     * @throws CampusException
+     * @throws CampusCourseException
      *             if the exportDate is older than one day
      */
     public Export process(Export export) throws Exception {
@@ -61,11 +62,15 @@ public class ExportProcessor implements ItemProcessor<Export, Export> {
             return null;
         }
         if (DateUtil.isMoreThanOneDayBefore(export.getExportDate())) {
-            LOG.error("THE FILE [" + export.getFileName() + "] WILL NOT BE IMPORTED BECAUSE OF THE OLD EXPORT DATE [" + export.getExportDate() + "]");
-            throw new CampusException("THE FILE [" + export.getFileName() + "] WILL NOT BE IMPORTED BECAUSE OF THE OLD EXPORT DATE [" + export.getExportDate() + "]");
+            LOG.error("THE FILE [" + export.getFileName() +
+					"] WILL NOT BE IMPORTED BECAUSE OF THE OLD EXPORT DATE [" +
+					export.getExportDate() + "]");
+            throw new CampusCourseException("THE FILE [" +
+					export.getFileName() +
+					"] WILL NOT BE IMPORTED BECAUSE OF THE OLD EXPORT DATE [" +
+					export.getExportDate() + "]");
         }
         export.setCreationDate(new Date());
         return export;
     }
-
 }

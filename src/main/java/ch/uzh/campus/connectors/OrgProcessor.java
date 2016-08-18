@@ -1,3 +1,12 @@
+package ch.uzh.campus.connectors;
+
+import java.util.Date;
+import java.util.List;
+
+import ch.uzh.campus.data.Org;
+import org.springframework.batch.item.ItemProcessor;
+import org.springframework.beans.factory.annotation.Value;
+
 /**
  * OLAT - Online Learning and Training<br>
  * http://www.olat.org
@@ -17,17 +26,7 @@
  * Copyright (c) since 2004 at Multimedia- & E-Learning Services (MELS),<br>
  * University of Zurich, Switzerland.
  * <p>
- */
-package ch.uzh.campus.connectors;
-
-import java.util.Date;
-import java.util.List;
-
-import ch.uzh.campus.data.Org;
-import org.springframework.batch.item.ItemProcessor;
-import org.springframework.beans.factory.annotation.Value;
-
-/**
+ *
  * This is an implementation of {@link ItemProcessor} that modifies the input OrgProcessor item <br>
  * according to some criteria and returns it as output OrgProcessor item. <br>
  * 
@@ -46,6 +45,7 @@ public class OrgProcessor implements ItemProcessor<Org, Org> {
      * @param org
      *            the Org to be processed
      */
+    @Override
     public Org process(Org org) throws Exception {
 
         for (String identifier : identifiers) {

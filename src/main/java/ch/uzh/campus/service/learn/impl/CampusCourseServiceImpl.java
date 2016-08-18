@@ -7,9 +7,9 @@ import ch.uzh.campus.service.core.CampusCourseCoreService;
 import ch.uzh.campus.service.learn.CampusCourseService;
 import ch.uzh.campus.service.learn.SapCampusCourseTo;
 import edu.emory.mathcs.backport.java.util.Collections;
-import org.olat.core.CoreSpringFactory;
 import org.olat.core.id.Identity;
 import org.olat.repository.RepositoryEntry;
+import org.olat.repository.RepositoryManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -17,6 +17,12 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+
+import static ch.uzh.campus.data.SapOlatUser.SapUserType.LECTURER;
+import static ch.uzh.campus.data.SapOlatUser.SapUserType.STUDENT;
+import static java.lang.Boolean.TRUE;
+import static org.olat.repository.RepositoryEntry.ACC_OWNERS;
+import static org.olat.repository.RepositoryEntry.ACC_OWNERS_AUTHORS;
 
 /**
  * Initial Date: 30.11.2011<br />
@@ -26,11 +32,20 @@ import java.util.Set;
 @Service
 public class CampusCourseServiceImpl implements CampusCourseService {
 
-	@Autowired
-	CampusCourseCoreService campusCourseCoreService;
+	private final CampusCourseCoreService campusCourseCoreService;
+	private final RepositoryManager repositoryManager;
+	private final boolean shortTitleActivated;
 
-	@Value("${campus.lv_kuerzel.activated}")
-	private String shortTitleActivated;
+	@Autowired
+	public CampusCourseServiceImpl(CampusCourseCoreService campusCourseCoreService,
+								   RepositoryManager repositoryManager,
+								   @Value("${campus.lv_kuerzel.activated}") String shortTitleActivated) {
+		assert campusCourseCoreService != null;
+		assert repositoryManager != null;
+		this.campusCourseCoreService = campusCourseCoreService;
+		this.repositoryManager = repositoryManager;
+		this.shortTitleActivated = TRUE.toString().equals(shortTitleActivated);
+	}
 
 	@Override
 	public boolean checkDelegation(Long sapCampusCourseId, Identity creator) {
@@ -53,9 +68,48 @@ public class CampusCourseServiceImpl implements CampusCourseService {
 	}
 
 	@Override
-	public List<SapCampusCourseTo> getCoursesWhichCouldBeCreated(Identity identity, SapOlatUser.SapUserType userType, String searchString) {
+	public List<SapCampusCourseTo> getCoursesOfStudent(Identity identity,
+													   String searchString) {
+		List<SapCampusCourseTo> result = new ArrayList<>();
+		{
+			Set<Course> sapCampusCourses = campusCourseCoreService
+					.getCampusCoursesWithoutResourceableId(identity, STUDENT,
+							searchString);
+			for (Course sapCampusCourse : sapCampusCourses) {
+				result.add(new SapCampusCourseTo(sapCampusCourse
+						.getTitleToBeDisplayed(shortTitleActivated),
+						sapCampusCourse.getId(), null));
+			}
+		}
+
+		{
+			Set<Course> sapCampusCourses = campusCourseCoreService
+					.getCampusCoursesWithResourceableId(identity, STUDENT,
+							searchString);
+			for (Course sapCampusCourse : sapCampusCourses) {
+				RepositoryEntry repositoryEntry = campusCourseCoreService
+						.loadCampusCourseByResourceable(sapCampusCourse
+								.getResourceableId()).getRepositoryEntry();
+				if (repositoryEntry != null) {
+					int access = repositoryEntry.getAccess();
+					if (repositoryEntry.isMembersOnly() == false &&
+							(access == ACC_OWNERS || access == ACC_OWNERS_AUTHORS)) {
+						result.add(new SapCampusCourseTo(sapCampusCourse
+								.getTitleToBeDisplayed(shortTitleActivated),
+								sapCampusCourse.getId(), null));
+					}
+				}
+			}
+		}
+
+		Collections.sort(result);
+		return result;
+	}
+
+	@Override
+	public List<SapCampusCourseTo> getCoursesWhichCouldBeCreated(Identity identity, String searchString) {
 		List<SapCampusCourseTo> courseList = new ArrayList<>();
-		Set<Course> sapCampusCourses = campusCourseCoreService.getCampusCoursesWithoutResourceableId(identity, userType, searchString);
+		Set<Course> sapCampusCourses = campusCourseCoreService.getCampusCoursesWithoutResourceableId(identity, LECTURER, searchString);
 		for (Course sapCampusCourse : sapCampusCourses) {
 			courseList.add(new SapCampusCourseTo(sapCampusCourse.getTitleToBeDisplayed(shortTitleActivated), sapCampusCourse.getId(), null));
 		}
@@ -104,19 +158,10 @@ public class CampusCourseServiceImpl implements CampusCourseService {
 	}
 
 	public List getDelegatees(Identity delegator) {
-		return getCampusCourseCoreService().getDelegatees(delegator);
+		return campusCourseCoreService.getDelegatees(delegator);
 	}
 
 	public void deleteDelegation(Identity delegator, Identity delegatee) {
 		campusCourseCoreService.deleteDelegation(delegator, delegatee);
-	}
-
-	private CampusCourseCoreService getCampusCourseCoreService() {
-		// Ensure that the bean is not null (can happen if it was not injected)
-		if (campusCourseCoreService == null) {
-			campusCourseCoreService = (CampusCourseCoreService) CoreSpringFactory.getBean(CampusCourseCoreService.class);
-		}
-
-		return campusCourseCoreService;
 	}
 }

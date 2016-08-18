@@ -20,7 +20,6 @@
  */
 package ch.uzh.campus.presentation;
 
-
 import ch.uzh.campus.service.learn.CampusCourseService;
 import ch.uzh.campus.service.learn.impl.CampusCourseServiceImpl;
 import org.olat.admin.securitygroup.gui.GroupMemberView;
@@ -28,6 +27,7 @@ import org.olat.admin.securitygroup.gui.IdentitiesOfGroupTableDataModel;
 import org.olat.admin.user.UserSearchController;
 import org.olat.basesecurity.events.MultiIdentityChosenEvent;
 import org.olat.basesecurity.events.SingleIdentityChosenEvent;
+import org.olat.core.CoreSpringFactory;
 import org.olat.core.commons.fullWebApp.popup.BaseFullWebappPopupLayoutFactory;
 import org.olat.core.gui.UserRequest;
 import org.olat.core.gui.components.Component;
@@ -91,7 +91,8 @@ public class DelegationController extends BasicController {
     public DelegationController(final UserRequest ureq, final WindowControl wControl, final Identity delegator) {
         super(ureq, wControl);
 
-        campusService = new CampusCourseServiceImpl();
+        campusService = (CampusCourseServiceImpl) CoreSpringFactory
+				.getBean(CampusCourseServiceImpl.class);
         userManager = UserManager.getInstance();
         this.delegator = delegator;
 

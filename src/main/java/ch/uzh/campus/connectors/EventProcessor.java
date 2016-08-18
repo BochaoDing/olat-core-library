@@ -1,3 +1,10 @@
+package ch.uzh.campus.connectors;
+
+import java.util.Date;
+
+import ch.uzh.campus.data.Event;
+import org.springframework.batch.item.ItemProcessor;
+
 /**
  * OLAT - Online Learning and Training<br>
  * http://www.olat.org
@@ -17,15 +24,7 @@
  * Copyright (c) since 2004 at Multimedia- & E-Learning Services (MELS),<br>
  * University of Zurich, Switzerland.
  * <p>
- */
-package ch.uzh.campus.connectors;
-
-import java.util.Date;
-
-import ch.uzh.campus.data.Event;
-import org.springframework.batch.item.ItemProcessor;
-
-/**
+ *
  * This is an implementation of {@link ItemProcessor} that validates the input Event item, <br>
  * modifies it according to some criteria and returns it as output Event item.<br>
  * 
@@ -41,6 +40,7 @@ public class EventProcessor implements ItemProcessor<Event, Event> {
      * @param event
      *            the Event to be processed
      */
+    @Override
     public Event process(Event event) throws Exception {
         event.setDateOfImport(new Date());
         return event;

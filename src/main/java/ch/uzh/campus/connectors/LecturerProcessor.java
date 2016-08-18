@@ -1,3 +1,20 @@
+package ch.uzh.campus.connectors;
+
+import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
+
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
+
+import org.apache.commons.lang.StringUtils;
+
+import org.olat.core.logging.OLog;
+import org.olat.core.logging.Tracing;
+import ch.uzh.campus.data.Lecturer;
+
+import org.springframework.batch.item.ItemProcessor;
+
 /**
  * OLAT - Online Learning and Training<br>
  * http://www.olat.org
@@ -17,25 +34,7 @@
  * Copyright (c) since 2004 at Multimedia- & E-Learning Services (MELS),<br>
  * University of Zurich, Switzerland.
  * <p>
- */
-package ch.uzh.campus.connectors;
-
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Set;
-
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
-
-import org.apache.commons.lang.StringUtils;
-
-import org.olat.core.logging.OLog;
-import org.olat.core.logging.Tracing;
-import ch.uzh.campus.data.Lecturer;
-
-import org.springframework.batch.item.ItemProcessor;
-
-/**
+ *
  * This is an implementation of {@link ItemProcessor} that validates the input Lecturer item, <br>
  * modifies it according to some criteria and returns it as output Lecturer item. <br>
  * 
@@ -44,13 +43,14 @@ import org.springframework.batch.item.ItemProcessor;
  * @author aabouc
  */
 public class LecturerProcessor implements ItemProcessor<Lecturer, Lecturer> {
+
 	private static final OLog LOG = Tracing.createLoggerFor(LecturerProcessor.class);
 
     private Set<Long> processedIdsSet;
 
     @PostConstruct
     public void init() {
-        processedIdsSet = new HashSet<Long>();
+        processedIdsSet = new HashSet<>();
     }
 
     @PreDestroy
@@ -65,6 +65,7 @@ public class LecturerProcessor implements ItemProcessor<Lecturer, Lecturer> {
      * @param lecturer
      *            the Lecturer to be processed
      */
+    @Override
     public Lecturer process(Lecturer lecturer) throws Exception {
         // JUST IGNORE THE DUPLICATES
         if (!CampusUtils.addIfNotAlreadyProcessed(processedIdsSet, lecturer.getPersonalNr())) {

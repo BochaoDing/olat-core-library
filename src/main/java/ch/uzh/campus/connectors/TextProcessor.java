@@ -1,3 +1,11 @@
+package ch.uzh.campus.connectors;
+
+import ch.uzh.campus.data.TextCourseId;
+import org.apache.commons.lang.StringUtils;
+import org.springframework.batch.item.ItemProcessor;
+
+import java.util.Date;
+
 /**
  * OLAT - Online Learning and Training<br>
  * http://www.olat.org
@@ -17,16 +25,7 @@
  * Copyright (c) since 2004 at Multimedia- & E-Learning Services (MELS),<br>
  * University of Zurich, Switzerland.
  * <p>
- */
-package ch.uzh.campus.connectors;
-
-import ch.uzh.campus.data.TextCourseId;
-import org.apache.commons.lang.StringUtils;
-import org.springframework.batch.item.ItemProcessor;
-
-import java.util.Date;
-
-/**
+ *
  * This is an implementation of {@link ItemProcessor} that modifies the input Text item <br>
  * according to some criteria and returns it as output Text item. <br>
  * 
@@ -43,6 +42,7 @@ public class TextProcessor implements ItemProcessor<TextCourseId, TextCourseId> 
      *            the Text to be processed
      * 
      */
+    @Override
     public TextCourseId process(TextCourseId text) throws Exception {
         text.setLine(StringUtils.replace(text.getLine(), CampusUtils.SEMICOLON_REPLACEMENT, CampusUtils.SEMICOLON));
         text.setDateOfImport(new Date());

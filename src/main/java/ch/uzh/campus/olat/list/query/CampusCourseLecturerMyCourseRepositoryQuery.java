@@ -10,11 +10,9 @@ import org.olat.repository.model.SearchMyRepositoryEntryViewParams;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
-import org.springframework.stereotype.Service;
 
 import java.util.List;
 
-import static ch.uzh.campus.data.SapOlatUser.SapUserType.LECTURER;
 import static org.olat.repository.model.SearchMyRepositoryEntryViewParams.Filter.asAuthor;
 import static org.olat.repository.model.SearchMyRepositoryEntryViewParams.Filter.asCoach;
 
@@ -30,12 +28,19 @@ public class CampusCourseLecturerMyCourseRepositoryQuery extends CampusCourseMyC
 	public CampusCourseLecturerMyCourseRepositoryQuery(
 			CampusCourseService campusCourseService,
 			RepositoryModule repositoryModule) {
-		super(LECTURER, campusCourseService, repositoryModule);
+		super(campusCourseService, repositoryModule);
 	}
 
 	@Override
 	protected boolean filter(List<SearchMyRepositoryEntryViewParams.Filter> filters) {
 		return filters.contains(asAuthor) || filters.contains(asCoach);
+	}
+
+	@Override
+	protected List<SapCampusCourseTo> getSapCampusCourseTos(
+			SearchMyRepositoryEntryViewParams param) {
+		return campusCourseService.getCoursesWhichCouldBeCreated(param
+				.getIdentity(), param.getIdRefsAndTitle());
 	}
 
 	@Override

@@ -11,19 +11,13 @@ import org.springframework.batch.core.BatchStatus;
 import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.JobExecutionListener;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Scope;
 
 import java.util.List;
 
 /**
  * Initial date: 2016-07-05<br />
  * @author sev26 (UZH)
- *
- * Must be a singleton in order that the synchronize barrier in the method
- * {@link CampusImportJobInterceptor#removeOldDataIfExist(JobExecution)}
- * works.
  */
-@Scope("singleton")
 public class CampusImportJobInterceptor implements JobExecutionListener {
 
 	private static final OLog LOG = Tracing.createLoggerFor(CampusImportJobInterceptor.class);
@@ -59,67 +53,58 @@ public class CampusImportJobInterceptor implements JobExecutionListener {
 	 *            the JobExecution
 	 */
 	private void removeOldDataIfExist(JobExecution jobExecution) {
-		/*
-		 * Synchronized barrier in order to prevent deadlocking during
-		 * parallel execution. This class must be a singleton in order that
-		 * the barrier works. Keep the barrier even if this method is only
-		 * called by one thread a time in order to prevent deadlocks cause by
-		 * a configuration change in the future.
-		 */
-		synchronized(this) {
-			if ((BatchStatus.COMPLETED == jobExecution.getStatus()) == false) {
-				return;
-			}
-
-			int lecturerCoursesToBeRemoved = daoManager.deleteAllLCBookingTooFarInThePast(jobExecution.getStartTime());
-			dbInstance.intermediateCommit();
-			List<LecturerIdCourseId> lecturerIdCourseIdsToBeRemoved = daoManager.getAllNotUpdatedLCBookingOfCurrentSemester(jobExecution.getStartTime());
-			lecturerCoursesToBeRemoved += lecturerIdCourseIdsToBeRemoved.size();
-			LOG.info("LECTURER_COURSES TO BE REMOVED ["  + lecturerCoursesToBeRemoved + "]");
-			if (!lecturerIdCourseIdsToBeRemoved.isEmpty()) {
-				daoManager.deleteLCBookingByLecturerIdCourseIds(lecturerIdCourseIdsToBeRemoved);
-				dbInstance.intermediateCommit();
-			}
-
-			int studentCoursesToBeRemoved = daoManager.deleteAllSCBookingTooFarInThePast(jobExecution.getStartTime());
-			dbInstance.intermediateCommit();
-			List<StudentIdCourseId> studentIdCourseIdsToBeRemoved = daoManager.getAllNotUpdatedSCBookingOfCurrentSemester(jobExecution.getStartTime());
-			studentCoursesToBeRemoved += studentIdCourseIdsToBeRemoved.size();
-			LOG.info("STUDENT_COURSES TO BE REMOVED [" + studentCoursesToBeRemoved + "]");
-			if (!studentIdCourseIdsToBeRemoved.isEmpty()) {
-				daoManager.deleteSCBookingByStudentIdCourseIds(studentIdCourseIdsToBeRemoved);
-				dbInstance.intermediateCommit();
-			}
-
-			List<Long> studentsToBeRemoved = daoManager.getAllStudentsToBeDeleted();
-			LOG.info("STUDENTS TO BE REMOVED [" + studentsToBeRemoved.size() + "]");
-			if (!studentsToBeRemoved.isEmpty()) {
-				daoManager.deleteStudentsAndBookingsByStudentIds(studentsToBeRemoved);
-				dbInstance.intermediateCommit();
-			}
-
-			List<Long> lecturersToBeRemoved = daoManager.getAllLecturersToBeDeleted();
-			LOG.info("LECTURERS TO BE REMOVED [" + lecturersToBeRemoved.size() + "]");
-			if (!lecturersToBeRemoved.isEmpty()) {
-				daoManager.deleteLecturersAndBookingsByLecturerIds(lecturersToBeRemoved);
-				dbInstance.intermediateCommit();
-			}
-
-			List<Long> coursesToBeRemoved = daoManager.getAllCoursesToBeDeleted();
-			LOG.info("COURSES TO BE REMOVED [" + coursesToBeRemoved.size() + "]");
-			if (!coursesToBeRemoved.isEmpty()) {
-				daoManager.deleteCoursesAndBookingsByCourseIds(coursesToBeRemoved);
-				dbInstance.intermediateCommit();
-			}
-
-			List<Long> orgsToBeRemoved = daoManager.getAllOrgsToBeDeleted();
-			LOG.info("ORGS TO BE REMOVED [" + orgsToBeRemoved.size() + "]");
-			if (!orgsToBeRemoved.isEmpty()) {
-				daoManager.deleteOrgByIds(orgsToBeRemoved);
-				dbInstance.intermediateCommit();
-			}
-
-			dbInstance.closeSession();
+		if ((BatchStatus.COMPLETED == jobExecution.getStatus()) == false) {
+			return;
 		}
+
+		int lecturerCoursesToBeRemoved = daoManager.deleteAllLCBookingTooFarInThePast(jobExecution.getStartTime());
+		dbInstance.intermediateCommit();
+		List<LecturerIdCourseId> lecturerIdCourseIdsToBeRemoved = daoManager.getAllNotUpdatedLCBookingOfCurrentSemester(jobExecution.getStartTime());
+		lecturerCoursesToBeRemoved += lecturerIdCourseIdsToBeRemoved.size();
+		LOG.info("LECTURER_COURSES TO BE REMOVED ["  + lecturerCoursesToBeRemoved + "]");
+		if (!lecturerIdCourseIdsToBeRemoved.isEmpty()) {
+			daoManager.deleteLCBookingByLecturerIdCourseIds(lecturerIdCourseIdsToBeRemoved);
+			dbInstance.intermediateCommit();
+		}
+
+		int studentCoursesToBeRemoved = daoManager.deleteAllSCBookingTooFarInThePast(jobExecution.getStartTime());
+		dbInstance.intermediateCommit();
+		List<StudentIdCourseId> studentIdCourseIdsToBeRemoved = daoManager.getAllNotUpdatedSCBookingOfCurrentSemester(jobExecution.getStartTime());
+		studentCoursesToBeRemoved += studentIdCourseIdsToBeRemoved.size();
+		LOG.info("STUDENT_COURSES TO BE REMOVED [" + studentCoursesToBeRemoved + "]");
+		if (!studentIdCourseIdsToBeRemoved.isEmpty()) {
+			daoManager.deleteSCBookingByStudentIdCourseIds(studentIdCourseIdsToBeRemoved);
+			dbInstance.intermediateCommit();
+		}
+
+		List<Long> studentsToBeRemoved = daoManager.getAllStudentsToBeDeleted();
+		LOG.info("STUDENTS TO BE REMOVED [" + studentsToBeRemoved.size() + "]");
+		if (!studentsToBeRemoved.isEmpty()) {
+			daoManager.deleteStudentsAndBookingsByStudentIds(studentsToBeRemoved);
+			dbInstance.intermediateCommit();
+		}
+
+		List<Long> lecturersToBeRemoved = daoManager.getAllLecturersToBeDeleted();
+		LOG.info("LECTURERS TO BE REMOVED [" + lecturersToBeRemoved.size() + "]");
+		if (!lecturersToBeRemoved.isEmpty()) {
+			daoManager.deleteLecturersAndBookingsByLecturerIds(lecturersToBeRemoved);
+			dbInstance.intermediateCommit();
+		}
+
+		List<Long> coursesToBeRemoved = daoManager.getAllCoursesToBeDeleted();
+		LOG.info("COURSES TO BE REMOVED [" + coursesToBeRemoved.size() + "]");
+		if (!coursesToBeRemoved.isEmpty()) {
+			daoManager.deleteCoursesAndBookingsByCourseIds(coursesToBeRemoved);
+			dbInstance.intermediateCommit();
+		}
+
+		List<Long> orgsToBeRemoved = daoManager.getAllOrgsToBeDeleted();
+		LOG.info("ORGS TO BE REMOVED [" + orgsToBeRemoved.size() + "]");
+		if (!orgsToBeRemoved.isEmpty()) {
+			daoManager.deleteOrgByIds(orgsToBeRemoved);
+			dbInstance.intermediateCommit();
+		}
+
+		dbInstance.closeSession();
 	}
 }

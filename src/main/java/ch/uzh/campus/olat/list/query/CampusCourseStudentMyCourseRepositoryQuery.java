@@ -14,7 +14,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
-import static ch.uzh.campus.data.SapOlatUser.SapUserType.STUDENT;
 import static org.olat.repository.model.SearchMyRepositoryEntryViewParams.Filter.asParticipant;
 
 /**
@@ -29,12 +28,19 @@ public class CampusCourseStudentMyCourseRepositoryQuery extends CampusCourseMyCo
 	public CampusCourseStudentMyCourseRepositoryQuery(
 			CampusCourseService campusCourseService,
 			RepositoryModule repositoryModule) {
-		super(STUDENT, campusCourseService, repositoryModule);
+		super(campusCourseService, repositoryModule);
 	}
 
 	@Override
 	protected boolean filter(List<SearchMyRepositoryEntryViewParams.Filter> filters) {
 		return filters.contains(asParticipant);
+	}
+
+	@Override
+	protected List<SapCampusCourseTo> getSapCampusCourseTos(
+			SearchMyRepositoryEntryViewParams param) {
+		return campusCourseService.getCoursesOfStudent(param
+				.getIdentity(), param.getIdRefsAndTitle());
 	}
 
 	@Override

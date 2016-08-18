@@ -78,7 +78,7 @@ public class CombineMyCourseRepositoryQuery implements MyCourseRepositoryQuery {
 					firstResult, maxResults - offset));
 		} else {
 			result.addAll(repositoryEntryMyCourseQueries.searchViews(param,
-					firstResult + offset, maxResults));
+					firstResult - offset, maxResults));
 		}
 
 		return result;
