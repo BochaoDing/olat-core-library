@@ -9,5 +9,5 @@ import ch.uzh.campus.service.CampusCourse;
 public interface CreateCampusCourseCompletedEventListener {
 	void onSuccess(CampusCourse campusCourse);
 	void onCancel();
-	void onError();
+	void onError(Exception e);
 }

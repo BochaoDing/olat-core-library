@@ -48,7 +48,7 @@ public class CreationCampusCourseSelectionController extends CampusCourseDialogS
 
 			listener.onSuccess(campusCourse);
 		} catch (Exception e) {
-			listener.onError();
+			listener.onError(e);
 		}
 	}
 }

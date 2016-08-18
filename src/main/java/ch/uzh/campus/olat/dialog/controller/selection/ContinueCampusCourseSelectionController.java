@@ -64,7 +64,7 @@ public class ContinueCampusCourseSelectionController extends CampusCourseDialogS
 								parentCourse.getId(), userRequest.getIdentity());
 						listener.onSuccess(campusCourse);
 					} catch (Exception e) {
-						listener.onError();
+						listener.onError(e);
 					}
 				}
 			}
