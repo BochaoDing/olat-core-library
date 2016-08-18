@@ -24,6 +24,8 @@ import ch.uzh.campus.CampusCourseConfiguration;
 import ch.uzh.campus.CampusCourseImportTO;
 import ch.uzh.campus.utils.ListUtil;
 import org.olat.core.id.Identity;
+import org.olat.core.logging.OLog;
+import org.olat.core.logging.Tracing;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Repository;
@@ -34,6 +36,9 @@ import static java.lang.Boolean.TRUE;
 
 @Repository
 public class DaoManager {
+
+    private static final OLog LOG = Tracing.createLoggerFor(DaoManager.class);
+
 	private final CourseDao courseDao;
     private final StudentDao studentDao;
     private final LecturerCourseDao lecturerCourseDao;
@@ -398,14 +403,21 @@ public class DaoManager {
 		}
 
         // Determine lecturerCourses and studentCourses of course and parent courses
-        Set<LecturerCourse> lecturerCoursesOfCourseAndParentCourses;
-        Set<StudentCourse> studentCoursesOfCourseAndParentCourses;
+        HashSet<LecturerCourse> lecturerCoursesOfCourseAndParentCourses = new HashSet<>();
+        HashSet<StudentCourse> studentCoursesOfCourseAndParentCourses = new HashSet<>();
         Course courseIt = course;
+        int count = 0;
         do {
-            lecturerCoursesOfCourseAndParentCourses = courseIt.getLecturerCourses();
-            studentCoursesOfCourseAndParentCourses = courseIt.getStudentCourses();
-            courseIt = course.getParentCourse();
-        } while (course.getParentCourse() != null);
+            lecturerCoursesOfCourseAndParentCourses.addAll(courseIt.getLecturerCourses());
+            studentCoursesOfCourseAndParentCourses.addAll(courseIt.getStudentCourses());
+            courseIt = courseIt.getParentCourse();
+            count++;
+        } while (courseIt.getParentCourse() != null && count <= 10);
+
+        if (courseIt.getParentCourse() != null) {
+            String warningMessage = "Campus course with id " + courseId + " has more than 10 parent courses. Skipping further parent courses.";
+            LOG.warn(warningMessage);
+        }
 
         return new CampusCourseImportTO(course.getTitleToBeDisplayed(shortTitleActivated),
 				course.getSemester(),
