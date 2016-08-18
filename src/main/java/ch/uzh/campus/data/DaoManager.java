@@ -23,7 +23,6 @@ package ch.uzh.campus.data;
 import ch.uzh.campus.CampusCourseConfiguration;
 import ch.uzh.campus.CampusCourseImportTO;
 import ch.uzh.campus.utils.ListUtil;
-import org.olat.core.commons.persistence.DB;
 import org.olat.core.id.Identity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -31,43 +30,49 @@ import org.springframework.stereotype.Repository;
 
 import java.util.*;
 
+import static java.lang.Boolean.TRUE;
+
 @Repository
 public class DaoManager {
-    @Autowired
-    DB dbInstance;
+	private final CourseDao courseDao;
+    private final StudentDao studentDao;
+    private final LecturerCourseDao lecturerCourseDao;
+    private final StudentCourseDao studentCourseDao;
+    private final LecturerDao lecturerDao;
+    private final SapOlatUserDao sapOlatUserDao;
+    private final DelegationDao delegationDao;
+    private final TextDao textDao;
+    private final EventDao eventDao;
+    private final OrgDao orgDao;
+	private final ImportStatisticDao statisticDao;
+	private final DataConverter dataConverter;
+	private final CampusCourseConfiguration campusCourseConfiguration;
+	private final boolean shortTitleActivated;
 
-    @Autowired
-    private CourseDao courseDao;
-    @Autowired
-    private StudentDao studentDao;
-    @Autowired
-    private LecturerCourseDao lecturerCourseDao;
-    @Autowired
-    private StudentCourseDao studentCourseDao;
-    @Autowired
-    private LecturerDao lecturerDao;
-    @Autowired
-    private SapOlatUserDao sapOlatUserDao;
-    @Autowired
-    private DelegationDao delegationDao;
-
-    @Autowired
-    private TextDao textDao;
-    @Autowired
-    private EventDao eventDao;
-    @Autowired
-    private OrgDao orgDao;
-    @Autowired
-    protected ImportStatisticDao statisticDao;
-    @Autowired
-    DataConverter dataConverter;
-
-    @Autowired
-    private CampusCourseConfiguration campusCourseConfiguration;
-    
-    @Value("${campus.lv_kuerzel.activated}")
-    private String shortTitleActivated;
-    
+	@Autowired
+	public DaoManager(CourseDao courseDao, StudentDao studentDao,
+					  LecturerCourseDao lecturerCourseDao,
+					  StudentCourseDao studentCourseDao, LecturerDao lecturerDao,
+					  SapOlatUserDao sapOlatUserDao, DelegationDao delegationDao,
+					  TextDao textDao, EventDao eventDao, OrgDao orgDao,
+					  ImportStatisticDao statisticDao, DataConverter dataConverter,
+					  CampusCourseConfiguration campusCourseConfiguration,
+					  @Value("${campus.lv_kuerzel.activated}") String shortTitleActivated) {
+		this.courseDao = courseDao;
+		this.studentDao = studentDao;
+		this.lecturerCourseDao = lecturerCourseDao;
+		this.studentCourseDao = studentCourseDao;
+		this.lecturerDao = lecturerDao;
+		this.sapOlatUserDao = sapOlatUserDao;
+		this.delegationDao = delegationDao;
+		this.textDao = textDao;
+		this.eventDao = eventDao;
+		this.orgDao = orgDao;
+		this.statisticDao = statisticDao;
+		this.dataConverter = dataConverter;
+		this.campusCourseConfiguration = campusCourseConfiguration;
+		this.shortTitleActivated = TRUE.toString().equals(shortTitleActivated);
+	}
 
     public void saveCourses(List<Course> courses) {
         for (Course course : courses) {

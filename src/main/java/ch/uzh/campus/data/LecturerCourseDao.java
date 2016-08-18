@@ -27,9 +27,6 @@ public class LecturerCourseDao implements CampusDao<LecturerIdCourseIdDateOfImpo
     @Autowired
     private DB dbInstance;
 
-    @Autowired
-    DaoManager daoManager;
-
     public void save(LecturerCourse lecturerCourse) {
         dbInstance.saveObject(lecturerCourse);
         lecturerCourse.getLecturer().getLecturerCourses().add(lecturerCourse);

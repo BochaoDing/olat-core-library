@@ -1,6 +1,5 @@
 package ch.uzh.campus.olat.tab.controller;
 
-import ch.uzh.campus.data.SapOlatUser;
 import ch.uzh.campus.olat.CampusCourseBeanFactory;
 import ch.uzh.campus.olat.CampusCourseOlatHelper;
 import ch.uzh.campus.olat.controller.CampusCourseTableController;
@@ -111,8 +110,7 @@ public class CampusCourseTabTableController extends CampusCourseTableController<
 
 	private int reloadData(UserRequest userRequest) {
 		List<SapCampusCourseTo> sapCampusCourseTos = campusCourseService
-				.getCoursesWhichCouldBeCreated(getIdentity(),
-						SapOlatUser.SapUserType.LECTURER, "");
+				.getCoursesWhichCouldBeCreated(getIdentity(), "");
 
 		setTableDataModel(new CampusCourseTableDataModel(sapCampusCourseTos,
 				userRequest.getUserSession().getRoles().isAuthor(),

@@ -388,7 +388,7 @@ public class Course {
     }
 
     @Transient
-    public String getTitleToBeDisplayed(String shortTitleActivated) {
+    public String getTitleToBeDisplayed(boolean shortTitleActivated) {
 
         String titleToBeDisplayed = "";
 
@@ -396,7 +396,7 @@ public class Course {
             titleToBeDisplayed = shortSemester.concat(WHITESPACE);
         }
 
-        if (shortTitle != null && shortTitleActivated != null && Boolean.TRUE.toString().equals(shortTitleActivated)) {
+        if (shortTitle != null && shortTitleActivated) {
             titleToBeDisplayed = titleToBeDisplayed.concat(shortTitle.substring(4)).concat(WHITESPACE);
         }
 

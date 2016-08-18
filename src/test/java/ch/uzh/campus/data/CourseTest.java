@@ -1,9 +1,8 @@
 package ch.uzh.campus.data;
 
+import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
-
-import org.junit.Test;
 
 /**
  * @author lavinia
@@ -17,7 +16,7 @@ public class CourseTest {
         course.setTitle("Community Ecology");
         course.setShortSemester("16FS");
         course.setShortTitle("07BKECO339");
-        assertEquals("16FS ECO339 Community Ecology", course.getTitleToBeDisplayed("true"));
+        assertEquals("16FS ECO339 Community Ecology", course.getTitleToBeDisplayed(true));
     }
 
     @Test
@@ -25,7 +24,7 @@ public class CourseTest {
         course.setTitle("Community Ecology");
         course.setShortSemester("16FS");
         course.setShortTitle("07BKECO339");
-        assertEquals("16FS Community Ecology", course.getTitleToBeDisplayed("false"));
+        assertEquals("16FS Community Ecology", course.getTitleToBeDisplayed(false));
     }
 
     @Test
@@ -33,7 +32,7 @@ public class CourseTest {
         course.setTitle("Community Ecology");
         course.setShortSemester("16FS");
         course.setShortTitle("07BKECO339");
-        assertEquals("16FS Community Ecology", course.getTitleToBeDisplayed(null));
+        assertEquals("16FS Community Ecology", course.getTitleToBeDisplayed(false));
     }
 
     @Test
@@ -42,7 +41,7 @@ public class CourseTest {
         course.setTitle("Community Ecology");
         course.setShortSemester("16FS");
         course.setShortTitle("07BKECO339");
-        assertEquals("16FS Community Ecology", course.getTitleToBeDisplayed(""));
+        assertEquals("16FS Community Ecology", course.getTitleToBeDisplayed(false));
     }
 
     @Test
@@ -50,7 +49,6 @@ public class CourseTest {
         course.setTitle("Community Ecology");
         course.setShortSemester(null);
         course.setShortTitle(null);
-        assertEquals("Community Ecology", course.getTitleToBeDisplayed("true"));
+        assertEquals("Community Ecology", course.getTitleToBeDisplayed(true));
     }
 }
-

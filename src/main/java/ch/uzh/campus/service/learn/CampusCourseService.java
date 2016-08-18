@@ -8,6 +8,8 @@ import org.olat.repository.RepositoryEntry;
 
 import java.util.List;
 
+import static ch.uzh.campus.data.SapOlatUser.*;
+
 /**
  * This is called from presentation.
  * 
@@ -34,15 +36,21 @@ public interface CampusCourseService {
      */
     CampusCourse continueCampusCourse(Long sapCampusCourseId, Long parentSapCampusCourseId, Identity creator);
 
+	/**
+	 * Get the list of SAP campus courses of a student which has not been
+	 * created or the student has not (yet) access to.
+	 */
+	List<SapCampusCourseTo> getCoursesOfStudent(Identity identity, String searchString);
+
     /**
-     * Get a list of SAP campus-course which an identity could create. The courses must be not created and the identity must be owner of the courses.
+     * Get a list of SAP campus-course which a lecturer identity could create. The courses must be not created and the identity must be owner of the courses.
      */
-    List<SapCampusCourseTo> getCoursesWhichCouldBeCreated(Identity identity, SapOlatUser.SapUserType userType, String searchString);
+    List<SapCampusCourseTo> getCoursesWhichCouldBeCreated(Identity identity, String searchString);
 
     /**
      * Get a list of SAP campus-courses which are already created and identity is owner or participant.
      */
-    List<SapCampusCourseTo> getCoursesWhichCouldBeOpened(Identity identity, SapOlatUser.SapUserType userType, String searchString);
+    List<SapCampusCourseTo> getCoursesWhichCouldBeOpened(Identity identity, SapUserType userType, String searchString);
 
 	Course getLatestCourseByResourceable(Long resourceableId) throws Exception;
 

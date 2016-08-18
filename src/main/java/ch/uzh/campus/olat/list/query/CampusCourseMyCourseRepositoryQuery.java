@@ -14,7 +14,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import static ch.uzh.campus.data.SapOlatUser.SapUserType;
 import static org.olat.repository.model.SearchMyRepositoryEntryViewParams.Filter;
 
 /**
@@ -23,14 +22,11 @@ import static org.olat.repository.model.SearchMyRepositoryEntryViewParams.Filter
  */
 public abstract class CampusCourseMyCourseRepositoryQuery implements MyCourseRepositoryQuery {
 
-	private final SapUserType userType;
-	private final CampusCourseService campusCourseService;
-	private final RepositoryModule repositoryModule;
+	protected final CampusCourseService campusCourseService;
+	protected final RepositoryModule repositoryModule;
 
-	public CampusCourseMyCourseRepositoryQuery(SapUserType userType,
-											   CampusCourseService campusCourseService,
+	public CampusCourseMyCourseRepositoryQuery(CampusCourseService campusCourseService,
 											   RepositoryModule repositoryModule) {
-		this.userType = userType;
 		this.campusCourseService = campusCourseService;
 		this.repositoryModule = repositoryModule;
 	}
@@ -53,10 +49,10 @@ public abstract class CampusCourseMyCourseRepositoryQuery implements MyCourseRep
 
 			List<RepositoryEntryMyView> result = new ArrayList<>();
 
-			List<SapCampusCourseTo> sapCampusCourseTos = campusCourseService.getCoursesWhichCouldBeCreated(
-					param.getIdentity(), userType, param.getIdRefsAndTitle());
+			List<SapCampusCourseTo> sapCampusCourseTos = getSapCampusCourseTos(param);
 
-			boolean requiresStatistics = repositoryModule.isRatingEnabled() || repositoryModule.isCommentEnabled();
+			boolean requiresStatistics = repositoryModule.isRatingEnabled() ||
+					repositoryModule.isCommentEnabled();
 
 			for (SapCampusCourseTo sapCampusCourseTo : sapCampusCourseTos) {
 				RepositoryEntry repositoryEntry = getRepositoryEntry(
@@ -75,6 +71,9 @@ public abstract class CampusCourseMyCourseRepositoryQuery implements MyCourseRep
 	}
 
 	protected abstract boolean filter(List<Filter> filters);
+
+	protected abstract List<SapCampusCourseTo> getSapCampusCourseTos(
+			SearchMyRepositoryEntryViewParams param);
 
 	protected abstract RepositoryEntry getRepositoryEntry(
 			SapCampusCourseTo sapCampusCourseTo, Roles roles);

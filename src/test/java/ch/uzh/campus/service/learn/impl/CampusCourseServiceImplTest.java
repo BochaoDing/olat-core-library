@@ -1,22 +1,19 @@
 package ch.uzh.campus.service.learn.impl;
 
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import ch.uzh.campus.data.Course;
+import ch.uzh.campus.data.SapOlatUser;
+import ch.uzh.campus.service.core.CampusCourseCoreService;
+import org.junit.Before;
+import org.junit.Test;
+import org.olat.core.id.Identity;
+import org.olat.repository.RepositoryManager;
 
 import java.util.HashSet;
 import java.util.Set;
 
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.olat.core.id.Identity;
-
-import ch.uzh.campus.data.Course;
-import ch.uzh.campus.service.core.CampusCourseCoreService;
-import ch.uzh.campus.data.SapOlatUser;
-
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 /**
  * Initial Date: 25.06.2012<br />
@@ -35,8 +32,12 @@ public class CampusCourseServiceImplTest {
     @Before
     public void setup() {
         CampusCourseCoreService campusCourseCoreServiceMock = mock(CampusCourseCoreService.class);
-        campusCourseLearnServiceImplTestObject = new CampusCourseServiceImpl();
-        campusCourseLearnServiceImplTestObject.campusCourseCoreService = campusCourseCoreServiceMock;
+		RepositoryManager repositoryManager = mock(RepositoryManager.class);
+        campusCourseLearnServiceImplTestObject = new CampusCourseServiceImpl(
+				campusCourseCoreServiceMock,
+				repositoryManager,
+				"true"
+		);
 
         // Course which could be created
         Course course1 = new Course();
@@ -79,6 +80,6 @@ public class CampusCourseServiceImplTest {
 
     @Test
     public void getCoursesWhichCouldBeCreated() {
-        assertTrue(campusCourseLearnServiceImplTestObject.getCoursesWhichCouldBeCreated(identityMock, SapOlatUser.SapUserType.LECTURER, null).size() == coursesWithoutResourceableId.size());
+        assertTrue(campusCourseLearnServiceImplTestObject.getCoursesWhichCouldBeCreated(identityMock, null).size() == coursesWithoutResourceableId.size());
     }
 }
