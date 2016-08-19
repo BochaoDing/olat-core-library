@@ -1,16 +1,3 @@
-package ch.uzh.campus.mapper;
-
-import ch.uzh.campus.CampusCourseConfiguration;
-import org.olat.basesecurity.BaseSecurity;
-import org.olat.core.id.Identity;
-import org.olat.core.id.UserConstants;
-import org.olat.core.logging.OLog;
-import org.olat.core.logging.Tracing;
-import org.springframework.beans.factory.annotation.Autowired;
-
-import java.util.HashMap;
-import java.util.List;
-
 /**
  * OLAT - Online Learning and Training<br>
  * http://www.olat.org
@@ -30,7 +17,20 @@ import java.util.List;
  * Copyright (c) since 2004 at Multimedia- & E-Learning Services (MELS),<br>
  * University of Zurich, Switzerland.
  * <p>
- *
+ */
+package ch.uzh.campus.mapper;
+
+import org.olat.basesecurity.BaseSecurity;
+import org.olat.core.id.Identity;
+import org.olat.core.id.UserConstants;
+import org.olat.core.logging.OLog;
+import org.olat.core.logging.Tracing;
+import org.springframework.beans.factory.annotation.Autowired;
+
+import java.util.HashMap;
+import java.util.List;
+
+/**
  * Initial Date: 02.07.2012 <br>
  * 
  * @author cg
@@ -39,13 +39,11 @@ public class AbstractMappingByInstitutionalIdentifier {
 
     private static final OLog LOG = Tracing.createLoggerFor(AbstractMappingByInstitutionalIdentifier.class);
 
-    private final BaseSecurity baseSecurity;
-    private final CampusCourseConfiguration campusCourseConfiguration;
+    private BaseSecurity baseSecurity;
 
     @Autowired
-    public AbstractMappingByInstitutionalIdentifier(BaseSecurity baseSecurity, CampusCourseConfiguration campusCourseConfiguration) {
+    public AbstractMappingByInstitutionalIdentifier(BaseSecurity baseSecurity) {
         this.baseSecurity = baseSecurity;
-        this.campusCourseConfiguration = campusCourseConfiguration;
     }
 
     /**
@@ -55,9 +53,6 @@ public class AbstractMappingByInstitutionalIdentifier {
         // user property is either matriculation number or employee number
         HashMap<String, String> userProperties = new HashMap<>();
         userProperties.put(userProperty, queryString);
-        // Institutional name must be UZH
-        //TODO
-        //userProperties.put(UserConstants.INSTITUTIONALNAME, )
         // search only visible user and not deleted
         List<Identity> results = baseSecurity.getVisibleIdentitiesByPowerSearch(null, userProperties, true, null, null, null, null, null);
 

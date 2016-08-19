@@ -33,9 +33,6 @@ public class CampusCourseConfiguration {
         this.propertyManager = propertyManager;
     }
 
-    @Value("${campus.mapping.institutionalName:uzh.ch}")
-    private int mappingInstitutionalName;
-
     @Value("${campus.import.process.maxYearsToKeepCkData:3}")
     private int maxYearsToKeepCkData;
 

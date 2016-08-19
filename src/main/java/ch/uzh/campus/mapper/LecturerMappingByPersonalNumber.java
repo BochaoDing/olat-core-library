@@ -20,7 +20,6 @@
  */
 package ch.uzh.campus.mapper;
 
-import ch.uzh.campus.CampusCourseConfiguration;
 import org.olat.basesecurity.BaseSecurity;
 import org.olat.core.id.Identity;
 import org.olat.core.id.UserConstants;
@@ -40,8 +39,8 @@ public class LecturerMappingByPersonalNumber extends AbstractMappingByInstitutio
     private static final OLog LOG = Tracing.createLoggerFor(LecturerMappingByPersonalNumber.class);
 
     @Autowired
-    public LecturerMappingByPersonalNumber(BaseSecurity baseSecurity, CampusCourseConfiguration campusCourseConfiguration) {
-        super(baseSecurity, campusCourseConfiguration);
+    public LecturerMappingByPersonalNumber(BaseSecurity baseSecurity) {
+        super(baseSecurity);
     }
 
     public Identity tryToMap(Long personalNr) {
