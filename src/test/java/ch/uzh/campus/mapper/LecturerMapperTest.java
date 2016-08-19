@@ -38,83 +38,83 @@ import static org.mockito.Mockito.when;
  */
 public class LecturerMapperTest {
 
-    private LecturerMapper lecturerMapperTestObject;
-    private SapOlatUserDao userMappingDaoMock;
-    private LecturerMappingByPersonalNumber lecturerMappingByPersonalNumberMock;
-    private MappingByFirstNameAndLastName mappingByFirstNameAndLastNameMock;
-    private MappingByEmail mappingByEmailMock;
-    private Lecturer lecturerMock;
-    private Identity identityMock;
-
-    @Before
-    public void setup() {
-        lecturerMapperTestObject = new LecturerMapper();
-        userMappingDaoMock = mock(SapOlatUserDao.class);
-        lecturerMapperTestObject.userMappingDao = userMappingDaoMock;
-        lecturerMappingByPersonalNumberMock = mock(LecturerMappingByPersonalNumber.class);
-        mappingByFirstNameAndLastNameMock = mock(MappingByFirstNameAndLastName.class);
-        lecturerMapperTestObject.mappingByPersonalNumber = lecturerMappingByPersonalNumberMock;
-        mappingByEmailMock = mock(MappingByEmail.class);
-        lecturerMapperTestObject.mappingByEmail = mappingByEmailMock;
-        lecturerMapperTestObject.mappingByFirstNameAndLastName = mappingByFirstNameAndLastNameMock;
-
-        lecturerMock = mock(Lecturer.class);
-        when(lecturerMock.getPersonalNr()).thenReturn(1L);
-        identityMock = mock(Identity.class);
-    }
-
-    @Test
-    public void synchronizeStudentMapping_MappingAlreadyExist() {
-        when(userMappingDaoMock.existsMappingForSapUserId(lecturerMock.getPersonalNr())).thenReturn(true);
-
-        MappingResult result = lecturerMapperTestObject.synchronizeLecturerMapping(lecturerMock);
-
-        assertEquals("Mapping should already exist", MappingResult.MAPPING_ALREADY_EXIST, result);
-    }
-
-    @Test
-    public void synchronizeStudentMapping_CouldNotMap() {
-        when(userMappingDaoMock.existsMappingForSapUserId(lecturerMock.getPersonalNr())).thenReturn(false);
-        when(lecturerMappingByPersonalNumberMock.tryToMap(lecturerMock.getPersonalNr())).thenReturn(null);
-        when(mappingByEmailMock.tryToMap(lecturerMock)).thenReturn(null);
-        when(mappingByFirstNameAndLastNameMock.tryToMap(lecturerMock.getFirstName(), lecturerMock.getLastName())).thenReturn(null);
-
-        MappingResult result = lecturerMapperTestObject.synchronizeLecturerMapping(lecturerMock);
-
-        assertEquals("Mapping should not be found", MappingResult.COULD_NOT_MAP, result);
-    }
-
-    @Test
-    public void synchronizeStudentMapping_CouldBeMappedManually() {
-        when(userMappingDaoMock.existsMappingForSapUserId(lecturerMock.getPersonalNr())).thenReturn(false);
-        when(lecturerMappingByPersonalNumberMock.tryToMap(lecturerMock.getPersonalNr())).thenReturn(null);
-        when(mappingByEmailMock.tryToMap(lecturerMock)).thenReturn(null);
-        when(mappingByFirstNameAndLastNameMock.tryToMap(lecturerMock.getFirstName(), lecturerMock.getLastName())).thenReturn(identityMock);
-
-        MappingResult result = lecturerMapperTestObject.synchronizeLecturerMapping(lecturerMock);
-
-        assertEquals("Mapping should be done manually", MappingResult.COULD_BE_MAPPED_MANUALLY, result);
-    }
-
-    @Test
-    public void synchronizeStudentMapping_MappingByMatriculationNumber() {
-        when(userMappingDaoMock.existsMappingForSapUserId(lecturerMock.getPersonalNr())).thenReturn(false);
-        when(lecturerMappingByPersonalNumberMock.tryToMap(lecturerMock.getPersonalNr())).thenReturn(identityMock);
-
-        MappingResult result = lecturerMapperTestObject.synchronizeLecturerMapping(lecturerMock);
-
-        assertEquals("Mapping should be found for the personal number", MappingResult.NEW_MAPPING_BY_PERSONAL_NR, result);
-    }
-
-    @Test
-    public void synchronizeStudentMapping_MappingByEmail() {
-        when(userMappingDaoMock.existsMappingForSapUserId(lecturerMock.getPersonalNr())).thenReturn(false);
-        when(lecturerMappingByPersonalNumberMock.tryToMap(lecturerMock.getPersonalNr())).thenReturn(null);
-        when(mappingByEmailMock.tryToMap(lecturerMock)).thenReturn(identityMock);
-
-        MappingResult result = lecturerMapperTestObject.synchronizeLecturerMapping(lecturerMock);
-
-        assertEquals("Mapping should be found for the email", MappingResult.NEW_MAPPING_BY_EMAIL, result);
-    }
+//    private LecturerMapper lecturerMapperTestObject;
+//    private SapOlatUserDao userMappingDaoMock;
+//    private LecturerMappingByPersonalNumber lecturerMappingByPersonalNumberMock;
+//    private MappingByFirstNameAndLastName mappingByFirstNameAndLastNameMock;
+//    private MappingByEmail mappingByEmailMock;
+//    private Lecturer lecturerMock;
+//    private Identity identityMock;
+//
+//    @Before
+//    public void setup() {
+//        lecturerMapperTestObject = new LecturerMapper();
+//        userMappingDaoMock = mock(SapOlatUserDao.class);
+//        lecturerMapperTestObject.userMappingDao = userMappingDaoMock;
+//        lecturerMappingByPersonalNumberMock = mock(LecturerMappingByPersonalNumber.class);
+//        mappingByFirstNameAndLastNameMock = mock(MappingByFirstNameAndLastName.class);
+//        lecturerMapperTestObject.mappingByPersonalNumber = lecturerMappingByPersonalNumberMock;
+//        mappingByEmailMock = mock(MappingByEmail.class);
+//        lecturerMapperTestObject.mappingByEmail = mappingByEmailMock;
+//        lecturerMapperTestObject.mappingByFirstNameAndLastName = mappingByFirstNameAndLastNameMock;
+//
+//        lecturerMock = mock(Lecturer.class);
+//        when(lecturerMock.getPersonalNr()).thenReturn(1L);
+//        identityMock = mock(Identity.class);
+//    }
+//
+//    @Test
+//    public void synchronizeStudentMapping_MappingAlreadyExist() {
+//        when(userMappingDaoMock.existsMappingForSapUserId(lecturerMock.getPersonalNr())).thenReturn(true);
+//
+//        MappingResult result = lecturerMapperTestObject.synchronizeLecturerMapping(lecturerMock);
+//
+//        assertEquals("Mapping should already exist", MappingResult.MAPPING_ALREADY_EXIST, result);
+//    }
+//
+//    @Test
+//    public void synchronizeStudentMapping_CouldNotMap() {
+//        when(userMappingDaoMock.existsMappingForSapUserId(lecturerMock.getPersonalNr())).thenReturn(false);
+//        when(lecturerMappingByPersonalNumberMock.tryToMap(lecturerMock.getPersonalNr())).thenReturn(null);
+//        when(mappingByEmailMock.tryToMap(lecturerMock)).thenReturn(null);
+//        when(mappingByFirstNameAndLastNameMock.tryToMap(lecturerMock.getFirstName(), lecturerMock.getLastName())).thenReturn(null);
+//
+//        MappingResult result = lecturerMapperTestObject.synchronizeLecturerMapping(lecturerMock);
+//
+//        assertEquals("Mapping should not be found", MappingResult.COULD_NOT_MAP, result);
+//    }
+//
+//    @Test
+//    public void synchronizeStudentMapping_CouldBeMappedManually() {
+//        when(userMappingDaoMock.existsMappingForSapUserId(lecturerMock.getPersonalNr())).thenReturn(false);
+//        when(lecturerMappingByPersonalNumberMock.tryToMap(lecturerMock.getPersonalNr())).thenReturn(null);
+//        when(mappingByEmailMock.tryToMap(lecturerMock)).thenReturn(null);
+//        when(mappingByFirstNameAndLastNameMock.tryToMap(lecturerMock.getFirstName(), lecturerMock.getLastName())).thenReturn(identityMock);
+//
+//        MappingResult result = lecturerMapperTestObject.synchronizeLecturerMapping(lecturerMock);
+//
+//        assertEquals("Mapping should be done manually", MappingResult.COULD_BE_MAPPED_MANUALLY, result);
+//    }
+//
+//    @Test
+//    public void synchronizeStudentMapping_MappingByMatriculationNumber() {
+//        when(userMappingDaoMock.existsMappingForSapUserId(lecturerMock.getPersonalNr())).thenReturn(false);
+//        when(lecturerMappingByPersonalNumberMock.tryToMap(lecturerMock.getPersonalNr())).thenReturn(identityMock);
+//
+//        MappingResult result = lecturerMapperTestObject.synchronizeLecturerMapping(lecturerMock);
+//
+//        assertEquals("Mapping should be found for the personal number", MappingResult.NEW_MAPPING_BY_PERSONAL_NR, result);
+//    }
+//
+//    @Test
+//    public void synchronizeStudentMapping_MappingByEmail() {
+//        when(userMappingDaoMock.existsMappingForSapUserId(lecturerMock.getPersonalNr())).thenReturn(false);
+//        when(lecturerMappingByPersonalNumberMock.tryToMap(lecturerMock.getPersonalNr())).thenReturn(null);
+//        when(mappingByEmailMock.tryToMap(lecturerMock)).thenReturn(identityMock);
+//
+//        MappingResult result = lecturerMapperTestObject.synchronizeLecturerMapping(lecturerMock);
+//
+//        assertEquals("Mapping should be found for the email", MappingResult.NEW_MAPPING_BY_EMAIL, result);
+//    }
 
 }

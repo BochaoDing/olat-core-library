@@ -5,7 +5,6 @@ import ch.uzh.campus.data.SapOlatUserDao;
 import ch.uzh.campus.data.Student;
 import org.apache.commons.lang.StringUtils;
 import org.olat.basesecurity.BaseSecurity;
-import org.olat.basesecurity.model.UserProperty;
 import org.olat.core.commons.persistence.DB;
 import org.olat.core.id.Identity;
 import org.olat.core.id.UserConstants;
@@ -41,6 +40,7 @@ import java.util.List;
  * Initial Date: 28.06.2012 <br>
  * 
  * @author cg
+ * @author Martin Schraner
  */
 @Component
 public class StudentMapper {
@@ -51,7 +51,6 @@ public class StudentMapper {
     private final CampusCourseConfiguration campusCourseConfiguration;
     private final SapOlatUserDao userMappingDao;
     private final BaseSecurity baseSecurity;
-
 
     @Autowired
     public StudentMapper(DB dbInstance, CampusCourseConfiguration campusCourseConfiguration, SapOlatUserDao userMappingDao, BaseSecurity baseSecurity) {
@@ -107,6 +106,7 @@ public class StudentMapper {
 
         String matriculationNumberDigitsOnly = StringUtils.remove(student.getRegistrationNr(), "-");
 
+        // As a first check, execute cheap query
         List<Long> userIdsFound = query.setParameter("propname1", UserConstants.INSTITUTIONAL_MATRICULATION_NUMBER)
                 .setParameter("propvalue1", matriculationNumberDigitsOnly)
                 .setParameter("propname2", UserConstants.INSTITUTIONALNAME)
@@ -117,15 +117,20 @@ public class StudentMapper {
             return null;
         }
 
-        // Search visible identities by powersearch
+        // Perform expensive power search in case we found someone
         HashMap<String, String> userProperties = new HashMap<>();
         userProperties.put(UserConstants.INSTITUTIONAL_MATRICULATION_NUMBER, matriculationNumberDigitsOnly);
         userProperties.put(UserConstants.INSTITUTIONALNAME, campusCourseConfiguration.getMappingInstitutionalName());
-        return findIdentiyByPowerSearch(userProperties, student);
+        return findIdentityByPowerSearch(userProperties, student);
     }
 
     private Identity tryToMapByEmail(Student student, TypedQuery<Long> query) {
 
+        if (StringUtils.isBlank(student.getEmail())) {
+            return null;
+        }
+
+        // As a first check, execute cheap query
         List<Long> userIdsFound = query.setParameter("propname1", UserConstants.EMAIL)
                 .setParameter("propvalue1", student.getEmail())
                 .setParameter("propname2", UserConstants.INSTITUTIONALNAME)
@@ -136,15 +141,16 @@ public class StudentMapper {
             return null;
         }
 
-        // Search visible identities by powersearch
+        // Perform expensive power search in case we found someone
         HashMap<String, String> userProperties = new HashMap<>();
         userProperties.put(UserConstants.EMAIL, student.getEmail());
         userProperties.put(UserConstants.INSTITUTIONALNAME, campusCourseConfiguration.getMappingInstitutionalName());
-        return findIdentiyByPowerSearch(userProperties, student);
+        return findIdentityByPowerSearch(userProperties, student);
     }
 
     private Identity tryToMapByFirstNameLastName(Student student, TypedQuery<Long> query) {
 
+        // As a first check, execute cheap query
         List<Long> userIdsFound = query.setParameter("propname1", UserConstants.FIRSTNAME)
                 .setParameter("propvalue1", student.getFirstName())
                 .setParameter("propname2", UserConstants.LASTNAME)
@@ -157,15 +163,15 @@ public class StudentMapper {
             return null;
         }
 
-        // Search visible identities by powersearch
+        // Perform expensive power search in case we found someone
         HashMap<String, String> userProperties = new HashMap<>();
         userProperties.put(UserConstants.FIRSTNAME, student.getFirstName());
         userProperties.put(UserConstants.LASTNAME, student.getLastName());
         userProperties.put(UserConstants.INSTITUTIONALNAME, campusCourseConfiguration.getMappingInstitutionalName());
-        return findIdentiyByPowerSearch(userProperties, student);
+        return findIdentityByPowerSearch(userProperties, student);
     }
 
-    private Identity findIdentiyByPowerSearch(HashMap<String, String> userProperties, Student student) {
+    private Identity findIdentityByPowerSearch(HashMap<String, String> userProperties, Student student) {
 
         List<Identity> visibleIdentitiesFound = baseSecurity.getVisibleIdentitiesByPowerSearch(null, userProperties, true, null, null, null, null, null);
 
@@ -178,6 +184,5 @@ public class StudentMapper {
             return null;
         }
     }
-
 
 }
