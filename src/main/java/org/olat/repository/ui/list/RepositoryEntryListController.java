@@ -283,7 +283,8 @@ public class RepositoryEntryListController extends FormBasicController
 		}
 		
 		FlexiTableSortOptions options = new FlexiTableSortOptions(sorters);
-		options.setDefaultOrderBy(new SortKey(OrderBy.title.name(), true));
+		// OLATNG-244 Change default sorting to creation date
+		options.setDefaultOrderBy(new SortKey(OrderBy.creationDate.name(), false));
 		tableElement.setSortSettings(options);
 	}
 
