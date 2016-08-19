@@ -11,8 +11,8 @@
 	<bean id="campusSchedulerFactoryBean" class="org.springframework.scheduling.quartz.SchedulerFactoryBean" depends-on="userModule">
 	   <property name="triggers">
 	  		<list>
-				<ref bean="enabled.importProcessTrigger" />
-				<ref bean="enabled.userMappingProcessTrigger" />
+				<ref bean="disabled.importProcessTrigger" />
+				<!--<ref bean="disabled.userMappingProcessTrigger" />-->
         	</list>
 		</property>
 	</bean>
