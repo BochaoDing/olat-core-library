@@ -32,6 +32,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.olat.admin.user.UserChangePasswordMailUtil;
 import org.olat.basesecurity.Authentication;
 import org.olat.basesecurity.BaseSecurity;
 import org.olat.core.commons.persistence.DB;
@@ -249,6 +250,7 @@ public class UserImportController extends BasicController {
 				ImportReport report = new ImportReport();
 				runContext.put("report", report);
 				try {
+					UserChangePasswordMailUtil util = new UserChangePasswordMailUtil();
 					if (runContext.containsKey("validImport") && ((Boolean) runContext.get("validImport")).booleanValue()) {
 						// create new users and persist
 						int count = 0;
@@ -256,7 +258,14 @@ public class UserImportController extends BasicController {
 						@SuppressWarnings("unchecked")
 						List<TransientIdentity> newIdents = (List<TransientIdentity>) runContext.get("newIdents");
 						for (TransientIdentity newIdent:newIdents) {
-							doCreateAndPersistIdentity(newIdent, report);
+							Identity createdIdentity = doCreateAndPersistIdentity(newIdent, report);
+							// OLATNG-5: send change password mails
+							try {
+								util.sendTokenByMail(ureq1, createdIdentity, util.generateMailText(createdIdentity));
+							} catch(Exception e) {
+								report.addError("Failed to send password change email to " + createdIdentity.getName());
+							}
+
 							if(++count % 10 == 0) {
 								dbInstance.commitAndCloseSession();
 							}
