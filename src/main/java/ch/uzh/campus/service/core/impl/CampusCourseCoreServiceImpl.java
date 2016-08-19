@@ -209,8 +209,8 @@ public class CampusCourseCoreServiceImpl implements CampusCourseCoreService {
 		/*
 		 * Check first if ids exist.
 		 */
-		CampusCourseImportTO campusCourseImportTO = daoManager.getSapCampusCourse(childSapCampusCourseId);
-		if (campusCourseImportTO == null) {
+		Course childCourse = daoManager.getCourseById(childSapCampusCourseId);
+		if (childCourse == null) {
 			throw new IllegalArgumentException("SAP campus course does not exists: " + childSapCampusCourseId);
 		}
 		CampusCourse parentCampusCourse = loadCampusCourse(daoManager.getSapCampusCourse(parentSapCampusCourseId));
@@ -219,6 +219,9 @@ public class CampusCourseCoreServiceImpl implements CampusCourseCoreService {
 		}
 
 		daoManager.saveParentCourseId(childSapCampusCourseId, parentSapCampusCourseId);
+        // CampusCourseImportTO must be loaded AFTER setting the parent course id such that CampusCourseImportTO also
+        // contains the lecturers and students from the parent course
+        CampusCourseImportTO campusCourseImportTO = daoManager.getSapCampusCourse(childSapCampusCourseId);
 		parentCampusCourse.continueCampusCourse(campusCourseImportTO, creator, repositoryService, campusCourseDescriptionBuilder, campusCourseCreator, campusCourseGroupSynchronizer);
         dbInstance.intermediateCommit();
         Long resourceableId = parentCampusCourse.getRepositoryEntry().getOlatResource().getResourceableId();
