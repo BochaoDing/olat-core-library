@@ -12,6 +12,8 @@ import org.olat.core.gui.control.WindowControl;
 import org.olat.core.gui.control.generic.closablewrapper.CloseableModalController;
 import org.olat.core.gui.translator.Translator;
 import org.olat.core.id.Roles;
+import org.olat.core.logging.OLog;
+import org.olat.core.logging.Tracing;
 import org.olat.core.util.Util;
 import org.olat.core.util.event.EventBus;
 import org.olat.repository.RepositoryEntry;
@@ -26,6 +28,9 @@ import static ch.uzh.campus.olat.CampusCourseBeanFactory.*;
 
 @Component
 public class CampusCourseOlatHelper {
+
+	private static final OLog LOG = Tracing.createLoggerFor(
+			CampusCourseOlatHelper.class);
 
     private final CampusCourseService campusCourseService;
 
@@ -53,17 +58,16 @@ public class CampusCourseOlatHelper {
 	}
 
 	public static Translator getTranslator(Locale locale) {
-		return Util.createPackageTranslator(CampusCourseOlatHelper.class, locale);
+		return Util.createPackageTranslator(CampusCourseOlatHelper.class,
+				locale);
+	}
+
+	public static Translator getTranslator(Locale locale, Class<?> fallbackTranslatorClazz) {
+		return Util.createPackageTranslator(CampusCourseOlatHelper.class,
+				locale, Util.createPackageTranslator(fallbackTranslatorClazz, locale));
 	}
 
 	private final static String CONTACT_OLAT_SUPPORT = "Please contact the OLAT support.";
-
-	public static void showErrorCreatingCampusCourseFromDefaultTemplate(WindowControl windowControl,
-																		Locale locale) {
-		windowControl.setError("An error occurred while crating a Campuskurs from the default template. " +
-				CONTACT_OLAT_SUPPORT
-		);
-	}
 
 	public static void showErrorCreatingCampusCourse(WindowControl windowControl,
 													 Locale locale) {
@@ -131,7 +135,8 @@ public class CampusCourseOlatHelper {
 			}
 
 			@Override
-			public void onError() {
+			public void onError(Exception e) {
+				LOG.error(e.getMessage());
 				CampusCourseOlatHelper.showErrorCreatingCampusCourse(windowControl,
 						userRequest.getLocale());
 				cmc.deactivate();

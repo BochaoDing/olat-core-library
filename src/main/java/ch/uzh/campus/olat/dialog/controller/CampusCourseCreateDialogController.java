@@ -85,8 +85,8 @@ public class CampusCourseCreateDialogController extends BasicController implemen
 	}
 
 	@Override
-	public final void onError() {
-		createCampusCourseCompletedEventListeners.forEach(CreateCampusCourseCompletedEventListener::onError);
+	public final void onError(Exception e) {
+		createCampusCourseCompletedEventListeners.forEach(l -> l.onError(e));
 		createCampusCourseCompletedEventListeners.clear();
 	}
 

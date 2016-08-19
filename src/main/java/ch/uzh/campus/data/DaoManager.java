@@ -410,11 +410,11 @@ public class DaoManager {
         do {
             lecturerCoursesOfCourseAndParentCourses.addAll(courseIt.getLecturerCourses());
             studentCoursesOfCourseAndParentCourses.addAll(courseIt.getStudentCourses());
-            courseIt = courseIt.getParentCourse();
+			courseIt = courseIt.getParentCourse();
             count++;
-        } while (courseIt.getParentCourse() != null && count <= 10);
+        } while (courseIt != null && count <= 10);
 
-        if (courseIt.getParentCourse() != null) {
+        if (count > 10) {
             String warningMessage = "Campus course with id " + courseId + " has more than 10 parent courses. Skipping further parent courses.";
             LOG.warn(warningMessage);
         }

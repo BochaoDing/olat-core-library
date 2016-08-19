@@ -171,7 +171,8 @@ $r.render("jsCssRawHtmlHeader", "post-theme")
 		.o_custom_navbar-brand { background-image: none; }
 	#end
 </style>
-
+<script type="text/javascript" src="${theme.getBaseURI()}identifiers_for_iframe_css_removal.js"></script>
+<script type="text/javascript" src="${theme.getBaseURI()}fix_style_issues.js" data-themePath="${theme.getBaseURI()}"></script>
 
 ## deprecated - include any raw header
 $r.renderHeaderIncludes()
