@@ -2298,6 +2298,10 @@ alter table ck_lecturer_course add unique (lecturer_id, course_id);
 alter table ck_course_org add unique (course_id, org_id);
 alter table ck_delegation add unique (delegator,delegatee);
 
+create index ck_xx_parent_course_id_idx on ck_course (parent_course_id);
+create index ck_xx_step_name_idx on ck_import_statistic(step_name);
+create index ck_xx_start_time_idx on ck_import_statistic(start_time);
+create index ck_xx_end_time_idx on ck_import_statistic(end_time);
 
 create or replace view ck_not_mapped_students as 
 select * from ck_student s where s.id in
