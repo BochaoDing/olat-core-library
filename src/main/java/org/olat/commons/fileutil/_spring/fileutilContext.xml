@@ -8,5 +8,5 @@
   http://www.springframework.org/schema/context
   http://www.springframework.org/schema/context/spring-context.xsd">
 
-    <context:component-scan base-package="org.olat.commons" />
+    <context:component-scan base-package="org.olat.commons.fileutil" />
 </beans>
