@@ -3,6 +3,7 @@ package ch.uzh.campus.service.core.impl.creator;
 import ch.uzh.campus.CampusCourseConfiguration;
 import ch.uzh.campus.CampusCourseImportTO;
 import ch.uzh.campus.CampusCourseJunitTestHelper;
+import ch.uzh.campus.data.Course;
 import ch.uzh.campus.data.DaoManager;
 import ch.uzh.campus.service.CampusCourse;
 import ch.uzh.campus.service.CampusCourseGroups;
@@ -331,6 +332,9 @@ public class CampusCourseCoreServiceImplTest extends OlatTestCase {
 				TEST_TITLE_TEXT, "Frühlingssemester 2017", lecturers,
 				Collections.emptyList(), Collections.emptyList(),
 				TEST_EVENT_DESCRIPTION_TEXT, null, 101L, null, null);
+
+        when(daoManagerMock.getCourseById(childCampusCourseImportData.getSapCourseId()))
+                .thenReturn(new Course());
 
 		when(daoManagerMock.getSapCampusCourse(childCampusCourseImportData.getSapCourseId()))
 				.thenReturn(childCampusCourseImportData);
