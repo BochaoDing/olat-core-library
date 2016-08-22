@@ -118,7 +118,7 @@ public class UserMapper {
                     return mappedIdentity;
                 }
             } catch (NumberFormatException ex) {
-                LOG.warn("Could not convert personal-number to Long");
+                LOG.warn("Could not convert personal-number " + employeeNumberOfUserProperty + " to Long");
             }
         }
         return null;
