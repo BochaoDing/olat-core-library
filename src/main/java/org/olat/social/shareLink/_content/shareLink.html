@@ -51,7 +51,7 @@
 				<i class="o_icon o_icon_digg o_icon-lg"></i>
 			</a>
 		#elseif ($link == "mail")	
-			<a id="o_mail" href="mailto:?body=$baseURL" title="$r.translateInAttribute("share.mail")">
+			<a id="o_mail" href="javascript: window.location.href='mailto:?subject=' + o_shareSocialTitle() + '&body=' + o_shareSocialUrl();" title="$r.translateInAttribute("share.mail")">
 				<i class="o_icon o_icon_mailto o_icon-lg"></i>
 			</a>
 		#end
