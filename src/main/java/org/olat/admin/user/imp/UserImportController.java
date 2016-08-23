@@ -32,6 +32,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import com.sun.org.apache.xpath.internal.operations.Bool;
 import org.olat.admin.user.UserChangePasswordMailUtil;
 import org.olat.basesecurity.Authentication;
 import org.olat.basesecurity.BaseSecurity;
@@ -257,11 +258,14 @@ public class UserImportController extends BasicController {
 
 						@SuppressWarnings("unchecked")
 						List<TransientIdentity> newIdents = (List<TransientIdentity>) runContext.get("newIdents");
+						Boolean sendNewPasswords = (Boolean)runContext.get("sendChangePasswordMail");
 						for (TransientIdentity newIdent:newIdents) {
 							Identity createdIdentity = doCreateAndPersistIdentity(newIdent, report);
 							// OLATNG-5: send change password mails
 							try {
-								util.sendTokenByMail(ureq1, createdIdentity, util.generateMailText(createdIdentity));
+								if (sendNewPasswords)  {
+									util.sendTokenByMail(ureq1, createdIdentity, util.generateMailText(createdIdentity));
+								}
 							} catch(Exception e) {
 								report.addError("Failed to send password change email to " + createdIdentity.getName());
 							}
