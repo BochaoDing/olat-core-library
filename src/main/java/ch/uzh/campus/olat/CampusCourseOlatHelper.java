@@ -71,7 +71,7 @@ public class CampusCourseOlatHelper {
 
 	public static void showErrorCreatingCampusCourse(WindowControl windowControl,
 													 Locale locale) {
-		windowControl.setError("An error occurred while crating the Campuskurs. " +
+		windowControl.setError("An error occurred while creating the Campuskurs. " +
 				CONTACT_OLAT_SUPPORT);
 	}
 
