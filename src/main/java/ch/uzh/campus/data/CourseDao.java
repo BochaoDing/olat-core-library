@@ -274,19 +274,19 @@ public class CourseDao implements CampusDao<CourseOrgId> {
                 .getResultList();
     }
 
-    List<Long> getResourceableIdsOfAllCreatedCoursesOfSpecificSemesters(List<String> shortSemesters) {
+    List<Long> getResourceableIdsOfAllCreatedNotContinuedCoursesOfSpecificSemesters(List<String> shortSemesters) {
         return dbInstance.getCurrentEntityManager()
-                .createNamedQuery(Course.GET_RESOURCEABLE_IDS_OF_ALL_CREATED_COURSES_OF_SPECIFIC_SEMESTERS, Long.class)
+                .createNamedQuery(Course.GET_RESOURCEABLE_IDS_OF_ALL_CREATED_NOT_CONTINUED_COURSES_OF_SPECIFIC_SEMESTERS, Long.class)
                 .setParameter("shortSemesters", shortSemesters)
                 .getResultList();
     }
 
-    List<Long> getResourceableIdsOfAllCreatedCoursesOfPreviousSemestersNotTooFarInThePast() {
+    List<Long> getResourceableIdsOfAllCreatedNotContinuedCoursesOfPreviousSemestersNotTooFarInThePast() {
         List<String> previousShortSemestersNotTooFarInThePast = getPreviousShortSemestersNotTooFarInThePast();
         if (previousShortSemestersNotTooFarInThePast.isEmpty()) {
             return new ArrayList<>();
         }
-        return getResourceableIdsOfAllCreatedCoursesOfSpecificSemesters(previousShortSemestersNotTooFarInThePast);
+        return getResourceableIdsOfAllCreatedNotContinuedCoursesOfSpecificSemesters(previousShortSemestersNotTooFarInThePast);
     }
 
     List<Long> getIdsOfAllNotCreatedCreatableCoursesOfCurrentSemester() {

@@ -85,10 +85,10 @@ public class ContinueCampusCourseSelectionController extends CampusCourseDialogS
 		List<RepositoryEntry> campusCourseEntries = new ArrayList<>();
 		List<RepositoryEntry> entries = repositoryManager.queryByOwner(userRequest.getIdentity(), "CourseModule");
 		if (!entries.isEmpty()) {
-			List<Long> resourceableIdsOfAllCreatedCoursesOfPreviousSemesters = campusCourseService.getResourceableIdsOfAllCreatedCoursesOfPreviousSemesters();
+			List<Long> resourceableIdsOfAllCreatedNotContinuedCoursesOfPreviousSemesters = campusCourseService.getResourceableIdsOfAllCreatedNotContinuedCoursesOfPreviousSemesters();
 			for (RepositoryEntry entry : entries) {
 				Long resourcableId = entry.getOlatResource().getResourceableId();
-				if (resourceableIdsOfAllCreatedCoursesOfPreviousSemesters.contains(resourcableId)) {
+				if (resourceableIdsOfAllCreatedNotContinuedCoursesOfPreviousSemesters.contains(resourcableId)) {
                     campusCourseEntries.add(entry);
 				}
 			}

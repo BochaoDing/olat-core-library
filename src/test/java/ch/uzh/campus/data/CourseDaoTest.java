@@ -495,25 +495,59 @@ public class CourseDaoTest extends OlatTestCase {
     }
 
     @Test
-    public void testGetResourceableIdsOfAllCreatedCoursesOfSpecificSemesters() {
+    public void testGetResourceableIdsOfAllCreatedNotContinuedCoursesOfSpecificSemesters() {
         insertTestData();
+
         List<String> shortSemesters = new ArrayList<>();
-        shortSemesters.add("99HS");
         shortSemesters.add("99FS");
-        List<Long> resourceableIdsOfAllCreatedCoursesOfSpecificSemesters = courseDao.getResourceableIdsOfAllCreatedCoursesOfSpecificSemesters(shortSemesters);
-        assertEquals(3, resourceableIdsOfAllCreatedCoursesOfSpecificSemesters.size());
-        assertTrue(resourceableIdsOfAllCreatedCoursesOfSpecificSemesters.contains(101L));
-        assertTrue(resourceableIdsOfAllCreatedCoursesOfSpecificSemesters.contains(201L));
-        assertTrue(resourceableIdsOfAllCreatedCoursesOfSpecificSemesters.contains(401L));
+        shortSemesters.add("98HS");
+        shortSemesters.add("98FS");
+
+        List<Long> resourceableIdsOfAllCreatedNotContinuedCoursesOfSpecificSemesters = courseDao.getResourceableIdsOfAllCreatedNotContinuedCoursesOfSpecificSemesters(shortSemesters);
+        assertEquals(3, resourceableIdsOfAllCreatedNotContinuedCoursesOfSpecificSemesters.size());
+        assertTrue(resourceableIdsOfAllCreatedNotContinuedCoursesOfSpecificSemesters.contains(401L));
+        assertTrue(resourceableIdsOfAllCreatedNotContinuedCoursesOfSpecificSemesters.contains(501L));
+        assertTrue(resourceableIdsOfAllCreatedNotContinuedCoursesOfSpecificSemesters.contains(601L));
+
+        // Make course 400 to be the parent course of 300 and set set the same reourceableId for courses 300 and 400
+        // -> Should not contain course 400 any more, because it is continued, i.e. it is the parent of course 300
+        dbInstance.clear();
+        courseDao.saveParentCourseId(300L, 400L);
+        courseDao.saveResourceableId(300L, 1L);
+        courseDao.saveResourceableId(400L, 1L);
+
+        resourceableIdsOfAllCreatedNotContinuedCoursesOfSpecificSemesters = courseDao.getResourceableIdsOfAllCreatedNotContinuedCoursesOfSpecificSemesters(shortSemesters);
+        assertEquals(2, resourceableIdsOfAllCreatedNotContinuedCoursesOfSpecificSemesters.size());
+        assertTrue(resourceableIdsOfAllCreatedNotContinuedCoursesOfSpecificSemesters.contains(501L));
+        assertTrue(resourceableIdsOfAllCreatedNotContinuedCoursesOfSpecificSemesters.contains(601L));
+
+        // If we look for courses in 99HS, we should get course 300, which has a parent, but is not continued itself
+        dbInstance.clear();
+        shortSemesters = new ArrayList<>();
+        shortSemesters.add("99HS");
+
+        resourceableIdsOfAllCreatedNotContinuedCoursesOfSpecificSemesters = courseDao.getResourceableIdsOfAllCreatedNotContinuedCoursesOfSpecificSemesters(shortSemesters);
+        assertTrue(resourceableIdsOfAllCreatedNotContinuedCoursesOfSpecificSemesters.contains(1L));
     }
 
     @Test
-    public void testGetResourceableIdsOfAllCreatedCoursesOfPreviousSemestersNotTooFarInThePast() {
+    public void testGetResourceableIdsOfAllCreatedNotContinuedCoursesOfPreviousSemestersNotTooFarInThePast() {
         insertTestData();
-        List<Long> resourceableIdsOfAllCreatedCoursesOfOldSemestersNotTooFarInThePast = courseDao.getResourceableIdsOfAllCreatedCoursesOfPreviousSemestersNotTooFarInThePast();
-        assertEquals(2, resourceableIdsOfAllCreatedCoursesOfOldSemestersNotTooFarInThePast.size());
-        assertTrue(resourceableIdsOfAllCreatedCoursesOfOldSemestersNotTooFarInThePast.contains(401L));
-        assertTrue(resourceableIdsOfAllCreatedCoursesOfOldSemestersNotTooFarInThePast.contains(501L));
+        List<Long> resourceableIdsOfAllCreatedNotContinuedCoursesOfOldSemestersNotTooFarInThePast = courseDao.getResourceableIdsOfAllCreatedNotContinuedCoursesOfPreviousSemestersNotTooFarInThePast();
+        assertEquals(2, resourceableIdsOfAllCreatedNotContinuedCoursesOfOldSemestersNotTooFarInThePast.size());
+        assertTrue(resourceableIdsOfAllCreatedNotContinuedCoursesOfOldSemestersNotTooFarInThePast.contains(401L));
+        assertTrue(resourceableIdsOfAllCreatedNotContinuedCoursesOfOldSemestersNotTooFarInThePast.contains(501L));
+
+        // Make course 400 to be the parent course of 300 and set set the same reourceableId for courses 300 and 400
+        // -> Should not contain course 400 any more, because it is continued, i.e. it is the parent of course 300
+        dbInstance.clear();
+        courseDao.saveParentCourseId(300L, 400L);
+        courseDao.saveResourceableId(300L, 1L);
+        courseDao.saveResourceableId(400L, 1L);
+
+        resourceableIdsOfAllCreatedNotContinuedCoursesOfOldSemestersNotTooFarInThePast = courseDao.getResourceableIdsOfAllCreatedNotContinuedCoursesOfPreviousSemestersNotTooFarInThePast();
+        assertEquals(1, resourceableIdsOfAllCreatedNotContinuedCoursesOfOldSemestersNotTooFarInThePast.size());
+        assertTrue(resourceableIdsOfAllCreatedNotContinuedCoursesOfOldSemestersNotTooFarInThePast.contains(501L));
     }
 
     @Test

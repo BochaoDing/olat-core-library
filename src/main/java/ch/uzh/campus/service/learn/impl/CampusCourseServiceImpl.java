@@ -153,14 +153,17 @@ public class CampusCourseServiceImpl implements CampusCourseService {
 		return campusCourseCoreService.existResourceableId(resourceableId);
 	}
 
-	public List<Long> getResourceableIdsOfAllCreatedCoursesOfPreviousSemesters() {
-		return campusCourseCoreService.getResourceableIdsOfAllCreatedCoursesOfPreviousSemesters();
+	@Override
+	public List<Long> getResourceableIdsOfAllCreatedNotContinuedCoursesOfPreviousSemesters() {
+		return campusCourseCoreService.getResourceableIdsOfAllCreatedNotContinuedCoursesOfPreviousSemesters();
 	}
 
+	@Override
 	public List getDelegatees(Identity delegator) {
 		return campusCourseCoreService.getDelegatees(delegator);
 	}
 
+	@Override
 	public void deleteDelegation(Identity delegator, Identity delegatee) {
 		campusCourseCoreService.deleteDelegation(delegator, delegatee);
 	}

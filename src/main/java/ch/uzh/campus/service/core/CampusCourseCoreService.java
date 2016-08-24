@@ -38,14 +38,14 @@ public interface CampusCourseCoreService {
 
     RepositoryEntry getRepositoryEntryFor(Long sapCourseId);
 
-    /**
+    /*
      * Get a list of Campus-courses which have resourceableId=null. resourceableId=null means no OLAT course is created in the OLAT course-repository yet.
      */
     Set<Course> getCampusCoursesWithoutResourceableId(Identity identity, SapUserType userType);
 
 	Set<Course> getCampusCoursesWithoutResourceableId(Identity identity, SapUserType userType, String searchString);
 
-    /**
+    /*
      * Get list of Campus courses which already are created in the OLAT course-repository.
      */
     Set<Course> getCampusCoursesWithResourceableId(Identity identity, SapUserType userType);
@@ -58,7 +58,7 @@ public interface CampusCourseCoreService {
 
     boolean existResourceableId(Long resourceableId);
 
-    List<Long> getResourceableIdsOfAllCreatedCoursesOfPreviousSemesters();
+    List<Long> getResourceableIdsOfAllCreatedNotContinuedCoursesOfPreviousSemesters();
 
     List getDelegatees(Identity delegator);
 

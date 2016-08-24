@@ -318,8 +318,8 @@ public class CampusCourseCoreServiceImpl implements CampusCourseCoreService {
     }
 
     @Override
-    public List<Long> getResourceableIdsOfAllCreatedCoursesOfPreviousSemesters() {
-        return daoManager.getResourceableIdsOfAllCreatedCoursesOfPreviousSemesters();
+    public List<Long> getResourceableIdsOfAllCreatedNotContinuedCoursesOfPreviousSemesters() {
+        return daoManager.getResourceableIdsOfAllCreatedNotContinuedCoursesOfPreviousSemesters();
     }
 
     @Override

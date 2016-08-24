@@ -1,14 +1,13 @@
 package ch.uzh.campus.service.learn;
 
 import ch.uzh.campus.data.Course;
-import ch.uzh.campus.data.SapOlatUser;
 import ch.uzh.campus.service.CampusCourse;
 import org.olat.core.id.Identity;
 import org.olat.repository.RepositoryEntry;
 
 import java.util.List;
 
-import static ch.uzh.campus.data.SapOlatUser.*;
+import static ch.uzh.campus.data.SapOlatUser.SapUserType;
 
 /**
  * This is called from presentation.
@@ -62,7 +61,7 @@ public interface CampusCourseService {
 
     boolean existResourceableId(Long resourceableId);
 
-    List<Long> getResourceableIdsOfAllCreatedCoursesOfPreviousSemesters();
+    List<Long> getResourceableIdsOfAllCreatedNotContinuedCoursesOfPreviousSemesters();
 
     List getDelegatees(Identity delegator);
 
