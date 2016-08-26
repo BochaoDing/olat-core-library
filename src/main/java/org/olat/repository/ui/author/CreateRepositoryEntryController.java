@@ -143,7 +143,7 @@ public class CreateRepositoryEntryController extends FormBasicController {
 	protected void formOK(UserRequest ureq) {
 		doCreate();
 		fireEvent(ureq, Event.DONE_EVENT);
-		fireEvent(ureq, new EntryChangedEvent(addedEntry, getIdentity(), Change.added));
+		fireEvent(ureq, new EntryChangedEvent(addedEntry, getIdentity(), Change.added, "create"));
 	}
 
 	@Override
