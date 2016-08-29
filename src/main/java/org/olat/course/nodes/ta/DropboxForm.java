@@ -115,10 +115,11 @@ public class DropboxForm extends FormBasicController {
 
 		// OLATNG-328: avoid NullPointerException
 		if (enableMail == null) enableMail = (Boolean)config.get("dropbox_email"); // used to be "dropbox_email" in OLAT 7.8.x
+		if (enableMail == null) enableMail = true; // if still not known, the default value is true
 
-		confirmation.setMandatory(enableMail == null ? false : enableMail); // OLATNG-328: avoid NullPointerException
+		confirmation.setMandatory(enableMail);
 		enablemail = uifactory.addCheckboxesHorizontal("enablemail", "form.dropbox.enablemail", formLayout, new String[]{"xx"}, new String[]{null});
-		enablemail.select("xx", enableMail != null ? enableMail.booleanValue() : true);
+		enablemail.select("xx", enableMail);
 		enablemail.addActionListener(FormEvent.ONCLICK);
 	
 		uifactory.addFormSubmitButton("submit", formLayout);
