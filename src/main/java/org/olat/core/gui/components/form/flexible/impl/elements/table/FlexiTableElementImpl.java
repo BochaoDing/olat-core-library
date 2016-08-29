@@ -216,13 +216,13 @@ public class FlexiTableElementImpl extends FormItemImpl implements FlexiTableEle
 			//custom
 			customTypeButton = new FormLinkImpl(dispatchId + "_customRTypeButton", "rCustomRTypeButton", "", Link.BUTTON + Link.NONTRANSLATED);
 			customTypeButton.setTranslator(translator);
-			customTypeButton.setIconLeftCSS("o_icon o_icon_list o_icon-lg");
+			customTypeButton.setIconLeftCSS("o_icon o_icon_table o_icon-lg");
 			customTypeButton.setActive(FlexiTableRendererType.custom == rendererType);
 			components.put("rTypeCustom", customTypeButton);
 			//classic tables
 			classicTypeButton = new FormLinkImpl(dispatchId + "_classicRTypeButton", "rClassicRTypeButton", "", Link.BUTTON + Link.NONTRANSLATED);
 			classicTypeButton.setTranslator(translator);
-			classicTypeButton.setIconLeftCSS("o_icon o_icon_table o_icon-lg");
+			classicTypeButton.setIconLeftCSS("o_icon o_icon_list o_icon-lg");
 			classicTypeButton.setActive(FlexiTableRendererType.classic == rendererType);
 			components.put("rTypeClassic", classicTypeButton);
 			
