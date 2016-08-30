@@ -645,15 +645,18 @@ public class CourseRuntimeController extends RepositoryEntryRuntimeController im
 		if(!assessmentLock) {
 			glossary = new Dropdown("glossary", "command.glossary", false, getTranslator());
 			glossary.setIconCSS("o_icon o_FileResource-GLOSSARY_icon");
-			glossary.setVisible(cc.hasGlossary());
-	
-			openGlossaryLink = LinkFactory.createToolLink("command.glossary.open", translate("command.glossary.open"), this);
-			openGlossaryLink.setPopup(new LinkPopupSettings(950, 750, "gloss"));
-			glossary.addComponent(openGlossaryLink);
-	
-			enableGlossaryLink = LinkFactory.createToolLink("command.glossary.on.off", translate("command.glossary.on.alt"), this);
-			glossary.addComponent(enableGlossaryLink);
-			toolbarPanel.addTool(glossary);
+			// OLATNG-335 : check if glossary repo entry really exists before showing the dropdown
+			if (null != RepositoryManager.getInstance().lookupRepositoryEntryBySoftkey(cc.getGlossarySoftKey(), false)) {
+				glossary.setVisible(cc.hasGlossary());
+
+				openGlossaryLink = LinkFactory.createToolLink("command.glossary.open", translate("command.glossary.open"), this);
+				openGlossaryLink.setPopup(new LinkPopupSettings(950, 750, "gloss"));
+				glossary.addComponent(openGlossaryLink);
+
+				enableGlossaryLink = LinkFactory.createToolLink("command.glossary.on.off", translate("command.glossary.on.alt"), this);
+				glossary.addComponent(enableGlossaryLink);
+				toolbarPanel.addTool(glossary);
+			}
 		}
 		
 		//add group chat to toolbox
