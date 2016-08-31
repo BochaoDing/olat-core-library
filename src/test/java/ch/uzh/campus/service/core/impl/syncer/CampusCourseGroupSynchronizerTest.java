@@ -107,7 +107,7 @@ public class CampusCourseGroupSynchronizerTest extends OlatTestCase {
     @Test
     public void addAllLecturesAsOwner() {
         // Exercise
-        courseGroupSynchronizerTestObject.addAllLecturesAsOwner(campusCourseMock, getTestLecturersWithDuplicateEntry());
+        courseGroupSynchronizerTestObject.addGroupOwnerRoleToLecturers(campusCourseMock, getTestLecturersWithDuplicateEntry());
         List<Identity> ownerIdentities =  repositoryService.getMembers(sourceRepositoryEntry, GroupRoles.owner.name());        
         assertEquals("Wrong number of owners", 2, ownerIdentities.size());
        
@@ -118,7 +118,7 @@ public class CampusCourseGroupSynchronizerTest extends OlatTestCase {
     @Test
     public void addDefaultCoOwnersAsOwner() {
         // Exercise
-        courseGroupSynchronizerTestObject.addDefaultCoOwnersAsOwner(campusCourseMock);
+        courseGroupSynchronizerTestObject.addGroupOwnerRoleToCoOwners(campusCourseMock);
         
         List<Identity> ownerIdentities =  repositoryService.getMembers(sourceRepositoryEntry, GroupRoles.owner.name());        
         assertEquals("Wrong number of owners", 3, ownerIdentities.size()); //the third owner is the one that created the course

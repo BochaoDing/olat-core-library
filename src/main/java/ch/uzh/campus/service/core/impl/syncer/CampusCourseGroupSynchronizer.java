@@ -49,14 +49,14 @@ public class CampusCourseGroupSynchronizer {
         this.campusCourseGroupsFinder = campusCourseGroupsFinder;
     }
 
-    public void addAllLecturesAsOwner(CampusCourse campusCourse, List<Identity> lecturers) {
-        addAsOwners(campusCourse, lecturers);
+    public void addGroupOwnerRoleToLecturers(CampusCourse campusCourse, List<Identity> lecturers) {
+        addGroupOwnerRole(campusCourse, lecturers);
     }
 
    /**
     * Adds the list of identities as owners of this resource/course.
     */
-   private void addAsOwners(CampusCourse campusCourse, List<Identity> identities) {
+   private void addGroupOwnerRole(CampusCourse campusCourse, List<Identity> identities) {
 	   for (Identity identity : identities) {
 		   if (!repositoryService.hasRole(identity, campusCourse.getRepositoryEntry(), GroupRoles.owner.name())) {
 			   repositoryService.addRole(identity, campusCourse.getRepositoryEntry(), GroupRoles.owner.name());
@@ -64,8 +64,8 @@ public class CampusCourseGroupSynchronizer {
 	   }
 	}
    
-   public void addDefaultCoOwnersAsOwner(CampusCourse campusCourse) {
-	   addAsOwners(campusCourse, campusCourseCoOwners.getDefaultCoOwners());
+   public void addGroupOwnerRoleToCoOwners(CampusCourse campusCourse) {
+	   addGroupOwnerRole(campusCourse, campusCourseCoOwners.getDefaultCoOwners());
    }
      
    public List<Identity> getCampusGroupAParticipants(CampusCourse campusCourse) {

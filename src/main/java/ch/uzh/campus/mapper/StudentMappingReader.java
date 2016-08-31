@@ -1,3 +1,19 @@
+package ch.uzh.campus.mapper;
+
+import ch.uzh.campus.data.DaoManager;
+import ch.uzh.campus.data.Student;
+import ch.uzh.campus.utils.ListUtil;
+
+import org.olat.core.commons.persistence.DB;
+import org.olat.core.logging.OLog;
+import org.olat.core.logging.Tracing;
+import org.springframework.batch.item.ItemReader;
+import org.springframework.beans.factory.annotation.Autowired;
+
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
+import java.util.List;
+
 /**
  * OLAT - Online Learning and Training<br>
  * http://www.olat.org
@@ -18,21 +34,6 @@
  * University of Zurich, Switzerland.
  * <p>
  */
-package ch.uzh.campus.mapper;
-
-import ch.uzh.campus.data.DaoManager;
-import ch.uzh.campus.data.Student;
-import ch.uzh.campus.utils.ListUtil;
-
-import org.olat.core.commons.persistence.DB;
-import org.olat.core.logging.OLog;
-import org.olat.core.logging.Tracing;
-import org.springframework.batch.item.ItemReader;
-import org.springframework.beans.factory.annotation.Autowired;
-
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
-import java.util.List;
 
 public class StudentMappingReader implements ItemReader<Student> {
 
@@ -51,7 +52,7 @@ public class StudentMappingReader implements ItemReader<Student> {
     @PostConstruct
     public void init() {
         try {
-            daoManager.deleteOldStudentMapping();
+            daoManager.deleteMappingOfStudentsNotFoundInStudentTable();
             students = daoManager.getAllStudents();
             dbInstance.commitAndCloseSession();
         } catch (Throwable t) {

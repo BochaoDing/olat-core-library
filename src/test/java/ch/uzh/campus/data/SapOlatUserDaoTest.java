@@ -192,11 +192,11 @@ public class SapOlatUserDaoTest  extends OlatTestCase {
     }
     
     @Test
-    public void testDeleteOldLecturerMappingAsBulkDelete() {
+    public void testDeleteMappingOfLecturersNotFoundInLecturerTableAsBulkDelete() {
 		assertNotNull(sapOlatUserDao.getSapOlatUsersByOlatUserNameAndSapUserType("olatUserName2", SapOlatUser.SapUserType.LECTURER));
 
         lecturerDao.delete(mockDataGeneratorProvider.get().getLecturers().get(1));
-        sapOlatUserDao.deleteOldLecturerMappingAsBulkDelete();
+        sapOlatUserDao.deleteMappingOfLecturersNotFoundInLecturerTableAsBulkDelete();
 
         dbInstance.flush();
         dbInstance.clear();
@@ -205,11 +205,11 @@ public class SapOlatUserDaoTest  extends OlatTestCase {
     }
         
     @Test
-    public void testDeleteOldStudentMappingAsBulkDelete() {
+    public void testDeleteMappingOfStudentsNotFoundInStudentTableAsBulkDelete() {
 		assertNotNull(sapOlatUserDao.getSapOlatUsersByOlatUserNameAndSapUserType("olatUserName1", SapOlatUser.SapUserType.STUDENT));
 
         studentDao.delete(mockDataGeneratorProvider.get().getStudents().get(0));
-        sapOlatUserDao.deleteOldStudentMappingAsBulkDelete();
+        sapOlatUserDao.deleteMappingOfStudentsNotFoundInStudentTableAsBulkDelete();
 
         dbInstance.flush();
         dbInstance.clear();

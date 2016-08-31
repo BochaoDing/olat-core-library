@@ -61,8 +61,8 @@ public class CampusCourse {
         campusCourseCreator.updateCourseRunAndEditorModels(this, displayName, newCampusCourseImportData.getVvzLink(), false, newCampusCourseImportData.getLanguage());
 
         // Execute synchronization
-        campusCourseGroupSynchronizer.addAllLecturesAsOwner(this, newCampusCourseImportData.getLecturersOfCourseAndParentCourses());
-        campusCourseGroupSynchronizer.addDefaultCoOwnersAsOwner(this);
+        campusCourseGroupSynchronizer.addGroupOwnerRoleToLecturers(this, newCampusCourseImportData.getLecturersOfCourseAndParentCourses());
+        campusCourseGroupSynchronizer.addGroupOwnerRoleToCoOwners(this);
         campusCourseGroupSynchronizer.synchronizeCourseGroups(this, newCampusCourseImportData);
     }
 
@@ -82,8 +82,8 @@ public class CampusCourse {
         CampusCourseGroups campusCourseGroups = campusCourseCreator.createCampusLearningAreaAndCampusBusinessGroups(course, repositoryEntry, creator, lvLanguage);
 
         // Execute the first synchronization
-        campusCourseGroupSynchronizer.addAllLecturesAsOwner(this, campusCourseImportData.getLecturersOfCourseAndParentCourses());
-        campusCourseGroupSynchronizer.addDefaultCoOwnersAsOwner(this);
+        campusCourseGroupSynchronizer.addGroupOwnerRoleToLecturers(this, campusCourseImportData.getLecturersOfCourseAndParentCourses());
+        campusCourseGroupSynchronizer.addGroupOwnerRoleToCoOwners(this);
         campusCourseGroupSynchronizer.synchronizeCourseGroups(this, campusCourseImportData, campusCourseGroups);
     }
 }

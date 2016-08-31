@@ -19,9 +19,13 @@ import java.util.Set;
  */
 @Repository
 public class SapOlatUserDao {
-	
-	@Autowired
-    private DB dbInstance;
+
+    private final DB dbInstance;
+
+    @Autowired
+    public SapOlatUserDao(DB dbInstance) {
+        this.dbInstance = dbInstance;
+    }
 	   
     public void save(List<SapOlatUser> sapOlatUsers) {
     	for(SapOlatUser sapOlatUser: sapOlatUsers) {
@@ -116,18 +120,18 @@ public class SapOlatUserDao {
     /**
      * Bulk delete for efficient deletion of a big number of entries. Does not update persistence context!
      */
-    void deleteOldLecturerMappingAsBulkDelete() {
+    void deleteMappingOfLecturersNotFoundInLecturerTableAsBulkDelete() {
         dbInstance.getCurrentEntityManager()
-                .createNamedQuery(SapOlatUser.DELETE_SAP_OLAT_LECTURERS)
+                .createNamedQuery(SapOlatUser.DELETE_MAPPING_OF_LECTURERS_NOT_FOUND_IN_LECTURER_TABLE)
 		        .executeUpdate();
     }
 
     /**
      * Bulk delete for efficient deletion of a big number of entries. Does not update persistence context!
      */
-    void deleteOldStudentMappingAsBulkDelete() {
+    void deleteMappingOfStudentsNotFoundInStudentTableAsBulkDelete() {
         dbInstance.getCurrentEntityManager()
-                .createNamedQuery(SapOlatUser.DELETE_SAP_OLAT_STUDENTS)
+                .createNamedQuery(SapOlatUser.DELETE_MAPPING_OF_STUDENTS_NOT_FOUND_IN_STUDENT_TABLE)
 		        .executeUpdate();
     }
 }

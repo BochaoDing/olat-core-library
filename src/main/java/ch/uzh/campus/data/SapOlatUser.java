@@ -7,7 +7,6 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 import javax.persistence.*;
 import java.util.Date;
 
-
 /**
  * Initial Date: 27.06.2012 <br>
  * 
@@ -21,8 +20,8 @@ import java.util.Date;
 
         @NamedQuery(name = SapOlatUser.DELETE_SAP_OLAT_LECTURERS_BY_SAP_IDS, query = "delete from SapOlatUser m where m.sapUserType = 'LECTURER' and m.sapUserId in :sapIds"),
         @NamedQuery(name = SapOlatUser.DELETE_SAP_OLAT_STUDENTS_BY_SAP_IDS, query = "delete from SapOlatUser m where m.sapUserType = 'STUDENT' and m.sapUserId in :sapIds"),
-        @NamedQuery(name = SapOlatUser.DELETE_SAP_OLAT_STUDENTS, query = "delete from SapOlatUser m where m.sapUserType = 'STUDENT' and m.sapUserId not in (select id from Student) "),
-        @NamedQuery(name = SapOlatUser.DELETE_SAP_OLAT_LECTURERS, query = "delete from SapOlatUser m where m.sapUserType = 'LECTURER' and m.sapUserId not in (select personalNr from Lecturer ) ") })
+        @NamedQuery(name = SapOlatUser.DELETE_MAPPING_OF_STUDENTS_NOT_FOUND_IN_STUDENT_TABLE, query = "delete from SapOlatUser m where m.sapUserType = 'STUDENT' and m.sapUserId not in (select id from Student) "),
+        @NamedQuery(name = SapOlatUser.DELETE_MAPPING_OF_LECTURERS_NOT_FOUND_IN_LECTURER_TABLE, query = "delete from SapOlatUser m where m.sapUserType = 'LECTURER' and m.sapUserId not in (select personalNr from Lecturer) ") })
 @Table(name = "ck_olat_user")
 public class SapOlatUser {
 
@@ -54,8 +53,8 @@ public class SapOlatUser {
 
     static final String DELETE_SAP_OLAT_LECTURERS_BY_SAP_IDS = "deleteSapOlatLecturersBySapIds";
     static final String DELETE_SAP_OLAT_STUDENTS_BY_SAP_IDS = "deleteSapOlatStudentsBySapIds";
-    static final String DELETE_SAP_OLAT_LECTURERS = "deleteSapOlatLecturers";
-    static final String DELETE_SAP_OLAT_STUDENTS = "deleteSapOlatStudents";
+    static final String DELETE_MAPPING_OF_LECTURERS_NOT_FOUND_IN_LECTURER_TABLE = "deleteMappingOfLecturersNotFoundInLecturerTable";
+    static final String DELETE_MAPPING_OF_STUDENTS_NOT_FOUND_IN_STUDENT_TABLE = "deleteMappingOfStudentsNotFoundInStudentTable";
 
     public SapOlatUser() {
     }

@@ -440,11 +440,11 @@ public class DaoManager {
         return (statisticDao.getLastCompletedImportedStatistic().size() == campusCourseConfiguration.getMustCompletedImportedFiles());
     }
 
-    public void deleteOldLecturerMapping() {
-        sapOlatUserDao.deleteOldLecturerMappingAsBulkDelete();
+    public void deleteMappingOfLecturersNotFoundInLecturerTable() {
+        sapOlatUserDao.deleteMappingOfLecturersNotFoundInLecturerTableAsBulkDelete();
     }
 
-    public void deleteOldStudentMapping() {
-        sapOlatUserDao.deleteOldStudentMappingAsBulkDelete();
+    public void deleteMappingOfStudentsNotFoundInStudentTable() {
+        sapOlatUserDao.deleteMappingOfStudentsNotFoundInStudentTableAsBulkDelete();
     }
 }
