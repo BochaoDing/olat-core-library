@@ -4,9 +4,11 @@ import ch.uzh.campus.data.Lecturer;
 import ch.uzh.campus.data.SapOlatUserDao;
 import org.junit.Before;
 import org.junit.Test;
+import org.olat.basesecurity.BaseSecurity;
 import org.olat.core.id.Identity;
 
 import static org.junit.Assert.assertEquals;
+import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -48,10 +50,12 @@ public class LecturerMapperTest {
     public void setup() {
         userMappingDaoMock = mock(SapOlatUserDao.class);
         userMapperMock = mock(UserMapper.class);
-        lecturerMapperTestObject = new LecturerMapper(userMappingDaoMock, userMapperMock);
+        BaseSecurity baseSecurityMock = mock(BaseSecurity.class);
+        lecturerMapperTestObject = new LecturerMapper(userMappingDaoMock, userMapperMock, baseSecurityMock);
         lecturerMock = mock(Lecturer.class);
         when(lecturerMock.getPersonalNr()).thenReturn(1L);
         when(lecturerMock.getAdditionalPersonalNrs()).thenReturn("1");
+        when(baseSecurityMock.isIdentityInSecurityGroup(any(), any())).thenReturn(false);
         identityMock = mock(Identity.class);
     }
 

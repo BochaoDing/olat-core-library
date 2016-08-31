@@ -3,10 +3,14 @@ package ch.uzh.campus.mapper;
 import ch.uzh.campus.data.Lecturer;
 import ch.uzh.campus.data.SapOlatUserDao;
 import org.apache.commons.lang.StringUtils;
+import org.olat.basesecurity.BaseSecurity;
+import org.olat.basesecurity.Constants;
+import org.olat.basesecurity.SecurityGroup;
 import org.olat.core.id.Identity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.PostConstruct;
 import java.util.Arrays;
 import java.util.List;
 
@@ -40,12 +44,21 @@ public class LecturerMapper {
 
     private final SapOlatUserDao userMappingDao;
     private final UserMapper userMapper;
+    private final BaseSecurity baseSecurity;
+
+    private SecurityGroup authorGroup;
 
     @Autowired
-    public LecturerMapper(SapOlatUserDao userMappingDao, UserMapper userMapper) {
+    public LecturerMapper(SapOlatUserDao userMappingDao, UserMapper userMapper, BaseSecurity baseSecurity) {
         this.userMappingDao = userMappingDao;
         this.userMapper = userMapper;
+        this.baseSecurity = baseSecurity;
     }
+
+    @PostConstruct
+    public void init() throws Exception {
+        authorGroup = baseSecurity.findSecurityGroupByName(Constants.GROUP_AUTHORS);
+	}
 
     MappingResult synchronizeLecturerMapping(Lecturer lecturer) {
         if (!userMappingDao.existsMappingForSapUserId(lecturer.getPersonalNr())) {
@@ -54,6 +67,7 @@ public class LecturerMapper {
             Identity mappedIdentity = userMapper.tryToMapByPersonalNumber(lecturer.getPersonalNr());
             if (mappedIdentity != null) {
                 userMappingDao.saveMapping(lecturer, mappedIdentity);
+                addAuthorRoleToMappedLecturer(mappedIdentity);
                 return MappingResult.NEW_MAPPING_BY_PERSONAL_NR;
             }
 
@@ -61,6 +75,7 @@ public class LecturerMapper {
             mappedIdentity = userMapper.tryToMapByEmail(lecturer.getEmail());
             if (mappedIdentity != null) {
                 userMappingDao.saveMapping(lecturer, mappedIdentity);
+                addAuthorRoleToMappedLecturer(mappedIdentity);
                 return MappingResult.NEW_MAPPING_BY_EMAIL;
             }
 
@@ -71,6 +86,7 @@ public class LecturerMapper {
                     mappedIdentity = userMapper.tryToMapByAdditionalPersonalNumber(additionalPersonalNr);
                     if (mappedIdentity != null) {
                         userMappingDao.saveMapping(lecturer, mappedIdentity);
+                        addAuthorRoleToMappedLecturer(mappedIdentity);
                         return MappingResult.NEW_MAPPING_BY_ADDITIONAL_PERSONAL_NR;
                     }
                 }
@@ -87,5 +103,11 @@ public class LecturerMapper {
         }
 
         return MappingResult.MAPPING_ALREADY_EXIST;
+    }
+
+    private void addAuthorRoleToMappedLecturer(Identity identity) {
+        if (!baseSecurity.isIdentityInSecurityGroup(identity, authorGroup)) {
+            baseSecurity.addIdentityToSecurityGroup(identity, authorGroup);
+        }
     }
 }
