@@ -127,9 +127,7 @@ public class ProfileFormController extends FormBasicController {
 	 * 
 	 * @param ureq The user request.
 	 * @param wControl The window control.
-	 * @param conf The homepage configuration (decides which user profile fields
-	 *          are visible for everyone).
-	 * @param identity The identity of the user.
+	 * @param identityToModify The identity of the user.
 	 * @param isAdministrativeUser true: user is editing another users profile as
 	 *          user manager; false: use is editing his own profile
 	 */
@@ -265,10 +263,6 @@ public class ProfileFormController extends FormBasicController {
 	/**
 	 * Stores the data from the form into a) the user's home page configuration
 	 * and b) the user's properties.
-	 * 
-	 * @param config The user's home page configuration (i.e. flags for publicly
-	 *          visible fields).
-	 * @param identity The user's identity
 	 */
 	public void updateFromFormData() {
 		User user = identityToModify.getUser();
@@ -561,7 +555,9 @@ public class ProfileFormController extends FormBasicController {
 					for (TemporaryKey temporaryKey : tks) {
 						@SuppressWarnings("unchecked")
 						Map<String, String> tkMails = (Map<String, String>) xml.fromXML(temporaryKey.getEmailAddress());
-						if (tkMails.get("currentEMail").equals(currentEMail)) {
+						// In OLAT 7.x "currentemail" instead of "currentEMail" was used in o_temporarykey table,
+						// so we have to look also for that string
+						if (currentEMail.equals(tkMails.get("currentEMail")) || currentEMail.equals(tkMails.get("currentemail"))) {
 							if (countCurrentEMail > 0) {
 								// clean
 								rm.deleteTemporaryKeyWithId(temporaryKey.getRegistrationKey());
