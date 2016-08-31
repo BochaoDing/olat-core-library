@@ -108,6 +108,10 @@ public class UserSessionManager implements GenericEventListener {
 	 */
 	public UserSession getUserSession(HttpSession session) {
 		UserSession us;
+
+		// OLATNG-341: To be removed after problem is solved
+		assert session != null;
+
 		synchronized (session) {//o_clusterOK by:fj
 			us = (UserSession) session.getAttribute(USERSESSIONKEY);
 			if (us == null) {
@@ -160,7 +164,6 @@ public class UserSessionManager implements GenericEventListener {
 	}
 
   /**
- * @param userName
  * @return the identity or null if no user with userName is currently logged
  *         on
  */
