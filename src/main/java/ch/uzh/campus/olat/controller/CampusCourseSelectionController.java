@@ -26,11 +26,9 @@ public class CampusCourseSelectionController<T> extends BasicController {
 	protected final Long sapCampusCourseId;
 	protected final CampusCourseService campusCourseService;
 	protected final RepositoryManager repositoryManager;
-	protected final CampusCourseOlatHelper campusCourseOlatHelper;
 	protected final CreateCampusCourseCompletedEventListener listener;
 	protected final UserRequest userRequest;
 
-	protected final VelocityContainer velocityContainer;
 	protected final CampusCourseTableController<T> table;
 	protected final Link cancelButton;
 
@@ -44,7 +42,6 @@ public class CampusCourseSelectionController<T> extends BasicController {
 	public CampusCourseSelectionController(Long sapCampusCourseId,
 										   CampusCourseService campusCourseService,
 										   RepositoryManager repositoryManager,
-										   CampusCourseOlatHelper campusCourseOlatHelper,
 										   CreateCampusCourseCompletedEventListener listener,
 										   WindowControl windowControl,
 										   UserRequest userRequest) {
@@ -54,14 +51,13 @@ public class CampusCourseSelectionController<T> extends BasicController {
 		this.sapCampusCourseId = sapCampusCourseId;
 		this.campusCourseService = campusCourseService;
 		this.repositoryManager = repositoryManager;
-		this.campusCourseOlatHelper = campusCourseOlatHelper;
 		this.listener = listener;
 		this.userRequest = userRequest;
 
 		this.table = createTableController(windowControl, userRequest);
 		listenTo(table);
 
-		this.velocityContainer = createVelocityContainer(
+		VelocityContainer velocityContainer = createVelocityContainer(
 				CampusCourseSelectionController.class.getSimpleName());
 		velocityContainer.remove(getInitialComponent());
 		velocityContainer.put(CampusCourseTableController.class.getSimpleName(),
@@ -74,7 +70,7 @@ public class CampusCourseSelectionController<T> extends BasicController {
 
 	protected CampusCourseTableController<T> createTableController(WindowControl windowControl,
 																UserRequest userRequest) {
-		return new CampusCourseTableController<T>(createTableGuiConfiguration(),
+		return new CampusCourseTableController<>(createTableGuiConfiguration(),
 				null, windowControl, userRequest);
 	}
 
@@ -82,7 +78,7 @@ public class CampusCourseSelectionController<T> extends BasicController {
 	protected final void event(UserRequest userRequest, Component source,
 							   Event event) {
 		if (source == cancelButton) {
-			listener.onCancel();
+			listener.onCancel(userRequest);
 		}
 	}
 

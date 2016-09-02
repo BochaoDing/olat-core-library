@@ -64,13 +64,13 @@ public class CampusCourseSubmitController extends BasicController {
 						.createCampusCourseFromStandardTemplate(sapCampusCourseId,
 								userRequest.getIdentity());
 
-				listener.onCancel();
+				listener.onCancel(userRequest);
 				campusCourseOlatHelper.openCourseInNewTab(campusCourse, getWindowControl(), userRequest);
 			} catch (Exception e) {
-				listener.onError(e);
+				listener.onError(userRequest, e);
 			}
 		} else if (source == cancelButton) {
-			listener.onCancel();
+			listener.onCancel(userRequest);
 		}
 	}
 

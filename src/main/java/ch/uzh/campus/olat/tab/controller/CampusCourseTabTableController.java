@@ -54,6 +54,7 @@ public class CampusCourseTabTableController extends CampusCourseTableController<
 	private final CampusCourseOlatHelper campusCourseOlatHelper;
 	private final CampusCourseBeanFactory campusCourseBeanFactory;
 	private final NavElement navElement;
+	private final boolean isAuthor;
 
 	public CampusCourseTabTableController(CampusCourseService campusCourseService,
 										  CampusCourseOlatHelper campusCourseOlatHelper,
@@ -65,20 +66,21 @@ public class CampusCourseTabTableController extends CampusCourseTableController<
 				getBusinessWindowControl(stateSite, windowControl, userRequest),
 				userRequest);
 
+		this.isAuthor = userRequest.getUserSession().getRoles().isAuthor();
 		addColumnDescriptor(new CampusCourseActionColumnDescriptor(
-				"tab.table.action.course", userRequest));
+				"tab.table.action.course",getLocale(), isAuthor));
 
 		this.campusCourseService = campusCourseService;
 		this.campusCourseOlatHelper = campusCourseOlatHelper;
 		this.campusCourseBeanFactory = campusCourseBeanFactory;
 
-		/**
+		/*
 		 * Only if the user has author rights and campus courses are
 		 * available, the tab is shown.
 		 */
-		if (reloadData(userRequest) > 0) {
+		if (reloadData() > 0) {
 
-			/**
+			/*
 			 * TODO sev26
 			 * Verify if this is the best way to inform the controller about
 			 * list entry changes.
@@ -87,13 +89,13 @@ public class CampusCourseTabTableController extends CampusCourseTableController<
 					.registerFor(new GenericEventListener() {
 				@Override
 				public void event(Event event) {
-					reloadData(userRequest);
+					reloadData();
 				}
 			}, userRequest.getIdentity(), new Resourceable("CourseModule",
 					null));
 
 			Translator translator = CampusCourseOlatHelper.getTranslator(
-					userRequest.getLocale());
+					getLocale());
 			NavElement tmp = new DefaultNavElement(translator
 					.translate("topnav.campuscourses"), translator
 					.translate("topnav.campuscourses.alt"),
@@ -108,13 +110,13 @@ public class CampusCourseTabTableController extends CampusCourseTableController<
 		navElement = null;
 	}
 
-	private int reloadData(UserRequest userRequest) {
+	private int reloadData() {
 		List<SapCampusCourseTo> sapCampusCourseTos = campusCourseService
 				.getCoursesWhichCouldBeCreated(getIdentity(), "");
 
 		setTableDataModel(new CampusCourseTableDataModel(sapCampusCourseTos,
-				userRequest.getUserSession().getRoles().isAuthor(),
-				userRequest.getLocale()));
+				isAuthor,
+				getLocale()));
 		modelChanged(true);
 
 		return sapCampusCourseTos.size();
@@ -124,7 +126,7 @@ public class CampusCourseTabTableController extends CampusCourseTableController<
 	public void event(UserRequest userRequest, Component source, Event event) {
 		super.event(userRequest, source, event);
 
-		/**
+		/*
 		 * Only react if its an event triggered by the table rows and not by
 		 * the surroundings like a "change sorting" event.
 		 */
@@ -139,7 +141,7 @@ public class CampusCourseTabTableController extends CampusCourseTableController<
 			controller.addControllerListener(this);
 
 			campusCourseOlatHelper.showDialog("campus.course.creation.title",
-					controller, userRequest, getWindowControl(), this);
+					controller, userRequest.getLocale(), getWindowControl(), this);
 		}
 	}
 

@@ -21,7 +21,6 @@ public class CampusCourseCreateDialogController extends BasicController implemen
 
 	private ArrayList<CreateCampusCourseCompletedEventListener> createCampusCourseCompletedEventListeners =
 			new ArrayList<>(1);
-	private final CampusCourseCreationChoiceController campusCourseCreationChoiceController;
 	private final VelocityContainer velocityContainer;
 
 	public CampusCourseCreateDialogController(Long sapCampusCourseId,
@@ -58,10 +57,10 @@ public class CampusCourseCreateDialogController extends BasicController implemen
 					}
 				};
 
-		this.campusCourseCreationChoiceController = campusCourseBeanFactory
+		CampusCourseCreationChoiceController campusCourseCreationChoiceController = campusCourseBeanFactory
 				.createCampusCourseCreationChoiceController(listener,
 						windowControl, userRequest);
-		this.campusCourseCreationChoiceController.addControllerListener(this);
+		campusCourseCreationChoiceController.addControllerListener(this);
 
 		velocityContainer.put(CampusCourseCreationChoiceController.class.getSimpleName(),
 				campusCourseCreationChoiceController.getInitialComponent());
@@ -85,20 +84,20 @@ public class CampusCourseCreateDialogController extends BasicController implemen
 	}
 
 	@Override
-	public final void onError(Exception e) {
-		createCampusCourseCompletedEventListeners.forEach(l -> l.onError(e));
+	public final void onError(UserRequest ureq, Exception e) {
+		createCampusCourseCompletedEventListeners.forEach(l -> l.onError(ureq, e));
 		createCampusCourseCompletedEventListeners.clear();
 	}
 
 	@Override
-	public final void onSuccess(CampusCourse campusCourse) {
-		createCampusCourseCompletedEventListeners.forEach(l -> l.onSuccess(campusCourse));
+	public final void onSuccess(UserRequest ureq, CampusCourse campusCourse) {
+		createCampusCourseCompletedEventListeners.forEach(l -> l.onSuccess(ureq, campusCourse));
 		createCampusCourseCompletedEventListeners.clear();
 	}
 
 	@Override
-	public final void onCancel() {
-		createCampusCourseCompletedEventListeners.forEach(CreateCampusCourseCompletedEventListener::onCancel);
+	public final void onCancel(UserRequest ureq) {
+		createCampusCourseCompletedEventListeners.forEach(l -> l.onCancel(ureq));
 		createCampusCourseCompletedEventListeners.clear();
 	}
 }

@@ -62,9 +62,9 @@ public class ContinueCampusCourseSelectionController extends CampusCourseDialogS
 								.getOlatResource().getResourceableId());
 						CampusCourse campusCourse = campusCourseService.continueCampusCourse(sapCampusCourseId,
 								parentCourse.getId(), userRequest.getIdentity());
-						listener.onSuccess(campusCourse);
+						listener.onSuccess(userRequest, campusCourse);
 					} catch (Exception e) {
-						listener.onError(e);
+						listener.onError(userRequest, e);
 					}
 				}
 			}
@@ -74,13 +74,12 @@ public class ContinueCampusCourseSelectionController extends CampusCourseDialogS
 	public ContinueCampusCourseSelectionController(Long sapCampusCourseId,
 												   CampusCourseService campusCourseService,
 												   RepositoryManager repositoryManager,
-												   CampusCourseOlatHelper campusCourseOlatHelper,
 												   CreateCampusCourseCompletedEventListener listener,
 												   WindowControl windowControl,
 												   UserRequest userRequest
 	) {
 		super(sapCampusCourseId, campusCourseService, repositoryManager,
-				campusCourseOlatHelper, listener, windowControl, userRequest);
+				listener, windowControl, userRequest);
 
 		List<RepositoryEntry> campusCourseEntries = new ArrayList<>();
 		List<RepositoryEntry> entries = repositoryManager.queryByOwner(userRequest.getIdentity(), "CourseModule");

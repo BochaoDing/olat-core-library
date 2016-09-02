@@ -29,13 +29,12 @@ public class CreationCampusCourseSelectionController extends CampusCourseDialogS
 	public CreationCampusCourseSelectionController(Long sapCampusCourseId,
 												   CampusCourseService campusCourseService,
 												   RepositoryManager repositoryManager,
-												   CampusCourseOlatHelper campusCourseOlatHelper,
 												   CreateCampusCourseCompletedEventListener listener,
 												   WindowControl windowControl,
 												   UserRequest userRequest
 	) {
 		super(sapCampusCourseId, campusCourseService, repositoryManager,
-				campusCourseOlatHelper, listener, windowControl, userRequest);
+				listener, windowControl, userRequest);
 
 		List<RepositoryEntry> entries = repositoryManager.queryByOwner(
 				userRequest.getIdentity(), "CourseModule");
@@ -52,7 +51,7 @@ public class CreationCampusCourseSelectionController extends CampusCourseDialogS
 			CampusCourse campusCourse = campusCourseService.createCampusCourseFromStandardTemplate(resourceableId,
 					sapCampusCourseId, userRequest.getIdentity());
 
-			listener.onSuccess(campusCourse);
+			listener.onSuccess(userRequest, campusCourse);
 		} catch (Exception e) {
 
 			// OLATNG-341: Error log to find out more about error (to be removed after problem is solved)
@@ -61,7 +60,7 @@ public class CreationCampusCourseSelectionController extends CampusCourseDialogS
 			e.printStackTrace(pw);
 			LOG.error("OLATNG-341: Error when trying to create campus course from template: " + e.getMessage() + " \nStack trace: " + sw.toString());
 
-			listener.onError(e);
+			listener.onError(userRequest, e);
 		}
 	}
 }
