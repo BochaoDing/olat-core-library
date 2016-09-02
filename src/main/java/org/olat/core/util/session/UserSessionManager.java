@@ -19,20 +19,6 @@
  */
 package org.olat.core.util.session;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
-import java.util.TreeSet;
-import java.util.concurrent.atomic.AtomicInteger;
-
-import javax.annotation.PostConstruct;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
-
 import org.olat.core.commons.persistence.DB;
 import org.olat.core.gui.control.Disposable;
 import org.olat.core.gui.control.Event;
@@ -45,11 +31,7 @@ import org.olat.core.id.context.HistoryManager;
 import org.olat.core.logging.AssertException;
 import org.olat.core.logging.OLog;
 import org.olat.core.logging.Tracing;
-import org.olat.core.logging.activity.CoreLoggingResourceable;
-import org.olat.core.logging.activity.OlatLoggingAction;
-import org.olat.core.logging.activity.ThreadLocalUserActivityLogger;
-import org.olat.core.logging.activity.ThreadLocalUserActivityLoggerInstaller;
-import org.olat.core.logging.activity.UserActivityLoggerImpl;
+import org.olat.core.logging.activity.*;
 import org.olat.core.util.SessionInfo;
 import org.olat.core.util.SignOnOffEvent;
 import org.olat.core.util.UserSession;
@@ -60,6 +42,12 @@ import org.olat.core.util.prefs.Preferences;
 import org.olat.core.util.resource.OresHelper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import javax.annotation.PostConstruct;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * 
@@ -108,10 +96,6 @@ public class UserSessionManager implements GenericEventListener {
 	 */
 	public UserSession getUserSession(HttpSession session) {
 		UserSession us;
-
-		// OLATNG-341: To be removed after problem is solved
-		assert session != null;
-
 		synchronized (session) {//o_clusterOK by:fj
 			us = (UserSession) session.getAttribute(USERSESSIONKEY);
 			if (us == null) {
