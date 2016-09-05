@@ -19,6 +19,7 @@ import org.olat.core.id.OLATResourceable;
 import org.olat.core.id.context.BusinessControlFactory;
 import org.olat.core.id.context.StateSite;
 import org.olat.core.logging.activity.ThreadLocalUserActivityLogger;
+import org.olat.core.util.UserSession;
 import org.olat.core.util.event.GenericEventListener;
 import org.olat.core.util.resource.OresHelper;
 import org.olat.core.util.resource.Resourceable;
@@ -55,6 +56,9 @@ public class CampusCourseTabTableController extends CampusCourseTableController<
 	private final CampusCourseBeanFactory campusCourseBeanFactory;
 	private final NavElement navElement;
 	private final boolean isAuthor;
+	private GenericEventListener campusCourseTabTableControllerListener;
+	private UserSession userSession;
+	private Resourceable courseModule;
 
 	public CampusCourseTabTableController(CampusCourseService campusCourseService,
 										  CampusCourseOlatHelper campusCourseOlatHelper,
@@ -73,6 +77,9 @@ public class CampusCourseTabTableController extends CampusCourseTableController<
 		this.campusCourseService = campusCourseService;
 		this.campusCourseOlatHelper = campusCourseOlatHelper;
 		this.campusCourseBeanFactory = campusCourseBeanFactory;
+		this.userSession = userRequest.getUserSession();
+		campusCourseTabTableControllerListener = new CampusCourseTabTableControllerListener();
+		courseModule = new Resourceable("CourseModule", null);
 
 		/*
 		 * Only if the user has author rights and campus courses are
@@ -85,14 +92,8 @@ public class CampusCourseTabTableController extends CampusCourseTableController<
 			 * Verify if this is the best way to inform the controller about
 			 * list entry changes.
 			 */
-			userRequest.getUserSession().getSingleUserEventCenter()
-					.registerFor(new GenericEventListener() {
-				@Override
-				public void event(Event event) {
-					reloadData();
-				}
-			}, userRequest.getIdentity(), new Resourceable("CourseModule",
-					null));
+			userSession.getSingleUserEventCenter()
+					.registerFor(campusCourseTabTableControllerListener, userRequest.getIdentity(), courseModule);
 
 			Translator translator = CampusCourseOlatHelper.getTranslator(
 					getLocale());
@@ -145,7 +146,21 @@ public class CampusCourseTabTableController extends CampusCourseTableController<
 		}
 	}
 
+	@Override
+	public void doDispose() {
+		userSession.getSingleUserEventCenter()
+				.deregisterFor(campusCourseTabTableControllerListener, courseModule);
+		super.doDispose();
+	}
+
 	public NavElement getNavElement() {
 		return navElement;
+	}
+
+	private class CampusCourseTabTableControllerListener  implements GenericEventListener {
+		@Override
+		public void event(Event event) {
+			reloadData();
+		}
 	}
 }
