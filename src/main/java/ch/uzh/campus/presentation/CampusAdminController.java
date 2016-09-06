@@ -24,12 +24,10 @@ import org.olat.core.CoreSpringFactory;
 import org.olat.core.gui.UserRequest;
 import org.olat.core.gui.components.form.flexible.FormItem;
 import org.olat.core.gui.components.form.flexible.FormItemContainer;
-import org.olat.core.gui.components.form.flexible.elements.FormLink;
 import org.olat.core.gui.components.form.flexible.elements.SingleSelection;
 import org.olat.core.gui.components.form.flexible.elements.TextElement;
 import org.olat.core.gui.components.form.flexible.impl.FormBasicController;
 import org.olat.core.gui.components.form.flexible.impl.FormEvent;
-import org.olat.core.gui.components.link.Link;
 import org.olat.core.gui.control.Controller;
 import org.olat.core.gui.control.WindowControl;
 import org.olat.core.logging.OLog;
@@ -48,7 +46,6 @@ public class CampusAdminController extends FormBasicController {
     private SingleSelection languagesSelection;
     private static String[] languages = { "DE", "EN", "FR", "IT" };
     private static String DEFAULT_LANGUAGE = "DE";
-    private FormLink saveButton;
     private CampusCourseConfiguration campusCourseConfiguration;
     private Long templateCourseResourcableId;
 
@@ -73,8 +70,7 @@ public class CampusAdminController extends FormBasicController {
         resourceableIdTextElement = uifactory.addTextElement("resourceableId", "campus.admin.form.resourceableid", 60, "", formLayout);
         resourceableIdTextElement.setValue(templateCourseResourcableId.toString());
 
-        saveButton = uifactory.addFormLink("save", formLayout, Link.BUTTON);
-        saveButton.addActionListener(FormEvent.ONCLICK);
+        uifactory.addFormSubmitButton("save", formLayout);
     }
 
     @Override
@@ -84,9 +80,6 @@ public class CampusAdminController extends FormBasicController {
             if (templateCourseResourcableId != null) {
                 resourceableIdTextElement.setValue(templateCourseResourcableId.toString());
             }
-        }
-        if (source == saveButton) {
-            source.getRootForm().submit(ureq);
         }
     }
 
