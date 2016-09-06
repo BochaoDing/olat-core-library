@@ -1,5 +1,6 @@
 package org.olat.admin.user;
 
+import ch.uzh.campus.mapper.UserMappingDeletion;
 import org.olat.basesecurity.Authentication;
 import org.olat.basesecurity.BaseSecurityManager;
 import org.olat.basesecurity.BaseSecurityModule;
@@ -9,6 +10,8 @@ import org.olat.core.helpers.Settings;
 import org.olat.core.id.Identity;
 import org.olat.core.id.Preferences;
 import org.olat.core.id.UserConstants;
+import org.olat.core.logging.OLog;
+import org.olat.core.logging.Tracing;
 import org.olat.core.util.Encoder;
 import org.olat.core.util.Util;
 import org.olat.core.util.i18n.I18nManager;
@@ -29,6 +32,8 @@ public class UserChangePasswordMailUtil {
     private MailManager mailManager;
     @Autowired
     private RegistrationManager registrationManager;
+
+    private static final OLog LOG = Tracing.createLoggerFor(UserChangePasswordMailUtil.class);
 
     public UserChangePasswordMailUtil() {
     }
@@ -63,17 +68,20 @@ public class UserChangePasswordMailUtil {
         // check if user has an OLAT provider token, otherwhise a pwd change makes no sense
         Authentication auth = BaseSecurityManager.getInstance().findAuthentication(user, BaseSecurityModule.getDefaultAuthProviderIdentifier());
         if (auth == null) {
+            LOG.error(user.getName() + " has no OLAT provider token");
             throw new UserChangePasswordException(user.getName() + " has no OLAT provider token");
         }
 
         Locale locale = getUserLocale(user);
         String emailAdress = user.getUser().getProperty(UserConstants.EMAIL, locale);
         if (emailAdress == null) {
+            LOG.error("No email specified for " + user.getName());
             throw new UserHasNoEmailException("No email specified for " + user.getName());
         }
 
         // Validate if template corresponds to our expectations (should containt dummy key)
         if (!text.contains(getDummyKey(emailAdress))) {
+            LOG.error("Dummy key not found in prepared email");
             throw new UserChangePasswordException("Dummy key not found in prepared email");
         }
 

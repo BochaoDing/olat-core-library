@@ -267,7 +267,8 @@ public class UserImportController extends BasicController {
 									util.sendTokenByMail(ureq1, createdIdentity, util.generateMailText(createdIdentity));
 								}
 							} catch(Exception e) {
-								report.addError("Failed to send password change email to " + createdIdentity.getName());
+								String moreInfo = e.getMessage();
+								report.addError(translate("sendmail.passwordchange.failed", createdIdentity.getName()) + " " + moreInfo);
 							}
 
 							if(++count % 10 == 0) {
@@ -304,7 +305,7 @@ public class UserImportController extends BasicController {
 					}
 				} catch (Exception any) {
 					logError("", any);
-					report.addError("Unexpected error, see log files or call your system administrator");
+					report.addError(translate("unexpected.error"));
 				}
 				// signal correct completion and tell if changes were made or not.
 				return report.isHasChanges() ? StepsMainRunController.DONE_MODIFIED : StepsMainRunController.DONE_UNCHANGED;
