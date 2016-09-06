@@ -268,7 +268,8 @@ public class UserImportController extends BasicController {
 								}
 							} catch(Exception e) {
 								String moreInfo = e.getMessage();
-								report.addError(translate("sendmail.passwordchange.failed", createdIdentity.getName()) + " " + moreInfo);
+								report.addError(translate("sendmail.passwordchange.failed", createdIdentity.getName())
+										+ (moreInfo == null ? "": " " + moreInfo));
 							}
 
 							if(++count % 10 == 0) {

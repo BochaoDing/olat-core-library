@@ -65,7 +65,11 @@ public class UserChangePasswordMailUtil {
     }
 
     public MailerResult sendTokenByMail(UserRequest ureq, Identity user, String text) throws UserChangePasswordException, UserHasNoEmailException {
-        // check if user has an OLAT provider token, otherwhise a pwd change makes no sense
+        if (ureq == null || user != null || text != null) {
+            throw new UserChangePasswordException("sendTokenByMail receives one or more null parameters");
+        }
+
+        // check if user has an OLAT provider token, otherwise a password change makes no sense
         Authentication auth = BaseSecurityManager.getInstance().findAuthentication(user, BaseSecurityModule.getDefaultAuthProviderIdentifier());
         if (auth == null) {
             LOG.error(user.getName() + " has no OLAT provider token");
@@ -79,24 +83,36 @@ public class UserChangePasswordMailUtil {
             throw new UserHasNoEmailException("No email specified for " + user.getName());
         }
 
-        // Validate if template corresponds to our expectations (should containt dummy key)
+        // Validate if template corresponds to our expectations (should contain dummy key)
         if (!text.contains(getDummyKey(emailAdress))) {
             LOG.error("Dummy key not found in prepared email");
             throw new UserChangePasswordException("Dummy key not found in prepared email");
         }
 
-        TemporaryKey tk = registrationManager.loadTemporaryKeyByEmail(emailAdress);
-        if (tk == null) {
-            String ip = ureq.getHttpReq().getRemoteAddr();
-            tk = registrationManager.createTemporaryKeyByEmail(emailAdress, ip, RegistrationManager.PW_CHANGE);
+        String body;
+        try {
+            TemporaryKey tk = registrationManager.loadTemporaryKeyByEmail(emailAdress);
+            if (tk == null) {
+                String ip = ureq.getHttpReq().getRemoteAddr();
+                tk = registrationManager.createTemporaryKeyByEmail(emailAdress, ip, RegistrationManager.PW_CHANGE);
+            }
+            body = text.replace(dummyKey, tk.getRegistrationKey());
+        } catch (Exception e) {
+            throw new UserChangePasswordException("Could not prepare mail message");
         }
-        String body = text.replace(dummyKey, tk.getRegistrationKey());
-        Translator userTrans = Util.createPackageTranslator(RegistrationManager.class, locale) ;
 
-        MailBundle bundle = new MailBundle();
-        bundle.setToId(user);
-        bundle.setContent(userTrans.translate("pwchange.subject"), body);
-        return mailManager.sendExternMessage(bundle, null, false);
+        MailerResult result;
+        try {
+            Translator userTrans = Util.createPackageTranslator(RegistrationManager.class, locale) ;
+            MailBundle bundle = new MailBundle();
+            bundle.setToId(user);
+            bundle.setContent(userTrans.translate("pwchange.subject"), body);
+            result = mailManager.sendExternMessage(bundle, null, false);
+        } catch (Exception e) {
+            throw new UserChangePasswordException("Could not send prepared mail message");
+        }
+
+        return result;
     }
 
 }
