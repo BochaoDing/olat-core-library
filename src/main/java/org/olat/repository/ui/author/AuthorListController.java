@@ -82,6 +82,8 @@ import org.olat.core.id.OLATResourceable;
 import org.olat.core.id.Roles;
 import org.olat.core.id.context.ContextEntry;
 import org.olat.core.id.context.StateEntry;
+import org.olat.core.logging.OLog;
+import org.olat.core.logging.Tracing;
 import org.olat.core.logging.activity.ThreadLocalUserActivityLogger;
 import org.olat.core.util.StringHelper;
 import org.olat.core.util.Util;
@@ -153,7 +155,9 @@ public class AuthorListController extends FormBasicController implements Activat
 	private final AtomicInteger counter = new AtomicInteger();
 	//only used as marker for dirty, model cannot load specific rows
 	private final List<Long> dirtyRows = new ArrayList<>();
-	
+
+	private static final OLog LOG = Tracing.createLoggerFor(AuthorListController.class);
+
 	@Autowired
 	private DB dbInstance;
 	@Autowired
@@ -483,7 +487,7 @@ public class AuthorListController extends FormBasicController implements Activat
 			if (DialogBoxUIFactory.isYesEvent(event)) {
 				@SuppressWarnings("unchecked")
 				List<AuthoringEntryRow> rows = (List<AuthoringEntryRow>)copyDialogCtrl.getUserObject();
-				doCompleteCopy(rows);
+				doCompleteCopy(ureq, rows);
 				reloadRows();
 			}
 		}
@@ -784,17 +788,30 @@ public class AuthorListController extends FormBasicController implements Activat
 		}
 	}
 	
-	private void doCompleteCopy(List<AuthoringEntryRow> rows) {
+	private void doCompleteCopy(UserRequest ureq, List<AuthoringEntryRow> rows) {
+		Roles roles = ureq.getUserSession().getRoles();
+		boolean isAdmin = roles.isOLATAdmin();
+
+		int skippedRows = 0;
 		for(AuthoringEntryRow row:rows) {
 			RepositoryEntry sourceEntry = repositoryService.loadByKey(row.getKey());
-			String displayname = "Copy of " + sourceEntry.getDisplayname();
-			if(displayname.length() > 99) {
-				displayname = displayname.substring(0, 99);
+			if (!isAdmin && sourceEntry.exceedsSizeLimit()) {
+				LOG.warn("Course sourceEntry.getDisplayname() is not copied because it exceeds the size limit");
+				skippedRows++;
+			} else {
+				String displayname = "Copy of " + sourceEntry.getDisplayname();
+				if (displayname.length() > 255) {
+					displayname = displayname.substring(0, 255);
+				}
+				repositoryService.copy(sourceEntry, getIdentity(), displayname);
 			}
-			repositoryService.copy(sourceEntry, getIdentity(), displayname);
 		}
-		
-		showInfo("details.copy.success", new String[]{ Integer.toString(rows.size()) });
+
+		if (skippedRows > 0) {
+			showInfo("details.copy.success.with.some.skipped", new String[]{ Integer.toString(rows.size() - skippedRows, skippedRows) });
+		} else {
+			showInfo("details.copy.success", Integer.toString(rows.size()));
+		}
 	}
 	
 	private void doCloseResource(UserRequest ureq, AuthoringEntryRow row) {

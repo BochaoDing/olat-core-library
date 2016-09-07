@@ -221,6 +221,16 @@ public class PersistingCourseImpl implements ICourse, OLATResourceable, Serializ
 		courseEnvironment.updateCourseEntry(courseEntry);
 	}
 
+	@Override
+	public boolean exceedsSizeLimit() {
+		try {
+			CourseConfigUtil.checkAgainstConfiguredMaxSize(getCourseBaseContainer().getBasefile());
+		} catch (FileSizeLimitExceededException e) {
+			return true;
+		}
+		return false;
+	}
+
 	/**
 	 * Prepares the filesystem for this course.
 	 */

@@ -55,6 +55,8 @@ import org.olat.core.util.CodeHelper;
 import org.olat.core.util.Formatter;
 import org.olat.core.util.StringHelper;
 import org.olat.core.util.resource.OresHelper;
+import org.olat.course.CourseFactory;
+import org.olat.course.PersistingCourseImpl;
 import org.olat.repository.model.RepositoryEntryLifecycle;
 import org.olat.repository.model.RepositoryEntryStatistics;
 import org.olat.repository.model.RepositoryEntryToGroupRelation;
@@ -549,6 +551,12 @@ public class RepositoryEntry implements CreateInfo, Persistable , RepositoryEntr
 
 	public void setStatistics(RepositoryEntryStatistics statistics) {
 		this.statistics = statistics;
+	}
+
+	public boolean exceedsSizeLimit() {
+		final OLATResource sourceResource = getOlatResource();
+		PersistingCourseImpl sourceCourse = (PersistingCourseImpl) CourseFactory.loadCourse(sourceResource);
+		return sourceCourse.exceedsSizeLimit();
 	}
 
 	/**

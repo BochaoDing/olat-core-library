@@ -7,8 +7,11 @@ import org.olat.core.gui.UserRequest;
 import org.olat.core.gui.control.Controller;
 import org.olat.core.gui.control.Event;
 import org.olat.core.gui.control.WindowControl;
+import org.olat.core.id.Roles;
 import org.olat.core.logging.OLog;
 import org.olat.core.logging.Tracing;
+import org.olat.course.CourseFactory;
+import org.olat.course.ICourse;
 import org.olat.repository.RepositoryEntry;
 import org.olat.repository.RepositoryManager;
 import org.olat.resource.OLATResourceManager;
@@ -47,10 +50,16 @@ public class CreationCampusCourseSelectionController extends CampusCourseDialogS
 				table.getSelectedEntry(event).getOlatResource())
 				.getResourceableId();
 		try {
-			CampusCourse campusCourse = campusCourseService.createCampusCourseFromStandardTemplate(resourceableId,
-					sapCampusCourseId, userRequest.getIdentity());
-
-			listener.onSuccess(userRequest, campusCourse);
+			// OLATNG-283: check the size of the course and how it's combined with user role. Only admins can create large courses.
+			Roles roles = userRequest.getUserSession().getRoles();
+			ICourse template = CourseFactory.loadCourse(resourceableId);
+			if (!roles.isOLATAdmin() && template.exceedsSizeLimit()) {
+				showError("copy.skipped.sizelimit.exceeded");
+			} else {
+				CampusCourse campusCourse = campusCourseService.createCampusCourseFromStandardTemplate(resourceableId,
+						sapCampusCourseId, userRequest.getIdentity());
+				listener.onSuccess(userRequest, campusCourse);
+			}
 		} catch (Exception e) {
 
 			// OLATNG-341: Error log to find out more about error (to be removed after problem is solved)
