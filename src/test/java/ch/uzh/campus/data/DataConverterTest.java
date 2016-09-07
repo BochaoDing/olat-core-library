@@ -1,5 +1,22 @@
 package ch.uzh.campus.data;
 
+import org.junit.Before;
+import org.junit.Test;
+import org.olat.basesecurity.BaseSecurity;
+import org.olat.core.commons.persistence.DB;
+import org.olat.core.id.Identity;
+import org.olat.test.OlatTestCase;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ContextConfiguration;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
+
+
 /**
  * OLAT - Online Learning and Training<br>
  * http://www.olat.org
@@ -19,26 +36,7 @@ package ch.uzh.campus.data;
  * Copyright (c) since 2004 at Multimedia- & E-Learning Services (MELS),<br>
  * University of Zurich, Switzerland.
  * <p>
- */
-
-import org.junit.Before;
-import org.junit.Test;
-import org.olat.basesecurity.BaseSecurity;
-import org.olat.core.commons.persistence.DB;
-import org.olat.core.id.Identity;
-import org.olat.test.OlatTestCase;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.ContextConfiguration;
-
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
-
-
-/**
+ *
  * Initial Date: Nov 3, 2014 <br>
  * 
  * @author aabouc
@@ -62,15 +60,11 @@ public class DataConverterTest extends OlatTestCase {
 
     @Before
     public void setup() throws Exception {
-        dataConverterTestObject = new DataConverter();
-
         mockSapOlatUserDao = mock(SapOlatUserDao.class);
-        dataConverterTestObject.sapOlatUserDao = mockSapOlatUserDao;
         when(mockSapOlatUserDao.getSapOlatUserBySapUserId(100L)).thenReturn(null);
         when(mockSapOlatUserDao.getSapOlatUserBySapUserId(200L)).thenReturn(dataGenerator.getSapOlatUsers().get(1));
 
         DB mockDB = mock(DB.class);
-        dataConverterTestObject.dBImpl = mockDB;
         doNothing().when(mockDB).intermediateCommit();
 
         id1 = mock(Identity.class);
@@ -78,14 +72,12 @@ public class DataConverterTest extends OlatTestCase {
         id3 = mock(Identity.class);
 
         mockDelegationDao = mock(DelegationDao.class);
-        dataConverterTestObject.delegationDao = mockDelegationDao;
-
         mockBaseSecurity = mock(BaseSecurity.class);
-        dataConverterTestObject.baseSecurity = mockBaseSecurity;
         when(mockBaseSecurity.findIdentityByName(null)).thenReturn(null);
         when(mockBaseSecurity.findIdentityByName("olatUserName1")).thenReturn(id1);
         when(mockBaseSecurity.findIdentityByName("olatUserName2")).thenReturn(id2);
 
+        dataConverterTestObject = new DataConverter(mockSapOlatUserDao, mockDelegationDao, mockBaseSecurity, mockDB);
     }
 
     @Test
