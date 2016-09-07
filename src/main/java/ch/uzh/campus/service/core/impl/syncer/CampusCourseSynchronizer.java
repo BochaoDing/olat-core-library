@@ -1,6 +1,7 @@
 package ch.uzh.campus.service.core.impl.syncer;
 
 import ch.uzh.campus.CampusCourseConfiguration;
+import ch.uzh.campus.CampusCourseException;
 import ch.uzh.campus.CampusCourseImportTO;
 import ch.uzh.campus.service.CampusCourse;
 import ch.uzh.campus.service.core.impl.CampusCourseFactory;
@@ -57,7 +58,7 @@ public class CampusCourseSynchronizer {
         this.campusCourseFactory = campusCourseFactory;
     }
 
-    SynchronizedGroupStatistic synchronizeCourse(CampusCourseImportTO sapCourse) {
+    SynchronizedGroupStatistic synchronizeCourse(CampusCourseImportTO sapCourse) throws CampusCourseException {
         if (sapCourse != null) {
             LOG.debug("synchronizeCourse sapCourseId=" + sapCourse.getSapCourseId() + "  resourceableId=" + sapCourse.getOlatResourceableId());
             LOG.debug("synchronizeCourse Lecturer size=" + sapCourse.getLecturersOfCourseAndParentCourses().size());

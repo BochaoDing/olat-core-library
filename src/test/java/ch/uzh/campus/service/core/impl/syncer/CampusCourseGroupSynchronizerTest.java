@@ -1,6 +1,7 @@
 package ch.uzh.campus.service.core.impl.syncer;
 
 import ch.uzh.campus.CampusCourseConfiguration;
+import ch.uzh.campus.CampusCourseException;
 import ch.uzh.campus.CampusCourseImportTO;
 import ch.uzh.campus.CampusCourseJunitTestHelper;
 import ch.uzh.campus.service.CampusCourse;
@@ -132,7 +133,7 @@ public class CampusCourseGroupSynchronizerTest extends OlatTestCase {
      * beginning.
      */
     @Test
-    public void synchronizeCourseGroups_AddLectures_CheckAddedStatisticAndMembers() {
+    public void synchronizeCourseGroups_AddLectures_CheckAddedStatisticAndMembers() throws CampusCourseException {
         CampusCourseImportTO campusCourseImportData = new CampusCourseImportTO("Group_Test", "HS-2012", getTestLecturersWithDuplicateEntry(), Collections.emptyList(), Collections.emptyList(),
                 "Group_Test", TEST_RESOURCEABLE_ID, null, null, null);
 
@@ -160,7 +161,7 @@ public class CampusCourseGroupSynchronizerTest extends OlatTestCase {
      * beginning.
      */
     @Test
-    public void synchronizeCourseGroups_AddParticipants_CheckAddedStatisticAndMembers() {
+    public void synchronizeCourseGroups_AddParticipants_CheckAddedStatisticAndMembers() throws CampusCourseException {
         CampusCourseImportTO campusCourseImportData = new CampusCourseImportTO("Group_Test", "HS-2012", Collections.emptyList(), Collections.emptyList(),
                 getTestParticipantsWithDuplicateEntry(), "Group_Test", TEST_RESOURCEABLE_ID, null, null, null);
 
@@ -207,7 +208,7 @@ public class CampusCourseGroupSynchronizerTest extends OlatTestCase {
      * The owner group is not synchronized, that is the owners are never removed.
      */
     @Test
-    public void synchronizeCourseGroups_AddRemoveLectures_CheckRemovedStatisticAndMembers() {
+    public void synchronizeCourseGroups_AddRemoveLectures_CheckRemovedStatisticAndMembers() throws CampusCourseException {
         CampusCourseImportTO campusCourseImportData = new CampusCourseImportTO("Group_Test", "HS-2012", getTestLecturersWithDuplicateEntry(), Collections.emptyList(), Collections.emptyList(),
                 "Group_Test", TEST_RESOURCEABLE_ID, null, null, null);
 
@@ -245,7 +246,7 @@ public class CampusCourseGroupSynchronizerTest extends OlatTestCase {
      * 2. Synchronize Campus-Group, remove one participant (secondTestIdentity), add a new participant (thirdTestIdentity)
      */
     @Test
-    public void synchronizeCourseGroups_AddRemoveParticipants_CheckRemovedStatisticAndMembers() {
+    public void synchronizeCourseGroups_AddRemoveParticipants_CheckRemovedStatisticAndMembers() throws CampusCourseException {
         CampusCourseImportTO campusCourseImportData = new CampusCourseImportTO("Group_Test", "HS-2012", Collections.emptyList(), Collections.emptyList(),
                 getTestParticipantsWithDuplicateEntry(), "Group_Test", TEST_RESOURCEABLE_ID, null, null, null);
 

@@ -1,3 +1,17 @@
+package ch.uzh.campus.service.core.impl.syncer;
+
+import ch.uzh.campus.CampusCourseImportTO;
+import ch.uzh.campus.service.core.impl.syncer.statistic.OverallSynchronizeStatistic;
+import ch.uzh.campus.service.core.impl.syncer.statistic.SynchronizedGroupStatistic;
+import org.olat.core.commons.persistence.DB;
+import org.olat.core.logging.OLog;
+import org.olat.core.logging.Tracing;
+import org.springframework.batch.item.ItemWriter;
+import org.springframework.beans.factory.annotation.Autowired;
+
+import javax.annotation.PreDestroy;
+import java.util.List;
+
 /**
  * OLAT - Online Learning and Training<br>
  * http://www.olat.org
@@ -17,22 +31,7 @@
  * Copyright (c) since 2004 at Multimedia- & E-Learning Services (MELS),<br>
  * University of Zurich, Switzerland.
  * <p>
- */
-package ch.uzh.campus.service.core.impl.syncer;
-
-import ch.uzh.campus.CampusCourseImportTO;
-import ch.uzh.campus.service.core.impl.syncer.statistic.OverallSynchronizeStatistic;
-import ch.uzh.campus.service.core.impl.syncer.statistic.SynchronizedGroupStatistic;
-import org.olat.core.commons.persistence.DB;
-import org.olat.core.logging.OLog;
-import org.olat.core.logging.Tracing;
-import org.springframework.batch.item.ItemWriter;
-import org.springframework.beans.factory.annotation.Autowired;
-
-import javax.annotation.PreDestroy;
-import java.util.List;
-
-/**
+ *
  * This is an implementation of {@link ItemWriter} that synchronizes the SAP data (courses and their participants) <br>
  * with the OLAT courses and the appropriate groups.<br>
  * It delegates the actual synchronizing process to the {@link CampusCourseSynchronizer}. <br>
@@ -56,7 +55,7 @@ public class CampusCourseSynchronizationWriter implements ItemWriter<CampusCours
         this.dbInstance = dbInstance;
     }
 
-    public OverallSynchronizeStatistic getSynchronizeStatistic() {
+    OverallSynchronizeStatistic getSynchronizeStatistic() {
         return synchronizeStatistic;
     }
 
@@ -89,7 +88,16 @@ public class CampusCourseSynchronizationWriter implements ItemWriter<CampusCours
                 dbInstance.commitAndCloseSession();
             } catch (Throwable t) {
                 dbInstance.rollbackAndCloseSession();
-                LOG.warn(t.getMessage());
+                // In the case of an exception, Spring Batch calls this method several times:
+                // First for the sapCourses according to commit-interval in campusBatchJobContext.xml, and then (after rollbacking)
+                // for each entry of the original sapCourses separately enabling commits containing only one entry.
+                // To avoid duplicated warnings we only log a warning in the latter case.
+                String msg = "Could not synchronize campus course '" + sapCourse.getTitle() + "': " + t.getMessage();
+                if (sapCourses.size() == 1) {
+                    LOG.error(msg);
+                } else {
+                    LOG.debug(msg);
+                }
                 throw t;
             }
         }
