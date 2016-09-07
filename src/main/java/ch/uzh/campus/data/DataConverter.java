@@ -1,3 +1,15 @@
+package ch.uzh.campus.data;
+
+import org.olat.basesecurity.BaseSecurity;
+import org.olat.core.commons.persistence.DB;
+import org.olat.core.id.Identity;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+
 /**
  * OLAT - Online Learning and Training<br>
  * http://www.olat.org
@@ -18,48 +30,37 @@
  * University of Zurich, Switzerland.
  * <p>
  */
-package ch.uzh.campus.data;
-
-import org.olat.basesecurity.BaseSecurity;
-import org.olat.core.commons.persistence.DB;
-import org.olat.core.id.Identity;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
 
 @Component
 public class DataConverter {
 
-    @Autowired
-    SapOlatUserDao sapOlatUserDao;
+    private final SapOlatUserDao sapOlatUserDao;
+    private final DelegationDao delegationDao;
 
-    @Autowired
-    DelegationDao delegationDao;
-
-    /**
+    /*
      * TODO sev26
      * Verify correctness.
      */
+    private final BaseSecurity baseSecurity;
+    private final DB dbInstance;
+
     @Autowired
-    BaseSecurity baseSecurity;
-
-    DB dBImpl;
-
-    public BaseSecurity getBaseSecurity() {
-        return baseSecurity;
-    }
-
-    public void setBaseSecurity(BaseSecurity baseSecurity) {
+    public DataConverter(SapOlatUserDao sapOlatUserDao, DelegationDao delegationDao, BaseSecurity baseSecurity, DB dbInstance) {
+        this.sapOlatUserDao = sapOlatUserDao;
+        this.delegationDao = delegationDao;
         this.baseSecurity = baseSecurity;
+        this.dbInstance = dbInstance;
     }
 
-    public List<Identity> convertStudentsToIdentities(Set<StudentCourse> studentCourses) {
+    List<Identity> convertStudentsToIdentities(Set<StudentCourse> studentCourses) {
         List<Identity> identitiesOfParticipant = new ArrayList<>();
         SapOlatUser sapOlatUser;
+        int count = 0;
         for (StudentCourse studentCourse : studentCourses) {
+            // Avoid "too many db access for one transaction" warning by closing entity manager from time to time
+            if (count++ % 100 == 0) {
+                dbInstance.closeSession();
+            }
             sapOlatUser = sapOlatUserDao.getSapOlatUserBySapUserId(studentCourse.getStudent().getId());
             if (sapOlatUser == null) {
                 continue;
@@ -72,7 +73,7 @@ public class DataConverter {
         return identitiesOfParticipant;
     }
 
-    public List<Identity> convertLecturersToIdentities(Set<LecturerCourse> lecturerCourses) {
+    List<Identity> convertLecturersToIdentities(Set<LecturerCourse> lecturerCourses) {
         List<Identity> identitiesOfLecturers = new ArrayList<>();
         SapOlatUser sapOlatUser;
         for (LecturerCourse lecturerCourse : lecturerCourses) {
@@ -96,7 +97,7 @@ public class DataConverter {
         return identitiesOfLecturers;
     }
 
-    public List<Identity> convertDelegateesToIdentities(Set<LecturerCourse> lecturerCourses) {
+    List<Identity> convertDelegateesToIdentities(Set<LecturerCourse> lecturerCourses) {
         List<Identity> identitiesOfDelegatees = new ArrayList<>();
         SapOlatUser sapOlatUser;
         for (LecturerCourse lecturerCourse : lecturerCourses) {
@@ -115,8 +116,8 @@ public class DataConverter {
         return identitiesOfDelegatees;
     }
 
-    public List getDelegatees(Identity delegator) {
-        List<Object[]> identitiesOfDelegatees = new ArrayList<Object[]>();
+    List getDelegatees(Identity delegator) {
+        List<Object[]> identitiesOfDelegatees = new ArrayList<>();
         List<Delegation> delegations = delegationDao.getDelegationsByDelegator(delegator.getName());
         for (Delegation delegation : delegations) {
             Identity identity = findIdentity(delegation.getDelegatee());

@@ -975,7 +975,8 @@ public class BusinessGroupServiceImpl implements BusinessGroupService, UserDataD
 		BusinessGroupAddResponse response = new BusinessGroupAddResponse();
 		List<BusinessGroupModifiedEvent.Deferred> events = new ArrayList<BusinessGroupModifiedEvent.Deferred>();
 
-		BusinessGroup currBusinessGroup = businessGroupDAO.loadForUpdate(group);	
+		BusinessGroup currBusinessGroup = businessGroupDAO.loadForUpdate(group);
+		int count = 0;
 		for (final Identity identity : addIdentities) {
 			if (securityManager.isIdentityPermittedOnResourceable(identity, Constants.PERMISSION_HASROLE, Constants.ORESOURCE_GUESTONLY)) {
 				response.getIdentitiesWithoutPermission().add(identity);
@@ -983,6 +984,10 @@ public class BusinessGroupServiceImpl implements BusinessGroupService, UserDataD
 				response.getAddedIdentities().add(identity);
 			} else {
 				response.getIdentitiesAlreadyInGroup().add(identity);
+			}
+			// Avoid "too many db access for one transaction" warning by closing entity manager from time to time
+			if (count++ % 200 == 0) {
+				dbInstance.commitAndCloseSession();
 			}
 		}
 		dbInstance.commit();

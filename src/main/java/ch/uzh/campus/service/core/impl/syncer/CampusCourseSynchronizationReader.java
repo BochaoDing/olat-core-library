@@ -1,3 +1,17 @@
+package ch.uzh.campus.service.core.impl.syncer;
+
+import ch.uzh.campus.CampusCourseImportTO;
+import ch.uzh.campus.data.DaoManager;
+import ch.uzh.campus.utils.ListUtil;
+import org.olat.core.commons.persistence.DB;
+import org.springframework.batch.item.ItemReader;
+import org.springframework.beans.factory.annotation.Autowired;
+
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
+import java.util.Collections;
+import java.util.List;
+
 /**
  * OLAT - Online Learning and Training<br>
  * http://www.olat.org
@@ -17,22 +31,7 @@
  * Copyright (c) since 2004 at Multimedia- & E-Learning Services (MELS),<br>
  * University of Zurich, Switzerland.
  * <p>
- */
-package ch.uzh.campus.service.core.impl.syncer;
-
-import ch.uzh.campus.CampusCourseImportTO;
-import ch.uzh.campus.data.DaoManager;
-import ch.uzh.campus.utils.ListUtil;
-import org.olat.core.commons.persistence.DB;
-import org.springframework.batch.item.ItemReader;
-import org.springframework.beans.factory.annotation.Autowired;
-
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
-import java.util.Collections;
-import java.util.List;
-
-/**
+ *
  * This class is an implementation of {@link ItemReader} that reads all already created campus-course records from the database <br>
  * and converts them to the transfer objects of {@link CampusCourseImportTO}. <br>
  * It delegates the actual reading of data from the database to the DaoManager. <br>
@@ -74,7 +73,9 @@ public class CampusCourseSynchronizationReader implements ItemReader<CampusCours
      */
     public synchronized CampusCourseImportTO read() throws Exception {
         if (ListUtil.isNotBlank(sapCoursesIds)) {
-            return daoManager.getSapCampusCourse(sapCoursesIds.remove(0));
+            CampusCourseImportTO campusCourseImportTO = daoManager.getSapCampusCourse(sapCoursesIds.remove(0));
+            dbInstance.closeSession();
+            return campusCourseImportTO;
         }
         return null;
     }

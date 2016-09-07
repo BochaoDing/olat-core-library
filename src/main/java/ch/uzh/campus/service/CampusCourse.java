@@ -1,6 +1,7 @@
 package ch.uzh.campus.service;
 
 import ch.uzh.campus.CampusCourseConfiguration;
+import ch.uzh.campus.CampusCourseException;
 import ch.uzh.campus.CampusCourseImportTO;
 import ch.uzh.campus.service.core.impl.CampusCourseTool;
 import ch.uzh.campus.service.core.impl.creator.CampusCourseCreator;
@@ -9,6 +10,8 @@ import ch.uzh.campus.service.core.impl.creator.CampusCoursePublisher;
 import ch.uzh.campus.service.core.impl.syncer.CampusCourseGroupSynchronizer;
 import org.apache.commons.lang.StringUtils;
 import org.olat.core.id.Identity;
+import org.olat.core.logging.OLog;
+import org.olat.core.logging.Tracing;
 import org.olat.course.ICourse;
 import org.olat.repository.RepositoryEntry;
 import org.olat.repository.RepositoryService;
@@ -19,6 +22,8 @@ import org.olat.repository.RepositoryService;
  * @author cg
  */
 public class CampusCourse {
+
+    private static final OLog LOG = Tracing.createLoggerFor(CampusCourse.class);
 
     private final ICourse course;
     private final RepositoryEntry repositoryEntry;
@@ -63,7 +68,11 @@ public class CampusCourse {
         // Execute synchronization
         campusCourseGroupSynchronizer.addGroupOwnerRoleToLecturers(this, newCampusCourseImportData.getLecturersOfCourseAndParentCourses());
         campusCourseGroupSynchronizer.addGroupOwnerRoleToCoOwners(this);
-        campusCourseGroupSynchronizer.synchronizeCourseGroups(this, newCampusCourseImportData);
+        try {
+            campusCourseGroupSynchronizer.synchronizeCourseGroups(this, newCampusCourseImportData);
+        } catch (CampusCourseException e) {
+            LOG.error(e.getMessage());
+        }
     }
 
     public void updateCampusCourseCreatedFromTemplate(CampusCourseImportTO campusCourseImportData, Identity creator, boolean isDefaultTemplateUsed, CampusCourseCreator campusCourseCreator, CampusCoursePublisher campusCoursePublisher, CampusCourseGroupSynchronizer campusCourseGroupSynchronizer, CampusCourseConfiguration campusCourseConfiguration) {

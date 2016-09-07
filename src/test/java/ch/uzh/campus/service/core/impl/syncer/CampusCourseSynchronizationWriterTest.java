@@ -1,3 +1,22 @@
+package ch.uzh.campus.service.core.impl.syncer;
+
+import ch.uzh.campus.CampusCourseException;
+import ch.uzh.campus.CampusCourseImportTO;
+import ch.uzh.campus.service.core.impl.syncer.statistic.OverallSynchronizeStatistic;
+import ch.uzh.campus.service.core.impl.syncer.statistic.SynchronizedGroupStatistic;
+import ch.uzh.campus.service.core.impl.syncer.statistic.SynchronizedSecurityGroupStatistic;
+import org.junit.Before;
+import org.junit.Test;
+import org.olat.core.commons.persistence.DB;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 /**
  * OLAT - Online Learning and Training<br>
  * http://www.olat.org
@@ -17,42 +36,19 @@
  * Copyright (c) since 2004 at Multimedia- & E-Learning Services (MELS),<br>
  * University of Zurich, Switzerland.
  * <p>
- */
-package ch.uzh.campus.service.core.impl.syncer;
-
-import ch.uzh.campus.CampusCourseImportTO;
-import ch.uzh.campus.service.core.impl.syncer.statistic.OverallSynchronizeStatistic;
-import ch.uzh.campus.service.core.impl.syncer.statistic.SynchronizedGroupStatistic;
-import ch.uzh.campus.service.core.impl.syncer.statistic.SynchronizedSecurityGroupStatistic;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.olat.core.commons.persistence.DB;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
-import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
-/**
+ *
  * Initial Date: 08.11.2012 <br>
  * 
  * @author aabouc
  */
 public class CampusCourseSynchronizationWriterTest {
     private CampusCourseSynchronizationWriter campusCourseSynchronizationWriterTestObject;
-    private CampusCourseSynchronizer campusCourseSynchronizerMock;
-    private DB campusCourseDBImplMock;
     private List<CampusCourseImportTO> twoCoursesList = new ArrayList<>();
-    private SynchronizedGroupStatistic synchronizedGroupStatisticforCourse1, synchronizedGroupStatisticforCourse2;
 
     @Before
-    public void setup() {
+    public void setup() throws CampusCourseException {
         // Mock for CourseSynchronizer
-        campusCourseSynchronizerMock = mock(CampusCourseSynchronizer.class);
+        CampusCourseSynchronizer campusCourseSynchronizerMock = mock(CampusCourseSynchronizer.class);
         // Mock for DBImpl
         DB campusCourseDBImplMock = mock(DB.class);
         // Test object
@@ -60,8 +56,8 @@ public class CampusCourseSynchronizationWriterTest {
         // Test OverallSynchronizeStatistic
         campusCourseSynchronizationWriterTestObject.setSynchronizeStatistic(new OverallSynchronizeStatistic());
         // Test SynchronizedGroupStatistic
-        synchronizedGroupStatisticforCourse1 = new SynchronizedGroupStatistic("course1", null, new SynchronizedSecurityGroupStatistic(15, 0));
-        synchronizedGroupStatisticforCourse2 = new SynchronizedGroupStatistic("course2", null, new SynchronizedSecurityGroupStatistic(0, 9));
+        SynchronizedGroupStatistic synchronizedGroupStatisticforCourse1 = new SynchronizedGroupStatistic("course1", null, new SynchronizedSecurityGroupStatistic(15, 0));
+        SynchronizedGroupStatistic synchronizedGroupStatisticforCourse2 = new SynchronizedGroupStatistic("course2", null, new SynchronizedSecurityGroupStatistic(0, 9));
         // Mock for CampusCourseImportTO
         CampusCourseImportTO courseMock1 = mock(CampusCourseImportTO.class);
         CampusCourseImportTO courseMock2 = mock(CampusCourseImportTO.class);

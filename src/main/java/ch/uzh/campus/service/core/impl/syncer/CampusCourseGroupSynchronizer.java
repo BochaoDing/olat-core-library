@@ -1,5 +1,6 @@
 package ch.uzh.campus.service.core.impl.syncer;
 
+import ch.uzh.campus.CampusCourseException;
 import ch.uzh.campus.CampusCourseImportTO;
 import ch.uzh.campus.service.CampusCourse;
 import ch.uzh.campus.service.CampusCourseGroups;
@@ -77,8 +78,11 @@ public class CampusCourseGroupSynchronizer {
    }
 
    public SynchronizedGroupStatistic synchronizeCourseGroups(CampusCourse campusCourse,
-                                                             CampusCourseImportTO campusCourseImportData) {
+                                                             CampusCourseImportTO campusCourseImportData) throws CampusCourseException {
        CampusCourseGroups campusCourseGroups = campusCourseGroupsFinder.findCampusCourseGroups(campusCourse.getRepositoryEntry());
+       if (campusCourseGroups == null) {
+           throw new CampusCourseException("Campus course groups A and B do not exist or campus learning area does not exist or missing database relation between campus course groups and campus course learning area");
+       }
        return synchronizeCourseGroups(campusCourse, campusCourseImportData, campusCourseGroups);
    }
 
