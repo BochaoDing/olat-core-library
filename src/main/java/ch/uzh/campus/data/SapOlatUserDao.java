@@ -81,11 +81,19 @@ public class SapOlatUserDao {
     }
     
     public void saveMapping(Student student, Identity mappedIdentity) {
+        // Avoid constraint violations, since (olat_user_name, sap_user_type) must be unique
+        if (getSapOlatUserByOlatUserNameAndSapUserType(mappedIdentity.getName(), SapOlatUser.SapUserType.STUDENT) != null) {
+            return;
+        }
         SapOlatUser sapOlatUser = new SapOlatUser(student.getId(), mappedIdentity.getName(), SapUserType.STUDENT);        
         dbInstance.saveObject(sapOlatUser);
     }
     
     public void saveMapping(Lecturer lecturer, Identity mappedIdentity) {
+        // Avoid constraint violations, since (olat_user_name, sap_user_type) must be unique
+        if (getSapOlatUserByOlatUserNameAndSapUserType(mappedIdentity.getName(), SapUserType.LECTURER) != null) {
+            return;
+        }
         SapOlatUser sapOlatUser = new SapOlatUser(lecturer.getPersonalNr(), mappedIdentity.getName(), SapUserType.LECTURER);
         dbInstance.saveObject(sapOlatUser);
     }
