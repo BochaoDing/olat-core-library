@@ -72,29 +72,17 @@ public class SapOlatUserDaoTest  extends OlatTestCase {
         assertFalse(sapOlatUserDao.getSapOlatUserListByOlatUserName("olatUserName1").isEmpty());
         assertEquals(1, sapOlatUserDao.getSapOlatUserListByOlatUserName("olatUserName1").size());
     }
-
-    @Test
-    public void testGetSapOlatUserByOlatUserNameAndSapUserType_Null() {
-        assertNull(sapOlatUserDao.getSapOlatUserByOlatUserNameAndSapUserType("olatUserName500", SapOlatUser.SapUserType.LECTURER));
-        assertNull(sapOlatUserDao.getSapOlatUserByOlatUserNameAndSapUserType("olatUserName500", SapOlatUser.SapUserType.STUDENT));
-    }
-
-    @Test
-    public void testGetSapOlatUserByOlatUserNameAndSapUserType_NotNull() {
-        assertNotNull(sapOlatUserDao.getSapOlatUserByOlatUserNameAndSapUserType("olatUserName2", SapOlatUser.SapUserType.LECTURER));
-        assertNotNull(sapOlatUserDao.getSapOlatUserByOlatUserNameAndSapUserType("olatUserName1", SapOlatUser.SapUserType.STUDENT));
-    }
     
     @Test
     public void testGetSapOlatUsersByOlatUserNameAndSapUserType_Empty() {
-		assertNull(sapOlatUserDao.getSapOlatUsersByOlatUserNameAndSapUserType("olatUserName500", SapOlatUser.SapUserType.LECTURER));
-		assertNull(sapOlatUserDao.getSapOlatUsersByOlatUserNameAndSapUserType("olatUserName500", SapOlatUser.SapUserType.STUDENT));
+		assertTrue(sapOlatUserDao.getSapOlatUsersByOlatUserNameAndSapUserType("olatUserName500", SapOlatUser.SapUserType.LECTURER).isEmpty());
+		assertTrue(sapOlatUserDao.getSapOlatUsersByOlatUserNameAndSapUserType("olatUserName500", SapOlatUser.SapUserType.STUDENT).isEmpty());
     }
 
     @Test
     public void testGetSapOlatUsersByOlatUserNameAndSapUserType_NotEmpty() {
-        assertNotNull(sapOlatUserDao.getSapOlatUsersByOlatUserNameAndSapUserType("olatUserName2", SapOlatUser.SapUserType.LECTURER));
-		assertNotNull(sapOlatUserDao.getSapOlatUsersByOlatUserNameAndSapUserType("olatUserName1", SapOlatUser.SapUserType.STUDENT));
+        assertFalse(sapOlatUserDao.getSapOlatUsersByOlatUserNameAndSapUserType("olatUserName2", SapOlatUser.SapUserType.LECTURER).isEmpty());
+        assertFalse(sapOlatUserDao.getSapOlatUsersByOlatUserNameAndSapUserType("olatUserName1", SapOlatUser.SapUserType.STUDENT).isEmpty());
     }
    
     @Test
@@ -163,7 +151,7 @@ public class SapOlatUserDaoTest  extends OlatTestCase {
     
     @Test
     public void testDeleteMappingBySapLecturerIdsAsBulkDelete() {
-        assertNotNull(sapOlatUserDao.getSapOlatUsersByOlatUserNameAndSapUserType("olatUserName2", SapOlatUser.SapUserType.LECTURER));
+        assertFalse(sapOlatUserDao.getSapOlatUsersByOlatUserNameAndSapUserType("olatUserName2", SapOlatUser.SapUserType.LECTURER).isEmpty());
 
         List<Long> sapIds = new LinkedList<>();
         sapIds.add(200L);
@@ -173,12 +161,12 @@ public class SapOlatUserDaoTest  extends OlatTestCase {
         dbInstance.flush();
         dbInstance.clear();
 
-		assertNull(sapOlatUserDao.getSapOlatUsersByOlatUserNameAndSapUserType("olatUserName1", SapOlatUser.SapUserType.LECTURER));
+        assertTrue(sapOlatUserDao.getSapOlatUsersByOlatUserNameAndSapUserType("olatUserName2", SapOlatUser.SapUserType.LECTURER).isEmpty());
     }
     
     @Test
     public void testDeleteMappingBySapStudentIdsAsBulkDelete() {
-		assertNotNull(sapOlatUserDao.getSapOlatUsersByOlatUserNameAndSapUserType("olatUserName1", SapOlatUser.SapUserType.STUDENT));
+		assertFalse(sapOlatUserDao.getSapOlatUsersByOlatUserNameAndSapUserType("olatUserName1", SapOlatUser.SapUserType.STUDENT).isEmpty());
 
         List<Long> sapIds = new LinkedList<>();
         sapIds.add(100L);
@@ -188,12 +176,12 @@ public class SapOlatUserDaoTest  extends OlatTestCase {
         dbInstance.flush();
         dbInstance.clear();
 
-		assertNull(sapOlatUserDao.getSapOlatUsersByOlatUserNameAndSapUserType("olatUserName1", SapOlatUser.SapUserType.STUDENT));
+        assertTrue(sapOlatUserDao.getSapOlatUsersByOlatUserNameAndSapUserType("olatUserName1", SapOlatUser.SapUserType.STUDENT).isEmpty());
     }
     
     @Test
     public void testDeleteMappingOfLecturersNotFoundInLecturerTableAsBulkDelete() {
-		assertNotNull(sapOlatUserDao.getSapOlatUsersByOlatUserNameAndSapUserType("olatUserName2", SapOlatUser.SapUserType.LECTURER));
+		assertFalse(sapOlatUserDao.getSapOlatUsersByOlatUserNameAndSapUserType("olatUserName2", SapOlatUser.SapUserType.LECTURER).isEmpty());
 
         lecturerDao.delete(mockDataGeneratorProvider.get().getLecturers().get(1));
         sapOlatUserDao.deleteMappingOfLecturersNotFoundInLecturerTableAsBulkDelete();
@@ -201,12 +189,12 @@ public class SapOlatUserDaoTest  extends OlatTestCase {
         dbInstance.flush();
         dbInstance.clear();
 
-		assertNull(sapOlatUserDao.getSapOlatUsersByOlatUserNameAndSapUserType("olatUserName2", SapOlatUser.SapUserType.LECTURER));
+        assertTrue(sapOlatUserDao.getSapOlatUsersByOlatUserNameAndSapUserType("olatUserName2", SapOlatUser.SapUserType.LECTURER).isEmpty());
     }
         
     @Test
     public void testDeleteMappingOfStudentsNotFoundInStudentTableAsBulkDelete() {
-		assertNotNull(sapOlatUserDao.getSapOlatUsersByOlatUserNameAndSapUserType("olatUserName1", SapOlatUser.SapUserType.STUDENT));
+		assertFalse(sapOlatUserDao.getSapOlatUsersByOlatUserNameAndSapUserType("olatUserName1", SapOlatUser.SapUserType.STUDENT).isEmpty());
 
         studentDao.delete(mockDataGeneratorProvider.get().getStudents().get(0));
         sapOlatUserDao.deleteMappingOfStudentsNotFoundInStudentTableAsBulkDelete();
@@ -214,6 +202,6 @@ public class SapOlatUserDaoTest  extends OlatTestCase {
         dbInstance.flush();
         dbInstance.clear();
 
-		assertNull(sapOlatUserDao.getSapOlatUsersByOlatUserNameAndSapUserType("olatUserName2", SapOlatUser.SapUserType.STUDENT));
+        assertTrue(sapOlatUserDao.getSapOlatUsersByOlatUserNameAndSapUserType("olatUserName1", SapOlatUser.SapUserType.STUDENT).isEmpty());
     }
 }

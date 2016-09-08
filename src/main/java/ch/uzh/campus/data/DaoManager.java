@@ -260,11 +260,11 @@ public class DaoManager {
         orgDao.deleteByOrgIds(orgIds);
     }
 
-    public SapOlatUser getStudentSapOlatUserByOlatUserName(String olatUserName) {
-        return sapOlatUserDao.getSapOlatUserByOlatUserNameAndSapUserType(olatUserName, SapOlatUser.SapUserType.STUDENT);
+    public List<SapOlatUser> getStudentSapOlatUsersByOlatUserName(String olatUserName) {
+        return sapOlatUserDao.getSapOlatUsersByOlatUserNameAndSapUserType(olatUserName, SapOlatUser.SapUserType.STUDENT);
     }
 
-    public SapOlatUser getLecturerSapOlatUserByOlatUserName(String olatUserName) {
+    public List<SapOlatUser> getLecturerSapOlatUsersByOlatUserName(String olatUserName) {
         return sapOlatUserDao.getSapOlatUsersByOlatUserNameAndSapUserType(olatUserName, SapOlatUser.SapUserType.LECTURER);
     }
 
@@ -308,7 +308,7 @@ public class DaoManager {
         return courseDao.getCreatedAndNotCreatedCreatableCoursesOfCurrentSemesterByLecturerId(id);
     }
 
-    public List<Course> getCreatedCoursesByLecturerIds(Long id, String searchString) {
+    public List<Course> getCreatedCoursesByLecturerId(Long id, String searchString) {
         return courseDao.getCreatedCoursesOfCurrentSemesterByLecturerId(id, searchString);
     }
 
@@ -343,21 +343,25 @@ public class DaoManager {
     }
 
     public List<Course> getCourses(String olatUserName, SapOlatUser.SapUserType userType, boolean created, String searchString) {
+        List <Course> courses = new ArrayList<>();
         if (userType.equals(SapOlatUser.SapUserType.LECTURER)) {
-            SapOlatUser sapOlatUser = getLecturerSapOlatUserByOlatUserName(olatUserName);
-            if (sapOlatUser == null) {
-                return Collections.emptyList();
-            } else {
-                return (created) ? getCreatedCoursesByLecturerIds(sapOlatUser.getSapUserId(), searchString) : getNotCreatedCoursesByLecturerId(sapOlatUser.getSapUserId(), searchString);
+            for (SapOlatUser sapOlatUser : getLecturerSapOlatUsersByOlatUserName(olatUserName)) {
+                if (created) {
+                    courses.addAll(getCreatedCoursesByLecturerId(sapOlatUser.getSapUserId(), searchString));
+                } else {
+                    courses.addAll(getNotCreatedCoursesByLecturerId(sapOlatUser.getSapUserId(), searchString));
+                }
             }
         } else {
-            SapOlatUser sapOlatUser = getStudentSapOlatUserByOlatUserName(olatUserName);
-            if (sapOlatUser == null) {
-                return Collections.emptyList();
-            } else {
-                return (created) ? getCreatedCoursesByStudentId(sapOlatUser.getSapUserId(), searchString) : getNotCreatedCoursesByStudentId(sapOlatUser.getSapUserId(), searchString);
+            for (SapOlatUser sapOlatUser : getStudentSapOlatUsersByOlatUserName(olatUserName)) {
+                if (created) {
+                    courses.addAll(getCreatedCoursesByStudentId(sapOlatUser.getSapUserId(), searchString));
+                } else {
+                    courses.addAll(getNotCreatedCoursesByStudentId(sapOlatUser.getSapUserId(), searchString));
+                }
             }
         }
+        return courses;
     }
 
     public void saveCampusCourseResoureableId(Long courseId, Long resourceableId) {

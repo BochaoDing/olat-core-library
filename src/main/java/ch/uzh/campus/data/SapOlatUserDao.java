@@ -6,7 +6,6 @@ import org.olat.core.id.Identity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
-import javax.persistence.NoResultException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -43,32 +42,14 @@ public class SapOlatUserDao {
         		.setParameter("olatUserName", olatUserName)
         		.getResultList();
     }
-
-    SapOlatUser getSapOlatUserByOlatUserNameAndSapUserType(String olatUserName, SapOlatUser.SapUserType sapUserType) {
-        List<SapOlatUser> sapOlatUsers = dbInstance.getCurrentEntityManager()
-        		.createNamedQuery(SapOlatUser.GET_SAP_OLAT_USER_BY_OLAT_USERNAME_AND_TYPE, SapOlatUser.class)
-        		.setParameter("olatUserName", olatUserName)
-        		.setParameter("sapUserType", sapUserType)
-        		.getResultList();
-        if (!sapOlatUsers.isEmpty()) {
-            return sapOlatUsers.get(0);
-        }
-        return null;
-    }
-
     
-    SapOlatUser getSapOlatUsersByOlatUserNameAndSapUserType(String olatUserName, SapOlatUser.SapUserType sapUserType) {
-		try {
-			return dbInstance.getCurrentEntityManager()
-					.createNamedQuery(SapOlatUser.GET_SAP_OLAT_USER_BY_OLAT_USERNAME_AND_TYPE, SapOlatUser.class)
-					.setParameter("olatUserName", olatUserName)
-					.setParameter("sapUserType", sapUserType)
-					.getSingleResult();
-		} catch (NoResultException e) {
-			return null;
-		}
+    List<SapOlatUser> getSapOlatUsersByOlatUserNameAndSapUserType(String olatUserName, SapOlatUser.SapUserType sapUserType) {
+        return dbInstance.getCurrentEntityManager()
+                .createNamedQuery(SapOlatUser.GET_SAP_OLAT_USER_BY_OLAT_USERNAME_AND_TYPE, SapOlatUser.class)
+                .setParameter("olatUserName", olatUserName)
+                .setParameter("sapUserType", sapUserType)
+                .getResultList();
     }
-
 
     List<SapOlatUser> getSapOlatUsersBySapIds(Set<Long> sapUserIds) {
         if (sapUserIds == null || sapUserIds.isEmpty()) {
@@ -81,19 +62,11 @@ public class SapOlatUserDao {
     }
     
     public void saveMapping(Student student, Identity mappedIdentity) {
-        // Avoid constraint violations, since (olat_user_name, sap_user_type) must be unique
-        if (getSapOlatUserByOlatUserNameAndSapUserType(mappedIdentity.getName(), SapOlatUser.SapUserType.STUDENT) != null) {
-            return;
-        }
         SapOlatUser sapOlatUser = new SapOlatUser(student.getId(), mappedIdentity.getName(), SapUserType.STUDENT);        
         dbInstance.saveObject(sapOlatUser);
     }
     
     public void saveMapping(Lecturer lecturer, Identity mappedIdentity) {
-        // Avoid constraint violations, since (olat_user_name, sap_user_type) must be unique
-        if (getSapOlatUserByOlatUserNameAndSapUserType(mappedIdentity.getName(), SapUserType.LECTURER) != null) {
-            return;
-        }
         SapOlatUser sapOlatUser = new SapOlatUser(lecturer.getPersonalNr(), mappedIdentity.getName(), SapUserType.LECTURER);
         dbInstance.saveObject(sapOlatUser);
     }
