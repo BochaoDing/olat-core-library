@@ -795,7 +795,7 @@ public class FileUploadController extends FormBasicController {
 			String subPath = targetSubPath.getValue();
 			if (subPath != null) {
 				// Cleanup first
-				subPath = subPath.toLowerCase().trim();
+				subPath = subPath.trim();
 				if (!validSubPathPattern.matcher(subPath).matches()) {
 					targetSubPath.setErrorKey("subpath.error.characters", null);
 					return false;
