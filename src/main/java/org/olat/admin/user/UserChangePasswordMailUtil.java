@@ -21,21 +21,24 @@ import org.olat.core.util.mail.MailerResult;
 import org.olat.registration.RegistrationManager;
 import org.olat.registration.TemporaryKey;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.util.Locale;
 
+@Component
 public class UserChangePasswordMailUtil {
 
     private String dummyKey;
 
-    @Autowired
-    private MailManager mailManager;
-    @Autowired
-    private RegistrationManager registrationManager;
+    final private RegistrationManager registrationManager;
+    final private MailManager mailManager;
 
     private static final OLog LOG = Tracing.createLoggerFor(UserChangePasswordMailUtil.class);
 
-    public UserChangePasswordMailUtil() {
+    @Autowired
+    public UserChangePasswordMailUtil(RegistrationManager registrationManager, MailManager mailManager) {
+        this.registrationManager = registrationManager;
+        this.mailManager = mailManager;
     }
 
     private Locale getUserLocale(Identity user) {
@@ -52,11 +55,12 @@ public class UserChangePasswordMailUtil {
         }
 
         String serverpath = Settings.getServerContextPathURI();
-        Translator userTrans = Util.createPackageTranslator(RegistrationManager.class, locale) ;
+        Translator userTrans = Util.createPackageTranslator(RegistrationManager.class, locale);
+        dummyKey = getDummyKey(emailAdress);
 
         return userTrans.translate("pwchange.intro", new String[] { user.getName() })
                 + userTrans.translate("pwchange.body", new String[] {
-                serverpath, getDummyKey(emailAdress), I18nManager.getInstance().getLocaleKey(locale)
+                serverpath, dummyKey, I18nManager.getInstance().getLocaleKey(locale)
         });
     }
 
@@ -65,28 +69,38 @@ public class UserChangePasswordMailUtil {
     }
 
     public MailerResult sendTokenByMail(UserRequest ureq, Identity user, String text) throws UserChangePasswordException, UserHasNoEmailException {
-        if (ureq == null || user != null || text != null) {
-            throw new UserChangePasswordException("sendTokenByMail receives one or more null parameters");
+        Locale sessionLocale = ureq.getUserSession().getLocale();
+        Translator sessionTrans = Util.createPackageTranslator(RegistrationManager.class, sessionLocale);
+        if (ureq == null) {
+            throw new UserChangePasswordException(sessionTrans.translate("error.sendTokenByMail.no.request"));
+        } else if (user == null) {
+            throw new UserChangePasswordException(sessionTrans.translate("error.sendTokenByMail.no.user"));
+        } else if (text == null) {
+            throw new UserChangePasswordException(sessionTrans.translate("error.sendTokenByMail.no.text"));
+        } else if (registrationManager == null) {
+            throw new UserChangePasswordException(sessionTrans.translate("error.sendTokenByMail.no.regmanager"));
+        } else if (mailManager == null) {
+            throw new UserChangePasswordException(sessionTrans.translate("error.sendTokenByMail.no.mailmanager"));
         }
 
         // check if user has an OLAT provider token, otherwise a password change makes no sense
         Authentication auth = BaseSecurityManager.getInstance().findAuthentication(user, BaseSecurityModule.getDefaultAuthProviderIdentifier());
         if (auth == null) {
             LOG.error(user.getName() + " has no OLAT provider token");
-            throw new UserChangePasswordException(user.getName() + " has no OLAT provider token");
+            throw new UserChangePasswordException(sessionTrans.translate("error.sendTokenByMail.no.provider.token", new String[] { user.getName() }));
         }
 
         Locale locale = getUserLocale(user);
         String emailAdress = user.getUser().getProperty(UserConstants.EMAIL, locale);
         if (emailAdress == null) {
             LOG.error("No email specified for " + user.getName());
-            throw new UserHasNoEmailException("No email specified for " + user.getName());
+            throw new UserHasNoEmailException(sessionTrans.translate("error.sendTokenByMail.no.email", new String[] { user.getName() }));
         }
 
         // Validate if template corresponds to our expectations (should contain dummy key)
         if (!text.contains(getDummyKey(emailAdress))) {
             LOG.error("Dummy key not found in prepared email");
-            throw new UserChangePasswordException("Dummy key not found in prepared email");
+            throw new UserChangePasswordException(sessionTrans.translate("error.sendTokenByMail.no.dummy.key"));
         }
 
         String body;
@@ -98,7 +112,7 @@ public class UserChangePasswordMailUtil {
             }
             body = text.replace(dummyKey, tk.getRegistrationKey());
         } catch (Exception e) {
-            throw new UserChangePasswordException("Could not prepare mail message");
+            throw new UserChangePasswordException(sessionTrans.translate("error.sendTokenByMail.message.not.prepared"));
         }
 
         MailerResult result;
@@ -109,7 +123,7 @@ public class UserChangePasswordMailUtil {
             bundle.setContent(userTrans.translate("pwchange.subject"), body);
             result = mailManager.sendExternMessage(bundle, null, false);
         } catch (Exception e) {
-            throw new UserChangePasswordException("Could not send prepared mail message");
+            throw new UserChangePasswordException(sessionTrans.translate("error.sendTokenByMail.message.not.sent"));
         }
 
         return result;

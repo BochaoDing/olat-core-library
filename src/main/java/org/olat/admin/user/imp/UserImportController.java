@@ -55,6 +55,7 @@ import org.olat.core.id.Identity;
 import org.olat.core.id.User;
 import org.olat.core.util.StringHelper;
 import org.olat.core.util.mail.MailPackage;
+import org.olat.core.util.mail.MailerResult;
 import org.olat.group.BusinessGroupService;
 import org.olat.group.model.BusinessGroupMembershipChange;
 import org.olat.login.auth.OLATAuthManager;
@@ -98,6 +99,8 @@ public class UserImportController extends BasicController {
 	private ShibbolethModule shibbolethModule;
 	@Autowired
 	private BusinessGroupService businessGroupService;
+	@Autowired
+	private UserChangePasswordMailUtil util;
 
 	/**
 	 * @param ureq
@@ -251,25 +254,29 @@ public class UserImportController extends BasicController {
 				ImportReport report = new ImportReport();
 				runContext.put("report", report);
 				try {
-					UserChangePasswordMailUtil util = new UserChangePasswordMailUtil();
 					if (runContext.containsKey("validImport") && ((Boolean) runContext.get("validImport")).booleanValue()) {
 						// create new users and persist
 						int count = 0;
 
 						@SuppressWarnings("unchecked")
 						List<TransientIdentity> newIdents = (List<TransientIdentity>) runContext.get("newIdents");
-						Boolean sendNewPasswords = (Boolean)runContext.get("sendChangePasswordMail");
+						Boolean sendNewPasswordsObj = (Boolean)runContext.get("sendChangePasswordMail");
+						boolean sendNewPasswords = sendNewPasswordsObj == null || sendNewPasswordsObj.booleanValue();
 						for (TransientIdentity newIdent:newIdents) {
 							Identity createdIdentity = doCreateAndPersistIdentity(newIdent, report);
 							// OLATNG-5: send change password mails
 							try {
-								if (sendNewPasswords)  {
-									util.sendTokenByMail(ureq1, createdIdentity, util.generateMailText(createdIdentity));
+								if (sendNewPasswords) {
+									MailerResult result = util.sendTokenByMail(ureq1, createdIdentity, util.generateMailText(createdIdentity));
+									if (!result.isSuccessful()) {
+										report.addError(translate("sendmail.passwordchange.failed", createdIdentity.getName())
+												+ " " + translate("sendmail.mailmanager.error", new String[] { String.valueOf(result.getReturnCode()) }));
+									}
 								}
 							} catch(Exception e) {
 								String moreInfo = e.getMessage();
 								report.addError(translate("sendmail.passwordchange.failed", createdIdentity.getName())
-										+ (moreInfo == null ? "": " " + moreInfo));
+										+ (moreInfo == null ? "": ": " + moreInfo));
 							}
 
 							if(++count % 10 == 0) {

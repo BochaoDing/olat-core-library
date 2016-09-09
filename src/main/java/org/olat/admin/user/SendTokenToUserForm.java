@@ -20,6 +20,7 @@
 
 package org.olat.admin.user;
 
+import org.olat.core.CoreSpringFactory;
 import org.olat.core.gui.UserRequest;
 import org.olat.core.gui.components.form.flexible.FormItem;
 import org.olat.core.gui.components.form.flexible.FormItemContainer;
@@ -49,7 +50,7 @@ public class SendTokenToUserForm extends FormBasicController {
 	public SendTokenToUserForm(UserRequest ureq, WindowControl wControl, Identity treatedIdentity) {
 		super(ureq, wControl);
 		user = treatedIdentity;
-		util = new UserChangePasswordMailUtil();
+		util = (UserChangePasswordMailUtil) CoreSpringFactory.getBean(UserChangePasswordMailUtil.class);
 		initForm(ureq);
 	}
 	
@@ -105,7 +106,7 @@ public class SendTokenToUserForm extends FormBasicController {
 			if (result.getReturnCode() == 0) {
 				showInfo("email.sent");
 			} else {
-				showWarning("changeuserpwd.failed");
+				showError("error.send.changepasswd.link", new String[]{ String.valueOf(result.getReturnCode()) });
 			}
 		} catch(UserChangePasswordException e) {
 			showWarning("changeuserpwd.failed");
