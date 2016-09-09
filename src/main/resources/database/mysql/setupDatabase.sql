@@ -2273,7 +2273,7 @@ create table if not exists ck_olat_user (
     primary key (sap_user_id)
 )engine InnoDB;
 
-alter table ck_olat_user add unique (olat_user_name, sap_user_type);
+alter table ck_olat_user add unique (sap_user_id, olat_user_name, sap_user_type);
 
 create table if not exists ck_delegation (
   	id bigint not null  AUTO_INCREMENT,
