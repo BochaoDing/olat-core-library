@@ -1306,7 +1306,20 @@ public class FlexiTableElementImpl extends FormItemImpl implements FlexiTableEle
 		resetInternComponents();
 		reloadData();
 	}
-	
+
+	@Override
+	public void reset(boolean page, boolean internal, boolean reloadData) {
+		if(page) {
+			currentPage = 0;
+		}
+		if(internal) {
+			resetInternComponents();
+		}
+		if(reloadData) {
+			reloadData();
+		}
+	}
+
 	private void resetInternComponents() {
 		rowCount = -1;
 		component.setDirty(true);
