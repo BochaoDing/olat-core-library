@@ -84,7 +84,7 @@ public class OOGraphene {
 	// top.tinymce.get('o_fi1000000416').setContent('<p>Hacked</p>');
 	// <div id="o_fi1000000416_diw" class="o_richtext_mce"> <iframe id="o_fi1000000416_ifr">
 	public static final void tinymce(String content, WebDriver browser) {
-		Graphene.waitModel(browser).withTimeout(5, TimeUnit.SECONDS)
+		Graphene.waitModel(browser).withTimeout(waitTinyDuration, TimeUnit.SECONDS)
 			.pollingEvery(poolingDuration, TimeUnit.MILLISECONDS).until(new TinyMCELoadedPredicate());
 		((JavascriptExecutor)browser).executeScript("top.tinymce.activeEditor.setContent('" + content + "')");
 	}
