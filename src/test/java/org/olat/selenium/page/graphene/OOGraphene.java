@@ -44,7 +44,8 @@ import org.openqa.selenium.WebElement;
  */
 public class OOGraphene {
 
-	private static final long poolingDuration = 25;
+	private static final long poolingDuration = 25;//ms
+	private static final long waitTinyDuration = 15;//seconds
 	
 	private static final By closeBlueBoxButtonBy = By.cssSelector("div.o_alert_info div.o_sel_info_message i.o_icon.o_icon_close");
 	private static final By closeModalDialogButtonBy = By.cssSelector("div.modal-dialog div.modal-header button.close");
