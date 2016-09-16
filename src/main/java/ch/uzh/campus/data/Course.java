@@ -400,7 +400,12 @@ public class Course {
         }
 
         if (shortTitle != null && shortTitleActivated && shortTitle!="") {
-            titleToBeDisplayed = titleToBeDisplayed.concat(shortTitle.substring(4)).concat(WHITESPACE);
+            if (shortTitle.length() > 4) {
+            	titleToBeDisplayed = titleToBeDisplayed.concat(shortTitle.substring(4));
+            } else {
+            	titleToBeDisplayed = titleToBeDisplayed.concat(shortTitle);
+            }
+            titleToBeDisplayed.concat(WHITESPACE);
         }
 
         return titleToBeDisplayed.concat(title);
