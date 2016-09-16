@@ -57,7 +57,6 @@ public class LecturerMappingReader implements ItemReader<Lecturer> {
     @PostConstruct
     public void init() {
         try {
-            daoManager.deleteMappingOfLecturersNotFoundInLecturerTable();
             lecturers = daoManager.getAllLecturers();
             dbInstance.commitAndCloseSession();
         } catch (Throwable t) {

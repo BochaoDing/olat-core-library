@@ -12,7 +12,6 @@ import java.util.List;
 public class MockDataGenerator {
 
     private List<Org> orgs;
-    private List<SapOlatUser> sapOlatUsers;
     private List<Delegation> delegations;
     private List<Student> students;
     private List<Lecturer> lecturers;
@@ -37,14 +36,6 @@ public class MockDataGenerator {
 
     public void setOrgs(List<Org> orgs) {
         this.orgs = orgs;
-    }
-
-    List<SapOlatUser> getSapOlatUsers() {
-        return sapOlatUsers;
-    }
-
-    public void setSapOlatUsers(List<SapOlatUser> sapOlatUsers) {
-        this.sapOlatUsers = sapOlatUsers;
     }
 
     public List<Student> getStudents() {

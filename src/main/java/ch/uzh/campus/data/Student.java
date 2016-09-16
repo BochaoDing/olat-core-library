@@ -3,6 +3,8 @@ package ch.uzh.campus.data;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
+import org.olat.basesecurity.IdentityImpl;
+import org.olat.core.id.Identity;
 
 import javax.persistence.*;
 import java.util.Date;
@@ -16,6 +18,7 @@ import java.util.Set;
  * @author Martin Schraner
  * 
  */
+@SuppressWarnings("JpaQlInspection")  // Required to suppress warnings in named query GET_STUDENTS_MAPPED_TO_OLAT_USER_NAME
 @Entity
 @NamedQueries({
         @NamedQuery(name = Student.GET_ALL_STUDENTS_WITH_CREATED_OR_NOT_CREATED_CREATABLE_COURSES, query = "select distinct s from Student s join s.studentCourses sc where " +
@@ -25,6 +28,7 @@ import java.util.Set;
         @NamedQuery(name = Student.GET_ALL_ORPHANED_STUDENTS, query = "select s.id from Student s where s.id not in (select sc.student.id from StudentCourse sc)"),
         @NamedQuery(name = Student.GET_STUDENTS_BY_EMAIL, query = "select s from Student s where s.email = :email"),
         @NamedQuery(name = Student.GET_STUDENTS_WITH_REGISTRATION_NUMBER, query = "select s from Student s where s.registrationNr = :registrationNr"),
+        @NamedQuery(name = Student.GET_STUDENTS_MAPPED_TO_OLAT_USER_NAME, query = "select s from Student s where s.mappedIdentity.name = :olatUserName"),
         @NamedQuery(name = Student.DELETE_BY_STUDENT_IDS, query = "delete from Student s where s.id in :studentIds")
 })
 @Table(name = "ck_student")
@@ -49,13 +53,26 @@ public class Student {
     @Column(name = "date_of_import", nullable = false)
     private Date dateOfImport;
 
+    @Column(name = "kind_of_mapping")
+    private String kindOfMapping;
+
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(name = "date_of_mapping")
+    private Date dateOfMapping;
+
     @OneToMany(mappedBy = "student")
     private Set<StudentCourse> studentCourses = new HashSet<>();
+
+    @SuppressWarnings("JpaAttributeTypeInspection")
+    @ManyToOne(targetEntity=IdentityImpl.class)
+    @JoinColumn(name = "mapped_identity_fk")
+    private Identity mappedIdentity;
 
     static final String GET_ALL_STUDENTS_WITH_CREATED_OR_NOT_CREATED_CREATABLE_COURSES = "getAllStudentsWithCreatedOrNotCreatedCreatableCourses";
     static final String GET_ALL_ORPHANED_STUDENTS = "getAllOrphanedStudents";
     static final String GET_STUDENTS_BY_EMAIL = "getStudentsWithEmail";
     static final String GET_STUDENTS_WITH_REGISTRATION_NUMBER = "getStudentsWithRegistrationNr";
+    static final String GET_STUDENTS_MAPPED_TO_OLAT_USER_NAME = "getStudentsMappedToOlatUserName";
     static final String DELETE_BY_STUDENT_IDS = "deleteStudentByStudentIds";
 
     public Student() {
@@ -113,6 +130,30 @@ public class Student {
         this.dateOfImport = modifiedDate;
     }
 
+    public String getKindOfMapping() {
+        return kindOfMapping;
+    }
+
+    public void setKindOfMapping(String kindOfMapping) {
+        this.kindOfMapping = kindOfMapping;
+    }
+
+    public Date getDateOfMapping() {
+        return dateOfMapping;
+    }
+
+    public void setDateOfMapping(Date dateOfMapping) {
+        this.dateOfMapping = dateOfMapping;
+    }
+
+    public Identity getMappedIdentity() {
+        return mappedIdentity;
+    }
+
+    public void setMappedIdentity(Identity mappedIdentity) {
+        this.mappedIdentity = mappedIdentity;
+    }
+
     public Set<StudentCourse> getStudentCourses() {
         return studentCourses;
     }
@@ -125,6 +166,7 @@ public class Student {
         builder.append("firstName", getFirstName());
         builder.append("lastName", getLastName());
         builder.append("email", getEmail());
+        builder.append("mappedUserName", mappedIdentity == null ? "-" : mappedIdentity.getName());
 
         return builder.toString();
     }

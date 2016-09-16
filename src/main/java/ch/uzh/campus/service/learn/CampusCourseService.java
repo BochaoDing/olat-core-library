@@ -1,13 +1,12 @@
 package ch.uzh.campus.service.learn;
 
 import ch.uzh.campus.data.Course;
+import ch.uzh.campus.data.SapUserType;
 import ch.uzh.campus.service.CampusCourse;
 import org.olat.core.id.Identity;
 import org.olat.repository.RepositoryEntry;
 
 import java.util.List;
-
-import static ch.uzh.campus.data.SapOlatUser.SapUserType;
 
 /**
  * This is called from presentation.

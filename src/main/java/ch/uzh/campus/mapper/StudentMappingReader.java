@@ -52,7 +52,6 @@ public class StudentMappingReader implements ItemReader<Student> {
     @PostConstruct
     public void init() {
         try {
-            daoManager.deleteMappingOfStudentsNotFoundInStudentTable();
             students = daoManager.getAllStudents();
             dbInstance.commitAndCloseSession();
         } catch (Throwable t) {

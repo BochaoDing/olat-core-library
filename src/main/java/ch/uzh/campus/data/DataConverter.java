@@ -1,7 +1,6 @@
 package ch.uzh.campus.data;
 
 import org.olat.basesecurity.BaseSecurity;
-import org.olat.core.commons.persistence.DB;
 import org.olat.core.id.Identity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -34,62 +33,45 @@ import java.util.Set;
 @Component
 public class DataConverter {
 
-    private final SapOlatUserDao sapOlatUserDao;
     private final DelegationDao delegationDao;
-
-    /*
-     * TODO sev26
-     * Verify correctness.
-     */
     private final BaseSecurity baseSecurity;
-    private final DB dbInstance;
 
     @Autowired
-    public DataConverter(SapOlatUserDao sapOlatUserDao, DelegationDao delegationDao, BaseSecurity baseSecurity, DB dbInstance) {
-        this.sapOlatUserDao = sapOlatUserDao;
+    public DataConverter(DelegationDao delegationDao, BaseSecurity baseSecurity) {
         this.delegationDao = delegationDao;
         this.baseSecurity = baseSecurity;
-        this.dbInstance = dbInstance;
     }
 
     List<Identity> convertStudentsToIdentities(Set<StudentCourse> studentCourses) {
-        List<Identity> identitiesOfParticipant = new ArrayList<>();
-        SapOlatUser sapOlatUser;
-        int count = 0;
+        List<Identity> identitiesOfStudents = new ArrayList<>();
         for (StudentCourse studentCourse : studentCourses) {
-            // Avoid "too many db access for one transaction" warning by closing entity manager from time to time
-            if (count++ % 100 == 0) {
-                dbInstance.closeSession();
-            }
-            sapOlatUser = sapOlatUserDao.getSapOlatUserBySapUserId(studentCourse.getStudent().getId());
-            if (sapOlatUser == null) {
+            Identity mappedIdentity = studentCourse.getStudent().getMappedIdentity();
+            if (mappedIdentity == null || mappedIdentity.getStatus().equals(Identity.STATUS_DELETED)) {
                 continue;
             }
-            Identity identity = findIdentity(sapOlatUser.getOlatUserName());
-            if (identity != null) {
-                identitiesOfParticipant.add(identity);
+            if (!identitiesOfStudents.contains(mappedIdentity)) {
+                identitiesOfStudents.add(mappedIdentity);
             }
         }
-        return identitiesOfParticipant;
+        return identitiesOfStudents;
     }
 
     List<Identity> convertLecturersToIdentities(Set<LecturerCourse> lecturerCourses) {
         List<Identity> identitiesOfLecturers = new ArrayList<>();
-        SapOlatUser sapOlatUser;
         for (LecturerCourse lecturerCourse : lecturerCourses) {
-            sapOlatUser = sapOlatUserDao.getSapOlatUserBySapUserId(lecturerCourse.getLecturer().getPersonalNr());
-            if (sapOlatUser == null) {
+            Identity mappedIdentity = lecturerCourse.getLecturer().getMappedIdentity();
+            if (mappedIdentity == null || mappedIdentity.getStatus().equals(Identity.STATUS_DELETED)) {
                 continue;
             }
-            Identity identity = findIdentity(sapOlatUser.getOlatUserName());
-            if (identity != null) {
-                identitiesOfLecturers.add(identity);
+            if (!identitiesOfLecturers.contains(mappedIdentity)) {
+                identitiesOfLecturers.add(mappedIdentity);
             }
 
-            List<Delegation> delegations = delegationDao.getDelegationsByDelegator(sapOlatUser.getOlatUserName());
+            // Also add delegatees of lecturer
+            List<Delegation> delegations = delegationDao.getDelegationsByDelegator(mappedIdentity.getName());
             for (Delegation delegation : delegations) {
                 Identity delegatee = findIdentity(delegation.getDelegatee());
-                if (delegatee != null) {
+                if (delegatee != null && !identitiesOfLecturers.contains(delegatee)) {
                     identitiesOfLecturers.add(delegatee);
                 }
             }
@@ -99,16 +81,15 @@ public class DataConverter {
 
     List<Identity> convertDelegateesToIdentities(Set<LecturerCourse> lecturerCourses) {
         List<Identity> identitiesOfDelegatees = new ArrayList<>();
-        SapOlatUser sapOlatUser;
         for (LecturerCourse lecturerCourse : lecturerCourses) {
-            sapOlatUser = sapOlatUserDao.getSapOlatUserBySapUserId(lecturerCourse.getLecturer().getPersonalNr());
-            if (sapOlatUser == null) {
+            Identity mappedIdentity = lecturerCourse.getLecturer().getMappedIdentity();
+            if (mappedIdentity == null || mappedIdentity.getStatus().equals(Identity.STATUS_DELETED)) {
                 continue;
             }
-            List<Delegation> delegations = delegationDao.getDelegationsByDelegator(sapOlatUser.getOlatUserName());
+            List<Delegation> delegations = delegationDao.getDelegationsByDelegator(mappedIdentity.getName());
             for (Delegation delegation : delegations) {
                 Identity delegatee = findIdentity(delegation.getDelegatee());
-                if (delegatee != null) {
+                if (delegatee != null && !identitiesOfDelegatees.contains(delegatee)) {
                     identitiesOfDelegatees.add(delegatee);
                 }
             }
@@ -116,7 +97,7 @@ public class DataConverter {
         return identitiesOfDelegatees;
     }
 
-    List getDelegatees(Identity delegator) {
+    List<Object[]> getDelegatees(Identity delegator) {
         List<Object[]> identitiesOfDelegatees = new ArrayList<>();
         List<Delegation> delegations = delegationDao.getDelegationsByDelegator(delegator.getName());
         for (Delegation delegation : delegations) {

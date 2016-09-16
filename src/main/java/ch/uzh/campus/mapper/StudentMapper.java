@@ -1,7 +1,7 @@
 package ch.uzh.campus.mapper;
 
-import ch.uzh.campus.data.SapOlatUserDao;
 import ch.uzh.campus.data.Student;
+import ch.uzh.campus.data.StudentDao;
 import org.olat.core.id.Identity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -34,30 +34,30 @@ import org.springframework.stereotype.Component;
 @Component
 public class StudentMapper {
 
-    private final SapOlatUserDao userMappingDao;
+    private final StudentDao studentDao;
     private final UserMapper userMapper;
 
     @Autowired
-    public StudentMapper(SapOlatUserDao userMappingDao, UserMapper userMapper) {
-        this.userMappingDao = userMappingDao;
+    public StudentMapper(StudentDao studentDao, UserMapper userMapper) {
+        this.studentDao = studentDao;
         this.userMapper = userMapper;
     }
 
     MappingResult synchronizeStudentMapping(Student student) {
 
-        if (!userMappingDao.existsMappingForSapUserId(student.getId())) {
+        if (student.getMappedIdentity() == null) {
 
             // First try to map by matriculation number
             Identity mappedIdentity = userMapper.tryToMapByMatriculationNumber(student.getRegistrationNr());
             if (mappedIdentity != null) {
-                userMappingDao.saveMapping(student, mappedIdentity);
+                studentDao.addMapping(student.getId(), mappedIdentity);
                 return MappingResult.NEW_MAPPING_BY_MATRICULATION_NR;
             }
 
             // Second try to map by email
             mappedIdentity = userMapper.tryToMapByEmail(student.getEmail());
             if (mappedIdentity != null) {
-                userMappingDao.saveMapping(student, mappedIdentity);
+                studentDao.addMapping(student.getId(), mappedIdentity);
                 return MappingResult.NEW_MAPPING_BY_EMAIL;
             }
 

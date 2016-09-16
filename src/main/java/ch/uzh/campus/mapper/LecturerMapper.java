@@ -1,7 +1,7 @@
 package ch.uzh.campus.mapper;
 
 import ch.uzh.campus.data.Lecturer;
-import ch.uzh.campus.data.SapOlatUserDao;
+import ch.uzh.campus.data.LecturerDao;
 import org.apache.commons.lang.StringUtils;
 import org.olat.basesecurity.BaseSecurity;
 import org.olat.basesecurity.Constants;
@@ -42,15 +42,15 @@ import java.util.List;
 @Component
 public class LecturerMapper {
 
-    private final SapOlatUserDao userMappingDao;
+    private final LecturerDao lecturerDao;
     private final UserMapper userMapper;
     private final BaseSecurity baseSecurity;
 
     private SecurityGroup authorGroup;
 
     @Autowired
-    public LecturerMapper(SapOlatUserDao userMappingDao, UserMapper userMapper, BaseSecurity baseSecurity) {
-        this.userMappingDao = userMappingDao;
+    public LecturerMapper(LecturerDao lecturerDao, UserMapper userMapper, BaseSecurity baseSecurity) {
+        this.lecturerDao = lecturerDao;
         this.userMapper = userMapper;
         this.baseSecurity = baseSecurity;
     }
@@ -61,12 +61,13 @@ public class LecturerMapper {
 	}
 
     MappingResult synchronizeLecturerMapping(Lecturer lecturer) {
-        if (!userMappingDao.existsMappingForSapUserId(lecturer.getPersonalNr())) {
+
+        if (lecturer.getMappedIdentity() == null) {
 
             // First try to map by personal number
             Identity mappedIdentity = userMapper.tryToMapByPersonalNumber(lecturer.getPersonalNr());
             if (mappedIdentity != null) {
-                userMappingDao.saveMapping(lecturer, mappedIdentity);
+                lecturerDao.addMapping(lecturer.getPersonalNr(), mappedIdentity);
                 addAuthorRoleToMappedLecturer(mappedIdentity);
                 return MappingResult.NEW_MAPPING_BY_PERSONAL_NR;
             }
@@ -74,7 +75,7 @@ public class LecturerMapper {
             // Second try to map by email
             mappedIdentity = userMapper.tryToMapByEmail(lecturer.getEmail());
             if (mappedIdentity != null) {
-                userMappingDao.saveMapping(lecturer, mappedIdentity);
+                lecturerDao.addMapping(lecturer.getPersonalNr(), mappedIdentity);
                 addAuthorRoleToMappedLecturer(mappedIdentity);
                 return MappingResult.NEW_MAPPING_BY_EMAIL;
             }
@@ -85,7 +86,7 @@ public class LecturerMapper {
                 for (String additionalPersonalNr : additionalPersonalNrs) {
                     mappedIdentity = userMapper.tryToMapByAdditionalPersonalNumber(additionalPersonalNr);
                     if (mappedIdentity != null) {
-                        userMappingDao.saveMapping(lecturer, mappedIdentity);
+                        lecturerDao.addMapping(lecturer.getPersonalNr(), mappedIdentity);
                         addAuthorRoleToMappedLecturer(mappedIdentity);
                         return MappingResult.NEW_MAPPING_BY_ADDITIONAL_PERSONAL_NR;
                     }

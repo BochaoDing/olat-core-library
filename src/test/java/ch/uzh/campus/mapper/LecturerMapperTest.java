@@ -1,7 +1,7 @@
 package ch.uzh.campus.mapper;
 
 import ch.uzh.campus.data.Lecturer;
-import ch.uzh.campus.data.SapOlatUserDao;
+import ch.uzh.campus.data.LecturerDao;
 import org.junit.Before;
 import org.junit.Test;
 import org.olat.basesecurity.BaseSecurity;
@@ -41,17 +41,16 @@ import static org.mockito.Mockito.when;
 public class LecturerMapperTest {
 
     private LecturerMapper lecturerMapperTestObject;
-    private SapOlatUserDao userMappingDaoMock;
     private UserMapper userMapperMock;
     private Lecturer lecturerMock;
     private Identity identityMock;
 
     @Before
     public void setup() {
-        userMappingDaoMock = mock(SapOlatUserDao.class);
+        LecturerDao lecturerDaoMock = mock(LecturerDao.class);
         userMapperMock = mock(UserMapper.class);
         BaseSecurity baseSecurityMock = mock(BaseSecurity.class);
-        lecturerMapperTestObject = new LecturerMapper(userMappingDaoMock, userMapperMock, baseSecurityMock);
+        lecturerMapperTestObject = new LecturerMapper(lecturerDaoMock, userMapperMock, baseSecurityMock);
         lecturerMock = mock(Lecturer.class);
         when(lecturerMock.getPersonalNr()).thenReturn(1L);
         when(lecturerMock.getAdditionalPersonalNrs()).thenReturn("1");
@@ -61,7 +60,7 @@ public class LecturerMapperTest {
 
     @Test
     public void synchronizeStudentMapping_MappingAlreadyExist() {
-        when(userMappingDaoMock.existsMappingForSapUserId(lecturerMock.getPersonalNr())).thenReturn(true);
+        when(lecturerMock.getMappedIdentity()).thenReturn(identityMock);
 
         MappingResult result = lecturerMapperTestObject.synchronizeLecturerMapping(lecturerMock);
 
@@ -70,7 +69,7 @@ public class LecturerMapperTest {
 
     @Test
     public void synchronizeLecturerMapping_MappingByPersonalNumber() {
-        when(userMappingDaoMock.existsMappingForSapUserId(lecturerMock.getPersonalNr())).thenReturn(false);
+        when(lecturerMock.getMappedIdentity()).thenReturn(null);
         when(userMapperMock.tryToMapByPersonalNumber(lecturerMock.getPersonalNr())).thenReturn(identityMock);
 
         MappingResult result = lecturerMapperTestObject.synchronizeLecturerMapping(lecturerMock);
@@ -80,7 +79,7 @@ public class LecturerMapperTest {
 
     @Test
     public void synchronizeLecturerMapping_MappingByEmail() {
-        when(userMappingDaoMock.existsMappingForSapUserId(lecturerMock.getPersonalNr())).thenReturn(false);
+        when(lecturerMock.getMappedIdentity()).thenReturn(null);
         when(userMapperMock.tryToMapByPersonalNumber(lecturerMock.getPersonalNr())).thenReturn(null);
         when(userMapperMock.tryToMapByEmail(lecturerMock.getEmail())).thenReturn(identityMock);
 
@@ -91,7 +90,7 @@ public class LecturerMapperTest {
 
     @Test
     public void synchronizeLecturerMapping_CouldBeAdditionalPersonalNumber() {
-        when(userMappingDaoMock.existsMappingForSapUserId(lecturerMock.getPersonalNr())).thenReturn(false);
+        when(lecturerMock.getMappedIdentity()).thenReturn(null);
         when(userMapperMock.tryToMapByPersonalNumber(lecturerMock.getPersonalNr())).thenReturn(null);
         when(userMapperMock.tryToMapByEmail(lecturerMock.getEmail())).thenReturn(null);
         when(userMapperMock.tryToMapByAdditionalPersonalNumber(anyString())).thenReturn(identityMock);
@@ -103,7 +102,7 @@ public class LecturerMapperTest {
 
     @Test
     public void synchronizeLecturerMapping_CouldBeMappedManually() {
-        when(userMappingDaoMock.existsMappingForSapUserId(lecturerMock.getPersonalNr())).thenReturn(false);
+        when(lecturerMock.getMappedIdentity()).thenReturn(null);
         when(userMapperMock.tryToMapByPersonalNumber(lecturerMock.getPersonalNr())).thenReturn(null);
         when(userMapperMock.tryToMapByEmail(lecturerMock.getEmail())).thenReturn(null);
         when(userMapperMock.tryToMapByAdditionalPersonalNumber(anyString())).thenReturn(null);
@@ -116,7 +115,7 @@ public class LecturerMapperTest {
 
     @Test
     public void synchronizeLecturerMapping_CouldNotMap() {
-        when(userMappingDaoMock.existsMappingForSapUserId(lecturerMock.getPersonalNr())).thenReturn(false);
+        when(lecturerMock.getMappedIdentity()).thenReturn(null);
         when(userMapperMock.tryToMapByPersonalNumber(lecturerMock.getPersonalNr())).thenReturn(null);
         when(userMapperMock.tryToMapByEmail(lecturerMock.getEmail())).thenReturn(null);
         when(userMapperMock.tryToMapByAdditionalPersonalNumber(anyString())).thenReturn(null);

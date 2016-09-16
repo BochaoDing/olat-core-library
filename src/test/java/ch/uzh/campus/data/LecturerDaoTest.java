@@ -2,8 +2,12 @@ package ch.uzh.campus.data;
 
 import org.junit.After;
 import org.junit.Test;
+import org.olat.basesecurity.IdentityImpl;
 import org.olat.core.commons.persistence.DB;
+import org.olat.core.id.Identity;
+import org.olat.core.id.User;
 import org.olat.test.OlatTestCase;
+import org.olat.user.UserManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 
@@ -42,11 +46,74 @@ public class LecturerDaoTest extends OlatTestCase {
     @Autowired
     private Provider<MockDataGenerator> mockDataGeneratorProvider;
 
+    @Autowired
+    private UserManager userManager;
+
     private List<Lecturer> lecturers;
 
     @After
     public void after() {
        dbInstance.rollback();
+    }
+
+    @Test
+    public void testAddMapping() {
+        insertTestData();
+        Lecturer lecturer = lecturerDao.getLecturerById(1100L);
+        assertNotNull(lecturer);
+        assertNull(lecturer.getMappedIdentity());
+        assertNull(lecturer.getKindOfMapping());
+        assertNull(lecturer.getDateOfMapping());
+
+        Identity identity = insertTestUser("lecturerDaoTestUser");
+
+        lecturerDao.addMapping(lecturer.getPersonalNr(), identity);
+
+        // Check before flush
+        assertEquals(identity, lecturer.getMappedIdentity());
+        assertEquals("AUTO", lecturer.getKindOfMapping());
+        assertNotNull(lecturer.getDateOfMapping());
+
+        dbInstance.flush();
+        dbInstance.clear();
+
+        lecturer = lecturerDao.getLecturerById(1100L);
+        assertEquals(identity, lecturer.getMappedIdentity());
+        assertEquals("AUTO", lecturer.getKindOfMapping());
+        assertNotNull(lecturer.getDateOfMapping());
+    }
+
+    @Test
+    public void testRemoveMapping() {
+        insertTestData();
+        Lecturer lecturer = lecturerDao.getLecturerById(1100L);
+        assertNotNull(lecturer);
+
+        // Add mapping
+        Identity identity = insertTestUser("lecturerDaoTestUser");
+        lecturerDao.addMapping(lecturer.getPersonalNr(), identity);
+        dbInstance.flush();
+        dbInstance.clear();
+
+        lecturer = lecturerDao.getLecturerById(1100L);
+        assertNotNull(lecturer.getMappedIdentity());
+        assertNotNull(lecturer.getKindOfMapping());
+        assertNotNull(lecturer.getDateOfMapping());
+
+        // Remove mapping
+        lecturerDao.removeMapping(lecturer.getPersonalNr());
+
+        // Check before flush
+        assertNull(lecturer.getMappedIdentity());
+        assertNull(lecturer.getKindOfMapping());
+        assertNull(lecturer.getDateOfMapping());
+
+        dbInstance.flush();
+        dbInstance.clear();
+
+        assertNull(lecturer.getMappedIdentity());
+        assertNull(lecturer.getKindOfMapping());
+        assertNull(lecturer.getDateOfMapping());
     }
 
     @Test
@@ -98,6 +165,52 @@ public class LecturerDaoTest extends OlatTestCase {
         List<Long> lecturerIdsFound = lecturerDao.getAllOrphanedLecturers();
         assertEquals(numberOfLecturersFoundBeforeInsertingTestData + 2, lecturerIdsFound.size());
         assertTrue(lecturerIdsFound.contains(1100L));
+    }
+
+    @Test
+    public void testGetLecturersMappedToOlatUserName() {
+        insertTestData();
+
+        Lecturer lecturer1 = lecturerDao.getLecturerById(1100L);
+        Lecturer lecturer2 = lecturerDao.getLecturerById(1200L);
+        assertNotNull(lecturer1);
+        assertNotNull(lecturer2);
+
+        String olatUserName = "lecturerDaoTestUser";
+        Identity identity = insertTestUser(olatUserName);
+
+        assertTrue(lecturerDao.getLecturersMappedToOlatUserName(olatUserName).isEmpty());
+
+        // Add mapping forlecturer 1
+        lecturerDao.addMapping(lecturer1.getPersonalNr(), identity);
+        dbInstance.flush();
+
+        List<Lecturer> lecturersFound = lecturerDao.getLecturersMappedToOlatUserName(olatUserName);
+        assertEquals(1, lecturersFound.size());
+        assertTrue(lecturersFound.contains(lecturer1));
+
+        // Also add mapping for lecturer 2
+        lecturerDao.addMapping(lecturer2.getPersonalNr(), identity);
+        dbInstance.flush();
+
+        lecturersFound = lecturerDao.getLecturersMappedToOlatUserName(olatUserName);
+        assertEquals(2, lecturersFound.size());
+        assertTrue(lecturersFound.contains(lecturer1));
+        assertTrue(lecturersFound.contains(lecturer2));
+
+        // Remove mapping for lecturer 1
+        lecturerDao.removeMapping(lecturer1.getPersonalNr());
+        dbInstance.flush();
+
+        lecturersFound = lecturerDao.getLecturersMappedToOlatUserName(olatUserName);
+        assertEquals(1, lecturersFound.size());
+        assertTrue(lecturersFound.contains(lecturer2));
+
+        // Remove also mapping for lecturer 2
+        lecturerDao.removeMapping(lecturer2.getPersonalNr());
+        dbInstance.flush();
+
+        assertTrue(lecturerDao.getLecturersMappedToOlatUserName(olatUserName).isEmpty());
     }
 
     @Test
@@ -213,5 +326,14 @@ public class LecturerDaoTest extends OlatTestCase {
         List<LecturerIdCourseIdDateOfImport> lecturerIdCourseIdDateOfImports = mockDataGeneratorProvider.get().getLecturerIdCourseIdDateOfImports();
         lecturerCourseDao.save(lecturerIdCourseIdDateOfImports);
         dbInstance.flush();
+    }
+
+    private Identity insertTestUser(String userName) {
+        User user = userManager.createUser("lecturerDaoFirstName" + userName, "lecturerDaoLastName" + userName, userName + "@uzh.ch");
+        dbInstance.saveObject(user);
+        Identity identity = new IdentityImpl(userName, user);
+        dbInstance.saveObject(identity);
+        dbInstance.flush();
+        return identity;
     }
 }

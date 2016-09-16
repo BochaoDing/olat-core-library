@@ -1,7 +1,7 @@
 package ch.uzh.campus.service.learn.impl;
 
 import ch.uzh.campus.data.Course;
-import ch.uzh.campus.data.SapOlatUser;
+import ch.uzh.campus.data.SapUserType;
 import ch.uzh.campus.service.core.CampusCourseCoreService;
 import org.junit.Before;
 import org.junit.Test;
@@ -67,15 +67,15 @@ public class CampusCourseServiceImplTest {
         // Mock for Identity
         identityMock = mock(Identity.class);
 
-        when(campusCourseCoreServiceMock.getCampusCoursesWithoutResourceableId(identityMock, SapOlatUser.SapUserType.LECTURER, null))
+        when(campusCourseCoreServiceMock.getCampusCoursesWithoutResourceableId(identityMock, SapUserType.LECTURER, null))
                 .thenReturn(coursesWithoutResourceableId);
-        when(campusCourseCoreServiceMock.getCampusCoursesWithResourceableId(identityMock, SapOlatUser.SapUserType.LECTURER, null))
+        when(campusCourseCoreServiceMock.getCampusCoursesWithResourceableId(identityMock, SapUserType.LECTURER, null))
                 .thenReturn(coursesWithResourceableId);
     }
 
     @Test
     public void getCoursesWhichCouldBeOpened() {
-        assertTrue(campusCourseLearnServiceImplTestObject.getCoursesWhichCouldBeOpened(identityMock, SapOlatUser.SapUserType.LECTURER, null).size() == coursesWithResourceableId.size());
+        assertTrue(campusCourseLearnServiceImplTestObject.getCoursesWhichCouldBeOpened(identityMock, SapUserType.LECTURER, null).size() == coursesWithResourceableId.size());
     }
 
     @Test

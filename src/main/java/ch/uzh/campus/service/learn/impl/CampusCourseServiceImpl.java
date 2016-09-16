@@ -1,7 +1,7 @@
 package ch.uzh.campus.service.learn.impl;
 
 import ch.uzh.campus.data.Course;
-import ch.uzh.campus.data.SapOlatUser;
+import ch.uzh.campus.data.SapUserType;
 import ch.uzh.campus.service.CampusCourse;
 import ch.uzh.campus.service.core.CampusCourseCoreService;
 import ch.uzh.campus.service.learn.CampusCourseService;
@@ -18,8 +18,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-import static ch.uzh.campus.data.SapOlatUser.SapUserType.LECTURER;
-import static ch.uzh.campus.data.SapOlatUser.SapUserType.STUDENT;
+import static ch.uzh.campus.data.SapUserType.LECTURER;
+import static ch.uzh.campus.data.SapUserType.STUDENT;
 import static java.lang.Boolean.TRUE;
 import static org.olat.repository.RepositoryEntry.ACC_OWNERS;
 import static org.olat.repository.RepositoryEntry.ACC_OWNERS_AUTHORS;
@@ -118,7 +118,7 @@ public class CampusCourseServiceImpl implements CampusCourseService {
 	}
 
 	@Override
-	public List<SapCampusCourseTo> getCoursesWhichCouldBeOpened(Identity identity, SapOlatUser.SapUserType userType, String searchString) {
+	public List<SapCampusCourseTo> getCoursesWhichCouldBeOpened(Identity identity, SapUserType userType, String searchString) {
 		List<SapCampusCourseTo> courseList = new ArrayList<>();
 		Set<Course> sapCampusCourses = campusCourseCoreService.getCampusCoursesWithResourceableId(identity, userType, searchString);
 		for (Course sapCampusCourse : sapCampusCourses) {

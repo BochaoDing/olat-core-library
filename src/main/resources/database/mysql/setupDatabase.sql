@@ -2172,6 +2172,9 @@ create table if not exists ck_lecturer (
 	email varchar(255) not null,
 	additionalPersonalNrs varchar(255),
 	date_of_import datetime not null,
+  mapped_identity_fk BIGINT,
+  kind_of_mapping VARCHAR(6),
+  date_of_mapping DATETIME,
 	primary key (id)
 )engine InnoDB;
 
@@ -2189,6 +2192,9 @@ create table if not exists ck_student (
 	last_name varchar(255) not null,
 	email varchar(255) not null,
 	date_of_import datetime not null,
+  mapped_identity_fk BIGINT,
+  kind_of_mapping VARCHAR(6),
+  date_of_mapping DATETIME,
 	primary key (id)
 )engine InnoDB;
 
@@ -2264,17 +2270,6 @@ create table if not exists ck_skip_item (
      primary key (id)
 )engine InnoDB;
 
-create table if not exists ck_olat_user (
-    sap_user_id bigint not null,
- 	olat_user_name VARCHAR(100),
- 	sap_user_type VARCHAR(100),
- 	kind_of_mapping VARCHAR(6) NOT NULL default 'MANUAL',
- 	mapping_timestamp timestamp DEFAULT CURRENT_TIMESTAMP,
-    primary key (sap_user_id)
-)engine InnoDB;
-
-alter table ck_olat_user add unique (sap_user_id, olat_user_name, sap_user_type);
-
 create table if not exists ck_delegation (
   	id bigint not null  AUTO_INCREMENT,
 	delegator VARCHAR(100) not null,
@@ -2284,8 +2279,10 @@ create table if not exists ck_delegation (
 )engine InnoDB;
 
 alter table ck_course add constraint ck_course_f01 foreign key (parent_course_id) references ck_course (id);
+alter table ck_lecturer add constraint ck_lecturer_f01 foreign key (mapped_identity_fk) references o_bs_identity(id);
 alter table ck_lecturer_course add constraint ck_lecturer_course_f01 foreign key (course_id) references ck_course (id);
 alter table ck_lecturer_course add constraint ck_lecturer_course_f02 foreign key (lecturer_id) references ck_lecturer (id);
+alter table ck_student add constraint ck_student_f01 foreign key (mapped_identity_fk) references o_bs_identity(id);
 alter table ck_student_course add constraint ck_student_course_f01 foreign key (course_id) references ck_course (id);
 alter table ck_student_course add constraint ck_student_course_f02 foreign key (student_id) references ck_student (id);
 alter table ck_course_org add constraint ck_course_org_f01 foreign key (course_id) references ck_course (id);
@@ -2311,17 +2308,17 @@ where sc.course_id = c.id and c.exclude = 0
       inner join ck_course c1 on c1.id = co.course_id
       inner join ck_org o on o.id = co.org_id
       where c1.id = c.id and o.enabled = 1))
-and s.id not in(select sap_user_id from ck_olat_user ou where ou.sap_user_type= 'STUDENT'); 
+and s.mapped_identity_fk is NULL;
 
 create or replace view ck_not_mapped_lecturers as 
 select * from ck_lecturer l where l.id in
 (select lc.lecturer_id from ck_lecturer_course lc, ck_course c  
 where lc.course_id = c.id and c.exclude = 0
-      and exists (select co.course_id from ck_course_org co
-   inner join ck_course c1 on c1.id = co.course_id
-   inner join ck_org o on o.id = co.org_id
-where c1.id = c.id and o.enabled = 1))
-and l.id not in(select sap_user_id from ck_olat_user ou where ou.sap_user_type= 'LECTURER'); 
+   and exists (select co.course_id from ck_course_org co
+      inner join ck_course c1 on c1.id = co.course_id
+      inner join ck_org o on o.id = co.org_id
+      where c1.id = c.id and o.enabled = 1))
+and l.mapped_identity_fk is NULL;
 
 create or replace view ck_horizontal_userproperty as
 select u.fk_user_id, i.status,

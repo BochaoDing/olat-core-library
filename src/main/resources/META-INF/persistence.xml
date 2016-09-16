@@ -169,7 +169,6 @@
 		<class>ch.uzh.campus.data.LecturerCourse</class>
 		<class>ch.uzh.campus.data.Event</class>
 		<class>ch.uzh.campus.data.Export</class>
-		<class>ch.uzh.campus.data.SapOlatUser</class>	
 		<class>ch.uzh.campus.data.Delegation</class>
 		<class>ch.uzh.campus.data.SkipItem</class>
 		<class>ch.uzh.campus.data.DaoManager</class>

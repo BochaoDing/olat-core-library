@@ -1,7 +1,7 @@
 package ch.uzh.campus.mapper;
 
-import ch.uzh.campus.data.SapOlatUserDao;
 import ch.uzh.campus.data.Student;
+import ch.uzh.campus.data.StudentDao;
 import org.junit.Before;
 import org.junit.Test;
 import org.olat.core.id.Identity;
@@ -38,23 +38,22 @@ import static org.mockito.Mockito.when;
 public class StudentMapperTest {
 
     private StudentMapper studentMapperTestObject;
-    private SapOlatUserDao userMappingDaoMock;
     private UserMapper userMapperMock;
     private Student studentMock;
     private Identity identityMock;
 
     @Before
     public void setup() {
-        userMappingDaoMock = mock(SapOlatUserDao.class);
+        StudentDao studentDaoMock =  mock(StudentDao.class);
         userMapperMock = mock(UserMapper.class);
-        studentMapperTestObject = new StudentMapper(userMappingDaoMock, userMapperMock);
+        studentMapperTestObject = new StudentMapper(studentDaoMock, userMapperMock);
         studentMock = mock(Student.class);
         identityMock = mock(Identity.class);
     }
 
     @Test
     public void synchronizeStudentMapping_MappingAlreadyExist() {
-        when(userMappingDaoMock.existsMappingForSapUserId(studentMock.getId())).thenReturn(true);
+        when(studentMock.getMappedIdentity()).thenReturn(identityMock);
 
         MappingResult result = studentMapperTestObject.synchronizeStudentMapping(studentMock);
 
@@ -63,7 +62,7 @@ public class StudentMapperTest {
 
     @Test
     public void synchronizeStudentMapping_MappingByMatriculationNumber() {
-        when(userMappingDaoMock.existsMappingForSapUserId(studentMock.getId())).thenReturn(false);
+        when(studentMock.getMappedIdentity()).thenReturn(null);
         when(userMapperMock.tryToMapByMatriculationNumber(studentMock.getRegistrationNr())).thenReturn(identityMock);
 
         MappingResult result = studentMapperTestObject.synchronizeStudentMapping(studentMock);
@@ -73,7 +72,7 @@ public class StudentMapperTest {
 
     @Test
     public void synchronizeStudentMapping_MappingByEmail() {
-        when(userMappingDaoMock.existsMappingForSapUserId(studentMock.getId())).thenReturn(false);
+        when(studentMock.getMappedIdentity()).thenReturn(null);
         when(userMapperMock.tryToMapByMatriculationNumber(studentMock.getRegistrationNr())).thenReturn(null);
         when(userMapperMock.tryToMapByEmail(studentMock.getEmail())).thenReturn(identityMock);
 
@@ -84,7 +83,7 @@ public class StudentMapperTest {
 
     @Test
     public void synchronizeStudentMapping_CouldBeMappedManually() {
-        when(userMappingDaoMock.existsMappingForSapUserId(studentMock.getId())).thenReturn(false);
+        when(studentMock.getMappedIdentity()).thenReturn(null);
         when(userMapperMock.tryToMapByMatriculationNumber(studentMock.getRegistrationNr())).thenReturn(null);
         when(userMapperMock.tryToMapByEmail(studentMock.getEmail())).thenReturn(null);
         when(userMapperMock.tryToMapByFirstNameLastName(studentMock.getFirstName(), studentMock.getLastName())).thenReturn(identityMock);
@@ -96,7 +95,7 @@ public class StudentMapperTest {
 
     @Test
     public void synchronizeStudentMapping_CouldNotMap() {
-        when(userMappingDaoMock.existsMappingForSapUserId(studentMock.getId())).thenReturn(false);
+        when(studentMock.getMappedIdentity()).thenReturn(null);
         when(userMapperMock.tryToMapByMatriculationNumber(studentMock.getRegistrationNr())).thenReturn(null);
         when(userMapperMock.tryToMapByEmail(studentMock.getEmail())).thenReturn(null);
         when(userMapperMock.tryToMapByFirstNameLastName(studentMock.getFirstName(), studentMock.getLastName())).thenReturn(null);

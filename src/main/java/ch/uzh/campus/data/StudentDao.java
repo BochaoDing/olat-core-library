@@ -1,10 +1,14 @@
 package ch.uzh.campus.data;
 
 import org.olat.core.commons.persistence.DB;
+import org.olat.core.id.Identity;
+import org.olat.core.logging.OLog;
+import org.olat.core.logging.Tracing;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import javax.persistence.EntityManager;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -18,8 +22,14 @@ import java.util.List;
 @Repository
 public class StudentDao implements CampusDao<Student> {
 
+    private static final OLog LOG = Tracing.createLoggerFor(StudentDao.class);
+
+    private final DB dbInstance;
+
     @Autowired
-    private DB dbInstance;
+    public StudentDao(DB dbInstance) {
+        this.dbInstance = dbInstance;
+    }
 
     @Override
     public void save(List<Student> students) {
@@ -33,6 +43,28 @@ public class StudentDao implements CampusDao<Student> {
         EntityManager em = dbInstance.getCurrentEntityManager();
         for (Student student : students) {
             em.merge(student);
+        }
+    }
+
+    public void addMapping(Long studentId, Identity identity) {
+        Student student = getStudentById(studentId);
+        if (student != null) {
+            student.setMappedIdentity(identity);
+            student.setKindOfMapping("AUTO");
+            student.setDateOfMapping(new Date());
+        } else {
+            LOG.warn("No student found with id " + studentId + " for table ck_student.");
+        }
+    }
+
+    public void removeMapping(Long studentId) {
+        Student student = getStudentById(studentId);
+        if (student != null) {
+            student.setMappedIdentity(null);
+            student.setKindOfMapping(null);
+            student.setDateOfMapping(null);
+        } else {
+            LOG.warn("No student found with id " + studentId + " for table ck_student.");
         }
     }
 
@@ -71,6 +103,13 @@ public class StudentDao implements CampusDao<Student> {
     List<Student> getAllStudentsWithCreatedOrNotCreatedCreatableCourses() {
         return dbInstance.getCurrentEntityManager()
                 .createNamedQuery(Student.GET_ALL_STUDENTS_WITH_CREATED_OR_NOT_CREATED_CREATABLE_COURSES, Student.class)
+                .getResultList();
+    }
+
+    public List<Student> getStudentsMappedToOlatUserName(String olatUserName) {
+        return dbInstance.getCurrentEntityManager()
+                .createNamedQuery(Student.GET_STUDENTS_MAPPED_TO_OLAT_USER_NAME, Student.class)
+                .setParameter("olatUserName", olatUserName)
                 .getResultList();
     }
 

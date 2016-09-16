@@ -5,7 +5,7 @@ import ch.uzh.campus.CampusCourseException;
 import ch.uzh.campus.CampusCourseImportTO;
 import ch.uzh.campus.data.Course;
 import ch.uzh.campus.data.DaoManager;
-import ch.uzh.campus.data.SapOlatUser;
+import ch.uzh.campus.data.SapUserType;
 import ch.uzh.campus.presentation.CampusCourseEvent;
 import ch.uzh.campus.service.CampusCourse;
 import ch.uzh.campus.service.CampusCourseGroups;
@@ -282,22 +282,22 @@ public class CampusCourseCoreServiceImpl implements CampusCourseCoreService {
     }
 
 	@Override
-    public Set<Course> getCampusCoursesWithoutResourceableId(Identity identity, SapOlatUser.SapUserType userType, String searchString) {
+    public Set<Course> getCampusCoursesWithoutResourceableId(Identity identity, SapUserType userType, String searchString) {
         return daoManager.getCampusCoursesWithoutResourceableId(identity, userType, searchString);
     }
 
 	@Override
-	public Set<Course> getCampusCoursesWithoutResourceableId(Identity identity, SapOlatUser.SapUserType userType) {
+	public Set<Course> getCampusCoursesWithoutResourceableId(Identity identity, SapUserType userType) {
 		return getCampusCoursesWithoutResourceableId(identity, userType, null);
 	}
 
     @Override
-    public Set<Course> getCampusCoursesWithResourceableId(Identity identity, SapOlatUser.SapUserType userType, String searchString) {
+    public Set<Course> getCampusCoursesWithResourceableId(Identity identity, SapUserType userType, String searchString) {
         return daoManager.getCampusCoursesWithResourceableId(identity, userType, searchString);
     }
 
 	@Override
-	public Set<Course> getCampusCoursesWithResourceableId(Identity identity, SapOlatUser.SapUserType userType) {
+	public Set<Course> getCampusCoursesWithResourceableId(Identity identity, SapUserType userType) {
 		return getCampusCoursesWithResourceableId(identity, userType, null);
 	}
 

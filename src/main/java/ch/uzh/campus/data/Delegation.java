@@ -1,3 +1,10 @@
+package ch.uzh.campus.data;
+
+import org.apache.commons.lang.builder.ToStringBuilder;
+
+import javax.persistence.*;
+import java.util.Date;
+
 /**
  * OLAT - Online Learning and Training<br>
  * http://www.olat.org
@@ -17,15 +24,7 @@
  * Copyright (c) since 2004 at Multimedia- & E-Learning Services (MELS),<br>
  * University of Zurich, Switzerland.
  * <p>
- */
-package ch.uzh.campus.data;
-
-import org.apache.commons.lang.builder.ToStringBuilder;
-
-import javax.persistence.*;
-import java.util.Date;
-
-/**
+ *
  * Initial Date: 03.05.2013 <br>
  * 
  * @author aabouc
@@ -56,6 +55,15 @@ public class Delegation {
     static final String GET_BY_DELEGATOR_AND_DELEGATEE = "getByDelegatorAndDelegatee";
     static final String GET_BY_DELEGATOR = "getByDelegator";
     static final String GET_BY_DELEGATEE = "getByDelegatee";
+
+    public Delegation() {
+    }
+
+    public Delegation(String delegator, String delegatee, Date modifiedDate) {
+        this.delegator = delegator;
+        this.delegatee = delegatee;
+        this.modifiedDate = modifiedDate;
+    }
 
     public Long getId() {
         return id;

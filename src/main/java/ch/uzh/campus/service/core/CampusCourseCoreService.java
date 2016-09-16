@@ -2,7 +2,7 @@ package ch.uzh.campus.service.core;
 
 import ch.uzh.campus.CampusCourseImportTO;
 import ch.uzh.campus.data.Course;
-import ch.uzh.campus.data.SapOlatUser.SapUserType;
+import ch.uzh.campus.data.SapUserType;
 import ch.uzh.campus.service.CampusCourse;
 import org.olat.core.id.Identity;
 import org.olat.core.id.OLATResourceable;

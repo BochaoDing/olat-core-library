@@ -2,10 +2,14 @@ package ch.uzh.campus.data;
 
 
 import org.olat.core.commons.persistence.DB;
+import org.olat.core.id.Identity;
+import org.olat.core.logging.OLog;
+import org.olat.core.logging.Tracing;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import javax.persistence.EntityManager;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -17,8 +21,14 @@ import java.util.List;
 @Repository
 public class LecturerDao implements CampusDao<Lecturer> {
 
+    private static final OLog LOG = Tracing.createLoggerFor(LecturerDao.class);
+
+    private final DB dbInstance;
+
     @Autowired
-    private DB dbInstance;
+    public LecturerDao(DB dbInstance) {
+        this.dbInstance = dbInstance;
+    }
 
     @Override
     public void save(List<Lecturer> lecturers) {
@@ -32,6 +42,29 @@ public class LecturerDao implements CampusDao<Lecturer> {
         EntityManager em = dbInstance.getCurrentEntityManager();
         for (Lecturer lecturer : lecturers) {
             em.merge(lecturer);
+        }
+    }
+
+    public void addMapping(Long lecturerId, Identity identity) {
+        Lecturer lecturer = getLecturerById(lecturerId);
+        if (lecturer != null) {
+            lecturer.setMappedIdentity(identity);
+            lecturer.setKindOfMapping("AUTO");
+            lecturer.setDateOfMapping(new Date());
+        } else {
+            LOG.warn("No lecturer found with id " + lecturerId + " for table ck_lecturer.");
+        }
+
+    }
+
+    public void removeMapping(Long lecturerId) {
+        Lecturer lecturer = getLecturerById(lecturerId);
+        if (lecturer != null) {
+            lecturer.setMappedIdentity(null);
+            lecturer.setKindOfMapping(null);
+            lecturer.setDateOfMapping(null);
+        } else {
+            LOG.warn("No lecturer found with id " + lecturerId + " for table ck_lecturer.");
         }
     }
 
@@ -59,6 +92,13 @@ public class LecturerDao implements CampusDao<Lecturer> {
     List<Long> getAllOrphanedLecturers() {
         return dbInstance.getCurrentEntityManager()
                 .createNamedQuery(Lecturer.GET_ALL_ORPHANED_LECTURERS, Long.class)
+                .getResultList();
+    }
+
+    public List<Lecturer> getLecturersMappedToOlatUserName(String olatUserName) {
+        return dbInstance.getCurrentEntityManager()
+                .createNamedQuery(Lecturer.GET_LECTURERS_MAPPED_TO_OLAT_USER_NAME, Lecturer.class)
+                .setParameter("olatUserName", olatUserName)
                 .getResultList();
     }
 
