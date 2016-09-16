@@ -399,7 +399,7 @@ public class Course {
             titleToBeDisplayed = shortSemester.concat(WHITESPACE);
         }
 
-        if (shortTitle != null && shortTitleActivated) {
+        if (shortTitle != null && shortTitleActivated && shortTitle!="") {
             titleToBeDisplayed = titleToBeDisplayed.concat(shortTitle.substring(4)).concat(WHITESPACE);
         }
 

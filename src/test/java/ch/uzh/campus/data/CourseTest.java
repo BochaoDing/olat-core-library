@@ -51,4 +51,12 @@ public class CourseTest {
         course.setShortTitle(null);
         assertEquals("Community Ecology", course.getTitleToBeDisplayed(true));
     }
+
+    @Test
+    public void testGetTitleToBeDisplayed_semesterIsNull_shortTitleIsEmptyl() throws Exception {
+        course.setTitle("Community Ecology");
+        course.setShortSemester(null);
+        course.setShortTitle("");
+        assertEquals("Community Ecology", course.getTitleToBeDisplayed(true));
+    }
 }
