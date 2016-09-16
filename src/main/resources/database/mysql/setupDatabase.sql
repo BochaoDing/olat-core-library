@@ -2172,7 +2172,7 @@ create table if not exists ck_lecturer (
 	email varchar(255) not null,
 	additionalPersonalNrs varchar(255),
 	date_of_import datetime not null,
-  mapped_identity_fk BIGINT,
+  fk_mapped_identity BIGINT,
   kind_of_mapping VARCHAR(6),
   date_of_mapping DATETIME,
 	primary key (id)
@@ -2192,7 +2192,7 @@ create table if not exists ck_student (
 	last_name varchar(255) not null,
 	email varchar(255) not null,
 	date_of_import datetime not null,
-  mapped_identity_fk BIGINT,
+  fk_mapped_identity BIGINT,
   kind_of_mapping VARCHAR(6),
   date_of_mapping DATETIME,
 	primary key (id)
@@ -2279,10 +2279,10 @@ create table if not exists ck_delegation (
 )engine InnoDB;
 
 alter table ck_course add constraint ck_course_f01 foreign key (parent_course_id) references ck_course (id);
-alter table ck_lecturer add constraint ck_lecturer_f01 foreign key (mapped_identity_fk) references o_bs_identity(id);
+alter table ck_lecturer add constraint ck_lecturer_f01 foreign key (fk_mapped_identity) references o_bs_identity(id);
 alter table ck_lecturer_course add constraint ck_lecturer_course_f01 foreign key (course_id) references ck_course (id);
 alter table ck_lecturer_course add constraint ck_lecturer_course_f02 foreign key (lecturer_id) references ck_lecturer (id);
-alter table ck_student add constraint ck_student_f01 foreign key (mapped_identity_fk) references o_bs_identity(id);
+alter table ck_student add constraint ck_student_f01 foreign key (fk_mapped_identity) references o_bs_identity(id);
 alter table ck_student_course add constraint ck_student_course_f01 foreign key (course_id) references ck_course (id);
 alter table ck_student_course add constraint ck_student_course_f02 foreign key (student_id) references ck_student (id);
 alter table ck_course_org add constraint ck_course_org_f01 foreign key (course_id) references ck_course (id);
@@ -2308,7 +2308,7 @@ where sc.course_id = c.id and c.exclude = 0
       inner join ck_course c1 on c1.id = co.course_id
       inner join ck_org o on o.id = co.org_id
       where c1.id = c.id and o.enabled = 1))
-and s.mapped_identity_fk is NULL;
+and s.fk_mapped_identity is NULL;
 
 create or replace view ck_not_mapped_lecturers as 
 select * from ck_lecturer l where l.id in
@@ -2318,7 +2318,7 @@ where lc.course_id = c.id and c.exclude = 0
       inner join ck_course c1 on c1.id = co.course_id
       inner join ck_org o on o.id = co.org_id
       where c1.id = c.id and o.enabled = 1))
-and l.mapped_identity_fk is NULL;
+and l.fk_mapped_identity is NULL;
 
 create or replace view ck_horizontal_userproperty as
 select u.fk_user_id, i.status,
