@@ -61,8 +61,8 @@ public class CopyRepositoryEntryController extends FormBasicController {
 
 	@Override
 	protected void initForm(FormItemContainer formLayout, Controller listener, UserRequest ureq) {
-		String sourceName = StringHelper.escapeHtml(sourceEntry.getDisplayname());
-		sourceName += " " + translate("copy.suffix");
+		// LMSUZH-71: Copy a resource with Umlaut and the title of the copied resource is HTML escaped
+		String sourceName = sourceEntry.getDisplayname() + " " + translate("copy.suffix");
 		displayNameElement = uifactory.addTextElement("cif.displayname", "cif.displayname", 100, sourceName, formLayout);
 		displayNameElement.setDisplaySize(30);
 		displayNameElement.setMandatory(true);
