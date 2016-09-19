@@ -65,7 +65,7 @@ public class Student {
 
     @SuppressWarnings("JpaAttributeTypeInspection")
     @ManyToOne(targetEntity=IdentityImpl.class)
-    @JoinColumn(name = "mapped_identity_fk")
+    @JoinColumn(name = "fk_mapped_identity")
     private Identity mappedIdentity;
 
     static final String GET_ALL_STUDENTS_WITH_CREATED_OR_NOT_CREATED_CREATABLE_COURSES = "getAllStudentsWithCreatedOrNotCreatedCreatableCourses";

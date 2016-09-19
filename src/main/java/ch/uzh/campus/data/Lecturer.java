@@ -66,7 +66,7 @@ public class Lecturer {
 
     @SuppressWarnings("JpaAttributeTypeInspection")
     @ManyToOne(targetEntity=IdentityImpl.class)
-    @JoinColumn(name = "mapped_identity_fk")
+    @JoinColumn(name = "fk_mapped_identity")
     private Identity mappedIdentity;
 
     static final String GET_LECTURER_BY_EMAIL = "getLecturerByEmail";
