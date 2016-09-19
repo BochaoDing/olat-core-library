@@ -92,7 +92,7 @@ public class ClusterLockManager {
 	void deleteLock(LockImpl li) {
 		log.info("deleteLock: "+li+" START");
 		dbInstance.getCurrentEntityManager().remove(li);
-		dbInstance.commit();//prevent stale object by logout login
+		dbInstance.commitAndCloseSession(); //prevent stale object by logout login
 		log.info("deleteLock: "+li+" END");
 	}
 	
