@@ -83,6 +83,11 @@ public class CampusCourseServiceImpl implements CampusCourseService {
 		}
 
 		{
+			/*
+			 * A campus course, for which an OLAT course has already been
+			 * created, is listed only if the user cannot see the linked OLAT
+			 * course due to its permissions.
+			 */
 			Set<Course> sapCampusCourses = campusCourseCoreService
 					.getCampusCoursesWithResourceableId(identity, STUDENT,
 							searchString);

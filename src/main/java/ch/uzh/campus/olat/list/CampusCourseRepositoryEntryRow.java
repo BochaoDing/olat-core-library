@@ -25,7 +25,7 @@ public class CampusCourseRepositoryEntryRow extends RepositoryEntryRow {
 
         if (AUTHOR_LECTURER_RESOURCEABLE_TYPE_NAME.equals(entry
 				.getOlatResource().getResourceableTypeName())) {
-			/**
+			/*
 			 * Link name must be unique!
 			 */
 			FormLink tmp = FormUIFactory.getInstance()
@@ -37,7 +37,7 @@ public class CampusCourseRepositoryEntryRow extends RepositoryEntryRow {
 			formItem = tmp;
 		} else if (LECTURER_RESOURCEABLE_TYPE_NAME.equals(entry
 				.getOlatResource().getResourceableTypeName())) {
-			/**
+			/*
 			 * TODO sev26
 			 * The translation should occur during the rendering. However,
 			 * this feature is not provided by OpenOLAT.
@@ -47,7 +47,7 @@ public class CampusCourseRepositoryEntryRow extends RepositoryEntryRow {
 					translator.translate("list.course.author.right.required"),
 					null);
 		} else {
-			/**
+			/*
 			 * TODO sev26
 			 * The translation should occur during the rendering. However,
 			 * this feature is not provided by OpenOLAT.
@@ -64,7 +64,7 @@ public class CampusCourseRepositoryEntryRow extends RepositoryEntryRow {
 
 	@Override
 	public Object getValueAt(int col) {
-		/**
+		/*
 		 * TODO sev26
 		 * Use the enums of the super class.
 		 */
