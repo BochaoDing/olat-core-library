@@ -221,8 +221,8 @@ public class DaoManager {
         return studentDao.getStudentByEmail(email);
     }
 
-    public List<Long> getAllStudentsToBeDeleted() {
-        return studentDao.getAllOrphanedStudents();
+    public List<Long> getAllStudentsToBeDeleted(Date date) {
+        return studentDao.getAllNotManuallyMappedOrTooOldOrphanedStudents(date);
     }
 
     public void deleteEventsByCourseId(Long courseId) {
@@ -245,8 +245,8 @@ public class DaoManager {
         return lecturerDao.getLecturerByEmail(email);
     }
 
-    public List<Long> getAllLecturersToBeDeleted() {
-        return lecturerDao.getAllOrphanedLecturers();
+    public List<Long> getAllLecturersToBeDeleted(Date date) {
+        return lecturerDao.getAllNotManuallyMappedOrTooOldOrphanedLecturers(date);
     }
 
     public List<Long> getAllOrgsToBeDeleted() {

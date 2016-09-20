@@ -77,14 +77,14 @@ public class CampusImportJobInterceptor implements JobExecutionListener {
 			dbInstance.intermediateCommit();
 		}
 
-		List<Long> studentsToBeRemoved = daoManager.getAllStudentsToBeDeleted();
+		List<Long> studentsToBeRemoved = daoManager.getAllStudentsToBeDeleted(jobExecution.getStartTime());
 		LOG.info("STUDENTS TO BE REMOVED [" + studentsToBeRemoved.size() + "]");
 		if (!studentsToBeRemoved.isEmpty()) {
 			daoManager.deleteStudentsAndBookingsByStudentIds(studentsToBeRemoved);
 			dbInstance.intermediateCommit();
 		}
 
-		List<Long> lecturersToBeRemoved = daoManager.getAllLecturersToBeDeleted();
+		List<Long> lecturersToBeRemoved = daoManager.getAllLecturersToBeDeleted(jobExecution.getStartTime());
 		LOG.info("LECTURERS TO BE REMOVED [" + lecturersToBeRemoved.size() + "]");
 		if (!lecturersToBeRemoved.isEmpty()) {
 			daoManager.deleteLecturersAndBookingsByLecturerIds(lecturersToBeRemoved);

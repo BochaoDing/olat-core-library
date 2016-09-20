@@ -1,5 +1,7 @@
 package ch.uzh.campus.data;
 
+import ch.uzh.campus.CampusCourseConfiguration;
+import ch.uzh.campus.utils.DateUtil;
 import org.junit.After;
 import org.junit.Test;
 import org.olat.basesecurity.IdentityImpl;
@@ -12,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 
 import javax.inject.Provider;
+import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -27,6 +30,9 @@ import static org.junit.Assert.*;
 
 @ContextConfiguration(locations = {"classpath:ch/uzh/campus/data/_spring/mockDataContext.xml"})
 public class LecturerDaoTest extends OlatTestCase {
+
+    @Autowired
+    private CampusCourseConfiguration campusCourseConfiguration;
 
     @Autowired
     private DB dbInstance;
@@ -142,14 +148,30 @@ public class LecturerDaoTest extends OlatTestCase {
 
     @Test
     public void testGetAllOrphanedLecturers() throws InterruptedException {
-        int numberOfLecturersFoundBeforeInsertingTestData = lecturerDao.getAllOrphanedLecturers().size();
+        Date referenceDateOfImport = new Date();
+        int numberOfLecturersFoundBeforeInsertingTestData = lecturerDao.getAllNotManuallyMappedOrTooOldOrphanedLecturers(referenceDateOfImport).size();
         insertTestData();
 
         // Lecturer 1700 has no courses. i.e. it is orphaned
         Lecturer lecturer = lecturerDao.getLecturerById(1700L);
         assertEquals(0, lecturer.getLecturerCourses().size());
+        assertEquals(numberOfLecturersFoundBeforeInsertingTestData + 1, lecturerDao.getAllNotManuallyMappedOrTooOldOrphanedLecturers(referenceDateOfImport).size());
 
-        assertEquals(numberOfLecturersFoundBeforeInsertingTestData + 1, lecturerDao.getAllOrphanedLecturers().size());
+        // Map lecturer auto (-> should be selected)
+        lecturer.setKindOfMapping("AUTO");
+        assertEquals(numberOfLecturersFoundBeforeInsertingTestData + 1, lecturerDao.getAllNotManuallyMappedOrTooOldOrphanedLecturers(referenceDateOfImport).size());
+
+        // Map lecturer manually (-> should not be selected)
+        lecturer.setKindOfMapping("MANUAL");
+        assertEquals(numberOfLecturersFoundBeforeInsertingTestData, lecturerDao.getAllNotManuallyMappedOrTooOldOrphanedLecturers(referenceDateOfImport).size());
+
+        // Map lecturer manually and set time of import too far in the past (-> should be selected)
+        lecturer.setDateOfImport(DateUtil.addYearsToDate(referenceDateOfImport, -campusCourseConfiguration.getMaxYearsToKeepCkData() - 1));
+        assertEquals(numberOfLecturersFoundBeforeInsertingTestData + 1, lecturerDao.getAllNotManuallyMappedOrTooOldOrphanedLecturers(referenceDateOfImport).size());
+
+        // Map lecturer manually and set time of import not too far in the past (-> should not be selected)
+        lecturer.setDateOfImport(DateUtil.addYearsToDate(referenceDateOfImport, -campusCourseConfiguration.getMaxYearsToKeepCkData() + 1));
+        assertEquals(numberOfLecturersFoundBeforeInsertingTestData, lecturerDao.getAllNotManuallyMappedOrTooOldOrphanedLecturers(referenceDateOfImport).size());
 
         lecturer = lecturerDao.getLecturerById(1100L);
         assertEquals(2, lecturer.getLecturerCourses().size());
@@ -162,8 +184,8 @@ public class LecturerDaoTest extends OlatTestCase {
         lecturerCourseDao.deleteByLecturerIdCourseIdsAsBulkDelete(lecturerIdCourseIds);
         dbInstance.flush();
 
-        List<Long> lecturerIdsFound = lecturerDao.getAllOrphanedLecturers();
-        assertEquals(numberOfLecturersFoundBeforeInsertingTestData + 2, lecturerIdsFound.size());
+        List<Long> lecturerIdsFound = lecturerDao.getAllNotManuallyMappedOrTooOldOrphanedLecturers(referenceDateOfImport);
+        assertEquals(numberOfLecturersFoundBeforeInsertingTestData + 1, lecturerIdsFound.size());
         assertTrue(lecturerIdsFound.contains(1100L));
     }
 

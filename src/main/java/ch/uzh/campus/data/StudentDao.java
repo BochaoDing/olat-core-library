@@ -1,5 +1,7 @@
 package ch.uzh.campus.data;
 
+import ch.uzh.campus.CampusCourseConfiguration;
+import ch.uzh.campus.utils.DateUtil;
 import org.olat.core.commons.persistence.DB;
 import org.olat.core.id.Identity;
 import org.olat.core.logging.OLog;
@@ -24,10 +26,12 @@ public class StudentDao implements CampusDao<Student> {
 
     private static final OLog LOG = Tracing.createLoggerFor(StudentDao.class);
 
+    private final CampusCourseConfiguration campusCourseConfiguration;
     private final DB dbInstance;
 
     @Autowired
-    public StudentDao(DB dbInstance) {
+    public StudentDao(CampusCourseConfiguration campusCourseConfiguration, DB dbInstance) {
+        this.campusCourseConfiguration = campusCourseConfiguration;
         this.dbInstance = dbInstance;
     }
 
@@ -94,9 +98,10 @@ public class StudentDao implements CampusDao<Student> {
         return null;
     }
 
-    List<Long> getAllOrphanedStudents() {
+    List<Long> getAllNotManuallyMappedOrTooOldOrphanedStudents(Date date) {
         return dbInstance.getCurrentEntityManager()
-                .createNamedQuery(Student.GET_ALL_ORPHANED_STUDENTS, Long.class)
+                .createNamedQuery(Student.GET_ALL_NOT_MANUALLY_MAPPED_OR_TOO_OLD_ORPHANED_STUDENTS, Long.class)
+                .setParameter("nYearsInThePast", DateUtil.addYearsToDate(date, -campusCourseConfiguration.getMaxYearsToKeepCkData()))
                 .getResultList();
     }
 
