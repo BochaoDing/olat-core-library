@@ -147,33 +147,41 @@ public class LecturerDaoTest extends OlatTestCase {
     }
 
     @Test
-    public void testGetAllOrphanedLecturers() throws InterruptedException {
+    public void testGetAllNotManuallyMappedOrTooOldOrphanedLecturers() throws InterruptedException {
         Date referenceDateOfImport = new Date();
         int numberOfLecturersFoundBeforeInsertingTestData = lecturerDao.getAllNotManuallyMappedOrTooOldOrphanedLecturers(referenceDateOfImport).size();
         insertTestData();
 
-        // Lecturer 1700 has no courses. i.e. it is orphaned
+        // Lecturer 1700 has no courses. i.e. it is orphaned and not mapped (-> should be selected)
         Lecturer lecturer = lecturerDao.getLecturerById(1700L);
-        assertEquals(0, lecturer.getLecturerCourses().size());
+        assertTrue(lecturer.getLecturerCourses().isEmpty());
+        assertNull(lecturer.getKindOfMapping());
         assertEquals(numberOfLecturersFoundBeforeInsertingTestData + 1, lecturerDao.getAllNotManuallyMappedOrTooOldOrphanedLecturers(referenceDateOfImport).size());
 
-        // Map lecturer auto (-> should be selected)
+        // Map lecturer auto and set time of import not too far in the past (-> should be selected)
         lecturer.setKindOfMapping("AUTO");
+        lecturer.setDateOfImport(DateUtil.addYearsToDate(referenceDateOfImport, -campusCourseConfiguration.getMaxYearsToKeepCkData() + 1));
+        dbInstance.flush();
         assertEquals(numberOfLecturersFoundBeforeInsertingTestData + 1, lecturerDao.getAllNotManuallyMappedOrTooOldOrphanedLecturers(referenceDateOfImport).size());
 
-        // Map lecturer manually (-> should not be selected)
+        // Map lecturer auto and set time of import too far in the past (-> should be selected)
+        lecturer.setDateOfImport(DateUtil.addYearsToDate(referenceDateOfImport, -campusCourseConfiguration.getMaxYearsToKeepCkData() - 1));
+        dbInstance.flush();
+        assertEquals(numberOfLecturersFoundBeforeInsertingTestData + 1, lecturerDao.getAllNotManuallyMappedOrTooOldOrphanedLecturers(referenceDateOfImport).size());
+
+        // Map lecturer manually and set time of import not too far in the past (-> should not be selected)
         lecturer.setKindOfMapping("MANUAL");
+        lecturer.setDateOfImport(DateUtil.addYearsToDate(referenceDateOfImport, -campusCourseConfiguration.getMaxYearsToKeepCkData() + 1));
+        dbInstance.flush();
         assertEquals(numberOfLecturersFoundBeforeInsertingTestData, lecturerDao.getAllNotManuallyMappedOrTooOldOrphanedLecturers(referenceDateOfImport).size());
 
         // Map lecturer manually and set time of import too far in the past (-> should be selected)
         lecturer.setDateOfImport(DateUtil.addYearsToDate(referenceDateOfImport, -campusCourseConfiguration.getMaxYearsToKeepCkData() - 1));
+        dbInstance.flush();
         assertEquals(numberOfLecturersFoundBeforeInsertingTestData + 1, lecturerDao.getAllNotManuallyMappedOrTooOldOrphanedLecturers(referenceDateOfImport).size());
 
-        // Map lecturer manually and set time of import not too far in the past (-> should not be selected)
-        lecturer.setDateOfImport(DateUtil.addYearsToDate(referenceDateOfImport, -campusCourseConfiguration.getMaxYearsToKeepCkData() + 1));
-        assertEquals(numberOfLecturersFoundBeforeInsertingTestData, lecturerDao.getAllNotManuallyMappedOrTooOldOrphanedLecturers(referenceDateOfImport).size());
-
         lecturer = lecturerDao.getLecturerById(1100L);
+        assertNull(lecturer.getKindOfMapping());
         assertEquals(2, lecturer.getLecturerCourses().size());
 
         // Remove all courses of lecturer, i.e. make it orphaned
@@ -185,7 +193,7 @@ public class LecturerDaoTest extends OlatTestCase {
         dbInstance.flush();
 
         List<Long> lecturerIdsFound = lecturerDao.getAllNotManuallyMappedOrTooOldOrphanedLecturers(referenceDateOfImport);
-        assertEquals(numberOfLecturersFoundBeforeInsertingTestData + 1, lecturerIdsFound.size());
+        assertEquals(numberOfLecturersFoundBeforeInsertingTestData + 2, lecturerIdsFound.size());
         assertTrue(lecturerIdsFound.contains(1100L));
     }
 
