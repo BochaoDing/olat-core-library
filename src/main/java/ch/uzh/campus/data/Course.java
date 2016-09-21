@@ -405,7 +405,7 @@ public class Course {
             } else {
             	titleToBeDisplayed = titleToBeDisplayed.concat(shortTitle);
             }
-            titleToBeDisplayed.concat(WHITESPACE);
+            titleToBeDisplayed += WHITESPACE;
         }
 
         return titleToBeDisplayed.concat(title);
