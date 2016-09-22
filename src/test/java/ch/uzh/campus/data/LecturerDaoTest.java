@@ -198,7 +198,7 @@ public class LecturerDaoTest extends OlatTestCase {
     }
 
     @Test
-    public void testGetLecturersMappedToOlatUserName() {
+    public void testGetLecturersByMappedIdentityKey() {
         insertTestData();
 
         Lecturer lecturer1 = lecturerDao.getLecturerById(1100L);
@@ -206,16 +206,15 @@ public class LecturerDaoTest extends OlatTestCase {
         assertNotNull(lecturer1);
         assertNotNull(lecturer2);
 
-        String olatUserName = "lecturerDaoTestUser";
-        Identity identity = insertTestUser(olatUserName);
+        Identity identity = insertTestUser("lecturerDaoTestUser");
 
-        assertTrue(lecturerDao.getLecturersMappedToOlatUserName(olatUserName).isEmpty());
+        assertTrue(lecturerDao.getLecturersByMappedIdentityKey(identity.getKey()).isEmpty());
 
         // Add mapping forlecturer 1
         lecturerDao.addMapping(lecturer1.getPersonalNr(), identity);
         dbInstance.flush();
 
-        List<Lecturer> lecturersFound = lecturerDao.getLecturersMappedToOlatUserName(olatUserName);
+        List<Lecturer> lecturersFound = lecturerDao.getLecturersByMappedIdentityKey(identity.getKey());
         assertEquals(1, lecturersFound.size());
         assertTrue(lecturersFound.contains(lecturer1));
 
@@ -223,7 +222,7 @@ public class LecturerDaoTest extends OlatTestCase {
         lecturerDao.addMapping(lecturer2.getPersonalNr(), identity);
         dbInstance.flush();
 
-        lecturersFound = lecturerDao.getLecturersMappedToOlatUserName(olatUserName);
+        lecturersFound = lecturerDao.getLecturersByMappedIdentityKey(identity.getKey());
         assertEquals(2, lecturersFound.size());
         assertTrue(lecturersFound.contains(lecturer1));
         assertTrue(lecturersFound.contains(lecturer2));
@@ -232,7 +231,7 @@ public class LecturerDaoTest extends OlatTestCase {
         lecturerDao.removeMapping(lecturer1.getPersonalNr());
         dbInstance.flush();
 
-        lecturersFound = lecturerDao.getLecturersMappedToOlatUserName(olatUserName);
+        lecturersFound = lecturerDao.getLecturersByMappedIdentityKey(identity.getKey());
         assertEquals(1, lecturersFound.size());
         assertTrue(lecturersFound.contains(lecturer2));
 
@@ -240,7 +239,7 @@ public class LecturerDaoTest extends OlatTestCase {
         lecturerDao.removeMapping(lecturer2.getPersonalNr());
         dbInstance.flush();
 
-        assertTrue(lecturerDao.getLecturersMappedToOlatUserName(olatUserName).isEmpty());
+        assertTrue(lecturerDao.getLecturersByMappedIdentityKey(identity.getKey()).isEmpty());
     }
 
     @Test

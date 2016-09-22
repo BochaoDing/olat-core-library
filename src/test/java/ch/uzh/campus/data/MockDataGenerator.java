@@ -12,7 +12,6 @@ import java.util.List;
 public class MockDataGenerator {
 
     private List<Org> orgs;
-    private List<Delegation> delegations;
     private List<Student> students;
     private List<Lecturer> lecturers;
     private List<CourseOrgId> courseOrgIds;
@@ -21,14 +20,6 @@ public class MockDataGenerator {
     private List<TextCourseId> textCourseIds;
     private List<EventCourseId> eventCourseIds;
     private List<ImportStatistic> importStatistics;
-
-    List<Delegation> getDelegations() {
-        return delegations;
-    }
-
-    public void setDelegations(List<Delegation> delegations) {
-        this.delegations = delegations;
-    }
 
     List<Org> getOrgs() {
         return orgs;

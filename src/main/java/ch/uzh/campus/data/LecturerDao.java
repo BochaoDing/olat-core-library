@@ -100,10 +100,10 @@ public class LecturerDao implements CampusDao<Lecturer> {
                 .getResultList();
     }
 
-    public List<Lecturer> getLecturersMappedToOlatUserName(String olatUserName) {
+    public List<Lecturer> getLecturersByMappedIdentityKey(Long mappedIdentityKey) {
         return dbInstance.getCurrentEntityManager()
-                .createNamedQuery(Lecturer.GET_LECTURERS_MAPPED_TO_OLAT_USER_NAME, Lecturer.class)
-                .setParameter("olatUserName", olatUserName)
+                .createNamedQuery(Lecturer.GET_LECTURERS_BY_MAPPED_IDENTITY_KEY, Lecturer.class)
+                .setParameter("mappedIdentityKey", mappedIdentityKey)
                 .getResultList();
     }
 

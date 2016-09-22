@@ -144,9 +144,8 @@ public class DataConverterTest extends OlatTestCase {
         assertEquals(mappedIdentityOfLecturer, identitiesOfLecturers.get(0));
 
         // Create delegation (i.e. delegator + delegatee) with lecturer as delegator
-        String delegateeOfLecturerUserName = "dataConverterTestDelegateeOfLecturer";
-        Identity identityOfDelegatee = insertTestUser(delegateeOfLecturerUserName, Identity.STATUS_ACTIV);
-        Delegation delegation = new Delegation(lecturerUserName, delegateeOfLecturerUserName, new Date());
+        Identity identityOfDelegatee = insertTestUser("dataConverterTestDelegateeOfLecturer", Identity.STATUS_ACTIV);
+        Delegation delegation = new Delegation(mappedIdentityOfLecturer, identityOfDelegatee, new Date());
         dbInstance.saveObject(delegation);
         dbInstance.flush();
 
@@ -197,9 +196,8 @@ public class DataConverterTest extends OlatTestCase {
         assertTrue(dataConverter.convertDelegateesToIdentities(course.getLecturerCourses()).isEmpty());
 
         // Create delegation (i.e. delegator + delegatee) with lecturer as delegator
-        String delegateeOfLecturerUserName = "dataConverterTestDelegateeOfLecturer";
-        Identity identityOfDelegatee = insertTestUser(delegateeOfLecturerUserName, Identity.STATUS_ACTIV);
-        Delegation delegation = new Delegation(lecturerUserName, delegateeOfLecturerUserName, new Date());
+        Identity identityOfDelegatee = insertTestUser("dataConverterTestDelegateeOfLecturer", Identity.STATUS_ACTIV);
+        Delegation delegation = new Delegation(mappedIdentityOfLecturer, identityOfDelegatee, new Date());
         dbInstance.saveObject(delegation);
         dbInstance.flush();
 
@@ -222,14 +220,12 @@ public class DataConverterTest extends OlatTestCase {
         assertTrue(dataConverter.getDelegatees(identityOfDelegator).isEmpty());
 
         // Create two delegations for the same delegator
-        String delegatee1UserName = "dataConverterTestDelegatee1";
-        Identity identityOfDelegatee1 = insertTestUser(delegatee1UserName, Identity.STATUS_ACTIV);
-        Delegation delegation1 = new Delegation(delegatorUserName, delegatee1UserName, new Date());
+        Identity identityOfDelegatee1 = insertTestUser("dataConverterTestDelegatee1", Identity.STATUS_ACTIV);
+        Delegation delegation1 = new Delegation(identityOfDelegator, identityOfDelegatee1, new Date());
         dbInstance.saveObject(delegation1);
 
-        String delegatee2UserName = "dataConverterTestDelegatee2";
-        Identity identityOfDelegatee2 = insertTestUser(delegatee2UserName, Identity.STATUS_ACTIV);
-        Delegation delegation2 = new Delegation(delegatorUserName, delegatee2UserName, new Date());
+        Identity identityOfDelegatee2 = insertTestUser("dataConverterTestDelegatee2", Identity.STATUS_ACTIV);
+        Delegation delegation2 = new Delegation(identityOfDelegator, identityOfDelegatee2, new Date());
         dbInstance.saveObject(delegation2);
         dbInstance.flush();
 

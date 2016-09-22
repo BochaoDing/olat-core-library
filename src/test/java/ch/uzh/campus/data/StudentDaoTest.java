@@ -213,7 +213,7 @@ public class StudentDaoTest extends OlatTestCase {
     }
 
     @Test
-    public void testGetStudentsMappedToOlatUserName() {
+    public void testGetStudentsStudentsByMappedIdentityKey() {
         insertTestData();
 
         Student student1 = studentDao.getStudentById(2100L);
@@ -221,16 +221,15 @@ public class StudentDaoTest extends OlatTestCase {
         assertNotNull(student1);
         assertNotNull(student2);
 
-        String olatUserName = "studentDaoTestUser";
-        Identity identity = insertTestUser(olatUserName);
+        Identity identity = insertTestUser("studentDaoTestUser");
 
-        assertTrue(studentDao.getStudentsMappedToOlatUserName(olatUserName).isEmpty());
+        assertTrue(studentDao.getStudentsByMappedIdentityKey(identity.getKey()).isEmpty());
 
         // Map to student 1
         studentDao.addMapping(student1.getId(), identity);
         dbInstance.flush();
 
-        List<Student> studentsFound = studentDao.getStudentsMappedToOlatUserName(olatUserName);
+        List<Student> studentsFound = studentDao.getStudentsByMappedIdentityKey(identity.getKey());
         assertEquals(1, studentsFound.size());
         assertTrue(studentsFound.contains(student1));
 
@@ -238,7 +237,7 @@ public class StudentDaoTest extends OlatTestCase {
         studentDao.addMapping(student2.getId(), identity);
         dbInstance.flush();
 
-        studentsFound = studentDao.getStudentsMappedToOlatUserName(olatUserName);
+        studentsFound = studentDao.getStudentsByMappedIdentityKey(identity.getKey());
         assertEquals(2, studentsFound.size());
         assertTrue(studentsFound.contains(student1));
         assertTrue(studentsFound.contains(student2));
@@ -247,7 +246,7 @@ public class StudentDaoTest extends OlatTestCase {
         studentDao.removeMapping(student1.getId());
         dbInstance.flush();
 
-        studentsFound = studentDao.getStudentsMappedToOlatUserName(olatUserName);
+        studentsFound = studentDao.getStudentsByMappedIdentityKey(identity.getKey());
         assertEquals(1, studentsFound.size());
         assertTrue(studentsFound.contains(student2));
 
@@ -255,7 +254,7 @@ public class StudentDaoTest extends OlatTestCase {
         studentDao.removeMapping(student2.getId());
         dbInstance.flush();
 
-        assertTrue(studentDao.getStudentsMappedToOlatUserName(olatUserName).isEmpty());
+        assertTrue(studentDao.getStudentsByMappedIdentityKey(identity.getKey()).isEmpty());
     }
 
     @Test

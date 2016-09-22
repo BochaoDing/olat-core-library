@@ -149,8 +149,8 @@ public class CampusCourseServiceImpl implements CampusCourseService {
 	}
 
 	@Override
-	public boolean existDelegation(Identity delegator, Identity delegatee) {
-		return campusCourseCoreService.existDelegation(delegator, delegatee);
+	public boolean existsDelegation(Identity delegator, Identity delegatee) {
+		return campusCourseCoreService.existsDelegation(delegator, delegatee);
 	}
 
 	@Override

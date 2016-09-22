@@ -17,7 +17,7 @@ import java.util.Set;
  * @author aabouc
  * @author Martin Schraner
  */
-@SuppressWarnings("JpaQlInspection")  // Required to suppress warnings in named query GET_LECTURERS_MAPPED_TO_OLAT_USER_NAME
+@SuppressWarnings("JpaQlInspection")  // Required to suppress warnings in named query GET_LECTURERS_BY_MAPPED_IDENTITY_KEY
 @Entity
 @Table(name = "ck_lecturer")
 @NamedQueries({
@@ -29,7 +29,7 @@ import java.util.Set;
         @NamedQuery(name = Lecturer.GET_ALL_NOT_MANUALLY_MAPPED_OR_TOO_OLD_ORPHANED_LECTURERS, query = "select l.personalNr from Lecturer l where " +
                 "(l.kindOfMapping is null or l.kindOfMapping <> 'MANUAL' or l.dateOfImport < :nYearsInThePast) " +
                 "and l.personalNr not in (select lc.lecturer.personalNr from LecturerCourse lc)"),
-        @NamedQuery(name = Lecturer.GET_LECTURERS_MAPPED_TO_OLAT_USER_NAME, query = "select l from Lecturer l where l.mappedIdentity.name = :olatUserName"),
+        @NamedQuery(name = Lecturer.GET_LECTURERS_BY_MAPPED_IDENTITY_KEY, query = "select l from Lecturer l where l.mappedIdentity.key = :mappedIdentityKey"),
         @NamedQuery(name = Lecturer.DELETE_BY_LECTURER_IDS, query = "delete from Lecturer l where l.personalNr in :lecturerIds")
 })
 public class Lecturer {
@@ -74,7 +74,7 @@ public class Lecturer {
     static final String GET_LECTURER_BY_EMAIL = "getLecturerByEmail";
     static final String GET_ALL_LECTURERS_WITH_CREATED_OR_NOT_CREATED_CREATABLE_COURSES = "getAllLecturersWithCreatedOrNotCreatedCreatableCourses";
     static final String GET_ALL_NOT_MANUALLY_MAPPED_OR_TOO_OLD_ORPHANED_LECTURERS = "getAllNotManuallyMappedOrTooOldOrphanedLecturers";
-    static final String GET_LECTURERS_MAPPED_TO_OLAT_USER_NAME = "getLecturersMappedToOlatUserName";
+    static final String GET_LECTURERS_BY_MAPPED_IDENTITY_KEY = "getLecturersByMappedIdentityKey";
     static final String DELETE_BY_LECTURER_IDS = "deleteLecturerByLecturerIds";
 
     public Lecturer() {

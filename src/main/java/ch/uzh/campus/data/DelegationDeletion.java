@@ -1,15 +1,13 @@
-package ch.uzh.campus.mapper;
+package ch.uzh.campus.data;
 
-import ch.uzh.campus.data.Lecturer;
-import ch.uzh.campus.data.LecturerDao;
-import ch.uzh.campus.data.Student;
-import ch.uzh.campus.data.StudentDao;
 import org.olat.core.id.Identity;
 import org.olat.core.logging.OLog;
 import org.olat.core.logging.Tracing;
 import org.olat.user.UserDataDeletable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import java.util.Iterator;
 
 /**
  * OLAT - Online Learning and Training<br>
@@ -31,41 +29,39 @@ import org.springframework.stereotype.Component;
  * University of Zurich, Switzerland.
  * <p>
  *
- * Initial Date: 28.06.2012 <br>
- * 
- * @author cg
+ * Initial Date: 21.09.2016 <br>
+ *
  * @author Martin Schraner
  */
 @Component
-public class UserMappingDeletion implements UserDataDeletable {
+public class DelegationDeletion implements UserDataDeletable {
 
-    private static final OLog LOG = Tracing.createLoggerFor(UserMappingDeletion.class);
+    private static final OLog LOG = Tracing.createLoggerFor(DelegationDeletion.class);
 
-    private final LecturerDao lecturerDao;
-    private final StudentDao studentDao;
+    private final DelegationDao delegationDao;
 
     @Autowired
-    public UserMappingDeletion(LecturerDao lecturerDao, StudentDao studentDao) {
-        this.lecturerDao = lecturerDao;
-        this.studentDao = studentDao;
+    public DelegationDeletion(DelegationDao delegationDao) {
+        this.delegationDao = delegationDao;
     }
-
 
     // This method will be called when a OLAT-user is deleted via deletion-manager
     @Override
     public void deleteUserData(Identity identity, String newDeletedUserName) {
         LOG.debug("deleteUserData start");
 
-        // Remove mapping for lecturers mapped to identity
-        for (Lecturer lecturer : lecturerDao.getLecturersByMappedIdentityKey(identity.getKey())) {
-            LOG.info("Delete mapping for lecturer '" + lecturer + "'");
-            lecturerDao.removeMapping(lecturer.getPersonalNr());
+        Iterator<Delegation> iterator = delegationDao.getDelegationsByDelegator(identity.getKey()).iterator();
+        while (iterator.hasNext()) {
+            Delegation delegation = iterator.next();
+            LOG.info("Delete delegation " + delegation);
+            delegationDao.delete(delegation);
         }
 
-        // Remove mapping for students mapped to identity
-        for (Student student : studentDao.getStudentsByMappedIdentityKey(identity.getKey())) {
-            LOG.info("Delete mapping for student '" + student + "'");
-            studentDao.removeMapping(student.getId());
+        iterator = delegationDao.getDelegationsByDelegatee(identity.getKey()).iterator();
+        while (iterator.hasNext()) {
+            Delegation delegation = iterator.next();
+            LOG.info("Delete delegation " + delegation);
+            delegationDao.delete(delegation);
         }
     }
 }

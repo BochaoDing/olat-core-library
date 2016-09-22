@@ -56,7 +56,7 @@ public interface CampusCourseService {
 
     void createDelegation(Identity delegator, Identity delegatee);
 
-    boolean existDelegation(Identity delegator, Identity delegatee);
+    boolean existsDelegation(Identity delegator, Identity delegatee);
 
     boolean existResourceableId(Long resourceableId);
 

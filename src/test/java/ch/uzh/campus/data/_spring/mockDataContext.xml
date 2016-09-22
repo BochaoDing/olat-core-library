@@ -14,7 +14,6 @@
     <!-- ======================================================================================= -->
     <bean id="mockDataGenerator" class="ch.uzh.campus.data.MockDataGenerator" scope="prototype" >
         <property name="orgs" ref="orgs" />
-        <property name="delegations" ref="delegations" />
         <property name="students" ref="students" />
         <property name="lecturers" ref="lecturers" />
         <property name="courseOrgIds" ref="courseOrgIds" />
@@ -235,18 +234,6 @@
         <bean class="ch.uzh.campus.data.EventCourseId" p:courseId="100" p:date="13.10.2014 00:00:00" p:start="16:00:00" p:end="17:30:00" p:dateOfImport="10.10.2014 10:10" scope="prototype" />
         <bean class="ch.uzh.campus.data.EventCourseId" p:courseId="200" p:date="16.10.2014 00:00:00" p:start="09:00:00" p:end="10:30:00" p:dateOfImport="10.10.2014 10:10" scope="prototype" />
         <bean class="ch.uzh.campus.data.EventCourseId" p:courseId="200" p:date="16.10.2014 00:00:00" p:start="14:00:00" p:end="15:30:00" p:dateOfImport="10.10.2014 10:10" scope="prototype" />
-    </util:list>
-
-    <!-- ======================================================================================= -->
-    <!-- ===============Delegation================= -->
-    <!-- ======================================================================================= -->
-    <util:list id = 'delegations' scope="prototype" >
-        <bean class="ch.uzh.campus.data.Delegation" p:delegator="delegator1" p:delegatee="delegatee11" scope="prototype" />
-        <bean class="ch.uzh.campus.data.Delegation" p:delegator="delegator1" p:delegatee="delegatee12" scope="prototype" />
-        <bean class="ch.uzh.campus.data.Delegation" p:delegator="delegator2" p:delegatee="delegatee20" scope="prototype" />
-        <bean class="ch.uzh.campus.data.Delegation" p:delegator="delegator3" p:delegatee="delegatee20" scope="prototype" />
-        <bean class="ch.uzh.campus.data.Delegation" p:delegator="delegator4" p:delegatee="delegatee40" scope="prototype" />
-        <bean class="ch.uzh.campus.data.Delegation" p:delegator="delegator5" p:delegatee="delegatee50" scope="prototype" />
     </util:list>
 
     <!-- ======================================================================================= -->

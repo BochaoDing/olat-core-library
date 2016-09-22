@@ -242,7 +242,7 @@ public class DelegationController extends BasicController {
 
                 if (toAdd.size() == 1) {
                     // check if already in delegation [makes only sense for a single choosen identity]
-                    if (campusService.existDelegation(delegator, toAdd.get(0))) {
+                    if (campusService.existsDelegation(delegator, toAdd.get(0))) {
                         getWindowControl().setInfo(translate("delegation.msg.delegateealreadyindelegation", new String[] { toAdd.get(0).getName() }));
                         return;
                     }
@@ -251,7 +251,7 @@ public class DelegationController extends BasicController {
                     boolean someAlreadyInGroup = false;
                     final List<Identity> alreadyInGroup = new ArrayList<Identity>();
                     for (int i = 0; i < toAdd.size(); i++) {
-                        if (campusService.existDelegation(delegator, toAdd.get(i))) {
+                        if (campusService.existsDelegation(delegator, toAdd.get(i))) {
                             tableCtr.setMultiSelectSelectedAt(i, false);
                             alreadyInGroup.add(toAdd.get(i));
                             someAlreadyInGroup = true;

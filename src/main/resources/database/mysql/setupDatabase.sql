@@ -2271,11 +2271,10 @@ create table if not exists ck_skip_item (
 )engine InnoDB;
 
 create table if not exists ck_delegation (
-  	id bigint not null  AUTO_INCREMENT,
-	delegator VARCHAR(100) not null,
-	delegatee VARCHAR(100) not null,
-	modified_date timestamp DEFAULT CURRENT_TIMESTAMP,
-	primary key (id)
+   fk_delegator_identity bigint not null,
+   fk_delegatee_identity bigint not null,
+	 creationdate datetime not null,
+	 primary key (fk_delegator_identity, fk_delegatee_identity)
 )engine InnoDB;
 
 alter table ck_course add constraint ck_course_f01 foreign key (parent_course_id) references ck_course (id);
@@ -2289,11 +2288,13 @@ alter table ck_course_org add constraint ck_course_org_f01 foreign key (course_i
 alter table ck_course_org add constraint ck_course_org_f02 foreign key (org_id) references ck_org (id);
 alter table ck_event add constraint ck_event_f01 foreign key (course_id) references ck_course (id);
 alter table ck_text add constraint ck_text_f01 foreign key (course_id) references ck_course (id);
+alter table ck_delegation add constraint ck_delegation_f01 foreign key (fk_delegator_identity) references o_bs_identity(id);
+alter table ck_delegation add constraint ck_delegation_f02 foreign key (fk_delegatee_identity) references o_bs_identity(id);
 
 alter table ck_student_course add unique (student_id, course_id);
 alter table ck_lecturer_course add unique (lecturer_id, course_id);
 alter table ck_course_org add unique (course_id, org_id);
-alter table ck_delegation add unique (delegator,delegatee);
+alter table ck_delegation add unique (fk_delegator_identity, fk_delegatee_identity);
 
 create index ck_xx_parent_course_id_idx on ck_course (parent_course_id);
 create index ck_xx_step_name_idx on ck_import_statistic(step_name);

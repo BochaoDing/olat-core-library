@@ -105,15 +105,11 @@ public class DaoManager {
     }
 
     public void saveDelegation(Identity delegator, Identity delegatee) {
-        Delegation delegation = new Delegation();
-        delegation.setDelegator(delegator.getName());
-        delegation.setDelegatee(delegatee.getName());
-        delegation.setModifiedDate(new Date());
-        delegationDao.save(delegation);
+        delegationDao.save(delegator.getKey(), delegatee.getKey());
     }
 
-    public boolean existDelegation(Identity delegator, Identity delegatee) {
-        return delegationDao.existDelegation(delegator.getName(), delegatee.getName());
+    public boolean existsDelegation(Identity delegator, Identity delegatee) {
+        return delegationDao.existsDelegation(delegator.getKey(), delegatee.getKey());
     }
 
     public boolean existResourceableId(Long resourceableId) {
@@ -257,12 +253,12 @@ public class DaoManager {
         orgDao.deleteByOrgIds(orgIds);
     }
 
-    public List<Student> getStudentsMappedToOlatUserName(String olatUserName) {
-        return studentDao.getStudentsMappedToOlatUserName(olatUserName);
+    public List<Student> getStudentsByMappedIdentityKey(Long identityKey) {
+        return studentDao.getStudentsByMappedIdentityKey(identityKey);
     }
 
-    public List<Lecturer> getLecturersMappedToOlatUserName(String olatUserName) {
-        return lecturerDao.getLecturersMappedToOlatUserName(olatUserName);
+    public List<Lecturer> getLecturersByMappedIdentityKey(Long identityKey) {
+        return lecturerDao.getLecturersByMappedIdentityKey(identityKey);
     }
 
     public List<Text> getTextByCourseId(Long id) {
@@ -307,10 +303,10 @@ public class DaoManager {
 
     public Set<Course> getCampusCoursesWithoutResourceableId(Identity identity, SapUserType userType, String searchString) {
         Set<Course> coursesWithoutResourceableId = new HashSet<>();
-        coursesWithoutResourceableId.addAll(getCourses(identity.getName(), userType, false, searchString));// false --- > notCreatedCourses
+        coursesWithoutResourceableId.addAll(getCourses(identity, userType, false, searchString));// false --- > notCreatedCourses
         // THE CASE OF LECTURER, ADD THE APPROPRIATE DELEGATES
         if (userType.equals(SapUserType.LECTURER)) {
-            List<Delegation> delegations = delegationDao.getDelegationsByDelegatee(identity.getName());
+            List<Delegation> delegations = delegationDao.getDelegationsByDelegatee(identity.getKey());
             for (Delegation delegation : delegations) {
                 coursesWithoutResourceableId.addAll(getCourses(delegation.getDelegator(), userType, false, searchString));// false --- > notCreatedCourses
             }
@@ -320,10 +316,10 @@ public class DaoManager {
 
     public Set<Course> getCampusCoursesWithResourceableId(Identity identity, SapUserType userType, String searchString) {
         Set<Course> coursesWithResourceableId = new HashSet<>();
-        coursesWithResourceableId.addAll(getCourses(identity.getName(), userType, true, searchString));// true --- > CreatedCourses
+        coursesWithResourceableId.addAll(getCourses(identity, userType, true, searchString));// true --- > CreatedCourses
         // THE CASE OF LECTURER, ADD THE APPROPRIATE DELEGATES
         if (userType.equals(SapUserType.LECTURER)) {
-            List<Delegation> delegations = delegationDao.getDelegationsByDelegatee(identity.getName());
+            List<Delegation> delegations = delegationDao.getDelegationsByDelegatee(identity.getKey());
             for (Delegation delegation : delegations) {
                 coursesWithResourceableId.addAll(getCourses(delegation.getDelegator(), userType, true, searchString));// true --- > CreatedCourses
             }
@@ -331,10 +327,10 @@ public class DaoManager {
         return coursesWithResourceableId;
     }
 
-    public List<Course> getCourses(String olatUserName, SapUserType userType, boolean created, String searchString) {
+    public List<Course> getCourses(Identity identity, SapUserType userType, boolean created, String searchString) {
         List <Course> courses = new ArrayList<>();
         if (userType.equals(SapUserType.LECTURER)) {
-            for (Lecturer lecturer : getLecturersMappedToOlatUserName(olatUserName)) {
+            for (Lecturer lecturer : getLecturersByMappedIdentityKey(identity.getKey())) {
                 if (created) {
                     courses.addAll(getCreatedCoursesByLecturerId(lecturer.getPersonalNr(), searchString));
                 } else {
@@ -342,7 +338,7 @@ public class DaoManager {
                 }
             }
         } else {
-            for (Student student : getStudentsMappedToOlatUserName(olatUserName)) {
+            for (Student student : getStudentsByMappedIdentityKey(identity.getKey())) {
                 if (created) {
                     courses.addAll(getCreatedCoursesByStudentId(student.getId(), searchString));
                 } else {
@@ -426,7 +422,7 @@ public class DaoManager {
     }
 
     public void deleteDelegation(Identity delegator, Identity delegatee) {
-        delegationDao.deleteByDelegatorAndDelegatee(delegator.getName(), delegatee.getName());
+        delegationDao.deleteDelegationById(delegator.getKey(), delegatee.getKey());
     }
 
     public boolean checkImportedData() {

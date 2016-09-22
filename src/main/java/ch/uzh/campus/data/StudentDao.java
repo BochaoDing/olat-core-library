@@ -111,10 +111,10 @@ public class StudentDao implements CampusDao<Student> {
                 .getResultList();
     }
 
-    public List<Student> getStudentsMappedToOlatUserName(String olatUserName) {
+    public List<Student> getStudentsByMappedIdentityKey(Long mappedIdentityKey) {
         return dbInstance.getCurrentEntityManager()
-                .createNamedQuery(Student.GET_STUDENTS_MAPPED_TO_OLAT_USER_NAME, Student.class)
-                .setParameter("olatUserName", olatUserName)
+                .createNamedQuery(Student.GET_STUDENTS_BY_MAPPED_IDENTITY_KEY, Student.class)
+                .setParameter("mappedIdentityKey", mappedIdentityKey)
                 .getResultList();
     }
 

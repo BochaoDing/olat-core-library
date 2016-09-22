@@ -1,6 +1,5 @@
 package ch.uzh.campus.data;
 
-import org.olat.basesecurity.BaseSecurity;
 import org.olat.core.id.Identity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -34,12 +33,10 @@ import java.util.Set;
 public class DataConverter {
 
     private final DelegationDao delegationDao;
-    private final BaseSecurity baseSecurity;
 
     @Autowired
-    public DataConverter(DelegationDao delegationDao, BaseSecurity baseSecurity) {
+    public DataConverter(DelegationDao delegationDao) {
         this.delegationDao = delegationDao;
-        this.baseSecurity = baseSecurity;
     }
 
     List<Identity> convertStudentsToIdentities(Set<StudentCourse> studentCourses) {
@@ -68,11 +65,10 @@ public class DataConverter {
             }
 
             // Also add delegatees of lecturer
-            List<Delegation> delegations = delegationDao.getDelegationsByDelegator(mappedIdentity.getName());
+            List<Delegation> delegations = delegationDao.getDelegationsByDelegator(mappedIdentity.getKey());
             for (Delegation delegation : delegations) {
-                Identity delegatee = findIdentity(delegation.getDelegatee());
-                if (delegatee != null && !identitiesOfLecturers.contains(delegatee)) {
-                    identitiesOfLecturers.add(delegatee);
+                if (!delegation.getDelegatee().getStatus().equals(Identity.STATUS_DELETED) && !identitiesOfLecturers.contains(delegation.getDelegatee())) {
+                    identitiesOfLecturers.add(delegation.getDelegatee());
                 }
             }
         }
@@ -86,11 +82,10 @@ public class DataConverter {
             if (mappedIdentity == null || mappedIdentity.getStatus().equals(Identity.STATUS_DELETED)) {
                 continue;
             }
-            List<Delegation> delegations = delegationDao.getDelegationsByDelegator(mappedIdentity.getName());
+            List<Delegation> delegations = delegationDao.getDelegationsByDelegator(mappedIdentity.getKey());
             for (Delegation delegation : delegations) {
-                Identity delegatee = findIdentity(delegation.getDelegatee());
-                if (delegatee != null && !identitiesOfDelegatees.contains(delegatee)) {
-                    identitiesOfDelegatees.add(delegatee);
+                if (!delegation.getDelegatee().getStatus().equals(Identity.STATUS_DELETED) && !identitiesOfDelegatees.contains(delegation.getDelegatee())) {
+                    identitiesOfDelegatees.add(delegation.getDelegatee());
                 }
             }
         }
@@ -99,23 +94,13 @@ public class DataConverter {
 
     List<Object[]> getDelegatees(Identity delegator) {
         List<Object[]> identitiesOfDelegatees = new ArrayList<>();
-        List<Delegation> delegations = delegationDao.getDelegationsByDelegator(delegator.getName());
+        List<Delegation> delegations = delegationDao.getDelegationsByDelegator(delegator.getKey());
         for (Delegation delegation : delegations) {
-            Identity identity = findIdentity(delegation.getDelegatee());
-
-            if (identity != null) {
-                identitiesOfDelegatees.add(new Object[] { identity, delegation.getModifiedDate() });
+            if (!delegation.getDelegatee().getStatus().equals(Identity.STATUS_DELETED)) {
+                identitiesOfDelegatees.add(new Object[] { delegation.getDelegatee(), delegation.getCreationDate() });
             }
         }
         return identitiesOfDelegatees;
-    }
-
-    private Identity findIdentity(String olatUserName) {
-        Identity identity = baseSecurity.findIdentityByName(olatUserName);
-        if (identity != null && identity.getStatus().equals(Identity.STATUS_DELETED)) {
-            return null;
-        }
-        return identity;
     }
 
 }

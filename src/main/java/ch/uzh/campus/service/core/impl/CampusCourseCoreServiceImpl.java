@@ -308,8 +308,8 @@ public class CampusCourseCoreServiceImpl implements CampusCourseCoreService {
     }
 
     @Override
-    public boolean existDelegation(Identity delegator, Identity delegatee) {
-        return daoManager.existDelegation(delegator, delegatee);
+    public boolean existsDelegation(Identity delegator, Identity delegatee) {
+        return daoManager.existsDelegation(delegator, delegatee);
     }
 
     @Override
