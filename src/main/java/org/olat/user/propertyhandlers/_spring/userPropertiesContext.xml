@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xmlns:context="http://www.springframework.org/schema/context" 
+	xmlns:context="http://www.springframework.org/schema/context"
 	xsi:schemaLocation="
-  http://www.springframework.org/schema/beans 
-  http://www.springframework.org/schema/beans/spring-beans.xsd 
-  http://www.springframework.org/schema/context 
+  http://www.springframework.org/schema/beans
+  http://www.springframework.org/schema/beans/spring-beans.xsd
+  http://www.springframework.org/schema/context
   http://www.springframework.org/schema/context/spring-context.xsd">
 
 	<!-- 
@@ -220,6 +220,8 @@
 								<ref bean="userPropertyEmail" />
 								<ref bean="userPropertyInstitutionalName" />
 								<ref bean="userPropertyInstitutionalEmail" />
+								<ref bean="userPropertyInstitutionalEmployeeNumber" />
+								<ref bean="userPropertyInstitutionalMatriculationNumber" />
 							</list>
 						</property>
 						<property name="adminViewOnlyProperties">
@@ -227,6 +229,8 @@
 								<ref bean="userPropertyEmail" />
 								<ref bean="userPropertyInstitutionalName" />
 								<ref bean="userPropertyInstitutionalEmail" />
+								<ref bean="userPropertyInstitutionalEmployeeNumber" />
+								<ref bean="userPropertyInstitutionalMatriculationNumber" />
 							</set>						
 						</property>
 						<property name="mandatoryProperties">
@@ -248,7 +252,7 @@
 							</list>
 						</property>
 						<property name="adminViewOnlyProperties">
-							<set></set>						
+							<set/>
 						</property>
 						<property name="mandatoryProperties">
 							<set>
@@ -362,8 +366,6 @@
 								<ref bean="userPropertyBirthDay" />
 								<ref bean="userPropertyGender" />
 								<ref bean="userPropertyInstitutionalName" />
-								<ref bean="userPropertyInstitutionalEmployeeNumber" />
-								<ref bean="userPropertyInstitutionalMatriculationNumber" />
 								<ref bean="userPropertyInstitutionalEmail" />
 								<ref bean="userPropertyOrgUnit" />
 								<ref bean="userPropertyStudySubject" />
@@ -427,8 +429,6 @@
 								<ref bean="userPropertyCity" />
 								<ref bean="userPropertyCountry" />
 								<ref bean="userPropertyInstitutionalName" />
-								<ref bean="userPropertyInstitutionalEmployeeNumber" />
-								<ref bean="userPropertyInstitutionalMatriculationNumber" />
 								<ref bean="userPropertyInstitutionalEmail" />
 								<ref bean="userPropertyOrgUnit" />
 								<ref bean="userPropertyStudySubject" />
