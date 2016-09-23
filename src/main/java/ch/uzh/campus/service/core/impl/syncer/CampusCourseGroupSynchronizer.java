@@ -80,8 +80,8 @@ public class CampusCourseGroupSynchronizer {
    public SynchronizedGroupStatistic synchronizeCourseGroups(CampusCourse campusCourse,
                                                              CampusCourseImportTO campusCourseImportData) throws CampusCourseException {
        CampusCourseGroups campusCourseGroups = campusCourseGroupsFinder.findCampusCourseGroups(campusCourse.getRepositoryEntry());
-       if (campusCourseGroups == null) {
-           throw new CampusCourseException("Campus course groups A and B do not exist or campus learning area does not exist or missing database relation between campus course groups and campus course learning area");
+       if (campusCourseGroups == null || campusCourseGroups.getCampusCourseGroupA() == null || campusCourseGroups.getCampusCourseGroupB() == null) {
+           throw new CampusCourseException("Campus course groups A and/or B do not exist or campus learning area does not exist or missing database relation between campus course groups and campus course learning area");
        }
        return synchronizeCourseGroups(campusCourse, campusCourseImportData, campusCourseGroups);
    }

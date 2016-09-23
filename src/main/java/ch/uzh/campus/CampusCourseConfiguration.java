@@ -54,6 +54,12 @@ public class CampusCourseConfiguration {
     @Value("${campus.template.course.groupB.name}")
     private String courseGroupBName;
 
+    @Value("${campus.template.course.groupA.managedFlags}")
+    private String courseGroupAManagedFlags;
+
+    @Value("${campus.template.course.groupB.managedFlags}")
+    private String courseGroupBManagedFlags;
+
     @Value("${campus.template.course.vvzLink}")
     private String templateCourseVvzLink;
 
@@ -167,6 +173,14 @@ public class CampusCourseConfiguration {
 
     public String getCourseGroupBName() {
         return courseGroupBName;
+    }
+
+    public String getCourseGroupAManagedFlags() {
+        return courseGroupAManagedFlags;
+    }
+
+    public String getCourseGroupBManagedFlags() {
+        return courseGroupBManagedFlags;
     }
 
     public String getTemplateCourseVvzLink() {
