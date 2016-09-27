@@ -111,26 +111,29 @@ public class CampusCourseCreator {
         // If not, create them and add them to the learning area.
         String groupNameA = campusCourseConfiguration.getCourseGroupAName();
         String groupDescriptionA = translator.translate("campus.course.businessGroupA.desc");
-        String managedFlagsA = "title,settings,membersmanagement,resources,bookings,delete";
+        String managedFlagsA = campusCourseConfiguration.getCourseGroupAManagedFlags();
         String groupNameB = campusCourseConfiguration.getCourseGroupBName();
         String groupDescriptionB = translator.translate("campus.course.businessGroupB.desc");
-        String managedFlagsB = "title,resources,delete";
+        String managedFlagsB = campusCourseConfiguration.getCourseGroupBManagedFlags();
         List<BusinessGroup> groupsOfArea = bgAreaManager.findBusinessGroupsOfArea(campusLearningArea);
-        BusinessGroup bgA = findCampusCourseGroupInGroupArea(groupsOfArea, groupNameA);
-        if (bgA == null) {
-            bgA = findCampusCourseGroupInCourseAndAddItToBusinessGroup(course, groupNameA, campusLearningArea);
-            if (bgA == null) {
-                bgA = createCampusCourseGroupAndAddItToArea(campusLearningArea, creatorIdentity, groupNameA, groupDescriptionA, managedFlagsA, repositoryEntry);
-            }
-        }
-        BusinessGroup bgB = findCampusCourseGroupInGroupArea(groupsOfArea, groupNameB);
-        if (bgB == null) {
-            bgB = findCampusCourseGroupInCourseAndAddItToBusinessGroup(course, groupNameB, campusLearningArea);
-            if (bgB == null) {
-                bgB = createCampusCourseGroupAndAddItToArea(campusLearningArea, creatorIdentity, groupNameB, groupDescriptionB, managedFlagsB, repositoryEntry);
-            }
-        }
+
+        BusinessGroup bgA = findOrCreateCampusBusinessGroup(course, repositoryEntry, creatorIdentity, groupNameA, groupDescriptionA, managedFlagsA, campusLearningArea, groupsOfArea);
+        BusinessGroup bgB = findOrCreateCampusBusinessGroup(course, repositoryEntry, creatorIdentity, groupNameB, groupDescriptionB, managedFlagsB, campusLearningArea, groupsOfArea);
+
         return new CampusCourseGroups(bgA, bgB);
+    }
+
+    private BusinessGroup findOrCreateCampusBusinessGroup(ICourse course, RepositoryEntry repositoryEntry, Identity creatorIdentity, String groupName, String groupDescription, String managedFlags, BGArea campusLearningArea, List<BusinessGroup> groupsOfArea) {
+        BusinessGroup bg = findCampusCourseGroupInGroupArea(groupsOfArea, groupName);
+        if (bg == null) {
+            bg = findCampusCourseGroupInCourseAndAddItToBusinessGroup(creatorIdentity, course, groupName, managedFlags, campusLearningArea);
+            if (bg == null) {
+                bg  = createCampusCourseGroupAndAddItToArea(campusLearningArea, creatorIdentity, groupName, groupDescription, managedFlags, repositoryEntry);
+            }
+        } else {
+            bg = setManagedFlags(creatorIdentity, bg, managedFlags);
+        }
+        return bg;
     }
 
     private BusinessGroup findCampusCourseGroupInGroupArea(List<BusinessGroup> groupsOfArea, String groupName) {
@@ -142,9 +145,10 @@ public class CampusCourseCreator {
         return null;
     }
 
-    private BusinessGroup findCampusCourseGroupInCourseAndAddItToBusinessGroup(ICourse course, String groupName, BGArea campusLearningArea) {
+    private BusinessGroup findCampusCourseGroupInCourseAndAddItToBusinessGroup(Identity creatorIdentity, ICourse course, String groupName, String managedFlags, BGArea campusLearningArea) {
         BusinessGroup bg = findCampusCourseInCourse(course, groupName);
         if (bg != null) {
+            bg = setManagedFlags(creatorIdentity, bg, managedFlags);
             bgAreaManager.addBGToBGArea(bg, campusLearningArea);
         }
         return bg;
@@ -167,6 +171,11 @@ public class CampusCourseCreator {
         BusinessGroup bg = businessGroupService.createBusinessGroup(creatorIdentity, groupName, description, null, managedFlags, null, null, false, false, repositoryEntry);
         bgAreaManager.addBGToBGArea(bg, campusLearningArea);
         return bg;
+    }
+
+    private BusinessGroup setManagedFlags(Identity creatorIdentity, BusinessGroup businessGroup, String managedFlags) {
+        return businessGroupService.updateBusinessGroup(creatorIdentity, businessGroup, businessGroup.getName(), businessGroup.getDescription(),
+                businessGroup.getExternalId(), managedFlags, businessGroup.getMinParticipants(), businessGroup.getMaxParticipants());
     }
 
     /**
