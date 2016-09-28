@@ -31,6 +31,10 @@ import java.util.Set;
         @NamedQuery(name = Student.GET_STUDENTS_BY_EMAIL, query = "select s from Student s where s.email = :email"),
         @NamedQuery(name = Student.GET_STUDENTS_WITH_REGISTRATION_NUMBER, query = "select s from Student s where s.registrationNr = :registrationNr"),
         @NamedQuery(name = Student.GET_STUDENTS_BY_MAPPED_IDENTITY_KEY, query = "select s from Student s where s.mappedIdentity.key = :mappedIdentityKey"),
+        @NamedQuery(name = Student.GET_NUMBER_OF_STUDENTS_OF_SPECIFIC_COURSE, query = "select count(sc.student.id) from StudentCourse sc where sc.course.id = :courseId"),
+        @NamedQuery(name = Student.GET_NUMBER_OF_STUDENTS_WITH_BOOKING_FOR_COURSE_AND_PARENT_COURSE, query = "select count(sc.student.id) from StudentCourse sc " +
+                "join sc.course.parentCourse.studentCourses scp where " +
+                "sc.course.id = :courseId and sc.student.id = scp.student.id"),
         @NamedQuery(name = Student.DELETE_BY_STUDENT_IDS, query = "delete from Student s where s.id in :studentIds")
 })
 @Table(name = "ck_student")
@@ -75,6 +79,8 @@ public class Student {
     static final String GET_STUDENTS_BY_EMAIL = "getStudentsWithEmail";
     static final String GET_STUDENTS_WITH_REGISTRATION_NUMBER = "getStudentsWithRegistrationNr";
     static final String GET_STUDENTS_BY_MAPPED_IDENTITY_KEY = "getStudentsByMappedIdentityKey";
+    static final String GET_NUMBER_OF_STUDENTS_OF_SPECIFIC_COURSE = "getNumberOfStudentsOfSpecificCourse";
+    static final String GET_NUMBER_OF_STUDENTS_WITH_BOOKING_FOR_COURSE_AND_PARENT_COURSE = "getStudentsWithBookingForCourseAndParentCourse";
     static final String DELETE_BY_STUDENT_IDS = "deleteStudentByStudentIds";
 
     public Student() {

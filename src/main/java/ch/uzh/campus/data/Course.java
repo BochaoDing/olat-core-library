@@ -28,30 +28,22 @@ import java.util.Set;
                 "and exists (select c1 from Course c1 join c1.orgs o where c1.id = c.id and o.enabled = true) " +
                 "and c.shortSemester = (select max(c2.shortSemester) from Course c2)"),
         @NamedQuery(name = Course.GET_CREATED_COURSES_OF_CURRENT_SEMESTER_BY_LECTURER_ID, query = "select c from Course c join c.lecturerCourses lc where " +
-                "((c.resourceableId is not null and lc.lecturer.personalNr = :lecturerId) " +
-                "or exists (select c2 from Course c2 join c2.parentCourse.lecturerCourses lc2 " +
-                "where c2.id = c.id and ((c2.parentCourse.resourceableId is not null and (lc.lecturer.personalNr = :lecturerId or lc2.lecturer.personalNr = :lecturerId)) " +
-                "or exists (select c3 from Course c3 join c3.parentCourse.parentCourse.lecturerCourses lc3 " +
-                "where c3.id = c.id and ((c3.parentCourse.parentCourse.resourceableId is not null and (lc.lecturer.personalNr = :lecturerId or lc2.lecturer.personalNr = :lecturerId or lc3.lecturer.personalNr = :lecturerId)) " +
-                "or exists (select c4 from Course c4 join c4.parentCourse.parentCourse.parentCourse.lecturerCourses lc4 " +
-                "where c4.id = c.id and ((c4.parentCourse.parentCourse.parentCourse.resourceableId is not null and (lc.lecturer.personalNr = :lecturerId or lc2.lecturer.personalNr = :lecturerId or lc3.lecturer.personalNr = :lecturerId or lc4.lecturer.personalNr = :lecturerId))))))))) " +
-                "and c.shortSemester = (select max(c5.shortSemester) from Course c5) and c.title like :searchString"),
+                "c.resourceableId is not null and lc.lecturer.personalNr = :lecturerId " +
+                "and c.shortSemester = (select max(c1.shortSemester) from Course c1) and c.title like :searchString"),
         @NamedQuery(name = Course.GET_NOT_CREATED_CREATABLE_COURSES_OF_CURRENT_SEMESTER_BY_LECTURER_ID, query = "select c from Course c join c.lecturerCourses lc where " +
                 "lc.lecturer.personalNr = :lecturerId " +
                 "and c.resourceableId is null " +
                 "and c.exclude = false " +
                 "and exists (select c1 from Course c1 join c1.orgs o where c1.id = c.id and o.enabled = true) " +
-                "and c.shortSemester= (select max(c2.shortSemester) from Course c2) " +
+                "and c.shortSemester = (select max(c2.shortSemester) from Course c2) " +
                 "and c.title like :searchString"),
         @NamedQuery(name = Course.GET_CREATED_COURSES_OF_CURRENT_SEMESTER_BY_STUDENT_ID, query = "select c from Course c join c.studentCourses sc where " +
-                "((c.resourceableId is not null and sc.student.id = :studentId) " +
-                "or exists (select c2 from Course c2 join c2.parentCourse.studentCourses sc2 " +
-                "where c2.id = c.id and ((c2.parentCourse.resourceableId is not null and (sc.student.id = :studentId or sc2.student.id = :studentId)) " +
-                "or exists (select c3 from Course c3 join c3.parentCourse.parentCourse.studentCourses sc3 " +
-                "where c3.id = c.id and ((c3.parentCourse.parentCourse.resourceableId is not null and (sc.student.id = :studentId or sc2.student.id = :studentId or sc3.student.id = :studentId)) " +
-                "or exists (select c4 from Course c4 join c4.parentCourse.parentCourse.parentCourse.studentCourses sc4 " +
-                "where c4.id = c.id and ((c4.parentCourse.parentCourse.parentCourse.resourceableId is not null and (sc.student.id = :studentId or sc2.student.id = :studentId or sc3.student.id = :studentId or sc4.student.id = :studentId))))))))) " +
-                "and c.shortSemester = (select max(c5.shortSemester) from Course c5) and c.title like :searchString"),
+                "c.resourceableId is not null and sc.student.id = :studentId " +
+                "and c.shortSemester = (select max(c1.shortSemester) from Course c1) and c.title like :searchString"),
+        @NamedQuery(name = Course.GET_CREATED_COURSES_OF_CURRENT_SEMESTER_BY_STUDENT_ID_BOOKED_BY_STUDENT_ONLY_AS_PARENT_COURSE, query = "select c from Course c join c.parentCourse.studentCourses scp where " +
+                "c.parentCourse is not null and c.resourceableId is not null and scp.student.id = :studentId " +
+                "and not exists (select c1 from Course c1 join c1.studentCourses sc1 where c1.id = c.id and sc1.student.id = :studentId) " +
+                "and c.shortSemester = (select max(c2.shortSemester) from Course c2) and c.title like :searchString"),
         @NamedQuery(name = Course.GET_NOT_CREATED_CREATABLE_COURSES_OF_CURRENT_SEMESTER_BY_STUDENT_ID, query = "select c from Course c join c.studentCourses sc where " +
                 "sc.student.id = :studentId " +
                 "and c.resourceableId is null " +
@@ -60,21 +52,21 @@ import java.util.Set;
                 "and c.shortSemester = (select max(c2.shortSemester) from Course c2) " +
                 "and c.title like :searchString"),
         @NamedQuery(name = Course.GET_CREATED_AND_NOT_CREATED_CREATABLE_COURSES_OF_CURRENT_SEMESTER_BY_STUDENT_ID, query = "select c from Course c left join c.studentCourses sc where " +
-                "(sc.student.id = :studentId " +
-                "or exists (select c2 from Course c2 join c2.parentCourse.studentCourses sc2 where c2.id = c.id and sc2.student.id = :studentId) " +
-                "or exists (select c3 from Course c3 join c3.parentCourse.parentCourse.studentCourses sc3 where c3.id = c.id and sc3.student.id = :studentId) " +
-                "or exists (select c4 from Course c4 join c4.parentCourse.parentCourse.parentCourse.studentCourses sc4 where c4.id = c.id and sc4.student.id = :studentId)) " +
+                "sc.student.id = :studentId " +
                 "and c.exclude = false " +
-                "and exists (select c5 from Course c5 join c5.orgs o where c5.id = c.id and o.enabled = true) " +
-                "and c.shortSemester = (select max(c6.shortSemester) from Course c6)"),
+                "and exists (select c1 from Course c1 join c1.orgs o where c1.id = c.id and o.enabled = true) " +
+                "and c.shortSemester = (select max(c2.shortSemester) from Course c2)"),
+        @NamedQuery(name = Course.GET_CREATED_AND_NOT_CREATED_CREATABLE_COURSES_OF_CURRENT_SEMESTER_BY_STUDENT_ID_BOOKED_BY_STUDENT_ONLY_AS_PARENT_COURSE, query = "select c from Course c join c.parentCourse.studentCourses scp where " +
+                "c.parentCourse is not null and scp.student.id = :studentId " +
+                "and not exists (select c1 from Course c1 join c1.studentCourses sc1 where c1.id = c.id and sc1.student.id = :studentId) " +
+                "and c.exclude = false " +
+                "and exists (select c2 from Course c2 join c2.orgs o where c2.id = c.id and o.enabled = true) " +
+                "and c.shortSemester = (select max(c3.shortSemester) from Course c3)"),
         @NamedQuery(name = Course.GET_CREATED_AND_NOT_CREATED_CREATABLE_COURSES_OF_CURRENT_SEMESTER_BY_LECTURER_ID, query = "select c from Course c left join c.lecturerCourses lc where " +
-                "(lc.lecturer.personalNr = :lecturerId " +
-                "or exists (select c2 from Course c2 join c2.parentCourse.lecturerCourses lc2 where c2.id = c.id and lc2.lecturer.personalNr = :lecturerId) " +
-                "or exists (select c3 from Course c3 join c3.parentCourse.parentCourse.lecturerCourses lc3 where c3.id = c.id and lc3.lecturer.personalNr = :lecturerId) " +
-                "or exists (select c4 from Course c4 join c4.parentCourse.parentCourse.parentCourse.lecturerCourses lc4 where c4.id = c.id and lc4.lecturer.personalNr = :lecturerId)) " +
+                "lc.lecturer.personalNr = :lecturerId " +
                 "and c.exclude = false " +
-                "and exists (select c5 from Course c5 join c5.orgs o where c5.id = c.id and o.enabled = true) " +
-                "and c.shortSemester = (select max(c6.shortSemester) from Course c6) "),
+                "and exists (select c1 from Course c1 join c1.orgs o where c1.id = c.id and o.enabled = true) " +
+                "and c.shortSemester = (select max(c2.shortSemester) from Course c2) "),
         @NamedQuery(name = Course.GET_ALL_NOT_CREATED_ORPHANED_COURSES, query = "select c.id from Course c where c.resourceableId is null and c.id not in (select lc.course.id from LecturerCourse lc) and c.id not in (select sc.course.id from StudentCourse sc)"),
         @NamedQuery(name = Course.GET_COURSE_IDS_BY_RESOURCEABLE_ID, query = "select c.id from Course c where c.resourceableId = :resourceableId"),
         @NamedQuery(name = Course.GET_COURSES_BY_RESOURCEABLE_ID, query = "select c from Course c where c.resourceableId = :resourceableId"),
@@ -172,11 +164,13 @@ public class Course {
     static final String GET_CREATED_COURSES_OF_CURRENT_SEMESTER_BY_LECTURER_ID = "getCreatedCoursesOfCurrentSemesterByLecturerId";
     static final String GET_NOT_CREATED_CREATABLE_COURSES_OF_CURRENT_SEMESTER_BY_LECTURER_ID = "getNotCreatedCreatableCoursesOfCurrentSemesterByLecturerId";
     static final String GET_CREATED_COURSES_OF_CURRENT_SEMESTER_BY_STUDENT_ID = "getCreatedCoursesOfCurrentSemesterByStudentId";
+    static final String GET_CREATED_COURSES_OF_CURRENT_SEMESTER_BY_STUDENT_ID_BOOKED_BY_STUDENT_ONLY_AS_PARENT_COURSE = "getCreatedCoursesOfCurrentSemesterByStudentIdBookedByStudentOnlyAsParentCourse";
     static final String GET_NOT_CREATED_CREATABLE_COURSES_OF_CURRENT_SEMESTER_BY_STUDENT_ID = "getNotCreatedCreatableCoursesOfCurrentSemesterByStudentId";
     static final String GET_ALL_NOT_CREATED_ORPHANED_COURSES = "getAllNotCreatedOrphanedCourses";
     static final String GET_COURSE_IDS_BY_RESOURCEABLE_ID = "getCourseIdsByResourceableId";
     static final String GET_CREATED_AND_NOT_CREATED_CREATABLE_COURSES_OF_CURRENT_SEMESTER_BY_LECTURER_ID = "getCreatedAndNotCreatedCreatableCoursesOfCurrentSemesterByLecturerId";
     static final String GET_CREATED_AND_NOT_CREATED_CREATABLE_COURSES_OF_CURRENT_SEMESTER_BY_STUDENT_ID = "getCreatedAndNotCreatedCreatableCoursesOfCurrentSemesterByStudentId";
+    static final String GET_CREATED_AND_NOT_CREATED_CREATABLE_COURSES_OF_CURRENT_SEMESTER_BY_STUDENT_ID_BOOKED_BY_STUDENT_ONLY_AS_PARENT_COURSE = "getCreatedAndNotCreatedCreatableCoursesOfCurrentSemesterByStudentIdBookedByStudentOnlyAsParentCourse";
     static final String GET_COURSES_BY_RESOURCEABLE_ID = "getCoursesByResourceableId";
     static final String GET_LATEST_COURSE_BY_RESOURCEABLE_ID = "getLatestCourseByResourceableId";
     static final String GET_ALL_SHORT_SEMESTERS_IN_DESCENDING_ORDER = "getAllShortSemestersInDescendingOrder";

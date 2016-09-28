@@ -166,6 +166,14 @@ public class CourseDao implements CampusDao<CourseOrgId> {
                 .getResultList(); 
     }
 
+    List<Course> getCreatedCoursesOfCurrentSemesterByStudentIdBookedByStudentOnlyAsParentCourse(Long studentId, String searchString) {
+        return dbInstance.getCurrentEntityManager()
+                .createNamedQuery(Course.GET_CREATED_COURSES_OF_CURRENT_SEMESTER_BY_STUDENT_ID_BOOKED_BY_STUDENT_ONLY_AS_PARENT_COURSE, Course.class)
+                .setParameter("studentId", studentId)
+                .setParameter("searchString", getWildcardLikeSearchString(searchString))
+                .getResultList();
+    }
+
     List<Course> getNotCreatedCreatableCoursesOfCurrentSemesterByStudentId(Long studentId, String searchString) {
         return dbInstance.getCurrentEntityManager()
                 .createNamedQuery(Course.GET_NOT_CREATED_CREATABLE_COURSES_OF_CURRENT_SEMESTER_BY_STUDENT_ID, Course.class)
@@ -325,6 +333,13 @@ public class CourseDao implements CampusDao<CourseOrgId> {
     List<Course> getCreatedAndNotCreatedCreatableCoursesOfCurrentSemesterByStudentId(Long studentId) {
         return dbInstance.getCurrentEntityManager()
                 .createNamedQuery(Course.GET_CREATED_AND_NOT_CREATED_CREATABLE_COURSES_OF_CURRENT_SEMESTER_BY_STUDENT_ID, Course.class)
+                .setParameter("studentId", studentId)
+                .getResultList();
+    }
+
+    List<Course> getCreatedAndNotCreatedCreatableCoursesOfCurrentSemesterByStudentIdBookedByStudentOnlyAsParentCourse(Long studentId) {
+        return dbInstance.getCurrentEntityManager()
+                .createNamedQuery(Course.GET_CREATED_AND_NOT_CREATED_CREATABLE_COURSES_OF_CURRENT_SEMESTER_BY_STUDENT_ID_BOOKED_BY_STUDENT_ONLY_AS_PARENT_COURSE, Course.class)
                 .setParameter("studentId", studentId)
                 .getResultList();
     }

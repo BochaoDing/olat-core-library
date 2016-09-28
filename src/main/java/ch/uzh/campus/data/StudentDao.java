@@ -118,6 +118,25 @@ public class StudentDao implements CampusDao<Student> {
                 .getResultList();
     }
 
+    int getNumberOfStudentsOfSpecificCourse(Long courseId) {
+        return  (int) (long) dbInstance.getCurrentEntityManager()
+                .createNamedQuery(Student.GET_NUMBER_OF_STUDENTS_OF_SPECIFIC_COURSE)
+                .setParameter("courseId", courseId)
+                .getSingleResult();
+    }
+
+    int getNumberOfStudentsWithBookingForCourseAndParentCourse(Long courseId) {
+        return (int) (long) dbInstance.getCurrentEntityManager()
+                .createNamedQuery(Student.GET_NUMBER_OF_STUDENTS_WITH_BOOKING_FOR_COURSE_AND_PARENT_COURSE)
+                .setParameter("courseId", courseId)
+                .getSingleResult();
+    }
+
+    boolean hasMoreThan50PercentOfStudentsOfSpecificCourseBothABookingOfCourseAndParentCourse(Long courseId) {
+        int numberOfStudentsOfSpecificCourse = getNumberOfStudentsOfSpecificCourse(courseId);
+        return numberOfStudentsOfSpecificCourse != 0 && ((double) getNumberOfStudentsWithBookingForCourseAndParentCourse(courseId) / (double) numberOfStudentsOfSpecificCourse >= 0.5);
+    }
+
     /**
      * Deletes also according entries of the join able ck_student_course.
      */

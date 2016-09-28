@@ -103,9 +103,9 @@ public class CampusCourseGroupSynchronizer {
         // Get the course owner identities
         List<Identity> courseOwners = repositoryService.getMembers(campusCourse.getRepositoryEntry(), GroupRoles.owner.name());
 
-        synchronizeGroupOwners(courseOwners.get(0), campusGroupB, campusCourseImportData.getLecturersOfCourseAndParentCourses());
-        SynchronizedSecurityGroupStatistic ownerGroupStatistic = synchronizeGroupOwners(courseOwners.get(0), campusGroupA, campusCourseImportData.getLecturersOfCourseAndParentCourses());
-        SynchronizedSecurityGroupStatistic participantGroupStatistic = synchronizeGroupParticipants(courseOwners.get(0), campusGroupA, campusCourseImportData.getParticipantsOfCourseAndParentCourses());
+        synchronizeGroupOwners(courseOwners.get(0), campusGroupB, campusCourseImportData.getLecturersOfCourse());
+        SynchronizedSecurityGroupStatistic ownerGroupStatistic = synchronizeGroupOwners(courseOwners.get(0), campusGroupA, campusCourseImportData.getLecturersOfCourse());
+        SynchronizedSecurityGroupStatistic participantGroupStatistic = synchronizeGroupParticipants(courseOwners.get(0), campusGroupA, campusCourseImportData.getParticipantsOfCourse());
         
         return new SynchronizedGroupStatistic(campusCourseImportData.getTitle(), ownerGroupStatistic, participantGroupStatistic);
     }

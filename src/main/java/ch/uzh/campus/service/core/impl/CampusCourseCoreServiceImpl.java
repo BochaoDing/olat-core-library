@@ -110,7 +110,7 @@ public class CampusCourseCoreServiceImpl implements CampusCourseCoreService {
     @Override
     public boolean checkDelegation(Long sapCampusCourseId, Identity creator) {
         CampusCourseImportTO campusCourseImportData = daoManager.getSapCampusCourse(sapCampusCourseId);
-        for (Identity identity : campusCourseImportData.getLecturersOfCourseAndParentCourses()) {
+        for (Identity identity : campusCourseImportData.getLecturersOfCourse()) {
             if (identity.getName().equalsIgnoreCase(creator.getName())) {
                 return true;
             }

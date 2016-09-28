@@ -277,12 +277,36 @@ public class DaoManager {
         return textDao.getMaterialsByCourseId(id);
     }
 
-    public List<Course> getCreatedAndNotCreatedCreatableCoursesByStudentId(Long id) {
-        return courseDao.getCreatedAndNotCreatedCreatableCoursesOfCurrentSemesterByStudentId(id);
+    public List<Course> getCreatedAndNotCreatedCreatableCoursesByStudentId(Long studentId) {
+
+        List<Course> coursesOfStudent = courseDao.getCreatedAndNotCreatedCreatableCoursesOfCurrentSemesterByStudentId(studentId);
+
+        // We also have to look for courses the student booked as parent course
+        List<Course> coursesBookedOnlyAsParentCourse = courseDao.getCreatedAndNotCreatedCreatableCoursesOfCurrentSemesterByStudentIdBookedByStudentOnlyAsParentCourse(studentId);
+        for (Course course : coursesBookedOnlyAsParentCourse) {
+            // Only add course if student course booking of current semester is not up-to-date
+            if (!areStudentCourseBookingsForCurrentSemesterUpToDate(course) && !coursesOfStudent.contains(course)) {
+                coursesOfStudent.add(course);
+            }
+        }
+
+        return coursesBookedOnlyAsParentCourse;
     }
 
-    public List<Course> getCreatedCoursesByStudentId(Long id, String searchString) {
-        return courseDao.getCreatedCoursesOfCurrentSemesterByStudentId(id, searchString);
+    public List<Course> getCreatedCoursesByStudentId(Long studentId, String searchString) {
+
+        List<Course> coursesOfStudent = courseDao.getCreatedCoursesOfCurrentSemesterByStudentId(studentId, searchString);
+
+        // We also have to look for courses the student booked as parent course
+        List<Course> coursesBookedOnlyAsParentCourse = courseDao.getCreatedCoursesOfCurrentSemesterByStudentIdBookedByStudentOnlyAsParentCourse(studentId, searchString);
+        for (Course course : coursesBookedOnlyAsParentCourse) {
+            // Only add course if student course booking of current semester is not up-to-date
+            if (!areStudentCourseBookingsForCurrentSemesterUpToDate(course) && !coursesOfStudent.contains(course)) {
+                coursesOfStudent.add(course);
+            }
+        }
+
+        return coursesBookedOnlyAsParentCourse;
     }
 
     public List<Course> getNotCreatedCoursesByStudentId(Long id, String searchString) {
@@ -327,8 +351,8 @@ public class DaoManager {
         return coursesWithResourceableId;
     }
 
-    public List<Course> getCourses(Identity identity, SapUserType userType, boolean created, String searchString) {
-        List <Course> courses = new ArrayList<>();
+    public Set<Course> getCourses(Identity identity, SapUserType userType, boolean created, String searchString) {
+        Set <Course> courses = new HashSet<>();
         if (userType.equals(SapUserType.LECTURER)) {
             for (Lecturer lecturer : getLecturersByMappedIdentityKey(identity.getKey())) {
                 if (created) {
@@ -391,30 +415,30 @@ public class DaoManager {
 			return null;
 		}
 
-        // Determine lecturerCourses and studentCourses of course and parent courses
-        HashSet<LecturerCourse> lecturerCoursesOfCourseAndParentCourses = new HashSet<>();
-        HashSet<StudentCourse> studentCoursesOfCourseAndParentCourses = new HashSet<>();
-        Course courseIt = course;
-        int count = 0;
-        do {
-            lecturerCoursesOfCourseAndParentCourses.addAll(courseIt.getLecturerCourses());
-            studentCoursesOfCourseAndParentCourses.addAll(courseIt.getStudentCourses());
-			courseIt = courseIt.getParentCourse();
-            count++;
-        } while (courseIt != null && count <= 10);
-
-        if (count > 10) {
-            String warningMessage = "Campus course with id " + courseId + " has more than 10 parent courses. Skipping further parent courses.";
-            LOG.warn(warningMessage);
+		Set<StudentCourse> studentCourses = course.getStudentCourses();
+        if (!areStudentCourseBookingsForCurrentSemesterUpToDate(course)) {
+            // Bookings of current semester not up-to-date, so also take bookings of parent course
+            studentCourses.addAll(course.getParentCourse().getStudentCourses());
         }
+
+        Set<LecturerCourse> lecturerCourses = course.getLecturerCourses();
 
         return new CampusCourseImportTO(course.getTitleToBeDisplayed(shortTitleActivated),
 				course.getSemester(),
-				dataConverter.convertLecturersToIdentities(lecturerCoursesOfCourseAndParentCourses),
-                dataConverter.convertDelegateesToIdentities(lecturerCoursesOfCourseAndParentCourses),
-				dataConverter.convertStudentsToIdentities(studentCoursesOfCourseAndParentCourses),
+				dataConverter.convertLecturersToIdentities(lecturerCourses),
+                dataConverter.convertDelegateesToIdentities(lecturerCourses),
+				dataConverter.convertStudentsToIdentities(studentCourses),
                 textDao.getContentsByCourseId(course.getId()), course.getResourceableId(),
 				course.getId(), course.getLanguage(), course.getVvzLink());
+    }
+
+    private boolean areStudentCourseBookingsForCurrentSemesterUpToDate(Course course) {
+        // i)  If we have no parent course (i.e. it is not a continued course) we assume that the student course booking
+        //     is always up-to-date.
+        // ii) If we have a parent course (i.e. it is a continued course) we require that at least 50% of the bookings
+        //     of the current semester must be students who have already booked the parent course. Otherwise
+        //     the secretariat seems not have (manually) copied all the (permitted) students of the parent course.
+        return (course.getParentCourse() == null || studentDao.hasMoreThan50PercentOfStudentsOfSpecificCourseBothABookingOfCourseAndParentCourse(course.getId()));
     }
 
     public List getDelegatees(Identity delegator) {

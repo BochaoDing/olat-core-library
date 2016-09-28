@@ -10,10 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 
 import javax.inject.Provider;
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static org.junit.Assert.*;
@@ -189,72 +186,6 @@ public class CourseDaoTest extends OlatTestCase {
         assertEquals(0, courses.size());
         courses = courseDao.getCreatedCoursesOfCurrentSemesterByLecturerId(1600L, null);
         assertEquals(0, courses.size());
-    }
-
-    @Test
-    public void testGetCreatedCoursesOfCurrentSemesterByLecturerId_TwoSemestersCampusCourse() {
-        insertTestData();
-
-        // Make course 400 to be the parent course of 300 and set a reourceableId for course 400 and set the same reourceableId for courses 300 and 400
-        courseDao.saveParentCourseId(300L, 400L);
-        courseDao.saveResourceableId(300L, 1L);
-        courseDao.saveResourceableId(400L, 1L);
-
-        // Check that the students of both semesters can be found
-        List<Course> courses = courseDao.getCreatedCoursesOfCurrentSemesterByLecturerId(1300L, null);
-        assertEquals(1, courses.size());
-        courses = courseDao.getCreatedCoursesOfCurrentSemesterByLecturerId(1400L, null);
-        assertEquals(1, courses.size());
-        courses = courseDao.getCreatedCoursesOfCurrentSemesterByLecturerId(1500L, null);
-        assertEquals(0, courses.size());
-        courses = courseDao.getCreatedCoursesOfCurrentSemesterByLecturerId(1600L, null);
-        assertEquals(0, courses.size());
-    }
-
-    @Test
-    public void testGetCreatedCoursesOfCurrentSemesterByLecturerId_ThreeSemestersCampusCourse() {
-        insertTestData();
-
-        // Make course 400 to be the parent course of 300, 500 the parent of 400 and set the same reourceableId for courses 300, 400 and 500
-        courseDao.saveParentCourseId(300L, 400L);
-        courseDao.saveParentCourseId(400L, 500L);
-        courseDao.saveResourceableId(300L, 1L);
-        courseDao.saveResourceableId(400L, 1L);
-        courseDao.saveResourceableId(500L, 1L);
-
-        // Check that the students of all 3 semesters can be found
-        List<Course> courses = courseDao.getCreatedCoursesOfCurrentSemesterByLecturerId(1300L, null);
-        assertEquals(1, courses.size());
-        courses = courseDao.getCreatedCoursesOfCurrentSemesterByLecturerId(1400L, null);
-        assertEquals(1, courses.size());
-        courses = courseDao.getCreatedCoursesOfCurrentSemesterByLecturerId(1500L, null);
-        assertEquals(1, courses.size());
-        courses = courseDao.getCreatedCoursesOfCurrentSemesterByLecturerId(1600L, null);
-        assertEquals(0, courses.size());
-    }
-
-    @Test
-    public void testGetCreatedCoursesOfCurrentSemesterByLecturerId_FourSemestersCampusCourse() {
-        insertTestData();
-
-        // Make course 400 to be the parent course of 300, 500 the parent of 400 and 600 the parent of 500 and set for courses 300, 400 and 500 the recourceableId of course 600
-        courseDao.saveParentCourseId(300L, 400L);
-        courseDao.saveParentCourseId(400L, 500L);
-        courseDao.saveParentCourseId(500L, 600L);
-        Course course = courseDao.getCourseById(600L);
-        courseDao.saveResourceableId(300L, course.getResourceableId());
-        courseDao.saveResourceableId(400L, course.getResourceableId());
-        courseDao.saveResourceableId(500L, course.getResourceableId());
-
-        // Check that the students of all 4 semesters can be found
-        List<Course> courses = courseDao.getCreatedCoursesOfCurrentSemesterByLecturerId(1300L, null);
-        assertEquals(1, courses.size());
-        courses = courseDao.getCreatedCoursesOfCurrentSemesterByLecturerId(1400L, null);
-        assertEquals(1, courses.size());
-        courses = courseDao.getCreatedCoursesOfCurrentSemesterByLecturerId(1500L, null);
-        assertEquals(1, courses.size());
-        courses = courseDao.getCreatedCoursesOfCurrentSemesterByLecturerId(1600L, null);
-        assertEquals(1, courses.size());
     }
 
     @Test
@@ -637,84 +568,56 @@ public class CourseDaoTest extends OlatTestCase {
     	List<Course> courses = courseDao.getCreatedCoursesOfCurrentSemesterByStudentId(2100L, null);
         assertNotNull(courses);
     	assertEquals(2, courses.size());
+        List<Long> courseIds = courses.stream().map(Course::getId).collect(Collectors.toList());
+        assertTrue(courseIds.contains(100L));
+        assertTrue(courseIds.contains(200L));
 
-        // Student has no courses
+        // Student without any created courses
         courses = courseDao.getCreatedCoursesOfCurrentSemesterByStudentId(2400L, null);
-        assertEquals(0, courses.size());
-
-        // Old courses
-        courses = courseDao.getCreatedCoursesOfCurrentSemesterByStudentId(2400L, null);
-        assertEquals(0, courses.size());
-        courses = courseDao.getCreatedCoursesOfCurrentSemesterByStudentId(2500L, null);
-        assertEquals(0, courses.size());
-        courses = courseDao.getCreatedCoursesOfCurrentSemesterByStudentId(2600L, null);
         assertEquals(0, courses.size());
     }
 
     @Test
-    public void testGetCreatedCoursesOfCurrentSemesterByStudentId_TwoSemestersCampusCourse() {
+    public void testGetCreatedCoursesOfCurrentSemesterByStudentIdBookedByStudentOnlyAsParentCourse() {
         insertTestData();
 
-        // Make course 400 to be the parent course of 300 and set set the same reourceableId for courses 300 and 400
-        courseDao.saveParentCourseId(300L, 400L);
-        courseDao.saveResourceableId(300L, 1L);
-        courseDao.saveResourceableId(400L, 1L);
+        Student student1 = studentDao.getStudentById(2100L);
+        Student student2 = studentDao.getStudentById(2400L);
 
-        // Check that the students of both semesters can be found
-        List<Course> courses = courseDao.getCreatedCoursesOfCurrentSemesterByStudentId(2100L, null);
-        assertEquals(3, courses.size());
-        courses = courseDao.getCreatedCoursesOfCurrentSemesterByStudentId(2400L, null);
-        assertEquals(1, courses.size());
-        courses = courseDao.getCreatedCoursesOfCurrentSemesterByStudentId(2500L, null);
-        assertEquals(0, courses.size());
-        courses = courseDao.getCreatedCoursesOfCurrentSemesterByStudentId(2600L, null);
-        assertEquals(0, courses.size());
-    }
+        Course course1 = courseDao.getCourseById(300L);
+        Course course2 = courseDao.getCourseById(400L);
 
-    @Test
-    public void testGetCreatedCoursesOfCurrentSemesterByStudentId_ThreeSemestersCampusCourse() {
-        insertTestData();
+        // Make course 2 to be the parent course of course 1 and set set the same reourceableId for courses 1 and 2
+        courseDao.saveParentCourseId(course1.getId(), course2.getId());
+        courseDao.saveResourceableId(course1.getId(), 1L);
+        courseDao.saveResourceableId(course2.getId(), 1L);
+        dbInstance.flush();
 
-        // Make course 400 to be the parent course of 300, 500 the parent of 400 and set the same reourceableId for courses 300, 400 and 500
-        courseDao.saveParentCourseId(300L, 400L);
-        courseDao.saveParentCourseId(400L, 500L);
-        courseDao.saveResourceableId(300L, 1L);
-        courseDao.saveResourceableId(400L, 1L);
-        courseDao.saveResourceableId(500L, 1L);
+        // Student 1 has only a booking for course course 1, but not for it's parent course
+        assertTrue(courseDao.getCreatedCoursesOfCurrentSemesterByStudentIdBookedByStudentOnlyAsParentCourse(student1.getId(), null).isEmpty());
 
-        // Check that the students of all 3 semesters can be found
-        List<Course> courses = courseDao.getCreatedCoursesOfCurrentSemesterByStudentId(2100L, null);
-        assertEquals(3, courses.size());
-        courses = courseDao.getCreatedCoursesOfCurrentSemesterByStudentId(2400L, null);
-        assertEquals(1, courses.size());
-        courses = courseDao.getCreatedCoursesOfCurrentSemesterByStudentId(2500L, null);
-        assertEquals(1, courses.size());
-        courses = courseDao.getCreatedCoursesOfCurrentSemesterByStudentId(2600L, null);
-        assertEquals(0, courses.size());
-    }
+        // Student 2 has a booking for the parent course of course 1, but not for course 1
+        List<Course> coursesFound = courseDao.getCreatedCoursesOfCurrentSemesterByStudentIdBookedByStudentOnlyAsParentCourse(student2.getId(), null);
+        assertEquals(1, coursesFound.size());
+        List<Long> courseIds = coursesFound.stream().map(Course::getId).collect(Collectors.toList());
+        assertTrue(courseIds.contains(course1.getId()));
 
-    @Test
-    public void testGetCreatedCoursesOfCurrentSemesterByStudentId_FourSemestersCampusCourse() {
-        insertTestData();
+        // Add booking for student 1 for course 2, i.e. the parent course of course 1
+        studentCourseDao.save(new StudentCourse(student1, course2, new Date()));
+        dbInstance.flush();
 
-        // Make course 400 to be the parent course of 300, 500 the parent of 400 and 600 the parent of 500 and set for courses 300, 400 and 500 the recourceableId of course 600
-        courseDao.saveParentCourseId(300L, 400L);
-        courseDao.saveParentCourseId(400L, 500L);
-        courseDao.saveParentCourseId(500L, 600L);
-        Course course = courseDao.getCourseById(600L);
-        courseDao.saveResourceableId(300L, course.getResourceableId());
-        courseDao.saveResourceableId(400L, course.getResourceableId());
-        courseDao.saveResourceableId(500L, course.getResourceableId());
+        // Student 1 has also booking for current semester, so we should not find it
+        assertTrue(courseDao.getCreatedCoursesOfCurrentSemesterByStudentIdBookedByStudentOnlyAsParentCourse(student1.getId(), null).isEmpty());
 
-        // Check that the students of all 4 semesters can be found
-        List<Course> courses = courseDao.getCreatedCoursesOfCurrentSemesterByStudentId(2100L, null);
-        assertEquals(3, courses.size());
-        courses = courseDao.getCreatedCoursesOfCurrentSemesterByStudentId(2400L, null);
-        assertEquals(1, courses.size());
-        courses = courseDao.getCreatedCoursesOfCurrentSemesterByStudentId(2500L, null);
-        assertEquals(1, courses.size());
-        courses = courseDao.getCreatedCoursesOfCurrentSemesterByStudentId(2600L, null);
-        assertEquals(1, courses.size());
+        // Remove booking of student 1 for course 1
+        studentCourseDao.delete(new StudentCourse(student1, course1, new Date()));
+        dbInstance.flush();
+
+        // Student 1 should now be found, since it has only a booking to the parent course
+        coursesFound = courseDao.getCreatedCoursesOfCurrentSemesterByStudentIdBookedByStudentOnlyAsParentCourse(student1.getId(), null);
+        assertEquals(1, coursesFound.size());
+        courseIds = coursesFound.stream().map(Course::getId).collect(Collectors.toList());
+        assertTrue(courseIds.contains(course1.getId()));
     }
 
     @Test
@@ -762,160 +665,93 @@ public class CourseDaoTest extends OlatTestCase {
     }
 
     @Test
-    public void testGetCreatedAndNotCreatedCreatableCoursesOfCurrentSemesterByLecturerId_TwoSemestersCampusCourse() {
-        insertTestData();
-
-        // Make course 400 to be the parent course of 300 and set a reourceableId for courses 300 and 400
-        courseDao.saveParentCourseId(300L, 400L);
-        courseDao.saveResourceableId(300L, 1L);
-        courseDao.saveResourceableId(400L, 1L);
-
-        // Check that the students of both semesters can be found
-        List<Course> courses = courseDao.getCreatedAndNotCreatedCreatableCoursesOfCurrentSemesterByLecturerId(1300L);
-        assertEquals(1, courses.size());
-        courses = courseDao.getCreatedAndNotCreatedCreatableCoursesOfCurrentSemesterByLecturerId(1400L);
-        assertEquals(1, courses.size());
-        courses = courseDao.getCreatedAndNotCreatedCreatableCoursesOfCurrentSemesterByLecturerId(1500L);
-        assertEquals(0, courses.size());
-        courses = courseDao.getCreatedAndNotCreatedCreatableCoursesOfCurrentSemesterByLecturerId(1600L);
-        assertEquals(0, courses.size());
-    }
-
-    @Test
-    public void testGetCreatedAndNotCreatedCreatableCoursesOfCurrentSemesterByLecturerId_ThreeSemestersCampusCourse() {
-        insertTestData();
-
-        // Make course 400 to be the parent course of 300, 500 the parent of 400 and set a reourceableId for courses 300, 400 and 500
-        courseDao.saveParentCourseId(300L, 400L);
-        courseDao.saveParentCourseId(400L, 500L);
-        courseDao.saveResourceableId(300L, 1L);
-        courseDao.saveResourceableId(400L, 1L);
-        courseDao.saveResourceableId(500L, 1L);
-
-        // Check that the students of all 3 semesters can be found
-        List<Course> courses = courseDao.getCreatedAndNotCreatedCreatableCoursesOfCurrentSemesterByLecturerId(1300L);
-        assertEquals(1, courses.size());
-        courses = courseDao.getCreatedAndNotCreatedCreatableCoursesOfCurrentSemesterByLecturerId(1400L);
-        assertEquals(1, courses.size());
-        courses = courseDao.getCreatedAndNotCreatedCreatableCoursesOfCurrentSemesterByLecturerId(1500L);
-        assertEquals(1, courses.size());
-        courses = courseDao.getCreatedAndNotCreatedCreatableCoursesOfCurrentSemesterByLecturerId(1600L);
-        assertEquals(0, courses.size());
-    }
-
-    @Test
-    public void testGetCreatedAndNotCreatedCreatableCoursesOfCurrentSemesterByLecturerId_FourSemestersCampusCourse() {
-        insertTestData();
-
-        // Make course 400 to be the parent course of 300, 500 the parent of 400 and 600 the parent of 500 and set for courses 300, 400 and 500 the recourceableId of course 600
-        courseDao.saveParentCourseId(300L, 400L);
-        courseDao.saveParentCourseId(400L, 500L);
-        courseDao.saveParentCourseId(500L, 600L);
-        Course course = courseDao.getCourseById(600L);
-        courseDao.saveResourceableId(300L, course.getResourceableId());
-        courseDao.saveResourceableId(400L, course.getResourceableId());
-        courseDao.saveResourceableId(500L, course.getResourceableId());
-
-        // Check that the students of all 4 semesters can be found
-        List<Course> courses = courseDao.getCreatedAndNotCreatedCreatableCoursesOfCurrentSemesterByLecturerId(1300L);
-        assertEquals(1, courses.size());
-        courses = courseDao.getCreatedAndNotCreatedCreatableCoursesOfCurrentSemesterByLecturerId(1400L);
-        assertEquals(1, courses.size());
-        courses = courseDao.getCreatedAndNotCreatedCreatableCoursesOfCurrentSemesterByLecturerId(1500L);
-        assertEquals(1, courses.size());
-        courses = courseDao.getCreatedAndNotCreatedCreatableCoursesOfCurrentSemesterByLecturerId(1600L);
-        assertEquals(1, courses.size());
-    }
-
-    @Test
     public void testGetCreatedAndNotCreatedCreatableCoursesOfCurrentSemesterByStudentId() {
         insertTestData();
         List<Course> courses = courseDao.getCreatedAndNotCreatedCreatableCoursesOfCurrentSemesterByStudentId(2100L);
 
         assertNotNull(courses);
         assertEquals(3, courses.size());
+        List<Long> courseIds = courses.stream().map(Course::getId).collect(Collectors.toList());
+        assertTrue(courseIds.contains(100L));
+        assertTrue(courseIds.contains(200L));
+        assertTrue(courseIds.contains(300L));
 
-        // Old courses
-        courses = courseDao.getCreatedAndNotCreatedCreatableCoursesOfCurrentSemesterByStudentId(2400L);
-        assertEquals(0, courses.size());
-        courses = courseDao.getCreatedAndNotCreatedCreatableCoursesOfCurrentSemesterByStudentId(2500L);
-        assertEquals(0, courses.size());
-        courses = courseDao.getCreatedAndNotCreatedCreatableCoursesOfCurrentSemesterByStudentId(2600L);
-        assertEquals(0, courses.size());
-
-        // Course with disabled org
+        // Student only with course with disabled org
         courses = courseDao.getCreatedAndNotCreatedCreatableCoursesOfCurrentSemesterByStudentId(2700L);
         assertEquals(0, courses.size());
 
-        // Excluded course
+        // Student only with excluded course
         courses = courseDao.getCreatedAndNotCreatedCreatableCoursesOfCurrentSemesterByStudentId(2800L);
         assertEquals(0, courses.size());
     }
 
     @Test
-    public void testGetCreatedAndNotCreatedCreatableCoursesOfCurrentSemesterByStudentId_TwoSemestersCampusCourse() {
+    public void testGetCreatedAndNotCreatedCreatableCoursesOfCurrentSemesterByStudentIdBookedByStudentOnlyAsParentCourse() {
         insertTestData();
 
-        // Make course 400 to be the parent course of 300 and set a reourceableId for courses 300 and 400
-        courseDao.saveParentCourseId(300L, 400L);
-        courseDao.saveResourceableId(300L, 1L);
-        courseDao.saveResourceableId(400L, 1L);
+        Student student1 = studentDao.getStudentById(2100L);
+        Student student2 = studentDao.getStudentById(2400L);
 
-        // Check that the students of both semesters can be found
-        List<Course> courses = courseDao.getCreatedAndNotCreatedCreatableCoursesOfCurrentSemesterByStudentId(2100L);
-        assertEquals(3, courses.size());
-        courses = courseDao.getCreatedAndNotCreatedCreatableCoursesOfCurrentSemesterByStudentId(2400L);
-        assertEquals(1, courses.size());
-        courses = courseDao.getCreatedAndNotCreatedCreatableCoursesOfCurrentSemesterByStudentId(2500L);
-        assertEquals(0, courses.size());
-        courses = courseDao.getCreatedAndNotCreatedCreatableCoursesOfCurrentSemesterByStudentId(2600L);
-        assertEquals(0, courses.size());
-    }
+        Course course1 = courseDao.getCourseById(300L);
+        Course course2 = courseDao.getCourseById(400L);
+        Course course3 = courseDao.getCourseById(700L);
+        Course course4 = courseDao.getCourseById(800L);
 
-    @Test
-    public void testGetCreatedAndNotCreatedCreatableCoursesOfCurrentSemesterByStudentId_ThreeSemestersCampusCourse() {
-        insertTestData();
+        // Make course 2 to be the parent course of course 1 (course 1 is creatable)
+        courseDao.saveParentCourseId(course1.getId(), course2.getId());
+        dbInstance.flush();
 
-        // Make course 400 to be the parent course of 300, 500 the parent of 400 and set a reourceableId for courses 300, 400 and 500
-        courseDao.saveParentCourseId(300L, 400L);
-        courseDao.saveParentCourseId(400L, 500L);
-        courseDao.saveResourceableId(300L, 1L);
-        courseDao.saveResourceableId(400L, 1L);
-        courseDao.saveResourceableId(500L, 1L);
+        // Student 1 has only a booking for course course 1, but not for it's parent course
+        assertTrue(courseDao.getCreatedAndNotCreatedCreatableCoursesOfCurrentSemesterByStudentIdBookedByStudentOnlyAsParentCourse(student1.getId()).isEmpty());
 
-        // Check that the students of all 3 semesters can be found
-        List<Course> courses = courseDao.getCreatedAndNotCreatedCreatableCoursesOfCurrentSemesterByStudentId(2100L);
-        assertEquals(3, courses.size());
-        courses = courseDao.getCreatedAndNotCreatedCreatableCoursesOfCurrentSemesterByStudentId(2400L);
-        assertEquals(1, courses.size());
-        courses = courseDao.getCreatedAndNotCreatedCreatableCoursesOfCurrentSemesterByStudentId(2500L);
-        assertEquals(1, courses.size());
-        courses = courseDao.getCreatedAndNotCreatedCreatableCoursesOfCurrentSemesterByStudentId(2600L);
-        assertEquals(0, courses.size());
-    }
+        // Student 2 has a booking for course 2, but not for course 1
+        List<Course> coursesFound = courseDao.getCreatedAndNotCreatedCreatableCoursesOfCurrentSemesterByStudentIdBookedByStudentOnlyAsParentCourse(student2.getId());
+        assertEquals(1, coursesFound.size());
+        List<Long> courseIds = coursesFound.stream().map(Course::getId).collect(Collectors.toList());
+        assertTrue(courseIds.contains(course1.getId()));
 
-    @Test
-    public void testGetCreatedAndNotCreatedCreatableCoursesOfCurrentSemesterByStudentId_FourSemestersCampusCourse() {
-        insertTestData();
+        // Add resourceableId to courses 1 and 2, i.e. make it created
+        courseDao.saveResourceableId(course1.getId(), 1L);
+        courseDao.saveResourceableId(course2.getId(), 1L);
+        dbInstance.flush();
 
-        // Make course 400 to be the parent course of 300, 500 the parent of 400 and 600 the parent of 500 and set for courses 300, 400 and 500 the recourceableId of course 600
-        courseDao.saveParentCourseId(300L, 400L);
-        courseDao.saveParentCourseId(400L, 500L);
-        courseDao.saveParentCourseId(500L, 600L);
-        Course course = courseDao.getCourseById(600L);
-        courseDao.saveResourceableId(300L, course.getResourceableId());
-        courseDao.saveResourceableId(400L, course.getResourceableId());
-        courseDao.saveResourceableId(500L, course.getResourceableId());
+        // Should behave as before
+        assertTrue(courseDao.getCreatedAndNotCreatedCreatableCoursesOfCurrentSemesterByStudentIdBookedByStudentOnlyAsParentCourse(student1.getId()).isEmpty());
+        coursesFound = courseDao.getCreatedAndNotCreatedCreatableCoursesOfCurrentSemesterByStudentIdBookedByStudentOnlyAsParentCourse(student2.getId());
+        assertEquals(1, coursesFound.size());
+        courseIds = coursesFound.stream().map(Course::getId).collect(Collectors.toList());
+        assertTrue(courseIds.contains(course1.getId()));
 
-        // Check that the students of all 4 semesters can be found
-        List<Course> courses = courseDao.getCreatedAndNotCreatedCreatableCoursesOfCurrentSemesterByStudentId(2100L);
-        assertEquals(3, courses.size());
-        courses = courseDao.getCreatedAndNotCreatedCreatableCoursesOfCurrentSemesterByStudentId(2400L);
-        assertEquals(1, courses.size());
-        courses = courseDao.getCreatedAndNotCreatedCreatableCoursesOfCurrentSemesterByStudentId(2500L);
-        assertEquals(1, courses.size());
-        courses = courseDao.getCreatedAndNotCreatedCreatableCoursesOfCurrentSemesterByStudentId(2600L);
-        assertEquals(1, courses.size());
+        // Add booking for student 1 for course 2, i.e. the parent course of course 1
+        studentCourseDao.save(new StudentCourse(student1, course2, new Date()));
+        dbInstance.flush();
+
+        // Student 1 has also booking for current semester, so we should not find it
+        assertTrue(courseDao.getCreatedAndNotCreatedCreatableCoursesOfCurrentSemesterByStudentIdBookedByStudentOnlyAsParentCourse(student1.getId()).isEmpty());
+
+        // Remove booking of student 1 for course 1
+        studentCourseDao.delete(new StudentCourse(student1, course1, new Date()));
+        dbInstance.flush();
+
+        // Make course 2 to be the parent course of course 3 (course with disabled org)
+        courseDao.resetResourceableIdAndParentCourse(course1.getResourceableId());
+        courseDao.saveParentCourseId(course3.getId(), course2.getId());
+        courseDao.saveResourceableId(course3.getId(), 1L);
+        courseDao.saveResourceableId(course2.getId(), 1L);
+        dbInstance.flush();
+
+        // Course 3 should not be found, since it has a disabled org
+        assertTrue(courseDao.getCreatedAndNotCreatedCreatableCoursesOfCurrentSemesterByStudentIdBookedByStudentOnlyAsParentCourse(student2.getId()).isEmpty());
+
+        // Make course 2 to be the parent course of course 4 (excluded course)
+        courseDao.resetResourceableIdAndParentCourse(course3.getResourceableId());
+        courseDao.saveParentCourseId(course4.getId(), course2.getId());
+        courseDao.saveResourceableId(course4.getId(), 1L);
+        courseDao.saveResourceableId(course2.getId(), 1L);
+        dbInstance.flush();
+
+        // Course 4 should not be found, since it has a disabled org
+        assertTrue(courseDao.getCreatedAndNotCreatedCreatableCoursesOfCurrentSemesterByStudentIdBookedByStudentOnlyAsParentCourse(student2.getId()).isEmpty());
     }
 
     @Test
