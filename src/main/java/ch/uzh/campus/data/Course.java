@@ -393,11 +393,11 @@ public class Course {
             titleToBeDisplayed = shortSemester.concat(WHITESPACE);
         }
 
-        if (shortTitle != null && shortTitleActivated && shortTitle!="") {
+        if (shortTitle != null && shortTitleActivated && "".equals(shortTitle) == false) {
             if (shortTitle.length() > 4) {
-            	titleToBeDisplayed = titleToBeDisplayed.concat(shortTitle.substring(4));
+            	titleToBeDisplayed += shortTitle.substring(4);
             } else {
-            	titleToBeDisplayed = titleToBeDisplayed.concat(shortTitle);
+            	titleToBeDisplayed += shortTitle;
             }
             titleToBeDisplayed += WHITESPACE;
         }
