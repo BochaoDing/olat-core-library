@@ -328,6 +328,7 @@
 								<ref bean="userPropertyFirstName" />
 								<ref bean="userPropertyLastName" />
 								<ref bean="userPropertyUserName" />
+								<ref bean="userPropertyInstitutionalMatriculationNumber" />
 							</list>
 						</property>
 					</bean>

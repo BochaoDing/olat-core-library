@@ -34,6 +34,7 @@ import java.util.Locale;
 import java.util.Map;
 
 import org.apache.commons.lang.StringEscapeUtils;
+import org.olat.core.id.Identity;
 import org.olat.core.id.User;
 import org.olat.core.id.context.BusinessControlFactory;
 import org.olat.core.id.context.ContextEntry;
@@ -199,12 +200,19 @@ public class QTIExportFormatterCSVType1 extends QTIExportFormatter {
 		sb.append(sep);
 
 		// add configured user properties
-		User user = set.getIdentity().getUser();
+		Identity identity = set.getIdentity();
+		User user = identity.getUser();
 		for (UserPropertyHandler userPropertyHandler : this.userPropertyHandlers) {
 			if (userPropertyHandler == null) {
 				continue;
 			}
-			String property = userPropertyHandler.getUserProperty(user, translator.getLocale());
+			String property;
+			if (userPropertyHandler.getName().equals("userName")) {
+				// OLAT user name is not a user property
+				property = identity.getName();
+			} else {
+				property = userPropertyHandler.getUserProperty(user, translator.getLocale());
+			}
 			if (!StringHelper.containsNonWhitespace(property)) {
 				property = translator.translate("column.field.notavailable");
 			}
