@@ -26,8 +26,6 @@
 package org.olat.dispatcher;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
 import java.util.Locale;
 
 import javax.servlet.http.HttpServletRequest;
@@ -217,12 +215,6 @@ public class AuthenticatedDispatcher implements Dispatcher {
 				} else {
 					final String origUri = request.getRequestURI();
 					String restPart = origUri.substring(uriPrefix.length());
-					try {
-						restPart = URLDecoder.decode(restPart, "UTF8");
-					} catch (UnsupportedEncodingException e) {
-						log.error("Unsupported encoding", e);
-					}
-					
 					String[] split = restPart.split("/");
 					if(restPart.startsWith("repo/go")) {
 						businessPath = convertJumpInURL(restPart, ureq);

@@ -55,7 +55,6 @@ import org.olat.core.logging.OLog;
 import org.olat.core.logging.Tracing;
 import org.springframework.core.io.Resource;
 
-
 /**
  * @author Mike Stock Comment:
  */
@@ -68,14 +67,29 @@ public class FileUtils {
 	// matches files and folders of type:
 	// bla, bla1, bla12, bla.html, bla1.html, bla12.html
 	private static final Pattern fileNamePattern = Pattern.compile("(.+?)\\p{Digit}*(\\.\\w{2,4})?");
-	
-	//windows: invalid characters for filenames: \ / : * ? " < > | 
-	//linux: invalid characters for file/folder names: /, but you have to escape certain chars, like ";$%&*"
-	//OLAT reserved char: ":"	
-	public static char[] FILE_NAME_FORBIDDEN_CHARS = { '/', '\n', '\r', '\t', '\f', '`', '?', '*', '\\', '<', '>', '|', '\"', ':', ',', '+' };
-  //private static char[] FILE_NAME_ACCEPTED_CHARS = { 'ä', 'Ä', 'ü', 'Ü', 'ö', 'Ö', ' '};
-	public static char[] FILE_NAME_ACCEPTED_CHARS = { '\u0228', '\u0196', '\u0252', '\u0220', '\u0246', '\u0214', ' '};
 
+	/**
+	 * For security reasons Servlet containers deny requests with an encoded
+	 * slash (/) or backslash (\) in the request URL (they return a 400 code).
+	 * As a result, a file or directory that contains such character in its
+	 * name cannot be accessed (or created by WebDAV). To prevent the creation
+	 * of such named objects in the OLAT GUI, the two characters are
+	 * blacklisted. However, with the help of a ZIP archive, that contains
+	 * e.g. files with such malicious names, such objects can be created (but
+	 * never accessed). The good thing is, that such objects can be deleted
+	 * via the OLAT GUI.
+	 *
+	 * URL: invalid characters for a request: / \ (denied by the Servlet container, see above)
+	 * Windows: invalid characters for a file name: \ / : * ? " < > | (true but such can be created via WebDAV or with the help of a ZIP archive)
+	 * Linux: invalid characters for a file or directory name: / (but you have to escape certain chars like ";$%&*")
+	 */
+	private static final char[] FILE_NAME_FORBIDDEN_CHARS = { '/', '\\', '\n', '\r', '\t', '\f' };
+	private static final char[] FILE_NAME_ACCEPTED_CHARS = { '\u0228', '\u0196', '\u0252', '\u0220', '\u0246', '\u0214', ' '};
+
+	static {
+		Arrays.sort(FILE_NAME_FORBIDDEN_CHARS);
+		Arrays.sort(FILE_NAME_ACCEPTED_CHARS);
+	}
 
 	/**
 	 * @param sourceFile
@@ -814,8 +828,6 @@ public class FileUtils {
 		if(filename==null) {
 			return false;
 		}
-		Arrays.sort(FILE_NAME_FORBIDDEN_CHARS);
-		Arrays.sort(FILE_NAME_ACCEPTED_CHARS);
 		
 		for(int i=0; i<filename.length(); i++) {
 			char character = filename.charAt(i);

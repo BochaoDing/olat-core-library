@@ -379,17 +379,20 @@ public class WebDAVDispatcherImpl
             return (result);
         }
 
-        // No, extract the desired path directly from the request
-        String result = request.getPathInfo();
-        if ((result == null) || (result.equals(""))) {
-            result = "/";
-        }
-        
-        result = Normalizer.normalize(result, Normalizer.Form.NFC);
-        return (result);
-
+		/*
+		 * No, extract the desired path directly from the request!
+		 *
+		 * "request.getRequestURI()" does not work here because it ignores
+		 * certain valid path string characters like ';'.
+		 */
+		StringBuffer tmp = request.getRequestURL();
+		int fromIndex = 1;
+		for (int i = 0; i < 3; i++) {
+			fromIndex = tmp.indexOf("/", fromIndex) + 1;
+		}
+		String result = tmp.substring(fromIndex);
+		return Normalizer.normalize(result, Normalizer.Form.NFC);
     }
-
 
     /**
      * Determines the prefix for standard directory GET listings.

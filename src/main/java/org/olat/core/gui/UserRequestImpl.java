@@ -205,6 +205,8 @@ public class UserRequestImpl implements UserRequest {
 		String decodedUri;
 		try {
 			hreq.setCharacterEncoding("utf-8");
+			// Replacement will be reverted during the URL decoding process.
+			uri = uri.replaceAll("\\+", "%2B");
 			decodedUri = URLDecoder.decode(uri, "UTF-8");
 		} catch (UnsupportedEncodingException e) {
 			throw new AssertException("utf-8 encoding not supported!!!!");

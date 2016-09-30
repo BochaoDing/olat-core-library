@@ -1287,6 +1287,21 @@ function o_ffXHREvent(formNam, dispIdField, dispId, eventIdField, eventInt, dirt
 }
 
 function o_XHREvent(targetUrl, dirtyCheck, push) {
+	/*
+	 * Strings that represent a URL encoded slash or backslash will not be
+	 * accepted by the Servlet container.
+	 */
+	targetUrl = targetUrl.replace(/%2F/g, '%252F');
+	targetUrl = targetUrl.replace(/%5C/g, '%255C');
+
+	/*
+	 * Backslashes in an URL would be replaced with a slash by the browser
+	 * during the Ajax request. Therefore the URL encoding is used for this
+	 * character. As a result, such requests may be blocked by the Servlet
+	 * container due to security reasons.
+	 */
+	targetUrl = targetUrl.replace(/\\/g, '%5C');
+
 	if(dirtyCheck) {
 		if(!o2cl()) return false;
 	} else {
