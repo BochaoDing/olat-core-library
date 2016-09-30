@@ -35,18 +35,34 @@ public class StudentDao implements CampusDao<Student> {
         this.dbInstance = dbInstance;
     }
 
+    public void save(Student student) {
+        dbInstance.saveObject(student);
+    }
+
+    public void saveOrUpdate(Student student) {
+        /*
+		 * A database merge with a detached course entity would override the
+		 * values of the mapping attributes with "null".
+		 */
+        Student studentFound = getStudentById(student.getId());
+        if (studentFound == null) {
+            dbInstance.saveObject(student);
+            return;
+        }
+        student.mergeAllExceptMappingAttributes(studentFound);
+    }
+
     @Override
     public void save(List<Student> students) {
         for (Student student : students) {
-            dbInstance.saveObject(student);
+            save(student);
         }
     }
 
     @Override
     public void saveOrUpdate(List<Student> students) {
-        EntityManager em = dbInstance.getCurrentEntityManager();
         for (Student student : students) {
-            em.merge(student);
+            saveOrUpdate(student);
         }
     }
 

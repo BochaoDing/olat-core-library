@@ -206,4 +206,13 @@ public class Student {
         return builder.toHashCode();
     }
 
+    public void mergeAllExceptMappingAttributes(Student student) {
+        student.setId(getId());
+        student.setRegistrationNr(getRegistrationNr());
+        student.setFirstName(getFirstName());
+        student.setLastName(getLastName());
+        student.setEmail(getEmail());
+        student.setDateOfImport(getDateOfImport());
+    }
+
 }

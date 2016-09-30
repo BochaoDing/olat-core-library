@@ -207,4 +207,13 @@ public class Lecturer {
         return builder.toHashCode();
     }
 
+    public void mergeAllExceptMappingAttributes(Lecturer lecturer) {
+        lecturer.setPersonalNr(getPersonalNr());
+        lecturer.setFirstName(getFirstName());
+        lecturer.setLastName(getLastName());
+        lecturer.setEmail(getEmail());
+        lecturer.setAdditionalPersonalNrs(getAdditionalPersonalNrs());
+        lecturer.setDateOfImport(getDateOfImport());
+    }
+
 }

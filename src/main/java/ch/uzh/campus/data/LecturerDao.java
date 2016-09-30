@@ -34,18 +34,34 @@ public class LecturerDao implements CampusDao<Lecturer> {
         this.dbInstance = dbInstance;
     }
 
+    public void save(Lecturer lecturer) {
+        dbInstance.saveObject(lecturer);
+    }
+
+    public void saveOrUpdate(Lecturer lecturer) {
+        /*
+		 * A database merge with a detached course entity would override the
+		 * values of the mapping attributes with "null".
+		 */
+        Lecturer lecturerFound = getLecturerById(lecturer.getPersonalNr());
+        if (lecturerFound == null) {
+            dbInstance.saveObject(lecturer);
+            return;
+        }
+        lecturer.mergeAllExceptMappingAttributes(lecturerFound);
+    }
+
     @Override
     public void save(List<Lecturer> lecturers) {
         for (Lecturer lecturer : lecturers) {
-            dbInstance.saveObject(lecturer);
+            save(lecturer);
         }
     }
 
     @Override
     public void saveOrUpdate(List<Lecturer> lecturers) {
-        EntityManager em = dbInstance.getCurrentEntityManager();
         for (Lecturer lecturer : lecturers) {
-            em.merge(lecturer);
+            saveOrUpdate(lecturer);
         }
     }
 
