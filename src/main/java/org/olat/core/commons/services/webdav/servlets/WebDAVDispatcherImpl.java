@@ -16,16 +16,7 @@
  */
 package org.olat.core.commons.services.webdav.servlets;
 
-import java.io.BufferedInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.PrintWriter;
-import java.io.RandomAccessFile;
-import java.io.StringReader;
-import java.io.StringWriter;
-import java.io.Writer;
+import java.io.*;
 import java.text.Normalizer;
 import java.util.Collection;
 import java.util.Date;
@@ -56,6 +47,7 @@ import org.olat.core.helpers.Settings;
 import org.olat.core.logging.OLog;
 import org.olat.core.logging.Tracing;
 import org.olat.core.util.UserSession;
+import org.olat.core.util.servlets.OlatUrlDecoder;
 import org.olat.core.util.vfs.QuotaExceededException;
 import org.olat.core.util.vfs.VFSItem;
 import org.olat.core.util.vfs.lock.LockInfo;
@@ -379,18 +371,8 @@ public class WebDAVDispatcherImpl
             return (result);
         }
 
-		/*
-		 * No, extract the desired path directly from the request!
-		 *
-		 * "request.getRequestURI()" does not work here because it ignores
-		 * certain valid path string characters like ';'.
-		 */
-		StringBuffer tmp = request.getRequestURL();
-		int fromIndex = 1;
-		for (int i = 0; i < 3; i++) {
-			fromIndex = tmp.indexOf("/", fromIndex) + 1;
-		}
-		String result = tmp.substring(fromIndex);
+		// No, extract the desired path directly from the request!
+		String result = OlatUrlDecoder.getFullUri(request);
 		return Normalizer.normalize(result, Normalizer.Form.NFC);
     }
 

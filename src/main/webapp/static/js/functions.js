@@ -1288,19 +1288,19 @@ function o_ffXHREvent(formNam, dispIdField, dispId, eventIdField, eventInt, dirt
 
 function o_XHREvent(targetUrl, dirtyCheck, push) {
 	/*
-	 * Strings that represent a URL encoded slash or backslash will not be
-	 * accepted by the Servlet container.
+	 * Must be URL encoded in order that e.g. all of the following
+	 * (sub)strings work: '%', '\', '%2F', '%5C'
 	 */
-	targetUrl = targetUrl.replace(/%2F/g, '%252F');
-	targetUrl = targetUrl.replace(/%5C/g, '%255C');
+	targetUrl = encodeURI(targetUrl);
 
 	/*
-	 * Backslashes in an URL would be replaced with a slash by the browser
-	 * during the Ajax request. Therefore the URL encoding is used for this
-	 * character. As a result, such requests may be blocked by the Servlet
-	 * container due to security reasons.
+	 * Encode '#' as well because jQuery strips it off.
+	 *
+	 * TODO
+	 * In jQuery 3.0 this bug is fixed, see:
+	 * https://jquery.com/upgrade-guide/3.0/#breaking-change-hash-in-a-url-is-preserved-in-a-jquery-ajax-call
 	 */
-	targetUrl = targetUrl.replace(/\\/g, '%5C');
+	targetUrl = targetUrl.replace(/#/g, '%23');
 
 	if(dirtyCheck) {
 		if(!o2cl()) return false;
