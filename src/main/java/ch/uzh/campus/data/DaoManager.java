@@ -436,9 +436,9 @@ public class DaoManager {
         // i)  If we have no parent course (i.e. it is not a continued course) we assume that the student course booking
         //     is always up-to-date.
         // ii) If we have a parent course (i.e. it is a continued course) we require that at least 50% of the bookings
-        //     of the current semester must be students who have already booked the parent course. Otherwise
-        //     the secretariat seems not have (manually) copied all the (permitted) students of the parent course.
-        return (course.getParentCourse() == null || studentDao.hasMoreThan50PercentOfStudentsOfSpecificCourseBothABookingOfCourseAndParentCourse(course.getId()));
+        //     of the previous semester must be students who also booked the course in the current semester. Otherwise
+        //     the secretariat seems not have (manually) copied all the (permitted) students of the parent course yet.
+        return (course.getParentCourse() == null || studentDao.hasMoreThan50PercentOfStudentsOfSpecificCourseBothABookingOfCourseAndParentCourse(course));
     }
 
     public List getDelegatees(Identity delegator) {

@@ -327,37 +327,30 @@ public class StudentDaoTest extends OlatTestCase {
         Course course2 = courseDao.getCourseById(200L);
         Course course3 = courseDao.getCourseById(300L);
 
-        // Course 1 is not parent of course 2, so we should not find anything
-        assertEquals(0, studentDao.getNumberOfStudentsWithBookingForCourseAndParentCourse(course2.getId()));
-        assertFalse(studentDao.hasMoreThan50PercentOfStudentsOfSpecificCourseBothABookingOfCourseAndParentCourse(course2.getId()));
-
         // Make course 1 to be the parent of course 2
         courseDao.saveParentCourseId(course2.getId(), course1.getId());
         dbInstance.flush();
 
         assertEquals(2, studentDao.getNumberOfStudentsWithBookingForCourseAndParentCourse(course2.getId()));
-        assertEquals(2, studentDao.getNumberOfStudentsOfSpecificCourse(course2.getId()));
-        assertTrue(studentDao.hasMoreThan50PercentOfStudentsOfSpecificCourseBothABookingOfCourseAndParentCourse(course2.getId()));
+        assertEquals(2, studentDao.getNumberOfStudentsOfSpecificCourse(course2.getParentCourse().getId()));
+        assertTrue(studentDao.hasMoreThan50PercentOfStudentsOfSpecificCourseBothABookingOfCourseAndParentCourse(course2));
 
-        // Make course 3 to be the parent of course 2
-        courseDao.saveParentCourseId(course2.getId(), course3.getId());
+        // Make course 1 to be the parent of course 3
+        courseDao.saveParentCourseId(course3.getId(), course1.getId());
         dbInstance.flush();
 
-        assertEquals(1, studentDao.getNumberOfStudentsWithBookingForCourseAndParentCourse(course2.getId()));
-        assertEquals(2, studentDao.getNumberOfStudentsOfSpecificCourse(course2.getId()));
-        assertTrue(studentDao.hasMoreThan50PercentOfStudentsOfSpecificCourseBothABookingOfCourseAndParentCourse(course2.getId()));
+        assertEquals(1, studentDao.getNumberOfStudentsWithBookingForCourseAndParentCourse(course3.getId()));
+        assertEquals(2, studentDao.getNumberOfStudentsOfSpecificCourse(course3.getParentCourse().getId()));
+        assertTrue(studentDao.hasMoreThan50PercentOfStudentsOfSpecificCourseBothABookingOfCourseAndParentCourse(course3));
 
-        // Remove bookings of course 2
-        StudentCourse studentCourse = studentCourseDao.getStudentCourseById(student1.getId(), course2.getId());
+        // Remove booking of course 3
+        StudentCourse studentCourse = studentCourseDao.getStudentCourseById(student1.getId(), course3.getId());
         studentCourseDao.delete(studentCourse);
         dbInstance.flush();
 
-        studentCourse = studentCourseDao.getStudentCourseById(student2.getId(), course2.getId());
-        studentCourseDao.delete(studentCourse);
-        dbInstance.flush();
-
-        assertEquals(0, studentDao.getNumberOfStudentsOfSpecificCourse(course2.getId()));
-        assertFalse(studentDao.hasMoreThan50PercentOfStudentsOfSpecificCourseBothABookingOfCourseAndParentCourse(course2.getId()));
+        assertEquals(0, studentDao.getNumberOfStudentsWithBookingForCourseAndParentCourse(course3.getId()));
+        assertEquals(2, studentDao.getNumberOfStudentsOfSpecificCourse(course3.getParentCourse().getId()));
+        assertFalse(studentDao.hasMoreThan50PercentOfStudentsOfSpecificCourseBothABookingOfCourseAndParentCourse(course3));
     }
 
     @Test
