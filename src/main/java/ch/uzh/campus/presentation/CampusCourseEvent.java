@@ -5,7 +5,6 @@ import org.olat.core.util.event.MultiUserEvent;
 
 public class CampusCourseEvent extends MultiUserEvent {
 
-    private Long campusCourseResourceableId;
     private int status;
 
     public static final int CREATED = 1;
@@ -17,18 +16,9 @@ public class CampusCourseEvent extends MultiUserEvent {
 
     }
 
-    public CampusCourseEvent(Long campusCourseId, int status) {
+    public CampusCourseEvent(int status) {
         this();
-        this.campusCourseResourceableId = campusCourseId;
         this.status = status;
-    }
-
-    public Long getCampusCourseResourceableId() {
-        return campusCourseResourceableId;
-    }
-
-    public void setCampusCourseResourceableId(Long campusCourseResourceableId) {
-        this.campusCourseResourceableId = campusCourseResourceableId;
     }
 
     public int getStatus() {

@@ -26,6 +26,7 @@ import org.olat.modules.ModuleConfiguration;
 import org.olat.repository.RepositoryEntry;
 import org.olat.repository.RepositoryManager;
 import org.olat.repository.RepositoryService;
+import org.olat.resource.OLATResource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -60,9 +61,9 @@ public class CampusCourseCreator {
         this.campusCourseDescriptionBuilder = campusCourseDescriptionBuilder;
     }
 
-    public CampusCourse createCampusCourseFromTemplate(CampusCourseImportTO campusCourseImportData, Long templateCourseResourceableId, Identity owner, boolean isDefaultTemplateUsed) {
+    public CampusCourse createCampusCourseFromTemplate(CampusCourseImportTO campusCourseImportData, OLATResource templateOlatResource, Identity owner, boolean isDefaultTemplateUsed) {
         // 1. Lookup template
-        ICourse template = CourseFactory.loadCourse(templateCourseResourceableId);
+        ICourse template = CourseFactory.loadCourse(templateOlatResource.getResourceableId());
         RepositoryEntry sourceRepositoryEntry = repositoryManager.lookupRepositoryEntry(template, true);
 
         // 2. Copy repository entry and implicit the Course

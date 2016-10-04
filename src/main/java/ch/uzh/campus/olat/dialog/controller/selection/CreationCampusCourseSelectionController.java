@@ -14,6 +14,7 @@ import org.olat.course.CourseFactory;
 import org.olat.course.ICourse;
 import org.olat.repository.RepositoryEntry;
 import org.olat.repository.RepositoryManager;
+import org.olat.resource.OLATResource;
 import org.olat.resource.OLATResourceManager;
 
 import java.io.PrintWriter;
@@ -46,17 +47,16 @@ public class CreationCampusCourseSelectionController extends CampusCourseDialogS
 
 	@Override
 	protected void event(UserRequest userRequest, Controller source, Event event) {
-		Long resourceableId = OLATResourceManager.getInstance().findResourceable(
-				table.getSelectedEntry(event).getOlatResource())
-				.getResourceableId();
+		OLATResource templateOlatResource = OLATResourceManager.getInstance().findResourceable(
+				table.getSelectedEntry(event).getOlatResource());
 		try {
 			// OLATNG-283: check the size of the course and how it's combined with user role. Only admins can create large courses.
 			Roles roles = userRequest.getUserSession().getRoles();
-			ICourse template = CourseFactory.loadCourse(resourceableId);
+			ICourse template = CourseFactory.loadCourse(templateOlatResource.getResourceableId());
 			if (!roles.isOLATAdmin() && template.exceedsSizeLimit()) {
 				showError("copy.skipped.sizelimit.exceeded");
 			} else {
-				CampusCourse campusCourse = campusCourseService.createCampusCourseFromStandardTemplate(resourceableId,
+				CampusCourse campusCourse = campusCourseService.createCampusCourseFromTemplate(templateOlatResource,
 						sapCampusCourseId, userRequest.getIdentity());
 				listener.onSuccess(userRequest, campusCourse);
 			}

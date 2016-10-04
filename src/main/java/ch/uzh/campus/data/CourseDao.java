@@ -4,6 +4,8 @@ import ch.uzh.campus.CampusCourseConfiguration;
 import org.olat.core.commons.persistence.DB;
 import org.olat.core.logging.OLog;
 import org.olat.core.logging.Tracing;
+import org.olat.resource.OLATResource;
+import org.olat.resource.OLATResourceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
@@ -182,10 +184,10 @@ public class CourseDao implements CampusDao<CourseOrgId> {
                 .getResultList(); 
     }
 
-    Course getLatestCourseByResourceable(Long resourceableId) throws Exception {
+    Course getLatestCourseByOlatResource(Long olatResourceKey) throws Exception {
         return dbInstance.getCurrentEntityManager()
-                .createNamedQuery(Course.GET_LATEST_COURSE_BY_RESOURCEABLE_ID, Course.class)
-                .setParameter("resourceableId", resourceableId)
+                .createNamedQuery(Course.GET_LATEST_COURSE_BY_OLAT_RESOURCE_KEY, Course.class)
+                .setParameter("olatResourceKey", olatResourceKey)
                 .getSingleResult();
     }
 
@@ -197,14 +199,20 @@ public class CourseDao implements CampusDao<CourseOrgId> {
         deleteCourseBidirectionally(course, dbInstance.getCurrentEntityManager());
     }
 
-    void saveResourceableId(Long courseId, Long resourceableId) {
+    void saveOlatResource(Long courseId, Long olatResourceKey) {
         Course course = getCourseById(courseId);
         if (course == null) {
-            String warningMessage = "No course found with id " + courseId + ". Cannot save resourcable id;";
+            String warningMessage = "No course found with id " + courseId + ". Cannot save olat resource with id " + olatResourceKey;
             LOG.warn(warningMessage);
             return;
         }
-        course.setResourceableId(resourceableId);
+        EntityManager em = dbInstance.getCurrentEntityManager();
+        OLATResource olatResource = em.find(OLATResourceImpl.class, olatResourceKey);
+        if (olatResource == null) {
+            LOG.warn("No olat resource found with id " + olatResourceKey + ". Cannot save olat resource.");
+            return;
+        }
+        course.setOlatResource(olatResource);
     }
 
     void disableSynchronization(Long courseId) {
@@ -217,18 +225,18 @@ public class CourseDao implements CampusDao<CourseOrgId> {
         course.setSynchronizable(false);
     }
 
-    void resetResourceableIdAndParentCourse(Long resourceableId) {
-        List<Course> courses =dbInstance.getCurrentEntityManager()
-                .createNamedQuery(Course.GET_COURSES_BY_RESOURCEABLE_ID, Course.class)
-                .setParameter("resourceableId", resourceableId)
+    void resetOlatResourceAndParentCourse(Long olatResourceKey) {
+        List<Course> courses = dbInstance.getCurrentEntityManager()
+                .createNamedQuery(Course.GET_COURSES_BY_OLAT_RESOURCE_KEY, Course.class)
+                .setParameter("olatResourceKey", olatResourceKey)
                 .getResultList();
         if (courses.isEmpty()) {
-            String warningMessage = "No courses found with resourcable id " + resourceableId + ".";
+            String warningMessage = "No courses found with olat resource id " + olatResourceKey + ".";
             LOG.warn(warningMessage);
             return;
         }
         for (Course course : courses) {
-            course.setResourceableId(null);
+            course.setOlatResource(null);
             course.removeParentCourse();
         }
     }
@@ -282,19 +290,19 @@ public class CourseDao implements CampusDao<CourseOrgId> {
                 .getResultList();
     }
 
-    List<Long> getResourceableIdsOfAllCreatedNotContinuedCoursesOfSpecificSemesters(List<String> shortSemesters) {
+    List<Long> getOlatResourceKeysOfAllCreatedNotContinuedCoursesOfSpecificSemesters(List<String> shortSemesters) {
         return dbInstance.getCurrentEntityManager()
-                .createNamedQuery(Course.GET_RESOURCEABLE_IDS_OF_ALL_CREATED_NOT_CONTINUED_COURSES_OF_SPECIFIC_SEMESTERS, Long.class)
+                .createNamedQuery(Course.GET_OLAT_RESOURCE_KEYS_OF_ALL_CREATED_NOT_CONTINUED_COURSES_OF_SPECIFIC_SEMESTERS, Long.class)
                 .setParameter("shortSemesters", shortSemesters)
                 .getResultList();
     }
 
-    List<Long> getResourceableIdsOfAllCreatedNotContinuedCoursesOfPreviousSemestersNotTooFarInThePast() {
+    List<Long> getOlatResourceKeysOfAllCreatedNotContinuedCoursesOfPreviousSemestersNotTooFarInThePast() {
         List<String> previousShortSemestersNotTooFarInThePast = getPreviousShortSemestersNotTooFarInThePast();
         if (previousShortSemestersNotTooFarInThePast.isEmpty()) {
             return new ArrayList<>();
         }
-        return getResourceableIdsOfAllCreatedNotContinuedCoursesOfSpecificSemesters(previousShortSemestersNotTooFarInThePast);
+        return getOlatResourceKeysOfAllCreatedNotContinuedCoursesOfSpecificSemesters(previousShortSemestersNotTooFarInThePast);
     }
 
     List<Long> getIdsOfAllNotCreatedCreatableCoursesOfCurrentSemester() {
@@ -315,10 +323,10 @@ public class CourseDao implements CampusDao<CourseOrgId> {
                 .getResultList();
     }
 
-    boolean existResourceableId(Long resourceableId) {
+    boolean existCoursesForOlatResource(Long olatResourceKey) {
         List<Long> courseIds = dbInstance.getCurrentEntityManager()
-                .createNamedQuery(Course.GET_COURSE_IDS_BY_RESOURCEABLE_ID, Long.class)
-                .setParameter("resourceableId", resourceableId)
+                .createNamedQuery(Course.GET_COURSE_IDS_BY_OLAT_RESOURCE_KEY, Long.class)
+                .setParameter("olatResourceKey", olatResourceKey)
                 .getResultList();
         return !courseIds.isEmpty();
     }

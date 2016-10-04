@@ -112,8 +112,8 @@ public class DaoManager {
         return delegationDao.existsDelegation(delegator.getKey(), delegatee.getKey());
     }
 
-    public boolean existResourceableId(Long resourceableId) {
-        return courseDao.existResourceableId(resourceableId);
+    public boolean existCampusCoursesForOlatResource(Long olatResourceKey) {
+        return courseDao.existCoursesForOlatResource(olatResourceKey);
     }
 
     public void deleteCourse(Course course) {
@@ -373,16 +373,16 @@ public class DaoManager {
         return courses;
     }
 
-    public void saveCampusCourseResoureableId(Long courseId, Long resourceableId) {
-        courseDao.saveResourceableId(courseId, resourceableId);
+    public void saveCampusCourseOlatResource(Long courseId, Long olatResourceKey) {
+        courseDao.saveOlatResource(courseId, olatResourceKey);
     }
 
-    public Course getLatestCourseByResourceable(Long resourcableId) throws Exception {
-        return courseDao.getLatestCourseByResourceable(resourcableId);
+    public Course getLatestCourseByOlatResource(Long olatResourceKey) throws Exception {
+        return courseDao.getLatestCourseByOlatResource(olatResourceKey);
     }
 
-    public void resetResourceableIdAndParentCourseReference(Long resourceableId) {
-        courseDao.resetResourceableIdAndParentCourse(resourceableId);
+    public void resetOlatResourceAndParentCourseReference(Long olatResourceKey) {
+        courseDao.resetOlatResourceAndParentCourse(olatResourceKey);
     }
 
     public void saveParentCourseId(Long courseId, Long parentCourseId) {
@@ -393,8 +393,8 @@ public class DaoManager {
         return courseDao.getIdsOfAllCreatedSynchronizableCoursesOfCurrentSemester();
     }
 
-    public List<Long> getResourceableIdsOfAllCreatedNotContinuedCoursesOfPreviousSemesters() {
-        return courseDao.getResourceableIdsOfAllCreatedNotContinuedCoursesOfPreviousSemestersNotTooFarInThePast();
+    public List<Long> getOlatResourceKeysOfAllCreatedNotContinuedCoursesOfPreviousSemesters() {
+        return courseDao.getOlatResourceKeysOfAllCreatedNotContinuedCoursesOfPreviousSemestersNotTooFarInThePast();
     }
 
     public List<Long> getAllNotCreatedSapCourcesIds() {
@@ -428,7 +428,7 @@ public class DaoManager {
 				dataConverter.convertLecturersToIdentities(lecturerCourses),
                 dataConverter.convertDelegateesToIdentities(lecturerCourses),
 				dataConverter.convertStudentsToIdentities(studentCourses),
-                textDao.getContentsByCourseId(course.getId()), course.getResourceableId(),
+                textDao.getContentsByCourseId(course.getId()), course.getOlatResource(),
 				course.getId(), course.getLanguage(), course.getVvzLink());
     }
 

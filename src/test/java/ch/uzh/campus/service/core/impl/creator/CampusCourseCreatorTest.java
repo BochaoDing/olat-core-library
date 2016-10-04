@@ -17,6 +17,7 @@ import org.olat.group.area.BGAreaManager;
 import org.olat.repository.RepositoryEntry;
 import org.olat.repository.RepositoryManager;
 import org.olat.repository.RepositoryService;
+import org.olat.resource.OLATResource;
 import org.olat.test.JunitTestHelper;
 import org.olat.test.OlatTestCase;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -59,7 +60,7 @@ public class CampusCourseCreatorTest extends OlatTestCase {
     CampusCourseConfiguration campusCourseConfiguration;
 
     private CampusCourseCreator campusCourseCreatorTestObject;
-    private Long templateResourceableId;
+    private OLATResource templateOlatResource;
     private Identity ownerIdentity;
     private RepositoryEntry sourceRepositoryEntry;
     private ICourse sourceCourse;
@@ -82,8 +83,8 @@ public class CampusCourseCreatorTest extends OlatTestCase {
 
         ownerIdentity = JunitTestHelper.createAndPersistIdentityAsUser(ownerName);
         sourceRepositoryEntry = JunitTestHelper.deployDemoCourse(ownerIdentity);
-        templateResourceableId = sourceRepositoryEntry.getOlatResource().getResourceableId();
-        sourceCourse = CourseFactory.loadCourse(templateResourceableId);
+        templateOlatResource = sourceRepositoryEntry.getOlatResource();
+        sourceCourse = CourseFactory.loadCourse(templateOlatResource);
         DBFactory.getInstance().closeSession();
 
         Translator translator = campusCourseCreatorTestObject.getTranslator(lvLanguage);
@@ -101,11 +102,11 @@ public class CampusCourseCreatorTest extends OlatTestCase {
 
     @Test
     public void createCampusCourseFromTemplateTest() {
-        CampusCourse campusCourse = campusCourseCreatorTestObject.createCampusCourseFromTemplate(campusCourseImportData, templateResourceableId, ownerIdentity, true);
+        CampusCourse campusCourse = campusCourseCreatorTestObject.createCampusCourseFromTemplate(campusCourseImportData, templateOlatResource, ownerIdentity, true);
         assertNotNull(campusCourse);
 
         assertNotNull(campusCourse.getRepositoryEntry());
-        assertTrue("Copy must have different resourcableId", !Objects.equals(templateResourceableId, campusCourse.getCourse().getResourceableId()));
+        assertTrue("Copy must have different resourcableId", !Objects.equals(templateOlatResource.getResourceableId(), campusCourse.getCourse().getResourceableId()));
         assertEquals("Wrong initialAuthor in copy", ownerName, campusCourse.getRepositoryEntry().getInitialAuthor());
         assertEquals(TITLE, campusCourse.getRepositoryEntry().getDisplayname());
         assertEquals(DESCRIPTION, campusCourse.getRepositoryEntry().getDescription());

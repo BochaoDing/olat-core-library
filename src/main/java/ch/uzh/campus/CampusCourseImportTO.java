@@ -3,6 +3,7 @@ package ch.uzh.campus;
 import java.util.List;
 
 import org.olat.core.id.Identity;
+import org.olat.resource.OLATResource;
 
 /**
  * OLAT - Online Learning and Training<br>
@@ -37,7 +38,7 @@ public class CampusCourseImportTO {
     private final List<Identity> delegateesOfCourse;
     private final List<Identity> participantsOfCourse;
     private final String eventDescription;
-    private final Long resourceableId;
+    private final OLATResource olatResource;
     private final Long sapCourseId;
     private final String vvzLink;
 
@@ -45,7 +46,7 @@ public class CampusCourseImportTO {
 								List<Identity> lecturersOfCourse,
 								List<Identity> delegateesOfCourse,
 								List<Identity> participantsOfCourse,
-								String eventDescription, Long resourceableId,
+								String eventDescription, OLATResource olatResource,
 								Long sapCourseId, String language, String vvzLink) {
         this.title = title;
         this.semester = semester;
@@ -56,7 +57,7 @@ public class CampusCourseImportTO {
 		assert participantsOfCourse != null;
         this.participantsOfCourse = participantsOfCourse;
         this.eventDescription = eventDescription;
-        this.resourceableId = resourceableId;
+        this.olatResource = olatResource;
         this.sapCourseId = sapCourseId;
         this.language = language;
         this.vvzLink = vvzLink;
@@ -86,12 +87,12 @@ public class CampusCourseImportTO {
         return participantsOfCourse;
     }
 
-    public Long getOlatResourceableId() {
-        return resourceableId;
+    public OLATResource getOlatResource() {
+        return olatResource;
     }
 
-    public boolean isOlatResourceableIdUndefined() {
-        return getOlatResourceableId() == null;
+    public boolean isOlatResourceUndefined() {
+        return getOlatResource() == null;
     }
 
     public Long getSapCourseId() {

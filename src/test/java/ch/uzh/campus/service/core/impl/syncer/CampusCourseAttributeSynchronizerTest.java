@@ -1,23 +1,3 @@
-/**
- * OLAT - Online Learning and Training<br>
- * http://www.olat.org
- * <p>
- * Licensed under the Apache License, Version 2.0 (the "License"); <br>
- * you may not use this file except in compliance with the License.<br>
- * You may obtain a copy of the License at
- * <p>
- * http://www.apache.org/licenses/LICENSE-2.0
- * <p>
- * Unless required by applicable law or agreed to in writing,<br>
- * software distributed under the License is distributed on an "AS IS" BASIS, <br>
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. <br>
- * See the License for the specific language governing permissions and <br>
- * limitations under the License.
- * <p>
- * Copyright (c) since 2004 at Multimedia- & E-Learning Services (MELS),<br>
- * University of Zurich, Switzerland.
- * <p>
- */
 package ch.uzh.campus.service.core.impl.syncer;
 
 import ch.uzh.campus.CampusCourseConfiguration;
@@ -31,6 +11,7 @@ import org.junit.Test;
 import org.olat.core.id.Identity;
 import org.olat.course.ICourse;
 import org.olat.repository.RepositoryEntry;
+import org.olat.resource.OLATResource;
 import org.olat.test.OlatTestCase;
 import org.springframework.test.context.ContextConfiguration;
 
@@ -50,7 +31,6 @@ import static org.mockito.Mockito.*;
 public class CampusCourseAttributeSynchronizerTest extends OlatTestCase {
 
     private long sapCampusCourseId = 1L;
-    private Long resourceableId = 1002L;
 
     private String semester = "HS2012";
     private List<Identity> lecturers = new ArrayList<>();
@@ -62,6 +42,7 @@ public class CampusCourseAttributeSynchronizerTest extends OlatTestCase {
     private CampusCourseFactory campusCourseFactoryMock;
     private CampusCourseDescriptionBuilder campusCourseDescriptionBuilderMock;
     private CampusCourseConfiguration campusCourseConfigurationMock;
+    private OLATResource olatResourceMock;
     private CampusCourse campusCourse;
 
     @Before
@@ -69,6 +50,7 @@ public class CampusCourseAttributeSynchronizerTest extends OlatTestCase {
         campusCourseFactoryMock = mock(CampusCourseFactory.class);
         campusCourseDescriptionBuilderMock = mock(CampusCourseDescriptionBuilder.class);
         campusCourseConfigurationMock = mock(CampusCourseConfiguration.class);
+        olatResourceMock = mock(OLATResource.class);
         campusCourseAttributeSynchronizerTestObject = new CampusCourseAttributeSynchronizer(campusCourseFactoryMock, campusCourseDescriptionBuilderMock, campusCourseConfigurationMock);
         ICourse course = mock(ICourse.class);
         RepositoryEntry repositoryEntry = mock(RepositoryEntry.class);
@@ -79,7 +61,7 @@ public class CampusCourseAttributeSynchronizerTest extends OlatTestCase {
 
     @Test
     public void synchronizeTitleAndDescription_nothingToUpdate() {
-		CampusCourseImportTO campusCourseImportTO = new CampusCourseImportTO(title, semester, lecturers, Collections.emptyList(), participants, eventDescription, resourceableId, sapCampusCourseId, null, null);
+		CampusCourseImportTO campusCourseImportTO = new CampusCourseImportTO(title, semester, lecturers, Collections.emptyList(), participants, eventDescription, olatResourceMock, sapCampusCourseId, null, null);
 		when(campusCourseFactoryMock.getCampusCourse(refEq(campusCourseImportTO))).thenReturn(campusCourse);
 		when(campusCourseDescriptionBuilderMock.buildDescriptionFrom(campusCourseImportTO, "de")).thenReturn(campusCourseImportTO.getEventDescription());
         when(campusCourseConfigurationMock.getTemplateLanguage(campusCourseImportTO.getLanguage())).thenReturn("de");
@@ -92,7 +74,7 @@ public class CampusCourseAttributeSynchronizerTest extends OlatTestCase {
 
     @Test
     public void synchronizeTitleAndDescription_updateDescription() {
-        CampusCourseImportTO campusCourseImportTO = new CampusCourseImportTO(title, semester, lecturers, Collections.emptyList(), participants, eventDescription + "_new", resourceableId, sapCampusCourseId, null, null);
+        CampusCourseImportTO campusCourseImportTO = new CampusCourseImportTO(title, semester, lecturers, Collections.emptyList(), participants, eventDescription + "_new", olatResourceMock, sapCampusCourseId, null, null);
 		when(campusCourseFactoryMock.getCampusCourse(refEq(campusCourseImportTO))).thenReturn(campusCourse);
 
         TitleAndDescriptionStatistik titleAndDescriptionStatistik = campusCourseAttributeSynchronizerTestObject.synchronizeTitleAndDescription(campusCourseImportTO);
@@ -104,7 +86,7 @@ public class CampusCourseAttributeSynchronizerTest extends OlatTestCase {
 
     @Test
     public void synchronizeTitleAndDescription_updateTitle() {
-        CampusCourseImportTO campusCourseImportTO = new CampusCourseImportTO(title + "_new", semester, lecturers, Collections.emptyList(), participants, eventDescription, resourceableId, sapCampusCourseId, null, null);
+        CampusCourseImportTO campusCourseImportTO = new CampusCourseImportTO(title + "_new", semester, lecturers, Collections.emptyList(), participants, eventDescription, olatResourceMock, sapCampusCourseId, null, null);
         // do not call real CampusCourse.setTruncatedTitle(..) because there is a static call which try to save runstructure.xml
         CampusCourse spyCampusCourse = spy(campusCourse);
         when(campusCourseFactoryMock.getCampusCourse(any())).thenReturn(spyCampusCourse);

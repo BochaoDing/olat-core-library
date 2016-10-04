@@ -1,7 +1,6 @@
 package ch.uzh.campus.olat.dialog.controller.selection;
 
 import ch.uzh.campus.data.Course;
-import ch.uzh.campus.olat.CampusCourseOlatHelper;
 import ch.uzh.campus.olat.dialog.controller.CreateCampusCourseCompletedEventListener;
 import ch.uzh.campus.service.CampusCourse;
 import ch.uzh.campus.service.learn.CampusCourseService;
@@ -58,8 +57,8 @@ public class ContinueCampusCourseSelectionController extends CampusCourseDialogS
 					showError("popup.course.notContinued.becauseOfRemovedDelegation.text");
 				} else {
 					try {
-						Course parentCourse = campusCourseService.getLatestCourseByResourceable(repositoryEntry
-								.getOlatResource().getResourceableId());
+						Course parentCourse = campusCourseService.getLatestCourseByOlatResource(repositoryEntry
+								.getOlatResource());
 						CampusCourse campusCourse = campusCourseService.continueCampusCourse(sapCampusCourseId,
 								parentCourse.getId(), userRequest.getIdentity());
 						listener.onSuccess(userRequest, campusCourse);
@@ -84,10 +83,10 @@ public class ContinueCampusCourseSelectionController extends CampusCourseDialogS
 		List<RepositoryEntry> campusCourseEntries = new ArrayList<>();
 		List<RepositoryEntry> entries = repositoryManager.queryByOwner(userRequest.getIdentity(), "CourseModule");
 		if (!entries.isEmpty()) {
-			List<Long> resourceableIdsOfAllCreatedNotContinuedCoursesOfPreviousSemesters = campusCourseService.getResourceableIdsOfAllCreatedNotContinuedCoursesOfPreviousSemesters();
+			List<Long> olatResourceKeysOfAllCreatedNotContinuedCoursesOfPreviousSemesters = campusCourseService.getOlatResourceKeysOfAllCreatedNotContinuedCoursesOfPreviousSemesters();
 			for (RepositoryEntry entry : entries) {
-				Long resourcableId = entry.getOlatResource().getResourceableId();
-				if (resourceableIdsOfAllCreatedNotContinuedCoursesOfPreviousSemesters.contains(resourcableId)) {
+				Long olatResourceKey = entry.getOlatResource().getKey();
+				if (olatResourceKeysOfAllCreatedNotContinuedCoursesOfPreviousSemesters.contains(olatResourceKey)) {
                     campusCourseEntries.add(entry);
 				}
 			}

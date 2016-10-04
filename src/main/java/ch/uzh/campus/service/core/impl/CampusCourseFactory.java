@@ -1,23 +1,3 @@
-/**
- * OLAT - Online Learning and Training<br>
- * http://www.olat.org
- * <p>
- * Licensed under the Apache License, Version 2.0 (the "License"); <br>
- * you may not use this file except in compliance with the License.<br>
- * You may obtain a copy of the License at
- * <p>
- * http://www.apache.org/licenses/LICENSE-2.0
- * <p>
- * Unless required by applicable law or agreed to in writing,<br>
- * software distributed under the License is distributed on an "AS IS" BASIS, <br>
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. <br>
- * See the License for the specific language governing permissions and <br>
- * limitations under the License.
- * <p>
- * Copyright (c) since 2004 at Multimedia- & E-Learning Services (MELS),<br>
- * University of Zurich, Switzerland.
- * <p>
- */
 package ch.uzh.campus.service.core.impl;
 
 
@@ -29,6 +9,7 @@ import org.olat.course.CourseFactory;
 import org.olat.course.ICourse;
 import org.olat.repository.RepositoryEntry;
 import org.olat.repository.RepositoryManager;
+import org.olat.resource.OLATResource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -42,24 +23,28 @@ public class CampusCourseFactory {
    
 	private static final OLog LOG = Tracing.createLoggerFor(CampusCourseFactory.class);
 
-	@Autowired
-	private RepositoryManager repositoryManager;
+    private final RepositoryManager repositoryManager;
+
+    @Autowired
+    public CampusCourseFactory(RepositoryManager repositoryManager) {
+        this.repositoryManager = repositoryManager;
+    }
 
     public CampusCourse getCampusCourse(CampusCourseImportTO campusCourseTo) {
 		if (campusCourseTo == null) {
 			return null;
 		}
-        Long resourceableId = campusCourseTo.getOlatResourceableId();
-        LOG.debug("getRepositoryEntryFor sapCourseId=" + campusCourseTo.getSapCourseId() + "  campusCourseTo.getOlatResourceableId()=" + resourceableId);
-        if (resourceableId == null) {
+        OLATResource olatResource = campusCourseTo.getOlatResource();
+        if (olatResource == null) {
             LOG.warn("sapCourseId = " + campusCourseTo.getSapCourseId() + ": no OLAT course found");
             return null;
         }
-        return getCampusCourseByResourceable(resourceableId);
+        LOG.debug("OLAT resource_id for sapCourseId=" + campusCourseTo.getSapCourseId() + ": campusCourseTo.getOlatResource.getKey()=" + olatResource.getKey());
+        return getCampusCourseByOlatResource(olatResource);
     }
 
-    public CampusCourse getCampusCourseByResourceable(Long resourceableId) {
-        ICourse olatCourse = CourseFactory.loadCourse(resourceableId);
+    CampusCourse getCampusCourseByOlatResource(OLATResource olatResource) {
+        ICourse olatCourse = CourseFactory.loadCourse(olatResource.getResourceableId());
         RepositoryEntry repositoryEntry = repositoryManager.lookupRepositoryEntry(olatCourse, true);
         return new CampusCourse(olatCourse, repositoryEntry);
     }
