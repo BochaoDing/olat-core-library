@@ -44,6 +44,7 @@ import org.olat.ims.qti.process.elements.ScoreBooleanEvaluable;
 /**
  * @author Potable Shop 
  */
+@SuppressWarnings("serial")
 public class SectionContext implements Serializable {
 	private String ident;
 	//private String title;
@@ -55,7 +56,7 @@ public class SectionContext implements Serializable {
 	private Objectives objectives;
 	private List<ItemContext> itemContexts;
 
-	private float totalScore; // only floats and integers supported at the moment
+	private double totalScore; // OLATNG-21/OLAT-7129: use double for computing score
 	private int cutvalue;
 	private int currentItemContextPos;
 	private long timeOfStart;
@@ -82,7 +83,7 @@ public class SectionContext implements Serializable {
 	 * 
 	 */
 	public void init() {
-		totalScore = 0.0f;
+		totalScore = 0.0;
 		currentItemContextPos = -1;
 		timeOfStart = -1; // not started yet
 		timesAnswered = 0; // not answered yet (this flag has no direct meaning in
@@ -169,8 +170,8 @@ public class SectionContext implements Serializable {
 		// determine which items (sections not implemented) will be chosen/selected
 		// for this section
 		// --- 1. take all items and resolved itemrefs which are in the section
-		List items = el_section.selectNodes("item|itemref");
-		for (Iterator iter = items.iterator(); iter.hasNext();) {
+		List<?> items = el_section.selectNodes("item|itemref");
+		for (Iterator<?> iter = items.iterator(); iter.hasNext();) {
 			Element el_item = (Element) iter.next();
 			//<!ELEMENT itemref (#PCDATA)> <!ATTLIST itemref %I_LinkRefId; > <!ENTITY
 			// % I_LinkRefId " linkrefid CDATA #REQUIRED">
@@ -403,7 +404,7 @@ public class SectionContext implements Serializable {
 					if (itemscore >= itemcutval) tmpscore++; // count items correct
 				}
 			}
-			if (tmpscore >= cutvalue) totalScore = 1.0f; // cutvalue of the section
+			if (tmpscore >= cutvalue) totalScore = 1.0; // cutvalue of the section
 		} else {
 			throw new RuntimeException("scoring algorithm " + scoremodel + " not supported");
 		}
@@ -414,7 +415,7 @@ public class SectionContext implements Serializable {
 	 */
 	public float getScore() {
 		calcScore();
-		return totalScore;
+		return (float) totalScore;
 	}
 
 	/**

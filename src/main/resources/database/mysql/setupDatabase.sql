@@ -307,8 +307,8 @@ create table if not exists o_repositoryentry (
    external_id varchar(64),
    external_ref varchar(64),
    managed_flags varchar(255),
-   displayname varchar(110) not null,
-   resourcename varchar(100) not null,
+   displayname varchar(255) not null,
+   resourcename varchar(255) not null,
    authors varchar(2048),
    mainlanguage varchar(255),
    location varchar(255),
@@ -1591,9 +1591,9 @@ create or replace view o_gp_contactkey_v as (
    inner join o_bs_group_member as bg_member on (bg_member.fk_group_id = bgroup.fk_group_id)
    inner join o_bs_group_member as bg_me on (bg_me.fk_group_id = bgroup.fk_group_id)
    where
-      (bgroup.ownersintern=true and bg_member.g_role='coach')
+      (bgroup.ownersintern=1 and bg_member.g_role='coach')
       or
-      (bgroup.participantsintern=true and bg_member.g_role='participant')
+      (bgroup.participantsintern=1 and bg_member.g_role='participant')
 );
 
 create or replace view o_gp_contactext_v as (
@@ -1615,9 +1615,9 @@ create or replace view o_gp_contactext_v as (
    inner join o_userproperty as last_member on (last_member.fk_user_id = us_member.user_id and last_member.propname='lastName')
    inner join o_bs_group_member as bg_me on (bg_me.fk_group_id = bgroup.fk_group_id)
    where
-      (bgroup.ownersintern=true and bg_member.g_role='coach')
+      (bgroup.ownersintern=1 and bg_member.g_role='coach')
       or
-      (bgroup.participantsintern=true and bg_member.g_role='participant')
+      (bgroup.participantsintern=1 and bg_member.g_role='participant')
 );
 
 
@@ -2134,6 +2134,253 @@ create index log_ptarget_resid_idx on o_loggingtable(parentresid);
 create index log_gptarget_resid_idx on o_loggingtable(grandparentresid);
 create index log_ggptarget_resid_idx on o_loggingtable(greatgrandparentresid);
 create index log_creationdate_idx on o_loggingtable(creationdate);
+
+-- tables for campuskurs
+create table if not exists ck_export (
+	id bigint not null,
+	file_name varchar(255) not null,
+	timestamp datetime not null,
+	export_date datetime not null,
+	primary key (id)
+)engine InnoDB;
+
+create table if not exists ck_course (
+	id bigint not null,
+  fk_resource bigint,
+	title varchar(255) not null,
+	short_title varchar(255) not null,
+	e_learning_supported boolean not null,
+	language varchar(255) not null,
+	category varchar(255) not null,
+	lv_nr varchar(255) not null,
+	start_date date not null,
+	end_date date not null,
+	vvz_link varchar(255) not null,
+	semester char(255) not null,
+	short_semester char(4) not null,
+	exclude boolean not null,
+	synchronizable boolean not null default 1,
+  parent_course_id BIGINT,
+	date_of_import datetime not null,
+	primary key (id)
+)engine InnoDB;
+
+create table if not exists ck_lecturer (
+	id bigint not null,
+	first_name varchar(255) not null,
+	last_name varchar(255) not null,
+	email varchar(255) not null,
+	additionalPersonalNrs varchar(255),
+	date_of_import datetime not null,
+  fk_mapped_identity BIGINT,
+  kind_of_mapping VARCHAR(6),
+  date_of_mapping DATETIME,
+	primary key (id)
+)engine InnoDB;
+
+create table if not exists ck_lecturer_course (
+	course_id bigint not null,
+	lecturer_id bigint not null,
+	date_of_import datetime not null,
+	primary key (course_id, lecturer_id)
+)engine InnoDB;
+
+create table if not exists ck_student (
+	id bigint not null,
+	registration_nr varchar(255) not null,
+	first_name varchar(255) not null,
+	last_name varchar(255) not null,
+	email varchar(255) not null,
+	date_of_import datetime not null,
+  fk_mapped_identity BIGINT,
+  kind_of_mapping VARCHAR(6),
+  date_of_mapping DATETIME,
+	primary key (id)
+)engine InnoDB;
+
+create table if not exists ck_student_course (
+	course_id bigint not null,
+	student_id bigint not null,
+	date_of_import datetime not null,
+	primary key (course_id, student_id)
+)engine InnoDB;
+
+create table if not exists ck_event (
+	id bigint not null,
+	course_id bigint not null,
+	date date not null,
+	start time not null,
+	end time not null,
+	date_of_import datetime not null,
+	primary key (id)
+)engine InnoDB;
+
+create table if not exists ck_text (
+	id bigint not null,
+	course_id bigint not null,
+	type varchar(255) not null,
+	line_seq bigint not null,
+	line varchar(255) not null,
+	date_of_import datetime not null,
+	primary key (id)
+)engine InnoDB;
+
+create table if not exists ck_org (
+	id bigint not null,
+	short_name varchar(50) not null,
+	name varchar(255) not null,
+  enabled boolean not null,
+	date_of_import datetime not null,
+	primary key (id)
+)engine InnoDB;
+
+create table if not exists ck_course_org (
+   course_id bigint not null,
+   org_id bigint not null,
+   primary key (course_id, org_id)
+)engine InnoDB;
+
+create table if not exists ck_import_statistic (
+    id bigint not null,
+    step_id int,
+    step_name varchar(255) not null,
+    status varchar(255) not null,
+    start_time datetime,
+    end_time datetime,
+    read_count bigint not null,
+    write_count bigint not null,
+    read_skip_count bigint,
+    write_skip_count bigint,
+    process_skip_count bigint,
+    commit_count bigint,
+    rollback_count bigint,
+    primary key (id)
+)engine InnoDB;
+
+create table if not exists ck_skip_item (
+    id bigint not null,
+    job_execution_id INT,
+    job_name VARCHAR(100),
+    step_execution_id INT,
+    step_name VARCHAR(100),
+    step_start_time datetime,
+    type VARCHAR(100),
+    item VARCHAR(2000),
+    msg VARCHAR(2000),
+     primary key (id)
+)engine InnoDB;
+
+create table if not exists ck_delegation (
+   fk_delegator_identity bigint not null,
+   fk_delegatee_identity bigint not null,
+	 creationdate datetime not null,
+	 primary key (fk_delegator_identity, fk_delegatee_identity)
+)engine InnoDB;
+
+alter table ck_course add constraint ck_course_f01 foreign key (parent_course_id) references ck_course (id);
+alter table ck_course add constraint ck_course_f02 foreign key (fk_resource) references o_olatresource (resource_id);
+alter table ck_lecturer add constraint ck_lecturer_f01 foreign key (fk_mapped_identity) references o_bs_identity(id);
+alter table ck_lecturer_course add constraint ck_lecturer_course_f01 foreign key (course_id) references ck_course (id);
+alter table ck_lecturer_course add constraint ck_lecturer_course_f02 foreign key (lecturer_id) references ck_lecturer (id);
+alter table ck_student add constraint ck_student_f01 foreign key (fk_mapped_identity) references o_bs_identity(id);
+alter table ck_student_course add constraint ck_student_course_f01 foreign key (course_id) references ck_course (id);
+alter table ck_student_course add constraint ck_student_course_f02 foreign key (student_id) references ck_student (id);
+alter table ck_course_org add constraint ck_course_org_f01 foreign key (course_id) references ck_course (id);
+alter table ck_course_org add constraint ck_course_org_f02 foreign key (org_id) references ck_org (id);
+alter table ck_event add constraint ck_event_f01 foreign key (course_id) references ck_course (id);
+alter table ck_text add constraint ck_text_f01 foreign key (course_id) references ck_course (id);
+alter table ck_delegation add constraint ck_delegation_f01 foreign key (fk_delegator_identity) references o_bs_identity(id);
+alter table ck_delegation add constraint ck_delegation_f02 foreign key (fk_delegatee_identity) references o_bs_identity(id);
+
+alter table ck_student_course add unique (student_id, course_id);
+alter table ck_lecturer_course add unique (lecturer_id, course_id);
+alter table ck_course_org add unique (course_id, org_id);
+alter table ck_delegation add unique (fk_delegator_identity, fk_delegatee_identity);
+
+create index ck_xx_parent_course_id_idx on ck_course (parent_course_id);
+create index ck_xx_step_name_idx on ck_import_statistic(step_name);
+create index ck_xx_start_time_idx on ck_import_statistic(start_time);
+create index ck_xx_end_time_idx on ck_import_statistic(end_time);
+
+create or replace view ck_not_mapped_students as 
+select * from ck_student s where s.id in
+(select sc.student_id from ck_student_course sc, ck_course c  
+where sc.course_id = c.id and c.exclude = 0
+   and exists (select co.course_id from ck_course_org co
+      inner join ck_course c1 on c1.id = co.course_id
+      inner join ck_org o on o.id = co.org_id
+      where c1.id = c.id and o.enabled = 1))
+and s.fk_mapped_identity is NULL;
+
+create or replace view ck_not_mapped_lecturers as 
+select * from ck_lecturer l where l.id in
+(select lc.lecturer_id from ck_lecturer_course lc, ck_course c  
+where lc.course_id = c.id and c.exclude = 0
+   and exists (select co.course_id from ck_course_org co
+      inner join ck_course c1 on c1.id = co.course_id
+      inner join ck_org o on o.id = co.org_id
+      where c1.id = c.id and o.enabled = 1))
+and l.fk_mapped_identity is NULL;
+
+create or replace view ck_horizontal_userproperty as
+select u.fk_user_id, i.status,
+        max(case when u.propname = 'firstname' then u.propvalue end) as first_name,
+        max(case when u.propname = 'lastname'  then u.propvalue end) as last_name,
+        max(case when u.propname = 'email'     then u.propvalue end) as email,
+        max(case when u.propname = 'institutionaluseridentifier' then u.propvalue end) as useridentifier
+    from o_userproperty u, o_bs_identity i
+    where u.fk_user_id=i.fk_user_id
+    and i.status<>199
+    group by u.fk_user_id;
+    
+create or replace view ck_horizontal_student_userproperty as
+select u.fk_user_id, i.status,
+        max(case when u.propname = 'firstname' then u.propvalue end) as first_name,
+        max(case when u.propname = 'lastname'  then u.propvalue end) as last_name,
+        max(case when u.propname = 'email'     then u.propvalue end) as email,
+        max(case when u.propname = 'institutionalMatriculationNumber' then u.propvalue end) as useridentifier
+    from o_userproperty u, o_bs_identity i
+    where u.fk_user_id=i.fk_user_id
+    and i.status<>199
+    group by u.fk_user_id;
+    
+create or replace view ck_horizontal_lecturer_userproperty as
+select u.fk_user_id, i.status,
+        max(case when u.propname = 'firstname' then u.propvalue end) as first_name,
+        max(case when u.propname = 'lastname'  then u.propvalue end) as last_name,
+        max(case when u.propname = 'email'     then u.propvalue end) as email,
+        max(case when u.propname = 'institutionalEmployeeNumber' then u.propvalue end) as useridentifier
+    from o_userproperty u, o_bs_identity i
+    where u.fk_user_id=i.fk_user_id
+    and i.status<>199
+    group by u.fk_user_id;
+    
+create or replace view ck_students_to_be_mapped_manually as 
+select count(sub.id) as count, 
+ sub.registration_nr as sap_matrikelnr, sub2.useridentifier as olat_matrikelnr,
+ sub.first_name as  sap_firstname, sub2.first_name as  olat_firstname,
+ sub.last_name as  sap_lastname, sub2.last_name as  olat_lastname,
+ sub.email as  sap_email, sub2.email as  olat_email
+ from ck_not_mapped_students sub, 
+ ck_horizontal_student_userproperty sub2
+ where sub.registration_nr=sub2.useridentifier
+or sub.email=sub2.email
+or(sub.first_name=sub2.first_name and sub.last_name=sub2.last_name)
+group by sub.id;
+
+create or replace view ck_lecturers_to_be_mapped_manually as 
+select count(sub.id) as count, 
+ sub.id as sap_personalnr, sub2.useridentifier as olat_personalnr,
+ sub.first_name as  sap_firstname, sub2.first_name as  olat_firstname,
+ sub.last_name as  sap_lastname, sub2.last_name as  olat_lastname,
+ sub.email as  sap_email, sub2.email as  olat_email
+ from ck_not_mapped_lecturers sub, 
+ ck_horizontal_lecturer_userproperty sub2
+ where sub.id=sub2.useridentifier
+or sub.email=sub2.email
+or(sub.first_name=sub2.first_name and sub.last_name=sub2.last_name)
+group by sub.id;
+
 
 
 insert into hibernate_unique_key values ( 0 );

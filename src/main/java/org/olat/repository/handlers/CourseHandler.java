@@ -37,6 +37,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
 
+import org.olat.commons.fileutil.FileSizeLimitExceededException;
 import org.olat.core.CoreSpringFactory;
 import org.olat.core.commons.modules.bc.vfs.OlatRootFolderImpl;
 import org.olat.core.commons.persistence.DBFactory;
@@ -484,7 +485,7 @@ public class CourseHandler implements RepositoryHandler {
 	}
 
 	@Override
-	public MediaResource getAsMediaResource(OLATResourceable res, boolean backwardsCompatible) {
+	public MediaResource getAsMediaResource(OLATResourceable res, boolean backwardsCompatible) throws FileSizeLimitExceededException {
 		RepositoryEntry re = RepositoryManager.getInstance().lookupRepositoryEntry(res, true);
 		String exportFileName = StringHelper.transformDisplayNameToFileSystemName(re.getDisplayname()) + ".zip";
 		File fExportZIP = new File(WebappHelper.getTmpDir(), exportFileName);

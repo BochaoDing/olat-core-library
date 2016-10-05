@@ -49,6 +49,8 @@ public class FolderModule extends AbstractOLATModule {
 	private static final String CONFIG_EDITFILESIZELIMIT = "EditFileSizeLimit";
 	private static final String CONFIG_QUOTAMB = "QuotaMB";
 	private static final String CONFIG_SENDDOCLINKONLY = "SendDocLinkOnly";
+	private static final String CONFIG_ZIPSELECTIONMAXSIZEMB = "MaxZipSelectionSizeMb";
+	private static final String CONFIG_COURSEEXPORTMAXSIZEMB = "MaxCourseExportSizeMb";
 	private static final String CONFIG_SENDDOCTOEXTERN = "SendDocToExtern";
 	private static final String CONFIG_FORCE_DOWNLOAD = "forceDownload";
 	private FolderVersioningConfigurator versioning;
@@ -75,7 +77,6 @@ public class FolderModule extends AbstractOLATModule {
 		} else { 
 			FolderConfig.setFolderRoot(homesRoot);
 		}
-		
 		log.info("Folder root set to '" + FolderConfig.getCanonicalRoot() + "'.");
 		
 		int maxEditSizeLimit = getIntConfigParameter(CONFIG_EDITFILESIZELIMIT, 524288);
@@ -84,9 +85,16 @@ public class FolderModule extends AbstractOLATModule {
 		// Set maximum upload filesize
 		int maxULMB =getIntConfigParameter(CONFIG_LIMITULMB, 100);
 		FolderConfig.setLimitULKB(maxULMB * 1024);
-		
 		log.info("Maximum file upload size set to " + FolderConfig.getLimitULKB() + " KB.");
-		
+
+		int maxZipSelectionSizeMB = getIntConfigParameter(CONFIG_ZIPSELECTIONMAXSIZEMB, 500);
+		FolderConfig.setMaxZipSizeMB(maxZipSelectionSizeMB);
+		log.info("Maximum zip upload size set to " + FolderConfig.getMaxZipSizeMB() + " MB.");
+
+		int maxExportSizeMB = getIntConfigParameter(CONFIG_COURSEEXPORTMAXSIZEMB, 500);
+		FolderConfig.setMaxCourseExportSizeMB(maxExportSizeMB);
+		log.info("Maximum course export or copy size set to " + FolderConfig.getMaxCourseExportSizeMB() + " MB.");
+
 		// Set default quotas
 		int quotaMB = getIntConfigParameter(CONFIG_QUOTAMB, 100);
 		FolderConfig.setDefaultQuotaKB(quotaMB * 1024);

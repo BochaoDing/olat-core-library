@@ -223,4 +223,8 @@ public interface DB {
 	 * @return
 	 */
 	public EntityManager getCurrentEntityManager();
+
+	void flush();
+
+	void clear();
 }

@@ -126,7 +126,7 @@ public class UsermanagerUserSearchController extends BasicController implements 
 	private UsermanagerUserSearchForm searchform;
 	private TableController tableCtr;
 	private List<Identity> identitiesList, selectedIdentities;
-	private ArrayList<String> notUpdatedIdentities = new ArrayList<String>();
+	private List<String> notUpdatedIdentities = new ArrayList<String>();
 	private ExtendedIdentitiesTableDataModel tdm;
 	private Identity foundIdentity = null;
 	private ContactFormController contactCtr;
@@ -241,6 +241,7 @@ public class UsermanagerUserSearchController extends BasicController implements 
 		userListVC.contextPut("showBackButton", Boolean.FALSE);
 		userListVC.contextPut("showTitle", Boolean.TRUE);
 
+		this.identitiesList = identitiesList;
 		initUserListCtr(ureq, identitiesList, status);
 		userListVC.put("userlist", tableCtr.getInitialComponent());
 		userListVC.contextPut("emptyList", (identitiesList.size() == 0 ? Boolean.TRUE : Boolean.FALSE));
@@ -303,15 +304,29 @@ public class UsermanagerUserSearchController extends BasicController implements 
 		
 		if(entries == null || entries.isEmpty()) return;
 		
-		Long identityKey = entries.get(0).getOLATResourceable().getResourceableId();
-		if(identityKey != null && identitiesList != null) {
-			for(Identity identity:identitiesList) {
-				if(identityKey.equals(identity.getKey())) {
-					foundIdentity = identity;
-					fireEvent(ureq, new SingleIdentityChosenEvent(foundIdentity));
-					entries.remove(0);
-					break;
+		for(int i=0; i<entries.size(); i++) {
+			String resourceType = entries.get(i).getOLATResourceable().getResourceableTypeName();
+			if("Identity".equalsIgnoreCase(resourceType)) {
+				Long identityKey = entries.get(i).getOLATResourceable().getResourceableId();
+				Identity found = null;
+				if(tdm != null) {
+					for(Identity identity:tdm.getObjects()) {
+						if(identityKey.equals(identity.getKey())) {
+							found = identity;
+						}
+					}
 				}
+				
+				if(found == null) {
+					found = securityManager.loadIdentityByKey(identityKey);
+					if(found == null) return;
+					
+					List<Identity> foundIdentites = new ArrayList<>();
+					foundIdentites.add(found);
+					initUserListCtr(ureq, foundIdentites, 0);
+				}
+				foundIdentity = found;
+				fireEvent(ureq, new SingleIdentityChosenEvent(found));
 			}
 		}
 	}
@@ -329,6 +344,31 @@ public class UsermanagerUserSearchController extends BasicController implements 
 		userListVC.put("userlist", tableCtr.getInitialComponent());
 	}
 
+	/**
+	 * Add the given identities to the list of identities in the table model 
+	 * and reinitialize the table controller
+	 * 
+	 * @param ureq
+	 * @param tobeAddedIdentities
+	 */
+	public void addIdentitiesToSearchResult(UserRequest ureq, List<Identity> tobeAddedIdentities) {
+		for (Identity toBeAdded : tobeAddedIdentities) {
+			boolean found = false;
+			for (Identity original : identitiesList) {
+				if (original.getKey().equals(toBeAdded.getKey())) {
+					found = true;
+					break;
+				}
+			}
+			if (!found) {
+				identitiesList.add(toBeAdded);
+			}
+		}
+		initUserListCtr(ureq, identitiesList, null);
+		userListVC.put("userlist", tableCtr.getInitialComponent());		
+	}
+
+	
 	/**
 	 * @see org.olat.core.gui.control.DefaultController#event(org.olat.core.gui.UserRequest,
 	 *      org.olat.core.gui.components.Component,

@@ -85,8 +85,9 @@ public class DBImpl implements DB, Destroyable {
 			try {
 				emf = Persistence.createEntityManagerFactory("default", databaseProperties);
 			} catch (Exception e) {
-				log.error("", e);
-				throw e;
+				// Our application is useless without DB, so fail fast and deliver a clear message
+				log.error("Could not create EntityManagerFactory with given database properties", e);
+				System.exit(0);
 			}
 		}
 	}
@@ -830,5 +831,15 @@ public class DBImpl implements DB, Destroyable {
 				log.error("Could not unregister database driver.", e);
 			}
 		}
+	}
+
+	@Override
+	public void flush() {
+		getCurrentEntityManager().flush();
+	}
+
+	@Override
+	public void clear() {
+		getCurrentEntityManager().clear();
 	}
 }

@@ -50,6 +50,7 @@ import org.olat.core.id.Identity;
 import org.olat.core.logging.AssertException;
 import org.olat.core.logging.OLog;
 import org.olat.core.logging.Tracing;
+import org.olat.core.util.StringHelper;
 import org.olat.core.util.UserSession;
 import org.olat.core.util.Util;
 
@@ -499,6 +500,11 @@ public abstract class BasicController extends DefaultController {
 		getWindowControl().setWarning(
 				getTranslator().translate(key, new String[] { arg }));
 	}
+	
+	protected void showWarning(String key, String[] args) {
+		getWindowControl().setWarning(
+				getTranslator().translate(key, args));
+	}
 
 	/**
 	 * convenience method to send an error msg to the user. this will call
@@ -531,6 +537,16 @@ public abstract class BasicController extends DefaultController {
 	protected void showError(String key, String arg) {
 		getWindowControl().setError(
 				getTranslator().translate(key, new String[] { arg }));
+	}
+
+	protected void showError(String key, String[] args) {
+		if (args != null) {
+			// escape args
+			for (int i = 0; i < args.length; i++) {
+				args[i] = StringHelper.escapeHtml(args[i]);
+			}
+		}
+		getWindowControl().setError(getTranslator().translate(key, args));
 	}
 
 	/**

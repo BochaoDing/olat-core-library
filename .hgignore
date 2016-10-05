@@ -5,6 +5,9 @@
 
 syntax: glob
 
+# Individual configuration files
+olat.local.properties
+
 # java deployment assets
 *.class
 *.jar

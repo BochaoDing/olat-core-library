@@ -55,6 +55,8 @@ import org.olat.core.util.CodeHelper;
 import org.olat.core.util.Formatter;
 import org.olat.core.util.StringHelper;
 import org.olat.core.util.resource.OresHelper;
+import org.olat.course.CourseFactory;
+import org.olat.course.PersistingCourseImpl;
 import org.olat.repository.model.RepositoryEntryLifecycle;
 import org.olat.repository.model.RepositoryEntryStatistics;
 import org.olat.repository.model.RepositoryEntryToGroupRelation;
@@ -191,6 +193,13 @@ public class RepositoryEntry implements CreateInfo, Persistable , RepositoryEntr
 	@Override
 	public Long getKey() {
 		return key;
+	}
+
+	/**
+	 * Key means id.
+	 */
+	public void setKey(Long key) {
+		this.key = key;
 	}
 
 	@Override
@@ -335,8 +344,13 @@ public class RepositoryEntry implements CreateInfo, Persistable , RepositoryEntr
 	 * @param name The name to set.
 	 */
 	public void setResourcename(String name) {
-		if (name.length() > 100)
-			throw new AssertException("resourcename is limited to 100 characters.");
+		/*
+		 * TODO sev26
+		 * The size is now equal to the actual reasonable/possible (see
+		 * varchar index issue of MySQL) database table attribute size.
+		 */
+		if (name.length() > 255)
+			throw new AssertException("resourcename is limited to 255 characters.");
 		this.resourcename = name;
 	}
 
@@ -486,8 +500,11 @@ public class RepositoryEntry implements CreateInfo, Persistable , RepositoryEntr
 	 * @param displayname The displayname to set.
 	 */
 	public void setDisplayname(String displayname) {
-		if (displayname.length() > 100)
-			throw new AssertException("DisplayName is limited to 100 characters.");
+		/*
+		 * See comment of #setResourcename(String)
+		 */
+		if (displayname.length() > 255)
+			throw new AssertException("DisplayName is limited to 255 characters.");
 		this.displayname = displayname;
 	}
 
@@ -534,6 +551,12 @@ public class RepositoryEntry implements CreateInfo, Persistable , RepositoryEntr
 
 	public void setStatistics(RepositoryEntryStatistics statistics) {
 		this.statistics = statistics;
+	}
+
+	public boolean exceedsSizeLimit() {
+		final OLATResource sourceResource = getOlatResource();
+		PersistingCourseImpl sourceCourse = (PersistingCourseImpl) CourseFactory.loadCourse(sourceResource);
+		return sourceCourse.exceedsSizeLimit();
 	}
 
 	/**

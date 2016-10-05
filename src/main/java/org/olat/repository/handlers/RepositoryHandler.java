@@ -54,6 +54,10 @@ import org.olat.repository.model.RepositoryEntrySecurity;
  * Comment:  
  * 
  */
+/**
+ * TODO sev26
+ * Number of methods should be reduced.
+ */
 public interface RepositoryHandler {
 
 	/**

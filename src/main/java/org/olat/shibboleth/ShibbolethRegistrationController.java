@@ -359,7 +359,10 @@ public class ShibbolethRegistrationController extends DefaultController implemen
 						String institutionalEmail = ShibbolethHelper.getFirstValueOf(shibbolethModule.getInstitutionalEMail(), shibbolethAttributesMap);
 						user.setProperty(UserConstants.INSTITUTIONALEMAIL, institutionalEmail);
 					}
-					user.setProperty(UserConstants.INSTITUTIONALUSERIDENTIFIER, shibbolethAttributesMap.get(shibbolethModule.getInstitutionalUserIdentifier()));
+//					user.setProperty(UserConstants.INSTITUTIONALUSERIDENTIFIER, shibbolethAttributesMap.get(shibbolethModule.getInstitutionalUserIdentifier()));
+					user.setProperty(UserConstants.INSTITUTIONAL_EMPLOYEE_NUMBER, shibbolethAttributesMap.get(shibbolethModule.getInstitutionalEmployeeNumber()));
+					user.setProperty(UserConstants.INSTITUTIONAL_MATRICULATION_NUMBER, shibbolethAttributesMap.get(shibbolethModule.getInstitutionalMatriculationNumber()));
+
 					// Optional organization unit property
 					String orgUnitIdent = shibbolethModule.getOrgUnit();
 					if(orgUnitIdent != null) {
@@ -391,8 +394,12 @@ public class ShibbolethRegistrationController extends DefaultController implemen
 					if (s != null) user.setProperty(UserConstants.INSTITUTIONALNAME, s);		
 					s = ShibbolethHelper.getFirstValueOf(shibbolethModule.getInstitutionalEMail(), shibbolethAttributesMap);
 					if (s != null) user.setProperty(UserConstants.INSTITUTIONALEMAIL, s);
-					s = shibbolethAttributesMap.get(shibbolethModule.getInstitutionalUserIdentifier());
-					if (s != null) user.setProperty(UserConstants.INSTITUTIONALUSERIDENTIFIER, s);
+//					s = shibbolethAttributesMap.get(shibbolethModule.getInstitutionalUserIdentifier());
+//					if (s != null) user.setProperty(UserConstants.INSTITUTIONALUSERIDENTIFIER, s);
+					s = shibbolethAttributesMap.get(shibbolethModule.getInstitutionalEmployeeNumber());
+					if (s != null) user.setProperty(UserConstants.INSTITUTIONAL_EMPLOYEE_NUMBER, s);
+					s = shibbolethAttributesMap.get(shibbolethModule.getInstitutionalEmployeeNumber());
+					if (s != null) user.setProperty(UserConstants.INSTITUTIONAL_EMPLOYEE_NUMBER, s);
 					// Optional organization unit property
 					String orgUnitIdent = shibbolethModule.getOrgUnit();
 					if(orgUnitIdent != null) {

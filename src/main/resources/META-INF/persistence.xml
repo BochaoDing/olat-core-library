@@ -85,6 +85,7 @@
 		<class>org.olat.basesecurity.model.GrantImpl</class>
 		<class>org.olat.basesecurity.model.GroupMembershipImpl</class>
 		<class>org.olat.basesecurity.model.UserProperty</class>
+		<class>org.olat.basesecurity.model.IdentityLastLoginImpl</class>
 		<class>org.olat.core.dispatcher.mapper.model.PersistedMapper</class>
 		<class>org.olat.commons.calendar.model.ImportedCalendar</class>
 		<class>org.olat.commons.calendar.model.ImportedToCalendar</class>
@@ -158,6 +159,22 @@
 		<class>org.olat.ims.lti.model.LTIOutcomeImpl</class>
 		<class>org.olat.portfolio.model.InvitationImpl</class>
 		<class>org.olat.portfolio.model.structel.EPStructureElementToGroupRelation</class>
+		
+		<!-- campuskurs hibernate entities -->
+		<class>ch.uzh.campus.data.Org</class>
+		<class>ch.uzh.campus.data.Text</class>
+		<class>ch.uzh.campus.data.Course</class>
+		<class>ch.uzh.campus.data.Student</class>
+		<class>ch.uzh.campus.data.StudentCourse</class>
+		<class>ch.uzh.campus.data.Lecturer</class>
+		<class>ch.uzh.campus.data.LecturerCourse</class>
+		<class>ch.uzh.campus.data.Event</class>
+		<class>ch.uzh.campus.data.Export</class>
+		<class>ch.uzh.campus.data.Delegation</class>
+		<class>ch.uzh.campus.data.SkipItem</class>
+		<class>ch.uzh.campus.data.DaoManager</class>
+		<class>ch.uzh.campus.data.ImportStatistic</class>
+
 		<properties>
 			<property name="hibernate.generate_statistics" value="true"/>
 			<property name="hibernate.archive.autodetection" value=""/>

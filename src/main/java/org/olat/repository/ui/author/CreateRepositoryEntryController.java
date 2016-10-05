@@ -100,7 +100,7 @@ public class CreateRepositoryEntryController extends FormBasicController {
 		}
 		uifactory.addStaticExampleText("cif.type", typeName, formLayout);
 
-		displaynameEl = uifactory.addTextElement("cif.displayname", "cif.displayname", 100, "", formLayout);
+		displaynameEl = uifactory.addTextElement("cif.displayname", "cif.displayname", 255, "", formLayout);
 		displaynameEl.setElementCssClass("o_sel_author_displayname");
 		displaynameEl.setDisplaySize(30);
 		displaynameEl.setMandatory(true);
@@ -143,7 +143,7 @@ public class CreateRepositoryEntryController extends FormBasicController {
 	protected void formOK(UserRequest ureq) {
 		doCreate();
 		fireEvent(ureq, Event.DONE_EVENT);
-		fireEvent(ureq, new EntryChangedEvent(addedEntry, getIdentity(), Change.added));
+		fireEvent(ureq, new EntryChangedEvent(addedEntry, getIdentity(), Change.added, "create"));
 	}
 
 	@Override

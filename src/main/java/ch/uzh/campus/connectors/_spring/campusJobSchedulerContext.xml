@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	   xsi:schemaLocation="http://www.springframework.org/schema/beans
+	   http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+
+	<!-- ======================================================================================= -->
+	<!-- ==============Quartz Scheduler with the configured triggers================== -->  
+	<!-- ======================================================================================= -->
+	<bean id="campusSchedulerFactoryBean" class="org.springframework.scheduling.quartz.SchedulerFactoryBean" depends-on="userModule">
+	   <property name="triggers">
+	  		<list>
+				<ref bean="enabled.importProcessTrigger" />
+				<ref bean="enabled.userMappingProcessTrigger" />
+        	</list>
+		</property>
+	</bean>
+	
+	<!-- ======================================================================================= -->
+	<!-- ==============JOB STARTER FOR IMPORT PROCESS================== -->
+	<!-- ======================================================================================= -->
+	<bean id="enabled.importProcessTrigger" class="org.springframework.scheduling.quartz.CronTriggerBean">
+		<property name="jobDetail" ref="importProcessJobDetail" />
+		<property name="cronExpression" value="${campus.import.process.cron.expression}" />
+		<property name="startDelay" value="300" />
+	</bean>
+	
+	<bean id="disabled.importProcessTrigger" class="org.springframework.scheduling.quartz.SimpleTriggerBean">
+		<property name="jobDetail" ref="importProcessJobDetail" />
+		<property name="repeatCount" value="0"/>
+		<property name="repeatInterval" value="1" />
+		<property name="startDelay" value="300" />
+	</bean>
+
+	<bean id="importProcessJobDetail" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+		<property name="targetObject" ref="importProcess" />
+		<property name="targetMethod" value="process" />
+		 <property name="concurrent" value="false"/>
+		  <property name="arguments">
+            <list>
+                <value>enabled</value>
+                <value>IMPORT PROCESS</value>
+            </list>
+        </property>
+	</bean>
+  
+	<bean id="importProcess" class="ch.uzh.campus.connectors.CampusProcess">
+		<property name="job" ref="importJob" />
+		<property name="jobLauncher" ref="jobLauncher" />
+		<property name="parameters">
+			<map>
+				<entry key="exportResource">
+				<bean class="org.springframework.batch.core.JobParameter">
+					<constructor-arg value="${campus.import.process.sap.resources}/export.csv" />
+				</bean>
+			</entry>
+				<entry key="studentResource">
+				<bean class="org.springframework.batch.core.JobParameter">
+					<constructor-arg value="${campus.import.process.sap.resources}/ZCM_LEHRE===ZCM_EXP_STUD2=${campus.import.process.sap.files.suffix}" />
+				</bean>
+			</entry>
+			<entry key="lecturerResource">
+				<bean class="org.springframework.batch.core.JobParameter">
+					<constructor-arg value="${campus.import.process.sap.resources}/ZCM_LEHRE===ZCM_EXP_DOZ2==${campus.import.process.sap.files.suffix}" />
+				</bean>
+			</entry>
+			<entry key="courseResource">
+				<bean class="org.springframework.batch.core.JobParameter">
+					<constructor-arg value="${campus.import.process.sap.resources}/ZCM_LEHRE===ZCM_ED========${campus.import.process.sap.files.suffix}" />
+				</bean>
+			</entry>
+			<entry key="studentCourseResource">
+				<bean class="org.springframework.batch.core.JobParameter">
+					<constructor-arg value="${campus.import.process.sap.resources}/ZCM_LEHRE===ZCM_EXP_STUD_E${campus.import.process.sap.files.suffix}" />
+				</bean>
+			</entry>
+			<entry key="lecturerCourseResource">
+				<bean class="org.springframework.batch.core.JobParameter">
+					<constructor-arg value="${campus.import.process.sap.resources}/ZCM_LEHRE===ZCM_EXP_DOZ_E=${campus.import.process.sap.files.suffix}" />
+				</bean>
+			</entry>
+			<entry key="textResource">
+				<bean class="org.springframework.batch.core.JobParameter">
+					<constructor-arg value="${campus.import.process.sap.resources}/ZCM_LEHRE===ZCM_EXP_E_TEXT${campus.import.process.sap.files.suffix}" />
+				</bean>
+			</entry>
+			<!-- DISABLED FOR NOW -->
+			<!-- entry key="eventResource">
+				<bean class="org.springframework.batch.core.JobParameter">
+					<constructor-arg value="${campus.import.process.sap.resources}/ZCM_LEHRE===ZCM_EXP_E_TERM${campus.import.process.sap.files.suffix}" />
+				</bean>
+			</entry-->
+			<entry key="orgResource">
+				<bean class="org.springframework.batch.core.JobParameter">
+					<constructor-arg value="${campus.import.process.sap.resources}/ZCM_LEHRE===ZCM_EXP_ORG===${campus.import.process.sap.files.suffix}" />
+				</bean>
+			</entry>
+			</map>
+		</property>
+	</bean>
+	
+    <!-- ======================================================================================= -->
+	<!-- ==============JOB STARTER FOR USERMAPPING PROCESS================== -->  
+	<!-- ======================================================================================= -->
+	<bean id="enabled.userMappingProcessTrigger" class="org.springframework.scheduling.quartz.CronTriggerBean">
+		<property name="jobDetail" ref="userMappingProcessJobDetail" />
+		<property name="cronExpression" value="${campus.userMapping.process.cron.expression}" />
+		<property name="startDelay" value="300" />
+	</bean>
+
+	<bean id="disabled.userMappingProcessTrigger" class="org.springframework.scheduling.quartz.SimpleTriggerBean">
+		<property name="jobDetail" ref="userMappingProcessJobDetail" />
+		<property name="repeatCount" value="0"/>
+		<property name="repeatInterval" value="1" />
+		<property name="startDelay" value="300" />
+	</bean>
+
+	<bean id="userMappingProcessJobDetail"
+		class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+		<property name="targetObject" ref="userMappingProcess" />
+		<property name="targetMethod" value="process" />
+		<property name="concurrent" value="false"/>
+		<property name="arguments">
+            <list>
+                <value>enabled</value>
+                  <value>USER MAPPING PROCESS</value>
+            </list>
+        </property>
+	</bean>
+   
+    <bean id="userMappingProcess" class="ch.uzh.campus.connectors.CampusProcess">
+		<property name="job" ref="userMappingJob" />
+		<property name="jobLauncher" ref="jobLauncher" />
+		<property name="parameters">
+			<map/>
+		</property>
+	</bean>
+
+</beans>

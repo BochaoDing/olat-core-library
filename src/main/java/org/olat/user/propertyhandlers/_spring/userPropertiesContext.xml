@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xmlns:context="http://www.springframework.org/schema/context" 
+	xmlns:context="http://www.springframework.org/schema/context"
 	xsi:schemaLocation="
-  http://www.springframework.org/schema/beans 
-  http://www.springframework.org/schema/beans/spring-beans.xsd 
-  http://www.springframework.org/schema/context 
+  http://www.springframework.org/schema/beans
+  http://www.springframework.org/schema/beans/spring-beans.xsd
+  http://www.springframework.org/schema/context
   http://www.springframework.org/schema/context/spring-context.xsd">
 
 	<!-- 
@@ -14,7 +14,6 @@
 	<bean id="org.olat.user.UserPropertiesConfig" class="org.olat.user.propertyhandlers.UserPropertiesConfigImpl" init-method="init">
 		<property name="userPropertyHandlers">
 			<list>
-				<ref bean="userPropertyUserName" />
 				<ref bean="userPropertyFirstName" />
 				<ref bean="userPropertyLastName" />
 				<ref bean="userPropertyEmail" />
@@ -26,9 +25,6 @@
 				<ref bean="userPropertyTelMobile" />
 				<ref bean="userPropertyTelOffice" />
 				<ref bean="userPropertySkype" />
-				<ref bean="userPropertyMSN" />
-                <ref bean="userPropertyXing" />
-                <ref bean="userPropertyICQ" />
 				<ref bean="userPropertyHomepage" />
 				<ref bean="userPropertyStreet" />
 				<ref bean="userPropertyExtendedAddress" />
@@ -37,16 +33,27 @@
 				<ref bean="userPropertyRegion" />
 				<ref bean="userPropertyCity" />
 				<ref bean="userPropertyCountry" />
-				<ref bean="userPropertyCountryCode" />
 				<ref bean="userPropertyInstitutionalName" />
-				<ref bean="userPropertyInstitutionalUserIdentifier" />
+				<ref bean="userPropertyInstitutionalEmployeeNumber" />
+				<ref bean="userPropertyInstitutionalMatriculationNumber" />
 				<ref bean="userPropertyInstitutionalEmail" />
 				<ref bean="userPropertyOrgUnit" />
 				<ref bean="userPropertyStudySubject" />
-				<!-- example
-				<ref bean="userPropertyAttrEduPersonAffiliation" />
-				<ref bean="userPropertyAttrSwissEduPersonStudyLevel" />
-				-->
+				<!-- usertracking attributes -->
+				<ref bean="usertrackingAttrEduPersonAffiliation" />
+				<ref bean="usertrackingAttrSwissEduHomeOrganisation" />
+				<ref bean="usertrackingAttrSwissEduPersonStudyLevel" />
+				<ref bean="usertrackingAttrSwissEduPersonHomeOrganisationType" />
+				<ref bean="usertrackingAttrEmployeeNumber" />
+				<ref bean="usertrackingAttrMatriculationNumber" />
+				<ref bean="usertrackingAttrSwissEduPersonStaffCategory" />
+				<ref bean="usertrackingAttrOrganizationalUnit" />
+				<ref bean="usertrackingAttrSwissEduPersonStudyBranch1" />
+				<ref bean="usertrackingAttrSwissEduPersonStudyBranch2" />
+				<ref bean="usertrackingAttrSwissEduPersonStudyBranch3" />
+				<ref bean="usertrackingLanguage" />
+				<ref bean="usertrackingWebDAV" />
+
 			</list>
 		</property>
 		
@@ -61,7 +68,6 @@
 						<property name="description" value="Users Profile-Form (Home->Settings)" />
 						<property name="propertyHandlers">
 							<list>
-								<ref bean="userPropertyUserName" />
 								<ref bean="userPropertyFirstName" />
 								<ref bean="userPropertyLastName" />
 								<ref bean="userPropertyEmail" />
@@ -72,9 +78,6 @@
 								<ref bean="userPropertyTelMobile" />
 								<ref bean="userPropertyTelOffice" />
 								<ref bean="userPropertySkype" />
-								<ref bean="userPropertyMSN" />
-								<ref bean="userPropertyXing" />
-								<ref bean="userPropertyICQ" />
 								<ref bean="userPropertyHomepage" />
 								<ref bean="userPropertyStreet" />
 								<ref bean="userPropertyExtendedAddress" />
@@ -84,7 +87,8 @@
 								<ref bean="userPropertyCity" />
 								<ref bean="userPropertyCountry" />
 								<ref bean="userPropertyInstitutionalName" />
-								<ref bean="userPropertyInstitutionalUserIdentifier" />
+								<ref bean="userPropertyInstitutionalEmployeeNumber" />
+								<ref bean="userPropertyInstitutionalMatriculationNumber" />
 								<ref bean="userPropertyInstitutionalEmail" />
 								<ref bean="userPropertyOrgUnit" />
 								<ref bean="userPropertyStudySubject" />
@@ -92,7 +96,6 @@
 						</property>
 						<property name="mandatoryProperties">
 							<set>
-								<ref bean="userPropertyUserName" />
 								<ref bean="userPropertyFirstName" />
 								<ref bean="userPropertyLastName" />
 								<ref bean="userPropertyEmail" />
@@ -100,11 +103,11 @@
 						</property>
 						<property name="userViewReadOnlyProperties">
 							<set>
-								<ref bean="userPropertyUserName" />
 								<ref bean="userPropertyFirstName" />
 								<ref bean="userPropertyLastName" />
 								<ref bean="userPropertyInstitutionalName" />
-								<ref bean="userPropertyInstitutionalUserIdentifier" />
+								<ref bean="userPropertyInstitutionalEmployeeNumber" />
+								<ref bean="userPropertyInstitutionalMatriculationNumber" />
 								<ref bean="userPropertyInstitutionalEmail" />
 								<ref bean="userPropertyOrgUnit" />
 								<ref bean="userPropertyStudySubject" />
@@ -139,9 +142,6 @@
 								<ref bean="userPropertyTelMobile" />
 								<ref bean="userPropertyTelOffice" />
 								<ref bean="userPropertySkype" />
-								<ref bean="userPropertyMSN" />
-                                <ref bean="userPropertyXing" />
-                                <ref bean="userPropertyICQ" />
 								<ref bean="userPropertyHomepage" />
 								<ref bean="userPropertyStreet" />
 								<ref bean="userPropertyExtendedAddress" />
@@ -151,7 +151,8 @@
 								<ref bean="userPropertyCity" />
 								<ref bean="userPropertyCountry" />
 								<ref bean="userPropertyInstitutionalName" />
-								<ref bean="userPropertyInstitutionalUserIdentifier" />
+								<ref bean="userPropertyInstitutionalEmployeeNumber" />
+								<ref bean="userPropertyInstitutionalMatriculationNumber" />
 								<ref bean="userPropertyInstitutionalEmail" />
 								<ref bean="userPropertyOrgUnit" />
 								<ref bean="userPropertyStudySubject" />
@@ -170,20 +171,20 @@
 								<ref bean="userPropertyLastName" />
 								<ref bean="userPropertyEmail" />
 								<ref bean="userPropertyInstitutionalName" />
-								<ref bean="userPropertyInstitutionalUserIdentifier" />
+								<ref bean="userPropertyInstitutionalEmployeeNumber" />
+								<ref bean="userPropertyInstitutionalMatriculationNumber" />
 								<ref bean="userPropertyInstitutionalEmail" />
-								<ref bean="userPropertyStudySubject" />
 							</list>
 						</property>
 						<property name="adminViewOnlyProperties">
 							<set>
 								<ref bean="userPropertyEmail" />
 								<ref bean="userPropertyInstitutionalName" />
-								<ref bean="userPropertyInstitutionalUserIdentifier" />
 								<!-- (UZH Note) may contain matrikel number, an information
 								which should not be revealed by a search. -->
+								<ref bean="userPropertyInstitutionalEmployeeNumber" />
+								<ref bean="userPropertyInstitutionalMatriculationNumber" />
 								<ref bean="userPropertyInstitutionalEmail" />
-								<ref bean="userPropertyStudySubject" />
 							</set>						
 						</property>
 					</bean>
@@ -197,7 +198,6 @@
 								<ref bean="userPropertyLastName" />
 								<ref bean="userPropertyEmail" />
 								<ref bean="userPropertyInstitutionalName" />
-								<ref bean="userPropertyInstitutionalUserIdentifier" />
 								<ref bean="userPropertyInstitutionalEmail" />
 							</list>
 						</property>
@@ -205,7 +205,6 @@
 							<set>
 								<ref bean="userPropertyEmail" />
 								<ref bean="userPropertyInstitutionalName" />
-								<ref bean="userPropertyInstitutionalUserIdentifier" />
 								<ref bean="userPropertyInstitutionalEmail" />
 							</set>						
 						</property>
@@ -220,16 +219,18 @@
 								<ref bean="userPropertyLastName" />
 								<ref bean="userPropertyEmail" />
 								<ref bean="userPropertyInstitutionalName" />
-								<ref bean="userPropertyInstitutionalUserIdentifier" />
 								<ref bean="userPropertyInstitutionalEmail" />
+								<ref bean="userPropertyInstitutionalEmployeeNumber" />
+								<ref bean="userPropertyInstitutionalMatriculationNumber" />
 							</list>
 						</property>
 						<property name="adminViewOnlyProperties">
 							<set>
 								<ref bean="userPropertyEmail" />
 								<ref bean="userPropertyInstitutionalName" />
-								<ref bean="userPropertyInstitutionalUserIdentifier" />
 								<ref bean="userPropertyInstitutionalEmail" />
+								<ref bean="userPropertyInstitutionalEmployeeNumber" />
+								<ref bean="userPropertyInstitutionalMatriculationNumber" />
 							</set>						
 						</property>
 						<property name="mandatoryProperties">
@@ -251,7 +252,7 @@
 							</list>
 						</property>
 						<property name="adminViewOnlyProperties">
-							<set></set>						
+							<set/>
 						</property>
 						<property name="mandatoryProperties">
 							<set>
@@ -269,7 +270,6 @@
 							<list>
 								<ref bean="userPropertyEmail" />
 								<ref bean="userPropertyInstitutionalName" />
-								<ref bean="userPropertyInstitutionalUserIdentifier" />
 								<ref bean="userPropertyInstitutionalEmail" />
 							</list>
 						</property>
@@ -283,7 +283,6 @@
 							<list>
 								<ref bean="userPropertyFirstName" />
 								<ref bean="userPropertyLastName" />
-								<ref bean="userPropertyInstitutionalUserIdentifier" />
 							</list>
 						</property>
 						<property name="mandatoryProperties">
@@ -294,7 +293,6 @@
 						</property>
 						<property name="adminViewOnlyProperties">
 							<set>
-								<ref bean="userPropertyInstitutionalUserIdentifier" />
 							</set>
 						</property>
 					</bean>
@@ -307,7 +305,6 @@
 							<list>
 								<ref bean="userPropertyLastName" />
 								<ref bean="userPropertyFirstName" />
-								<ref bean="userPropertyInstitutionalUserIdentifier" />
 							</list>
 						</property>
 						<property name="mandatoryProperties">
@@ -318,7 +315,6 @@
 						</property>
 						<property name="adminViewOnlyProperties">
 							<set>
-								<ref bean="userPropertyInstitutionalUserIdentifier" />
 							</set>
 						</property>
 					</bean>
@@ -332,7 +328,7 @@
 								<ref bean="userPropertyFirstName" />
 								<ref bean="userPropertyLastName" />
 								<ref bean="userPropertyUserName" />
-								<ref bean="userPropertyInstitutionalUserIdentifier" />
+								<ref bean="userPropertyInstitutionalMatriculationNumber" />
 							</list>
 						</property>
 					</bean>
@@ -350,7 +346,8 @@
 								<ref bean="userPropertyCity" />
 								<ref bean="userPropertyCountry" />
 								<ref bean="userPropertyInstitutionalName" />
-								<ref bean="userPropertyInstitutionalUserIdentifier" />
+								<ref bean="userPropertyInstitutionalEmployeeNumber" />
+								<ref bean="userPropertyInstitutionalMatriculationNumber" />
 								<ref bean="userPropertyInstitutionalEmail" />
 								<ref bean="userPropertyOrgUnit" />
 								<ref bean="userPropertyStudySubject" />
@@ -370,7 +367,6 @@
 								<ref bean="userPropertyBirthDay" />
 								<ref bean="userPropertyGender" />
 								<ref bean="userPropertyInstitutionalName" />
-								<ref bean="userPropertyInstitutionalUserIdentifier" />
 								<ref bean="userPropertyInstitutionalEmail" />
 								<ref bean="userPropertyOrgUnit" />
 								<ref bean="userPropertyStudySubject" />
@@ -408,27 +404,6 @@
 					</bean>
 				</entry>
 				
-				<!--  OAuthRegistrationController is used in the OAuth registration process -->
-				<entry key="org.olat.login.oauth.ui.OAuthRegistrationController">
-					<bean class="org.olat.user.propertyhandlers.UserPropertyUsageContext">
-						<property name="description" value="Registration form for OAuth users (LinkedIn...)" />
-						<property name="propertyHandlers">
-							<list>
-								<ref bean="userPropertyFirstName" />
-								<ref bean="userPropertyLastName" />
-								<ref bean="userPropertyEmail" />
-							</list>
-						</property>
-						<property name="mandatoryProperties">
-							<set>
-								<ref bean="userPropertyFirstName" />
-								<ref bean="userPropertyLastName" />
-								<ref bean="userPropertyEmail" />
-							</set>
-						</property>
-					</bean>
-				</entry>
-				
 				
 				<!-- 
 					Tables that show user properties
@@ -446,9 +421,6 @@
 								<ref bean="userPropertyTelMobile" />
 								<ref bean="userPropertyTelOffice" />
 								<ref bean="userPropertySkype" />
-								<ref bean="userPropertyMSN" />
-                                <ref bean="userPropertyXing" />
-                                <ref bean="userPropertyICQ" />
 								<ref bean="userPropertyHomepage" />
 								<ref bean="userPropertyStreet" />
 								<ref bean="userPropertyExtendedAddress" />
@@ -458,7 +430,6 @@
 								<ref bean="userPropertyCity" />
 								<ref bean="userPropertyCountry" />
 								<ref bean="userPropertyInstitutionalName" />
-								<ref bean="userPropertyInstitutionalUserIdentifier" />
 								<ref bean="userPropertyInstitutionalEmail" />
 								<ref bean="userPropertyOrgUnit" />
 								<ref bean="userPropertyStudySubject" />
@@ -472,7 +443,8 @@
 						</property>
 						<property name="adminViewOnlyProperties">
 							<set>
-								<ref bean="userPropertyInstitutionalUserIdentifier" />
+								<ref bean="userPropertyInstitutionalEmployeeNumber" />
+								<ref bean="userPropertyInstitutionalMatriculationNumber" />
 							</set>
 						</property>
 					</bean>
@@ -482,15 +454,15 @@
 					<bean class="org.olat.user.propertyhandlers.UserPropertyUsageContext">
 						<property name="propertyHandlers">
 							<list>
-							    <ref bean="userPropertyLastName" />
-								<ref bean="userPropertyFirstName" />								
+							    	<ref bean="userPropertyLastName" />
+								<ref bean="userPropertyFirstName" />
 								<ref bean="userPropertyEmail" />								
 							</list>
 						</property>
 						<property name="mandatoryProperties">
 							<set>
-							    <ref bean="userPropertyLastName" />
-								<ref bean="userPropertyFirstName" />								
+							    	<ref bean="userPropertyLastName" />
+								<ref bean="userPropertyFirstName" />					
 								<ref bean="userPropertyEmail" />
 							</set>
 						</property>						
@@ -510,9 +482,6 @@
 								<ref bean="userPropertyTelMobile" />
 								<ref bean="userPropertyTelOffice" />
 								<ref bean="userPropertySkype" />
-								<ref bean="userPropertyMSN" />
-                                <ref bean="userPropertyXing" />
-                                <ref bean="userPropertyICQ" />
 								<ref bean="userPropertyHomepage" />
 								<ref bean="userPropertyStreet" />
 								<ref bean="userPropertyExtendedAddress" />
@@ -522,7 +491,8 @@
 								<ref bean="userPropertyCity" />
 								<ref bean="userPropertyCountry" />
 								<ref bean="userPropertyInstitutionalName" />
-								<ref bean="userPropertyInstitutionalUserIdentifier" />
+								<ref bean="userPropertyInstitutionalEmployeeNumber" />
+								<ref bean="userPropertyInstitutionalMatriculationNumber" />
 								<ref bean="userPropertyInstitutionalEmail" />
 								<ref bean="userPropertyOrgUnit" />
 								<ref bean="userPropertyStudySubject" />
@@ -537,7 +507,8 @@
 						</property>
 						<property name="adminViewOnlyProperties">
 							<set>
-								<ref bean="userPropertyInstitutionalUserIdentifier" />
+								<ref bean="userPropertyInstitutionalEmployeeNumber" />
+								<ref bean="userPropertyInstitutionalMatriculationNumber" />
 							</set>
 						</property>
 					</bean>
@@ -556,9 +527,6 @@
 								<ref bean="userPropertyTelMobile" />
 								<ref bean="userPropertyTelOffice" />
 								<ref bean="userPropertySkype" />
-								<ref bean="userPropertyMSN" />
-                                <ref bean="userPropertyXing" />
-                                <ref bean="userPropertyICQ" />
 								<ref bean="userPropertyHomepage" />
 								<ref bean="userPropertyStreet" />
 								<ref bean="userPropertyExtendedAddress" />
@@ -568,7 +536,8 @@
 								<ref bean="userPropertyCity" />
 								<ref bean="userPropertyCountry" />
 								<ref bean="userPropertyInstitutionalName" />
-								<ref bean="userPropertyInstitutionalUserIdentifier" />
+								<ref bean="userPropertyInstitutionalEmployeeNumber" />
+								<ref bean="userPropertyInstitutionalMatriculationNumber" />
 								<ref bean="userPropertyInstitutionalEmail" />
 								<ref bean="userPropertyOrgUnit" />
 								<ref bean="userPropertyStudySubject" />
@@ -583,28 +552,8 @@
 						</property>
 						<property name="adminViewOnlyProperties">
 							<set>
-								<ref bean="userPropertyBirthDay" />
-								<ref bean="userPropertyGender" />
-								<ref bean="userPropertyTelPrivate" />
-								<ref bean="userPropertyTelMobile" />
-								<ref bean="userPropertyTelOffice" />
-								<ref bean="userPropertySkype" />
-								<ref bean="userPropertyMSN" />
-                                <ref bean="userPropertyXing" />
-                                <ref bean="userPropertyICQ" />
-								<ref bean="userPropertyHomepage" />
-								<ref bean="userPropertyStreet" />
-								<ref bean="userPropertyExtendedAddress" />
-								<ref bean="userPropertyPoBox" />
-								<ref bean="userPropertyZipCode" />
-								<ref bean="userPropertyRegion" />
-								<ref bean="userPropertyCity" />
-								<ref bean="userPropertyCountry" />
-								<ref bean="userPropertyInstitutionalName" />
-								<ref bean="userPropertyInstitutionalUserIdentifier" />
-								<ref bean="userPropertyInstitutionalEmail" />
-								<ref bean="userPropertyOrgUnit" />
-								<ref bean="userPropertyStudySubject" />
+								<ref bean="userPropertyInstitutionalEmployeeNumber" />
+								<ref bean="userPropertyInstitutionalMatriculationNumber" />
 							</set>
 						</property>
 					</bean>
@@ -627,9 +576,6 @@
 								<ref bean="userPropertyTelMobile" />
 								<ref bean="userPropertyTelOffice" />
 								<ref bean="userPropertySkype" />
-								<ref bean="userPropertyMSN" />
-                                <ref bean="userPropertyXing" />
-                                <ref bean="userPropertyICQ" />
 								<ref bean="userPropertyHomepage" />
 								<ref bean="userPropertyStreet" />
 								<ref bean="userPropertyExtendedAddress" />
@@ -639,8 +585,6 @@
 								<ref bean="userPropertyCity" />
 								<ref bean="userPropertyCountry" />
 								<ref bean="userPropertyInstitutionalName" />
-								<ref bean="userPropertyInstitutionalUserIdentifier" />
-								<ref bean="userPropertyInstitutionalEmail" />
 								<ref bean="userPropertyOrgUnit" />
 								<ref bean="userPropertyStudySubject" />
 							</list>
@@ -657,7 +601,8 @@
 								<ref bean="userPropertyLastName" />
 								<ref bean="userPropertyEmail" />
 								<ref bean="userPropertyInstitutionalName" />
-								<ref bean="userPropertyInstitutionalUserIdentifier" />
+								<ref bean="userPropertyInstitutionalEmployeeNumber" />
+								<ref bean="userPropertyInstitutionalMatriculationNumber" />
 								<ref bean="userPropertyInstitutionalEmail" />
 								<ref bean="userPropertyOrgUnit" />
 								<ref bean="userPropertyStudySubject" />
@@ -674,7 +619,8 @@
 								<ref bean="userPropertyLastName" />
 								<ref bean="userPropertyEmail" />
 								<ref bean="userPropertyInstitutionalName" />
-								<ref bean="userPropertyInstitutionalUserIdentifier" />
+								<ref bean="userPropertyInstitutionalEmployeeNumber" />
+								<ref bean="userPropertyInstitutionalMatriculationNumber" />
 								<ref bean="userPropertyInstitutionalEmail" />
 								<ref bean="userPropertyOrgUnit" />
 								<ref bean="userPropertyStudySubject" />
@@ -692,7 +638,8 @@
 								<ref bean="userPropertyLastName" />
 								<ref bean="userPropertyEmail" />	
 								<ref bean="userPropertyInstitutionalName" />
-								<ref bean="userPropertyInstitutionalUserIdentifier" />	
+								<ref bean="userPropertyInstitutionalEmployeeNumber" />
+								<ref bean="userPropertyInstitutionalMatriculationNumber" />
 								<ref bean="userPropertyInstitutionalEmail" />						
 							</list>
 						</property>
@@ -707,7 +654,8 @@
 								<ref bean="userPropertyLastName" />
 								<ref bean="userPropertyEmail" />
 								<ref bean="userPropertyInstitutionalName" />
-								<ref bean="userPropertyInstitutionalUserIdentifier" />
+								<ref bean="userPropertyInstitutionalEmployeeNumber" />
+								<ref bean="userPropertyInstitutionalMatriculationNumber" />
 								<ref bean="userPropertyInstitutionalEmail" />
 								<ref bean="userPropertyOrgUnit" />
 								<ref bean="userPropertyStudySubject" />
@@ -738,7 +686,6 @@
 								<ref bean="userPropertyCity" />
 								<ref bean="userPropertyCountry" />
 								<ref bean="userPropertyInstitutionalName" />
-								<ref bean="userPropertyInstitutionalUserIdentifier" />
 								<ref bean="userPropertyInstitutionalEmail" />
 								<ref bean="userPropertyOrgUnit" />
 								<ref bean="userPropertyStudySubject" />
@@ -754,7 +701,8 @@
 							<list>
 								<ref bean="userPropertyFirstName" />
 								<ref bean="userPropertyLastName" />
-								<ref bean="userPropertyInstitutionalUserIdentifier" />
+								<ref bean="userPropertyInstitutionalEmployeeNumber" />
+                                                                <ref bean="userPropertyInstitutionalMatriculationNumber" />
 							</list>
 						</property>	
 						<property name="userViewReadOnlyProperties">
@@ -767,12 +715,14 @@
 							<set>
 								<ref bean="userPropertyFirstName" />
 								<ref bean="userPropertyLastName" />
-								<ref bean="userPropertyInstitutionalUserIdentifier" />
+								<ref bean="userPropertyInstitutionalEmployeeNumber" />
+                                                                <ref bean="userPropertyInstitutionalMatriculationNumber" />
 							</set>
 						</property>
 						<property name="adminViewOnlyProperties">
 							<set>
-								<ref bean="userPropertyInstitutionalUserIdentifier" />
+								<ref bean="userPropertyInstitutionalEmployeeNumber" />
+                                                                <ref bean="userPropertyInstitutionalMatriculationNumber" />
 							</set>
 						</property>					
 					</bean>
@@ -801,7 +751,8 @@
 								<ref bean="userPropertyLastName" />
 								<ref bean="userPropertyEmail" />
 								<ref bean="userPropertyInstitutionalName" />
-								<ref bean="userPropertyInstitutionalUserIdentifier" />
+								<ref bean="userPropertyInstitutionalEmployeeNumber" />
+								<ref bean="userPropertyInstitutionalMatriculationNumber" />
 								<ref bean="userPropertyInstitutionalEmail" />								
 							</list>
 						</property>
@@ -843,7 +794,8 @@
 								<ref bean="userPropertyCity" />
 								<ref bean="userPropertyCountry" />
 								<ref bean="userPropertyInstitutionalName" />
-								<ref bean="userPropertyInstitutionalUserIdentifier" />
+								<ref bean="userPropertyInstitutionalEmployeeNumber" />
+								<ref bean="userPropertyInstitutionalMatriculationNumber" />
 								<ref bean="userPropertyInstitutionalEmail" />
 								<ref bean="userPropertyOrgUnit" />
 								<ref bean="userPropertyStudySubject" />												
@@ -865,17 +817,19 @@
 					<bean class="org.olat.user.propertyhandlers.UserPropertyUsageContext">
 						<property name="propertyHandlers">
 							<list>
-								<ref bean="userPropertyFirstName" />
-								<ref bean="userPropertyLastName" />
-								<ref bean="userPropertyEmail" />
-								<!-- <ref bean="userPropertyBirthDay" />
-								<ref bean="userPropertyGender" /> -->
-								<!--
-								Example IdentityAttributes matching to the usertracking LoggingObject  
-								
-								<ref bean="userPropertyAttrSwissEduPersonStudyLevel" />
-								<ref bean="userPropertyAttrEduPersonAffiliation" />	
-								-->
+								<!-- the shibb attribs for usertracking -->
+								<ref bean="usertrackingAttrEduPersonAffiliation" />
+								<ref bean="usertrackingAttrSwissEduHomeOrganisation" />
+								<ref bean="usertrackingAttrSwissEduPersonStudyLevel" />
+								<ref bean="usertrackingAttrSwissEduPersonHomeOrganisationType" />
+								<ref bean="usertrackingAttrMatriculationNumber" />
+								<ref bean="usertrackingAttrSwissEduPersonStaffCategory" />
+								<ref bean="usertrackingAttrOrganizationalUnit" />
+								<ref bean="usertrackingAttrSwissEduPersonStudyBranch1" />
+								<ref bean="usertrackingAttrSwissEduPersonStudyBranch2" />
+								<ref bean="usertrackingAttrSwissEduPersonStudyBranch3" />
+								<ref bean="usertrackingLanguage" />
+								<ref bean="usertrackingWebDAV" />
 							</list>
 						</property>						
 					</bean>
@@ -895,9 +849,6 @@
 								<ref bean="userPropertyTelMobile" />
 								<ref bean="userPropertyTelOffice" />
 								<ref bean="userPropertySkype" />
-								<ref bean="userPropertyMSN" />
-								<ref bean="userPropertyXing" />
-								<ref bean="userPropertyICQ" />
 								<ref bean="userPropertyHomepage" />
 								<ref bean="userPropertyStreet" />
 								<ref bean="userPropertyExtendedAddress" />
@@ -907,7 +858,8 @@
 								<ref bean="userPropertyCity" />
 								<ref bean="userPropertyCountry" />
 								<ref bean="userPropertyInstitutionalName" />
-								<ref bean="userPropertyInstitutionalUserIdentifier" />
+								<ref bean="userPropertyInstitutionalEmployeeNumber" />
+								<ref bean="userPropertyInstitutionalMatriculationNumber" />
 								<ref bean="userPropertyInstitutionalEmail" />
 								<ref bean="userPropertyOrgUnit" />
 								<ref bean="userPropertyStudySubject" />
@@ -925,7 +877,8 @@
 								<ref bean="userPropertyFirstName" />
 								<ref bean="userPropertyLastName" />
 								<ref bean="userPropertyInstitutionalName" />
-								<ref bean="userPropertyInstitutionalUserIdentifier" />
+								<ref bean="userPropertyInstitutionalEmployeeNumber" />
+								<ref bean="userPropertyInstitutionalMatriculationNumber" />
 								<ref bean="userPropertyInstitutionalEmail" />
 								<ref bean="userPropertyOrgUnit" />
 								<ref bean="userPropertyStudySubject" />
@@ -933,6 +886,8 @@
 						</property>
 						<property name="adminViewOnlyProperties">
 							<set>
+								<ref bean="userPropertyInstitutionalEmployeeNumber" />
+								<ref bean="userPropertyInstitutionalMatriculationNumber" />
 								<!--
 									only used by user admin to trigger user password change workflow at
 									login, not visible for users when logged in
@@ -949,7 +904,6 @@
 						<property name="propertyHandlers">
 							<list>
 								<ref bean="userPropertyInstitutionalName" />
-								<ref bean="userPropertyInstitutionalUserIdentifier" />	
 								<ref bean="userPropertyInstitutionalEmail" />						
 								<ref bean="userPropertyOrgUnit" />
 								<ref bean="userPropertyStudySubject" />
@@ -1029,7 +983,8 @@
 								<ref bean="userPropertyCity" />
 								<ref bean="userPropertyCountry" />
 								<ref bean="userPropertyInstitutionalName" />
-								<ref bean="userPropertyInstitutionalUserIdentifier" />
+								<ref bean="userPropertyInstitutionalEmployeeNumber" />
+                                                                <ref bean="userPropertyInstitutionalMatriculationNumber" />
 								<ref bean="userPropertyInstitutionalEmail" />
 								<ref bean="userPropertyOrgUnit" />
 								<ref bean="userPropertyStudySubject" />
@@ -1051,7 +1006,8 @@
 								<ref bean="userPropertyCity" />
 								<ref bean="userPropertyCountry" />
 								<ref bean="userPropertyInstitutionalName" />
-								<ref bean="userPropertyInstitutionalUserIdentifier" />
+								<ref bean="userPropertyInstitutionalEmployeeNumber" />
+                                                                <ref bean="userPropertyInstitutionalMatriculationNumber" />
 								<ref bean="userPropertyInstitutionalEmail" />
 								<ref bean="userPropertyOrgUnit" />
 								<ref bean="userPropertyStudySubject" />
@@ -1070,7 +1026,8 @@
 								<ref bean="userPropertyCity" />
 								<ref bean="userPropertyCountry" />
 								<ref bean="userPropertyInstitutionalName" />
-								<ref bean="userPropertyInstitutionalUserIdentifier" />
+								<ref bean="userPropertyInstitutionalEmployeeNumber" />
+                                                                <ref bean="userPropertyInstitutionalMatriculationNumber" />
 								<ref bean="userPropertyInstitutionalEmail" />
 								<ref bean="userPropertyOrgUnit" />
 								<ref bean="userPropertyStudySubject" />
@@ -1096,37 +1053,11 @@
 						</property>
 						<property name="adminViewOnlyProperties">
 							<set>
-								<ref bean="userPropertyInstitutionalUserIdentifier" />
 							</set>
 						</property>					
 					</bean>
 				</entry>
 				
-				<!--
-					Default configuration in case nothing else matches.
-				-->
-<!--
-				<entry key="default">
-					<bean class="org.olat.user.propertyhandlers.UserPropertyUsageContext">
-						<property name="propertyHandlers">
-							<list>
-								<ref bean="userPropertyFirstName" />
-								<ref bean="userPropertyLastName" />
-								<ref bean="userPropertyEmail" />
-								<ref bean="userPropertyInstitutionalName" />
-								<ref bean="userPropertyInstitutionalUserIdentifier" />
-								<ref bean="userPropertyOrgUnit" />
-								<ref bean="userPropertyStudySubject" />
-							</list>
-						</property>
-						<property name="adminViewOnlyProperties">
-							<set>
-								<ref bean="userPropertyInstitutionalUserIdentifier" />
-							</set>
-						</property>
-					</bean>
-				</entry>
--->				
 			</map>
 		</property>
 		

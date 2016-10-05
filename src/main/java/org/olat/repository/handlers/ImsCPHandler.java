@@ -202,7 +202,7 @@ public class ImsCPHandler extends FileHandler {
 						boolean activateFirstPage = true;
 						String initialUri = null;
 						
-						CPDisplayController cpCtr = new CPDisplayController(uureq, wwControl, vfsWrapper, true, true, activateFirstPage, true, deliveryOptions, initialUri, entry.getOlatResource(), "");
+						CPDisplayController cpCtr = new CPDisplayController(uureq, wwControl, vfsWrapper, true, true, activateFirstPage, true, deliveryOptions, initialUri, entry.getOlatResource(), "", false);
 						MainLayout3ColumnsController ctr = new LayoutMain3ColsController(uureq, wwControl, cpCtr.getMenuComponent(), cpCtr.getInitialComponent(), vfsWrapper.getName());
 						ctr.addDisposableChildController(cpCtr);
 						return ctr;

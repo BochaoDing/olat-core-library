@@ -52,6 +52,7 @@ import org.olat.core.util.mail.MailTemplate;
 import org.olat.group.BusinessGroup;
 import org.olat.group.BusinessGroupService;
 import org.olat.group.BusinessGroupShort;
+import org.olat.group.model.BusinessGroupRow;
 import org.olat.group.ui.main.BusinessGroupListController;
 import org.olat.repository.RepositoryEntryShort;
 
@@ -223,8 +224,13 @@ public class BGMailHelper {
 			courselist = learningResources.toString();
 			// get group name and description
 			groupname = group.getName();
-			groupdescription = (group instanceof BusinessGroup ?
-					FilterFactory.getHtmlTagAndDescapingFilter().filter(((BusinessGroup)group).getDescription()) : ""); 
+			if (group instanceof BusinessGroup) {
+				groupdescription = FilterFactory.getHtmlTagAndDescapingFilter().filter(((BusinessGroup) group).getDescription());
+			} else if (group instanceof BusinessGroupRow) {
+				groupdescription = FilterFactory.getHtmlTagAndDescapingFilter().filter(((BusinessGroupRow) group).getDescription());
+			} else {
+				groupdescription = "";
+			}
 
 			subject = subject.replace("$groupname", groupname == null ? "" : groupname);
 			body = body.replace("$groupname", groupname == null ? "" : groupname);

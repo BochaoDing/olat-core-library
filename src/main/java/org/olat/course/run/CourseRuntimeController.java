@@ -645,15 +645,18 @@ public class CourseRuntimeController extends RepositoryEntryRuntimeController im
 		if(!assessmentLock) {
 			glossary = new Dropdown("glossary", "command.glossary", false, getTranslator());
 			glossary.setIconCSS("o_icon o_FileResource-GLOSSARY_icon");
-			glossary.setVisible(cc.hasGlossary());
-	
-			openGlossaryLink = LinkFactory.createToolLink("command.glossary.open", translate("command.glossary.open"), this);
-			openGlossaryLink.setPopup(new LinkPopupSettings(950, 750, "gloss"));
-			glossary.addComponent(openGlossaryLink);
-	
-			enableGlossaryLink = LinkFactory.createToolLink("command.glossary.on.off", translate("command.glossary.on.alt"), this);
-			glossary.addComponent(enableGlossaryLink);
-			toolbarPanel.addTool(glossary);
+			// OLATNG-335 : check if glossary repo entry really exists before showing the dropdown
+			if (null != RepositoryManager.getInstance().lookupRepositoryEntryBySoftkey(cc.getGlossarySoftKey(), false)) {
+				glossary.setVisible(cc.hasGlossary());
+
+				openGlossaryLink = LinkFactory.createToolLink("command.glossary.open", translate("command.glossary.open"), this);
+				openGlossaryLink.setPopup(new LinkPopupSettings(950, 750, "gloss"));
+				glossary.addComponent(openGlossaryLink);
+
+				enableGlossaryLink = LinkFactory.createToolLink("command.glossary.on.off", translate("command.glossary.on.alt"), this);
+				glossary.addComponent(enableGlossaryLink);
+				toolbarPanel.addTool(glossary);
+			}
 		}
 		
 		//add group chat to toolbox
@@ -708,7 +711,7 @@ public class CourseRuntimeController extends RepositoryEntryRuntimeController im
 			}
 		} else if (event instanceof EntryChangedEvent ) {
 			EntryChangedEvent repoEvent = (EntryChangedEvent) event;
-			if (getRepositoryEntry().getKey().equals(repoEvent.getChangedEntryKey())) {
+			if (repoEvent.isMe(getRepositoryEntry())) {
 				processEntryChangedEvent(repoEvent);
 			}
 		//All events are MultiUserEvent, check with command at the end
@@ -717,6 +720,7 @@ public class CourseRuntimeController extends RepositoryEntryRuntimeController im
 				updateCurrentUserCount();
 			}
 		}
+		super.event(event);
 	}
 
 	@Override
@@ -874,6 +878,19 @@ public class CourseRuntimeController extends RepositoryEntryRuntimeController im
 
 	@Override
 	public void activate(UserRequest ureq, List<ContextEntry> entries, StateEntry state) {
+		if(entries == null || entries.isEmpty()) {
+			if(currentToolCtr != null) {
+				addToHistory(ureq, currentToolCtr);
+			} else {
+				Controller runtimeCtrl = getRuntimeController();
+				if(runtimeCtrl instanceof Activateable2) {
+					((Activateable2)runtimeCtrl).activate(ureq, entries, state);
+				} else {
+					addToHistory(ureq, runtimeCtrl);
+				}
+			}
+			return;
+		}
 
 		entries = removeRepositoryEntry(entries);
 		if(entries != null && entries.size() > 0) {
@@ -1559,7 +1576,8 @@ public class CourseRuntimeController extends RepositoryEntryRuntimeController im
 		}
 	}
 	
-	private void processEntryChangedEvent(EntryChangedEvent repoEvent) {
+	@Override
+	protected void processEntryChangedEvent(EntryChangedEvent repoEvent) {
 		switch(repoEvent.getChange()) {
 			case modifiedAtPublish:
 			case modifiedAccess:
@@ -1568,12 +1586,14 @@ public class CourseRuntimeController extends RepositoryEntryRuntimeController im
 			case deleted:
 				doDisposeAfterEvent();
 				break;
-			default: {}
+			default:
+				super.processEntryChangedEvent(repoEvent);
+				break;
 		}
 	}
 	
 	private void processEntryAccessChanged(EntryChangedEvent repoEvent) {
-		if(repoEvent.getAuthorKey() != null && getIdentity().getKey().equals(repoEvent.getAuthorKey())) {
+		if(repoEvent.isMe(getIdentity())) {
 			//author is not affected
 		} else {
 			loadRepositoryEntry();

@@ -816,6 +816,11 @@ public class RunMainController extends MainLayoutBasicController implements Gene
 	@Override
 	public void activate(UserRequest ureq, List<ContextEntry> entries, StateEntry state) {
 		if(entries == null || entries.isEmpty()) {
+			if(currentNodeController != null) {
+				addToHistory(ureq, currentNodeController);
+			} else {
+				addToHistory(ureq, this);
+			}
 			return;
 		}
 		

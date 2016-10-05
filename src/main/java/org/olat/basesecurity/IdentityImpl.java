@@ -61,7 +61,7 @@ public class IdentityImpl extends PersistentObject implements Identity, Identity
 	//  
 	}
 
-	IdentityImpl(String name, User user) {
+	public IdentityImpl(String name, User user) {
 		this.name = name;
 		this.user = user;
 		status = Identity.STATUS_ACTIV;

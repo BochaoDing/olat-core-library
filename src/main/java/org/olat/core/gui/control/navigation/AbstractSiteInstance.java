@@ -48,6 +48,11 @@ public abstract class AbstractSiteInstance implements SiteInstance {
 	@Override
 	public abstract NavElement getNavElement();
 
+	/**
+	 * TODO sev26
+	 * This method seems to be invoked only once. So, what is the purpose of
+	 * putting it in this class?
+	 */
 	@Override
 	public final Controller createController(UserRequest ureq, WindowControl wControl) {
 		SiteDefinitions siteDefinitions = CoreSpringFactory.getImpl(SiteDefinitions.class);

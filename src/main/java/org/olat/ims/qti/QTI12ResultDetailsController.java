@@ -119,21 +119,23 @@ public class QTI12ResultDetailsController extends BasicController {
 
 		init(ureq);
 	}
-	
+
 	private boolean checkEssay() {
 		TestFileResource fr = new TestFileResource();
 		fr.overrideResourceableId(repositoryEntry.getOlatResource().getResourceableId());
 		QTIEditorPackage qtiPackage = new QTIEditorPackageImpl(getIdentity(), fr, null, getTranslator());
-		Assessment ass = qtiPackage.getQTIDocument().getAssessment();
+		if (qtiPackage.getQTIDocument() != null && qtiPackage.getQTIDocument().getAssessment() != null) {
+			Assessment ass = qtiPackage.getQTIDocument().getAssessment();
 
-		//Sections with their Items
-		List<Section> sections = ass.getSections();
-		for (Section section:sections) {
-			List<Item> items = section.getItems();
-			for (Item item:items) {
-				String ident = item.getIdent();
-				if(ident != null && ident.startsWith("QTIEDIT:ESSAY")) {
-					return true;
+			//Sections with their Items
+			List<Section> sections = ass.getSections();
+			for (Section section:sections) {
+				List<Item> items = section.getItems();
+				for (Item item:items) {
+					String ident = item.getIdent();
+					if(ident != null && ident.startsWith("QTIEDIT:ESSAY")) {
+						return true;
+					}
 				}
 			}
 		}
@@ -235,9 +237,8 @@ public class QTI12ResultDetailsController extends BasicController {
 	}
 	
 	/**
-	 * Retrieve the test: load the course, close the assessment instamce, persist the QTI
+	 * Retrieve the test: load the course, close the assessment instance, persist the QTI
 	 * result set, pass the score to the course node.
-	 * @param ureq
 	 */
 	private void doRetrieveTest() {
 		ICourse course = CourseFactory.loadCourse(courseResourceableId);

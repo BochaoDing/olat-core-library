@@ -35,6 +35,7 @@ import org.quartz.Scheduler;
 import org.quartz.SchedulerException;
 import org.quartz.Trigger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -70,7 +71,9 @@ public class ReminderModule extends AbstractSpringModule {
 	
 	@Autowired
 	private List<RuleSPI> ruleSpies;
+	
 	@Autowired
+	@Qualifier("schedulerFactoryBean")
 	private Scheduler scheduler;
 	
 	@Autowired

@@ -343,8 +343,9 @@ public class DropboxController extends BasicController {
 	}
 	
 	private String getConfirmation(UserRequest ureq, String filename) {
-	  //grab confirmation-text from bb-config
-		String confirmation = config.getStringValue(TACourseNode.CONF_DROPBOX_CONFIRMATION);
+		//grab confirmation-text from bb-config
+		// OLATNG-327: Avoid NullPointerException by providing the default value
+		String confirmation = config.getStringValue(TACourseNode.CONF_DROPBOX_CONFIRMATION, translate("conf.stdtext"));
 		
 		Context c = new VelocityContext();
 		Identity identity = ureq.getIdentity();

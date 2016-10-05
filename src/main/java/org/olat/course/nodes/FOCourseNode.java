@@ -41,6 +41,7 @@ import org.olat.core.gui.control.WindowControl;
 import org.olat.core.gui.control.generic.tabbable.TabbableController;
 import org.olat.core.gui.translator.PackageTranslator;
 import org.olat.core.id.OLATResourceable;
+import org.olat.core.id.Roles;
 import org.olat.core.id.context.BusinessControl;
 import org.olat.core.id.context.BusinessControlFactory;
 import org.olat.core.logging.OLATRuntimeException;
@@ -172,7 +173,7 @@ public class FOCourseNode extends AbstractAccessableCourseNode {
 	 * Private helper method to load the forum from the configuration or create on
 	 * if it does not yet exist
 	 * 
-	 * @param userCourseEnv
+	 * @param courseEnv
 	 * @return the loaded forum
 	 */
 	public Forum loadOrCreateForum(final CourseEnvironment courseEnv) {
@@ -307,7 +308,14 @@ public class FOCourseNode extends AbstractAccessableCourseNode {
 			// Create a forum peekview controller that shows the latest two messages		
 			Forum theForum = loadOrCreateForum(userCourseEnv.getCourseEnvironment());
 			RepositoryEntry courseEntry = userCourseEnv.getCourseEnvironment().getCourseGroupManager().getCourseEntry();
-			Controller peekViewController = new FOPeekviewController(ureq, wControl, courseEntry, theForum, getIdent(), 3);
+
+			// OLATNG-198: Prepare callback for PeekViewController
+			final Roles userRoles = ureq.getUserSession().getRoles();
+			final SubscriptionContext forumSubContext = CourseModule.createSubscriptionContext(userCourseEnv.getCourseEnvironment(), this);
+			ForumNodeForumCallback foCallback = new ForumNodeForumCallback(ne, userRoles.isOLATAdmin(), userRoles.isGuestOnly(),
+					false, false, forumSubContext);
+
+			Controller peekViewController = new FOPeekviewController(ureq, wControl, courseEntry, theForum, getIdent(), 3, foCallback);
 			return peekViewController;			
 		} else {
 			// use standard peekview

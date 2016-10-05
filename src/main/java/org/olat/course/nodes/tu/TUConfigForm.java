@@ -27,6 +27,7 @@ package org.olat.course.nodes.tu;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Arrays;
 
 import org.olat.core.gui.UserRequest;
 import org.olat.core.gui.components.form.flexible.FormItem;
@@ -63,6 +64,8 @@ public class TUConfigForm extends FormBasicController {
 	public static final String CONFIGKEY_URI = "uri";
 	/** config option: query */
 	public static final String CONFIGKEY_QUERY = "query";
+	/** config option: ref (part after the anchor) */
+	public static final String CONFIGKEY_REF = "ref";
 	/** config option: hostname */
 	public static final String CONFIGKEY_HOST = "host";
 	/** config option: protocol */
@@ -138,12 +141,13 @@ public class TUConfigForm extends FormBasicController {
 			//query string is available since config version 2
 			query = (String) config.get(TUConfigForm.CONFIGKEY_QUERY);
 		}
+		String ref = config.getStringValue(TUConfigForm.CONFIGKEY_REF);
 		Integer port = (Integer)config.get(CONFIGKEY_PORT);
 		
 		user = (String)config.get(CONFIGKEY_USER);
 		pass = (String)config.get(CONFIGKEY_PASS);
 
-		fullURI = getFullURL(proto, host, port, uri, query).toString();
+		fullURI = getFullURL(proto, host, port, uri, query, ref).toString();
 		
 		selectableValues = new String[] { OPTION_TUNNEL_THROUGH_OLAT_IFRAME, OPTION_SHOW_IN_OLAT_IN_AN_IFRAME,
 				OPTION_SHOW_IN_NEW_BROWSER_WINDOW, OPTION_TUNNEL_THROUGH_OLAT_INLINE };
@@ -154,7 +158,7 @@ public class TUConfigForm extends FormBasicController {
 		initForm (ureq);
 	}
 
-	public static StringBuilder getFullURL(String proto, String host, Integer port, String uri, String query) {
+	public static StringBuilder getFullURL(String proto, String host, Integer port, String uri, String query, String ref) {
 		StringBuilder fullURL = new StringBuilder();
 		if (proto != null && host != null) {
 			fullURL.append(proto).append("://");
@@ -172,7 +176,12 @@ public class TUConfigForm extends FormBasicController {
 				if (uri.indexOf("/") != 0) fullURL.append("/");
 				fullURL.append(uri);
 			}
-			if (query != null) fullURL.append("?").append(query);
+			if (query != null) {
+				fullURL.append("?").append(query);
+			}
+			if(StringHelper.containsNonWhitespace(ref)) {
+				fullURL.append("#").append(ref);
+			}
 		}
 		return fullURL;
 	}
@@ -183,6 +192,12 @@ public class TUConfigForm extends FormBasicController {
 		boolean allOk = true;
 		try {
 			URL url = new URL(thost.getValue());
+			String protocol = url.getProtocol();
+			boolean validProtocol = isProtocolValid(protocol);
+			if (!validProtocol) {
+				thost.setErrorKey("TUConfigForm.invalidProtocol", null);
+				allOk &= false;
+			}
 			allOk &= StringHelper.containsNonWhitespace(url.getHost());
 		} catch (MalformedURLException e) {
 			thost.setErrorKey("TUConfigForm.invalidurl", null);
@@ -190,8 +205,18 @@ public class TUConfigForm extends FormBasicController {
 		}
 		return allOk & super.validateFormLogic(ureq);
 	}
-	
-	
+
+	private static boolean isProtocolValid(String protocol) {
+		return protocol != null && Arrays.asList(PROTOCOLS).contains(protocol);
+	}
+
+	/**
+	 * Utility method
+	 */
+	static boolean isProtocolValid(ModuleConfiguration config) {
+		return config != null && isProtocolValid(config.getStringValue(CONFIGKEY_PROTO));
+	}
+
 	private String convertConfigToNewStyle(ModuleConfiguration cfg) {
 		Boolean tunnel = cfg.getBooleanEntry(CONFIG_TUNNEL);
 		Boolean iframe = cfg.getBooleanEntry(CONFIG_IFRAME);
@@ -228,6 +253,7 @@ public class TUConfigForm extends FormBasicController {
 		config.set(CONFIGKEY_HOST, url.getHost());
 		config.set(CONFIGKEY_URI, url.getPath());
 		config.set(CONFIGKEY_QUERY, url.getQuery());
+		config.set(CONFIGKEY_REF, url.getRef());
 		int portHere = url.getPort();
 		config.set(CONFIGKEY_PORT, new Integer(portHere != -1 ? portHere : url.getDefaultPort()));
 		config.set(CONFIGKEY_USER, getFormUser());

@@ -196,7 +196,7 @@ public class ItemContext implements Serializable {
 		//	<!ELEMENT render_choice ((material | material_ref | response_label |
 		// flow_label)* ,response_na?)>
 		// <!ATTLIST response_label rshuffle (Yes | No ) 'Yes' .....
-		List el_labels = el_rendchoice.selectNodes(".//response_label[@rshuffle=\"Yes\"]");
+		List<?> el_labels = el_rendchoice.selectNodes(".//response_label[@rshuffle=\"Yes\"]");
 		int shusize = el_labels.size();
 
 		// set up a list of children with their parents and the position of the
@@ -206,13 +206,12 @@ public class ItemContext implements Serializable {
 		int[] posList = new int[shusize];
 		int j = 0;
 
-		for (Iterator responses = el_labels.iterator(); responses.hasNext();) {
+		for (Iterator<?> responses = el_labels.iterator(); responses.hasNext();) {
 			Element response = (Element) responses.next();
 			Element parent = response.getParent();
 			int pos = parent.indexOf(response);
 			posList[j++] = pos;
-			respList.add((Element)response.clone()); // need to use clones so they are not
-			// attached anymore
+			respList.add((Element)response.clone()); // need to use clones so they are not attached anymore
 			parentList.add(parent);
 		}
 		Collections.shuffle(respList);
@@ -221,7 +220,9 @@ public class ItemContext implements Serializable {
 			Element parent = parentList.get(i);
 			int pos = posList[i];
 			Element child = respList.get(i);
-			parent.elements().set(pos, child);
+			@SuppressWarnings("unchecked")
+			List<Object> siblings = parent.elements();
+			siblings.set(pos, child);
 		}
 		return shuffleItem;
 	}

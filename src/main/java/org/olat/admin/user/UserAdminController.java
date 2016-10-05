@@ -27,6 +27,7 @@ package org.olat.admin.user;
 
 import java.util.List;
 
+import ch.uzh.campus.presentation.DelegationController;
 import org.olat.admin.user.course.CourseOverviewController;
 import org.olat.admin.user.groups.GroupOverviewController;
 import org.olat.basesecurity.Authentication;
@@ -92,6 +93,7 @@ public class UserAdminController extends BasicController implements Activateable
 	private static final String NLS_EDIT_UAUTH 			= "edit.uauth";
 	private static final String NLS_EDIT_UPROP			= "edit.uprop";
 	private static final String NLS_EDIT_UROLES			= "edit.uroles";
+	private static final String NLS_EDIT_DELEGATION		= "edit.delegation";
 	private static final String NLS_EDIT_UQUOTA			= "edit.uquota";
 	private static final String NLS_VIEW_GROUPS 		= "view.groups";
 	private static final String NLS_VIEW_COURSES		= "view.courses";
@@ -165,6 +167,11 @@ public class UserAdminController extends BasicController implements Activateable
 		String entryPoint = entries.get(0).getOLATResourceable().getResourceableTypeName();
 		if("tab".equals(entryPoint)) {
 			userTabP.activate(ureq, entries, state);
+		} else if("table".equals(entryPoint)) {
+			if(entries.size() > 2) {
+				List<ContextEntry> subEntries = entries.subList(2, entries.size());
+				userTabP.activate(ureq, subEntries, state);
+			}
 		} else if (userTabP != null) {
 			userTabP.setSelectedPane(translate(entryPoint));
 		}
@@ -331,7 +338,10 @@ public class UserAdminController extends BasicController implements Activateable
 		
 		rolesCtr = new SystemRolesAndRightsController(getWindowControl(), ureq, identity);
 		userTabP.addTab(translate(NLS_EDIT_UROLES), rolesCtr.getInitialComponent());
-		
+
+		DelegationController delegationController = new DelegationController(ureq, getWindowControl(), identity);
+		userTabP.addTab(translate(NLS_EDIT_DELEGATION), delegationController.getInitialComponent());
+
 		Boolean canQuota = BaseSecurityModule.USERMANAGER_ACCESS_TO_QUOTA;
 		if (canQuota.booleanValue() || isOlatAdmin) {
 			String relPath = FolderConfig.getUserHomes() + "/" + identity.getName();
