@@ -5,8 +5,8 @@ import ch.uzh.campus.data.Course;
 import ch.uzh.campus.data.SapUserType;
 import ch.uzh.campus.service.CampusCourse;
 import org.olat.core.id.Identity;
-import org.olat.core.id.OLATResourceable;
 import org.olat.repository.RepositoryEntry;
+import org.olat.resource.OLATResource;
 
 import java.util.List;
 import java.util.Set;
@@ -22,17 +22,17 @@ public interface CampusCourseCoreService {
 
 	CampusCourse createCampusCourseFromStandardTemplate(Long sapCampusCourseId, Identity creator) throws Exception;
 
-    CampusCourse createCampusCourseFromTemplate(Long courseResourceableId, Long sapCampusCourseId, Identity creator) throws Exception;
+    CampusCourse createCampusCourseFromTemplate(OLATResource templateOlatResource, Long sapCampusCourseId, Identity creator) throws Exception;
 
     CampusCourse continueCampusCourse(Long childSapCampusCourseId, Long parentSapCampusCourseId, Identity creator);
 
     CampusCourse loadCampusCourse(CampusCourseImportTO campusCourseImportTO);
 
-    CampusCourse loadCampusCourseByResourceable(Long resourceableId);
+    CampusCourse loadCampusCourseByOlatResource(OLATResource olatResource);
 
-    Course getLatestCourseByResourceable(Long resourceableId) throws Exception;
+    Course getLatestCourseByOlatResource(OLATResource olatResource) throws Exception;
 
-    void resetResourceableIdAndParentCourseReference(OLATResourceable res);
+    void resetOlatResourceAndParentCourseReference(OLATResource olatResource);
 
     void deleteCampusCourseGroupsIfExist(RepositoryEntry repositoryEntry);
 
@@ -56,9 +56,9 @@ public interface CampusCourseCoreService {
 
     boolean existsDelegation(Identity delegator, Identity delegatee);
 
-    boolean existResourceableId(Long resourceableId);
+    boolean existCampusCoursesForOlatResource(OLATResource olatResource);
 
-    List<Long> getResourceableIdsOfAllCreatedNotContinuedCoursesOfPreviousSemesters();
+    List<Long> getOlatResourceKeysOfAllCreatedNotContinuedCoursesOfPreviousSemesters();
 
     List getDelegatees(Identity delegator);
 

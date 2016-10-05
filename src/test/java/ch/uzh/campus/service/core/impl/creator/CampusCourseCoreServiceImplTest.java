@@ -11,8 +11,8 @@ import ch.uzh.campus.service.core.CampusCourseCoreService;
 import ch.uzh.campus.service.core.impl.CampusCourseCoreServiceImpl;
 import ch.uzh.campus.service.core.impl.CampusCourseFactory;
 import ch.uzh.campus.service.core.impl.syncer.CampusCourseCoOwners;
-import ch.uzh.campus.service.core.impl.syncer.CampusCourseGroupsFinder;
 import ch.uzh.campus.service.core.impl.syncer.CampusCourseGroupSynchronizer;
+import ch.uzh.campus.service.core.impl.syncer.CampusCourseGroupsFinder;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -32,6 +32,7 @@ import org.olat.group.area.BGAreaManager;
 import org.olat.repository.RepositoryEntry;
 import org.olat.repository.RepositoryService;
 import org.olat.repository.manager.RepositoryEntryDAO;
+import org.olat.resource.OLATResource;
 import org.olat.resource.OLATResourceManager;
 import org.olat.test.JunitTestHelper;
 import org.olat.test.OlatTestCase;
@@ -102,7 +103,7 @@ public class CampusCourseCoreServiceImplTest extends OlatTestCase {
     @Autowired
     private CampusCourseConfiguration campusCourseConfiguration;
 
-    private Long sourceResourceableId;
+    private OLATResource sourceOlatResource;
     private Identity ownerIdentity;
     private Identity secondOwnerIdentity;
     private Identity testIdentity;
@@ -115,13 +116,13 @@ public class CampusCourseCoreServiceImplTest extends OlatTestCase {
     	ownerIdentity = JunitTestHelper.createAndPersistIdentityAsUser("TestOwner");
 
         RepositoryEntry sourceRepositoryEntry = JunitTestHelper.deployDemoCourse(ownerIdentity);
-        sourceResourceableId = sourceRepositoryEntry.getOlatResource().getResourceableId();
+        sourceOlatResource = sourceRepositoryEntry.getOlatResource();
         
         CampusCourseJunitTestHelper.setupCampusCourseGroupsForTest(ownerIdentity, sourceRepositoryEntry, campusCourseConfiguration, bgAreaManager, businessGroupService);
         dbInstance.flush();
 
         campusCourseConfigurationMock = mock(CampusCourseConfiguration.class);
-        when(campusCourseConfigurationMock.getTemplateCourseResourcableId(null)).thenReturn(sourceResourceableId);
+        when(campusCourseConfigurationMock.getTemplateRepositoryEntryId(null)).thenReturn(sourceRepositoryEntry.getKey());
         when(campusCourseConfigurationMock.getCampusCourseLearningAreaName()).thenReturn(campusCourseConfiguration.getCampusCourseLearningAreaName());
         when(campusCourseConfigurationMock.getCourseGroupAName()).thenReturn(campusCourseConfiguration.getCourseGroupAName());
         when(campusCourseConfigurationMock.getCourseGroupBName()).thenReturn(campusCourseConfiguration.getCourseGroupBName());
@@ -266,7 +267,7 @@ public class CampusCourseCoreServiceImplTest extends OlatTestCase {
     @Test
     public void testCreateCampusCourse_checkArea() throws Exception {
     	//change the test setup: to do not use a template course
-    	when(campusCourseConfigurationMock.getTemplateCourseResourcableId(null)).thenReturn(null);
+    	when(campusCourseConfigurationMock.getTemplateRepositoryEntryId(null)).thenReturn(null);
     	
     	Identity testIdentity_2 = JunitTestHelper.createAndPersistIdentityAsUser("test_user_2");
     	Identity testIdentity_3 = JunitTestHelper.createAndPersistIdentityAsUser("test_user_3");
@@ -286,7 +287,7 @@ public class CampusCourseCoreServiceImplTest extends OlatTestCase {
 
         //uses an existing course
         CampusCourse campusCourse = campusCourseCoreService.createCampusCourseFromTemplate(
-				sourceResourceableId, campusCourseImportData.getSapCourseId(),
+                sourceOlatResource, campusCourseImportData.getSapCourseId(),
 				ownerIdentity);
         
         CampusCourseGroups campusCourseGroups = campusCourseGroupsFinder.findCampusCourseGroups(campusCourse.getRepositoryEntry());
@@ -307,7 +308,7 @@ public class CampusCourseCoreServiceImplTest extends OlatTestCase {
 	@Test
 	public void testContinueCampusCourse() throws Exception {
 		//change the test setup: to do not use a template course
-		when(campusCourseConfigurationMock.getTemplateCourseResourcableId(null)).thenReturn(null);
+		when(campusCourseConfigurationMock.getTemplateRepositoryEntryId(null)).thenReturn(null);
 
 		Identity testIdentity_2 = JunitTestHelper.createAndPersistIdentityAsUser("test_user_2");
 		Identity testIdentity_3 = JunitTestHelper.createAndPersistIdentityAsUser("test_user_3");
@@ -320,12 +321,12 @@ public class CampusCourseCoreServiceImplTest extends OlatTestCase {
 		CampusCourseImportTO parentCampusCourseImportData = new CampusCourseImportTO(
 				TEST_TITLE_TEXT, "Herbstsemester 2016", lecturers,
 				Collections.emptyList(), participants,
-				TEST_EVENT_DESCRIPTION_TEXT, sourceResourceableId, 100L, null, null);
+				TEST_EVENT_DESCRIPTION_TEXT, sourceOlatResource, 100L, null, null);
 
 		when(daoManagerMock.getSapCampusCourse(parentCampusCourseImportData.getSapCourseId()))
 				.thenReturn(parentCampusCourseImportData);
 
-		campusCourseCoreService.createCampusCourseFromTemplate(sourceResourceableId,
+		campusCourseCoreService.createCampusCourseFromTemplate(sourceOlatResource,
 				parentCampusCourseImportData.getSapCourseId(), ownerIdentity);
 
 		CampusCourseImportTO childCampusCourseImportData = new CampusCourseImportTO(
@@ -347,7 +348,7 @@ public class CampusCourseCoreServiceImplTest extends OlatTestCase {
 		 * TODO sev26
 		 * Add FS/HS prefix to test course title.
 		 */
-		assertEquals(parentCampusCourseImportData.getOlatResourceableId(),
+		assertEquals(parentCampusCourseImportData.getOlatResource().getResourceableId(),
 				continueCampusCourse.getCourse().getResourceableId());
 		assertEquals("Test/Demo Title",
 				continueCampusCourse.getRepositoryEntry().getDisplayname());

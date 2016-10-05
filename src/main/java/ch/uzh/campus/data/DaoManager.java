@@ -112,8 +112,8 @@ public class DaoManager {
         return delegationDao.existsDelegation(delegator.getKey(), delegatee.getKey());
     }
 
-    public boolean existResourceableId(Long resourceableId) {
-        return courseDao.existResourceableId(resourceableId);
+    public boolean existCampusCoursesForOlatResource(Long olatResourceKey) {
+        return courseDao.existCoursesForOlatResource(olatResourceKey);
     }
 
     public void deleteCourse(Course course) {
@@ -373,16 +373,16 @@ public class DaoManager {
         return courses;
     }
 
-    public void saveCampusCourseResoureableId(Long courseId, Long resourceableId) {
-        courseDao.saveResourceableId(courseId, resourceableId);
+    public void saveCampusCourseOlatResource(Long courseId, Long olatResourceKey) {
+        courseDao.saveOlatResource(courseId, olatResourceKey);
     }
 
-    public Course getLatestCourseByResourceable(Long resourcableId) throws Exception {
-        return courseDao.getLatestCourseByResourceable(resourcableId);
+    public Course getLatestCourseByOlatResource(Long olatResourceKey) throws Exception {
+        return courseDao.getLatestCourseByOlatResource(olatResourceKey);
     }
 
-    public void resetResourceableIdAndParentCourseReference(Long resourceableId) {
-        courseDao.resetResourceableIdAndParentCourse(resourceableId);
+    public void resetOlatResourceAndParentCourseReference(Long olatResourceKey) {
+        courseDao.resetOlatResourceAndParentCourse(olatResourceKey);
     }
 
     public void saveParentCourseId(Long courseId, Long parentCourseId) {
@@ -393,8 +393,8 @@ public class DaoManager {
         return courseDao.getIdsOfAllCreatedSynchronizableCoursesOfCurrentSemester();
     }
 
-    public List<Long> getResourceableIdsOfAllCreatedNotContinuedCoursesOfPreviousSemesters() {
-        return courseDao.getResourceableIdsOfAllCreatedNotContinuedCoursesOfPreviousSemestersNotTooFarInThePast();
+    public List<Long> getOlatResourceKeysOfAllCreatedNotContinuedCoursesOfPreviousSemesters() {
+        return courseDao.getOlatResourceKeysOfAllCreatedNotContinuedCoursesOfPreviousSemestersNotTooFarInThePast();
     }
 
     public List<Long> getAllNotCreatedSapCourcesIds() {
@@ -428,7 +428,7 @@ public class DaoManager {
 				dataConverter.convertLecturersToIdentities(lecturerCourses),
                 dataConverter.convertDelegateesToIdentities(lecturerCourses),
 				dataConverter.convertStudentsToIdentities(studentCourses),
-                textDao.getContentsByCourseId(course.getId()), course.getResourceableId(),
+                textDao.getContentsByCourseId(course.getId()), course.getOlatResource(),
 				course.getId(), course.getLanguage(), course.getVvzLink());
     }
 
@@ -436,9 +436,9 @@ public class DaoManager {
         // i)  If we have no parent course (i.e. it is not a continued course) we assume that the student course booking
         //     is always up-to-date.
         // ii) If we have a parent course (i.e. it is a continued course) we require that at least 50% of the bookings
-        //     of the current semester must be students who have already booked the parent course. Otherwise
-        //     the secretariat seems not have (manually) copied all the (permitted) students of the parent course.
-        return (course.getParentCourse() == null || studentDao.hasMoreThan50PercentOfStudentsOfSpecificCourseBothABookingOfCourseAndParentCourse(course.getId()));
+        //     of the previous semester must be students who also booked the course in the current semester. Otherwise
+        //     the secretariat seems not have (manually) copied all the (permitted) students of the parent course yet.
+        return (course.getParentCourse() == null || studentDao.hasMoreThan50PercentOfStudentsOfSpecificCourseBothABookingOfCourseAndParentCourse(course));
     }
 
     public List getDelegatees(Identity delegator) {

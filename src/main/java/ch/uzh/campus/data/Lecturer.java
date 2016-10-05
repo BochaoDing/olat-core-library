@@ -23,7 +23,7 @@ import java.util.Set;
 @NamedQueries({
         @NamedQuery(name = Lecturer.GET_LECTURER_BY_EMAIL, query = "select l from Lecturer l where l.email = :email"),
         @NamedQuery(name = Lecturer.GET_ALL_LECTURERS_WITH_CREATED_OR_NOT_CREATED_CREATABLE_COURSES, query = "select distinct l from Lecturer l join l.lecturerCourses lc where " +
-                "lc.course.resourceableId is not null or " +
+                "lc.course.olatResource is not null or " +
                 "(lc.course.exclude = false " +
                 "and exists (select c1 from Course c1 join c1.orgs o where c1.id = lc.course.id and o.enabled = true))"),
         @NamedQuery(name = Lecturer.GET_ALL_NOT_MANUALLY_MAPPED_OR_TOO_OLD_ORPHANED_LECTURERS, query = "select l.personalNr from Lecturer l where " +

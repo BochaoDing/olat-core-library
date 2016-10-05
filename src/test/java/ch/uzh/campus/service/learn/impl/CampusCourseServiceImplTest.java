@@ -6,7 +6,7 @@ import ch.uzh.campus.service.core.CampusCourseCoreService;
 import org.junit.Before;
 import org.junit.Test;
 import org.olat.core.id.Identity;
-import org.olat.repository.RepositoryManager;
+import org.olat.resource.OLATResource;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -23,25 +23,22 @@ import static org.mockito.Mockito.when;
 public class CampusCourseServiceImplTest {
 	
 	private CampusCourseServiceImpl campusCourseLearnServiceImplTestObject;
-
-    private Set<Course> coursesWithResourceableId = new HashSet<Course>();
-    private Set<Course> coursesWithoutResourceableId = new HashSet<Course>();
-
+    private Set<Course> coursesWithResourceableId = new HashSet<>();
+    private Set<Course> coursesWithoutResourceableId = new HashSet<>();
     private Identity identityMock;
 
     @Before
     public void setup() {
         CampusCourseCoreService campusCourseCoreServiceMock = mock(CampusCourseCoreService.class);
-		RepositoryManager repositoryManager = mock(RepositoryManager.class);
         campusCourseLearnServiceImplTestObject = new CampusCourseServiceImpl(
 				campusCourseCoreServiceMock,
-				repositoryManager,
-				"true"
+                "true"
 		);
+        OLATResource olatResourceMock = mock(OLATResource.class);
 
         // Course which could be created
         Course course1 = new Course();
-        course1.setId(new Long(50550670));
+        course1.setId(50550670L);
         course1.setTitle("Wahlpflichtmodul MA: Forschungsseminar Policy Analyse, 2-sem. (SA)");
         course1.setShortTitle("Short Title 1");
         course1.setVstNr("111111");
@@ -49,16 +46,16 @@ public class CampusCourseServiceImplTest {
 
         // Course which could be opened
         Course course2 = new Course();
-        course2.setId(new Long(50541483));
+        course2.setId(50541483L);
         course2.setTitle("English Literature: Textual Analysis, Part II (Vorlesung zum Seminar)");
         course2.setShortTitle("Short Title 2");
         course2.setVstNr("2222222");
-        course2.setResourceableId(new Long(99999));
+        course2.setOlatResource(olatResourceMock);
         coursesWithResourceableId.add(course2);
 
         // Course which could be created
         Course course3 = new Course();
-        course3.setId(new Long(50541762));
+        course3.setId(50541762L);
         course3.setTitle("Pflichtmodul M.A.-Seminar Sprachwissenschaft (6 KP)");
         course3.setShortTitle("Short Title 3");
         course3.setVstNr("333333");

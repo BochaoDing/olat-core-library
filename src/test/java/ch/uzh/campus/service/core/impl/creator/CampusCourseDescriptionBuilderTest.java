@@ -7,6 +7,7 @@ import org.olat.basesecurity.IdentityImpl;
 import org.olat.core.gui.translator.Translator;
 import org.olat.core.id.Identity;
 import org.olat.core.id.UserConstants;
+import org.olat.resource.OLATResource;
 import org.olat.user.UserImpl;
 
 import java.util.ArrayList;
@@ -24,7 +25,6 @@ import static org.mockito.Mockito.*;
 public class CampusCourseDescriptionBuilderTest {
 
     private final static String LECTURE_SOLL = "first_lectureA last_lectureA, first_lectureB last_lectureB";
-    private final static Long TEST_RESOURCEABLE_ID = 1234L;
 
     private CampusCourseDescriptionBuilder campusCourseDescriptionBuilder;
     private List<Identity> lecturers;
@@ -67,11 +67,13 @@ public class CampusCourseDescriptionBuilderTest {
         argsMock[1] = LECTURE_SOLL;
         argsMock[2] = eventDescription;
 
+        OLATResource olatResourceMock = mock(OLATResource.class);
+
         List<Identity> participants = new ArrayList<>();
         CampusCourseImportTO campusCourseData = new CampusCourseImportTO(
 				title, semester, lecturers, participants,
 				Collections.emptyList(), eventDescription,
-				TEST_RESOURCEABLE_ID, null, null, null);
+				olatResourceMock, null, null, null);
         Translator translatorMock = mock(Translator.class);
         campusCourseDescriptionBuilder.translator = translatorMock;
         // Description example :

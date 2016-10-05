@@ -5,6 +5,9 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.olat.core.commons.persistence.DB;
+import org.olat.core.id.OLATResourceable;
+import org.olat.resource.OLATResource;
+import org.olat.resource.OLATResourceManager;
 import org.olat.test.OlatTestCase;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
@@ -53,9 +56,18 @@ public class CourseDaoTest extends OlatTestCase {
     private EventDao eventDao;
 
     @Autowired
+    private OLATResourceManager olatResourceManager;
+
+    @Autowired
     private Provider<MockDataGenerator> mockDataGeneratorProvider;
 
     private CourseDao courseDao;
+
+    private OLATResource olatResource1;
+    private OLATResource olatResource2;
+    private OLATResource olatResource4;
+    private OLATResource olatResource5;
+    private OLATResource olatResource6;
 
     @Before
     public void before() {
@@ -210,19 +222,19 @@ public class CourseDaoTest extends OlatTestCase {
     }
 
     @Test
-    public void testLatestCourseByResourceable() throws Exception {
+    public void testLatestCourseByOlatResource() throws Exception {
         insertTestData();
 
-        // Make course 400 to be the parent course of 300, 500 the parent of 400 and 600 the parent of 500 and set for courses 300, 400 and 500 the recourceableId of course 600
+        // Make course 400 to be the parent course of 300, 500 the parent of 400 and 600 the parent of 500 and set for courses 300, 400 and 500 the olat resource of course 600
         courseDao.saveParentCourseId(300L, 400L);
         courseDao.saveParentCourseId(400L, 500L);
         courseDao.saveParentCourseId(500L, 600L);
         Course course = courseDao.getCourseById(600L);
-        courseDao.saveResourceableId(300L, course.getResourceableId());
-        courseDao.saveResourceableId(400L, course.getResourceableId());
-        courseDao.saveResourceableId(500L, course.getResourceableId());
+        courseDao.saveOlatResource(300L, course.getOlatResource().getKey());
+        courseDao.saveOlatResource(400L, course.getOlatResource().getKey());
+        courseDao.saveOlatResource(500L, course.getOlatResource().getKey());
 
-        course = courseDao.getLatestCourseByResourceable(course.getResourceableId());
+        course = courseDao.getLatestCourseByOlatResource(course.getOlatResource().getKey());
         assertNotNull(course);
         assertEquals(300L, course.getId().longValue());
     }
@@ -332,20 +344,23 @@ public class CourseDaoTest extends OlatTestCase {
     }
 
     @Test
-    public void testSaveResourceableId() {
+    public void testSaveOlatResource() {
         insertTestData();
-        Course course = courseDao.getCourseById(100L);
-        assertEquals(101L, course.getResourceableId().longValue());
+        Course course = courseDao.getCourseById(300L);
+        assertNull(course.getOlatResource());
 
-        courseDao.saveResourceableId(100L, 1000L);
+        OLATResource olatResource = insertOlatResource("resourceCourseDao3");
+        dbInstance.flush();
 
-        assertEquals(1000L, course.getResourceableId().longValue());
+        courseDao.saveOlatResource(course.getId(), olatResource.getKey());
+
+        assertEquals(olatResource, course.getOlatResource());
 
         dbInstance.flush();
         dbInstance.clear();
 
-        Course updatedCourse = courseDao.getCourseById(100L);
-        assertEquals(1000L, updatedCourse.getResourceableId().longValue());
+        Course updatedCourse = courseDao.getCourseById(course.getId());
+        assertEquals(olatResource, updatedCourse.getOlatResource());
     }
 
     @Test
@@ -366,33 +381,33 @@ public class CourseDaoTest extends OlatTestCase {
     }
 
     @Test
-    public void testDeleteResourceableIdAndParentCourse() {
+    public void testResetOlatResourceAndParentCourse() {
         insertTestData();
         Course courseWithoutParentCourse = courseDao.getCourseById(100L);
         Course courseWithParentCourse = courseDao.getCourseById(200L);
         // Make course 400 to be the parent course of 200
         courseDao.saveParentCourseId(200L, 400L);
-        assertEquals(101L, courseWithoutParentCourse.getResourceableId().longValue());
+        assertEquals(olatResource1, courseWithoutParentCourse.getOlatResource());
         assertNull(courseWithoutParentCourse.getParentCourse());
-        assertEquals(201L, courseWithParentCourse.getResourceableId().longValue());
+        assertEquals(olatResource2, courseWithParentCourse.getOlatResource());
         assertNotNull(courseWithParentCourse.getParentCourse());
 
-        courseDao.resetResourceableIdAndParentCourse(101L);
-        courseDao.resetResourceableIdAndParentCourse(201L);
+        courseDao.resetOlatResourceAndParentCourse(olatResource1.getKey());
+        courseDao.resetOlatResourceAndParentCourse(olatResource2.getKey());
 
-        assertNull(courseWithoutParentCourse.getResourceableId());
+        assertNull(courseWithoutParentCourse.getOlatResource());
         assertNull(courseWithoutParentCourse.getParentCourse());
-        assertNull(courseWithParentCourse.getResourceableId());
+        assertNull(courseWithParentCourse.getOlatResource());
         assertNull(courseWithParentCourse.getParentCourse());
 
         dbInstance.flush();
         dbInstance.clear();
 
         Course updatedCourseWithoutParentCourse = courseDao.getCourseById(100L);
-        assertNull(updatedCourseWithoutParentCourse.getResourceableId());
+        assertNull(updatedCourseWithoutParentCourse.getOlatResource());
         assertNull(updatedCourseWithoutParentCourse.getParentCourse());
         Course updatedCourseWithParentCourse = courseDao.getCourseById(200L);
-        assertNull(updatedCourseWithParentCourse.getResourceableId());
+        assertNull(updatedCourseWithParentCourse.getOlatResource());
         assertNull(updatedCourseWithParentCourse.getParentCourse());
     }
 
@@ -426,7 +441,7 @@ public class CourseDaoTest extends OlatTestCase {
     }
 
     @Test
-    public void testGetResourceableIdsOfAllCreatedNotContinuedCoursesOfSpecificSemesters() {
+    public void testGetOlatResourceKeysOfAllCreatedNotContinuedCoursesOfSpecificSemesters() {
         insertTestData();
 
         List<String> shortSemesters = new ArrayList<>();
@@ -434,51 +449,61 @@ public class CourseDaoTest extends OlatTestCase {
         shortSemesters.add("98HS");
         shortSemesters.add("98FS");
 
-        List<Long> resourceableIdsOfAllCreatedNotContinuedCoursesOfSpecificSemesters = courseDao.getResourceableIdsOfAllCreatedNotContinuedCoursesOfSpecificSemesters(shortSemesters);
-        assertEquals(3, resourceableIdsOfAllCreatedNotContinuedCoursesOfSpecificSemesters.size());
-        assertTrue(resourceableIdsOfAllCreatedNotContinuedCoursesOfSpecificSemesters.contains(401L));
-        assertTrue(resourceableIdsOfAllCreatedNotContinuedCoursesOfSpecificSemesters.contains(501L));
-        assertTrue(resourceableIdsOfAllCreatedNotContinuedCoursesOfSpecificSemesters.contains(601L));
+        List<Long> olatResourceKeysOfAllCreatedNotContinuedCoursesOfSpecificSemesters = courseDao.getOlatResourceKeysOfAllCreatedNotContinuedCoursesOfSpecificSemesters(shortSemesters);
+        assertEquals(3, olatResourceKeysOfAllCreatedNotContinuedCoursesOfSpecificSemesters.size());
+        assertTrue(olatResourceKeysOfAllCreatedNotContinuedCoursesOfSpecificSemesters.contains(olatResource4.getKey()));
+        assertTrue(olatResourceKeysOfAllCreatedNotContinuedCoursesOfSpecificSemesters.contains(olatResource5.getKey()));
+        assertTrue(olatResourceKeysOfAllCreatedNotContinuedCoursesOfSpecificSemesters.contains(olatResource6.getKey()));
 
-        // Make course 400 to be the parent course of 300 and set set the same reourceableId for courses 300 and 400
+        // Make course 400 to be the parent course of 300 and set set the same olat resource for courses 300 and 400
         // -> Should not contain course 400 any more, because it is continued, i.e. it is the parent of course 300
         dbInstance.clear();
         courseDao.saveParentCourseId(300L, 400L);
-        courseDao.saveResourceableId(300L, 1L);
-        courseDao.saveResourceableId(400L, 1L);
 
-        resourceableIdsOfAllCreatedNotContinuedCoursesOfSpecificSemesters = courseDao.getResourceableIdsOfAllCreatedNotContinuedCoursesOfSpecificSemesters(shortSemesters);
-        assertEquals(2, resourceableIdsOfAllCreatedNotContinuedCoursesOfSpecificSemesters.size());
-        assertTrue(resourceableIdsOfAllCreatedNotContinuedCoursesOfSpecificSemesters.contains(501L));
-        assertTrue(resourceableIdsOfAllCreatedNotContinuedCoursesOfSpecificSemesters.contains(601L));
+        OLATResource olatResource = insertOlatResource("resourceCourseDao1");
+        dbInstance.flush();
+
+        courseDao.saveOlatResource(300L, olatResource.getKey());
+        courseDao.saveOlatResource(400L, olatResource.getKey());
+        dbInstance.flush();
+
+        olatResourceKeysOfAllCreatedNotContinuedCoursesOfSpecificSemesters = courseDao.getOlatResourceKeysOfAllCreatedNotContinuedCoursesOfSpecificSemesters(shortSemesters);
+        assertEquals(2, olatResourceKeysOfAllCreatedNotContinuedCoursesOfSpecificSemesters.size());
+        assertTrue(olatResourceKeysOfAllCreatedNotContinuedCoursesOfSpecificSemesters.contains(olatResource5.getKey()));
+        assertTrue(olatResourceKeysOfAllCreatedNotContinuedCoursesOfSpecificSemesters.contains(olatResource6.getKey()));
 
         // If we look for courses in 99HS, we should get course 300, which has a parent, but is not continued itself
         dbInstance.clear();
         shortSemesters = new ArrayList<>();
         shortSemesters.add("99HS");
 
-        resourceableIdsOfAllCreatedNotContinuedCoursesOfSpecificSemesters = courseDao.getResourceableIdsOfAllCreatedNotContinuedCoursesOfSpecificSemesters(shortSemesters);
-        assertTrue(resourceableIdsOfAllCreatedNotContinuedCoursesOfSpecificSemesters.contains(1L));
+        olatResourceKeysOfAllCreatedNotContinuedCoursesOfSpecificSemesters = courseDao.getOlatResourceKeysOfAllCreatedNotContinuedCoursesOfSpecificSemesters(shortSemesters);
+        assertTrue(olatResourceKeysOfAllCreatedNotContinuedCoursesOfSpecificSemesters.contains(olatResource.getKey()));
     }
 
     @Test
-    public void testGetResourceableIdsOfAllCreatedNotContinuedCoursesOfPreviousSemestersNotTooFarInThePast() {
+    public void testGetOlatResourceKeysOfAllCreatedNotContinuedCoursesOfPreviousSemestersNotTooFarInThePast() {
         insertTestData();
-        List<Long> resourceableIdsOfAllCreatedNotContinuedCoursesOfOldSemestersNotTooFarInThePast = courseDao.getResourceableIdsOfAllCreatedNotContinuedCoursesOfPreviousSemestersNotTooFarInThePast();
-        assertEquals(2, resourceableIdsOfAllCreatedNotContinuedCoursesOfOldSemestersNotTooFarInThePast.size());
-        assertTrue(resourceableIdsOfAllCreatedNotContinuedCoursesOfOldSemestersNotTooFarInThePast.contains(401L));
-        assertTrue(resourceableIdsOfAllCreatedNotContinuedCoursesOfOldSemestersNotTooFarInThePast.contains(501L));
+        List<Long> olatResourceKeysOfAllCreatedNotContinuedCoursesOfOldSemestersNotTooFarInThePast = courseDao.getOlatResourceKeysOfAllCreatedNotContinuedCoursesOfPreviousSemestersNotTooFarInThePast();
+        assertEquals(2, olatResourceKeysOfAllCreatedNotContinuedCoursesOfOldSemestersNotTooFarInThePast.size());
+        assertTrue(olatResourceKeysOfAllCreatedNotContinuedCoursesOfOldSemestersNotTooFarInThePast.contains(olatResource4.getKey()));
+        assertTrue(olatResourceKeysOfAllCreatedNotContinuedCoursesOfOldSemestersNotTooFarInThePast.contains(olatResource5.getKey()));
 
-        // Make course 400 to be the parent course of 300 and set set the same reourceableId for courses 300 and 400
+        // Make course 400 to be the parent course of 300 and set set the same olat resource for courses 300 and 400
         // -> Should not contain course 400 any more, because it is continued, i.e. it is the parent of course 300
         dbInstance.clear();
         courseDao.saveParentCourseId(300L, 400L);
-        courseDao.saveResourceableId(300L, 1L);
-        courseDao.saveResourceableId(400L, 1L);
 
-        resourceableIdsOfAllCreatedNotContinuedCoursesOfOldSemestersNotTooFarInThePast = courseDao.getResourceableIdsOfAllCreatedNotContinuedCoursesOfPreviousSemestersNotTooFarInThePast();
-        assertEquals(1, resourceableIdsOfAllCreatedNotContinuedCoursesOfOldSemestersNotTooFarInThePast.size());
-        assertTrue(resourceableIdsOfAllCreatedNotContinuedCoursesOfOldSemestersNotTooFarInThePast.contains(501L));
+        OLATResource olatResource = insertOlatResource("resourceCourseDao1");
+        dbInstance.flush();
+
+        courseDao.saveOlatResource(300L, olatResource.getKey());
+        courseDao.saveOlatResource(400L, olatResource.getKey());
+        dbInstance.flush();
+
+        olatResourceKeysOfAllCreatedNotContinuedCoursesOfOldSemestersNotTooFarInThePast = courseDao.getOlatResourceKeysOfAllCreatedNotContinuedCoursesOfPreviousSemestersNotTooFarInThePast();
+        assertEquals(1, olatResourceKeysOfAllCreatedNotContinuedCoursesOfOldSemestersNotTooFarInThePast.size());
+        assertTrue(olatResourceKeysOfAllCreatedNotContinuedCoursesOfOldSemestersNotTooFarInThePast.contains(olatResource5.getKey()));
     }
 
     @Test
@@ -486,10 +511,10 @@ public class CourseDaoTest extends OlatTestCase {
         insertTestData();
         assertEquals(2, courseDao.getIdsOfAllCreatedSynchronizableCoursesOfCurrentSemester().size());
 
-        courseDao.resetResourceableIdAndParentCourse(101L);
-
+        // Remove OLAT resource from course 100
+        Course course = courseDao.getCourseById(100L);
+        course.setOlatResource(null);
         dbInstance.flush();
-        dbInstance.clear();
 
         assertEquals(1, courseDao.getIdsOfAllCreatedSynchronizableCoursesOfCurrentSemester().size());
     }
@@ -501,11 +526,10 @@ public class CourseDaoTest extends OlatTestCase {
         assertEquals(1, idsFound.size());
         assertTrue(idsFound.contains(300L));
 
-        // Reset resourceable, i.e. undo create course
-        courseDao.resetResourceableIdAndParentCourse(101L);
-
+        // Remove OLAT resource from course 100
+        Course course = courseDao.getCourseById(100L);
+        course.setOlatResource(null);
         dbInstance.flush();
-        dbInstance.clear();
 
         idsFound = courseDao.getIdsOfAllNotCreatedCreatableCoursesOfCurrentSemester();
         assertEquals(2, idsFound.size());
@@ -549,16 +573,20 @@ public class CourseDaoTest extends OlatTestCase {
     }
 
     @Test
-    public void testExistResourceableId() {
+    public void testExistCoursesForOlatReource() {
         insertTestData();
-        assertTrue(courseDao.existResourceableId(101L));
 
-        courseDao.resetResourceableIdAndParentCourse(100L);
-
+        OLATResource olatResource = insertOlatResource("resourceCourseDao3");
         dbInstance.flush();
-        dbInstance.clear();
 
-        assertFalse(courseDao.existResourceableId(100L));
+        assertFalse(courseDao.existCoursesForOlatResource(olatResource.getKey()));
+
+        Course course = courseDao.getCourseById(300L);
+        assertNotNull(course);
+        courseDao.saveOlatResource(course.getId(), olatResource.getKey());
+        dbInstance.flush();
+
+        assertTrue(courseDao.existCoursesForOlatResource(olatResource.getKey()));
     }
 
     @Test
@@ -587,10 +615,12 @@ public class CourseDaoTest extends OlatTestCase {
         Course course1 = courseDao.getCourseById(300L);
         Course course2 = courseDao.getCourseById(400L);
 
-        // Make course 2 to be the parent course of course 1 and set set the same reourceableId for courses 1 and 2
+        // Make course 2 to be the parent course of course 1 and set set the same olat resource for courses 1 and 2
         courseDao.saveParentCourseId(course1.getId(), course2.getId());
-        courseDao.saveResourceableId(course1.getId(), 1L);
-        courseDao.saveResourceableId(course2.getId(), 1L);
+
+        OLATResource olatResource = insertOlatResource("resourceCourseDao1");
+        course1.setOlatResource(olatResource);
+        course2.setOlatResource(olatResource);
         dbInstance.flush();
 
         // Student 1 has only a booking for course course 1, but not for it's parent course
@@ -710,9 +740,12 @@ public class CourseDaoTest extends OlatTestCase {
         List<Long> courseIds = coursesFound.stream().map(Course::getId).collect(Collectors.toList());
         assertTrue(courseIds.contains(course1.getId()));
 
-        // Add resourceableId to courses 1 and 2, i.e. make it created
-        courseDao.saveResourceableId(course1.getId(), 1L);
-        courseDao.saveResourceableId(course2.getId(), 1L);
+        // Add olat resource to courses 1 and 2, i.e. make it created
+        OLATResource olatResource = insertOlatResource("resourceCourseDao1");
+        dbInstance.flush();
+
+        courseDao.saveOlatResource(course1.getId(), olatResource.getKey());
+        courseDao.saveOlatResource(course2.getId(), olatResource.getKey());
         dbInstance.flush();
 
         // Should behave as before
@@ -734,20 +767,20 @@ public class CourseDaoTest extends OlatTestCase {
         dbInstance.flush();
 
         // Make course 2 to be the parent course of course 3 (course with disabled org)
-        courseDao.resetResourceableIdAndParentCourse(course1.getResourceableId());
+        courseDao.resetOlatResourceAndParentCourse(course1.getOlatResource().getKey());
         courseDao.saveParentCourseId(course3.getId(), course2.getId());
-        courseDao.saveResourceableId(course3.getId(), 1L);
-        courseDao.saveResourceableId(course2.getId(), 1L);
+        courseDao.saveOlatResource(course3.getId(), olatResource.getKey());
+        courseDao.saveOlatResource(course2.getId(), olatResource.getKey());
         dbInstance.flush();
 
         // Course 3 should not be found, since it has a disabled org
         assertTrue(courseDao.getCreatedAndNotCreatedCreatableCoursesOfCurrentSemesterByStudentIdBookedByStudentOnlyAsParentCourse(student2.getId()).isEmpty());
 
         // Make course 2 to be the parent course of course 4 (excluded course)
-        courseDao.resetResourceableIdAndParentCourse(course3.getResourceableId());
+        courseDao.resetOlatResourceAndParentCourse(course3.getOlatResource().getKey());
         courseDao.saveParentCourseId(course4.getId(), course2.getId());
-        courseDao.saveResourceableId(course4.getId(), 1L);
-        courseDao.saveResourceableId(course2.getId(), 1L);
+        courseDao.saveOlatResource(course4.getId(), olatResource.getKey());
+        courseDao.saveOlatResource(course2.getId(), olatResource.getKey());
         dbInstance.flush();
 
         // Course 4 should not be found, since it has a disabled org
@@ -809,5 +842,54 @@ public class CourseDaoTest extends OlatTestCase {
         List<EventCourseId> eventCourseIds = mockDataGeneratorProvider.get().getEventCourseIds();
         eventDao.addEventsToCourse(eventCourseIds);
         dbInstance.flush();
+
+        addOlatResourceToCourses_100_200_400_500_600();
+    }
+
+    private void addOlatResourceToCourses_100_200_400_500_600() {
+        Course course1 = courseDao.getCourseById(100L);
+        Course course2 = courseDao.getCourseById(200L);
+        Course course4 = courseDao.getCourseById(400L);
+        Course course5 = courseDao.getCourseById(500L);
+        Course course6 = courseDao.getCourseById(600L);
+        olatResource1 = insertOlatResource("resourceCourseDaoTestData1");
+        olatResource2 = insertOlatResource("resourceCourseDaoTestData2");
+        olatResource4 = insertOlatResource("resourceCourseDaoTestData4");
+        olatResource5 = insertOlatResource("resourceCourseDaoTestData5");
+        olatResource6 = insertOlatResource("resourceCourseDaoTestData6");
+        course1.setOlatResource(olatResource1);
+        course2.setOlatResource(olatResource2);
+        course4.setOlatResource(olatResource4);
+        course5.setOlatResource(olatResource5);
+        course6.setOlatResource(olatResource6);
+        dbInstance.flush();
+    }
+
+    private OLATResource insertOlatResource(String olatResourceName) {
+        olatResourceName = "courseDaoTest_" + olatResourceName;
+        TestResourceable resourceable = new TestResourceable(8213649L, olatResourceName);
+        OLATResource olatResource = olatResourceManager.createOLATResourceInstance(resourceable);
+        olatResourceManager.saveOLATResource(olatResource);
+        return olatResource;
+    }
+
+    private static class TestResourceable implements OLATResourceable {
+        private final Long resId;
+        private final String resName;
+
+        TestResourceable(Long resId, String resourceName) {
+            this.resId = resId;
+            this.resName = resourceName;
+        }
+
+        @Override
+        public Long getResourceableId() {
+            return resId;
+        }
+
+        @Override
+        public String getResourceableTypeName() {
+            return resName;
+        }
     }
 }

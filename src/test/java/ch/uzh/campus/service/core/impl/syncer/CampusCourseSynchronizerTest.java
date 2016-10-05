@@ -13,6 +13,7 @@ import org.junit.Test;
 import org.olat.core.id.Identity;
 import org.olat.course.ICourse;
 import org.olat.repository.RepositoryEntry;
+import org.olat.resource.OLATResource;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -67,12 +68,13 @@ public class CampusCourseSynchronizerTest {
         RepositoryEntry repositoryEntry = mock(RepositoryEntry.class);
         when(repositoryEntry.getDisplayname()).thenReturn(title);
         when(repositoryEntry.getDescription()).thenReturn(eventDescription);
+        OLATResource olatResourceMock = mock(OLATResource.class);
         CampusCourse campusCourse = new CampusCourse(course, repositoryEntry);
 
         // Prepare a test CampusCourseImportTO
         campusCourseImportTO = new CampusCourseImportTO(
                 title, "HS2012", lecturers, Collections.emptyList(), participants, eventDescription,
-                1045L, EXISTING_SAP_COURSE_ID, null, null
+                olatResourceMock, EXISTING_SAP_COURSE_ID, null, null
         );
 
         // mock injections for CampusCourseSynchronizer

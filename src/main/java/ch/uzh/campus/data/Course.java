@@ -1,6 +1,8 @@
 package ch.uzh.campus.data;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
+import org.olat.resource.OLATResource;
+import org.olat.resource.OLATResourceImpl;
 
 import javax.persistence.*;
 import java.util.Date;
@@ -14,39 +16,40 @@ import java.util.Set;
  * @author lavinia
  * @author Martin Schraner
  */
+@SuppressWarnings("JpaQlInspection")  // Required to suppress warnings caused by c.olatResource.key
 @Entity
 @NamedQueries({
-        @NamedQuery(name = Course.GET_ALL_CREATED_COURSES_OF_CURRENT_SEMESTER, query = "select c from Course c where c.resourceableId is not null and c.shortSemester = (select max(c2.shortSemester) from Course c2)"),
-        @NamedQuery(name = Course.GET_IDS_OF_ALL_CREATED_SYNCHRONIZABLE_COURSES_OF_CURRENT_SEMESTER, query = "select c.id from Course c where c.resourceableId is not null and c.synchronizable = true and c.shortSemester = (select max(c2.shortSemester) from Course c2)"),
-        @NamedQuery(name = Course.GET_RESOURCEABLE_IDS_OF_ALL_CREATED_NOT_CONTINUED_COURSES_OF_SPECIFIC_SEMESTERS, query = "select c.resourceableId from Course c where " +
-                "c.resourceableId is not null " +
+        @NamedQuery(name = Course.GET_ALL_CREATED_COURSES_OF_CURRENT_SEMESTER, query = "select c from Course c where c.olatResource is not null and c.shortSemester = (select max(c2.shortSemester) from Course c2)"),
+        @NamedQuery(name = Course.GET_IDS_OF_ALL_CREATED_SYNCHRONIZABLE_COURSES_OF_CURRENT_SEMESTER, query = "select c.id from Course c where c.olatResource is not null and c.synchronizable = true and c.shortSemester = (select max(c2.shortSemester) from Course c2)"),
+        @NamedQuery(name = Course.GET_OLAT_RESOURCE_KEYS_OF_ALL_CREATED_NOT_CONTINUED_COURSES_OF_SPECIFIC_SEMESTERS, query = "select c.olatResource.key from Course c where " +
+                "c.olatResource is not null " +
                 "and c.shortSemester in :shortSemesters " +
                 "and not exists (select c2 from Course c2 where c2.parentCourse.id = c.id)"),
         @NamedQuery(name = Course.GET_IDS_OF_ALL_NOT_CREATED_CREATABLE_COURSES_OF_CURRENT_SEMESTER, query = "select c.id from Course c where " +
-                "c.resourceableId is null " +
+                "c.olatResource is null " +
                 "and c.exclude = false " +
                 "and exists (select c1 from Course c1 join c1.orgs o where c1.id = c.id and o.enabled = true) " +
                 "and c.shortSemester = (select max(c2.shortSemester) from Course c2)"),
         @NamedQuery(name = Course.GET_CREATED_COURSES_OF_CURRENT_SEMESTER_BY_LECTURER_ID, query = "select c from Course c join c.lecturerCourses lc where " +
-                "c.resourceableId is not null and lc.lecturer.personalNr = :lecturerId " +
+                "c.olatResource is not null and lc.lecturer.personalNr = :lecturerId " +
                 "and c.shortSemester = (select max(c1.shortSemester) from Course c1) and c.title like :searchString"),
         @NamedQuery(name = Course.GET_NOT_CREATED_CREATABLE_COURSES_OF_CURRENT_SEMESTER_BY_LECTURER_ID, query = "select c from Course c join c.lecturerCourses lc where " +
                 "lc.lecturer.personalNr = :lecturerId " +
-                "and c.resourceableId is null " +
+                "and c.olatResource is null " +
                 "and c.exclude = false " +
                 "and exists (select c1 from Course c1 join c1.orgs o where c1.id = c.id and o.enabled = true) " +
                 "and c.shortSemester = (select max(c2.shortSemester) from Course c2) " +
                 "and c.title like :searchString"),
         @NamedQuery(name = Course.GET_CREATED_COURSES_OF_CURRENT_SEMESTER_BY_STUDENT_ID, query = "select c from Course c join c.studentCourses sc where " +
-                "c.resourceableId is not null and sc.student.id = :studentId " +
+                "c.olatResource is not null and sc.student.id = :studentId " +
                 "and c.shortSemester = (select max(c1.shortSemester) from Course c1) and c.title like :searchString"),
         @NamedQuery(name = Course.GET_CREATED_COURSES_OF_CURRENT_SEMESTER_BY_STUDENT_ID_BOOKED_BY_STUDENT_ONLY_AS_PARENT_COURSE, query = "select c from Course c join c.parentCourse.studentCourses scp where " +
-                "c.parentCourse is not null and c.resourceableId is not null and scp.student.id = :studentId " +
+                "c.parentCourse is not null and c.olatResource is not null and scp.student.id = :studentId " +
                 "and not exists (select c1 from Course c1 join c1.studentCourses sc1 where c1.id = c.id and sc1.student.id = :studentId) " +
                 "and c.shortSemester = (select max(c2.shortSemester) from Course c2) and c.title like :searchString"),
         @NamedQuery(name = Course.GET_NOT_CREATED_CREATABLE_COURSES_OF_CURRENT_SEMESTER_BY_STUDENT_ID, query = "select c from Course c join c.studentCourses sc where " +
                 "sc.student.id = :studentId " +
-                "and c.resourceableId is null " +
+                "and c.olatResource is null " +
                 "and c.exclude = false " +
                 "and exists (select c1 from Course c1 join c1.orgs o where c1.id = c.id and o.enabled = true) " +
                 "and c.shortSemester = (select max(c2.shortSemester) from Course c2) " +
@@ -67,10 +70,10 @@ import java.util.Set;
                 "and c.exclude = false " +
                 "and exists (select c1 from Course c1 join c1.orgs o where c1.id = c.id and o.enabled = true) " +
                 "and c.shortSemester = (select max(c2.shortSemester) from Course c2) "),
-        @NamedQuery(name = Course.GET_ALL_NOT_CREATED_ORPHANED_COURSES, query = "select c.id from Course c where c.resourceableId is null and c.id not in (select lc.course.id from LecturerCourse lc) and c.id not in (select sc.course.id from StudentCourse sc)"),
-        @NamedQuery(name = Course.GET_COURSE_IDS_BY_RESOURCEABLE_ID, query = "select c.id from Course c where c.resourceableId = :resourceableId"),
-        @NamedQuery(name = Course.GET_COURSES_BY_RESOURCEABLE_ID, query = "select c from Course c where c.resourceableId = :resourceableId"),
-        @NamedQuery(name = Course.GET_LATEST_COURSE_BY_RESOURCEABLE_ID, query = "select c from Course c where c.resourceableId = :resourceableId and c.endDate = (select max(c1.endDate) from Course c1 where c1.resourceableId = :resourceableId)"),
+        @NamedQuery(name = Course.GET_ALL_NOT_CREATED_ORPHANED_COURSES, query = "select c.id from Course c where c.olatResource is null and c.id not in (select lc.course.id from LecturerCourse lc) and c.id not in (select sc.course.id from StudentCourse sc)"),
+        @NamedQuery(name = Course.GET_COURSE_IDS_BY_OLAT_RESOURCE_KEY, query = "select c.id from Course c where c.olatResource.key = :olatResourceKey"),
+        @NamedQuery(name = Course.GET_COURSES_BY_OLAT_RESOURCE_KEY, query = "select c from Course c where c.olatResource.key = :olatResourceKey"),
+        @NamedQuery(name = Course.GET_LATEST_COURSE_BY_OLAT_RESOURCE_KEY, query = "select c from Course c where c.olatResource.key = :olatResourceKey and c.endDate = (select max(c1.endDate) from Course c1 where c1.olatResource.key = :olatResourceKey)"),
         @NamedQuery(name = Course.GET_ALL_SHORT_SEMESTERS_IN_DESCENDING_ORDER, query = "select c.shortSemester from Course c group by c.shortSemester order by c.shortSemester desc")
 })
 @Table(name = "ck_course")
@@ -80,9 +83,6 @@ public class Course {
 
     @Id
     private Long id;
-
-    @Column(name = "olat_id")
-    private Long resourceableId;
 
     @Column(name = "short_title", nullable = false)
     private String shortTitle;
@@ -130,6 +130,11 @@ public class Course {
     @Column(name = "date_of_import")
     private Date dateOfImport;
 
+    @SuppressWarnings("JpaAttributeTypeInspection")
+    @ManyToOne(targetEntity=OLATResourceImpl.class)
+    @JoinColumn(name = "fk_resource")
+    private OLATResource olatResource;
+
     @OneToMany(mappedBy = "course")
     private Set<LecturerCourse> lecturerCourses = new HashSet<>();
   
@@ -158,7 +163,7 @@ public class Course {
     public Course() {}
 
     static final String GET_IDS_OF_ALL_CREATED_SYNCHRONIZABLE_COURSES_OF_CURRENT_SEMESTER = "getIdsOfAllCreatedSynchronizableCoursesOfCurrentSemester";
-    static final String GET_RESOURCEABLE_IDS_OF_ALL_CREATED_NOT_CONTINUED_COURSES_OF_SPECIFIC_SEMESTERS = "getResourceableIdsOfAllCreatedNotContinuedCoursesOfSpecificSemesters";
+    static final String GET_OLAT_RESOURCE_KEYS_OF_ALL_CREATED_NOT_CONTINUED_COURSES_OF_SPECIFIC_SEMESTERS = "getOlatResourceKeysOfAllCreatedNotContinuedCoursesOfSpecificSemesters";
     static final String GET_IDS_OF_ALL_NOT_CREATED_CREATABLE_COURSES_OF_CURRENT_SEMESTER = "getIdsOfAllNotCreatedCreatableCoursesOfCurrentSemester";
     static final String GET_ALL_CREATED_COURSES_OF_CURRENT_SEMESTER = "getAllCreatedCoursesOfCurrentSemester";
     static final String GET_CREATED_COURSES_OF_CURRENT_SEMESTER_BY_LECTURER_ID = "getCreatedCoursesOfCurrentSemesterByLecturerId";
@@ -167,12 +172,12 @@ public class Course {
     static final String GET_CREATED_COURSES_OF_CURRENT_SEMESTER_BY_STUDENT_ID_BOOKED_BY_STUDENT_ONLY_AS_PARENT_COURSE = "getCreatedCoursesOfCurrentSemesterByStudentIdBookedByStudentOnlyAsParentCourse";
     static final String GET_NOT_CREATED_CREATABLE_COURSES_OF_CURRENT_SEMESTER_BY_STUDENT_ID = "getNotCreatedCreatableCoursesOfCurrentSemesterByStudentId";
     static final String GET_ALL_NOT_CREATED_ORPHANED_COURSES = "getAllNotCreatedOrphanedCourses";
-    static final String GET_COURSE_IDS_BY_RESOURCEABLE_ID = "getCourseIdsByResourceableId";
+    static final String GET_COURSE_IDS_BY_OLAT_RESOURCE_KEY = "getCourseIdsByOlatResourceKey";
     static final String GET_CREATED_AND_NOT_CREATED_CREATABLE_COURSES_OF_CURRENT_SEMESTER_BY_LECTURER_ID = "getCreatedAndNotCreatedCreatableCoursesOfCurrentSemesterByLecturerId";
     static final String GET_CREATED_AND_NOT_CREATED_CREATABLE_COURSES_OF_CURRENT_SEMESTER_BY_STUDENT_ID = "getCreatedAndNotCreatedCreatableCoursesOfCurrentSemesterByStudentId";
     static final String GET_CREATED_AND_NOT_CREATED_CREATABLE_COURSES_OF_CURRENT_SEMESTER_BY_STUDENT_ID_BOOKED_BY_STUDENT_ONLY_AS_PARENT_COURSE = "getCreatedAndNotCreatedCreatableCoursesOfCurrentSemesterByStudentIdBookedByStudentOnlyAsParentCourse";
-    static final String GET_COURSES_BY_RESOURCEABLE_ID = "getCoursesByResourceableId";
-    static final String GET_LATEST_COURSE_BY_RESOURCEABLE_ID = "getLatestCourseByResourceableId";
+    static final String GET_COURSES_BY_OLAT_RESOURCE_KEY = "getCoursesByOlatResourceKey";
+    static final String GET_LATEST_COURSE_BY_OLAT_RESOURCE_KEY = "getLatestCourseByOlatResourceKey";
     static final String GET_ALL_SHORT_SEMESTERS_IN_DESCENDING_ORDER = "getAllShortSemestersInDescendingOrder";
 
     public Long getId() {
@@ -181,14 +186,6 @@ public class Course {
 
     public void setId(Long id) {
         this.id = id;
-    }
-
-    public Long getResourceableId() {
-        return resourceableId;
-    }
-
-    public void setResourceableId(Long resourceableId) {
-        this.resourceableId = resourceableId;
     }
 
     public String getShortTitle() {
@@ -293,6 +290,14 @@ public class Course {
 
     public void setExclude(boolean exclude) {
         this.exclude = exclude;
+    }
+
+    public OLATResource getOlatResource() {
+        return olatResource;
+    }
+
+    public void setOlatResource(OLATResource olatResource) {
+        this.olatResource = olatResource;
     }
 
     public Date getDateOfImport() {
@@ -412,13 +417,13 @@ public class Course {
         builder.append("shortTitle", getShortTitle());
         builder.append("title", getTitle());
         builder.append("vstNr", getVstNr());
-        builder.append("isELearning", isELearningSupported());
+        builder.append("isELearningSupported", isELearningSupported());
         builder.append("language", getLanguage());
         builder.append("category", getCategory());
         builder.append("startDate", getStartDate());
         builder.append("endDate", getEndDate());
         builder.append("vvzLink", getVvzLink());
-        builder.append("resourceableId", getResourceableId());
+        builder.append("olat resource id", olatResource.getKey());
         builder.append("exclude", isExclude());
 
         return builder.toString();

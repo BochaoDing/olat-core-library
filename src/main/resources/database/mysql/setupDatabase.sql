@@ -2146,7 +2146,7 @@ create table if not exists ck_export (
 
 create table if not exists ck_course (
 	id bigint not null,
-	olat_id bigint,
+  fk_resource bigint,
 	title varchar(255) not null,
 	short_title varchar(255) not null,
 	e_learning_supported boolean not null,
@@ -2278,6 +2278,7 @@ create table if not exists ck_delegation (
 )engine InnoDB;
 
 alter table ck_course add constraint ck_course_f01 foreign key (parent_course_id) references ck_course (id);
+alter table ck_course add constraint ck_course_f02 foreign key (fk_resource) references o_olatresource (resource_id);
 alter table ck_lecturer add constraint ck_lecturer_f01 foreign key (fk_mapped_identity) references o_bs_identity(id);
 alter table ck_lecturer_course add constraint ck_lecturer_course_f01 foreign key (course_id) references ck_course (id);
 alter table ck_lecturer_course add constraint ck_lecturer_course_f02 foreign key (lecturer_id) references ck_lecturer (id);

@@ -7,7 +7,10 @@ import org.junit.Test;
 import org.olat.basesecurity.IdentityImpl;
 import org.olat.core.commons.persistence.DB;
 import org.olat.core.id.Identity;
+import org.olat.core.id.OLATResourceable;
 import org.olat.core.id.User;
+import org.olat.resource.OLATResource;
+import org.olat.resource.OLATResourceManager;
 import org.olat.test.OlatTestCase;
 import org.olat.user.UserManager;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -54,6 +57,9 @@ public class LecturerDaoTest extends OlatTestCase {
 
     @Autowired
     private UserManager userManager;
+
+    @Autowired
+    private OLATResourceManager olatResourceManager;
 
     private List<Lecturer> lecturers;
 
@@ -355,6 +361,8 @@ public class LecturerDaoTest extends OlatTestCase {
         List<LecturerIdCourseIdDateOfImport> lecturerIdCourseIdDateOfImports = mockDataGeneratorProvider.get().getLecturerIdCourseIdDateOfImports();
         lecturerCourseDao.save(lecturerIdCourseIdDateOfImports);
         dbInstance.flush();
+
+        addOlatResourceToCourses_100_200_400_500_600();
     }
 
     private Identity insertTestUser(String userName) {
@@ -364,5 +372,52 @@ public class LecturerDaoTest extends OlatTestCase {
         dbInstance.saveObject(identity);
         dbInstance.flush();
         return identity;
+    }
+
+    private void addOlatResourceToCourses_100_200_400_500_600() {
+        Course course1 = courseDao.getCourseById(100L);
+        Course course2 = courseDao.getCourseById(200L);
+        Course course4 = courseDao.getCourseById(400L);
+        Course course5 = courseDao.getCourseById(500L);
+        Course course6 = courseDao.getCourseById(600L);
+        OLATResource olatResource1 = insertOlatResource("resourceLecturerDaoTestData1");
+        OLATResource olatResource2 = insertOlatResource("resourceLecturerDaoTestData2");
+        OLATResource olatResource4 = insertOlatResource("resourceLecturerDaoTestData4");
+        OLATResource olatResource5 = insertOlatResource("resourceLecturerDaoTestData5");
+        OLATResource olatResource6 = insertOlatResource("resourceLecturerDaoTestData6");
+        course1.setOlatResource(olatResource1);
+        course2.setOlatResource(olatResource2);
+        course4.setOlatResource(olatResource4);
+        course5.setOlatResource(olatResource5);
+        course6.setOlatResource(olatResource6);
+        dbInstance.flush();
+    }
+
+    private OLATResource insertOlatResource(String olatResourceName) {
+        olatResourceName = "lecturerDaoTest_" + olatResourceName;
+        TestResourceable resourceable = new TestResourceable(8213649L, olatResourceName);
+        OLATResource olatResource = olatResourceManager.createOLATResourceInstance(resourceable);
+        olatResourceManager.saveOLATResource(olatResource);
+        return olatResource;
+    }
+
+    private static class TestResourceable implements OLATResourceable {
+        private final Long resId;
+        private final String resName;
+
+        TestResourceable(Long resId, String resourceName) {
+            this.resId = resId;
+            this.resName = resourceName;
+        }
+
+        @Override
+        public Long getResourceableId() {
+            return resId;
+        }
+
+        @Override
+        public String getResourceableTypeName() {
+            return resName;
+        }
     }
 }

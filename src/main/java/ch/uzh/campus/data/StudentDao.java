@@ -148,9 +148,12 @@ public class StudentDao implements CampusDao<Student> {
                 .getSingleResult();
     }
 
-    boolean hasMoreThan50PercentOfStudentsOfSpecificCourseBothABookingOfCourseAndParentCourse(Long courseId) {
-        int numberOfStudentsOfSpecificCourse = getNumberOfStudentsOfSpecificCourse(courseId);
-        return numberOfStudentsOfSpecificCourse != 0 && ((double) getNumberOfStudentsWithBookingForCourseAndParentCourse(courseId) / (double) numberOfStudentsOfSpecificCourse >= 0.5);
+    boolean hasMoreThan50PercentOfStudentsOfSpecificCourseBothABookingOfCourseAndParentCourse(Course course) {
+        if (course.getParentCourse() == null) {
+            return true;
+        }
+        int numberOfStudentsWithBookingForParentCourse = getNumberOfStudentsOfSpecificCourse(course.getParentCourse().getId());
+        return numberOfStudentsWithBookingForParentCourse == 0 || (((double) getNumberOfStudentsWithBookingForCourseAndParentCourse(course.getId()) / (double) numberOfStudentsWithBookingForParentCourse) >= 0.5);
     }
 
     /**

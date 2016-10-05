@@ -1,22 +1,3 @@
-/**
- * OLAT - Online Learning and Training<br>
- * http://www.olat.org
- * <p>
- * Licensed under the Apache License, Version 2.0 (the "License"); <br>
- * you may not use this file except in compliance with the License.<br>
- * You may obtain a copy of the License at
- * <p>
- * http://www.apache.org/licenses/LICENSE-2.0
- * <p>
- * Unless required by applicable law or agreed to in writing,<br>
- * software distributed under the License is distributed on an "AS IS" BASIS, <br>
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. <br>
- * See the License for the specific language governing permissions and <br>
- * limitations under the License.
- * <p>
- * Copyright (c) 2008 frentix GmbH, Switzerland<br>
- * <p>
- */
 package ch.uzh.campus.presentation;
 
 import ch.uzh.campus.CampusCourseConfiguration;
@@ -33,8 +14,9 @@ import org.olat.core.gui.control.WindowControl;
 import org.olat.core.logging.OLog;
 import org.olat.core.logging.Tracing;
 import org.olat.course.CorruptedCourseException;
+import org.olat.repository.RepositoryService;
+import org.olat.repository.manager.RepositoryServiceImpl;
 import org.olat.resource.OLATResource;
-import org.olat.resource.OLATResourceManager;
 
 /**
  * @author Christian Guretzki
@@ -42,17 +24,17 @@ import org.olat.resource.OLATResourceManager;
 public class CampusAdminController extends FormBasicController {
 
     private static final OLog log = Tracing.createLoggerFor(CampusAdminController.class);
-    private TextElement resourceableIdTextElement;
+    private TextElement repositoryEntryIdTextElement;
     private SingleSelection languagesSelection;
     private static String[] languages = { "DE", "EN", "FR", "IT" };
     private static String DEFAULT_LANGUAGE = "DE";
     private CampusCourseConfiguration campusCourseConfiguration;
-    private Long templateCourseResourcableId;
+    private Long templateRepositoryEntryId;
 
     public CampusAdminController(final UserRequest ureq, final WindowControl wControl) {
         super(ureq, wControl);
         campusCourseConfiguration = (CampusCourseConfiguration) CoreSpringFactory.getBean(CampusCourseConfiguration.class);
-        templateCourseResourcableId = campusCourseConfiguration.getTemplateCourseResourcableId(DEFAULT_LANGUAGE);
+        templateRepositoryEntryId = campusCourseConfiguration.getTemplateRepositoryEntryId(DEFAULT_LANGUAGE);
         initForm(this.flc, this, ureq);
     }
 
@@ -67,8 +49,8 @@ public class CampusAdminController extends FormBasicController {
         languagesSelection.select(DEFAULT_LANGUAGE, true);
         languagesSelection.addActionListener(FormEvent.ONCHANGE);
 
-        resourceableIdTextElement = uifactory.addTextElement("resourceableId", "campus.admin.form.resourceableid", 60, "", formLayout);
-        resourceableIdTextElement.setValue(templateCourseResourcableId.toString());
+        repositoryEntryIdTextElement = uifactory.addTextElement("repositoryEntryId", "campus.admin.form.repositoryEntry.id", 60, "", formLayout);
+        repositoryEntryIdTextElement.setValue(templateRepositoryEntryId.toString());
 
         uifactory.addFormSubmitButton("save", formLayout);
     }
@@ -76,9 +58,9 @@ public class CampusAdminController extends FormBasicController {
     @Override
     protected void formInnerEvent(final UserRequest ureq, final FormItem source, final FormEvent event) {
         if (source == languagesSelection) {
-            Long templateCourseResourcableId = campusCourseConfiguration.getTemplateCourseResourcableId(languagesSelection.getSelectedKey());
+            Long templateCourseResourcableId = campusCourseConfiguration.getTemplateRepositoryEntryId(languagesSelection.getSelectedKey());
             if (templateCourseResourcableId != null) {
-                resourceableIdTextElement.setValue(templateCourseResourcableId.toString());
+                repositoryEntryIdTextElement.setValue(templateCourseResourcableId.toString());
             }
         }
     }
@@ -92,8 +74,8 @@ public class CampusAdminController extends FormBasicController {
 
     @Override
     protected boolean validateFormLogic(final UserRequest ureq) {
-        if (!isNumber(resourceableIdTextElement.getValue())) {
-            resourceableIdTextElement.setErrorKey("error.campus.admin.form.resourceableid", null);
+        if (!isNumber(repositoryEntryIdTextElement.getValue())) {
+            repositoryEntryIdTextElement.setErrorKey("error.campus.admin.form.repositoryEntry.id", null);
             return false;
         }
         return true;
@@ -110,16 +92,17 @@ public class CampusAdminController extends FormBasicController {
 
     @Override
     protected void formOK(final UserRequest ureq) {
-        log.info("formOk: value=" + resourceableIdTextElement.getValue());
+        log.info("formOk: value=" + repositoryEntryIdTextElement.getValue());
         try {
-            Long templateCourseResourcableIdAsLong = Long.parseLong(resourceableIdTextElement.getValue());
+            Long templateRepositoryEntryAsLong = Long.parseLong(repositoryEntryIdTextElement.getValue());
             // Validate given number by trying to load the course
-            OLATResource resource = OLATResourceManager.getInstance().findResourceable(templateCourseResourcableIdAsLong, "CourseModule");
-            if (resource == null) {
+            RepositoryService repositoryService = (RepositoryServiceImpl) CoreSpringFactory.getBean(RepositoryServiceImpl.class);
+            OLATResource olatResource = repositoryService.loadRepositoryEntryResource(templateRepositoryEntryAsLong);
+            if (olatResource == null) {
                 throw new CorruptedCourseException("Provided template is not valid");
             }
             // Course is now validated and can be used as template => write property
-            campusCourseConfiguration.saveTemplateCourseResourcableId(templateCourseResourcableIdAsLong, languagesSelection.getSelectedKey());
+            campusCourseConfiguration.saveTemplateRepositoryEntryId(templateRepositoryEntryAsLong, languagesSelection.getSelectedKey());
         } catch (NumberFormatException ex) {
             this.showWarning("campus.admin.form.could.not.save");
         } catch (CorruptedCourseException ex) {

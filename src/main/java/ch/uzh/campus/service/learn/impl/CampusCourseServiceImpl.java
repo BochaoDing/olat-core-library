@@ -9,7 +9,7 @@ import ch.uzh.campus.service.learn.SapCampusCourseTo;
 import edu.emory.mathcs.backport.java.util.Collections;
 import org.olat.core.id.Identity;
 import org.olat.repository.RepositoryEntry;
-import org.olat.repository.RepositoryManager;
+import org.olat.resource.OLATResource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -33,17 +33,13 @@ import static org.olat.repository.RepositoryEntry.ACC_OWNERS_AUTHORS;
 public class CampusCourseServiceImpl implements CampusCourseService {
 
 	private final CampusCourseCoreService campusCourseCoreService;
-	private final RepositoryManager repositoryManager;
 	private final boolean shortTitleActivated;
 
 	@Autowired
 	public CampusCourseServiceImpl(CampusCourseCoreService campusCourseCoreService,
-								   RepositoryManager repositoryManager,
 								   @Value("${campus.lv_kuerzel.activated}") String shortTitleActivated) {
 		assert campusCourseCoreService != null;
-		assert repositoryManager != null;
 		this.campusCourseCoreService = campusCourseCoreService;
-		this.repositoryManager = repositoryManager;
 		this.shortTitleActivated = TRUE.toString().equals(shortTitleActivated);
 	}
 
@@ -58,8 +54,8 @@ public class CampusCourseServiceImpl implements CampusCourseService {
 	}
 
 	@Override
-	public CampusCourse createCampusCourseFromStandardTemplate(Long courseResourceableId, Long sapCampusCourseId, Identity creator) throws Exception {
-		return campusCourseCoreService.createCampusCourseFromTemplate(courseResourceableId, sapCampusCourseId, creator);
+	public CampusCourse createCampusCourseFromTemplate(OLATResource templateOlatResource, Long sapCampusCourseId, Identity creator) throws Exception {
+		return campusCourseCoreService.createCampusCourseFromTemplate(templateOlatResource, sapCampusCourseId, creator);
 	}
 
 	@Override
@@ -78,7 +74,7 @@ public class CampusCourseServiceImpl implements CampusCourseService {
 			for (Course sapCampusCourse : sapCampusCourses) {
 				result.add(new SapCampusCourseTo(sapCampusCourse
 						.getTitleToBeDisplayed(shortTitleActivated),
-						sapCampusCourse.getId(), null));
+						sapCampusCourse.getId()));
 			}
 		}
 
@@ -93,15 +89,14 @@ public class CampusCourseServiceImpl implements CampusCourseService {
 							searchString);
 			for (Course sapCampusCourse : sapCampusCourses) {
 				RepositoryEntry repositoryEntry = campusCourseCoreService
-						.loadCampusCourseByResourceable(sapCampusCourse
-								.getResourceableId()).getRepositoryEntry();
+						.loadCampusCourseByOlatResource(sapCampusCourse.getOlatResource()).getRepositoryEntry();
 				if (repositoryEntry != null) {
 					int access = repositoryEntry.getAccess();
 					if (repositoryEntry.isMembersOnly() == false &&
 							(access == ACC_OWNERS || access == ACC_OWNERS_AUTHORS)) {
 						result.add(new SapCampusCourseTo(sapCampusCourse
 								.getTitleToBeDisplayed(shortTitleActivated),
-								sapCampusCourse.getId(), null));
+								sapCampusCourse.getId()));
 					}
 				}
 			}
@@ -116,7 +111,7 @@ public class CampusCourseServiceImpl implements CampusCourseService {
 		List<SapCampusCourseTo> courseList = new ArrayList<>();
 		Set<Course> sapCampusCourses = campusCourseCoreService.getCampusCoursesWithoutResourceableId(identity, LECTURER, searchString);
 		for (Course sapCampusCourse : sapCampusCourses) {
-			courseList.add(new SapCampusCourseTo(sapCampusCourse.getTitleToBeDisplayed(shortTitleActivated), sapCampusCourse.getId(), null));
+			courseList.add(new SapCampusCourseTo(sapCampusCourse.getTitleToBeDisplayed(shortTitleActivated), sapCampusCourse.getId()));
 		}
 		Collections.sort(courseList);
 		return courseList;
@@ -127,15 +122,15 @@ public class CampusCourseServiceImpl implements CampusCourseService {
 		List<SapCampusCourseTo> courseList = new ArrayList<>();
 		Set<Course> sapCampusCourses = campusCourseCoreService.getCampusCoursesWithResourceableId(identity, userType, searchString);
 		for (Course sapCampusCourse : sapCampusCourses) {
-			courseList.add(new SapCampusCourseTo(sapCampusCourse.getTitleToBeDisplayed(shortTitleActivated), sapCampusCourse.getId(), sapCampusCourse.getResourceableId()));
+			courseList.add(new SapCampusCourseTo(sapCampusCourse.getTitleToBeDisplayed(shortTitleActivated), sapCampusCourse.getId()));
 		}
 		Collections.sort(courseList);
 		return courseList;
 	}
 
 	@Override
-	public Course getLatestCourseByResourceable(Long resourceableId) throws Exception {
-		return campusCourseCoreService.getLatestCourseByResourceable(resourceableId);
+	public Course getLatestCourseByOlatResource(OLATResource olatResource) throws Exception {
+		return campusCourseCoreService.getLatestCourseByOlatResource(olatResource);
 	}
 
 	@Override
@@ -154,13 +149,13 @@ public class CampusCourseServiceImpl implements CampusCourseService {
 	}
 
 	@Override
-	public boolean existResourceableId(Long resourceableId) {
-		return campusCourseCoreService.existResourceableId(resourceableId);
+	public boolean existCampusCoursesForOlatResource(OLATResource olatResource) {
+		return campusCourseCoreService.existCampusCoursesForOlatResource(olatResource);
 	}
 
 	@Override
-	public List<Long> getResourceableIdsOfAllCreatedNotContinuedCoursesOfPreviousSemesters() {
-		return campusCourseCoreService.getResourceableIdsOfAllCreatedNotContinuedCoursesOfPreviousSemesters();
+	public List<Long> getOlatResourceKeysOfAllCreatedNotContinuedCoursesOfPreviousSemesters() {
+		return campusCourseCoreService.getOlatResourceKeysOfAllCreatedNotContinuedCoursesOfPreviousSemesters();
 	}
 
 	@Override

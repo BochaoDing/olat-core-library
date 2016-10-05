@@ -7,7 +7,10 @@ import org.junit.Test;
 import org.olat.basesecurity.IdentityImpl;
 import org.olat.core.commons.persistence.DB;
 import org.olat.core.id.Identity;
+import org.olat.core.id.OLATResourceable;
 import org.olat.core.id.User;
+import org.olat.resource.OLATResource;
+import org.olat.resource.OLATResourceManager;
 import org.olat.test.OlatTestCase;
 import org.olat.user.UserManager;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -55,6 +58,9 @@ public class StudentDaoTest extends OlatTestCase {
 
     @Autowired
     private UserManager userManager;
+
+    @Autowired
+    private OLATResourceManager olatResourceManager;
 
     private List<Student> students;
     
@@ -327,37 +333,30 @@ public class StudentDaoTest extends OlatTestCase {
         Course course2 = courseDao.getCourseById(200L);
         Course course3 = courseDao.getCourseById(300L);
 
-        // Course 1 is not parent of course 2, so we should not find anything
-        assertEquals(0, studentDao.getNumberOfStudentsWithBookingForCourseAndParentCourse(course2.getId()));
-        assertFalse(studentDao.hasMoreThan50PercentOfStudentsOfSpecificCourseBothABookingOfCourseAndParentCourse(course2.getId()));
-
         // Make course 1 to be the parent of course 2
         courseDao.saveParentCourseId(course2.getId(), course1.getId());
         dbInstance.flush();
 
         assertEquals(2, studentDao.getNumberOfStudentsWithBookingForCourseAndParentCourse(course2.getId()));
-        assertEquals(2, studentDao.getNumberOfStudentsOfSpecificCourse(course2.getId()));
-        assertTrue(studentDao.hasMoreThan50PercentOfStudentsOfSpecificCourseBothABookingOfCourseAndParentCourse(course2.getId()));
+        assertEquals(2, studentDao.getNumberOfStudentsOfSpecificCourse(course2.getParentCourse().getId()));
+        assertTrue(studentDao.hasMoreThan50PercentOfStudentsOfSpecificCourseBothABookingOfCourseAndParentCourse(course2));
 
-        // Make course 3 to be the parent of course 2
-        courseDao.saveParentCourseId(course2.getId(), course3.getId());
+        // Make course 1 to be the parent of course 3
+        courseDao.saveParentCourseId(course3.getId(), course1.getId());
         dbInstance.flush();
 
-        assertEquals(1, studentDao.getNumberOfStudentsWithBookingForCourseAndParentCourse(course2.getId()));
-        assertEquals(2, studentDao.getNumberOfStudentsOfSpecificCourse(course2.getId()));
-        assertTrue(studentDao.hasMoreThan50PercentOfStudentsOfSpecificCourseBothABookingOfCourseAndParentCourse(course2.getId()));
+        assertEquals(1, studentDao.getNumberOfStudentsWithBookingForCourseAndParentCourse(course3.getId()));
+        assertEquals(2, studentDao.getNumberOfStudentsOfSpecificCourse(course3.getParentCourse().getId()));
+        assertTrue(studentDao.hasMoreThan50PercentOfStudentsOfSpecificCourseBothABookingOfCourseAndParentCourse(course3));
 
-        // Remove bookings of course 2
-        StudentCourse studentCourse = studentCourseDao.getStudentCourseById(student1.getId(), course2.getId());
+        // Remove booking of course 3
+        StudentCourse studentCourse = studentCourseDao.getStudentCourseById(student1.getId(), course3.getId());
         studentCourseDao.delete(studentCourse);
         dbInstance.flush();
 
-        studentCourse = studentCourseDao.getStudentCourseById(student2.getId(), course2.getId());
-        studentCourseDao.delete(studentCourse);
-        dbInstance.flush();
-
-        assertEquals(0, studentDao.getNumberOfStudentsOfSpecificCourse(course2.getId()));
-        assertFalse(studentDao.hasMoreThan50PercentOfStudentsOfSpecificCourseBothABookingOfCourseAndParentCourse(course2.getId()));
+        assertEquals(0, studentDao.getNumberOfStudentsWithBookingForCourseAndParentCourse(course3.getId()));
+        assertEquals(2, studentDao.getNumberOfStudentsOfSpecificCourse(course3.getParentCourse().getId()));
+        assertFalse(studentDao.hasMoreThan50PercentOfStudentsOfSpecificCourseBothABookingOfCourseAndParentCourse(course3));
     }
 
     @Test
@@ -472,6 +471,8 @@ public class StudentDaoTest extends OlatTestCase {
         List<StudentIdCourseIdDateOfImport> studentIdCourseIdDateOfImports = mockDataGeneratorProvider.get().getStudentIdCourseIdDateOfImports();
         studentCourseDao.save(studentIdCourseIdDateOfImports);
         dbInstance.flush();
+
+        addOlatResourceToCourses_100_200_400_500_600();
     }
 
     private Identity insertTestUser(String userName) {
@@ -481,5 +482,52 @@ public class StudentDaoTest extends OlatTestCase {
         dbInstance.saveObject(identity);
         dbInstance.flush();
         return identity;
+    }
+
+    private void addOlatResourceToCourses_100_200_400_500_600() {
+        Course course1 = courseDao.getCourseById(100L);
+        Course course2 = courseDao.getCourseById(200L);
+        Course course4 = courseDao.getCourseById(400L);
+        Course course5 = courseDao.getCourseById(500L);
+        Course course6 = courseDao.getCourseById(600L);
+        OLATResource olatResource1 = insertOlatResource("resourceStudentDaoTestData1");
+        OLATResource olatResource2 = insertOlatResource("resourceStudentDaoTestData2");
+        OLATResource olatResource4 = insertOlatResource("resourceStudentDaoTestData4");
+        OLATResource olatResource5 = insertOlatResource("resourceStudentDaoTestData5");
+        OLATResource olatResource6 = insertOlatResource("resourceStudentDaoTestData6");
+        course1.setOlatResource(olatResource1);
+        course2.setOlatResource(olatResource2);
+        course4.setOlatResource(olatResource4);
+        course5.setOlatResource(olatResource5);
+        course6.setOlatResource(olatResource6);
+        dbInstance.flush();
+    }
+
+    private OLATResource insertOlatResource(String olatResourceName) {
+        olatResourceName = "studentDaoTest_" + olatResourceName;
+        TestResourceable resourceable = new TestResourceable(8213649L, olatResourceName);
+        OLATResource olatResource = olatResourceManager.createOLATResourceInstance(resourceable);
+        olatResourceManager.saveOLATResource(olatResource);
+        return olatResource;
+    }
+
+    private static class TestResourceable implements OLATResourceable {
+        private final Long resId;
+        private final String resName;
+
+        TestResourceable(Long resId, String resourceName) {
+            this.resId = resId;
+            this.resName = resourceName;
+        }
+
+        @Override
+        public Long getResourceableId() {
+            return resId;
+        }
+
+        @Override
+        public String getResourceableTypeName() {
+            return resName;
+        }
     }
 }

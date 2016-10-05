@@ -5,6 +5,7 @@ import ch.uzh.campus.data.SapUserType;
 import ch.uzh.campus.service.CampusCourse;
 import org.olat.core.id.Identity;
 import org.olat.repository.RepositoryEntry;
+import org.olat.resource.OLATResource;
 
 import java.util.List;
 
@@ -27,7 +28,7 @@ public interface CampusCourseService {
     /**
      * Create a new campus-course from a course template. Copy template and update title, description, owner and participants.
      */
-    CampusCourse createCampusCourseFromStandardTemplate(Long courseResourceableId, Long sapCampusCourseId, Identity creator) throws Exception;
+    CampusCourse createCampusCourseFromTemplate(OLATResource templateOlatResource, Long sapCampusCourseId, Identity creator) throws Exception;
 
     /**
      * Uses an existing campus-course. It updates the title, description (including the vvz link), owner and participants.
@@ -50,7 +51,7 @@ public interface CampusCourseService {
      */
     List<SapCampusCourseTo> getCoursesWhichCouldBeOpened(Identity identity, SapUserType userType, String searchString);
 
-	Course getLatestCourseByResourceable(Long resourceableId) throws Exception;
+	Course getLatestCourseByOlatResource(OLATResource olatResource) throws Exception;
 
     RepositoryEntry getRepositoryEntryFor(Long sapCourseId);
 
@@ -58,9 +59,9 @@ public interface CampusCourseService {
 
     boolean existsDelegation(Identity delegator, Identity delegatee);
 
-    boolean existResourceableId(Long resourceableId);
+    boolean existCampusCoursesForOlatResource(OLATResource olatResource);
 
-    List<Long> getResourceableIdsOfAllCreatedNotContinuedCoursesOfPreviousSemesters();
+    List<Long> getOlatResourceKeysOfAllCreatedNotContinuedCoursesOfPreviousSemesters();
 
     List getDelegatees(Identity delegator);
 
