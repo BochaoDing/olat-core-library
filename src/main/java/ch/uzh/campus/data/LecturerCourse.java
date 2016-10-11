@@ -11,7 +11,7 @@ import java.util.Date;
 @IdClass(LecturerCourseId.class)
 @NamedQueries({
         @NamedQuery(name = LecturerCourse.GET_ALL_NOT_UPDATED_LC_BOOKING_OF_CURRENT_SEMESTER, query = "select new ch.uzh.campus.data.LecturerIdCourseId(lc.lecturer.personalNr, lc.course.id) from LecturerCourse lc " +
-                "where lc.dateOfImport < :lastDateOfImport and lc.course.shortSemester = (select max(c.shortSemester) from Course c)"),
+                "where lc.dateOfImport < :lastDateOfImport and lc.course.semester.currentSemester = true"),
         @NamedQuery(name = LecturerCourse.DELETE_BY_LECTURER_IDS, query = "delete from LecturerCourse lc where lc.lecturer.personalNr in :lecturerIds"),
         @NamedQuery(name = LecturerCourse.DELETE_BY_COURSE_IDS, query = "delete from LecturerCourse lc where lc.course.id in :courseIds"),
         @NamedQuery(name = LecturerCourse.DELETE_BY_LECTURER_ID_COURSE_ID, query = "delete from LecturerCourse lc where lc.lecturer.personalNr = :lecturerId and lc.course.id = :courseId"),

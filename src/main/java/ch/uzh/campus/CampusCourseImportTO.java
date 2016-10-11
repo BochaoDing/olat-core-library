@@ -2,6 +2,7 @@ package ch.uzh.campus;
 
 import java.util.List;
 
+import ch.uzh.campus.data.Semester;
 import org.olat.core.id.Identity;
 import org.olat.resource.OLATResource;
 
@@ -32,7 +33,7 @@ import org.olat.resource.OLATResource;
 public class CampusCourseImportTO {
 
     private final String title;
-    private final String semester;
+    private final Semester semester;
     private final String language;
     private final List<Identity> lecturersOfCourse;
     private final List<Identity> delegateesOfCourse;
@@ -42,7 +43,7 @@ public class CampusCourseImportTO {
     private final Long sapCourseId;
     private final String vvzLink;
 
-    public CampusCourseImportTO(String title, String semester,
+    public CampusCourseImportTO(String title, Semester semester,
 								List<Identity> lecturersOfCourse,
 								List<Identity> delegateesOfCourse,
 								List<Identity> participantsOfCourse,
@@ -63,7 +64,7 @@ public class CampusCourseImportTO {
         this.vvzLink = vvzLink;
     }
 
-    public String getSemester() {
+    public Semester getSemester() {
         return semester;
     }
 

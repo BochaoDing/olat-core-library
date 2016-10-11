@@ -1,6 +1,6 @@
 package ch.uzh.campus.connectors;
 
-import ch.uzh.campus.data.CourseOrgId;
+import ch.uzh.campus.data.CourseSemesterOrgId;
 import org.apache.commons.lang.StringUtils;
 import org.olat.core.logging.OLog;
 import org.olat.core.logging.Tracing;
@@ -37,15 +37,11 @@ import java.util.*;
  * 
  * @author aabouc
  */
-public class CourseProcessor implements ItemProcessor<CourseOrgId, CourseOrgId> {
+public class CourseProcessor implements ItemProcessor<CourseSemesterOrgId, CourseSemesterOrgId> {
 	
 	private static final OLog LOG = Tracing.createLoggerFor(CourseProcessor.class);
 
     private Set<Long> processedIdsSet;
-
-    private Map<String, String> semesterMap = new HashMap<>();
-
-    private static final String WHITESPACE = " ";
 
     @PostConstruct
     public void init() {
@@ -58,90 +54,55 @@ public class CourseProcessor implements ItemProcessor<CourseOrgId, CourseOrgId> 
     }
 
     /**
-     * Sets the Map of semesters
-     * 
-     * @param semesterMap
-     *            the Map of semesters
-     */
-    public void setSemesterMap(Map<String, String> semesterMap) {
-        this.semesterMap = semesterMap;
-    }
-
-    /**
      * Returns null if the input course has been already processed, <br>
      * otherwise modifies it according to some criteria and returns it as output
      * 
-     * @param courseOrgId
+     * @param courseSemesterOrgId
      *            the Course to be processed
      */
     @Override
-    public CourseOrgId process(CourseOrgId courseOrgId) throws Exception {
+    public CourseSemesterOrgId process(CourseSemesterOrgId courseSemesterOrgId) throws Exception {
 
         // JUST IGNORE THE DUPLICATES
-        if (!CampusUtils.addIfNotAlreadyProcessed(processedIdsSet, courseOrgId.getId())) {
-            LOG.debug("This is a duplicate of this course [" + courseOrgId.getId() + "]");
+        if (!CampusUtils.addIfNotAlreadyProcessed(processedIdsSet, courseSemesterOrgId.getId())) {
+            LOG.debug("This is a duplicate of this course [" + courseSemesterOrgId.getId() + "]");
             return null;
         }
 
-        courseOrgId.setDateOfImport(new Date());
+        courseSemesterOrgId.setDateOfImport(new Date());
 
-        if (courseOrgId.getTitle().contains(CampusUtils.SEMICOLON_REPLACEMENT)) {
-            courseOrgId.setTitle(StringUtils.replace(courseOrgId.getTitle(), CampusUtils.SEMICOLON_REPLACEMENT, CampusUtils.SEMICOLON));
-        }
-
-        String shortSemester = buildShortSemester(courseOrgId.getSemester());
-        if (shortSemester != null) {
-            courseOrgId.setShortSemester(shortSemester);
+        if (courseSemesterOrgId.getTitle().contains(CampusUtils.SEMICOLON_REPLACEMENT)) {
+            courseSemesterOrgId.setTitle(StringUtils.replace(courseSemesterOrgId.getTitle(), CampusUtils.SEMICOLON_REPLACEMENT, CampusUtils.SEMICOLON));
         }
 
-        if (courseOrgId.getOrg1().equals(0L)) {
-            courseOrgId.setOrg1(null);
+        if (courseSemesterOrgId.getOrg1().equals(0L)) {
+            courseSemesterOrgId.setOrg1(null);
         }
-        if (courseOrgId.getOrg2().equals(0L)) {
-            courseOrgId.setOrg2(null);
+        if (courseSemesterOrgId.getOrg2().equals(0L)) {
+            courseSemesterOrgId.setOrg2(null);
         }
-        if (courseOrgId.getOrg3().equals(0L)) {
-            courseOrgId.setOrg3(null);
+        if (courseSemesterOrgId.getOrg3().equals(0L)) {
+            courseSemesterOrgId.setOrg3(null);
         }
-        if (courseOrgId.getOrg4().equals(0L)) {
-            courseOrgId.setOrg4(null);
+        if (courseSemesterOrgId.getOrg4().equals(0L)) {
+            courseSemesterOrgId.setOrg4(null);
         }
-        if (courseOrgId.getOrg5().equals(0L)) {
-            courseOrgId.setOrg5(null);
+        if (courseSemesterOrgId.getOrg5().equals(0L)) {
+            courseSemesterOrgId.setOrg5(null);
         }
-        if (courseOrgId.getOrg6().equals(0L)) {
-            courseOrgId.setOrg6(null);
+        if (courseSemesterOrgId.getOrg6().equals(0L)) {
+            courseSemesterOrgId.setOrg6(null);
         }
-        if (courseOrgId.getOrg7().equals(0L)) {
-            courseOrgId.setOrg7(null);
+        if (courseSemesterOrgId.getOrg7().equals(0L)) {
+            courseSemesterOrgId.setOrg7(null);
         }
-        if (courseOrgId.getOrg8().equals(0L)) {
-            courseOrgId.setOrg8(null);
+        if (courseSemesterOrgId.getOrg8().equals(0L)) {
+            courseSemesterOrgId.setOrg8(null);
         }
-        if (courseOrgId.getOrg9().equals(0L)) {
-            courseOrgId.setOrg9(null);
+        if (courseSemesterOrgId.getOrg9().equals(0L)) {
+            courseSemesterOrgId.setOrg9(null);
         }
 
-        return courseOrgId;
+        return courseSemesterOrgId;
     }
-
-    /**
-     * Build the shortSemester from the given semester
-     * 
-     * @param semester
-     *            The semester from which the shortSemester will be built
-     */
-    private String buildShortSemester(String semester) {
-        String shortSemester = null;
-
-        String[] split = StringUtils.split(semester, WHITESPACE);
-        if (split != null && split.length >= 2) {
-            String yy = (split[1] != null) ? split[1].substring(2) : "";
-            if (split[0] != null) {
-                shortSemester = yy.concat(semesterMap.get(split[0].substring(0, 1)));
-            }
-        }
-        return shortSemester;
-    }
-
 }

@@ -1,6 +1,7 @@
 package ch.uzh.campus.data;
 
 import ch.uzh.campus.CampusCourseConfiguration;
+import ch.uzh.campus.CampusCourseException;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -33,6 +34,9 @@ public class CourseDaoTest extends OlatTestCase {
 
     @Autowired
     private DB dbInstance;
+
+    @Autowired
+    private SemesterDao semesterDao;
 
     @Autowired
     private OrgDao orgDao;
@@ -72,7 +76,7 @@ public class CourseDaoTest extends OlatTestCase {
     @Before
     public void before() {
         campusCourseConfiguration.setMaxYearsToKeepCkData(1);
-        courseDao = new CourseDao(dbInstance, campusCourseConfiguration);
+        courseDao = new CourseDao(dbInstance, semesterDao);
     }
 
     @After
@@ -81,7 +85,7 @@ public class CourseDaoTest extends OlatTestCase {
     }
 
     @Test
-    public void testSaveCourseOrgId() {
+    public void testSaveCourseOrgId() throws CampusCourseException {
         // Insert some orgs
         List<Org> orgs = mockDataGeneratorProvider.get().getOrgs();
         orgDao.save(orgs);
@@ -91,8 +95,8 @@ public class CourseDaoTest extends OlatTestCase {
         assertNull(courseDao.getCourseById(300L));
 
         // Insert some courseOrgIds
-        List<CourseOrgId> courseOrgIds = mockDataGeneratorProvider.get().getCourseOrgIds();
-        courseDao.save(courseOrgIds);
+        List<CourseSemesterOrgId> courseSemesterOrgIds = mockDataGeneratorProvider.get().getCourseSemesterOrgIds();
+        courseDao.save(courseSemesterOrgIds);
 
         // Check before calling flush
         assertSave();
@@ -133,7 +137,7 @@ public class CourseDaoTest extends OlatTestCase {
     }
 
     @Test
-    public void testSaveOrUpdateCourseOrgId() {
+    public void testSaveOrUpdateCourseOrgId() throws CampusCourseException {
         insertTestData();
 
         Course course = courseDao.getCourseById(100L);
@@ -141,19 +145,19 @@ public class CourseDaoTest extends OlatTestCase {
         assertEquals(1, course.getOrgs().size());
 
         // Modify orgs of course with id 100L
-        CourseOrgId courseOrgIdUpdated = mockDataGeneratorProvider.get().getCourseOrgIds().get(0);
-        assertEquals(100L, courseOrgIdUpdated.getId().longValue());
-        courseOrgIdUpdated.setOrg1(null);
-        courseOrgIdUpdated.setOrg2(9200L);
-        courseOrgIdUpdated.setOrg3(9300L);
-        courseOrgIdUpdated.setOrg4(9400L);
-        courseOrgIdUpdated.setOrg5(9500L);
-        courseOrgIdUpdated.setOrg6(9600L);
-        courseOrgIdUpdated.setOrg7(9700L);
-        courseOrgIdUpdated.setOrg8(9800L);
-        courseOrgIdUpdated.setOrg9(9900L);
+        CourseSemesterOrgId courseSemesterOrgIdUpdated = mockDataGeneratorProvider.get().getCourseSemesterOrgIds().get(0);
+        assertEquals(100L, courseSemesterOrgIdUpdated.getId().longValue());
+        courseSemesterOrgIdUpdated.setOrg1(null);
+        courseSemesterOrgIdUpdated.setOrg2(9200L);
+        courseSemesterOrgIdUpdated.setOrg3(9300L);
+        courseSemesterOrgIdUpdated.setOrg4(9400L);
+        courseSemesterOrgIdUpdated.setOrg5(9500L);
+        courseSemesterOrgIdUpdated.setOrg6(9600L);
+        courseSemesterOrgIdUpdated.setOrg7(9700L);
+        courseSemesterOrgIdUpdated.setOrg8(9800L);
+        courseSemesterOrgIdUpdated.setOrg9(9900L);
 
-        courseDao.saveOrUpdate(courseOrgIdUpdated);
+        courseDao.saveOrUpdate(courseSemesterOrgIdUpdated);
 
         dbInstance.flush();
         dbInstance.clear();
@@ -174,19 +178,19 @@ public class CourseDaoTest extends OlatTestCase {
     }
 
     @Test
-    public void testNullGetCourseById() {
+    public void testNullGetCourseById() throws CampusCourseException {
         insertTestData();
         assertNull(courseDao.getCourseById(999L));
     }
 
     @Test
-    public void testNotNullGetCourseById() {
+    public void testNotNullGetCourseById() throws CampusCourseException {
         insertTestData();
         assertNotNull(courseDao.getCourseById(100L));
     }
 
     @Test
-    public void testGetCreatedCoursesOfCurrentSemesterByLecturerId() {
+    public void testGetCreatedCoursesOfCurrentSemesterByLecturerId() throws CampusCourseException {
         insertTestData();
         List<Course> courses = courseDao.getCreatedCoursesOfCurrentSemesterByLecturerId(1200L, null);
 
@@ -201,7 +205,7 @@ public class CourseDaoTest extends OlatTestCase {
     }
 
     @Test
-    public void testGetNotCreatedCreatableCoursesOfCurrentSemesterByLecturerId() {
+    public void testGetNotCreatedCreatableCoursesOfCurrentSemesterByLecturerId() throws CampusCourseException {
         insertTestData();
         List<Course> courses = courseDao.getNotCreatedCreatableCoursesOfCurrentSemesterByLecturerId(1300L, null);
 
@@ -240,7 +244,7 @@ public class CourseDaoTest extends OlatTestCase {
     }
 
     @Test
-    public void testDelete() {
+    public void testDelete() throws CampusCourseException {
         insertTestData();
         assertNotNull(courseDao.getCourseById(100L));
         Lecturer lecturer = lecturerDao.getLecturerById(1100L);
@@ -282,7 +286,7 @@ public class CourseDaoTest extends OlatTestCase {
     }
 
     @Test
-    public void testDeleteByCourseId() {
+    public void testDeleteByCourseId() throws CampusCourseException {
         insertTestData();
         assertNotNull(courseDao.getCourseById(100L));
         Lecturer lecturer = lecturerDao.getLecturerById(1100L);
@@ -327,9 +331,10 @@ public class CourseDaoTest extends OlatTestCase {
     }
 
     @Test
-    public void testDeleteByCourseIds() {
+    public void testDeleteByCourseIds() throws CampusCourseException {
+        int numberOfCoursesFoundBeforeInsertingTestData = courseDao.getAllCreatedCoursesOfCurrentSemester().size();
         insertTestData();
-        assertEquals(2, courseDao.getAllCreatedCoursesOfCurrentSemester().size());
+        assertEquals(numberOfCoursesFoundBeforeInsertingTestData + 2, courseDao.getAllCreatedCoursesOfCurrentSemester().size());
 
         List<Long> courseIds = new LinkedList<>();
         courseIds.add(100L);
@@ -340,11 +345,11 @@ public class CourseDaoTest extends OlatTestCase {
         dbInstance.flush();
         dbInstance.clear();
 
-        assertEquals(0, courseDao.getAllCreatedCoursesOfCurrentSemester().size());
+        assertEquals(numberOfCoursesFoundBeforeInsertingTestData, courseDao.getAllCreatedCoursesOfCurrentSemester().size());
     }
 
     @Test
-    public void testSaveOlatResource() {
+    public void testSaveOlatResource() throws CampusCourseException {
         insertTestData();
         Course course = courseDao.getCourseById(300L);
         assertNull(course.getOlatResource());
@@ -364,7 +369,7 @@ public class CourseDaoTest extends OlatTestCase {
     }
 
     @Test
-    public void testDisableSynchronization() {
+    public void testDisableSynchronization() throws CampusCourseException {
         insertTestData();
         Course course = courseDao.getCourseById(100L);
         assertTrue(course.isSynchronizable());
@@ -381,7 +386,7 @@ public class CourseDaoTest extends OlatTestCase {
     }
 
     @Test
-    public void testResetOlatResourceAndParentCourse() {
+    public void testResetOlatResourceAndParentCourse() throws CampusCourseException {
         insertTestData();
         Course courseWithoutParentCourse = courseDao.getCourseById(100L);
         Course courseWithParentCourse = courseDao.getCourseById(200L);
@@ -412,7 +417,7 @@ public class CourseDaoTest extends OlatTestCase {
     }
 
     @Test
-    public void testSaveParentCourseId() {
+    public void testSaveParentCourseId() throws CampusCourseException {
         insertTestData();
         Course parentCourse = courseDao.getCourseById(100L);
         Course course = courseDao.getCourseById(200L);
@@ -441,15 +446,22 @@ public class CourseDaoTest extends OlatTestCase {
     }
 
     @Test
-    public void testGetOlatResourceKeysOfAllCreatedNotContinuedCoursesOfSpecificSemesters() {
+    public void testGetOlatResourceKeysOfAllCreatedNotContinuedCoursesOfSpecificSemesters() throws CampusCourseException {
         insertTestData();
 
-        List<String> shortSemesters = new ArrayList<>();
-        shortSemesters.add("99FS");
-        shortSemesters.add("98HS");
-        shortSemesters.add("98FS");
+        Semester semester1 = semesterDao.getSemesterBySemesterNameAndYear(SemesterName.FRUEHJAHRSSEMESTER, 2099);
+        assertNotNull(semester1);
+        Semester semester2 = semesterDao.getSemesterBySemesterNameAndYear(SemesterName.HERBSTSEMESTER, 2098);
+        assertNotNull(semester2);
+        Semester semester3 = semesterDao.getSemesterBySemesterNameAndYear(SemesterName.FRUEHJAHRSSEMESTER, 2098);
+        assertNotNull(semester3);
 
-        List<Long> olatResourceKeysOfAllCreatedNotContinuedCoursesOfSpecificSemesters = courseDao.getOlatResourceKeysOfAllCreatedNotContinuedCoursesOfSpecificSemesters(shortSemesters);
+        List<Long> semesterIds = new ArrayList<>();
+        semesterIds.add(semester1.getId());
+        semesterIds.add(semester2.getId());
+        semesterIds.add(semester3.getId());
+
+        List<Long> olatResourceKeysOfAllCreatedNotContinuedCoursesOfSpecificSemesters = courseDao.getOlatResourceKeysOfAllCreatedNotContinuedCoursesOfSpecificSemesters(semesterIds);
         assertEquals(3, olatResourceKeysOfAllCreatedNotContinuedCoursesOfSpecificSemesters.size());
         assertTrue(olatResourceKeysOfAllCreatedNotContinuedCoursesOfSpecificSemesters.contains(olatResource4.getKey()));
         assertTrue(olatResourceKeysOfAllCreatedNotContinuedCoursesOfSpecificSemesters.contains(olatResource5.getKey()));
@@ -467,22 +479,26 @@ public class CourseDaoTest extends OlatTestCase {
         courseDao.saveOlatResource(400L, olatResource.getKey());
         dbInstance.flush();
 
-        olatResourceKeysOfAllCreatedNotContinuedCoursesOfSpecificSemesters = courseDao.getOlatResourceKeysOfAllCreatedNotContinuedCoursesOfSpecificSemesters(shortSemesters);
+        olatResourceKeysOfAllCreatedNotContinuedCoursesOfSpecificSemesters = courseDao.getOlatResourceKeysOfAllCreatedNotContinuedCoursesOfSpecificSemesters(semesterIds);
         assertEquals(2, olatResourceKeysOfAllCreatedNotContinuedCoursesOfSpecificSemesters.size());
         assertTrue(olatResourceKeysOfAllCreatedNotContinuedCoursesOfSpecificSemesters.contains(olatResource5.getKey()));
         assertTrue(olatResourceKeysOfAllCreatedNotContinuedCoursesOfSpecificSemesters.contains(olatResource6.getKey()));
 
         // If we look for courses in 99HS, we should get course 300, which has a parent, but is not continued itself
         dbInstance.clear();
-        shortSemesters = new ArrayList<>();
-        shortSemesters.add("99HS");
 
-        olatResourceKeysOfAllCreatedNotContinuedCoursesOfSpecificSemesters = courseDao.getOlatResourceKeysOfAllCreatedNotContinuedCoursesOfSpecificSemesters(shortSemesters);
+        Semester semester4 = semesterDao.getSemesterBySemesterNameAndYear(SemesterName.HERBSTSEMESTER, 2099);
+        assertNotNull(semester4);
+
+        semesterIds = new ArrayList<>();
+        semesterIds.add(semester4.getId());
+
+        olatResourceKeysOfAllCreatedNotContinuedCoursesOfSpecificSemesters = courseDao.getOlatResourceKeysOfAllCreatedNotContinuedCoursesOfSpecificSemesters(semesterIds);
         assertTrue(olatResourceKeysOfAllCreatedNotContinuedCoursesOfSpecificSemesters.contains(olatResource.getKey()));
     }
 
     @Test
-    public void testGetOlatResourceKeysOfAllCreatedNotContinuedCoursesOfPreviousSemestersNotTooFarInThePast() {
+    public void testGetOlatResourceKeysOfAllCreatedNotContinuedCoursesOfPreviousSemestersNotTooFarInThePast() throws CampusCourseException {
         insertTestData();
         List<Long> olatResourceKeysOfAllCreatedNotContinuedCoursesOfOldSemestersNotTooFarInThePast = courseDao.getOlatResourceKeysOfAllCreatedNotContinuedCoursesOfPreviousSemestersNotTooFarInThePast();
         assertEquals(2, olatResourceKeysOfAllCreatedNotContinuedCoursesOfOldSemestersNotTooFarInThePast.size());
@@ -507,23 +523,25 @@ public class CourseDaoTest extends OlatTestCase {
     }
 
     @Test
-    public void testGetIdsOfAllCreatedSynchronizableCoursesOfCurrentSemester() {
+    public void testGetIdsOfAllCreatedSynchronizableCoursesOfCurrentSemester() throws CampusCourseException {
+        int numberOfCoursesFoundBeforeInsertingTestData = courseDao.getIdsOfAllCreatedSynchronizableCoursesOfCurrentSemester().size();
         insertTestData();
-        assertEquals(2, courseDao.getIdsOfAllCreatedSynchronizableCoursesOfCurrentSemester().size());
+        assertEquals(numberOfCoursesFoundBeforeInsertingTestData + 2, courseDao.getIdsOfAllCreatedSynchronizableCoursesOfCurrentSemester().size());
 
         // Remove OLAT resource from course 100
         Course course = courseDao.getCourseById(100L);
         course.setOlatResource(null);
         dbInstance.flush();
 
-        assertEquals(1, courseDao.getIdsOfAllCreatedSynchronizableCoursesOfCurrentSemester().size());
+        assertEquals(numberOfCoursesFoundBeforeInsertingTestData + 1, courseDao.getIdsOfAllCreatedSynchronizableCoursesOfCurrentSemester().size());
     }
 
     @Test
-    public void testGetIdsOfAllNotCreatedCreatableCoursesOfCurrentSemester() {
+    public void testGetIdsOfAllNotCreatedCreatableCoursesOfCurrentSemester() throws CampusCourseException {
+        int numberOfCoursesFoundBeforeInsertingTestData = courseDao.getIdsOfAllNotCreatedCreatableCoursesOfCurrentSemester().size();
         insertTestData();
         List<Long> idsFound = courseDao.getIdsOfAllNotCreatedCreatableCoursesOfCurrentSemester();
-        assertEquals(1, idsFound.size());
+        assertEquals(numberOfCoursesFoundBeforeInsertingTestData + 1, idsFound.size());
         assertTrue(idsFound.contains(300L));
 
         // Remove OLAT resource from course 100
@@ -532,26 +550,27 @@ public class CourseDaoTest extends OlatTestCase {
         dbInstance.flush();
 
         idsFound = courseDao.getIdsOfAllNotCreatedCreatableCoursesOfCurrentSemester();
-        assertEquals(2, idsFound.size());
+        assertEquals(numberOfCoursesFoundBeforeInsertingTestData + 2, idsFound.size());
         assertTrue(idsFound.contains(100L));
         assertTrue(idsFound.contains(300L));
     }
 
     @Test
-    public void testGetAllCreatedCoursesOfCurrentSemester() {
+    public void testGetAllCreatedCoursesOfCurrentSemester() throws CampusCourseException {
+        int numberOfCoursesFoundBeforeInsertingTestData = courseDao.getAllCreatedCoursesOfCurrentSemester().size();
         insertTestData();
-        assertEquals(2, courseDao.getAllCreatedCoursesOfCurrentSemester().size());
+        assertEquals(numberOfCoursesFoundBeforeInsertingTestData + 2, courseDao.getAllCreatedCoursesOfCurrentSemester().size());
 
         courseDao.deleteByCourseId(100L);
 
         dbInstance.flush();
         dbInstance.clear();
 
-        assertEquals(1, courseDao.getAllCreatedCoursesOfCurrentSemester().size());
+        assertEquals(numberOfCoursesFoundBeforeInsertingTestData + 1, courseDao.getAllCreatedCoursesOfCurrentSemester().size());
     }
 
     @Test
-    public void tesGetAllNotCreatedOrphanedCourses() {
+    public void tesGetAllNotCreatedOrphanedCourses() throws CampusCourseException {
         int numberOfCoursesFoundBeforeInsertingTestData = courseDao.getAllNotCreatedOrphanedCourses().size();
         insertTestData();
 
@@ -573,7 +592,7 @@ public class CourseDaoTest extends OlatTestCase {
     }
 
     @Test
-    public void testExistCoursesForOlatReource() {
+    public void testExistCoursesForOlatReource() throws CampusCourseException {
         insertTestData();
 
         OLATResource olatResource = insertOlatResource("resourceCourseDao3");
@@ -590,7 +609,7 @@ public class CourseDaoTest extends OlatTestCase {
     }
 
     @Test
-    public void testGetCreatedCoursesOfCurrentSemesterByStudentId() {
+    public void testGetCreatedCoursesOfCurrentSemesterByStudentId() throws CampusCourseException {
         insertTestData();
 
     	List<Course> courses = courseDao.getCreatedCoursesOfCurrentSemesterByStudentId(2100L, null);
@@ -606,7 +625,7 @@ public class CourseDaoTest extends OlatTestCase {
     }
 
     @Test
-    public void testGetCreatedCoursesOfCurrentSemesterByStudentIdBookedByStudentOnlyAsParentCourse() {
+    public void testGetCreatedCoursesOfCurrentSemesterByStudentIdBookedByStudentOnlyAsParentCourse() throws CampusCourseException {
         insertTestData();
 
         Student student1 = studentDao.getStudentById(2100L);
@@ -651,7 +670,7 @@ public class CourseDaoTest extends OlatTestCase {
     }
 
     @Test
-    public void testGetNotCreatedCreatableCoursesOfCurrentSemesterByStudentId() {
+    public void testGetNotCreatedCreatableCoursesOfCurrentSemesterByStudentId() throws CampusCourseException {
         insertTestData();
 
         List<Course> courses = courseDao.getNotCreatedCreatableCoursesOfCurrentSemesterByStudentId(2100L, null);
@@ -667,7 +686,7 @@ public class CourseDaoTest extends OlatTestCase {
     }
 
     @Test
-    public void testGetCreatedAndNotCreatedCreatableCoursesOfCurrentSemesterByLecturerId() {
+    public void testGetCreatedAndNotCreatedCreatableCoursesOfCurrentSemesterByLecturerId() throws CampusCourseException {
         insertTestData();
 
         List<Course> courses = courseDao.getCreatedAndNotCreatedCreatableCoursesOfCurrentSemesterByLecturerId(1200L);
@@ -695,7 +714,7 @@ public class CourseDaoTest extends OlatTestCase {
     }
 
     @Test
-    public void testGetCreatedAndNotCreatedCreatableCoursesOfCurrentSemesterByStudentId() {
+    public void testGetCreatedAndNotCreatedCreatableCoursesOfCurrentSemesterByStudentId() throws CampusCourseException {
         insertTestData();
         List<Course> courses = courseDao.getCreatedAndNotCreatedCreatableCoursesOfCurrentSemesterByStudentId(2100L);
 
@@ -716,7 +735,7 @@ public class CourseDaoTest extends OlatTestCase {
     }
 
     @Test
-    public void testGetCreatedAndNotCreatedCreatableCoursesOfCurrentSemesterByStudentIdBookedByStudentOnlyAsParentCourse() {
+    public void testGetCreatedAndNotCreatedCreatableCoursesOfCurrentSemesterByStudentIdBookedByStudentOnlyAsParentCourse() throws CampusCourseException {
         insertTestData();
 
         Student student1 = studentDao.getStudentById(2100L);
@@ -787,30 +806,15 @@ public class CourseDaoTest extends OlatTestCase {
         assertTrue(courseDao.getCreatedAndNotCreatedCreatableCoursesOfCurrentSemesterByStudentIdBookedByStudentOnlyAsParentCourse(student2.getId()).isEmpty());
     }
 
-    @Test
-    public void testGetPreviousShortSemestersNotTooFarInThePast() {
-        insertTestData();
-        List<String> previousShortSemestersNotTooFarInThePast = courseDao.getPreviousShortSemestersNotTooFarInThePast();
-        assertEquals(2, previousShortSemestersNotTooFarInThePast.size());
-        assertTrue(previousShortSemestersNotTooFarInThePast.contains("99FS"));
-        assertTrue(previousShortSemestersNotTooFarInThePast.contains("98HS"));
-    }
-
-    @Test
-    public void testGetPreviousShortSemester() {
-        insertTestData();
-        assertEquals("99FS", courseDao.getPreviousShortSemester());
-    }
-
-    private void insertTestData() {
+    private void insertTestData() throws CampusCourseException {
         // Insert some orgs
         List<Org> orgs = mockDataGeneratorProvider.get().getOrgs();
         orgDao.save(orgs);
         dbInstance.flush();
 
         // Insert some courseOrgIds
-        List<CourseOrgId> courseOrgIds = mockDataGeneratorProvider.get().getCourseOrgIds();
-        courseDao.save(courseOrgIds);
+        List<CourseSemesterOrgId> courseSemesterOrgIds = mockDataGeneratorProvider.get().getCourseSemesterOrgIds();
+        courseDao.save(courseSemesterOrgIds);
         dbInstance.flush();
 
         // Insert some lecturers
@@ -841,6 +845,11 @@ public class CourseDaoTest extends OlatTestCase {
         // Add some events
         List<EventCourseId> eventCourseIds = mockDataGeneratorProvider.get().getEventCourseIds();
         eventDao.addEventsToCourse(eventCourseIds);
+        dbInstance.flush();
+
+        // Set current semester
+        Course course = courseDao.getCourseById(100L);
+        semesterDao.setCurrentSemester(course.getSemester().getId());
         dbInstance.flush();
 
         addOlatResourceToCourses_100_200_400_500_600();

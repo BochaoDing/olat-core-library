@@ -4,6 +4,8 @@ import ch.uzh.campus.CampusCourseConfiguration;
 import ch.uzh.campus.CampusCourseException;
 import ch.uzh.campus.CampusCourseImportTO;
 import ch.uzh.campus.data.DaoManager;
+import ch.uzh.campus.data.Semester;
+import ch.uzh.campus.data.SemesterName;
 import ch.uzh.campus.service.CampusCourse;
 import ch.uzh.campus.service.core.impl.CampusCourseFactory;
 import ch.uzh.campus.service.core.impl.syncer.statistic.SynchronizedGroupStatistic;
@@ -72,8 +74,9 @@ public class CampusCourseSynchronizerTest {
         CampusCourse campusCourse = new CampusCourse(course, repositoryEntry);
 
         // Prepare a test CampusCourseImportTO
+        Semester semester = new Semester(SemesterName.HERBSTSEMESTER, 2016, false);
         campusCourseImportTO = new CampusCourseImportTO(
-                title, "HS2012", lecturers, Collections.emptyList(), participants, eventDescription,
+                title, semester, lecturers, Collections.emptyList(), participants, eventDescription,
                 olatResourceMock, EXISTING_SAP_COURSE_ID, null, null
         );
 

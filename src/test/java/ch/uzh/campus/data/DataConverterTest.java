@@ -1,5 +1,6 @@
 package ch.uzh.campus.data;
 
+import ch.uzh.campus.CampusCourseException;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -239,15 +240,15 @@ public class DataConverterTest extends OlatTestCase {
         assertTrue(identitiesOfDelegatees.contains(identityOfDelegatee2));
     }
 
-    private void insertTestData() {
+    private void insertTestData() throws CampusCourseException {
         // Insert some orgs
         List<Org> orgs = mockDataGeneratorProvider.get().getOrgs();
         orgDao.save(orgs);
         dbInstance.flush();
 
         // Insert some courseOrgIds
-        List<CourseOrgId> courseOrgIds = mockDataGeneratorProvider.get().getCourseOrgIds();
-        courseDao.save(courseOrgIds);
+        List<CourseSemesterOrgId> courseSemesterOrgIds = mockDataGeneratorProvider.get().getCourseSemesterOrgIds();
+        courseDao.save(courseSemesterOrgIds);
         dbInstance.flush();
 
         // Insert some lecturers

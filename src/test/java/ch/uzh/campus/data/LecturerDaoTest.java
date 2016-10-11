@@ -1,6 +1,7 @@
 package ch.uzh.campus.data;
 
 import ch.uzh.campus.CampusCourseConfiguration;
+import ch.uzh.campus.CampusCourseException;
 import ch.uzh.campus.utils.DateUtil;
 import org.junit.After;
 import org.junit.Test;
@@ -50,6 +51,9 @@ public class LecturerDaoTest extends OlatTestCase {
     private CourseDao courseDao;
 
     @Autowired
+    private SemesterDao semesterDao;
+
+    @Autowired
     private LecturerCourseDao lecturerCourseDao;
 
     @Autowired
@@ -69,7 +73,7 @@ public class LecturerDaoTest extends OlatTestCase {
     }
 
     @Test
-    public void testAddMapping() {
+    public void testAddMapping() throws CampusCourseException {
         insertTestData();
         Lecturer lecturer = lecturerDao.getLecturerById(1100L);
         assertNotNull(lecturer);
@@ -96,7 +100,7 @@ public class LecturerDaoTest extends OlatTestCase {
     }
 
     @Test
-    public void testRemoveMapping() {
+    public void testRemoveMapping() throws CampusCourseException {
         insertTestData();
         Lecturer lecturer = lecturerDao.getLecturerById(1100L);
         assertNotNull(lecturer);
@@ -129,31 +133,31 @@ public class LecturerDaoTest extends OlatTestCase {
     }
 
     @Test
-    public void testNullGetLecturerById() {
+    public void testNullGetLecturerById() throws CampusCourseException {
         insertTestData();
         assertNull(lecturerDao.getLecturerById(1999L));
     }
 
     @Test
-    public void testNotNullGetLecturerById() {
+    public void testNotNullGetLecturerById() throws CampusCourseException {
         insertTestData();
         assertNotNull(lecturerDao.getLecturerById(1100L));
     }
 
     @Test
-    public void testNullGetLecturerByEmail() {
+    public void testNullGetLecturerByEmail() throws CampusCourseException {
         insertTestData();
         assertNull(lecturerDao.getLecturerByEmail("wrongEmail"));
     }
 
     @Test
-    public void testNotNullGetLecturerByEmail() {
+    public void testNotNullGetLecturerByEmail() throws CampusCourseException {
         insertTestData();
         assertNotNull(lecturerDao.getLecturerByEmail("email1"));
     }
 
     @Test
-    public void testGetAllNotManuallyMappedOrTooOldOrphanedLecturers() throws InterruptedException {
+    public void testGetAllNotManuallyMappedOrTooOldOrphanedLecturers() throws InterruptedException, CampusCourseException {
         Date referenceDateOfImport = new Date();
         int numberOfLecturersFoundBeforeInsertingTestData = lecturerDao.getAllNotManuallyMappedOrTooOldOrphanedLecturers(referenceDateOfImport).size();
         insertTestData();
@@ -204,7 +208,7 @@ public class LecturerDaoTest extends OlatTestCase {
     }
 
     @Test
-    public void testGetLecturersByMappedIdentityKey() {
+    public void testGetLecturersByMappedIdentityKey() throws CampusCourseException {
         insertTestData();
 
         Lecturer lecturer1 = lecturerDao.getLecturerById(1100L);
@@ -249,7 +253,7 @@ public class LecturerDaoTest extends OlatTestCase {
     }
 
     @Test
-    public void testDelete() {
+    public void testDelete() throws CampusCourseException {
         insertTestData();
         assertNotNull(lecturerDao.getLecturerById(1100L));
         Course course = courseDao.getCourseById(200L);
@@ -271,7 +275,7 @@ public class LecturerDaoTest extends OlatTestCase {
     }
 
     @Test
-    public void testDeleteByLecturerIds() {
+    public void testDeleteByLecturerIds() throws CampusCourseException {
         insertTestData();
         assertNotNull(lecturerDao.getLecturerById(1100L));
         assertNotNull(lecturerDao.getLecturerById(1200L));
@@ -301,7 +305,7 @@ public class LecturerDaoTest extends OlatTestCase {
     }
 
     @Test
-    public void testDeleteByLecturerIdsAsBulkDelete() {
+    public void testDeleteByLecturerIdsAsBulkDelete() throws CampusCourseException {
         insertTestData();
         assertNotNull(lecturerDao.getLecturerById(1100L));
         assertNotNull(lecturerDao.getLecturerById(1200L));
@@ -327,7 +331,7 @@ public class LecturerDaoTest extends OlatTestCase {
     }
 
     @Test
-    public void testGetAllLecturersWithCreatedOrNotCreatedCreatableCourses() {
+    public void testGetAllLecturersWithCreatedOrNotCreatedCreatableCourses() throws CampusCourseException {
         int numberOfLecturersFoundBeforeInsertingTestData = lecturerDao.getAllLecturersWithCreatedOrNotCreatedCreatableCourses().size();
         insertTestData();
         List<Lecturer> lecturersFound = lecturerDao.getAllLecturersWithCreatedOrNotCreatedCreatableCourses();
@@ -341,7 +345,7 @@ public class LecturerDaoTest extends OlatTestCase {
         assertTrue(idsFound.contains(1100L));
     }
 
-    private void insertTestData() {
+    private void insertTestData() throws CampusCourseException {
         // Insert some orgs
         List<Org> orgs = mockDataGeneratorProvider.get().getOrgs();
         orgDao.save(orgs);
@@ -353,13 +357,18 @@ public class LecturerDaoTest extends OlatTestCase {
         dbInstance.flush();
 
         // Insert some courses
-        List<CourseOrgId> courseOrgIds = mockDataGeneratorProvider.get().getCourseOrgIds();
-        courseDao.save(courseOrgIds);
+        List<CourseSemesterOrgId> courseSemesterOrgIds = mockDataGeneratorProvider.get().getCourseSemesterOrgIds();
+        courseDao.save(courseSemesterOrgIds);
         dbInstance.flush();
 
         // Insert some lecturerIdCourseIds
         List<LecturerIdCourseIdDateOfImport> lecturerIdCourseIdDateOfImports = mockDataGeneratorProvider.get().getLecturerIdCourseIdDateOfImports();
         lecturerCourseDao.save(lecturerIdCourseIdDateOfImports);
+        dbInstance.flush();
+
+        // Set current semester
+        Course course = courseDao.getCourseById(100L);
+        semesterDao.setCurrentSemester(course.getSemester().getId());
         dbInstance.flush();
 
         addOlatResourceToCourses_100_200_400_500_600();

@@ -1,6 +1,8 @@
 package ch.uzh.campus.service.core.impl.creator;
 
 import ch.uzh.campus.CampusCourseImportTO;
+import ch.uzh.campus.data.Semester;
+import ch.uzh.campus.data.SemesterName;
 import org.junit.Before;
 import org.junit.Test;
 import org.olat.basesecurity.IdentityImpl;
@@ -59,11 +61,12 @@ public class CampusCourseDescriptionBuilderTest {
     @Test
     public void buildDescriptionFrom() {
         String title = "Example title";
-        String semester = "Herbstsemester 2012";
         String eventDescription = "Detail_description";
 
+        Semester semester = new Semester(SemesterName.HERBSTSEMESTER, 2012, false);
+
         String[] argsMock = new String[3];
-        argsMock[0] = semester;
+        argsMock[0] = semester.getSemesterNameYear();
         argsMock[1] = LECTURE_SOLL;
         argsMock[2] = eventDescription;
 

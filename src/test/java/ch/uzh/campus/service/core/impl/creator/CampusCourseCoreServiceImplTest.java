@@ -5,6 +5,8 @@ import ch.uzh.campus.CampusCourseImportTO;
 import ch.uzh.campus.CampusCourseJunitTestHelper;
 import ch.uzh.campus.data.Course;
 import ch.uzh.campus.data.DaoManager;
+import ch.uzh.campus.data.Semester;
+import ch.uzh.campus.data.SemesterName;
 import ch.uzh.campus.service.CampusCourse;
 import ch.uzh.campus.service.CampusCourseGroups;
 import ch.uzh.campus.service.core.CampusCourseCoreService;
@@ -140,7 +142,7 @@ public class CampusCourseCoreServiceImplTest extends OlatTestCase {
         participants.add(testIdentity);
         participants.add(secondTestIdentity);
 
-		String semester = "Herbstsemester 2012";
+		Semester semester = new Semester(SemesterName.HERBSTSEMESTER, 2012, false);
 
         CampusCourseImportTO campusCourseImportData1 = new CampusCourseImportTO(
 				TEST_TITLE_TEXT, semester, lecturers, Collections.emptyList(), participants,
@@ -271,12 +273,13 @@ public class CampusCourseCoreServiceImplTest extends OlatTestCase {
     	
     	Identity testIdentity_2 = JunitTestHelper.createAndPersistIdentityAsUser("test_user_2");
     	Identity testIdentity_3 = JunitTestHelper.createAndPersistIdentityAsUser("test_user_3");
-    	
-    	String semester = "Herbstsemester 2016";
+
         List<Identity> lecturers = new ArrayList<>();
         lecturers.add(testIdentity_2);       
         List<Identity> participants = new ArrayList<>();
         participants.add(testIdentity_3);
+
+        Semester semester = new Semester(SemesterName.HERBSTSEMESTER, 2016, false);
 
         CampusCourseImportTO campusCourseImportData = new CampusCourseImportTO(
 				TEST_TITLE_TEXT, semester, lecturers, Collections.emptyList(),
@@ -318,8 +321,10 @@ public class CampusCourseCoreServiceImplTest extends OlatTestCase {
 		List<Identity> participants = new ArrayList<>();
 		participants.add(testIdentity_3);
 
+        Semester semester = new Semester(SemesterName.HERBSTSEMESTER, 2016, false);
+
 		CampusCourseImportTO parentCampusCourseImportData = new CampusCourseImportTO(
-				TEST_TITLE_TEXT, "Herbstsemester 2016", lecturers,
+				TEST_TITLE_TEXT, semester, lecturers,
 				Collections.emptyList(), participants,
 				TEST_EVENT_DESCRIPTION_TEXT, sourceOlatResource, 100L, null, null);
 
@@ -329,8 +334,10 @@ public class CampusCourseCoreServiceImplTest extends OlatTestCase {
 		campusCourseCoreService.createCampusCourseFromTemplate(sourceOlatResource,
 				parentCampusCourseImportData.getSapCourseId(), ownerIdentity);
 
+        semester = new Semester(SemesterName.FRUEHJAHRSSEMESTER, 2017, false);
+
 		CampusCourseImportTO childCampusCourseImportData = new CampusCourseImportTO(
-				TEST_TITLE_TEXT, "Frühlingssemester 2017", lecturers,
+				TEST_TITLE_TEXT, semester, lecturers,
 				Collections.emptyList(), Collections.emptyList(),
 				TEST_EVENT_DESCRIPTION_TEXT, null, 101L, null, null);
 

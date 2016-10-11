@@ -2,6 +2,8 @@ package ch.uzh.campus.service.core.impl.creator;
 
 import ch.uzh.campus.CampusCourseConfiguration;
 import ch.uzh.campus.CampusCourseImportTO;
+import ch.uzh.campus.data.Semester;
+import ch.uzh.campus.data.SemesterName;
 import ch.uzh.campus.service.CampusCourse;
 import org.junit.Before;
 import org.junit.Test;
@@ -94,8 +96,10 @@ public class CampusCourseCreatorTest extends OlatTestCase {
         groupNameB = translator.translate("campus.course.businessGroupB.name");
         groupDescriptionB = translator.translate("campus.course.businessGroupB.desc");
 
+        Semester semester = new Semester(SemesterName.HERBSTSEMESTER, 2016, false);
+
         campusCourseImportData = new CampusCourseImportTO(TITLE,
-				"Herbstemester", Collections.emptyList(),
+				semester, Collections.emptyList(),
 				Collections.emptyList(), Collections.emptyList(), DESCRIPTION,
 				null, null, "DE", null);
     }
