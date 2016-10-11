@@ -84,7 +84,7 @@ public class FileUtils {
 	 * Linux: invalid characters for a file or directory name: / (but you have to escape certain chars like ";$%&*")
 	 */
 	private static final char[] FILE_NAME_FORBIDDEN_CHARS = { '/', '\\', '\n', '\r', '\t', '\f' };
-	private static final char[] FILE_NAME_ACCEPTED_CHARS = { '\u0228', '\u0196', '\u0252', '\u0220', '\u0246', '\u0214', ' '};
+	private static final char[] FILE_NAME_ACCEPTED_CHARS = { ' ' };
 
 	static {
 		Arrays.sort(FILE_NAME_FORBIDDEN_CHARS);
@@ -825,25 +825,26 @@ public class FileUtils {
 	 * @return true if filename valid
 	 */
 	public static boolean validateFilename(String filename) {
-		if(filename==null) {
+		if (filename == null) {
 			return false;
 		}
 		
-		for(int i=0; i<filename.length(); i++) {
+		for (int i = 0; i<filename.length(); i++) {
 			char character = filename.charAt(i);
-			if(Arrays.binarySearch(FILE_NAME_ACCEPTED_CHARS, character)>=0) {
-				continue;
-			} else if(character<33 || character>255 || Arrays.binarySearch(FILE_NAME_FORBIDDEN_CHARS, character)>=0) {
-				return false;
+			if (Arrays.binarySearch(FILE_NAME_ACCEPTED_CHARS, character) < 0) {
+				if (character < 33 || character > 255 || Arrays.binarySearch(FILE_NAME_FORBIDDEN_CHARS, character) >= 0) {
+					return false;
+				}
 			}
 		}
 		//check if there are any unwanted path denominators in the name
-		if (filename.indexOf("..") > -1) {
+		if (".".equals(filename) || "..".equals(filename)) {
 			return false;
 		}
+
 		return true;
 	}
-	
+
 	public static String normalizeFilename(String name) {
 		String nameFirstPass = name.replace(" ", "_")
 				.replace("\u00C4", "Ae")
