@@ -199,8 +199,6 @@ public class LecturerCourseDaoTest extends OlatTestCase {
 
         Date referenceDateOfImport = new Date();
 
-        int numberOfLecturerIdCourseIdsBeforeInsertingTestData = lecturerCourseDao.getAllNotUpdatedLCBookingOfCurrentSemester(referenceDateOfImport).size();
-
         // Insert lecturer to course of current semester with date of import in the past (-> should be returned by method)
         LecturerCourse lecturerCourse1 = new LecturerCourse(lecturer, course1CurrentSemester, DateUtil.addHoursToDate(referenceDateOfImport, -1));
         lecturerCourseDao.saveOrUpdate(lecturerCourse1);
@@ -223,7 +221,7 @@ public class LecturerCourseDaoTest extends OlatTestCase {
 
         dbInstance.flush();
 
-        assertEquals(numberOfLecturerIdCourseIdsBeforeInsertingTestData + 1, lecturerIdCourseIds.size());
+        assertEquals(1, lecturerIdCourseIds.size());
         LecturerIdCourseId lecturerIdCourseIdExpected = new LecturerIdCourseId(1100L, 100L);
         assertTrue(lecturerIdCourseIds.contains(lecturerIdCourseIdExpected));
     }

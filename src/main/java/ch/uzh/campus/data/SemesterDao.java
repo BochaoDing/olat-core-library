@@ -47,6 +47,17 @@ public class SemesterDao {
         return semesters.get(0);
     }
 
+    List<Semester> getSemestersInAscendingOrder() {
+        List<Semester> semesters = dbInstance.getCurrentEntityManager()
+                .createNamedQuery(Semester.GET_ALL_SEMESTERS, Semester.class)
+                .getResultList();
+
+        // Sort
+        Collections.sort(semesters);
+
+        return semesters;
+    }
+
     List<Long> getPreviousSemestersNotTooFarInThePastInDescendingOrder() {
         List<Semester> semesters = dbInstance.getCurrentEntityManager()
                 .createNamedQuery(Semester.GET_ALL_SEMESTERS, Semester.class)
@@ -74,7 +85,19 @@ public class SemesterDao {
         return idsOfSemestersOlderThanCurrentSemester.subList(0, Math.min(indexOfOldestSemesterNotTooFarInThePast, idsOfSemestersOlderThanCurrentSemester.size()));
     }
 
+    Semester getCurrentSemester() {
+        List<Semester> semestersFound = dbInstance.getCurrentEntityManager()
+                .createNamedQuery(Semester.GET_CURRENT_SEMESTER, Semester.class)
+                .getResultList();
+        if (semestersFound.isEmpty()) {
+            return null;
+        }
+        return semestersFound.get(0);
+    }
+
     void setCurrentSemester(Long id) {
+        // First unset, since only one semester can be the current semster
+        unsetCurrentSemester();
         Semester semester = getSemesterById(id);
         semester.setCurrentSemester(true);
     }

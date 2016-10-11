@@ -332,9 +332,8 @@ public class CourseDaoTest extends OlatTestCase {
 
     @Test
     public void testDeleteByCourseIds() throws CampusCourseException {
-        int numberOfCoursesFoundBeforeInsertingTestData = courseDao.getAllCreatedCoursesOfCurrentSemester().size();
         insertTestData();
-        assertEquals(numberOfCoursesFoundBeforeInsertingTestData + 2, courseDao.getAllCreatedCoursesOfCurrentSemester().size());
+        assertEquals(2, courseDao.getAllCreatedCoursesOfCurrentSemester().size());
 
         List<Long> courseIds = new LinkedList<>();
         courseIds.add(100L);
@@ -345,7 +344,7 @@ public class CourseDaoTest extends OlatTestCase {
         dbInstance.flush();
         dbInstance.clear();
 
-        assertEquals(numberOfCoursesFoundBeforeInsertingTestData, courseDao.getAllCreatedCoursesOfCurrentSemester().size());
+        assertEquals(0, courseDao.getAllCreatedCoursesOfCurrentSemester().size());
     }
 
     @Test
@@ -524,24 +523,22 @@ public class CourseDaoTest extends OlatTestCase {
 
     @Test
     public void testGetIdsOfAllCreatedSynchronizableCoursesOfCurrentSemester() throws CampusCourseException {
-        int numberOfCoursesFoundBeforeInsertingTestData = courseDao.getIdsOfAllCreatedSynchronizableCoursesOfCurrentSemester().size();
         insertTestData();
-        assertEquals(numberOfCoursesFoundBeforeInsertingTestData + 2, courseDao.getIdsOfAllCreatedSynchronizableCoursesOfCurrentSemester().size());
+        assertEquals(2, courseDao.getIdsOfAllCreatedSynchronizableCoursesOfCurrentSemester().size());
 
         // Remove OLAT resource from course 100
         Course course = courseDao.getCourseById(100L);
         course.setOlatResource(null);
         dbInstance.flush();
 
-        assertEquals(numberOfCoursesFoundBeforeInsertingTestData + 1, courseDao.getIdsOfAllCreatedSynchronizableCoursesOfCurrentSemester().size());
+        assertEquals(1, courseDao.getIdsOfAllCreatedSynchronizableCoursesOfCurrentSemester().size());
     }
 
     @Test
     public void testGetIdsOfAllNotCreatedCreatableCoursesOfCurrentSemester() throws CampusCourseException {
-        int numberOfCoursesFoundBeforeInsertingTestData = courseDao.getIdsOfAllNotCreatedCreatableCoursesOfCurrentSemester().size();
         insertTestData();
         List<Long> idsFound = courseDao.getIdsOfAllNotCreatedCreatableCoursesOfCurrentSemester();
-        assertEquals(numberOfCoursesFoundBeforeInsertingTestData + 1, idsFound.size());
+        assertEquals(1, idsFound.size());
         assertTrue(idsFound.contains(300L));
 
         // Remove OLAT resource from course 100
@@ -550,31 +547,29 @@ public class CourseDaoTest extends OlatTestCase {
         dbInstance.flush();
 
         idsFound = courseDao.getIdsOfAllNotCreatedCreatableCoursesOfCurrentSemester();
-        assertEquals(numberOfCoursesFoundBeforeInsertingTestData + 2, idsFound.size());
+        assertEquals(2, idsFound.size());
         assertTrue(idsFound.contains(100L));
         assertTrue(idsFound.contains(300L));
     }
 
     @Test
     public void testGetAllCreatedCoursesOfCurrentSemester() throws CampusCourseException {
-        int numberOfCoursesFoundBeforeInsertingTestData = courseDao.getAllCreatedCoursesOfCurrentSemester().size();
         insertTestData();
-        assertEquals(numberOfCoursesFoundBeforeInsertingTestData + 2, courseDao.getAllCreatedCoursesOfCurrentSemester().size());
+        assertEquals(2, courseDao.getAllCreatedCoursesOfCurrentSemester().size());
 
         courseDao.deleteByCourseId(100L);
 
         dbInstance.flush();
         dbInstance.clear();
 
-        assertEquals(numberOfCoursesFoundBeforeInsertingTestData + 1, courseDao.getAllCreatedCoursesOfCurrentSemester().size());
+        assertEquals(1, courseDao.getAllCreatedCoursesOfCurrentSemester().size());
     }
 
     @Test
     public void tesGetAllNotCreatedOrphanedCourses() throws CampusCourseException {
-        int numberOfCoursesFoundBeforeInsertingTestData = courseDao.getAllNotCreatedOrphanedCourses().size();
         insertTestData();
 
-        assertEquals(numberOfCoursesFoundBeforeInsertingTestData, courseDao.getAllNotCreatedOrphanedCourses().size());
+        assertEquals(0, courseDao.getAllNotCreatedOrphanedCourses().size());
 
         // Remove lecturerCourse and studentCourse entries of course 100 (not created course) and 300 (created course)-> courses 100 and 300 are orphaned
         List<Long> courseIds = new ArrayList<>();
@@ -586,7 +581,7 @@ public class CourseDaoTest extends OlatTestCase {
 
         List<Long> courseIdsFound = courseDao.getAllNotCreatedOrphanedCourses();
 
-        assertEquals(numberOfCoursesFoundBeforeInsertingTestData + 1, courseIdsFound.size());
+        assertEquals(1, courseIdsFound.size());
         assertFalse(courseIdsFound.contains(100L));   // created course
         assertTrue(courseIdsFound.contains(300L));    // not created course
     }

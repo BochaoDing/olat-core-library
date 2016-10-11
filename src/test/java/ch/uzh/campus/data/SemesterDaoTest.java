@@ -74,6 +74,22 @@ public class SemesterDaoTest extends OlatTestCase {
     }
 
     @Test
+    public void testGetSemestersInAscendingOrder() {
+        List<Semester> semesters = semesterDao.getSemestersInAscendingOrder();
+        assertTrue(semesters.size() >= 10);
+        assertEquals(semester10, semesters.get(semesters.size() - 1));
+        assertEquals(semester9, semesters.get(semesters.size() - 2));
+        assertEquals(semester8, semesters.get(semesters.size() - 3));
+        assertEquals(semester7, semesters.get(semesters.size() - 4));
+        assertEquals(semester6, semesters.get(semesters.size() - 5));
+        assertEquals(semester5, semesters.get(semesters.size() - 6));
+        assertEquals(semester4, semesters.get(semesters.size() - 7));
+        assertEquals(semester3, semesters.get(semesters.size() - 8));
+        assertEquals(semester2, semesters.get(semesters.size() - 9));
+        assertEquals(semester1, semesters.get(semesters.size() - 10));
+    }
+
+    @Test
     public void testGetPreviousSemestersNotTooFarInThePastInDescendingOrder() {
         List<Long> ids = semesterDao.getPreviousSemestersNotTooFarInThePastInDescendingOrder();
         assertEquals(6, ids.size());
@@ -86,10 +102,19 @@ public class SemesterDaoTest extends OlatTestCase {
     }
 
     @Test
-    public void testSetCurrentSemester() {
+    public void testGetCurrentSemester() {
         semesterDao.unsetCurrentSemester();
         dbInstance.flush();
 
+        semesterDao.setCurrentSemester(semester9.getId());
+        dbInstance.flush();
+
+        Semester semester = semesterDao.getCurrentSemester();
+        assertEquals(semester9, semester);
+    }
+
+    @Test
+    public void testSetCurrentSemester() {
         semesterDao.setCurrentSemester(semester9.getId());
         assertTrue(semester9.isCurrentSemester());
 
