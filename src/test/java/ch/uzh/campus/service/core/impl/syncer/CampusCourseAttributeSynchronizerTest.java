@@ -2,6 +2,8 @@ package ch.uzh.campus.service.core.impl.syncer;
 
 import ch.uzh.campus.CampusCourseConfiguration;
 import ch.uzh.campus.CampusCourseImportTO;
+import ch.uzh.campus.data.Semester;
+import ch.uzh.campus.data.SemesterName;
 import ch.uzh.campus.service.CampusCourse;
 import ch.uzh.campus.service.core.impl.CampusCourseFactory;
 import ch.uzh.campus.service.core.impl.creator.CampusCourseDescriptionBuilder;
@@ -32,7 +34,7 @@ public class CampusCourseAttributeSynchronizerTest extends OlatTestCase {
 
     private long sapCampusCourseId = 1L;
 
-    private String semester = "HS2012";
+    private Semester semester = new Semester(SemesterName.HERBSTSEMESTER, 2012, false);
     private List<Identity> lecturers = new ArrayList<>();
     private List<Identity> participants = new ArrayList<>();
     private String title = "title";

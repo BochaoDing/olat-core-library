@@ -1,6 +1,7 @@
 package ch.uzh.campus.data;
 
 import ch.uzh.campus.CampusCourseConfiguration;
+import ch.uzh.campus.CampusCourseException;
 import ch.uzh.campus.utils.DateUtil;
 import org.junit.After;
 import org.junit.Before;
@@ -40,21 +41,29 @@ public class StudentCourseDaoTest extends OlatTestCase {
     private CourseDao courseDao;
 
     @Autowired
+    private SemesterDao semesterDao;
+
+    @Autowired
     private StudentCourseDao studentCourseDao;
 
     @Autowired
     private Provider<MockDataGenerator> mockDataGeneratorProvider;
 
     @Before
-    public void setup() {
+    public void setup() throws CampusCourseException {
         // Insert some students
         List<Student> students = mockDataGeneratorProvider.get().getStudents();
         studentDao.save(students);
         dbInstance.flush();
 
         // Insert some courses
-        List<CourseOrgId> courseOrgIds = mockDataGeneratorProvider.get().getCourseOrgIds();
-        courseDao.save(courseOrgIds);
+        List<CourseSemesterOrgId> courseSemesterOrgIds = mockDataGeneratorProvider.get().getCourseSemesterOrgIds();
+        courseDao.save(courseSemesterOrgIds);
+        dbInstance.flush();
+
+        // Set current semester
+        Course course = courseDao.getCourseById(100L);
+        semesterDao.setCurrentSemester(course.getSemester().getId());
         dbInstance.flush();
     }
 
@@ -216,14 +225,13 @@ public class StudentCourseDaoTest extends OlatTestCase {
         assertNotNull(studentCourseDao.getStudentCourseById(2100L, 200L));
         assertNotNull(studentCourseDao.getStudentCourseById(2100L, 400L));
 
-        List<StudentIdCourseId> studentIdCourseIds = studentCourseDao.getAllNotUpdatedSCBookingOfCurrentSemester(new Date());
+        List<StudentIdCourseId> studentIdCourseIds = studentCourseDao.getAllNotUpdatedSCBookingOfCurrentSemester(referenceDateOfImport);
 
         dbInstance.flush();
 
         assertEquals(1, studentIdCourseIds.size());
-        StudentIdCourseId studentIdCourseId = studentIdCourseIds.get(0);
-        assertEquals(2100L, studentIdCourseId.getStudentId());
-        assertEquals(100L, studentIdCourseId.getCourseId());
+        StudentIdCourseId studentIdCourseIdExpected = new StudentIdCourseId(2100L, 100L);
+        assertTrue(studentIdCourseIds.contains(studentIdCourseIdExpected));
     }
 
     @Test

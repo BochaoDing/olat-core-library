@@ -1,5 +1,6 @@
 package ch.uzh.campus.data;
 
+import ch.uzh.campus.CampusCourseException;
 import org.apache.commons.lang.StringUtils;
 import org.junit.After;
 import org.junit.Before;
@@ -40,10 +41,10 @@ public class TextDaoTest extends OlatTestCase {
     private Provider<MockDataGenerator> mockDataGeneratorProvider;
 
     @Before
-	public void setup() {
+	public void setup() throws CampusCourseException {
         // Insert some courses
-        List<CourseOrgId> courseOrgIds = mockDataGeneratorProvider.get().getCourseOrgIds();
-        courseDao.save(courseOrgIds);
+        List<CourseSemesterOrgId> courseSemesterOrgIds = mockDataGeneratorProvider.get().getCourseSemesterOrgIds();
+        courseDao.save(courseSemesterOrgIds);
         dbInstance.flush();
 	}
 	    

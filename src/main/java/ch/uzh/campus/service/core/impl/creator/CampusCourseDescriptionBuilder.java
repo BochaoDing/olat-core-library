@@ -54,7 +54,7 @@ public class CampusCourseDescriptionBuilder {
 
     public String buildDescriptionFrom(CampusCourseImportTO campusCourseData, String campusCourseMultiSemester, String language) {
         String[] args = new String[3];
-        args[0] = (campusCourseMultiSemester != null) ? campusCourseMultiSemester : campusCourseData.getSemester();
+        args[0] = (campusCourseMultiSemester != null) ? campusCourseMultiSemester : campusCourseData.getSemester().getSemesterNameYear();
 
         if (campusCourseData.getDelegateesOfCourse() != null && !campusCourseData.getDelegateesOfCourse().isEmpty()) {
             List<Identity> lecturersWithoutDelegatees = new ArrayList<>(campusCourseData.getLecturersOfCourse());

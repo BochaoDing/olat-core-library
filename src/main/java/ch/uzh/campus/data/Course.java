@@ -1,6 +1,5 @@
 package ch.uzh.campus.data;
 
-import org.apache.commons.lang.builder.ToStringBuilder;
 import org.olat.resource.OLATResource;
 import org.olat.resource.OLATResourceImpl;
 
@@ -19,62 +18,61 @@ import java.util.Set;
 @SuppressWarnings("JpaQlInspection")  // Required to suppress warnings caused by c.olatResource.key
 @Entity
 @NamedQueries({
-        @NamedQuery(name = Course.GET_ALL_CREATED_COURSES_OF_CURRENT_SEMESTER, query = "select c from Course c where c.olatResource is not null and c.shortSemester = (select max(c2.shortSemester) from Course c2)"),
-        @NamedQuery(name = Course.GET_IDS_OF_ALL_CREATED_SYNCHRONIZABLE_COURSES_OF_CURRENT_SEMESTER, query = "select c.id from Course c where c.olatResource is not null and c.synchronizable = true and c.shortSemester = (select max(c2.shortSemester) from Course c2)"),
+        @NamedQuery(name = Course.GET_ALL_CREATED_COURSES_OF_CURRENT_SEMESTER, query = "select c from Course c where c.olatResource is not null and c.semester.currentSemester = true"),
+        @NamedQuery(name = Course.GET_IDS_OF_ALL_CREATED_SYNCHRONIZABLE_COURSES_OF_CURRENT_SEMESTER, query = "select c.id from Course c where c.olatResource is not null and c.synchronizable = true and c.semester.currentSemester = true"),
         @NamedQuery(name = Course.GET_OLAT_RESOURCE_KEYS_OF_ALL_CREATED_NOT_CONTINUED_COURSES_OF_SPECIFIC_SEMESTERS, query = "select c.olatResource.key from Course c where " +
                 "c.olatResource is not null " +
-                "and c.shortSemester in :shortSemesters " +
+                "and c.semester.id in :semesterIds " +
                 "and not exists (select c2 from Course c2 where c2.parentCourse.id = c.id)"),
         @NamedQuery(name = Course.GET_IDS_OF_ALL_NOT_CREATED_CREATABLE_COURSES_OF_CURRENT_SEMESTER, query = "select c.id from Course c where " +
                 "c.olatResource is null " +
                 "and c.exclude = false " +
                 "and exists (select c1 from Course c1 join c1.orgs o where c1.id = c.id and o.enabled = true) " +
-                "and c.shortSemester = (select max(c2.shortSemester) from Course c2)"),
+                "and c.semester.currentSemester = true"),
         @NamedQuery(name = Course.GET_CREATED_COURSES_OF_CURRENT_SEMESTER_BY_LECTURER_ID, query = "select c from Course c join c.lecturerCourses lc where " +
                 "c.olatResource is not null and lc.lecturer.personalNr = :lecturerId " +
-                "and c.shortSemester = (select max(c1.shortSemester) from Course c1) and c.title like :searchString"),
+                "and c.semester.currentSemester = true and c.title like :searchString"),
         @NamedQuery(name = Course.GET_NOT_CREATED_CREATABLE_COURSES_OF_CURRENT_SEMESTER_BY_LECTURER_ID, query = "select c from Course c join c.lecturerCourses lc where " +
                 "lc.lecturer.personalNr = :lecturerId " +
                 "and c.olatResource is null " +
                 "and c.exclude = false " +
                 "and exists (select c1 from Course c1 join c1.orgs o where c1.id = c.id and o.enabled = true) " +
-                "and c.shortSemester = (select max(c2.shortSemester) from Course c2) " +
+                "and c.semester.currentSemester = true " +
                 "and c.title like :searchString"),
         @NamedQuery(name = Course.GET_CREATED_COURSES_OF_CURRENT_SEMESTER_BY_STUDENT_ID, query = "select c from Course c join c.studentCourses sc where " +
                 "c.olatResource is not null and sc.student.id = :studentId " +
-                "and c.shortSemester = (select max(c1.shortSemester) from Course c1) and c.title like :searchString"),
+                "and c.semester.currentSemester = true and c.title like :searchString"),
         @NamedQuery(name = Course.GET_CREATED_COURSES_OF_CURRENT_SEMESTER_BY_STUDENT_ID_BOOKED_BY_STUDENT_ONLY_AS_PARENT_COURSE, query = "select c from Course c join c.parentCourse.studentCourses scp where " +
                 "c.parentCourse is not null and c.olatResource is not null and scp.student.id = :studentId " +
                 "and not exists (select c1 from Course c1 join c1.studentCourses sc1 where c1.id = c.id and sc1.student.id = :studentId) " +
-                "and c.shortSemester = (select max(c2.shortSemester) from Course c2) and c.title like :searchString"),
+                "and c.semester.currentSemester = true and c.title like :searchString"),
         @NamedQuery(name = Course.GET_NOT_CREATED_CREATABLE_COURSES_OF_CURRENT_SEMESTER_BY_STUDENT_ID, query = "select c from Course c join c.studentCourses sc where " +
                 "sc.student.id = :studentId " +
                 "and c.olatResource is null " +
                 "and c.exclude = false " +
                 "and exists (select c1 from Course c1 join c1.orgs o where c1.id = c.id and o.enabled = true) " +
-                "and c.shortSemester = (select max(c2.shortSemester) from Course c2) " +
+                "and c.semester.currentSemester = true " +
                 "and c.title like :searchString"),
         @NamedQuery(name = Course.GET_CREATED_AND_NOT_CREATED_CREATABLE_COURSES_OF_CURRENT_SEMESTER_BY_STUDENT_ID, query = "select c from Course c left join c.studentCourses sc where " +
                 "sc.student.id = :studentId " +
                 "and c.exclude = false " +
                 "and exists (select c1 from Course c1 join c1.orgs o where c1.id = c.id and o.enabled = true) " +
-                "and c.shortSemester = (select max(c2.shortSemester) from Course c2)"),
+                "and c.semester.currentSemester = true"),
         @NamedQuery(name = Course.GET_CREATED_AND_NOT_CREATED_CREATABLE_COURSES_OF_CURRENT_SEMESTER_BY_STUDENT_ID_BOOKED_BY_STUDENT_ONLY_AS_PARENT_COURSE, query = "select c from Course c join c.parentCourse.studentCourses scp where " +
                 "c.parentCourse is not null and scp.student.id = :studentId " +
                 "and not exists (select c1 from Course c1 join c1.studentCourses sc1 where c1.id = c.id and sc1.student.id = :studentId) " +
                 "and c.exclude = false " +
                 "and exists (select c2 from Course c2 join c2.orgs o where c2.id = c.id and o.enabled = true) " +
-                "and c.shortSemester = (select max(c3.shortSemester) from Course c3)"),
+                "and c.semester.currentSemester = true"),
         @NamedQuery(name = Course.GET_CREATED_AND_NOT_CREATED_CREATABLE_COURSES_OF_CURRENT_SEMESTER_BY_LECTURER_ID, query = "select c from Course c left join c.lecturerCourses lc where " +
                 "lc.lecturer.personalNr = :lecturerId " +
                 "and c.exclude = false " +
                 "and exists (select c1 from Course c1 join c1.orgs o where c1.id = c.id and o.enabled = true) " +
-                "and c.shortSemester = (select max(c2.shortSemester) from Course c2) "),
+                "and c.semester.currentSemester = true"),
         @NamedQuery(name = Course.GET_ALL_NOT_CREATED_ORPHANED_COURSES, query = "select c.id from Course c where c.olatResource is null and c.id not in (select lc.course.id from LecturerCourse lc) and c.id not in (select sc.course.id from StudentCourse sc)"),
         @NamedQuery(name = Course.GET_COURSE_IDS_BY_OLAT_RESOURCE_KEY, query = "select c.id from Course c where c.olatResource.key = :olatResourceKey"),
         @NamedQuery(name = Course.GET_COURSES_BY_OLAT_RESOURCE_KEY, query = "select c from Course c where c.olatResource.key = :olatResourceKey"),
-        @NamedQuery(name = Course.GET_LATEST_COURSE_BY_OLAT_RESOURCE_KEY, query = "select c from Course c where c.olatResource.key = :olatResourceKey and c.endDate = (select max(c1.endDate) from Course c1 where c1.olatResource.key = :olatResourceKey)"),
-        @NamedQuery(name = Course.GET_ALL_SHORT_SEMESTERS_IN_DESCENDING_ORDER, query = "select c.shortSemester from Course c group by c.shortSemester order by c.shortSemester desc")
+        @NamedQuery(name = Course.GET_LATEST_COURSE_BY_OLAT_RESOURCE_KEY, query = "select c from Course c where c.olatResource.key = :olatResourceKey and c.endDate = (select max(c1.endDate) from Course c1 where c1.olatResource.key = :olatResourceKey)")
 })
 @Table(name = "ck_course")
 public class Course {
@@ -111,12 +109,6 @@ public class Course {
     @Column(name = "vvz_link", nullable = false)
     private String vvzLink;
 
-    @Column(name = "semester", nullable = false)
-    private String semester;
-
-    @Column(name = "short_semester", nullable = false)
-    private String shortSemester;
-
     @Column(name = "exclude", nullable = false)
     private boolean exclude = false;
 
@@ -134,6 +126,10 @@ public class Course {
     @ManyToOne(targetEntity=OLATResourceImpl.class)
     @JoinColumn(name = "fk_resource")
     private OLATResource olatResource;
+
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "fk_semester")
+    private Semester semester;
 
     @OneToMany(mappedBy = "course")
     private Set<LecturerCourse> lecturerCourses = new HashSet<>();
@@ -178,7 +174,6 @@ public class Course {
     static final String GET_CREATED_AND_NOT_CREATED_CREATABLE_COURSES_OF_CURRENT_SEMESTER_BY_STUDENT_ID_BOOKED_BY_STUDENT_ONLY_AS_PARENT_COURSE = "getCreatedAndNotCreatedCreatableCoursesOfCurrentSemesterByStudentIdBookedByStudentOnlyAsParentCourse";
     static final String GET_COURSES_BY_OLAT_RESOURCE_KEY = "getCoursesByOlatResourceKey";
     static final String GET_LATEST_COURSE_BY_OLAT_RESOURCE_KEY = "getLatestCourseByOlatResourceKey";
-    static final String GET_ALL_SHORT_SEMESTERS_IN_DESCENDING_ORDER = "getAllShortSemestersInDescendingOrder";
 
     public Long getId() {
         return id;
@@ -268,20 +263,12 @@ public class Course {
         this.vvzLink = vvzLink;
     }
 
-    public String getSemester() {
+    public Semester getSemester() {
         return semester;
     }
 
-    public void setSemester(String semester) {
+    public void setSemester(Semester semester) {
         this.semester = semester;
-    }
-
-    public String getShortSemester() {
-        return shortSemester;
-    }
-
-    public void setShortSemester(String shortSemester) {
-        this.shortSemester = shortSemester;
     }
 
     public boolean isExclude() {
@@ -392,13 +379,13 @@ public class Course {
     @Transient
     public String getTitleToBeDisplayed(boolean shortTitleActivated) {
 
-        String titleToBeDisplayed = "";
-
-        if (shortSemester != null) {
-            titleToBeDisplayed = shortSemester.concat(WHITESPACE);
+        if (semester == null) {
+            return title;
         }
 
-        if (shortTitle != null && shortTitleActivated && "".equals(shortTitle) == false) {
+        String titleToBeDisplayed = semester.getShortYearShortSemesterName().concat(WHITESPACE);
+
+        if (shortTitle != null && shortTitleActivated && !"".equals(shortTitle)) {
             if (shortTitle.length() > 4) {
             	titleToBeDisplayed += shortTitle.substring(4);
             } else {
@@ -412,21 +399,19 @@ public class Course {
 
     @Override
     public String toString() {
-        ToStringBuilder builder = new ToStringBuilder(this);
-        builder.append("id", getId());
-        builder.append("shortTitle", getShortTitle());
-        builder.append("title", getTitle());
-        builder.append("vstNr", getVstNr());
-        builder.append("isELearningSupported", isELearningSupported());
-        builder.append("language", getLanguage());
-        builder.append("category", getCategory());
-        builder.append("startDate", getStartDate());
-        builder.append("endDate", getEndDate());
-        builder.append("vvzLink", getVvzLink());
-        builder.append("olat resource id", olatResource.getKey());
-        builder.append("exclude", isExclude());
-
-        return builder.toString();
+        return "id=" + getId()
+                + ",shortTitle=" + getShortTitle()
+                + ",title=" + getTitle()
+                + ",vstNr=" + getVstNr()
+                + ",isELearningSupported=" + isELearningSupported()
+                + ",language=" + getLanguage()
+                + ",category=" + getCategory()
+                + ",startDate=" + getStartDate()
+                + ",endDate=" + getEndDate()
+                + ",vvzLink=" + getVvzLink()
+                + ",exclude=" + isExclude()
+                + ",semester=" + getSemester()
+                + ",olat resource id=" + (getOlatResource() == null ? "null" : getOlatResource().getKey());
     }
 
     @Override

@@ -16,7 +16,7 @@
         <property name="orgs" ref="orgs" />
         <property name="students" ref="students" />
         <property name="lecturers" ref="lecturers" />
-        <property name="courseOrgIds" ref="courseOrgIds" />
+        <property name="courseSemesterOrgIds" ref="courseSemesterOrgIds" />
         <property name="textCourseIds" ref="textCourseIds" />
         <property name="eventCourseIds" ref="eventCourseIds" />
         <property name="importStatistics" ref="importStatistics" />
@@ -56,8 +56,8 @@
     <!-- ======================================================================================= -->
     <!-- ===============Course================= -->
     <!-- ======================================================================================= -->
-    <!-- shortSemester must be in far into the future for robust JUnit tests! -->
-    <bean id="course_1" class="ch.uzh.campus.data.CourseOrgId" p:id="100" p:shortTitle="Created1" p:title="title1" p:vstNr="vstNr1" p:category="Seminar" p:language="EN" p:vvzLink="link" p:startDate="10.10.2099 00:00" p:endDate="10.02.2100 00:00" p:semester="hs" p:shortSemester="99HS" p:exclude="false" p:dateOfImport="10.10.2014 10:10" scope="prototype">
+    <!-- semester must be in far into the future for robust JUnit tests! -->
+    <bean id="course_1" class="ch.uzh.campus.data.CourseSemesterOrgId" p:id="100" p:shortTitle="Created1" p:title="title1" p:vstNr="vstNr1" p:category="Seminar" p:language="EN" p:vvzLink="link" p:startDate="10.10.2099 00:00" p:endDate="10.02.2100 00:00" p:semester="Herbstsemester 2099" p:exclude="false" p:dateOfImport="10.10.2014 10:10" scope="prototype">
         <property name="org1" value="9100"/>
         <property name="org2"><null/></property>
         <property name="org3"><null/></property>
@@ -68,7 +68,7 @@
         <property name="org8"><null/></property>
         <property name="org9"><null/></property>
     </bean>
-    <bean id="course_2" class="ch.uzh.campus.data.CourseOrgId" p:id="200" p:shortTitle="Created2" p:title="title2" p:vstNr="vstNr2" p:category="Seminar" p:language="EN" p:vvzLink="link" p:startDate="10.10.2099 00:00" p:endDate="10.02.2100 00:00" p:semester="hs" p:shortSemester="99HS" p:exclude="false" p:dateOfImport="10.10.2014 10:10" scope="prototype">
+    <bean id="course_2" class="ch.uzh.campus.data.CourseSemesterOrgId" p:id="200" p:shortTitle="Created2" p:title="title2" p:vstNr="vstNr2" p:category="Seminar" p:language="EN" p:vvzLink="link" p:startDate="10.10.2099 00:00" p:endDate="10.02.2100 00:00" p:semester="Herbstsemester 2099" p:exclude="false" p:dateOfImport="10.10.2014 10:10" scope="prototype">
         <property name="org1" value="9300"/>
         <property name="org2"><null/></property>
         <property name="org3"><null/></property>
@@ -79,7 +79,7 @@
         <property name="org8"><null/></property>
         <property name="org9"><null/></property>
     </bean>
-    <bean id="course_3" class="ch.uzh.campus.data.CourseOrgId" p:id="300" p:shortTitle="Creatable" p:title="title3" p:vstNr="vstNr3" p:category="Seminar" p:language="EN" p:vvzLink="link" p:startDate="10.10.2099 00:00" p:endDate="10.02.2100 00:00" p:semester="hs" p:shortSemester="99HS" p:exclude="false" p:dateOfImport="10.10.2014 10:10" scope="prototype">
+    <bean id="course_3" class="ch.uzh.campus.data.CourseSemesterOrgId" p:id="300" p:shortTitle="Creatable" p:title="title3" p:vstNr="vstNr3" p:category="Seminar" p:language="EN" p:vvzLink="link" p:startDate="10.10.2099 00:00" p:endDate="10.02.2100 00:00" p:semester="Herbstsemester 2099" p:exclude="false" p:dateOfImport="10.10.2014 10:10" scope="prototype">
         <property name="org1" value="9100"/>
         <property name="org2" value="9200"/>
         <property name="org3" value="9300"/>
@@ -90,7 +90,7 @@
         <property name="org8" value="9800"/>
         <property name="org9" value="9900"/>
     </bean>
-    <bean id="course_4" class="ch.uzh.campus.data.CourseOrgId" p:id="400" p:shortTitle="PreviousSemester" p:title="title4" p:vstNr="vstNr4" p:category="Seminar" p:language="EN" p:vvzLink="link" p:startDate="10.04.2099 00:00" p:endDate="10.07.2099 00:00" p:semester="fs" p:shortSemester="99FS" p:exclude="" p:dateOfImport="10.10.2014 10:10" scope="prototype">
+    <bean id="course_4" class="ch.uzh.campus.data.CourseSemesterOrgId" p:id="400" p:shortTitle="PreviousSemester" p:title="title4" p:vstNr="vstNr4" p:category="Seminar" p:language="EN" p:vvzLink="link" p:startDate="10.04.2099 00:00" p:endDate="10.07.2099 00:00" p:semester="Frühjahrssemester 2099" p:exclude="" p:dateOfImport="10.10.2014 10:10" scope="prototype">
         <property name="org1" value="9700"/>
         <property name="org2"><null/></property>
         <property name="org3"><null/></property>
@@ -101,7 +101,7 @@
         <property name="org8"><null/></property>
         <property name="org9"><null/></property>
     </bean>
-    <bean id="course_5" class="ch.uzh.campus.data.CourseOrgId" p:id="500" p:shortTitle="OldSemester" p:title="title5" p:vstNr="vstNr5" p:category="Seminar" p:language="EN" p:vvzLink="link" p:startDate="10.10.2098 00:00" p:endDate="10.02.2099 00:00" p:semester="hs" p:shortSemester="98HS" p:exclude="" p:dateOfImport="10.10.2014 10:10" scope="prototype">
+    <bean id="course_5" class="ch.uzh.campus.data.CourseSemesterOrgId" p:id="500" p:shortTitle="OldSemester" p:title="title5" p:vstNr="vstNr5" p:category="Seminar" p:language="EN" p:vvzLink="link" p:startDate="10.10.2098 00:00" p:endDate="10.02.2099 00:00" p:semester="Herbstsemester 2098" p:exclude="" p:dateOfImport="10.10.2014 10:10" scope="prototype">
         <property name="org1" value="9700"/>
         <property name="org2"><null/></property>
         <property name="org3"><null/></property>
@@ -112,7 +112,7 @@
         <property name="org8"><null/></property>
         <property name="org9"><null/></property>
     </bean>
-    <bean id="course_6" class="ch.uzh.campus.data.CourseOrgId" p:id="600" p:shortTitle="OldSemester" p:title="title6" p:vstNr="vstNr6" p:category="Seminar" p:language="EN" p:vvzLink="link" p:startDate="10.04.2098 00:00" p:endDate="10.07.2098 00:00" p:semester="fs" p:shortSemester="98FS" p:exclude="" p:dateOfImport="10.10.2014 10:10" scope="prototype">
+    <bean id="course_6" class="ch.uzh.campus.data.CourseSemesterOrgId" p:id="600" p:shortTitle="OldSemester" p:title="title6" p:vstNr="vstNr6" p:category="Seminar" p:language="EN" p:vvzLink="link" p:startDate="10.04.2098 00:00" p:endDate="10.07.2098 00:00" p:semester="Frühjahrssemester 2098" p:exclude="" p:dateOfImport="10.10.2014 10:10" scope="prototype">
         <property name="org1" value="9800"/>
         <property name="org2"><null/></property>
         <property name="org3"><null/></property>
@@ -123,7 +123,7 @@
         <property name="org8"><null/></property>
         <property name="org9"><null/></property>
     </bean>
-    <bean id="course_7" class="ch.uzh.campus.data.CourseOrgId" p:id="700" p:shortTitle="CourseOfDisabledOrg" p:title="title7" p:vstNr="vstNr7" p:category="Seminar" p:language="EN" p:vvzLink="link" p:startDate="10.10.2099 00:00" p:endDate="10.02.2100 00:00" p:semester="hs" p:shortSemester="99HS" p:exclude="" p:dateOfImport="10.10.2014 10:10" scope="prototype">
+    <bean id="course_7" class="ch.uzh.campus.data.CourseSemesterOrgId" p:id="700" p:shortTitle="CourseOfDisabledOrg" p:title="title7" p:vstNr="vstNr7" p:category="Seminar" p:language="EN" p:vvzLink="link" p:startDate="10.10.2099 00:00" p:endDate="10.02.2100 00:00" p:semester="Herbstsemester 2099" p:exclude="" p:dateOfImport="10.10.2014 10:10" scope="prototype">
         <property name="org1" value="9200"/>
         <property name="org2"><null/></property>
         <property name="org3"><null/></property>
@@ -134,7 +134,7 @@
         <property name="org8"><null/></property>
         <property name="org9"><null/></property>
     </bean>
-    <bean id="course_8" class="ch.uzh.campus.data.CourseOrgId" p:id="800" p:shortTitle="CourseToBeExcluded" p:title="title8" p:vstNr="vstNr8" p:category="Seminar" p:language="EN" p:vvzLink="link" p:startDate="10.10.2099 00:00" p:endDate="10.02.2100 00:00" p:semester="hs" p:shortSemester="99HS" p:exclude="X" p:dateOfImport="10.10.2014 10:10" scope="prototype">
+    <bean id="course_8" class="ch.uzh.campus.data.CourseSemesterOrgId" p:id="800" p:shortTitle="CourseToBeExcluded" p:title="title8" p:vstNr="vstNr8" p:category="Seminar" p:language="EN" p:vvzLink="link" p:startDate="10.10.2099 00:00" p:endDate="10.02.2100 00:00" p:semester="Herbstsemester 2099" p:exclude="X" p:dateOfImport="10.10.2014 10:10" scope="prototype">
         <property name="org1" value="9800"/>
         <property name="org2"><null/></property>
         <property name="org3"><null/></property>
@@ -145,7 +145,7 @@
         <property name="org8"><null/></property>
         <property name="org9"><null/></property>
     </bean>
-    <util:list id = 'courseOrgIds' scope="prototype" >
+    <util:list id = 'courseSemesterOrgIds' scope="prototype" >
         <ref bean="course_1"/>
         <ref bean="course_2"/>
         <ref bean="course_3"/>
@@ -171,7 +171,7 @@
         <bean class="ch.uzh.campus.data.StudentIdCourseIdDateOfImport" p:studentId="2700" p:courseId="700" p:dateOfImport="10.10.2014 10:10" scope="prototype" />
         <bean class="ch.uzh.campus.data.StudentIdCourseIdDateOfImport" p:studentId="2800" p:courseId="800" p:dateOfImport="10.10.2014 10:10" scope="prototype" />
     </util:list>
-      
+
 
     <!-- ======================================================================================= -->
     <!-- ===============LecturerIdCourseIds================= -->

@@ -14,7 +14,8 @@ public class CourseTest {
     @Test
     public void testGetTitleToBeDisplayed() throws Exception {
         course.setTitle("Community Ecology");
-        course.setShortSemester("16FS");
+        Semester semester = new Semester(SemesterName.FRUEHJAHRSSEMESTER, 2016, false);
+        course.setSemester(semester);
         course.setShortTitle("07BKECO339");
         assertEquals("16FS ECO339 Community Ecology", course.getTitleToBeDisplayed(true));
     }
@@ -22,24 +23,8 @@ public class CourseTest {
     @Test
     public void testGetTitleToBeDisplayed_shortTitle_notActivated() throws Exception {
         course.setTitle("Community Ecology");
-        course.setShortSemester("16FS");
-        course.setShortTitle("07BKECO339");
-        assertEquals("16FS Community Ecology", course.getTitleToBeDisplayed(false));
-    }
-
-    @Test
-    public void testGetTitleToBeDisplayed_shortTitle_notActivated_missingProperty() throws Exception {
-        course.setTitle("Community Ecology");
-        course.setShortSemester("16FS");
-        course.setShortTitle("07BKECO339");
-        assertEquals("16FS Community Ecology", course.getTitleToBeDisplayed(false));
-    }
-
-    @Test
-    public void testGetTitleToBeDisplayed_shortTitle_notActivated_emptyProperty() throws Exception {
-        Course course = new Course();
-        course.setTitle("Community Ecology");
-        course.setShortSemester("16FS");
+        Semester semester = new Semester(SemesterName.FRUEHJAHRSSEMESTER, 2016, false);
+        course.setSemester(semester);
         course.setShortTitle("07BKECO339");
         assertEquals("16FS Community Ecology", course.getTitleToBeDisplayed(false));
     }
@@ -47,7 +32,7 @@ public class CourseTest {
     @Test
     public void testGetTitleToBeDisplayed_semesterIsNull_shortTitleIsNull() throws Exception {
         course.setTitle("Community Ecology");
-        course.setShortSemester(null);
+        course.setSemester(null);
         course.setShortTitle(null);
         assertEquals("Community Ecology", course.getTitleToBeDisplayed(true));
     }
@@ -55,7 +40,7 @@ public class CourseTest {
     @Test
     public void testGetTitleToBeDisplayed_semesterIsNull_shortTitleIsEmptyl() throws Exception {
         course.setTitle("Community Ecology");
-        course.setShortSemester(null);
+        course.setSemester(null);
         course.setShortTitle("");
         assertEquals("Community Ecology", course.getTitleToBeDisplayed(true));
     }

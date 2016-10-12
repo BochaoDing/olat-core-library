@@ -40,6 +40,7 @@ public class DaoManager {
     private static final OLog LOG = Tracing.createLoggerFor(DaoManager.class);
 
 	private final CourseDao courseDao;
+    private final SemesterDao semesterDao;
     private final StudentDao studentDao;
     private final LecturerCourseDao lecturerCourseDao;
     private final StudentCourseDao studentCourseDao;
@@ -55,6 +56,7 @@ public class DaoManager {
 
 	@Autowired
 	public DaoManager(CourseDao courseDao,
+                      SemesterDao semesterDao,
                       StudentDao studentDao,
                       LecturerCourseDao lecturerCourseDao,
                       StudentCourseDao studentCourseDao,
@@ -68,6 +70,7 @@ public class DaoManager {
                       CampusCourseConfiguration campusCourseConfiguration,
                       @Value("${campus.lv_kuerzel.activated}") String shortTitleActivated) {
 		this.courseDao = courseDao;
+        this.semesterDao = semesterDao;
 		this.studentDao = studentDao;
 		this.lecturerCourseDao = lecturerCourseDao;
 		this.studentCourseDao = studentCourseDao;
@@ -80,7 +83,7 @@ public class DaoManager {
 		this.dataConverter = dataConverter;
 		this.campusCourseConfiguration = campusCourseConfiguration;
 		this.shortTitleActivated = TRUE.toString().equals(shortTitleActivated);
-	}
+    }
 
     public void saveCourses(List<Course> courses) {
         for (Course course : courses) {
@@ -147,6 +150,18 @@ public class DaoManager {
 
     public int deleteAllEvents() {
         return eventDao.deleteAllEventsAsBulkDelete();
+    }
+
+    public List<Semester> getSemestersInAscendingOrder() {
+        return semesterDao.getSemestersInAscendingOrder();
+    }
+
+    public Semester getCurrentSemester() {
+        return semesterDao.getCurrentSemester();
+    }
+
+    public void setCurrentSemester(Long semesterId) {
+        semesterDao.setCurrentSemester(semesterId);
     }
 
     public void deleteStudentsAndBookingsByStudentIds(List<Long> studentIds) {
