@@ -21,12 +21,12 @@ public class LecturerCourse {
 
     @Id
     @ManyToOne(optional = false)
-    @JoinColumn(name = "lecturer_id")
+    @JoinColumn(name = "fk_lecturer")
     private Lecturer lecturer;
 
     @Id
     @ManyToOne(optional = false)
-    @JoinColumn(name = "course_id")
+    @JoinColumn(name = "fk_course")
     private Course course;
 
     @Temporal(TemporalType.TIMESTAMP)

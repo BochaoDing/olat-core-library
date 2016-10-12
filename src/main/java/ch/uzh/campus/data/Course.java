@@ -122,14 +122,14 @@ public class Course {
     @Column(name = "date_of_import")
     private Date dateOfImport;
 
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "fk_semester")
+    private Semester semester;
+
     @SuppressWarnings("JpaAttributeTypeInspection")
     @ManyToOne(targetEntity=OLATResourceImpl.class)
     @JoinColumn(name = "fk_resource")
     private OLATResource olatResource;
-
-    @ManyToOne(optional = false)
-    @JoinColumn(name = "fk_semester")
-    private Semester semester;
 
     @OneToMany(mappedBy = "course")
     private Set<LecturerCourse> lecturerCourses = new HashSet<>();
@@ -139,8 +139,8 @@ public class Course {
 
     @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @JoinTable(name = "ck_course_org",
-            joinColumns = {@JoinColumn(name = "course_id")},
-            inverseJoinColumns = {@JoinColumn(name = "org_id")})
+            joinColumns = {@JoinColumn(name = "fk_course")},
+            inverseJoinColumns = {@JoinColumn(name = "fk_org")})
     private Set<Org> orgs = new HashSet<>();
 
     @OneToMany(mappedBy = "course", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -153,7 +153,7 @@ public class Course {
     private Course childCourse;
 
     @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "parent_course_id")
+    @JoinColumn(name = "fk_parent_course")
     private Course parentCourse;
 
     public Course() {}
@@ -197,14 +197,6 @@ public class Course {
 
     public void setTitle(String title) {
         this.title = title;
-    }
-
-    public boolean isSynchronizable() {
-        return synchronizable;
-    }
-
-    public void setSynchronizable(boolean synchronizable) {
-        this.synchronizable = synchronizable;
     }
 
     public String getVstNr() {
@@ -263,20 +255,28 @@ public class Course {
         this.vvzLink = vvzLink;
     }
 
-    public Semester getSemester() {
-        return semester;
-    }
-
-    public void setSemester(Semester semester) {
-        this.semester = semester;
-    }
-
     public boolean isExclude() {
         return exclude;
     }
 
     public void setExclude(boolean exclude) {
         this.exclude = exclude;
+    }
+
+    public boolean isSynchronizable() {
+        return synchronizable;
+    }
+
+    public void setSynchronizable(boolean synchronizable) {
+        this.synchronizable = synchronizable;
+    }
+
+    public Semester getSemester() {
+        return semester;
+    }
+
+    public void setSemester(Semester semester) {
+        this.semester = semester;
     }
 
     public OLATResource getOlatResource() {
