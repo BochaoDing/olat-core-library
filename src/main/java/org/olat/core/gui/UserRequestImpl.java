@@ -279,7 +279,6 @@ public class UserRequestImpl implements UserRequest {
 		// get moduleURI
 		if (nextSlash + 1 < nonParsedUri.length()) {
 			moduleURI = nonParsedUri.substring(nextSlash + 1);
-			if (moduleURI.indexOf("../") != -1) throw new AssertException("a non-normalized url encountered "+moduleURI);
 		}
 	}
 

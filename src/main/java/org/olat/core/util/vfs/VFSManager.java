@@ -59,6 +59,13 @@ public class VFSManager extends BasicManager {
 	public static String sanitizePath(String path) {
 		// check for "empty" paths
 		if (path == null || path.length() == 0) return "/";
+
+		if (path.startsWith("../") || path.endsWith("/..") ||
+				path.contains("/../")) {
+			throw new IllegalArgumentException("Illegal path string: " +
+					path);
+		}
+
 		// prepend "/" if missing
 		if (path.charAt(0) != '/') path = "/" + path;
 		// cut trailing slash if any
@@ -128,7 +135,7 @@ public class VFSManager extends BasicManager {
 	public static VFSItem resolveFile(VFSContainer rootContainer, String path) {
 		
 		path = VFSManager.sanitizePath(path);
-		if (path.equals("/")) { // slash or empty path -> return this vfsitem
+		if ("/".equals(path)) { // slash or empty path -> return this vfsitem
 			return rootContainer;
 		}
 
