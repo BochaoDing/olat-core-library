@@ -87,6 +87,7 @@ public class CampusAdminController extends FormBasicController {
         String defaultSemesterIdAsString = currentSemester.getId().toString();
         semestersSelection.select(defaultSemesterIdAsString, true);
         semestersSelection.addActionListener(FormEvent.ONCHANGE);
+        selectedCurrentSemesterId = currentSemester.getId();
 
         uifactory.addFormSubmitButton("save", formLayout);
     }
