@@ -16,22 +16,21 @@ import java.util.List;
 @Repository
 public class ExportDao implements CampusDao<Export> {
 
-	@Autowired
-    private DB dbInstance;
-    
-    @Override
+    private final DB dbInstance;
+
+    @Autowired
+    public ExportDao(DB dbInstance) {
+        this.dbInstance = dbInstance;
+    }
+
     public void save(List<Export> exports) {
-    	for(Export export: exports) {
-    		dbInstance.saveObject(export);
-    	}
+        exports.forEach(dbInstance::saveObject);
     }
 
     @Override
     public void saveOrUpdate(List<Export> exports) {
         EntityManager em = dbInstance.getCurrentEntityManager();
-        for (Export export : exports) {
-            em.merge(export);
-        }
+        exports.forEach(em::merge);
     }
 }
 

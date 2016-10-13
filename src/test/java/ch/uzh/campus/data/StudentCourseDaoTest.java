@@ -166,6 +166,10 @@ public class StudentCourseDaoTest extends OlatTestCase {
         StudentCourse studentCourse = new StudentCourse(student, course, new Date());
         studentCourseDao.saveOrUpdate(studentCourse);
 
+        // Check before flush
+        assertEquals(1, student.getStudentCourses().size());
+        assertEquals(1, course.getStudentCourses().size());
+
         dbInstance.flush();
         dbInstance.clear();
 
@@ -178,6 +182,33 @@ public class StudentCourseDaoTest extends OlatTestCase {
         // Insert the same student a second time to the same course
         StudentCourse studentCourse2 = new StudentCourse(student, course, new Date());
         studentCourseDao.saveOrUpdate(studentCourse2);
+
+        dbInstance.flush();
+        dbInstance.clear();
+    }
+
+    @Test
+    public void testSaveOrUpdateStudentCourseWithoutBidirectionalUpdate() {
+        Student student = studentDao.getStudentById(2100L);
+        Course course = courseDao.getCourseById(100L);
+        assertNull(studentCourseDao.getStudentCourseById(2100L, 100L));
+
+        // Insert student to course
+        StudentCourse studentCourse = new StudentCourse(student, course, new Date());
+        studentCourseDao.saveOrUpdateWithoutBidirectionalUpdate(studentCourse);
+
+        dbInstance.flush();
+        dbInstance.clear();
+
+        student = studentDao.getStudentById(2100L);
+        assertEquals(1, student.getStudentCourses().size());
+        course = courseDao.getCourseById(100L);
+        assertEquals(1, course.getStudentCourses().size());
+        assertNotNull(studentCourseDao.getStudentCourseById(2100L, 100L));
+
+        // Insert the same student a second time to the same course
+        StudentCourse studentCourse2 = new StudentCourse(student, course, new Date());
+        studentCourseDao.saveOrUpdateWithoutBidirectionalUpdate(studentCourse2);
 
         dbInstance.flush();
         dbInstance.clear();

@@ -67,7 +67,6 @@ public class CourseDao implements CampusDao<CourseSemesterOrgId> {
 		updateOrgsFromCourseOrgId(course, courseSemesterOrgId);
     }
 
-    @Override
     public void save(List<CourseSemesterOrgId> courseSemesterOrgIds) throws CampusCourseException {
         for (CourseSemesterOrgId courseSemesterOrgId : courseSemesterOrgIds) {
             save(courseSemesterOrgId);

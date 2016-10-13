@@ -158,6 +158,10 @@ public class LecturerCourseDaoTest extends OlatTestCase {
         LecturerCourse lecturerCourse = new LecturerCourse(lecturer, course, new Date());
         lecturerCourseDao.saveOrUpdate(lecturerCourse);
 
+        // Check before flush
+        assertEquals(1, lecturer.getLecturerCourses().size());
+        assertEquals(1, course.getLecturerCourses().size());
+
         dbInstance.flush();
         dbInstance.clear();
 
@@ -170,6 +174,33 @@ public class LecturerCourseDaoTest extends OlatTestCase {
         // Insert the same lecturer a second time to the same course
         LecturerCourse lecturerCourse2 = new LecturerCourse(lecturer, course, new Date());
         lecturerCourseDao.saveOrUpdate(lecturerCourse2);
+
+        dbInstance.flush();
+        dbInstance.clear();
+    }
+
+    @Test
+    public void testSaveOrUpdateLecturerCourseWithoutBidirctionalUpdate() {
+        Lecturer lecturer = lecturerDao.getLecturerById(1100L);
+        Course course = courseDao.getCourseById(100L);
+        assertNull(lecturerCourseDao.getLecturerCourseById(1100L, 100L));
+
+        // Insert lecturer to course
+        LecturerCourse lecturerCourse = new LecturerCourse(lecturer, course, new Date());
+        lecturerCourseDao.saveOrUpdateWithoutBidirectionalUpdate(lecturerCourse);
+
+        dbInstance.flush();
+        dbInstance.clear();
+
+        lecturer = lecturerDao.getLecturerById(1100L);
+        assertEquals(1, lecturer.getLecturerCourses().size());
+        course = courseDao.getCourseById(100L);
+        assertEquals(1, course.getLecturerCourses().size());
+        assertNotNull(lecturerCourseDao.getLecturerCourseById(1100L, 100L));
+
+        // Insert the same lecturer a second time to the same course
+        LecturerCourse lecturerCourse2 = new LecturerCourse(lecturer, course, new Date());
+        lecturerCourseDao.saveOrUpdateWithoutBidirectionalUpdate(lecturerCourse2);
 
         dbInstance.flush();
         dbInstance.clear();

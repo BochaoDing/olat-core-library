@@ -102,10 +102,6 @@ public class DaoManager {
     public void saveLecturers(List<Lecturer> lecturers) {
         lecturerDao.save(lecturers);
     }
-    
-    public void saveStudentCourses(List<StudentCourse> studentCourses) {
-        studentCourseDao.saveOrUpdateList(studentCourses);
-    }
 
     public void saveDelegation(Identity delegator, Identity delegatee) {
         delegationDao.save(delegator.getKey(), delegatee.getKey());

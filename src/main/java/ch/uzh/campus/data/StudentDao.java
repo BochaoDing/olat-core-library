@@ -52,18 +52,13 @@ public class StudentDao implements CampusDao<Student> {
         student.mergeAllExceptMappingAttributes(studentFound);
     }
 
-    @Override
     public void save(List<Student> students) {
-        for (Student student : students) {
-            save(student);
-        }
+        students.forEach(this::save);
     }
 
     @Override
     public void saveOrUpdate(List<Student> students) {
-        for (Student student : students) {
-            saveOrUpdate(student);
-        }
+        students.forEach(this::saveOrUpdate);
     }
 
     public void addMapping(Long studentId, Identity identity) {

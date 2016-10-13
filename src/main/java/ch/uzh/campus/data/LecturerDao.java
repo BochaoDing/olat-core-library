@@ -51,18 +51,13 @@ public class LecturerDao implements CampusDao<Lecturer> {
         lecturer.mergeAllExceptMappingAttributes(lecturerFound);
     }
 
-    @Override
     public void save(List<Lecturer> lecturers) {
-        for (Lecturer lecturer : lecturers) {
-            save(lecturer);
-        }
+        lecturers.forEach(this::save);
     }
 
     @Override
     public void saveOrUpdate(List<Lecturer> lecturers) {
-        for (Lecturer lecturer : lecturers) {
-            saveOrUpdate(lecturer);
-        }
+        lecturers.forEach(this::saveOrUpdate);
     }
 
     public void addMapping(Long lecturerId, Identity identity) {

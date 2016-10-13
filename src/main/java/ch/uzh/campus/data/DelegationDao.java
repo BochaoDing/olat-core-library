@@ -30,19 +30,14 @@ public class DelegationDao implements CampusDao<Delegation> {
         this.dbInstance = dbInstance;
     }
 
-    @Override
     public void save(List<Delegation> delegations) {
-        for (Delegation delegation: delegations) {
-            dbInstance.saveObject(delegation);
-        }
+        delegations.forEach(dbInstance::saveObject);
     }
 
     @Override
     public void saveOrUpdate(List<Delegation> delegations) {
         EntityManager em = dbInstance.getCurrentEntityManager();
-        for (Delegation delegation : delegations) {
-            em.merge(delegation);
-        }
+        delegations.forEach(em::merge);
     }
 
     public void save(Delegation delegation) {
@@ -73,14 +68,14 @@ public class DelegationDao implements CampusDao<Delegation> {
         return getDelegationById(delegatorId, delegateeId) != null;
     }
 
-    public List<Delegation> getDelegationsByDelegator(Long delegatorKey) {
+    List<Delegation> getDelegationsByDelegator(Long delegatorKey) {
         return dbInstance.getCurrentEntityManager()
                 .createNamedQuery(Delegation.GET_BY_DELEGATOR, Delegation.class)
                 .setParameter("delegatorKey", delegatorKey)
                 .getResultList();
     }
 
-    public List<Delegation> getDelegationsByDelegatee(Long delegateeKey) {
+    List<Delegation> getDelegationsByDelegatee(Long delegateeKey) {
         return dbInstance.getCurrentEntityManager()
                 .createNamedQuery(Delegation.GET_BY_DELEGATEE, Delegation.class)
                 .setParameter("delegateeKey", delegateeKey)

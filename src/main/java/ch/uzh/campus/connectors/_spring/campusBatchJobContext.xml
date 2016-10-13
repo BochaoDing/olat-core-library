@@ -288,9 +288,7 @@
 		</property>
 	</bean>
 
-	<bean id="studentCourseWriter" class="ch.uzh.campus.connectors.CampusWriter" scope="step">
-		<property name="campuskursDao" ref="studentCourseDao" />
-	</bean>
+	<bean id="studentCourseWriter" class="ch.uzh.campus.connectors.StudentCourseWriter" scope="step" />
 
 	<bean id="studentCourseProcessor" class="ch.uzh.campus.connectors.StudentCourseProcessor" scope="step"/>
 	
@@ -317,9 +315,7 @@
 		</property>
 	</bean>
 
-	<bean id="lecturerCourseWriter" class="ch.uzh.campus.connectors.CampusWriter" scope="step">
-		<property name="campuskursDao" ref="lecturerCourseDao" />
-	</bean>
+	<bean id="lecturerCourseWriter" class="ch.uzh.campus.connectors.LecturerCourseWriter" scope="step" />
 
 	<bean id="lecturerCourseProcessor" class="ch.uzh.campus.connectors.LecturerCourseProcessor" scope="step"/>
 	
