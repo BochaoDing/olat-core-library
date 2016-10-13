@@ -197,6 +197,10 @@ public class StudentCourseDaoTest extends OlatTestCase {
         StudentCourse studentCourse = new StudentCourse(student, course, new Date());
         studentCourseDao.saveOrUpdateWithoutBidirectionalUpdate(studentCourse);
 
+		// Check before flush
+		assertTrue(student.getStudentCourses().isEmpty());
+		assertTrue(course.getStudentCourses().isEmpty());
+
         dbInstance.flush();
         dbInstance.clear();
 

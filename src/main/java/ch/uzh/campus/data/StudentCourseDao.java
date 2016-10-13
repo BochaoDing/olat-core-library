@@ -40,10 +40,15 @@ public class StudentCourseDao {
     public void save(StudentIdCourseIdDateOfImport studentIdCourseIdDateOfImport) {
         EntityManager em = dbInstance.getCurrentEntityManager();
         Student student = em.find(Student.class, studentIdCourseIdDateOfImport.getStudentId());
-        Course course = em.find(Course.class, studentIdCourseIdDateOfImport.getCourseId());
-        if (student == null || course == null) {
-            logStudentCourseNotFoundAndThrowException(studentIdCourseIdDateOfImport, student);
+        if (student == null) {
+            logStudentNotFoundAndThrowException(studentIdCourseIdDateOfImport);
+			return;
         }
+		Course course = em.find(Course.class, studentIdCourseIdDateOfImport.getCourseId());
+		if (course == null) {
+			logStudentNotFoundAndThrowException(studentIdCourseIdDateOfImport);
+			return;
+		}
         StudentCourse studentCourse = new StudentCourse(student, course, studentIdCourseIdDateOfImport.getDateOfImport());
         save(studentCourse);
     }
@@ -72,30 +77,35 @@ public class StudentCourseDao {
      */
     public void saveOrUpdateWithoutBidirectionalUpdate(StudentIdCourseIdDateOfImport studentIdCourseIdDateOfImport) {
         EntityManager em = dbInstance.getCurrentEntityManager();
-        Student student = null;
-        Course course = null;
         try {
-            student = em.getReference(Student.class, studentIdCourseIdDateOfImport.getStudentId());
-            course = em.getReference(Course.class, studentIdCourseIdDateOfImport.getCourseId());
+			Student student = em.getReference(Student.class, studentIdCourseIdDateOfImport.getStudentId());
+			try {
+				Course course = em.getReference(Course.class, studentIdCourseIdDateOfImport.getCourseId());
+				StudentCourse studentCourse = new StudentCourse(student, course, studentIdCourseIdDateOfImport.getDateOfImport());
+				saveOrUpdateWithoutBidirectionalUpdate(studentCourse);
+			} catch (EntityNotFoundException e) {
+				logCourseNotFoundAndThrowException(studentIdCourseIdDateOfImport);
+			}
         } catch (EntityNotFoundException e) {
-            logStudentCourseNotFoundAndThrowException(studentIdCourseIdDateOfImport, student);
+            logStudentNotFoundAndThrowException(studentIdCourseIdDateOfImport);
         }
-        StudentCourse studentCourse = new StudentCourse(student, course, studentIdCourseIdDateOfImport.getDateOfImport());
-        saveOrUpdateWithoutBidirectionalUpdate(studentCourse);
     }
 
-    private void logStudentCourseNotFoundAndThrowException(StudentIdCourseIdDateOfImport studentIdCourseIdDateOfImport, Student student) {
-        String warningMessage;
-        if (student == null) {
-            warningMessage = "No student found with id " + studentIdCourseIdDateOfImport.getStudentId();
-        } else {
-            warningMessage = "No course found with id " + studentIdCourseIdDateOfImport.getCourseId();
-        }
+    private void logStudentNotFoundAndThrowException(StudentIdCourseIdDateOfImport studentIdCourseIdDateOfImport) {
+        String warningMessage = "No student found with id " + studentIdCourseIdDateOfImport.getStudentId();
         warningMessage = warningMessage + ". Skipping entry " + studentIdCourseIdDateOfImport.getStudentId() + ", " + studentIdCourseIdDateOfImport.getCourseId() + " for table ck_student_course.";
         // Here we only log on the debug level to avoid duplicated warnings (LOG.warn is already called by CampusWriter)
         LOG.debug(warningMessage);
         throw new EntityNotFoundException(warningMessage);
     }
+
+	private void logCourseNotFoundAndThrowException(StudentIdCourseIdDateOfImport studentIdCourseIdDateOfImport) {
+		String warningMessage = "No course found with id " + studentIdCourseIdDateOfImport.getCourseId();
+		warningMessage = warningMessage + ". Skipping entry " + studentIdCourseIdDateOfImport.getStudentId() + ", " + studentIdCourseIdDateOfImport.getCourseId() + " for table ck_student_course.";
+		// Here we only log on the debug level to avoid duplicated warnings (LOG.warn is already called by CampusWriter)
+		LOG.debug(warningMessage);
+		throw new EntityNotFoundException(warningMessage);
+	}
 
     StudentCourse getStudentCourseById(Long studentId, Long courseId) {
         return dbInstance.getCurrentEntityManager().find(StudentCourse.class, new StudentCourseId(studentId, courseId));
