@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="description" content="OpenOLAT - infinite learning" />
+<meta name="keywords"
+	content="OpenOLAT, OLAT, eLearning, Lernplattform, LMS, Learning Management System, LCMS, Learning Content Management System, Open Source, elearning, JAVA, IMS, QTI, SCORM, Content package, Kollaboration, Usability, Performanz, Skalierbarkeit" />
+<meta name="dcterms.creator"
+	content="OpenOLAT - http://www.openolat.org" />
+<meta name="dcterms.subject"
+	content="OpenOLAT - infinite learning - Your Open Source Learning Management System" />
+<meta name="dcterms.identifier" content="http://www.openolat.org" />
+<meta name="dcterms.rights" content="http://www.openolat.org" />
+<meta name="viewport"
+	content="minimal-ui, width=device-width, initial-scale=1">
+<meta http-equiv="Content-type" content="text/html; charset=utf-8" />
+<script type="text/javascript" src="theme.js"></script>
+<link rel="icon" href="favicon.ico" type="image/x-icon" />
+<link rel="shortcut icon" href="favicon.ico" type="image/x-icon" />
+<link id="o_theme_css" href="theme.css" rel="stylesheet" type="text/css" />
+<!--[if IE 9]>
+	<link id="o_theme_css_ie" href="../theme_ie_completions.css" rel="stylesheet" type="text/css" />
+	<![endif]-->
+<!--[if IE 7]>
+	<script type="text/javascript">
+		jQuery(document).ready(function() { jQuery('body').addClass('o_browser_ie7'); });
+	</script>
+	<![endif]-->
+<!--[if IE 8]>
+	<script type="text/javascript">
+		jQuery(document).ready(function() { jQuery('body').addClass('o_browser_ie8'); });
+	</script>
+	<![endif]-->
+<!--[if IE 9]>
+	<script type="text/javascript">
+		jQuery(document).ready(function() { jQuery('body').addClass('o_browser_ie9'); });
+	</script>
+	<![endif]-->
+<!--[if IE 8]>
+	<script type="text/javascript">
+	jQuery(document).ready(function() {
+	  var style;
+	  style = jQuery('<style type="text/css">:before,:after{content:none !important}</style>');
+	  jQuery('head').append(style);
+	  return setTimeout((function() {
+	    return style.remove();
+	  }), 0);
+	});
+	</script>
+	<![endif]-->
+<!-- empty -->
+<style id="o_fontSize_css" type="text/css"></style>
+<style type="text/css">
+.o_custom_navbar-brand {
+	background-image: none;
+}
+</style>
+
+<title>Error loading this page</title>
+</head>
+<body id="o_body" class="o_dmz">
+	<div id="o_bg"></div>
+
+	<div id="o_header_wrapper">
+		<div id="o_header_container"
+			class="o_container_offcanvas container-fluid">
+			<div id="o_logo"></div>
+			<div id="o_right_logo"></div>
+		</div>
+	</div>
+	<div id="o_navbar_wrapper" class="o_navbar" role="navigation">
+		<div id="o_navbar_container"
+			class="o_container_offcanvas container-fluid">
+			<a class="o_navbar-brand " href="http://www.frentix.com"
+				title="OpenOLAT" target="_blank"></a>
+		</div>
+	</div>
+
+	<div id="o_main_wrapper">
+		<div id="o_main_container"
+			class="o_container_offcanvas container-fluid">
+			<div id="o_main" class="o_exception">
+				<div class="jumbotron">
+
+					<!-- General errors -->
+					<div id="code_403" style="display: none;">
+						<h1>Ups... can't display this page!</h1>
+						<p>A 403 error occurred. This means, the resource you
+							requested is protected and you are not allowed to see it.</p>
+						<p>Don't worry, most likely you did nothing wrong, maybe you
+							are just not logged in? If you keep getting this error, please
+							contact your coach!</p>
+					</div>
+					<div id="code_404" style="display: none;">
+						<h1>Ups... can't display this page!</h1>
+						<p>A 404 error occurred. This means, the resource you
+							requested could not be found on the server.</p>
+						<p>Don't worry, most likely you did nothing wrong, maybe has
+							been deleted or someone published a wrong link. If you keep
+							getting this error, please contact your coach!</p>
+					</div>
+
+
+					<!-- General server dow message -->
+					<div id="code_50x" style="display: none;">
+						<h1>Ups... server not available!</h1>
+						<p>Sorry, the OpenOLAT service is not available at this time,
+							please try it again later.</p>
+						<p>Don't worry, you did nothing wrong. Most likely there are
+							some maintenance task performed at this moment and the service
+							will be back in a moment or the server has a problem.</p>
+						<p>We are very sorry and apologize for this inconvenience. We
+							give our best to bring back the service as quickly as possible.</p>
+						<p>
+							You can check the general availability and status of our server
+							cloud on the <a
+								href="http://www.frentix.com/monitoring-frentix-server/">frentix
+								OpenOLAT hosting cloud status page</a>.
+						</p>
+						<p>If you keep getting this message, please contact your
+							coach!</p>
+					</div>
+
+					<!-- Scheduled maintenance message -->
+					<div id="code_maintenance" style="display: none;">
+						<h1>Server maintenance!</h1>
+						<p>Sorry, the OpenOLAT service is not available at this time
+							due to server maintenance, please try it again later.</p>
+						<p>We give our best to bring back the service as quickly as
+							possible, thank you for your understanding!</p>
+						<p>
+							You can check the general availability and status of our server
+							cloud on the <a
+								href="http://www.frentix.com/monitoring-frentix-server/">frentix
+								OpenOLAT hosting cloud status page</a>.
+						</p>
+					</div>
+
+
+
+					<!--  Show this error if error code is unknown -->
+					<div id="code_unknown" style="display: none;">
+						<h1>Ups... can't display this page!</h1>
+						<p>An error occurred while delivering the page you requested.
+						</p>
+						<p>Don't worry, most likely you did nothing wrong, maybe there
+							is just a temporary problem on the server. If you keep getting
+							this error, please contact your coach!</p>
+					</div>
+
+					<!-- Show buttons only for 400 errors where back make sense -->
+					<div class="o_button_group" id="back" style="display: none;">
+						<a class="btn btn-default" href="javascript:history.back()"> 
+							<i class="o_icon o_icon_back"></i> <span>Back</span>
+						</a> 
+					</div>
+
+
+					<!-- Calm down, it's only an error... -->
+					<iframe src="https://player.vimeo.com/video/110876578?autoplay=1"
+						style="max-width: 100%;" width="1280" height="719" frameborder="0"
+						webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>
+					<p>
+						<a href="https://vimeo.com/110876578">Don&#039;t Worry Be
+							Happy</a> from <a href="https://vimeo.com/playingforchange">Playing
+							For Change</a> on <a href="https://vimeo.com">Vimeo</a>.
+					</p>
+
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div id="o_footer_wrapper">
+		<div id="o_footer_container"
+			class="o_container_offcanvas container-fluid"></div>
+	</div>
+
+	<script>
+		// Read error from url hash and show appropriate section. 
+		// If no error description there, show the code_unknown section
+		switch (window.location.hash) {
+		case '#403':
+			document.getElementById('code_403').style.display = 'block';
+			document.getElementById('back').style.display = 'block';
+			break;
+
+		case '#404':
+			document.getElementById('code_404').style.display = 'block';
+			document.getElementById('back').style.display = 'block';
+			break;
+
+		case '#400':
+		case '#401':
+		case '#402':
+		case '#405':
+		case '#406':
+		case '#407':
+		case '#408':
+		case '#409':
+		case '#410':
+		case '#411':
+		case '#412':
+		case '#413':
+		case '#414':
+		case '#415':
+			document.getElementById('code_unknown').style.display = 'block';
+			document.getElementById('back').style.display = 'block';
+			break;
+
+		case '#500':
+		case '#501':
+		case '#502':
+		case '#503':
+		case '#504':
+		case '#505':
+		case '#506':
+			document.getElementById('code_50x').style.display = 'block';
+			break;
+
+		case '#maintenance':
+			document.getElementById('code_maintenance').style.display = 'block';
+			break;
+
+		default:
+			document.getElementById('code_unknown').style.display = 'block';
+			document.getElementById('back').style.display = 'block';
+		}
+	</script>
+</body>
+</html>
