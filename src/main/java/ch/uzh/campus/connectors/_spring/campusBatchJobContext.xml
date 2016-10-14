@@ -250,7 +250,7 @@
 				</property>
 				<property name="fieldSetMapper" >
 					<bean parent="fieldSetMapper">
-						<property name="prototypeBeanName" value="courseOrgId" />
+						<property name="prototypeBeanName" value="courseSemesterOrgId" />
 					</bean>
 				</property>
 			</bean>
@@ -261,18 +261,11 @@
 		<property name="campuskursDao" ref="courseDao" />
 	</bean>
 
-	<bean id="courseProcessor" class="ch.uzh.campus.connectors.CourseProcessor" scope="step">
-	 	<property name="semesterMap">
-        	<map>
-	           <entry key="H" value="HS"/>
-	           <entry key="F" value="FS"/>
-        	</map>
-      	</property>
-	</bean>
-	
+	<bean id="courseProcessor" class="ch.uzh.campus.connectors.CourseProcessor" scope="step" />
+
 	<bean id="courseDao" class="ch.uzh.campus.data.CourseDao"/>
 	
-	<bean id="courseOrgId" class ='ch.uzh.campus.data.CourseOrgId' scope="prototype" />
+	<bean id="courseSemesterOrgId" class ='ch.uzh.campus.data.CourseSemesterOrgId' scope="prototype" />
 	
 	<!-- ======================================================================================= -->
 	<!-- ==============BUCHUNG:STUDENT-KURS(Reader, Writer, Processor, Entity, Dao)================== -->  
@@ -295,9 +288,7 @@
 		</property>
 	</bean>
 
-	<bean id="studentCourseWriter" class="ch.uzh.campus.connectors.CampusWriter" scope="step">
-		<property name="campuskursDao" ref="studentCourseDao" />
-	</bean>
+	<bean id="studentCourseWriter" class="ch.uzh.campus.connectors.StudentCourseWriter" scope="step" />
 
 	<bean id="studentCourseProcessor" class="ch.uzh.campus.connectors.StudentCourseProcessor" scope="step"/>
 	
@@ -324,9 +315,7 @@
 		</property>
 	</bean>
 
-	<bean id="lecturerCourseWriter" class="ch.uzh.campus.connectors.CampusWriter" scope="step">
-		<property name="campuskursDao" ref="lecturerCourseDao" />
-	</bean>
+	<bean id="lecturerCourseWriter" class="ch.uzh.campus.connectors.LecturerCourseWriter" scope="step" />
 
 	<bean id="lecturerCourseProcessor" class="ch.uzh.campus.connectors.LecturerCourseProcessor" scope="step"/>
 	

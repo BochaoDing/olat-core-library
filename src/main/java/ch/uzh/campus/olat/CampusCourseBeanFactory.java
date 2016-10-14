@@ -79,8 +79,7 @@ public class CampusCourseBeanFactory {
 	@Bean(name={"RepositoryEntryRowFactory"})
 	@Scope(BeanDefinition.SCOPE_PROTOTYPE)
 	@Primary
-	protected RepositoryEntryRowFactory createRepositoryEntryRowFactory(
-			UserRequest userRequest) {
+	protected RepositoryEntryRowFactory createRepositoryEntryRowFactory(UserRequest userRequest) {
 		return new RepositoryEntryRowFactory(repositoryManager,
 				repositoryModule, mapperService, userRequest) {
 
@@ -133,7 +132,6 @@ public class CampusCourseBeanFactory {
 				sapCampusCourseId,
 				campusCourseService,
 				repositoryManager,
-				campusCourseOlatHelper,
 				listener,
 				windowControl,
 				userRequest
@@ -149,7 +147,6 @@ public class CampusCourseBeanFactory {
 				sapCampusCourseId,
 				campusCourseService,
 				repositoryManager,
-				campusCourseOlatHelper,
 				listener,
 				windowControl,
 				userRequest

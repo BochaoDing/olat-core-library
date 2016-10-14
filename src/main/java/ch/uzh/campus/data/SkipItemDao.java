@@ -9,28 +9,27 @@ import java.util.List;
 @Repository
 public class SkipItemDao implements CampusDao<SkipItem> {
 
+    private final DB dbInstance;
+
     @Autowired
-    private DB dbInstance;
-
-    @Override
-    public void save(List<SkipItem> skipItems) {
-        for (SkipItem skipItem : skipItems) {
-            save(skipItem);
-        }
-    }
-
-    @Override
-    public void saveOrUpdate(List<SkipItem> skipItems) {
-        for (SkipItem skipItem : skipItems) {
-            saveOrUpdate(skipItem);
-        }
+    public SkipItemDao(DB dbInstance) {
+        this.dbInstance = dbInstance;
     }
 
     public void save(SkipItem skipItem) {
         dbInstance.saveObject(skipItem);
     }
 
+    public void save(List<SkipItem> skipItems) {
+        skipItems.forEach(this::save);
+    }
+
     public void saveOrUpdate(SkipItem skipItem) {
         dbInstance.getCurrentEntityManager().merge(skipItem);
+    }
+
+    @Override
+    public void saveOrUpdate(List<SkipItem> skipItems) {
+        skipItems.forEach(this::saveOrUpdate);
     }
 }

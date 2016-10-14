@@ -365,30 +365,33 @@ public class BusinessControlFactory {
 			return entries;
 		}
 
+		/*
+		 * TODO sev26
+		 * It is impossible to handle the "businessControlString" correctly in
+		 * all cases because the free defined parts e.g. "path=freeDefined"
+		 * are not encoded. For instance the string "[x:1][path=x]x]" is
+		 * processed incorrectly with this version.
+		 */
 		Matcher m = PAT_CE.matcher(businessControlString);
 		while (m.find()) {
 			String ces = m.group(1);
 			int pos = ces.indexOf(':');
 			OLATResourceable ores;
-			// FIXME:chg: 'path=' define only once, same path in SearchResourceContext
-			
-			if(pos == -1) {
-				if(ces.startsWith("path=")) {
+
+			if (pos == -1 || ces.startsWith("path=")) {
+				if (ces.startsWith("path=")) {
 					ces = ces.replace("|", "/");
 				}
 				ores = OresHelper.createOLATResourceableTypeWithoutCheck(ces);
 			} else {
 				String type = ces.substring(0, pos);
-				String keyS = ces.substring(pos+1);
-				if(type.startsWith("path=")) {
-					ces = type.replace("|", "/");
-				}
+				String keyS = ces.substring(pos + 1);
 				try {
 					Long key = Long.parseLong(keyS);
 					ores = OresHelper.createOLATResourceableInstanceWithoutCheck(type, key);
 				} catch (NumberFormatException e) {
 					log.warn("Cannot parse business path:" + businessControlString, e);
-					return Collections.emptyList();
+					ores = OresHelper.createOLATResourceableTypeWithoutCheck(ces);
 				}
 			}
 			ContextEntry ce = createContextEntry(ores);

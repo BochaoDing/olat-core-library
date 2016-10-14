@@ -1,6 +1,7 @@
 package ch.uzh.campus.data;
 
 import ch.uzh.campus.CampusCourseConfiguration;
+import ch.uzh.campus.CampusCourseException;
 import ch.uzh.campus.utils.DateUtil;
 import org.junit.After;
 import org.junit.Before;
@@ -40,21 +41,29 @@ public class LecturerCourseDaoTest extends OlatTestCase {
     private CourseDao courseDao;
 
     @Autowired
+    private SemesterDao semesterDao;
+
+    @Autowired
     private LecturerCourseDao lecturerCourseDao;
 
     @Autowired
     private Provider<MockDataGenerator> mockDataGeneratorProvider;
 
     @Before
-    public void setup() {
+    public void setup() throws CampusCourseException {
         // Insert some lecturers
         List<Lecturer> lecturers = mockDataGeneratorProvider.get().getLecturers();
         lecturerDao.save(lecturers);
         dbInstance.flush();
 
         // Insert some courses
-        List<CourseOrgId> courseOrgIds = mockDataGeneratorProvider.get().getCourseOrgIds();
-        courseDao.save(courseOrgIds);
+        List<CourseSemesterOrgId> courseSemesterOrgIds = mockDataGeneratorProvider.get().getCourseSemesterOrgIds();
+        courseDao.save(courseSemesterOrgIds);
+        dbInstance.flush();
+
+        // Set current semester
+        Course course = courseDao.getCourseById(100L);
+        semesterDao.setCurrentSemester(course.getSemester().getId());
         dbInstance.flush();
     }
 
@@ -149,6 +158,10 @@ public class LecturerCourseDaoTest extends OlatTestCase {
         LecturerCourse lecturerCourse = new LecturerCourse(lecturer, course, new Date());
         lecturerCourseDao.saveOrUpdate(lecturerCourse);
 
+        // Check before flush
+        assertEquals(1, lecturer.getLecturerCourses().size());
+        assertEquals(1, course.getLecturerCourses().size());
+
         dbInstance.flush();
         dbInstance.clear();
 
@@ -161,6 +174,37 @@ public class LecturerCourseDaoTest extends OlatTestCase {
         // Insert the same lecturer a second time to the same course
         LecturerCourse lecturerCourse2 = new LecturerCourse(lecturer, course, new Date());
         lecturerCourseDao.saveOrUpdate(lecturerCourse2);
+
+        dbInstance.flush();
+        dbInstance.clear();
+    }
+
+    @Test
+    public void testSaveOrUpdateLecturerCourseWithoutBidirctionalUpdate() {
+        Lecturer lecturer = lecturerDao.getLecturerById(1100L);
+        Course course = courseDao.getCourseById(100L);
+        assertNull(lecturerCourseDao.getLecturerCourseById(1100L, 100L));
+
+        // Insert lecturer to course
+        LecturerCourse lecturerCourse = new LecturerCourse(lecturer, course, new Date());
+        lecturerCourseDao.saveOrUpdateWithoutBidirectionalUpdate(lecturerCourse);
+
+		// Check before flush
+		assertTrue(lecturer.getLecturerCourses().isEmpty());
+		assertTrue(course.getLecturerCourses().isEmpty());
+
+        dbInstance.flush();
+        dbInstance.clear();
+
+        lecturer = lecturerDao.getLecturerById(1100L);
+        assertEquals(1, lecturer.getLecturerCourses().size());
+        course = courseDao.getCourseById(100L);
+        assertEquals(1, course.getLecturerCourses().size());
+        assertNotNull(lecturerCourseDao.getLecturerCourseById(1100L, 100L));
+
+        // Insert the same lecturer a second time to the same course
+        LecturerCourse lecturerCourse2 = new LecturerCourse(lecturer, course, new Date());
+        lecturerCourseDao.saveOrUpdateWithoutBidirectionalUpdate(lecturerCourse2);
 
         dbInstance.flush();
         dbInstance.clear();
@@ -208,14 +252,13 @@ public class LecturerCourseDaoTest extends OlatTestCase {
         assertNotNull(lecturerCourseDao.getLecturerCourseById(1100L, 200L));
         assertNotNull(lecturerCourseDao.getLecturerCourseById(1100L, 400L));
 
-        List<LecturerIdCourseId> lecturerIdCourseIds = lecturerCourseDao.getAllNotUpdatedLCBookingOfCurrentSemester(new Date());
+        List<LecturerIdCourseId> lecturerIdCourseIds = lecturerCourseDao.getAllNotUpdatedLCBookingOfCurrentSemester(referenceDateOfImport);
 
         dbInstance.flush();
 
         assertEquals(1, lecturerIdCourseIds.size());
-        LecturerIdCourseId lecturerIdCourseId = lecturerIdCourseIds.get(0);
-        assertEquals(1100L, lecturerIdCourseId.getLecturerId());
-        assertEquals(100L, lecturerIdCourseId.getCourseId());
+        LecturerIdCourseId lecturerIdCourseIdExpected = new LecturerIdCourseId(1100L, 100L);
+        assertTrue(lecturerIdCourseIds.contains(lecturerIdCourseIdExpected));
     }
 
     @Test

@@ -24,7 +24,7 @@ public class CampusCourseConfiguration {
     private static final OLATResourceable NO_RESOURCEABLE = null;
 
     private static final String CAMPUS_COURSE_PROPERTY_CATEGORY = "campus.course.property";
-    private static final String TEMPLATE_COURSE_RESOURCEABLE_ID_PROPERTY_KEY = "_template.course.resourceable.id";
+    private static final String TEMPLATE_COURSE_REPOSITORY_ENTRY_ID_PROPERTY_KEY = "_template.course.repositoryEntry.id";
 
     private final PropertyManager propertyManager;
 
@@ -33,11 +33,14 @@ public class CampusCourseConfiguration {
         this.propertyManager = propertyManager;
     }
 
+    @Value("${campus.mapping.institutionalName:uzh.ch}")
+    private String mappingInstitutionalName;
+
     @Value("${campus.import.process.maxYearsToKeepCkData:3}")
     private int maxYearsToKeepCkData;
 
-    @Value("${campus.template.course.resourceable.id}")
-    private String defaultTemplateCourseResourcableId;
+    @Value("${campus.template.repositoryEntry.id}")
+    private String defaultTemplateRepositoryEntryId;
 
     @Value("${campus.template.supportedLanguages}")
     private String templateSupportedLanguages;
@@ -50,6 +53,12 @@ public class CampusCourseConfiguration {
 
     @Value("${campus.template.course.groupB.name}")
     private String courseGroupBName;
+
+    @Value("${campus.template.course.groupA.managedFlags}")
+    private String courseGroupAManagedFlags;
+
+    @Value("${campus.template.course.groupB.managedFlags}")
+    private String courseGroupBManagedFlags;
 
     @Value("${campus.template.course.vvzLink}")
     private String templateCourseVvzLink;
@@ -97,12 +106,12 @@ public class CampusCourseConfiguration {
         return language;
     }
 
-    public Long getTemplateCourseResourcableId(String language) {
+    public Long getTemplateRepositoryEntryId(String language) {
         language = getTemplateLanguage(language);
 
         String propertyStringValue = null;
         try {
-            propertyStringValue = getPropertyOrDefaultValue(language.concat(TEMPLATE_COURSE_RESOURCEABLE_ID_PROPERTY_KEY), defaultTemplateCourseResourcableId);
+            propertyStringValue = getPropertyOrDefaultValue(language.concat(TEMPLATE_COURSE_REPOSITORY_ENTRY_ID_PROPERTY_KEY), defaultTemplateRepositoryEntryId);
             return (propertyStringValue == null ? null : Long.valueOf(propertyStringValue));
         } catch (NumberFormatException ex) {
             throw new AssertException("Could not convert to Long-value '" + propertyStringValue + "' , check properties");
@@ -122,8 +131,8 @@ public class CampusCourseConfiguration {
         return propertyManager.findProperty(NO_IDENTITY, NO_GROUP, NO_RESOURCEABLE, CAMPUS_COURSE_PROPERTY_CATEGORY, propertyKey);
     }
 
-    public void saveTemplateCourseResourcableId(Long templateCourseResourcableId, String language) {
-        saveCampusProperty(language.concat(TEMPLATE_COURSE_RESOURCEABLE_ID_PROPERTY_KEY), templateCourseResourcableId.toString());
+    public void saveTemplateRepositoryEntryId(Long templateCourseRepositoryEntryId, String language) {
+        saveCampusProperty(language.concat(TEMPLATE_COURSE_REPOSITORY_ENTRY_ID_PROPERTY_KEY), templateCourseRepositoryEntryId.toString());
     }
 
     private void saveCampusProperty(String propertyKey, String propertyValue) {
@@ -138,12 +147,16 @@ public class CampusCourseConfiguration {
         }
     }
 
-    void deleteTemplateCourseResourcableIdPropertyIfExists(String language) {
+    void deleteTemplateRepositoryEntryIdPropertyIfExists(String language) {
         language = getTemplateLanguage(language);
-        Property property = findCampusProperty(language.concat(TEMPLATE_COURSE_RESOURCEABLE_ID_PROPERTY_KEY));
+        Property property = findCampusProperty(language.concat(TEMPLATE_COURSE_REPOSITORY_ENTRY_ID_PROPERTY_KEY));
         if (property != null) {
             propertyManager.deleteProperty(property);
         }
+    }
+
+    public String getMappingInstitutionalName() {
+        return mappingInstitutionalName;
     }
 
     public void setMaxYearsToKeepCkData(int maxYearsToKeepCkData) {
@@ -160,6 +173,14 @@ public class CampusCourseConfiguration {
 
     public String getCourseGroupBName() {
         return courseGroupBName;
+    }
+
+    public String getCourseGroupAManagedFlags() {
+        return courseGroupAManagedFlags;
+    }
+
+    public String getCourseGroupBManagedFlags() {
+        return courseGroupBManagedFlags;
     }
 
     public String getTemplateCourseVvzLink() {

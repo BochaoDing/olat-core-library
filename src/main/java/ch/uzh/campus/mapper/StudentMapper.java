@@ -1,3 +1,11 @@
+package ch.uzh.campus.mapper;
+
+import ch.uzh.campus.data.Student;
+import ch.uzh.campus.data.StudentDao;
+import org.olat.core.id.Identity;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
 /**
  * OLAT - Online Learning and Training<br>
  * http://www.olat.org
@@ -17,63 +25,52 @@
  * Copyright (c) since 2004 at Multimedia- & E-Learning Services (MELS),<br>
  * University of Zurich, Switzerland.
  * <p>
- */
-package ch.uzh.campus.mapper;
-
-import ch.uzh.campus.data.SapOlatUserDao;
-import ch.uzh.campus.data.Student;
-import org.olat.core.id.Identity;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-
-/**
+ *
  * Initial Date: 28.06.2012 <br>
  * 
  * @author cg
+ * @author Martin Schraner
  */
 @Component
 public class StudentMapper {
 
-    @Autowired
-    StudentMappingByMatriculationNumber studentMappingByMatriculationNumber;
+    private final StudentDao studentDao;
+    private final UserMapper userMapper;
 
     @Autowired
-    MappingByFirstNameAndLastName mappingByFirstNameAndLastName;
-
-    @Autowired
-    MappingByEmail mappingByEmail;
-
-    @Autowired
-    SapOlatUserDao userMappingDao;
+    public StudentMapper(StudentDao studentDao, UserMapper userMapper) {
+        this.studentDao = studentDao;
+        this.userMapper = userMapper;
+    }
 
     MappingResult synchronizeStudentMapping(Student student) {
-        if (!userMappingDao.existsMappingForSapUserId(student.getId())) {
 
-            // first try to map by matriculation number
-            Identity mappedIdentity = studentMappingByMatriculationNumber.tryToMap(student);
+        if (student.getMappedIdentity() == null) {
+
+            // First try to map by matriculation number
+            Identity mappedIdentity = userMapper.tryToMapByMatriculationNumber(student.getRegistrationNr());
             if (mappedIdentity != null) {
-                userMappingDao.saveMapping(student, mappedIdentity);
+                studentDao.addMapping(student.getId(), mappedIdentity);
                 return MappingResult.NEW_MAPPING_BY_MATRICULATION_NR;
             }
 
-            // second try to map by Email
-            mappedIdentity = mappingByEmail.tryToMap(student);
+            // Second try to map by email
+            mappedIdentity = userMapper.tryToMapByEmail(student.getEmail());
             if (mappedIdentity != null) {
-                userMappingDao.saveMapping(student, mappedIdentity);
+                studentDao.addMapping(student.getId(), mappedIdentity);
                 return MappingResult.NEW_MAPPING_BY_EMAIL;
             }
 
-            // third try to map by firstName and lastName
-            mappedIdentity = mappingByFirstNameAndLastName.tryToMap(student.getFirstName(), student.getLastName());
+            // Third try to map by first name and last name
+            mappedIdentity = userMapper.tryToMapByFirstNameLastName(student.getFirstName(), student.getLastName());
             if (mappedIdentity != null) {
                 // DO NOT SAVE THIS MAPPING, BECAUSE IT HAS TO BE DONE MANUALLY
                 return MappingResult.COULD_BE_MAPPED_MANUALLY;
             } else {
-                // log.warn("Could not map student:" + student);
                 return MappingResult.COULD_NOT_MAP;
             }
         }
+
         return MappingResult.MAPPING_ALREADY_EXIST;
     }
-
 }

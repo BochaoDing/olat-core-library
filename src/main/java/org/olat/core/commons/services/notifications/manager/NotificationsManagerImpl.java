@@ -25,23 +25,6 @@
 
 package org.olat.core.commons.services.notifications.manager;
 
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Set;
-
-import javax.persistence.EntityManager;
-import javax.persistence.LockModeType;
-import javax.persistence.TypedQuery;
-
 import org.hibernate.FlushMode;
 import org.olat.NewControllerFactory;
 import org.olat.basesecurity.BaseSecurity;
@@ -50,15 +33,7 @@ import org.olat.core.CoreSpringFactory;
 import org.olat.core.commons.persistence.DB;
 import org.olat.core.commons.persistence.DBQuery;
 import org.olat.core.commons.persistence.PersistenceHelper;
-import org.olat.core.commons.services.notifications.NotificationHelper;
-import org.olat.core.commons.services.notifications.NotificationsHandler;
-import org.olat.core.commons.services.notifications.NotificationsManager;
-import org.olat.core.commons.services.notifications.Publisher;
-import org.olat.core.commons.services.notifications.PublisherData;
-import org.olat.core.commons.services.notifications.Subscriber;
-import org.olat.core.commons.services.notifications.SubscriptionContext;
-import org.olat.core.commons.services.notifications.SubscriptionInfo;
-import org.olat.core.commons.services.notifications.SubscriptionItem;
+import org.olat.core.commons.services.notifications.*;
 import org.olat.core.commons.services.notifications.model.NoSubscriptionInfo;
 import org.olat.core.commons.services.notifications.model.PublisherImpl;
 import org.olat.core.commons.services.notifications.model.SubscriberImpl;
@@ -88,6 +63,11 @@ import org.olat.properties.Property;
 import org.olat.properties.PropertyManager;
 import org.olat.user.UserDataDeletable;
 
+import javax.persistence.EntityManager;
+import javax.persistence.LockModeType;
+import javax.persistence.TypedQuery;
+import java.util.*;
+
 /**
  * Description: <br>
  * see org.olat.core.commons.services.notifications.NotificationsManager
@@ -111,15 +91,16 @@ public class NotificationsManagerImpl extends NotificationsManager implements Us
 	private List<String> notificationIntervals;
 	private String defaultNotificationInterval;
 	private static final Map<String, Integer> INTERVAL_DEF_MAP = buildIntervalMap();
-	private Object lockObject = new Object();
+	private final Object notificationHandlersLock = new Object();
+	private final Object subscriberTableLock = new Object();
+	private final Object publisherTableLock = new Object();
 	
 	private DB dbInstance;
 	private BaseSecurity securityManager;
 	private PropertyManager propertyManager;
 	
-	/**
+	/*
 	 * [used by spring]
-	 * @param userDeletionManager
 	 */
 	private NotificationsManagerImpl() {
 		// private since singleton
@@ -176,7 +157,6 @@ public class NotificationsManagerImpl extends NotificationsManager implements Us
 	/**
 	 * @param persistedPublisher
 	 * @param listener
-	 * @param subscriptionContext the context of the object we subscribe to
 	 * @return a subscriber with a db key
 	 */
 	protected Subscriber doCreateAndPersistSubscriber(Publisher persistedPublisher, Identity listener) {
@@ -740,7 +720,7 @@ public class NotificationsManagerImpl extends NotificationsManager implements Us
 	}
 	
 	/**
-	 * @see org.olat.core.commons.services.notifications.NotificationsManager#getSubscriber(org.olat.core.commons.services.notifications.Publisher)
+	 * @see org.olat.core.commons.services.notifications.NotificationsManager#getSubscribers(org.olat.core.commons.services.notifications.Publisher)
 	 */
 	@Override
 	public List<Subscriber> getSubscribers(Publisher publisher) {
@@ -768,7 +748,7 @@ public class NotificationsManagerImpl extends NotificationsManager implements Us
 	public NotificationsHandler getNotificationsHandler(Publisher publisher) {
 		String type = publisher.getType();
 		if (notificationHandlers == null) {
-			synchronized(lockObject) {
+			synchronized(notificationHandlersLock) {
 				if (notificationHandlers == null) { // check again in synchronized-block, only one may create list
 					notificationHandlers = new HashMap<String,NotificationsHandler>();
 					Map<String, NotificationsHandler> notificationsHandlerMap = CoreSpringFactory.getBeansOfType(NotificationsHandler.class);
@@ -824,55 +804,58 @@ public class NotificationsManagerImpl extends NotificationsManager implements Us
 		return sub;
 	}
 
-	/**
-	 * @param identity
-	 * @param subscriptionContext
-	 * @param publisherData
-	 */
 	@Override
 	public void subscribe(Identity identity, SubscriptionContext subscriptionContext, PublisherData publisherData) {
-		//need to sync as opt-in is sometimes implemented
-		Publisher toUpdate = getPublisherForUpdate(subscriptionContext);
-		if(toUpdate == null) {
-			//create the publisher
-			findOrCreatePublisher(subscriptionContext, publisherData);
-			//lock the publisher
-			toUpdate = getPublisherForUpdate(subscriptionContext);
-		}
-
-		Subscriber s = getSubscriber(identity, toUpdate);
-		if (s == null) {
-			// no subscriber -> create.
-			// s.latestReadDate >= p.latestNewsDate == no news for subscriber when no
-			// news after subscription time
-			doCreateAndPersistSubscriber(toUpdate, identity);
-		}
-		dbInstance.commit();
+		Publisher publisher = findOrInsertPublisher(subscriptionContext, publisherData);
+		findOrInsertSubscriber(identity, publisher);
 	}
 	
 	@Override
-	public void subscribe(List<Identity> identities, SubscriptionContext subscriptionContext,
-			PublisherData publisherData) {
-		if(identities == null || identities.isEmpty()) return;
-		
-		Publisher toUpdate = getPublisherForUpdate(subscriptionContext);
-		if(toUpdate == null) {
-			//create the publisher
-			findOrCreatePublisher(subscriptionContext, publisherData);
-			//lock the publisher
-			toUpdate = getPublisherForUpdate(subscriptionContext);
-		}
+	public void subscribe(List<Identity> identities, SubscriptionContext subscriptionContext, PublisherData publisherData) {
+		if (identities == null || identities.isEmpty()) return;
 
-		for(Identity identity:identities) {
-			Subscriber s = getSubscriber(identity, toUpdate);
-			if (s == null) {
-				// no subscriber -> create.
-				// s.latestReadDate >= p.latestNewsDate == no news for subscriber when no
-				// news after subscription time
-				doCreateAndPersistSubscriber(toUpdate, identity);
+		Publisher publisher = findOrInsertPublisher(subscriptionContext, publisherData);
+		for (Identity identity : identities) {
+			findOrInsertSubscriber(identity, publisher);
+		}
+	}
+
+	private Publisher findOrInsertPublisher(SubscriptionContext subscriptionContext, PublisherData publisherData) {
+		Publisher publisher = getPublisher(subscriptionContext);
+		if (publisher == null) {
+			// Synchronized block to avoid phantom reads
+			synchronized (publisherTableLock) {
+				// In the synchronized block we have to check again the existence of the publisher to be inserted
+				publisher = getPublisher(subscriptionContext);
+				if (publisher == null) {
+					publisher = createAndPersistPublisher(
+							subscriptionContext.getResName(),
+							subscriptionContext.getResId(),
+							subscriptionContext.getSubidentifier(),
+							publisherData.getType(),
+							publisherData.getData(),
+							publisherData.getBusinessPath());
+					dbInstance.commit();
+				}
 			}
 		}
-		dbInstance.commit();	
+		return publisher;
+	}
+
+	private void findOrInsertSubscriber(Identity identity, Publisher publisher) {
+		if (getSubscriber(identity, publisher) == null) {
+			// no subscriber -> create.
+			// s.latestReadDate >= p.latestNewsDate == no news for subscriber when no
+			// news after subscription time
+			// Synchronized block to avoid phantom reads
+			synchronized (subscriberTableLock) {
+				// In the synchronized block we have to check again the existence of the subscriber to be inserted
+				if (getSubscriber(identity, publisher) == null) {
+					doCreateAndPersistSubscriber(publisher, identity);
+					dbInstance.commit();
+				}
+			}
+		}
 	}
 
 	/**
@@ -1069,7 +1052,7 @@ public class NotificationsManagerImpl extends NotificationsManager implements Us
 	/**
 	 * @param subscriber
 	 * @param locale
-	 * @param mimeType text/html or text/plain
+	 * @param mimeTypeContent text/html or text/plain
 	 * @return the item or null if there is currently no news for this subscription
 	 */
 	public SubscriptionItem createSubscriptionItem(Subscriber subscriber, Locale locale, String mimeTypeTitle, String mimeTypeContent) {
@@ -1088,15 +1071,14 @@ public class NotificationsManagerImpl extends NotificationsManager implements Us
 	private Date getDefaultCompareDate() {
 		Calendar calNow = Calendar.getInstance();
 		calNow.add(Calendar.DAY_OF_MONTH, -30);
-		Date compareDate = calNow.getTime();
-		return compareDate;
+		return calNow.getTime();
 	}
 	
 	/**
 	 * 
 	 * @param subscriber
 	 * @param locale
-	 * @param mimeType
+	 * @param mimeTypeTitle
 	 * @param latestEmailed needs to be given! SubscriptionInfo is collected from then until latestNews of publisher
 	 * @return null if the publisher is not valid anymore (deleted), or if there are no news
 	 */
@@ -1194,7 +1176,7 @@ public class NotificationsManagerImpl extends NotificationsManager implements Us
 	/**
 	 * Spring setter method
 	 * 
-	 * @param notificationIntervals
+	 * @param intervals
 	 */
 	public void setNotificationIntervals(Map<String, Boolean> intervals) {
 		notificationIntervals = new ArrayList<String>();
@@ -1229,7 +1211,7 @@ public class NotificationsManagerImpl extends NotificationsManager implements Us
 	}
 
 	/**
-	 * @see org.olat.core.commons.services.notifications.NotificationsManager#getNotificationIntervals()
+	 * @see NotificationsManager#getEnabledNotificationIntervals()
 	 */
 	public List<String> getEnabledNotificationIntervals() {
 		return notificationIntervals;

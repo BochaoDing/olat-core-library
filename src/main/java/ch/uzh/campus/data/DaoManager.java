@@ -40,11 +40,11 @@ public class DaoManager {
     private static final OLog LOG = Tracing.createLoggerFor(DaoManager.class);
 
 	private final CourseDao courseDao;
+    private final SemesterDao semesterDao;
     private final StudentDao studentDao;
     private final LecturerCourseDao lecturerCourseDao;
     private final StudentCourseDao studentCourseDao;
     private final LecturerDao lecturerDao;
-    private final SapOlatUserDao sapOlatUserDao;
     private final DelegationDao delegationDao;
     private final TextDao textDao;
     private final EventDao eventDao;
@@ -55,20 +55,26 @@ public class DaoManager {
 	private final boolean shortTitleActivated;
 
 	@Autowired
-	public DaoManager(CourseDao courseDao, StudentDao studentDao,
-					  LecturerCourseDao lecturerCourseDao,
-					  StudentCourseDao studentCourseDao, LecturerDao lecturerDao,
-					  SapOlatUserDao sapOlatUserDao, DelegationDao delegationDao,
-					  TextDao textDao, EventDao eventDao, OrgDao orgDao,
-					  ImportStatisticDao statisticDao, DataConverter dataConverter,
-					  CampusCourseConfiguration campusCourseConfiguration,
-					  @Value("${campus.lv_kuerzel.activated}") String shortTitleActivated) {
+	public DaoManager(CourseDao courseDao,
+                      SemesterDao semesterDao,
+                      StudentDao studentDao,
+                      LecturerCourseDao lecturerCourseDao,
+                      StudentCourseDao studentCourseDao,
+                      LecturerDao lecturerDao,
+                      DelegationDao delegationDao,
+                      TextDao textDao,
+                      EventDao eventDao,
+                      OrgDao orgDao,
+                      ImportStatisticDao statisticDao,
+                      DataConverter dataConverter,
+                      CampusCourseConfiguration campusCourseConfiguration,
+                      @Value("${campus.lv_kuerzel.activated}") String shortTitleActivated) {
 		this.courseDao = courseDao;
+        this.semesterDao = semesterDao;
 		this.studentDao = studentDao;
 		this.lecturerCourseDao = lecturerCourseDao;
 		this.studentCourseDao = studentCourseDao;
 		this.lecturerDao = lecturerDao;
-		this.sapOlatUserDao = sapOlatUserDao;
 		this.delegationDao = delegationDao;
 		this.textDao = textDao;
 		this.eventDao = eventDao;
@@ -77,7 +83,7 @@ public class DaoManager {
 		this.dataConverter = dataConverter;
 		this.campusCourseConfiguration = campusCourseConfiguration;
 		this.shortTitleActivated = TRUE.toString().equals(shortTitleActivated);
-	}
+    }
 
     public void saveCourses(List<Course> courses) {
         for (Course course : courses) {
@@ -96,29 +102,17 @@ public class DaoManager {
     public void saveLecturers(List<Lecturer> lecturers) {
         lecturerDao.save(lecturers);
     }
-    
-    public void saveStudentCourses(List<StudentCourse> studentCourses) {
-        studentCourseDao.saveOrUpdateList(studentCourses);
-    }
-
-    public void saveSapOlatUsers(List<SapOlatUser> sapOlatUsers) {
-        sapOlatUserDao.save(sapOlatUsers);
-    }
 
     public void saveDelegation(Identity delegator, Identity delegatee) {
-        Delegation delegation = new Delegation();
-        delegation.setDelegator(delegator.getName());
-        delegation.setDelegatee(delegatee.getName());
-        delegation.setModifiedDate(new Date());
-        delegationDao.save(delegation);
+        delegationDao.save(delegator.getKey(), delegatee.getKey());
     }
 
-    public boolean existDelegation(Identity delegator, Identity delegatee) {
-        return delegationDao.existDelegation(delegator.getName(), delegatee.getName());
+    public boolean existsDelegation(Identity delegator, Identity delegatee) {
+        return delegationDao.existsDelegation(delegator.getKey(), delegatee.getKey());
     }
 
-    public boolean existResourceableId(Long resourceableId) {
-        return courseDao.existResourceableId(resourceableId);
+    public boolean existCampusCoursesForOlatResource(Long olatResourceKey) {
+        return courseDao.existCoursesForOlatResource(olatResourceKey);
     }
 
     public void deleteCourse(Course course) {
@@ -154,12 +148,23 @@ public class DaoManager {
         return eventDao.deleteAllEventsAsBulkDelete();
     }
 
+    public List<Semester> getSemestersInAscendingOrder() {
+        return semesterDao.getSemestersInAscendingOrder();
+    }
+
+    public Semester getCurrentSemester() {
+        return semesterDao.getCurrentSemester();
+    }
+
+    public void setCurrentSemester(Long semesterId) {
+        semesterDao.setCurrentSemester(semesterId);
+    }
+
     public void deleteStudentsAndBookingsByStudentIds(List<Long> studentIds) {
         List<List<Long>> listSplit = ListUtil.split(studentIds, campusCourseConfiguration.getEntitiesSublistMaxSize());
         for (List<Long> subList : listSplit) {
             if (!subList.isEmpty()) {
                 studentCourseDao.deleteByStudentIdsAsBulkDelete(subList);
-                sapOlatUserDao.deleteMappingBySapStudentIdsAsBulkDelete(subList);
                 studentDao.deleteByStudentIdsAsBulkDelete(subList);
             }
         }
@@ -198,7 +203,6 @@ public class DaoManager {
         for (List<Long> subList : listSplit) {
             if (!subList.isEmpty()) {
                 lecturerCourseDao.deleteByLecturerIdsAsBulkDelete(subList);
-                sapOlatUserDao.deleteMappingBySapLecturerIdsAsBulkDelete(subList);
                 lecturerDao.deleteByLecturerIdsAsBulkDelete(subList);
             }
         }
@@ -224,8 +228,8 @@ public class DaoManager {
         return studentDao.getStudentByEmail(email);
     }
 
-    public List<Long> getAllStudentsToBeDeleted() {
-        return studentDao.getAllOrphanedStudents();
+    public List<Long> getAllStudentsToBeDeleted(Date date) {
+        return studentDao.getAllNotManuallyMappedOrTooOldOrphanedStudents(date);
     }
 
     public void deleteEventsByCourseId(Long courseId) {
@@ -248,8 +252,8 @@ public class DaoManager {
         return lecturerDao.getLecturerByEmail(email);
     }
 
-    public List<Long> getAllLecturersToBeDeleted() {
-        return lecturerDao.getAllOrphanedLecturers();
+    public List<Long> getAllLecturersToBeDeleted(Date date) {
+        return lecturerDao.getAllNotManuallyMappedOrTooOldOrphanedLecturers(date);
     }
 
     public List<Long> getAllOrgsToBeDeleted() {
@@ -260,20 +264,12 @@ public class DaoManager {
         orgDao.deleteByOrgIds(orgIds);
     }
 
-    public SapOlatUser getStudentSapOlatUserByOlatUserName(String olatUserName) {
-        return sapOlatUserDao.getSapOlatUserByOlatUserNameAndSapUserType(olatUserName, SapOlatUser.SapUserType.STUDENT);
+    public List<Student> getStudentsByMappedIdentityKey(Long identityKey) {
+        return studentDao.getStudentsByMappedIdentityKey(identityKey);
     }
 
-    public SapOlatUser getLecturerSapOlatUserByOlatUserName(String olatUserName) {
-        return sapOlatUserDao.getSapOlatUsersByOlatUserNameAndSapUserType(olatUserName, SapOlatUser.SapUserType.LECTURER);
-    }
-
-    public List<SapOlatUser> getSapOlatUserListByOlatUserName(String olatUserName) {
-        return sapOlatUserDao.getSapOlatUserListByOlatUserName(olatUserName);
-    }
-
-    public SapOlatUser getSapOlatUserBySapUserId(Long sapUserId) {
-        return sapOlatUserDao.getSapOlatUserBySapUserId(sapUserId);
+    public List<Lecturer> getLecturersByMappedIdentityKey(Long identityKey) {
+        return lecturerDao.getLecturersByMappedIdentityKey(identityKey);
     }
 
     public List<Text> getTextByCourseId(Long id) {
@@ -292,12 +288,36 @@ public class DaoManager {
         return textDao.getMaterialsByCourseId(id);
     }
 
-    public List<Course> getCreatedAndNotCreatedCreatableCoursesByStudentId(Long id) {
-        return courseDao.getCreatedAndNotCreatedCreatableCoursesOfCurrentSemesterByStudentId(id);
+    public List<Course> getCreatedAndNotCreatedCreatableCoursesByStudentId(Long studentId) {
+
+        List<Course> coursesOfStudent = courseDao.getCreatedAndNotCreatedCreatableCoursesOfCurrentSemesterByStudentId(studentId);
+
+        // We also have to look for courses the student booked as parent course
+        List<Course> coursesBookedOnlyAsParentCourse = courseDao.getCreatedAndNotCreatedCreatableCoursesOfCurrentSemesterByStudentIdBookedByStudentOnlyAsParentCourse(studentId);
+        for (Course course : coursesBookedOnlyAsParentCourse) {
+            // Only add course if student course booking of current semester is not up-to-date
+            if (!areStudentCourseBookingsForCurrentSemesterUpToDate(course) && !coursesOfStudent.contains(course)) {
+                coursesOfStudent.add(course);
+            }
+        }
+
+        return coursesBookedOnlyAsParentCourse;
     }
 
-    public List<Course> getCreatedCoursesByStudentId(Long id, String searchString) {
-        return courseDao.getCreatedCoursesOfCurrentSemesterByStudentId(id, searchString);
+    public List<Course> getCreatedCoursesByStudentId(Long studentId, String searchString) {
+
+        List<Course> coursesOfStudent = courseDao.getCreatedCoursesOfCurrentSemesterByStudentId(studentId, searchString);
+
+        // We also have to look for courses the student booked as parent course
+        List<Course> coursesBookedOnlyAsParentCourse = courseDao.getCreatedCoursesOfCurrentSemesterByStudentIdBookedByStudentOnlyAsParentCourse(studentId, searchString);
+        for (Course course : coursesBookedOnlyAsParentCourse) {
+            // Only add course if student course booking of current semester is not up-to-date
+            if (!areStudentCourseBookingsForCurrentSemesterUpToDate(course) && !coursesOfStudent.contains(course)) {
+                coursesOfStudent.add(course);
+            }
+        }
+
+        return coursesBookedOnlyAsParentCourse;
     }
 
     public List<Course> getNotCreatedCoursesByStudentId(Long id, String searchString) {
@@ -308,7 +328,7 @@ public class DaoManager {
         return courseDao.getCreatedAndNotCreatedCreatableCoursesOfCurrentSemesterByLecturerId(id);
     }
 
-    public List<Course> getCreatedCoursesByLecturerIds(Long id, String searchString) {
+    public List<Course> getCreatedCoursesByLecturerId(Long id, String searchString) {
         return courseDao.getCreatedCoursesOfCurrentSemesterByLecturerId(id, searchString);
     }
 
@@ -316,12 +336,12 @@ public class DaoManager {
         return courseDao.getNotCreatedCreatableCoursesOfCurrentSemesterByLecturerId(id, searchString);
     }
 
-    public Set<Course> getCampusCoursesWithoutResourceableId(Identity identity, SapOlatUser.SapUserType userType, String searchString) {
+    public Set<Course> getCampusCoursesWithoutResourceableId(Identity identity, SapUserType userType, String searchString) {
         Set<Course> coursesWithoutResourceableId = new HashSet<>();
-        coursesWithoutResourceableId.addAll(getCourses(identity.getName(), userType, false, searchString));// false --- > notCreatedCourses
+        coursesWithoutResourceableId.addAll(getCourses(identity, userType, false, searchString));// false --- > notCreatedCourses
         // THE CASE OF LECTURER, ADD THE APPROPRIATE DELEGATES
-        if (userType.equals(SapOlatUser.SapUserType.LECTURER)) {
-            List<Delegation> delegations = delegationDao.getDelegationsByDelegatee(identity.getName());
+        if (userType.equals(SapUserType.LECTURER)) {
+            List<Delegation> delegations = delegationDao.getDelegationsByDelegatee(identity.getKey());
             for (Delegation delegation : delegations) {
                 coursesWithoutResourceableId.addAll(getCourses(delegation.getDelegator(), userType, false, searchString));// false --- > notCreatedCourses
             }
@@ -329,12 +349,12 @@ public class DaoManager {
         return coursesWithoutResourceableId;
     }
 
-    public Set<Course> getCampusCoursesWithResourceableId(Identity identity, SapOlatUser.SapUserType userType, String searchString) {
+    public Set<Course> getCampusCoursesWithResourceableId(Identity identity, SapUserType userType, String searchString) {
         Set<Course> coursesWithResourceableId = new HashSet<>();
-        coursesWithResourceableId.addAll(getCourses(identity.getName(), userType, true, searchString));// true --- > CreatedCourses
+        coursesWithResourceableId.addAll(getCourses(identity, userType, true, searchString));// true --- > CreatedCourses
         // THE CASE OF LECTURER, ADD THE APPROPRIATE DELEGATES
-        if (userType.equals(SapOlatUser.SapUserType.LECTURER)) {
-            List<Delegation> delegations = delegationDao.getDelegationsByDelegatee(identity.getName());
+        if (userType.equals(SapUserType.LECTURER)) {
+            List<Delegation> delegations = delegationDao.getDelegationsByDelegatee(identity.getKey());
             for (Delegation delegation : delegations) {
                 coursesWithResourceableId.addAll(getCourses(delegation.getDelegator(), userType, true, searchString));// true --- > CreatedCourses
             }
@@ -342,34 +362,38 @@ public class DaoManager {
         return coursesWithResourceableId;
     }
 
-    public List<Course> getCourses(String olatUserName, SapOlatUser.SapUserType userType, boolean created, String searchString) {
-        if (userType.equals(SapOlatUser.SapUserType.LECTURER)) {
-            SapOlatUser sapOlatUser = getLecturerSapOlatUserByOlatUserName(olatUserName);
-            if (sapOlatUser == null) {
-                return Collections.emptyList();
-            } else {
-                return (created) ? getCreatedCoursesByLecturerIds(sapOlatUser.getSapUserId(), searchString) : getNotCreatedCoursesByLecturerId(sapOlatUser.getSapUserId(), searchString);
+    public Set<Course> getCourses(Identity identity, SapUserType userType, boolean created, String searchString) {
+        Set <Course> courses = new HashSet<>();
+        if (userType.equals(SapUserType.LECTURER)) {
+            for (Lecturer lecturer : getLecturersByMappedIdentityKey(identity.getKey())) {
+                if (created) {
+                    courses.addAll(getCreatedCoursesByLecturerId(lecturer.getPersonalNr(), searchString));
+                } else {
+                    courses.addAll(getNotCreatedCoursesByLecturerId(lecturer.getPersonalNr(), searchString));
+                }
             }
         } else {
-            SapOlatUser sapOlatUser = getStudentSapOlatUserByOlatUserName(olatUserName);
-            if (sapOlatUser == null) {
-                return Collections.emptyList();
-            } else {
-                return (created) ? getCreatedCoursesByStudentId(sapOlatUser.getSapUserId(), searchString) : getNotCreatedCoursesByStudentId(sapOlatUser.getSapUserId(), searchString);
+            for (Student student : getStudentsByMappedIdentityKey(identity.getKey())) {
+                if (created) {
+                    courses.addAll(getCreatedCoursesByStudentId(student.getId(), searchString));
+                } else {
+                    courses.addAll(getNotCreatedCoursesByStudentId(student.getId(), searchString));
+                }
             }
         }
+        return courses;
     }
 
-    public void saveCampusCourseResoureableId(Long courseId, Long resourceableId) {
-        courseDao.saveResourceableId(courseId, resourceableId);
+    public void saveCampusCourseOlatResource(Long courseId, Long olatResourceKey) {
+        courseDao.saveOlatResource(courseId, olatResourceKey);
     }
 
-    public Course getLatestCourseByResourceable(Long resourcableId) throws Exception {
-        return courseDao.getLatestCourseByResourceable(resourcableId);
+    public Course getLatestCourseByOlatResource(Long olatResourceKey) throws Exception {
+        return courseDao.getLatestCourseByOlatResource(olatResourceKey);
     }
 
-    public void resetResourceableIdAndParentCourseReference(Long resourceableId) {
-        courseDao.resetResourceableIdAndParentCourse(resourceableId);
+    public void resetOlatResourceAndParentCourseReference(Long olatResourceKey) {
+        courseDao.resetOlatResourceAndParentCourse(olatResourceKey);
     }
 
     public void saveParentCourseId(Long courseId, Long parentCourseId) {
@@ -380,8 +404,8 @@ public class DaoManager {
         return courseDao.getIdsOfAllCreatedSynchronizableCoursesOfCurrentSemester();
     }
 
-    public List<Long> getResourceableIdsOfAllCreatedCoursesOfPreviousSemesters() {
-        return courseDao.getResourceableIdsOfAllCreatedCoursesOfPreviousSemestersNotTooFarInThePast();
+    public List<Long> getOlatResourceKeysOfAllCreatedNotContinuedCoursesOfPreviousSemesters() {
+        return courseDao.getOlatResourceKeysOfAllCreatedNotContinuedCoursesOfPreviousSemestersNotTooFarInThePast();
     }
 
     public List<Long> getAllNotCreatedSapCourcesIds() {
@@ -402,30 +426,30 @@ public class DaoManager {
 			return null;
 		}
 
-        // Determine lecturerCourses and studentCourses of course and parent courses
-        HashSet<LecturerCourse> lecturerCoursesOfCourseAndParentCourses = new HashSet<>();
-        HashSet<StudentCourse> studentCoursesOfCourseAndParentCourses = new HashSet<>();
-        Course courseIt = course;
-        int count = 0;
-        do {
-            lecturerCoursesOfCourseAndParentCourses.addAll(courseIt.getLecturerCourses());
-            studentCoursesOfCourseAndParentCourses.addAll(courseIt.getStudentCourses());
-            courseIt = courseIt.getParentCourse();
-            count++;
-        } while (courseIt.getParentCourse() != null && count <= 10);
-
-        if (courseIt.getParentCourse() != null) {
-            String warningMessage = "Campus course with id " + courseId + " has more than 10 parent courses. Skipping further parent courses.";
-            LOG.warn(warningMessage);
+		Set<StudentCourse> studentCourses = course.getStudentCourses();
+        if (!areStudentCourseBookingsForCurrentSemesterUpToDate(course)) {
+            // Bookings of current semester not up-to-date, so also take bookings of parent course
+            studentCourses.addAll(course.getParentCourse().getStudentCourses());
         }
+
+        Set<LecturerCourse> lecturerCourses = course.getLecturerCourses();
 
         return new CampusCourseImportTO(course.getTitleToBeDisplayed(shortTitleActivated),
 				course.getSemester(),
-				dataConverter.convertLecturersToIdentities(lecturerCoursesOfCourseAndParentCourses),
-                dataConverter.convertDelegateesToIdentities(lecturerCoursesOfCourseAndParentCourses),
-				dataConverter.convertStudentsToIdentities(studentCoursesOfCourseAndParentCourses),
-                textDao.getContentsByCourseId(course.getId()), course.getResourceableId(),
+				dataConverter.convertLecturersToIdentities(lecturerCourses),
+                dataConverter.convertDelegateesToIdentities(lecturerCourses),
+				dataConverter.convertStudentsToIdentities(studentCourses),
+                textDao.getContentsByCourseId(course.getId()), course.getOlatResource(),
 				course.getId(), course.getLanguage(), course.getVvzLink());
+    }
+
+    private boolean areStudentCourseBookingsForCurrentSemesterUpToDate(Course course) {
+        // i)  If we have no parent course (i.e. it is not a continued course) we assume that the student course booking
+        //     is always up-to-date.
+        // ii) If we have a parent course (i.e. it is a continued course) we require that at least 50% of the bookings
+        //     of the previous semester must be students who also booked the course in the current semester. Otherwise
+        //     the secretariat seems not have (manually) copied all the (permitted) students of the parent course yet.
+        return (course.getParentCourse() == null || studentDao.hasMoreThan50PercentOfStudentsOfSpecificCourseBothABookingOfCourseAndParentCourse(course));
     }
 
     public List getDelegatees(Identity delegator) {
@@ -433,18 +457,10 @@ public class DaoManager {
     }
 
     public void deleteDelegation(Identity delegator, Identity delegatee) {
-        delegationDao.deleteByDelegatorAndDelegatee(delegator.getName(), delegatee.getName());
+        delegationDao.deleteDelegationById(delegator.getKey(), delegatee.getKey());
     }
 
     public boolean checkImportedData() {
         return (statisticDao.getLastCompletedImportedStatistic().size() == campusCourseConfiguration.getMustCompletedImportedFiles());
-    }
-
-    public void deleteOldLecturerMapping() {
-        sapOlatUserDao.deleteOldLecturerMappingAsBulkDelete();
-    }
-
-    public void deleteOldStudentMapping() {
-        sapOlatUserDao.deleteOldStudentMappingAsBulkDelete();
     }
 }

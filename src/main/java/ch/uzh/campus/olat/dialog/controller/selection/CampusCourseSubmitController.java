@@ -12,17 +12,12 @@ import org.olat.core.gui.components.velocity.VelocityContainer;
 import org.olat.core.gui.control.Event;
 import org.olat.core.gui.control.WindowControl;
 import org.olat.core.gui.control.controller.BasicController;
-import org.olat.core.logging.OLog;
-import org.olat.core.logging.Tracing;
 
 /**
  * Initial date: 2016-07-13<br />
  * @author sev26 (UZH)
  */
 public class CampusCourseSubmitController extends BasicController {
-
-	private static final OLog LOG = Tracing.createLoggerFor(
-			CampusCourseSubmitController.class);
 
 	private final static String CREATE = "button.create.course";
 	private final static String CANCEL = "cancel";
@@ -69,15 +64,13 @@ public class CampusCourseSubmitController extends BasicController {
 						.createCampusCourseFromStandardTemplate(sapCampusCourseId,
 								userRequest.getIdentity());
 
-				listener.onCancel();
+				listener.onCancel(userRequest);
 				campusCourseOlatHelper.openCourseInNewTab(campusCourse, getWindowControl(), userRequest);
 			} catch (Exception e) {
-				LOG.warn(e.getMessage());
-				CampusCourseOlatHelper.showErrorCreatingCampusCourseFromDefaultTemplate(
-						getWindowControl(), userRequest.getLocale());
+				listener.onError(userRequest, e);
 			}
 		} else if (source == cancelButton) {
-			listener.onCancel();
+			listener.onCancel(userRequest);
 		}
 	}
 

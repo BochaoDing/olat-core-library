@@ -21,12 +21,11 @@ public class CampusCourseDialogSelectionController extends CampusCourseSelection
 	CampusCourseDialogSelectionController(Long sapCampusCourseId,
 										  CampusCourseService campusCourseService,
 										  RepositoryManager repositoryManager,
-										  CampusCourseOlatHelper campusCourseOlatHelper,
 										  CreateCampusCourseCompletedEventListener listener,
 										  WindowControl windowControl,
 										  UserRequest userRequest) {
 		super(sapCampusCourseId, campusCourseService, repositoryManager,
-				campusCourseOlatHelper, listener, windowControl, userRequest);
+                listener, windowControl, userRequest);
 	}
 
 	@Override

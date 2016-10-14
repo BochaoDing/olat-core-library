@@ -1,3 +1,19 @@
+package ch.uzh.campus.mapper;
+
+import ch.uzh.campus.data.Lecturer;
+import ch.uzh.campus.data.LecturerDao;
+import org.apache.commons.lang.StringUtils;
+import org.olat.basesecurity.BaseSecurity;
+import org.olat.basesecurity.Constants;
+import org.olat.basesecurity.SecurityGroup;
+import org.olat.core.id.Identity;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
+import javax.annotation.PostConstruct;
+import java.util.Arrays;
+import java.util.List;
+
 /**
  * OLAT - Online Learning and Training<br>
  * http://www.olat.org
@@ -17,79 +33,82 @@
  * Copyright (c) since 2004 at Multimedia- & E-Learning Services (MELS),<br>
  * University of Zurich, Switzerland.
  * <p>
- */
-package ch.uzh.campus.mapper;
-
-import ch.uzh.campus.data.Lecturer;
-import ch.uzh.campus.data.SapOlatUserDao;
-import org.apache.commons.lang.StringUtils;
-import org.olat.core.id.Identity;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-
-import java.util.Arrays;
-import java.util.List;
-
-/**
+ *
  * Initial Date: 28.06.2012 <br>
  * 
  * @author cg
+ * @author Martin Schraner
  */
 @Component
 public class LecturerMapper {
 
-    @Autowired
-    LecturerMappingByPersonalNumber mappingByPersonalNumber;
+    private final LecturerDao lecturerDao;
+    private final UserMapper userMapper;
+    private final BaseSecurity baseSecurity;
+
+    private SecurityGroup authorGroup;
 
     @Autowired
-    MappingByFirstNameAndLastName mappingByFirstNameAndLastName;
+    public LecturerMapper(LecturerDao lecturerDao, UserMapper userMapper, BaseSecurity baseSecurity) {
+        this.lecturerDao = lecturerDao;
+        this.userMapper = userMapper;
+        this.baseSecurity = baseSecurity;
+    }
 
-    @Autowired
-    MappingByEmail mappingByEmail;
-
-    @Autowired
-    SapOlatUserDao userMappingDao;
+    @PostConstruct
+    public void init() throws Exception {
+        authorGroup = baseSecurity.findSecurityGroupByName(Constants.GROUP_AUTHORS);
+	}
 
     MappingResult synchronizeLecturerMapping(Lecturer lecturer) {
-        if (!userMappingDao.existsMappingForSapUserId(lecturer.getPersonalNr())) {
 
-            // first try to map by personal number
-            Identity mappedIdentity = mappingByPersonalNumber.tryToMap(lecturer.getPersonalNr());
+        if (lecturer.getMappedIdentity() == null) {
+
+            // First try to map by personal number
+            Identity mappedIdentity = userMapper.tryToMapByPersonalNumber(lecturer.getPersonalNr());
             if (mappedIdentity != null) {
-                userMappingDao.saveMapping(lecturer, mappedIdentity);
+                lecturerDao.addMapping(lecturer.getPersonalNr(), mappedIdentity);
+                addAuthorRoleToMappedLecturer(mappedIdentity);
                 return MappingResult.NEW_MAPPING_BY_PERSONAL_NR;
             }
 
-            // second try to map by Email
-            mappedIdentity = mappingByEmail.tryToMap(lecturer);
+            // Second try to map by email
+            mappedIdentity = userMapper.tryToMapByEmail(lecturer.getEmail());
             if (mappedIdentity != null) {
-                userMappingDao.saveMapping(lecturer, mappedIdentity);
+                lecturerDao.addMapping(lecturer.getPersonalNr(), mappedIdentity);
+                addAuthorRoleToMappedLecturer(mappedIdentity);
                 return MappingResult.NEW_MAPPING_BY_EMAIL;
             }
 
-            // third try to map by additional personal number
+            // Third try to map by additional personal number
             if (StringUtils.isNotBlank(lecturer.getAdditionalPersonalNrs())) {
-                List<String> personalNrs = Arrays.asList(lecturer.getAdditionalPersonalNrs().split("\\s*,\\s*"));
-                for (String personalNr : personalNrs) {
-                    mappedIdentity = mappingByPersonalNumber.tryToMap(Long.valueOf(personalNr));
+                List<String> additionalPersonalNrs = Arrays.asList(lecturer.getAdditionalPersonalNrs().split("\\s*,\\s*"));
+                for (String additionalPersonalNr : additionalPersonalNrs) {
+                    mappedIdentity = userMapper.tryToMapByAdditionalPersonalNumber(additionalPersonalNr);
                     if (mappedIdentity != null) {
-                        userMappingDao.saveMapping(lecturer, mappedIdentity);
+                        lecturerDao.addMapping(lecturer.getPersonalNr(), mappedIdentity);
+                        addAuthorRoleToMappedLecturer(mappedIdentity);
                         return MappingResult.NEW_MAPPING_BY_ADDITIONAL_PERSONAL_NR;
                     }
                 }
             }
 
-            // forth try to map by firstName and lastName
-            mappedIdentity = mappingByFirstNameAndLastName.tryToMap(lecturer.getFirstName(), lecturer.getLastName());
+            // Fourth try to map by first name and last name
+            mappedIdentity = userMapper.tryToMapByFirstNameLastName(lecturer.getFirstName(), lecturer.getLastName());
             if (mappedIdentity != null) {
                 // DO NOT SAVE THIS MAPPING, BECAUSE IT HAS TO BE DONE MANUALLY
                 return MappingResult.COULD_BE_MAPPED_MANUALLY;
             } else {
-                // log.info("Could not map lecturer:" + lecturer);
                 return MappingResult.COULD_NOT_MAP;
             }
         }
+
         return MappingResult.MAPPING_ALREADY_EXIST;
     }
 
+    private void addAuthorRoleToMappedLecturer(Identity identity) {
+        if (!baseSecurity.isIdentityInSecurityGroup(identity, authorGroup)) {
+            baseSecurity.addIdentityToSecurityGroup(identity, authorGroup);
+        }
+    }
 }

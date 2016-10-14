@@ -3,7 +3,6 @@ package ch.uzh.campus.olat;
 import ch.uzh.campus.olat.dialog.controller.CampusCourseCreateDialogController;
 import ch.uzh.campus.olat.dialog.controller.CreateCampusCourseCompletedEventListener;
 import ch.uzh.campus.service.CampusCourse;
-import ch.uzh.campus.service.learn.CampusCourseService;
 import ch.uzh.campus.service.learn.SapCampusCourseTo;
 import org.olat.NewControllerFactory;
 import org.olat.core.gui.UserRequest;
@@ -12,12 +11,12 @@ import org.olat.core.gui.control.WindowControl;
 import org.olat.core.gui.control.generic.closablewrapper.CloseableModalController;
 import org.olat.core.gui.translator.Translator;
 import org.olat.core.id.Roles;
+import org.olat.core.logging.OLog;
+import org.olat.core.logging.Tracing;
 import org.olat.core.util.Util;
 import org.olat.core.util.event.EventBus;
 import org.olat.repository.RepositoryEntry;
-import org.olat.repository.ui.author.AuthorListController;
 import org.olat.resource.OLATResource;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.Locale;
@@ -27,23 +26,20 @@ import static ch.uzh.campus.olat.CampusCourseBeanFactory.*;
 @Component
 public class CampusCourseOlatHelper {
 
-    private final CampusCourseService campusCourseService;
+	private static final OLog LOG = Tracing.createLoggerFor(
+			CampusCourseOlatHelper.class);
 
-    @Autowired
-    public CampusCourseOlatHelper(CampusCourseService campusCourseService) {
-        this.campusCourseService = campusCourseService;
-    }
 
 	public void openCourseInNewTab(CampusCourse campusCourse,
 								   WindowControl windowControl,
 								   UserRequest userRequest) {
-		/**
+		/*
 		 * Open the OLAT course in a new tab.
 		 */
 		String businessPath = "[RepositoryEntry:" + campusCourse.getRepositoryEntry().getKey() + "]";
 		NewControllerFactory.getInstance().launch(businessPath, userRequest, windowControl);
 
-		/**
+		/*
 		 * Inform the {@link AuthorListController} about the new list entry.
 		 */
 		EventBus singleUserEventBus = userRequest.getUserSession().getSingleUserEventCenter();
@@ -64,16 +60,8 @@ public class CampusCourseOlatHelper {
 
 	private final static String CONTACT_OLAT_SUPPORT = "Please contact the OLAT support.";
 
-	public static void showErrorCreatingCampusCourseFromDefaultTemplate(WindowControl windowControl,
-																		Locale locale) {
-		windowControl.setError("An error occurred while crating a Campuskurs from the default template. " +
-				CONTACT_OLAT_SUPPORT
-		);
-	}
-
-	public static void showErrorCreatingCampusCourse(WindowControl windowControl,
-													 Locale locale) {
-		windowControl.setError("An error occurred while crating the Campuskurs. " +
+	private static void showErrorCreatingCampusCourse(WindowControl windowControl) {
+		windowControl.setError("An error occurred while creating the Campuskurs. " +
 				CONTACT_OLAT_SUPPORT);
 	}
 
@@ -113,9 +101,9 @@ public class CampusCourseOlatHelper {
 	}
 
 	public void showDialog(String titleKey, CampusCourseCreateDialogController controller,
-								   UserRequest userRequest, WindowControl windowControl,
+								   Locale locale, WindowControl windowControl,
 								   ControllerEventListener parent) {
-		Translator translator = CampusCourseOlatHelper.getTranslator(userRequest.getLocale());
+		Translator translator = CampusCourseOlatHelper.getTranslator(locale);
 		CloseableModalController cmc = new CloseableModalController(
 				windowControl, translator.translate("close"), controller.getInitialComponent(), true,
 				translator.translate(titleKey));
@@ -125,21 +113,21 @@ public class CampusCourseOlatHelper {
 		controller.addCampusCourseCreateEventListener(new CreateCampusCourseCompletedEventListener() {
 
 			@Override
-			public void onSuccess(CampusCourse campusCourse) {
+			public void onSuccess(UserRequest userRequest, CampusCourse campusCourse) {
 				cmc.deactivate();
 				CampusCourseOlatHelper.this.openCourseInNewTab(campusCourse,
 						windowControl, userRequest);
 			}
 
 			@Override
-			public void onCancel() {
+			public void onCancel(UserRequest ureq) {
 				cmc.deactivate();
 			}
 
 			@Override
-			public void onError() {
-				CampusCourseOlatHelper.showErrorCreatingCampusCourse(windowControl,
-						userRequest.getLocale());
+			public void onError(UserRequest ureq, Exception e) {
+				LOG.error(e.getMessage());
+				CampusCourseOlatHelper.showErrorCreatingCampusCourse(windowControl);
 				cmc.deactivate();
 			}
 		});

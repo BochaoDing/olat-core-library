@@ -19,11 +19,20 @@
  */
 package org.olat.core.util.filter.impl;
 
-import java.util.regex.Pattern;
+import java.io.IOException;
+import java.io.StringReader;
 
+import org.cyberneko.html.parsers.SAXParser;
 import org.olat.core.logging.OLog;
 import org.olat.core.logging.Tracing;
+import org.olat.core.util.StringHelper;
 import org.olat.core.util.filter.Filter;
+import org.olat.core.util.io.LimitedContentWriter;
+import org.olat.search.service.document.file.FileDocumentFactory;
+import org.xml.sax.Attributes;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
+import org.xml.sax.helpers.DefaultHandler;
 
 /**
  * Description:<br>
@@ -42,34 +51,21 @@ import org.olat.core.util.filter.Filter;
  * 
  * @author gnaegi
  */
-public class SimpleHTMLTagsFilter implements Filter {
+public class SimpleHTMLTagsFilter extends StripHTMLTagsFilter {
 	private static final OLog log = Tracing.createLoggerFor(SimpleHTMLTagsFilter.class);
-	// match <p> <p/> <br> <br/>
-	private static final Pattern brAndPTagsPattern = Pattern.compile("<((br)|p|(BR)|P)( )*(/)?>");
-	// match </h1>..
-	private static final Pattern titleTagsPattern = Pattern.compile("</[hH][123456]>");
-	// match everything <....> 
-	private static final Pattern stripHTMLTagsPattern = Pattern.compile("<(!|/)?\\w+((\\s+[\\w-]+(\\s*(=\\s*)?(?:\".*?\"|'.*?'|[^'\">\\s]+))?)+\\s*|\\s*)/?>");
-	// match entities
- 	private static final Pattern htmlSpacePattern = Pattern.compile("&nbsp;");
-	
-	/**
-	 * @see org.olat.core.util.filter.Filter#filter(java.lang.String)
-	 */
+
+	@Override
 	public String filter(String original) {
+		if(original == null) return null;
+		if(original.isEmpty()) return "";
+		
 		try {
-			if (original == null) return null;
-			//some strange chars let to infinite loop in the regexp and need to be replaced
-			String  modified = original.replaceAll("\u00a0", " ");
-			modified = brAndPTagsPattern.matcher(modified).replaceAll(" ");
-			modified = titleTagsPattern.matcher(modified).replaceAll(" ");
-			if (log.isDebug()) log.debug("trying to remove all html tags from: "+modified); 
-			modified = stripHTMLTagsPattern.matcher(modified).replaceAll("");	
-			modified = htmlSpacePattern.matcher(modified).replaceAll(" ");	
-			return modified;			
-		} catch (Throwable e) {
-			log.error("Could not filter HTML tags. Using unfiltered string! Original string was::" + original, e);
-			return original;
+			String text = super.filter(original);
+			text = StringHelper.escapeHtml(text);
+			return text;
+		} catch (Exception e) {
+			log.error("", e);
+			return null;
 		}
 	}
 }

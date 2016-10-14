@@ -1,3 +1,31 @@
+package ch.uzh.campus.service.core.impl.syncer;
+
+import ch.uzh.campus.CampusCourseConfiguration;
+import ch.uzh.campus.CampusCourseException;
+import ch.uzh.campus.CampusCourseImportTO;
+import ch.uzh.campus.data.DaoManager;
+import ch.uzh.campus.data.Semester;
+import ch.uzh.campus.data.SemesterName;
+import ch.uzh.campus.service.CampusCourse;
+import ch.uzh.campus.service.core.impl.CampusCourseFactory;
+import ch.uzh.campus.service.core.impl.syncer.statistic.SynchronizedGroupStatistic;
+import ch.uzh.campus.service.core.impl.syncer.statistic.SynchronizedSecurityGroupStatistic;
+import org.junit.Before;
+import org.junit.Test;
+import org.olat.core.id.Identity;
+import org.olat.course.ICourse;
+import org.olat.repository.RepositoryEntry;
+import org.olat.resource.OLATResource;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
+import static org.junit.Assert.*;
+import static org.mockito.Matchers.refEq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 /**
  * OLAT - Online Learning and Training<br>
  * http://www.olat.org
@@ -16,33 +44,7 @@
  * <p>
  * Copyright (c) since 2004 at Multimedia- & E-Learning Services (MELS),<br>
  * University of Zurich, Switzerland.
- * <p>
- */
-package ch.uzh.campus.service.core.impl.syncer;
-
-import ch.uzh.campus.CampusCourseConfiguration;
-import ch.uzh.campus.CampusCourseImportTO;
-import ch.uzh.campus.data.DaoManager;
-import ch.uzh.campus.service.CampusCourse;
-import ch.uzh.campus.service.core.impl.CampusCourseFactory;
-import ch.uzh.campus.service.core.impl.syncer.statistic.SynchronizedGroupStatistic;
-import ch.uzh.campus.service.core.impl.syncer.statistic.SynchronizedSecurityGroupStatistic;
-import org.junit.Before;
-import org.junit.Test;
-import org.olat.core.id.Identity;
-import org.olat.course.ICourse;
-import org.olat.repository.RepositoryEntry;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
-import static org.junit.Assert.*;
-import static org.mockito.Matchers.refEq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
-/**
+ *
  * Initial Date: 28.06.2012 <br>
  * 
  * @author cg
@@ -58,7 +60,7 @@ public class CampusCourseSynchronizerTest {
     private List<Identity> participants = new ArrayList<>();
 
     @Before
-    public void setup() {
+    public void setup() throws CampusCourseException {
 
         String title = "title";
         String eventDescription = "eventDescription";
@@ -68,12 +70,14 @@ public class CampusCourseSynchronizerTest {
         RepositoryEntry repositoryEntry = mock(RepositoryEntry.class);
         when(repositoryEntry.getDisplayname()).thenReturn(title);
         when(repositoryEntry.getDescription()).thenReturn(eventDescription);
+        OLATResource olatResourceMock = mock(OLATResource.class);
         CampusCourse campusCourse = new CampusCourse(course, repositoryEntry);
 
         // Prepare a test CampusCourseImportTO
+        Semester semester = new Semester(SemesterName.HERBSTSEMESTER, 2016, false);
         campusCourseImportTO = new CampusCourseImportTO(
-                title, "HS2012", lecturers, Collections.emptyList(), participants, eventDescription,
-                1045L, EXISTING_SAP_COURSE_ID, null, null
+                title, semester, lecturers, Collections.emptyList(), participants, eventDescription,
+                olatResourceMock, EXISTING_SAP_COURSE_ID, null, null
         );
 
         // mock injections for CampusCourseSynchronizer
@@ -92,7 +96,7 @@ public class CampusCourseSynchronizerTest {
     }
     
     @Test
-    public void synchronizeCourse_CouldNotFindCourse() {
+    public void synchronizeCourse_CouldNotFindCourse() throws CampusCourseException {
         DaoManager daoManagerMock = mock(DaoManager.class);
         when(daoManagerMock.getSapCampusCourse(NOT_EXISTING_SAP_COURSE_ID)).thenReturn(null);
 
@@ -104,7 +108,7 @@ public class CampusCourseSynchronizerTest {
     }
     
     @Test
-    public void synchronizeCourse_FoundCourse() {
+    public void synchronizeCourse_FoundCourse() throws CampusCourseException {
         DaoManager daoManagerMock = mock(DaoManager.class);
         when(daoManagerMock.getSapCampusCourse(EXISTING_SAP_COURSE_ID)).thenReturn(campusCourseImportTO);
 

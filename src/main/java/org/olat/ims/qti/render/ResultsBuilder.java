@@ -118,7 +118,7 @@ public class ResultsBuilder {
 		Element context = result.addElement("context");
 		User user = identity.getUser();
 		String name = user.getProperty(UserConstants.FIRSTNAME, locale) + " " + user.getProperty(UserConstants.LASTNAME, locale);
-		String instId = user.getProperty(UserConstants.INSTITUTIONALUSERIDENTIFIER, locale);
+		String instId = user.getProperty(UserConstants.INSTITUTIONAL_MATRICULATION_NUMBER, locale);
 		String instName = user.getProperty(UserConstants.INSTITUTIONALNAME, locale);
 
 		if (instId == null) instId = "N/A";

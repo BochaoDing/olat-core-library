@@ -12,24 +12,14 @@ import java.util.List;
 public class MockDataGenerator {
 
     private List<Org> orgs;
-    private List<SapOlatUser> sapOlatUsers;
-    private List<Delegation> delegations;
     private List<Student> students;
     private List<Lecturer> lecturers;
-    private List<CourseOrgId> courseOrgIds;
+    private List<CourseSemesterOrgId> courseSemesterOrgIds;
     private List<LecturerIdCourseIdDateOfImport> lecturerIdCourseIdDateOfImports;
     private List<StudentIdCourseIdDateOfImport> studentIdCourseIdDateOfImports;
     private List<TextCourseId> textCourseIds;
     private List<EventCourseId> eventCourseIds;
     private List<ImportStatistic> importStatistics;
-
-    List<Delegation> getDelegations() {
-        return delegations;
-    }
-
-    public void setDelegations(List<Delegation> delegations) {
-        this.delegations = delegations;
-    }
 
     List<Org> getOrgs() {
         return orgs;
@@ -37,14 +27,6 @@ public class MockDataGenerator {
 
     public void setOrgs(List<Org> orgs) {
         this.orgs = orgs;
-    }
-
-    List<SapOlatUser> getSapOlatUsers() {
-        return sapOlatUsers;
-    }
-
-    public void setSapOlatUsers(List<SapOlatUser> sapOlatUsers) {
-        this.sapOlatUsers = sapOlatUsers;
     }
 
     public List<Student> getStudents() {
@@ -63,12 +45,12 @@ public class MockDataGenerator {
         this.lecturers = lecturers;
     }
 
-    public List<CourseOrgId> getCourseOrgIds() {
-        return courseOrgIds;
+    public List<CourseSemesterOrgId> getCourseSemesterOrgIds() {
+        return courseSemesterOrgIds;
     }
 
-    public void setCourseOrgIds(List<CourseOrgId> courseOrgIds) {
-        this.courseOrgIds = courseOrgIds;
+    public void setCourseSemesterOrgIds(List<CourseSemesterOrgId> courseSemesterOrgIds) {
+        this.courseSemesterOrgIds = courseSemesterOrgIds;
     }
 
     List<EventCourseId> getEventCourseIds() {

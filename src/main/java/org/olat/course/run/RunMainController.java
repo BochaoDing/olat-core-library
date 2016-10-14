@@ -485,7 +485,7 @@ public class RunMainController extends MainLayoutBasicController implements Gene
 		} else if(previousLink == source) {
 			doPrevious(ureq);
 		} else if (source == luTree) {
-			if (event.getCommand().equals(MenuTree.COMMAND_TREENODE_CLICKED)) {
+			if (event.getCommand().equals(MenuTree.COMMAND_TREENODE_CLICKED) || event.getCommand().equals(MenuTree.COMMAND_TREENODE_EXPANDED)) {
 				TreeEvent tev = (TreeEvent) event;
 				doNodeClick(ureq, tev);
 			}
@@ -552,7 +552,7 @@ public class RunMainController extends MainLayoutBasicController implements Gene
 			if (event instanceof OlatCmdEvent) {
 				OlatCmdEvent oe = (OlatCmdEvent) event;
 				String cmd = oe.getCommand();
-				if (cmd.equals(OlatCmdEvent.GOTONODE_CMD)) {
+				if (OlatCmdEvent.GOTONODE_CMD.equals(cmd)) {
 					String subcmd = oe.getSubcommand(); // "69680861018558/node-specific-data";
 					CourseNode identNode;
 					String nodecmd = null;
@@ -563,10 +563,14 @@ public class RunMainController extends MainLayoutBasicController implements Gene
 					} else {
 						identNode = course.getRunStructure().getNode(subcmd);
 					}
-					addLoggingResourceable(LoggingResourceable.wrap(identNode));
-					currentCourseNode = identNode;
-					updateTreeAndContent(ureq, identNode, nodecmd);
-					oe.accept();
+					if(identNode == null) {
+						showWarning("msg.nodenotavailableanymore");
+					} else {
+						addLoggingResourceable(LoggingResourceable.wrap(identNode));
+						currentCourseNode = identNode;
+						updateTreeAndContent(ureq, identNode, nodecmd);
+						oe.accept();
+					}
 				}
 			} else if (event == Event.DONE_EVENT) {
 				// the controller is done.
@@ -812,6 +816,11 @@ public class RunMainController extends MainLayoutBasicController implements Gene
 	@Override
 	public void activate(UserRequest ureq, List<ContextEntry> entries, StateEntry state) {
 		if(entries == null || entries.isEmpty()) {
+			if(currentNodeController != null) {
+				addToHistory(ureq, currentNodeController);
+			} else {
+				addToHistory(ureq, this);
+			}
 			return;
 		}
 		

@@ -19,7 +19,7 @@
         </property>
         <property name="navigationKey" value="ck" />
         <property name="i18nActionKey" value="menu.campus"/>
-        <property name="i18nDescriptionKey" value="menu.campus.alt"/>
+        <property name="i18nDescriptionKey" value="menu.campus"/>
         <property name="translationPackage" value="ch.uzh.campus.presentation"/>
         <property name="extensionPoints">
             <list>

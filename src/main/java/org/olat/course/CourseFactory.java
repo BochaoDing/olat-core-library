@@ -451,20 +451,6 @@ public class CourseFactory extends BasicManager {
 	 */
 	public static OLATResourceable copyCourse(OLATResourceable sourceRes, OLATResource targetRes) {
 		PersistingCourseImpl sourceCourse = (PersistingCourseImpl)loadCourse(sourceRes);
-
-		try {
-			// check if the source course is not too big
-			CourseConfigUtil.checkAgainstConfiguredMaxSize(sourceCourse.getCourseBaseContainer().getBasefile());
-		} catch (FileSizeLimitExceededException e){
-			log.warn("Course size exceeds the setting for copying", e);
-			/*
-			 	TODO
-				Should it also throw an exception further, so it can be handled in UI (see exportCourseToZIP())?
-				Right now exception handling is rather notificational, we just log the occurrences of big course.
-				Course gets copied anyway. Should we inforce returning null and then handle it in the calling code?
-			 */
-		}
-
 		PersistingCourseImpl targetCourse = new PersistingCourseImpl(targetRes);
 		File fTargetCourseBasePath = targetCourse.getCourseBaseContainer().getBasefile();
 		

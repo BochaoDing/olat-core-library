@@ -12,21 +12,20 @@ import java.util.List;
 @Repository
 public class ImportStatisticDao implements CampusDao<ImportStatistic> {
 
-    @Autowired
-    private DB dbInstance;
+    private final DB dbInstance;
 
-    @Override
+    @Autowired
+    public ImportStatisticDao(DB dbInstance) {
+        this.dbInstance = dbInstance;
+    }
+
     public void save(List<ImportStatistic> statistics) {
-        for(ImportStatistic statistic : statistics) {
-            save(statistic);
-        }
+        statistics.forEach(this::save);
     }
 
     @Override
     public void saveOrUpdate(List<ImportStatistic> statistics) {
-        for (ImportStatistic statistic : statistics) {
-            saveOrUpdate(statistic);
-        }
+        statistics.forEach(this::saveOrUpdate);
     }
 
     public void save(ImportStatistic statistic) {

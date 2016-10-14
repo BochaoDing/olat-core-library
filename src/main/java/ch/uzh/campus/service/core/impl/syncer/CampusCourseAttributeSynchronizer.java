@@ -1,3 +1,16 @@
+package ch.uzh.campus.service.core.impl.syncer;
+
+import ch.uzh.campus.CampusCourseConfiguration;
+import ch.uzh.campus.CampusCourseImportTO;
+import ch.uzh.campus.service.CampusCourse;
+import ch.uzh.campus.service.core.impl.CampusCourseFactory;
+import ch.uzh.campus.service.core.impl.CampusCourseTool;
+import ch.uzh.campus.service.core.impl.creator.CampusCourseDescriptionBuilder;
+import ch.uzh.campus.service.core.impl.syncer.statistic.TitleAndDescriptionStatistik;
+import org.olat.repository.RepositoryEntry;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
 /**
  * OLAT - Online Learning and Training<br>
  * http://www.olat.org
@@ -16,22 +29,7 @@
  * <p>
  * Copyright (c) since 2004 at Multimedia- & E-Learning Services (MELS),<br>
  * University of Zurich, Switzerland.
- * <p>
- */
-package ch.uzh.campus.service.core.impl.syncer;
-
-import ch.uzh.campus.CampusCourseConfiguration;
-import ch.uzh.campus.CampusCourseImportTO;
-import ch.uzh.campus.service.CampusCourse;
-import ch.uzh.campus.service.core.impl.CampusCourseFactory;
-import ch.uzh.campus.service.core.impl.CampusCourseTool;
-import ch.uzh.campus.service.core.impl.creator.CampusCourseDescriptionBuilder;
-import ch.uzh.campus.service.core.impl.syncer.statistic.TitleAndDescriptionStatistik;
-import org.olat.repository.RepositoryEntry;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-
-/**
+ *
  * Initial Date: 20.08.2012 <br>
  * 
  * @author cg
@@ -78,7 +76,9 @@ public class CampusCourseAttributeSynchronizer {
      */
     private boolean synchronizeTitle(CampusCourse campusCourse, String newTitle) {
         if (isTitleChanged(campusCourse.getRepositoryEntry(), newTitle)) {
-            campusCourse.getRepositoryEntry().setDisplayname(CampusCourseTool.getTruncatedDisplayname(newTitle));
+            // Do not update short semester(s) (causes problems for continued campus courses)
+            String newDisplayname = CampusCourseTool.getShortSemestersOfDisplayname(campusCourse.getRepositoryEntry().getDisplayname()) + " " + CampusCourseTool.getTruncatedDisplaynameWithoutShortSemesters(newTitle);
+            campusCourse.getRepositoryEntry().setDisplayname(newDisplayname);
             return true;
         }
         return false;
@@ -89,6 +89,7 @@ public class CampusCourseAttributeSynchronizer {
     }
 
     private boolean isTitleChanged(RepositoryEntry repositoryEntry, String newTitle) {
-        return (repositoryEntry.getDisplayname() == null && newTitle != null) || !repositoryEntry.getDisplayname().equals(CampusCourseTool.getTruncatedDisplayname(newTitle));
+        return (repositoryEntry.getDisplayname() == null && newTitle != null)
+                || !CampusCourseTool.getTruncatedDisplaynameWithoutShortSemesters(repositoryEntry.getDisplayname()).equals(CampusCourseTool.getTruncatedDisplaynameWithoutShortSemesters(newTitle));
     }
 }

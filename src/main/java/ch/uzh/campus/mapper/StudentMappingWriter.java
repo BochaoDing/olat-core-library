@@ -1,3 +1,16 @@
+package ch.uzh.campus.mapper;
+
+import ch.uzh.campus.data.Student;
+import ch.uzh.campus.metric.CampusNotifier;
+import org.olat.core.commons.persistence.DB;
+import org.olat.core.logging.OLog;
+import org.olat.core.logging.Tracing;
+import org.springframework.batch.item.ItemWriter;
+import org.springframework.beans.factory.annotation.Autowired;
+
+import javax.annotation.PreDestroy;
+import java.util.List;
+
 /**
  * OLAT - Online Learning and Training<br>
  * http://www.olat.org
@@ -17,21 +30,7 @@
  * Copyright (c) since 2004 at Multimedia- & E-Learning Services (MELS),<br>
  * University of Zurich, Switzerland.
  * <p>
- */
-package ch.uzh.campus.mapper;
-
-import ch.uzh.campus.data.Student;
-import ch.uzh.campus.metric.CampusNotifier;
-import org.olat.core.commons.persistence.DB;
-import org.olat.core.logging.OLog;
-import org.olat.core.logging.Tracing;
-import org.springframework.batch.item.ItemWriter;
-import org.springframework.beans.factory.annotation.Autowired;
-
-import javax.annotation.PreDestroy;
-import java.util.List;
-
-/**
+ *
  * {@link ItemWriter} for
  * 
  * Initial Date: 27.11.2012 <br>
@@ -42,16 +41,19 @@ public class StudentMappingWriter implements ItemWriter<Student> {
 
     private static final OLog LOG = Tracing.createLoggerFor(StudentMappingWriter.class);
 
+    private final DB dbInstance;
+    private final CampusNotifier campusNotifier;
+    private final StudentMapper studentMapper;
+
     private MappingStatistic mappingStatistic;
 
     @Autowired
-    DB dbInstance;
+    public StudentMappingWriter(DB dbInstance, CampusNotifier campusNotifier, StudentMapper studentMapper) {
+        this.dbInstance = dbInstance;
+        this.campusNotifier = campusNotifier;
+        this.studentMapper = studentMapper;
+    }
 
-    @Autowired
-    CampusNotifier campusNotifier;
-
-    @Autowired
-    StudentMapper studentMapper;
 
     public void setMappingStatistic(MappingStatistic mappingStatistic) {
         this.mappingStatistic = mappingStatistic;
@@ -59,10 +61,6 @@ public class StudentMappingWriter implements ItemWriter<Student> {
 
     MappingStatistic getMappingStatistic() {
         return mappingStatistic;
-    }
-
-    public void setDbInstance(DB dbInstance) {
-        this.dbInstance = dbInstance;
     }
 
     @PreDestroy
@@ -80,7 +78,15 @@ public class StudentMappingWriter implements ItemWriter<Student> {
             dbInstance.commitAndCloseSession();
         } catch (Throwable t) {
             dbInstance.rollbackAndCloseSession();
-            LOG.warn(t.getMessage());
+            // In the case of an exception, Spring Batch calls this method several times:
+            // First for the sapCourses according to commit-interval in campusBatchJobContext.xml, and then (after rollbacking)
+            // for each entry of the original students separately enabling commits containing only one entry.
+            // To avoid duplicated warnings we only log a warning in the latter case.
+            if (students.size() == 1) {
+                LOG.error(t.getMessage());
+            } else {
+                LOG.debug(t.getMessage());
+            }
             throw t;
         }
     }

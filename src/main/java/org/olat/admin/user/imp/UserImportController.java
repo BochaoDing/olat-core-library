@@ -32,6 +32,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import com.sun.org.apache.xpath.internal.operations.Bool;
+import org.olat.admin.user.UserChangePasswordMailUtil;
 import org.olat.basesecurity.Authentication;
 import org.olat.basesecurity.BaseSecurity;
 import org.olat.core.commons.persistence.DB;
@@ -53,6 +55,7 @@ import org.olat.core.id.Identity;
 import org.olat.core.id.User;
 import org.olat.core.util.StringHelper;
 import org.olat.core.util.mail.MailPackage;
+import org.olat.core.util.mail.MailerResult;
 import org.olat.group.BusinessGroupService;
 import org.olat.group.model.BusinessGroupMembershipChange;
 import org.olat.login.auth.OLATAuthManager;
@@ -96,6 +99,8 @@ public class UserImportController extends BasicController {
 	private ShibbolethModule shibbolethModule;
 	@Autowired
 	private BusinessGroupService businessGroupService;
+	@Autowired
+	private UserChangePasswordMailUtil util;
 
 	/**
 	 * @param ureq
@@ -255,8 +260,25 @@ public class UserImportController extends BasicController {
 
 						@SuppressWarnings("unchecked")
 						List<TransientIdentity> newIdents = (List<TransientIdentity>) runContext.get("newIdents");
+						Boolean sendNewPasswordsObj = (Boolean)runContext.get("sendChangePasswordMail");
+						boolean sendNewPasswords = sendNewPasswordsObj == null || sendNewPasswordsObj.booleanValue();
 						for (TransientIdentity newIdent:newIdents) {
-							doCreateAndPersistIdentity(newIdent, report);
+							Identity createdIdentity = doCreateAndPersistIdentity(newIdent, report);
+							// OLATNG-5: send change password mails
+							try {
+								if (sendNewPasswords) {
+									MailerResult result = util.sendTokenByMail(ureq1, createdIdentity, util.generateMailText(createdIdentity));
+									if (!result.isSuccessful()) {
+										report.addError(translate("sendmail.passwordchange.failed", createdIdentity.getName())
+												+ " " + translate("sendmail.mailmanager.error", new String[] { String.valueOf(result.getReturnCode()) }));
+									}
+								}
+							} catch(Exception e) {
+								String moreInfo = e.getMessage();
+								report.addError(translate("sendmail.passwordchange.failed", createdIdentity.getName())
+										+ (moreInfo == null ? "": ": " + moreInfo));
+							}
+
 							if(++count % 10 == 0) {
 								dbInstance.commitAndCloseSession();
 							}
@@ -291,7 +313,7 @@ public class UserImportController extends BasicController {
 					}
 				} catch (Exception any) {
 					logError("", any);
-					report.addError("Unexpected error, see log files or call your system administrator");
+					report.addError(translate("unexpected.error"));
 				}
 				// signal correct completion and tell if changes were made or not.
 				return report.isHasChanges() ? StepsMainRunController.DONE_MODIFIED : StepsMainRunController.DONE_UNCHANGED;

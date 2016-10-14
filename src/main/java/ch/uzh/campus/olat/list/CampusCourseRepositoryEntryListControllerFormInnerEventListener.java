@@ -1,6 +1,5 @@
 package ch.uzh.campus.olat.list;
 
-import ch.uzh.campus.CampusCourseConfiguration;
 import ch.uzh.campus.olat.CampusCourseBeanFactory;
 import ch.uzh.campus.olat.CampusCourseOlatHelper;
 import ch.uzh.campus.olat.dialog.controller.CampusCourseCreateDialogController;
@@ -22,17 +21,14 @@ import org.springframework.stereotype.Component;
 @Component
 public class CampusCourseRepositoryEntryListControllerFormInnerEventListener extends RepositoryEntryListControllerFormInnerEventListener {
 
-	private final CampusCourseConfiguration campusCourseConfiguration;
 	private final CampusCourseBeanFactory campusCourseBeanFactory;
 	private final CampusCourseOlatHelper campusCourseOlatHelper;
 
 	@Autowired
 	public CampusCourseRepositoryEntryListControllerFormInnerEventListener(
-			CampusCourseConfiguration campusCourseConfiguration,
 			CampusCourseBeanFactory campusCourseBeanFactory,
 			CampusCourseOlatHelper campusCourseOlatHelper
 	) {
-		this.campusCourseConfiguration = campusCourseConfiguration;
 		this.campusCourseBeanFactory = campusCourseBeanFactory;
 		this.campusCourseOlatHelper = campusCourseOlatHelper;
 	}
@@ -50,7 +46,7 @@ public class CampusCourseRepositoryEntryListControllerFormInnerEventListener ext
 								windowControl, userRequest);
 				controller.addControllerListener(parent);
 				campusCourseOlatHelper.showDialog("campus.course.creation.title",
-						controller, userRequest, windowControl, parent);
+						controller, userRequest.getLocale(), windowControl, parent);
 			}
 		}
 	}

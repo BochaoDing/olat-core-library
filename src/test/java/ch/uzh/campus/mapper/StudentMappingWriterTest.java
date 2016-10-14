@@ -1,3 +1,18 @@
+package ch.uzh.campus.mapper;
+
+import ch.uzh.campus.data.Student;
+import ch.uzh.campus.metric.CampusNotifier;
+import org.junit.Before;
+import org.junit.Test;
+import org.olat.core.commons.persistence.DB;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 /**
  * OLAT - Online Learning and Training<br>
  * http://www.olat.org
@@ -16,41 +31,20 @@
  * <p>
  * Copyright (c) since 2004 at Multimedia- & E-Learning Services (MELS),<br>
  * University of Zurich, Switzerland.
- * <p>
- */
-package ch.uzh.campus.mapper;
-
-import ch.uzh.campus.data.Student;
-import edu.emory.mathcs.backport.java.util.Collections;
-import org.junit.Before;
-import org.junit.Test;
-import org.olat.core.commons.persistence.DB;
-
-import java.util.ArrayList;
-import java.util.List;
-
-import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
-/**
+ *
  * Initial Date: 27.11.2012 <br>
  * 
  * @author aabouc
  */
 public class StudentMappingWriterTest {
+
     private StudentMappingWriter studentMappingWriterTestObject;
-    private StudentMapper studentMapperMock;
-    private List<Student> twoStudentsList = new ArrayList<Student>();
+    private List<Student> twoStudentsList = new ArrayList<>();
 
     @Before
     public void setup() {
-        studentMappingWriterTestObject = new StudentMappingWriter();
         // Mock for StudentMapper
-        studentMapperMock = mock(StudentMapper.class);
-        studentMappingWriterTestObject.studentMapper = studentMapperMock;
-        // Test MappingStatistic
-        studentMappingWriterTestObject.setMappingStatistic(new MappingStatistic());
+        StudentMapper studentMapperMock = mock(StudentMapper.class);
 
         // Mock for Student
         Student studentMock1 = mock(Student.class);
@@ -61,13 +55,21 @@ public class StudentMappingWriterTest {
         when(studentMapperMock.synchronizeStudentMapping(studentMock1)).thenReturn(MappingResult.NEW_MAPPING_BY_EMAIL);
         when(studentMapperMock.synchronizeStudentMapping(studentMock2)).thenReturn(MappingResult.NEW_MAPPING_BY_MATRICULATION_NR);
 
-        // Mock database
-        studentMappingWriterTestObject.setDbInstance(mock(DB.class));
+        // Mock for DBImpl
+        DB dBImplMock = mock(DB.class);
+
+        // Mock for campusNotifier
+        CampusNotifier campusNotifierMock = mock(CampusNotifier.class);
+
+        studentMappingWriterTestObject = new StudentMappingWriter(dBImplMock, campusNotifierMock, studentMapperMock);
+
+        // Test MappingStatistic
+        studentMappingWriterTestObject.setMappingStatistic(new MappingStatistic());
     }
 
     @Test
     public void write_emptyStudentsList() throws Exception {
-        studentMappingWriterTestObject.write(Collections.emptyList());
+        studentMappingWriterTestObject.write(new ArrayList<>());
         assertEquals(
                 studentMappingWriterTestObject.getMappingStatistic().toString(),
                 "MappedByEmail=0 , MappedByMatriculationNumber=0 , MappedByPersonalNumber=0 , MappedByAdditionalPersonalNumber=0 , couldNotMappedBecauseNotRegistered=0 , couldBeMappedManually=0");

@@ -45,7 +45,7 @@ public class Text {
     private Date dateOfImport;
 
     @ManyToOne
-    @JoinColumn(name = "course_id", nullable = false)
+    @JoinColumn(name = "fk_course", nullable = false)
     private Course course;
 
     public Text() {

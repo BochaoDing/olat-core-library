@@ -1,34 +1,18 @@
-/**
- * OLAT - Online Learning and Training<br>
- * http://www.olat.org
- * <p>
- * Licensed under the Apache License, Version 2.0 (the "License"); <br>
- * you may not use this file except in compliance with the License.<br>
- * You may obtain a copy of the License at
- * <p>
- * http://www.apache.org/licenses/LICENSE-2.0
- * <p>
- * Unless required by applicable law or agreed to in writing,<br>
- * software distributed under the License is distributed on an "AS IS" BASIS, <br>
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. <br>
- * See the License for the specific language governing permissions and <br>
- * limitations under the License.
- * <p>
- * Copyright (c) since 2004 at Multimedia- & E-Learning Services (MELS),<br>
- * University of Zurich, Switzerland.
- * <p>
- */
 package ch.uzh.campus.data;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.olat.basesecurity.IdentityImpl;
 import org.olat.core.commons.persistence.DB;
+import org.olat.core.id.Identity;
+import org.olat.core.id.User;
 import org.olat.test.OlatTestCase;
+import org.olat.user.UserManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 
-import javax.inject.Provider;
+import java.util.Date;
 import java.util.List;
 
 import static org.junit.Assert.*;
@@ -36,7 +20,7 @@ import static org.junit.Assert.*;
 /**
  * Initial Date: Oct 28, 2014 <br>
  * 
- * @author aabouc
+ * @author Martin Schraner
  */
 @ContextConfiguration(locations = {"classpath:ch/uzh/campus/data/_spring/mockDataContext.xml"})
 public class DelegationDaoTest extends OlatTestCase {
@@ -48,13 +32,21 @@ public class DelegationDaoTest extends OlatTestCase {
     private DelegationDao delegationDao;
 
     @Autowired
-    private Provider<MockDataGenerator> mockDataGeneratorProvider;
+    private UserManager userManager;
 
-    private List<Delegation> delegations;
+    private Identity identity1;
+    private Identity identity2;
+    private Identity identity3;
+    private Identity identity4;
+
+    private Delegation delegation1;
+    private Delegation delegation2;
+    private Delegation delegation3;
+    private Delegation delegation4;
 
     @Before
     public void setup() {
-        delegations = mockDataGeneratorProvider.get().getDelegations();
+        insertTestData();
     }
 
     @After
@@ -63,68 +55,79 @@ public class DelegationDaoTest extends OlatTestCase {
     }
 
     @Test
-    public void testGetDelegationByDelegator_notFound() {
-        assertTrue(delegationDao.getDelegationsByDelegator("delegatorX").isEmpty());
+    public void testSave() {
+        assertNull(dbInstance.getCurrentEntityManager().find(Delegation.class, new DelegatorDelegateeId(identity3.getKey(), identity4.getKey())));
+        delegationDao.save(identity3.getKey(), identity4.getKey());
+        assertNotNull(dbInstance.getCurrentEntityManager().find(Delegation.class, new DelegatorDelegateeId(identity3.getKey(), identity4.getKey())));
     }
 
     @Test
-    public void testGetDelegationsByDelegator_foundTwoDelegations() {
-        delegationDao.save(delegations.subList(0, 2));
-        dbInstance.flush();
+    public void testGetDelegationById() {
+        Delegation delegationFound = delegationDao.getDelegationById(identity2.getKey(), identity1.getKey());
+        assertNotNull(delegationFound);
+        assertEquals(delegation3, delegationFound);
 
-        List<Delegation> foundDelegations = delegationDao.getDelegationsByDelegator("delegator1");
-
-        assertEquals(2, foundDelegations.size(), 2);
-        assertEquals("delegatee11", foundDelegations.get(0).getDelegatee());
-        assertEquals("delegatee12", foundDelegations.get(1).getDelegatee());
+        // Look for not existing delegation
+        assertNull(delegationDao.getDelegationById(identity1.getKey(), identity4.getKey()));
     }
 
     @Test
-    public void testGetDelegationsByDelegatee_notFound() {
-        assertTrue(delegationDao.getDelegationsByDelegatee("delegateeX").isEmpty());
+    public void testExistsDelegation() {
+        assertTrue(delegationDao.existsDelegation(identity1.getKey(), identity2.getKey()));
+        assertFalse(delegationDao.existsDelegation(identity1.getKey(), identity4.getKey()));
     }
 
     @Test
-    public void testGetDelegationsByDelegatee_foundTwoDelegations() {
-        delegationDao.save(delegations.subList(2, 4));
-        dbInstance.flush();
-
-        List<Delegation> foundDelegations = delegationDao.getDelegationsByDelegatee("delegatee20");
-
-        assertEquals(2, foundDelegations.size());
-        assertEquals("delegator2", foundDelegations.get(0).getDelegator());
-        assertEquals("delegator3", foundDelegations.get(1).getDelegator());
+    public void testGetDelegationsByDelegator() {
+        List<Delegation> delegationsFound = delegationDao.getDelegationsByDelegator(identity1.getKey());
+        assertNotNull(delegationsFound);
+        assertEquals(2, delegationsFound.size());
+        assertTrue(delegationsFound.contains(delegation1));
+        assertTrue(delegationsFound.contains(delegation2));
     }
 
     @Test
-    public void testNotExistDelegation() {
-        assertFalse(delegationDao.existDelegation("delegatorX", "delegateeX"));
-    }
-
-    @Test
-    public void testExistDelegation() {
-        delegationDao.save(delegations.get(4));
-        dbInstance.flush();
-
-        assertTrue(delegationDao.existDelegation("delegator4", "delegatee40"));
+    public void testGetDelegationsByDelegatee() {
+        List<Delegation> delegationsFound = delegationDao.getDelegationsByDelegatee(identity1.getKey());
+        assertNotNull(delegationsFound);
+        assertEquals(2, delegationsFound.size());
+        assertTrue(delegationsFound.contains(delegation3));
+        assertTrue(delegationsFound.contains(delegation4));
     }
 
     @Test
     public void testDeleteByDelegatorAndDelegatee() {
-        delegationDao.save(delegations.subList(5, 6));
-        dbInstance.flush();
-
-        assertTrue(delegationDao.existDelegation("delegator5", "delegatee50"));
-
-        delegationDao.deleteByDelegatorAndDelegatee("delegator5", "delegatee50");
-
-        // Check before flush
-        assertFalse(delegationDao.existDelegation("delegator5", "delegatee50"));
-
+        assertNotNull(delegationDao.getDelegationById(identity1.getKey(), identity3.getKey()));
+        delegationDao.deleteDelegationById(identity1.getKey(), identity3.getKey());
         dbInstance.flush();
         dbInstance.clear();
+        assertNull(delegationDao.getDelegationById(identity1.getKey(), identity3.getKey()));
+    }
 
-        assertFalse(delegationDao.existDelegation("delegator5", "delegatee50"));
+    private void insertTestData() {
+        Date now = new Date();
+        identity1 = insertTestUser("user1");
+        identity2 = insertTestUser("user2");
+        identity3 = insertTestUser("user3");
+        identity4 = insertTestUser("user4");
+        delegation1 = new Delegation(identity1, identity2, now);
+        delegation2 = new Delegation(identity1, identity3, now);
+        delegation3 = new Delegation(identity2, identity1, now);
+        delegation4 = new Delegation(identity4, identity1, now);
+        delegationDao.save(delegation1);
+        delegationDao.save(delegation2);
+        delegationDao.save(delegation3);
+        delegationDao.save(delegation4);
+        dbInstance.flush();
+    }
+
+    private Identity insertTestUser(String userName) {
+        User user = userManager.createUser("delegationDaoTestFirstName" + userName, "delegationDaoTestLastName" + userName, userName + "@uzh.ch");
+        dbInstance.saveObject(user);
+        Identity identity = new IdentityImpl(userName, user);
+        dbInstance.saveObject(identity);
+        dbInstance.flush();
+        return identity;
     }
 
 }

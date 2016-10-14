@@ -1,7 +1,6 @@
 package ch.uzh.campus.olat.dialog.controller.selection;
 
 import ch.uzh.campus.data.Course;
-import ch.uzh.campus.olat.CampusCourseOlatHelper;
 import ch.uzh.campus.olat.dialog.controller.CreateCampusCourseCompletedEventListener;
 import ch.uzh.campus.service.CampusCourse;
 import ch.uzh.campus.service.learn.CampusCourseService;
@@ -58,13 +57,13 @@ public class ContinueCampusCourseSelectionController extends CampusCourseDialogS
 					showError("popup.course.notContinued.becauseOfRemovedDelegation.text");
 				} else {
 					try {
-						Course parentCourse = campusCourseService.getLatestCourseByResourceable(repositoryEntry
-								.getOlatResource().getResourceableId());
+						Course parentCourse = campusCourseService.getLatestCourseByOlatResource(repositoryEntry
+								.getOlatResource());
 						CampusCourse campusCourse = campusCourseService.continueCampusCourse(sapCampusCourseId,
 								parentCourse.getId(), userRequest.getIdentity());
-						listener.onSuccess(campusCourse);
+						listener.onSuccess(userRequest, campusCourse);
 					} catch (Exception e) {
-						listener.onError();
+						listener.onError(userRequest, e);
 					}
 				}
 			}
@@ -74,21 +73,20 @@ public class ContinueCampusCourseSelectionController extends CampusCourseDialogS
 	public ContinueCampusCourseSelectionController(Long sapCampusCourseId,
 												   CampusCourseService campusCourseService,
 												   RepositoryManager repositoryManager,
-												   CampusCourseOlatHelper campusCourseOlatHelper,
 												   CreateCampusCourseCompletedEventListener listener,
 												   WindowControl windowControl,
 												   UserRequest userRequest
 	) {
 		super(sapCampusCourseId, campusCourseService, repositoryManager,
-				campusCourseOlatHelper, listener, windowControl, userRequest);
+				listener, windowControl, userRequest);
 
 		List<RepositoryEntry> campusCourseEntries = new ArrayList<>();
 		List<RepositoryEntry> entries = repositoryManager.queryByOwner(userRequest.getIdentity(), "CourseModule");
 		if (!entries.isEmpty()) {
-			List<Long> resourceableIdsOfAllCreatedCoursesOfPreviousSemesters = campusCourseService.getResourceableIdsOfAllCreatedCoursesOfPreviousSemesters();
+			List<Long> olatResourceKeysOfAllCreatedNotContinuedCoursesOfPreviousSemesters = campusCourseService.getOlatResourceKeysOfAllCreatedNotContinuedCoursesOfPreviousSemesters();
 			for (RepositoryEntry entry : entries) {
-				Long resourcableId = entry.getOlatResource().getResourceableId();
-				if (resourceableIdsOfAllCreatedCoursesOfPreviousSemesters.contains(resourcableId)) {
+				Long olatResourceKey = entry.getOlatResource().getKey();
+				if (olatResourceKeysOfAllCreatedNotContinuedCoursesOfPreviousSemesters.contains(olatResourceKey)) {
                     campusCourseEntries.add(entry);
 				}
 			}

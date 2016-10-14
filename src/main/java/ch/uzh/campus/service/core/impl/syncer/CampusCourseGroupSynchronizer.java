@@ -1,5 +1,6 @@
 package ch.uzh.campus.service.core.impl.syncer;
 
+import ch.uzh.campus.CampusCourseException;
 import ch.uzh.campus.CampusCourseImportTO;
 import ch.uzh.campus.service.CampusCourse;
 import ch.uzh.campus.service.CampusCourseGroups;
@@ -49,14 +50,14 @@ public class CampusCourseGroupSynchronizer {
         this.campusCourseGroupsFinder = campusCourseGroupsFinder;
     }
 
-    public void addAllLecturesAsOwner(CampusCourse campusCourse, List<Identity> lecturers) {
-        addAsOwners(campusCourse, lecturers);
+    public void addGroupOwnerRoleToLecturers(CampusCourse campusCourse, List<Identity> lecturers) {
+        addGroupOwnerRole(campusCourse, lecturers);
     }
 
    /**
     * Adds the list of identities as owners of this resource/course.
     */
-   private void addAsOwners(CampusCourse campusCourse, List<Identity> identities) {
+   private void addGroupOwnerRole(CampusCourse campusCourse, List<Identity> identities) {
 	   for (Identity identity : identities) {
 		   if (!repositoryService.hasRole(identity, campusCourse.getRepositoryEntry(), GroupRoles.owner.name())) {
 			   repositoryService.addRole(identity, campusCourse.getRepositoryEntry(), GroupRoles.owner.name());
@@ -64,8 +65,8 @@ public class CampusCourseGroupSynchronizer {
 	   }
 	}
    
-   public void addDefaultCoOwnersAsOwner(CampusCourse campusCourse) {
-	   addAsOwners(campusCourse, campusCourseCoOwners.getDefaultCoOwners());
+   public void addGroupOwnerRoleToCoOwners(CampusCourse campusCourse) {
+	   addGroupOwnerRole(campusCourse, campusCourseCoOwners.getDefaultCoOwners());
    }
      
    public List<Identity> getCampusGroupAParticipants(CampusCourse campusCourse) {
@@ -77,8 +78,11 @@ public class CampusCourseGroupSynchronizer {
    }
 
    public SynchronizedGroupStatistic synchronizeCourseGroups(CampusCourse campusCourse,
-                                                             CampusCourseImportTO campusCourseImportData) {
+                                                             CampusCourseImportTO campusCourseImportData) throws CampusCourseException {
        CampusCourseGroups campusCourseGroups = campusCourseGroupsFinder.findCampusCourseGroups(campusCourse.getRepositoryEntry());
+       if (campusCourseGroups == null || campusCourseGroups.getCampusCourseGroupA() == null || campusCourseGroups.getCampusCourseGroupB() == null) {
+           throw new CampusCourseException("Campus course groups A and/or B do not exist or campus learning area does not exist or missing database relation between campus course groups and campus course learning area");
+       }
        return synchronizeCourseGroups(campusCourse, campusCourseImportData, campusCourseGroups);
    }
 
@@ -99,9 +103,9 @@ public class CampusCourseGroupSynchronizer {
         // Get the course owner identities
         List<Identity> courseOwners = repositoryService.getMembers(campusCourse.getRepositoryEntry(), GroupRoles.owner.name());
 
-        synchronizeGroupOwners(courseOwners.get(0), campusGroupB, campusCourseImportData.getLecturersOfCourseAndParentCourses());
-        SynchronizedSecurityGroupStatistic ownerGroupStatistic = synchronizeGroupOwners(courseOwners.get(0), campusGroupA, campusCourseImportData.getLecturersOfCourseAndParentCourses());
-        SynchronizedSecurityGroupStatistic participantGroupStatistic = synchronizeGroupParticipants(courseOwners.get(0), campusGroupA, campusCourseImportData.getParticipantsOfCourseAndParentCourses());
+        synchronizeGroupOwners(courseOwners.get(0), campusGroupB, campusCourseImportData.getLecturersOfCourse());
+        SynchronizedSecurityGroupStatistic ownerGroupStatistic = synchronizeGroupOwners(courseOwners.get(0), campusGroupA, campusCourseImportData.getLecturersOfCourse());
+        SynchronizedSecurityGroupStatistic participantGroupStatistic = synchronizeGroupParticipants(courseOwners.get(0), campusGroupA, campusCourseImportData.getParticipantsOfCourse());
         
         return new SynchronizedGroupStatistic(campusCourseImportData.getTitle(), ownerGroupStatistic, participantGroupStatistic);
     }

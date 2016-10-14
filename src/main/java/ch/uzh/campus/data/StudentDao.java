@@ -1,10 +1,16 @@
 package ch.uzh.campus.data;
 
+import ch.uzh.campus.CampusCourseConfiguration;
+import ch.uzh.campus.utils.DateUtil;
 import org.olat.core.commons.persistence.DB;
+import org.olat.core.id.Identity;
+import org.olat.core.logging.OLog;
+import org.olat.core.logging.Tracing;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import javax.persistence.EntityManager;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -18,21 +24,62 @@ import java.util.List;
 @Repository
 public class StudentDao implements CampusDao<Student> {
 
-    @Autowired
-    private DB dbInstance;
+    private static final OLog LOG = Tracing.createLoggerFor(StudentDao.class);
 
-    @Override
-    public void save(List<Student> students) {
-        for (Student student : students) {
+    private final CampusCourseConfiguration campusCourseConfiguration;
+    private final DB dbInstance;
+
+    @Autowired
+    public StudentDao(CampusCourseConfiguration campusCourseConfiguration, DB dbInstance) {
+        this.campusCourseConfiguration = campusCourseConfiguration;
+        this.dbInstance = dbInstance;
+    }
+
+    public void save(Student student) {
+        dbInstance.saveObject(student);
+    }
+
+    public void saveOrUpdate(Student student) {
+        /*
+		 * A database merge with a detached course entity would override the
+		 * values of the mapping attributes with "null".
+		 */
+        Student studentFound = getStudentById(student.getId());
+        if (studentFound == null) {
             dbInstance.saveObject(student);
+            return;
         }
+        student.mergeAllExceptMappingAttributes(studentFound);
+    }
+
+    public void save(List<Student> students) {
+        students.forEach(this::save);
     }
 
     @Override
     public void saveOrUpdate(List<Student> students) {
-        EntityManager em = dbInstance.getCurrentEntityManager();
-        for (Student student : students) {
-            em.merge(student);
+        students.forEach(this::saveOrUpdate);
+    }
+
+    public void addMapping(Long studentId, Identity identity) {
+        Student student = getStudentById(studentId);
+        if (student != null) {
+            student.setMappedIdentity(identity);
+            student.setKindOfMapping("AUTO");
+            student.setDateOfMapping(new Date());
+        } else {
+            LOG.warn("No student found with id " + studentId + " for table ck_student.");
+        }
+    }
+
+    public void removeMapping(Long studentId) {
+        Student student = getStudentById(studentId);
+        if (student != null) {
+            student.setMappedIdentity(null);
+            student.setKindOfMapping(null);
+            student.setDateOfMapping(null);
+        } else {
+            LOG.warn("No student found with id " + studentId + " for table ck_student.");
         }
     }
 
@@ -62,9 +109,10 @@ public class StudentDao implements CampusDao<Student> {
         return null;
     }
 
-    List<Long> getAllOrphanedStudents() {
+    List<Long> getAllNotManuallyMappedOrTooOldOrphanedStudents(Date date) {
         return dbInstance.getCurrentEntityManager()
-                .createNamedQuery(Student.GET_ALL_ORPHANED_STUDENTS, Long.class)
+                .createNamedQuery(Student.GET_ALL_NOT_MANUALLY_MAPPED_OR_TOO_OLD_ORPHANED_STUDENTS, Long.class)
+                .setParameter("nYearsInThePast", DateUtil.addYearsToDate(date, -campusCourseConfiguration.getMaxYearsToKeepCkData()))
                 .getResultList();
     }
 
@@ -72,6 +120,35 @@ public class StudentDao implements CampusDao<Student> {
         return dbInstance.getCurrentEntityManager()
                 .createNamedQuery(Student.GET_ALL_STUDENTS_WITH_CREATED_OR_NOT_CREATED_CREATABLE_COURSES, Student.class)
                 .getResultList();
+    }
+
+    public List<Student> getStudentsByMappedIdentityKey(Long mappedIdentityKey) {
+        return dbInstance.getCurrentEntityManager()
+                .createNamedQuery(Student.GET_STUDENTS_BY_MAPPED_IDENTITY_KEY, Student.class)
+                .setParameter("mappedIdentityKey", mappedIdentityKey)
+                .getResultList();
+    }
+
+    int getNumberOfStudentsOfSpecificCourse(Long courseId) {
+        return  (int) (long) dbInstance.getCurrentEntityManager()
+                .createNamedQuery(Student.GET_NUMBER_OF_STUDENTS_OF_SPECIFIC_COURSE)
+                .setParameter("courseId", courseId)
+                .getSingleResult();
+    }
+
+    int getNumberOfStudentsWithBookingForCourseAndParentCourse(Long courseId) {
+        return (int) (long) dbInstance.getCurrentEntityManager()
+                .createNamedQuery(Student.GET_NUMBER_OF_STUDENTS_WITH_BOOKING_FOR_COURSE_AND_PARENT_COURSE)
+                .setParameter("courseId", courseId)
+                .getSingleResult();
+    }
+
+    boolean hasMoreThan50PercentOfStudentsOfSpecificCourseBothABookingOfCourseAndParentCourse(Course course) {
+        if (course.getParentCourse() == null) {
+            return true;
+        }
+        int numberOfStudentsWithBookingForParentCourse = getNumberOfStudentsOfSpecificCourse(course.getParentCourse().getId());
+        return numberOfStudentsWithBookingForParentCourse == 0 || (((double) getNumberOfStudentsWithBookingForCourseAndParentCourse(course.getId()) / (double) numberOfStudentsWithBookingForParentCourse) >= 0.5);
     }
 
     /**

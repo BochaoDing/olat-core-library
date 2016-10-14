@@ -1,12 +1,10 @@
 package ch.uzh.campus.data;
 
-import ch.uzh.campus.utils.DateUtil;
 import org.olat.core.commons.persistence.DB;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import javax.persistence.EntityManager;
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -18,22 +16,21 @@ import java.util.List;
 @Repository
 public class OrgDao implements CampusDao<Org> {
 
-    @Autowired
-    private DB dbInstance;
+    private final DB dbInstance;
 
-    @Override
+    @Autowired
+    public OrgDao(DB dbInstance) {
+        this.dbInstance = dbInstance;
+    }
+
     public void save(List<Org> orgs) {
-        for (Org org : orgs) {
-            dbInstance.saveObject(org);
-        }
+        orgs.forEach(dbInstance::saveObject);
     }
 
     @Override
     public void saveOrUpdate(List<Org> orgs) {
         EntityManager em = dbInstance.getCurrentEntityManager();
-        for (Org org : orgs) {
-            em.merge(org);
-        }
+        orgs.forEach(em::merge);
     }
 
     Org getOrgById(Long id) {

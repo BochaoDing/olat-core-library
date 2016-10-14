@@ -1,3 +1,12 @@
+package ch.uzh.campus.data;
+
+import org.apache.commons.lang.builder.ToStringBuilder;
+import org.olat.basesecurity.IdentityImpl;
+import org.olat.core.id.Identity;
+
+import javax.persistence.*;
+import java.util.Date;
+
 /**
  * OLAT - Online Learning and Training<br>
  * http://www.olat.org
@@ -17,85 +26,79 @@
  * Copyright (c) since 2004 at Multimedia- & E-Learning Services (MELS),<br>
  * University of Zurich, Switzerland.
  * <p>
- */
-package ch.uzh.campus.data;
-
-import org.apache.commons.lang.builder.ToStringBuilder;
-
-import javax.persistence.*;
-import java.util.Date;
-
-/**
+ *
  * Initial Date: 03.05.2013 <br>
  * 
  * @author aabouc
  */
+@SuppressWarnings("JpaQlInspection")
 @Entity
 @Table(name = "ck_delegation")
+@IdClass(DelegatorDelegateeId.class)
 @NamedQueries({
-        @NamedQuery(name = Delegation.GET_BY_DELEGATOR_AND_DELEGATEE, query = "select d from Delegation d where d.delegator = :delegator and d.delegatee = :delegatee"),
-        @NamedQuery(name = Delegation.GET_BY_DELEGATOR, query = "select d from Delegation d where d.delegator = :delegator"),
-        @NamedQuery(name = Delegation.GET_BY_DELEGATEE, query = "select d from Delegation d where d.delegatee = :delegatee")
+        @NamedQuery(name = Delegation.GET_BY_DELEGATOR, query = "select d from Delegation d where d.delegator.key = :delegatorKey"),
+        @NamedQuery(name = Delegation.GET_BY_DELEGATEE, query = "select d from Delegation d where d.delegatee.key = :delegateeKey")
 })
 public class Delegation {
 
     @Id
-    @GeneratedValue
-    private Long id;
+    @SuppressWarnings("JpaAttributeTypeInspection")
+    @ManyToOne(targetEntity = IdentityImpl.class, optional = false)
+    @JoinColumn(name = "fk_delegator_identity")
+    private Identity delegator;
+
+    @Id
+    @SuppressWarnings("JpaAttributeTypeInspection")
+    @ManyToOne(targetEntity = IdentityImpl.class, optional = false)
+    @JoinColumn(name = "fk_delegatee_identity")
+    private Identity delegatee;
 
     @Temporal(TemporalType.TIMESTAMP)
-    @Column(name = "modified_date")
-    private Date modifiedDate;
+    @Column(name = "creationdate", nullable = false)
+    private Date creationDate;
 
-    @Column(name = "delegator", nullable = false)
-    private String delegator;
-
-    @Column(name = "delegatee", nullable = false)
-    private String delegatee;
-
-    static final String GET_BY_DELEGATOR_AND_DELEGATEE = "getByDelegatorAndDelegatee";
     static final String GET_BY_DELEGATOR = "getByDelegator";
     static final String GET_BY_DELEGATEE = "getByDelegatee";
 
-    public Long getId() {
-        return id;
+    public Delegation() {
     }
 
-    public void setId(Long id) {
-        this.id = id;
+    public Delegation(Identity delegator, Identity delegatee, Date creationDate) {
+        this.delegator = delegator;
+        this.delegatee = delegatee;
+        this.creationDate = creationDate;
     }
 
-    public Date getModifiedDate() {
-        return modifiedDate;
-    }
-
-    public void setModifiedDate(Date modifiedDate) {
-        this.modifiedDate = modifiedDate;
-    }
-
-    public String getDelegator() {
+    public Identity getDelegator() {
         return delegator;
     }
 
-    public void setDelegator(String delegator) {
+    public void setDelegator(Identity delegator) {
         this.delegator = delegator;
     }
 
-    public String getDelegatee() {
+    public Identity getDelegatee() {
         return delegatee;
     }
 
-    public void setDelegatee(String delegatee) {
+    public void setDelegatee(Identity delegatee) {
         this.delegatee = delegatee;
+    }
+
+    public Date getCreationDate() {
+        return creationDate;
+    }
+
+    public void setCreationDate(Date modifiedDate) {
+        this.creationDate = modifiedDate;
     }
 
     @Override
     public String toString() {
         ToStringBuilder builder = new ToStringBuilder(this);
-        builder.append("id", getId());
-        builder.append("delegator", getDelegator());
-        builder.append("delegatee", getDelegatee());
-        builder.append("modifiedDate", getModifiedDate());
+        builder.append("delegator key", getDelegator().getKey());
+        builder.append("delegatee key", getDelegatee().getKey());
+        builder.append("creationDate", getCreationDate());
 
         return builder.toString();
     }

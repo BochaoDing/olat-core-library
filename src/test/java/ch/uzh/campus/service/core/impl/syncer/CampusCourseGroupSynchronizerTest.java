@@ -1,8 +1,11 @@
 package ch.uzh.campus.service.core.impl.syncer;
 
 import ch.uzh.campus.CampusCourseConfiguration;
+import ch.uzh.campus.CampusCourseException;
 import ch.uzh.campus.CampusCourseImportTO;
 import ch.uzh.campus.CampusCourseJunitTestHelper;
+import ch.uzh.campus.data.Semester;
+import ch.uzh.campus.data.SemesterName;
 import ch.uzh.campus.service.CampusCourse;
 import ch.uzh.campus.service.CampusCourseGroups;
 import ch.uzh.campus.service.core.impl.syncer.statistic.SynchronizedGroupStatistic;
@@ -17,6 +20,7 @@ import org.olat.group.BusinessGroupService;
 import org.olat.group.area.BGAreaManager;
 import org.olat.repository.RepositoryEntry;
 import org.olat.repository.RepositoryService;
+import org.olat.resource.OLATResource;
 import org.olat.test.JunitTestHelper;
 import org.olat.test.OlatTestCase;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,8 +36,6 @@ import static org.mockito.Mockito.when;
 
 @ContextConfiguration(locations = {"classpath:ch/uzh/campus/data/_spring/mockDataContext.xml"})
 public class CampusCourseGroupSynchronizerTest extends OlatTestCase {
-
-    private static final Long TEST_RESOURCEABLE_ID = 1234L;
 
     @Autowired
     CampusCourseGroupSynchronizer courseGroupSynchronizerTestObject;
@@ -65,6 +67,7 @@ public class CampusCourseGroupSynchronizerTest extends OlatTestCase {
     private Identity firstCoOwnerIdentity;
     private Identity secondCoOwnerIdentity;
     private CampusCourse campusCourseMock;
+    private OLATResource olatResourceMock;
     private RepositoryEntry sourceRepositoryEntry;
 
     @Before
@@ -97,6 +100,8 @@ public class CampusCourseGroupSynchronizerTest extends OlatTestCase {
         
         campusCourseMock = mock(CampusCourse.class);       
         when(campusCourseMock.getRepositoryEntry()).thenReturn(sourceRepositoryEntry);
+
+        olatResourceMock = mock(OLATResource.class);
     }
 
     @After
@@ -107,7 +112,7 @@ public class CampusCourseGroupSynchronizerTest extends OlatTestCase {
     @Test
     public void addAllLecturesAsOwner() {
         // Exercise
-        courseGroupSynchronizerTestObject.addAllLecturesAsOwner(campusCourseMock, getTestLecturersWithDuplicateEntry());
+        courseGroupSynchronizerTestObject.addGroupOwnerRoleToLecturers(campusCourseMock, getTestLecturersWithDuplicateEntry());
         List<Identity> ownerIdentities =  repositoryService.getMembers(sourceRepositoryEntry, GroupRoles.owner.name());        
         assertEquals("Wrong number of owners", 2, ownerIdentities.size());
        
@@ -118,7 +123,7 @@ public class CampusCourseGroupSynchronizerTest extends OlatTestCase {
     @Test
     public void addDefaultCoOwnersAsOwner() {
         // Exercise
-        courseGroupSynchronizerTestObject.addDefaultCoOwnersAsOwner(campusCourseMock);
+        courseGroupSynchronizerTestObject.addGroupOwnerRoleToCoOwners(campusCourseMock);
         
         List<Identity> ownerIdentities =  repositoryService.getMembers(sourceRepositoryEntry, GroupRoles.owner.name());        
         assertEquals("Wrong number of owners", 3, ownerIdentities.size()); //the third owner is the one that created the course
@@ -132,9 +137,10 @@ public class CampusCourseGroupSynchronizerTest extends OlatTestCase {
      * beginning.
      */
     @Test
-    public void synchronizeCourseGroups_AddLectures_CheckAddedStatisticAndMembers() {
-        CampusCourseImportTO campusCourseImportData = new CampusCourseImportTO("Group_Test", "HS-2012", getTestLecturersWithDuplicateEntry(), Collections.emptyList(), Collections.emptyList(),
-                "Group_Test", TEST_RESOURCEABLE_ID, null, null, null);
+    public void synchronizeCourseGroups_AddLectures_CheckAddedStatisticAndMembers() throws CampusCourseException {
+        Semester semester = new Semester(SemesterName.HERBSTSEMESTER, 2016, false);
+        CampusCourseImportTO campusCourseImportData = new CampusCourseImportTO("Group_Test", semester, getTestLecturersWithDuplicateEntry(), Collections.emptyList(), Collections.emptyList(),
+                "Group_Test", olatResourceMock, null, null, null);
 
         SynchronizedGroupStatistic statistic = courseGroupSynchronizerTestObject.synchronizeCourseGroups(campusCourseMock, campusCourseImportData);
         
@@ -160,9 +166,10 @@ public class CampusCourseGroupSynchronizerTest extends OlatTestCase {
      * beginning.
      */
     @Test
-    public void synchronizeCourseGroups_AddParticipants_CheckAddedStatisticAndMembers() {
-        CampusCourseImportTO campusCourseImportData = new CampusCourseImportTO("Group_Test", "HS-2012", Collections.emptyList(), Collections.emptyList(),
-                getTestParticipantsWithDuplicateEntry(), "Group_Test", TEST_RESOURCEABLE_ID, null, null, null);
+    public void synchronizeCourseGroups_AddParticipants_CheckAddedStatisticAndMembers() throws CampusCourseException {
+        Semester semester = new Semester(SemesterName.HERBSTSEMESTER, 2016, false);
+        CampusCourseImportTO campusCourseImportData = new CampusCourseImportTO("Group_Test", semester, Collections.emptyList(), Collections.emptyList(),
+                getTestParticipantsWithDuplicateEntry(), "Group_Test", olatResourceMock, null, null, null);
 
         // no owner-identities, two participants (testIdentity, secondTestIdentity)
         SynchronizedGroupStatistic statistic = courseGroupSynchronizerTestObject.synchronizeCourseGroups(campusCourseMock, campusCourseImportData);
@@ -207,9 +214,10 @@ public class CampusCourseGroupSynchronizerTest extends OlatTestCase {
      * The owner group is not synchronized, that is the owners are never removed.
      */
     @Test
-    public void synchronizeCourseGroups_AddRemoveLectures_CheckRemovedStatisticAndMembers() {
-        CampusCourseImportTO campusCourseImportData = new CampusCourseImportTO("Group_Test", "HS-2012", getTestLecturersWithDuplicateEntry(), Collections.emptyList(), Collections.emptyList(),
-                "Group_Test", TEST_RESOURCEABLE_ID, null, null, null);
+    public void synchronizeCourseGroups_AddRemoveLectures_CheckRemovedStatisticAndMembers() throws CampusCourseException {
+        Semester semester = new Semester(SemesterName.HERBSTSEMESTER, 2016, false);
+        CampusCourseImportTO campusCourseImportData = new CampusCourseImportTO("Group_Test", semester, getTestLecturersWithDuplicateEntry(), Collections.emptyList(), Collections.emptyList(),
+                "Group_Test", olatResourceMock, null, null, null);
 
         // 1. Setup Campus-Group with owners (ownerIdentity, secondOwnerIdentity)        
         courseGroupSynchronizerTestObject.synchronizeCourseGroups(campusCourseMock, campusCourseImportData);
@@ -220,8 +228,8 @@ public class CampusCourseGroupSynchronizerTest extends OlatTestCase {
         List<Identity> newOwnerIdentites = new ArrayList<>();
         newOwnerIdentites.add(ownerIdentity);
         newOwnerIdentites.add(thirdTestIdentity);
-        CampusCourseImportTO campusCourseImportDataToSyncronize = new CampusCourseImportTO("Group_Test", "HS-2012", newOwnerIdentites, Collections.emptyList(), Collections.emptyList(),
-                "Group_Test", TEST_RESOURCEABLE_ID, null, null, null);
+        CampusCourseImportTO campusCourseImportDataToSyncronize = new CampusCourseImportTO("Group_Test", semester, newOwnerIdentites, Collections.emptyList(), Collections.emptyList(),
+                "Group_Test", olatResourceMock, null, null, null);
         SynchronizedGroupStatistic statistic = courseGroupSynchronizerTestObject.synchronizeCourseGroups(campusCourseMock, campusCourseImportDataToSyncronize);
 
         // 1. assert statistic
@@ -245,9 +253,10 @@ public class CampusCourseGroupSynchronizerTest extends OlatTestCase {
      * 2. Synchronize Campus-Group, remove one participant (secondTestIdentity), add a new participant (thirdTestIdentity)
      */
     @Test
-    public void synchronizeCourseGroups_AddRemoveParticipants_CheckRemovedStatisticAndMembers() {
-        CampusCourseImportTO campusCourseImportData = new CampusCourseImportTO("Group_Test", "HS-2012", Collections.emptyList(), Collections.emptyList(),
-                getTestParticipantsWithDuplicateEntry(), "Group_Test", TEST_RESOURCEABLE_ID, null, null, null);
+    public void synchronizeCourseGroups_AddRemoveParticipants_CheckRemovedStatisticAndMembers() throws CampusCourseException {
+        Semester semester = new Semester(SemesterName.HERBSTSEMESTER, 2016, false);
+        CampusCourseImportTO campusCourseImportData = new CampusCourseImportTO("Group_Test", semester, Collections.emptyList(), Collections.emptyList(),
+                getTestParticipantsWithDuplicateEntry(), "Group_Test", olatResourceMock, null, null, null);
 
         // 1. Setup Campus-Group with participants (testIdentity, secondTestIdentity)
         courseGroupSynchronizerTestObject.synchronizeCourseGroups(campusCourseMock, campusCourseImportData);
@@ -259,8 +268,8 @@ public class CampusCourseGroupSynchronizerTest extends OlatTestCase {
         List<Identity> newParticipantsIdentites = new ArrayList<>();
         newParticipantsIdentites.add(firstTestIdentity);
         newParticipantsIdentites.add(thirdTestIdentity);
-        CampusCourseImportTO campusCourseImportDataToSyncronize = new CampusCourseImportTO("Group_Test", "HS-2012", Collections.emptyList(), Collections.emptyList(), newParticipantsIdentites,
-                "Group_Test", TEST_RESOURCEABLE_ID, null, null, null);
+        CampusCourseImportTO campusCourseImportDataToSyncronize = new CampusCourseImportTO("Group_Test", semester, Collections.emptyList(), Collections.emptyList(), newParticipantsIdentites,
+                "Group_Test", olatResourceMock, null, null, null);
         SynchronizedGroupStatistic statistic = courseGroupSynchronizerTestObject.synchronizeCourseGroups(campusCourseMock, campusCourseImportDataToSyncronize);
 
         // 1. assert statistic

@@ -1,11 +1,17 @@
 package ch.uzh.campus.data;
 
 
+import ch.uzh.campus.CampusCourseConfiguration;
+import ch.uzh.campus.utils.DateUtil;
 import org.olat.core.commons.persistence.DB;
+import org.olat.core.id.Identity;
+import org.olat.core.logging.OLog;
+import org.olat.core.logging.Tracing;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import javax.persistence.EntityManager;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -17,21 +23,63 @@ import java.util.List;
 @Repository
 public class LecturerDao implements CampusDao<Lecturer> {
 
-    @Autowired
-    private DB dbInstance;
+    private static final OLog LOG = Tracing.createLoggerFor(LecturerDao.class);
 
-    @Override
-    public void save(List<Lecturer> lecturers) {
-        for (Lecturer lecturer : lecturers) {
+    private final CampusCourseConfiguration campusCourseConfiguration;
+    private final DB dbInstance;
+
+    @Autowired
+    public LecturerDao(CampusCourseConfiguration campusCourseConfiguration, DB dbInstance) {
+        this.campusCourseConfiguration = campusCourseConfiguration;
+        this.dbInstance = dbInstance;
+    }
+
+    public void save(Lecturer lecturer) {
+        dbInstance.saveObject(lecturer);
+    }
+
+    public void saveOrUpdate(Lecturer lecturer) {
+        /*
+		 * A database merge with a detached course entity would override the
+		 * values of the mapping attributes with "null".
+		 */
+        Lecturer lecturerFound = getLecturerById(lecturer.getPersonalNr());
+        if (lecturerFound == null) {
             dbInstance.saveObject(lecturer);
+            return;
         }
+        lecturer.mergeAllExceptMappingAttributes(lecturerFound);
+    }
+
+    public void save(List<Lecturer> lecturers) {
+        lecturers.forEach(this::save);
     }
 
     @Override
     public void saveOrUpdate(List<Lecturer> lecturers) {
-        EntityManager em = dbInstance.getCurrentEntityManager();
-        for (Lecturer lecturer : lecturers) {
-            em.merge(lecturer);
+        lecturers.forEach(this::saveOrUpdate);
+    }
+
+    public void addMapping(Long lecturerId, Identity identity) {
+        Lecturer lecturer = getLecturerById(lecturerId);
+        if (lecturer != null) {
+            lecturer.setMappedIdentity(identity);
+            lecturer.setKindOfMapping("AUTO");
+            lecturer.setDateOfMapping(new Date());
+        } else {
+            LOG.warn("No lecturer found with id " + lecturerId + " for table ck_lecturer.");
+        }
+
+    }
+
+    public void removeMapping(Long lecturerId) {
+        Lecturer lecturer = getLecturerById(lecturerId);
+        if (lecturer != null) {
+            lecturer.setMappedIdentity(null);
+            lecturer.setKindOfMapping(null);
+            lecturer.setDateOfMapping(null);
+        } else {
+            LOG.warn("No lecturer found with id " + lecturerId + " for table ck_lecturer.");
         }
     }
 
@@ -56,9 +104,17 @@ public class LecturerDao implements CampusDao<Lecturer> {
                 .getResultList();
     }
 
-    List<Long> getAllOrphanedLecturers() {
+    List<Long> getAllNotManuallyMappedOrTooOldOrphanedLecturers(Date date) {
         return dbInstance.getCurrentEntityManager()
-                .createNamedQuery(Lecturer.GET_ALL_ORPHANED_LECTURERS, Long.class)
+                .createNamedQuery(Lecturer.GET_ALL_NOT_MANUALLY_MAPPED_OR_TOO_OLD_ORPHANED_LECTURERS, Long.class)
+                .setParameter("nYearsInThePast", DateUtil.addYearsToDate(date, -campusCourseConfiguration.getMaxYearsToKeepCkData()))
+                .getResultList();
+    }
+
+    public List<Lecturer> getLecturersByMappedIdentityKey(Long mappedIdentityKey) {
+        return dbInstance.getCurrentEntityManager()
+                .createNamedQuery(Lecturer.GET_LECTURERS_BY_MAPPED_IDENTITY_KEY, Lecturer.class)
+                .setParameter("mappedIdentityKey", mappedIdentityKey)
                 .getResultList();
     }
 

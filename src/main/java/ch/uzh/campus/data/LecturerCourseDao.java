@@ -17,15 +17,18 @@ import java.util.List;
  * @author Martin Schraner
  */
 @Repository
-public class LecturerCourseDao implements CampusDao<LecturerIdCourseIdDateOfImport> {
+public class LecturerCourseDao {
 
     private static final OLog LOG = Tracing.createLoggerFor(LecturerCourseDao.class);
 
-    @Autowired
-    private CampusCourseConfiguration campusCourseConfiguration;
+    private final CampusCourseConfiguration campusCourseConfiguration;
+    private final DB dbInstance;
 
     @Autowired
-    private DB dbInstance;
+    public LecturerCourseDao(CampusCourseConfiguration campusCourseConfiguration, DB dbInstance) {
+        this.campusCourseConfiguration = campusCourseConfiguration;
+        this.dbInstance = dbInstance;
+    }
 
     public void save(LecturerCourse lecturerCourse) {
         dbInstance.saveObject(lecturerCourse);
@@ -36,20 +39,21 @@ public class LecturerCourseDao implements CampusDao<LecturerIdCourseIdDateOfImpo
     public void save(LecturerIdCourseIdDateOfImport lecturerIdCourseIdDateOfImport) {
         EntityManager em = dbInstance.getCurrentEntityManager();
         Lecturer lecturer = em.find(Lecturer.class, lecturerIdCourseIdDateOfImport.getLecturerId());
-        Course course = em.find(Course.class, lecturerIdCourseIdDateOfImport.getCourseId());
-        if (lecturer == null || course == null) {
-            logLecturerCourseNotFoundAndThrowException(lecturerIdCourseIdDateOfImport, lecturer, course);
+        if (lecturer == null) {
+            logLecturerNotFoundAndThrowException(lecturerIdCourseIdDateOfImport);
             return;
         }
+		Course course = em.find(Course.class, lecturerIdCourseIdDateOfImport.getCourseId());
+		if (course == null) {
+			logCourseNotFoundAndThrowException(lecturerIdCourseIdDateOfImport);
+			return;
+		}
         LecturerCourse lecturerCourse = new LecturerCourse(lecturer, course, lecturerIdCourseIdDateOfImport.getDateOfImport());
         save(lecturerCourse);
     }
 
-    @Override
     public void save(List<LecturerIdCourseIdDateOfImport> lecturerIdCourseIdDateOfImports) {
-        for (LecturerIdCourseIdDateOfImport lecturerIdCourseIdDateOfImport : lecturerIdCourseIdDateOfImports) {
-            save(lecturerIdCourseIdDateOfImport);
-        }
+        lecturerIdCourseIdDateOfImports.forEach(this::save);
     }
 
     public void saveOrUpdate(LecturerCourse lecturerCourse) {
@@ -58,38 +62,49 @@ public class LecturerCourseDao implements CampusDao<LecturerIdCourseIdDateOfImpo
         lecturerCourse.getCourse().getLecturerCourses().add(lecturerCourse);
     }
 
-    public void saveOrUpdate(LecturerIdCourseIdDateOfImport lecturerIdCourseIdDateOfImport) {
-        EntityManager em = dbInstance.getCurrentEntityManager();
-        Lecturer lecturer = em.find(Lecturer.class, lecturerIdCourseIdDateOfImport.getLecturerId());
-        Course course = em.find(Course.class, lecturerIdCourseIdDateOfImport.getCourseId());
-        if (lecturer == null || course == null) {
-            logLecturerCourseNotFoundAndThrowException(lecturerIdCourseIdDateOfImport, lecturer, course);
-            return;
-        }
-        LecturerCourse lecturerCourse = new LecturerCourse(lecturer, course, lecturerIdCourseIdDateOfImport.getDateOfImport());
-        saveOrUpdate(lecturerCourse);
+    /**
+     * For efficient insert or update without loading lecturer and course.
+     * NB: Inserted or updated lecturerCourse must not be used before reloading it from the database!
+     */
+    void saveOrUpdateWithoutBidirectionalUpdate(LecturerCourse lecturerCourse) {
+        dbInstance.getCurrentEntityManager().merge(lecturerCourse);
     }
 
-    @Override
-    public void saveOrUpdate(List<LecturerIdCourseIdDateOfImport> lecturerIdCourseIdDateOfImports) {
-        for (LecturerIdCourseIdDateOfImport lecturerIdCourseIdDateOfImport : lecturerIdCourseIdDateOfImports) {
-            saveOrUpdate(lecturerIdCourseIdDateOfImport);
+    /**
+     * For efficient insert or update without loading lecturer and course.
+     * NB: Inserted or updated lecturerCourse must not be used before reloading it from the database!
+     */
+    public void saveOrUpdateWithoutBidirectionalUpdate(LecturerIdCourseIdDateOfImport lecturerIdCourseIdDateOfImport) {
+		EntityManager em = dbInstance.getCurrentEntityManager();
+        try {
+			Lecturer lecturer = em.getReference(Lecturer.class, lecturerIdCourseIdDateOfImport.getLecturerId());
+			try {
+				Course course = em.getReference(Course.class, lecturerIdCourseIdDateOfImport.getCourseId());
+				LecturerCourse lecturerCourse = new LecturerCourse(lecturer, course, lecturerIdCourseIdDateOfImport.getDateOfImport());
+				saveOrUpdateWithoutBidirectionalUpdate(lecturerCourse);
+			} catch (EntityNotFoundException e) {
+				logCourseNotFoundAndThrowException(lecturerIdCourseIdDateOfImport);
+			}
+        } catch (EntityNotFoundException e) {
+            logLecturerNotFoundAndThrowException(lecturerIdCourseIdDateOfImport);
         }
     }
 
-    private void logLecturerCourseNotFoundAndThrowException(LecturerIdCourseIdDateOfImport lecturerIdCourseIdDateOfImport, Lecturer lecturer, Course course) {
-        String warningMessage = "";
-        if (lecturer == null) {
-            warningMessage = "No lecturer found with id " + lecturerIdCourseIdDateOfImport.getLecturerId();
-        }
-        if (course == null) {
-            warningMessage = "No course found with id " + lecturerIdCourseIdDateOfImport.getCourseId();
-        }
+    private void logLecturerNotFoundAndThrowException(LecturerIdCourseIdDateOfImport lecturerIdCourseIdDateOfImport) {
+        String warningMessage = "No lecturer found with id " + lecturerIdCourseIdDateOfImport.getLecturerId();
         warningMessage = warningMessage + ". Skipping entry " + lecturerIdCourseIdDateOfImport.getLecturerId() + ", " + lecturerIdCourseIdDateOfImport.getCourseId() + " for table ck_lecturer_course.";
         // Here we only log on the debug level to avoid duplicated warnings (LOG.warn is already called by CampusWriter)
         LOG.debug(warningMessage);
         throw new EntityNotFoundException(warningMessage);
     }
+
+	private void logCourseNotFoundAndThrowException(LecturerIdCourseIdDateOfImport lecturerIdCourseIdDateOfImport) {
+		String warningMessage = "No course found with id " + lecturerIdCourseIdDateOfImport.getCourseId();
+		warningMessage = warningMessage + ". Skipping entry " + lecturerIdCourseIdDateOfImport.getLecturerId() + ", " + lecturerIdCourseIdDateOfImport.getCourseId() + " for table ck_lecturer_course.";
+		// Here we only log on the debug level to avoid duplicated warnings (LOG.warn is already called by CampusWriter)
+		LOG.debug(warningMessage);
+		throw new EntityNotFoundException(warningMessage);
+	}
 
     LecturerCourse getLecturerCourseById(Long lecturerId, Long courseId) {
         return dbInstance.getCurrentEntityManager().find(LecturerCourse.class, new LecturerCourseId(lecturerId, courseId));

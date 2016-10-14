@@ -1,12 +1,16 @@
 /*******************************************************************/
 /* Style fixes for
-/* SOREL https://ns.olat.uzh.ch/url/RepositoryEntry/1227096085
-/* SOREL français https://ns.olat.uzh.ch/url/RepositoryEntry/8053325825
+/* SOREL https://lms.uzh.ch/url/RepositoryEntry/1227096085
+/* SOREL français https://lms.uzh.ch/url/RepositoryEntry/8053325825
+/* Avoiding Plagiarism (ISW) https://lms.uzh.ch/url/RepositoryEntry/15891857410/CourseNode/91852192046531
+/* Vet: Histo. Präparate https://lms.uzh.ch/url/RepositoryEntry/214401027/CourseNode/72310536722495
 /*******************************************************************/
 
 /* remove global print/search-buttons placed in custom content area */
 body[data-repositoryentry="1227096085"] .o_module_cp_wrapper .o_tools,
-body[data-repositoryentry="8053325825"] .o_module_cp_wrapper .o_tools  {
+body[data-repositoryentry="8053325825"] .o_module_cp_wrapper .o_tools,
+body[data-repositoryentry="15891857410"] .o_module_cp_wrapper .o_tools,
+body[data-repositoryentry="214401027"] .o_module_cp_wrapper .o_tools {
     display: none;
 }
 

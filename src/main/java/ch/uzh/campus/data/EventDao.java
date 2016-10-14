@@ -46,9 +46,7 @@ public class EventDao {
     }
 
     void addEventsToCourse(List<EventCourseId> eventCourseIds) {
-        for (EventCourseId eventCourseId : eventCourseIds) {
-            addEventToCourse(eventCourseId);
-        }
+        eventCourseIds.forEach(this::addEventToCourse);
     }
 
     List<Event> getEventsByCourseId(Long id) {

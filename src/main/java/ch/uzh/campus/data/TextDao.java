@@ -46,9 +46,7 @@ public class TextDao {
     }
 
     void addTextsToCourse(List<TextCourseId> textCourseIds) {
-        for (TextCourseId textCourseId : textCourseIds) {
-            addTextToCourse(textCourseId);
-        }
+        textCourseIds.forEach(this::addTextToCourse);
     }
 
     List<Text> getTextsByCourseId(Long courseId) {

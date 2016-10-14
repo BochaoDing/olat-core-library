@@ -2,11 +2,11 @@ package ch.uzh.campus.service.core;
 
 import ch.uzh.campus.CampusCourseImportTO;
 import ch.uzh.campus.data.Course;
-import ch.uzh.campus.data.SapOlatUser.SapUserType;
+import ch.uzh.campus.data.SapUserType;
 import ch.uzh.campus.service.CampusCourse;
 import org.olat.core.id.Identity;
-import org.olat.core.id.OLATResourceable;
 import org.olat.repository.RepositoryEntry;
+import org.olat.resource.OLATResource;
 
 import java.util.List;
 import java.util.Set;
@@ -22,30 +22,30 @@ public interface CampusCourseCoreService {
 
 	CampusCourse createCampusCourseFromStandardTemplate(Long sapCampusCourseId, Identity creator) throws Exception;
 
-    CampusCourse createCampusCourseFromTemplate(Long courseResourceableId, Long sapCampusCourseId, Identity creator) throws Exception;
+    CampusCourse createCampusCourseFromTemplate(OLATResource templateOlatResource, Long sapCampusCourseId, Identity creator) throws Exception;
 
     CampusCourse continueCampusCourse(Long childSapCampusCourseId, Long parentSapCampusCourseId, Identity creator);
 
     CampusCourse loadCampusCourse(CampusCourseImportTO campusCourseImportTO);
 
-    CampusCourse loadCampusCourseByResourceable(Long resourceableId);
+    CampusCourse loadCampusCourseByOlatResource(OLATResource olatResource);
 
-    Course getLatestCourseByResourceable(Long resourceableId) throws Exception;
+    Course getLatestCourseByOlatResource(OLATResource olatResource) throws Exception;
 
-    void resetResourceableIdAndParentCourseReference(OLATResourceable res);
+    void resetOlatResourceAndParentCourseReference(OLATResource olatResource);
 
     void deleteCampusCourseGroupsIfExist(RepositoryEntry repositoryEntry);
 
     RepositoryEntry getRepositoryEntryFor(Long sapCourseId);
 
-    /**
+    /*
      * Get a list of Campus-courses which have resourceableId=null. resourceableId=null means no OLAT course is created in the OLAT course-repository yet.
      */
     Set<Course> getCampusCoursesWithoutResourceableId(Identity identity, SapUserType userType);
 
 	Set<Course> getCampusCoursesWithoutResourceableId(Identity identity, SapUserType userType, String searchString);
 
-    /**
+    /*
      * Get list of Campus courses which already are created in the OLAT course-repository.
      */
     Set<Course> getCampusCoursesWithResourceableId(Identity identity, SapUserType userType);
@@ -54,11 +54,11 @@ public interface CampusCourseCoreService {
 
     void createDelegation(Identity delegator, Identity delegatee);
 
-    boolean existDelegation(Identity delegator, Identity delegatee);
+    boolean existsDelegation(Identity delegator, Identity delegatee);
 
-    boolean existResourceableId(Long resourceableId);
+    boolean existCampusCoursesForOlatResource(OLATResource olatResource);
 
-    List<Long> getResourceableIdsOfAllCreatedCoursesOfPreviousSemesters();
+    List<Long> getOlatResourceKeysOfAllCreatedNotContinuedCoursesOfPreviousSemesters();
 
     List getDelegatees(Identity delegator);
 

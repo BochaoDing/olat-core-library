@@ -1,12 +1,15 @@
 package ch.uzh.campus.service.core.impl.creator;
 
 import ch.uzh.campus.CampusCourseImportTO;
+import ch.uzh.campus.data.Semester;
+import ch.uzh.campus.data.SemesterName;
 import org.junit.Before;
 import org.junit.Test;
 import org.olat.basesecurity.IdentityImpl;
 import org.olat.core.gui.translator.Translator;
 import org.olat.core.id.Identity;
 import org.olat.core.id.UserConstants;
+import org.olat.resource.OLATResource;
 import org.olat.user.UserImpl;
 
 import java.util.ArrayList;
@@ -24,7 +27,6 @@ import static org.mockito.Mockito.*;
 public class CampusCourseDescriptionBuilderTest {
 
     private final static String LECTURE_SOLL = "first_lectureA last_lectureA, first_lectureB last_lectureB";
-    private final static Long TEST_RESOURCEABLE_ID = 1234L;
 
     private CampusCourseDescriptionBuilder campusCourseDescriptionBuilder;
     private List<Identity> lecturers;
@@ -59,19 +61,22 @@ public class CampusCourseDescriptionBuilderTest {
     @Test
     public void buildDescriptionFrom() {
         String title = "Example title";
-        String semester = "Herbstsemester 2012";
         String eventDescription = "Detail_description";
 
+        Semester semester = new Semester(SemesterName.HERBSTSEMESTER, 2012, false);
+
         String[] argsMock = new String[3];
-        argsMock[0] = semester;
+        argsMock[0] = semester.getSemesterNameYear();
         argsMock[1] = LECTURE_SOLL;
         argsMock[2] = eventDescription;
+
+        OLATResource olatResourceMock = mock(OLATResource.class);
 
         List<Identity> participants = new ArrayList<>();
         CampusCourseImportTO campusCourseData = new CampusCourseImportTO(
 				title, semester, lecturers, participants,
 				Collections.emptyList(), eventDescription,
-				TEST_RESOURCEABLE_ID, null, null, null);
+				olatResourceMock, null, null, null);
         Translator translatorMock = mock(Translator.class);
         campusCourseDescriptionBuilder.translator = translatorMock;
         // Description example :

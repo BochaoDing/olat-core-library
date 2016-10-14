@@ -1,5 +1,6 @@
 package ch.uzh.campus.data;
 
+import ch.uzh.campus.CampusCourseException;
 import org.junit.After;
 import org.junit.Test;
 import org.olat.core.commons.persistence.DB;
@@ -38,14 +39,14 @@ public class OrgDaoTest extends OlatTestCase {
     }
 
     @Test
-    public void getOrgById() {
+    public void getOrgById() throws CampusCourseException {
         insertTestData();
         assertNull(orgDao.getOrgById(999L));
         assertNotNull(orgDao.getOrgById(9100L));
     }
 
     @Test
-    public void testGetAllOrphanedOrgs() {
+    public void testGetAllOrphanedOrgs() throws CampusCourseException {
         int numberOfOrgsFoundBeforeInsertingTestData = orgDao.getAllOrphanedOrgs().size();
         insertTestData();
         List<Long> idsFound = orgDao.getAllOrphanedOrgs();
@@ -54,7 +55,7 @@ public class OrgDaoTest extends OlatTestCase {
     }
 
     @Test
-    public void testDeleteByOrgIds() {
+    public void testDeleteByOrgIds() throws CampusCourseException {
         insertTestData();
         Org org = orgDao.getOrgById(9100L);
         assertNotNull(org);
@@ -88,15 +89,15 @@ public class OrgDaoTest extends OlatTestCase {
         assertEquals(8, course2.getOrgs().size());
     }
     
-    private void insertTestData() {
+    private void insertTestData() throws CampusCourseException {
         // Insert some orgs
         List<Org> orgs = mockDataGeneratorProvider.get().getOrgs();
         orgDao.save(orgs);
         dbInstance.flush();
 
         // Insert some courses
-        List<CourseOrgId> courseOrgIds = mockDataGeneratorProvider.get().getCourseOrgIds();
-        courseDao.save(courseOrgIds);
+        List<CourseSemesterOrgId> courseSemesterOrgIds = mockDataGeneratorProvider.get().getCourseSemesterOrgIds();
+        courseDao.save(courseSemesterOrgIds);
         dbInstance.flush();
     }
 }

@@ -1,9 +1,11 @@
 package ch.uzh.campus.data;
 
-import ch.uzh.campus.CampusCourseConfiguration;
+import ch.uzh.campus.CampusCourseException;
 import org.olat.core.commons.persistence.DB;
 import org.olat.core.logging.OLog;
 import org.olat.core.logging.Tracing;
+import org.olat.resource.OLATResource;
+import org.olat.resource.OLATResourceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
@@ -21,17 +23,17 @@ import java.util.stream.Collectors;
  * @author Martin Schraner
  */
 @Repository
-public class CourseDao implements CampusDao<CourseOrgId> {
+public class CourseDao implements CampusDao<CourseSemesterOrgId> {
 
     private static final OLog LOG = Tracing.createLoggerFor(CourseDao.class);
 
 	private final DB dbInstance;
-    private final CampusCourseConfiguration campusCourseConfiguration;
+    private final SemesterDao semesterDao;
 
     @Autowired
-    public CourseDao(DB dbInstance, CampusCourseConfiguration campusCourseConfiguration) {
+    public CourseDao(DB dbInstance, SemesterDao semesterDao) {
         this.dbInstance = dbInstance;
-        this.campusCourseConfiguration = campusCourseConfiguration;
+        this.semesterDao = semesterDao;
     }
 
     public void save(Course course) {
@@ -42,55 +44,72 @@ public class CourseDao implements CampusDao<CourseOrgId> {
         dbInstance.getCurrentEntityManager().merge(course);
     }
 
-    public void save(CourseOrgId courseOrgId) {
+    public void save(CourseSemesterOrgId courseSemesterOrgId) throws CampusCourseException {
         Course course = new Course();
-		courseOrgId.merge(course);
+		courseSemesterOrgId.merge(course);
+        Semester semester = findOrCreateSemester(courseSemesterOrgId);
+        course.setSemester(semester);
         dbInstance.saveObject(course);
-        updateOrgsFromCourseOrgId(course, courseOrgId);
+        updateOrgsFromCourseOrgId(course, courseSemesterOrgId);
     }
 
-    public void saveOrUpdate(CourseOrgId courseOrgId) {
+    public void saveOrUpdate(CourseSemesterOrgId courseSemesterOrgId) throws CampusCourseException {
 		/*
 		 * A database merge with a detached course entity would override the
 		 * "olat_id" attribute values with "null".
 		 */
-		Course course = getCourseById(courseOrgId.getId());
+		Course course = getCourseById(courseSemesterOrgId.getId());
 		if (course == null) {
-			save(courseOrgId);
+			save(courseSemesterOrgId);
             return;
 		}
-		courseOrgId.merge(course);
-		updateOrgsFromCourseOrgId(course, courseOrgId);
+		courseSemesterOrgId.merge(course);
+		updateOrgsFromCourseOrgId(course, courseSemesterOrgId);
     }
 
-    @Override
-    public void save(List<CourseOrgId> courseOrgIds) {
-        for (CourseOrgId courseOrgId : courseOrgIds) {
-            save(courseOrgId);
+    public void save(List<CourseSemesterOrgId> courseSemesterOrgIds) throws CampusCourseException {
+        for (CourseSemesterOrgId courseSemesterOrgId : courseSemesterOrgIds) {
+            save(courseSemesterOrgId);
         }
     }
 
     @Override
-    public void saveOrUpdate(List<CourseOrgId> courseOrgIds) {
-        for (CourseOrgId courseOrgId : courseOrgIds) {
-            saveOrUpdate(courseOrgId);
+    public void saveOrUpdate(List<CourseSemesterOrgId> courseSemesterOrgIds) throws CampusCourseException {
+        for (CourseSemesterOrgId courseSemesterOrgId : courseSemesterOrgIds) {
+            saveOrUpdate(courseSemesterOrgId);
         }
     }
 
-    private void updateOrgsFromCourseOrgId(Course course, CourseOrgId courseOrgId) {
+    private Semester findOrCreateSemester(CourseSemesterOrgId courseSemesterOrgId) throws CampusCourseException {
+        Semester semester = semesterDao.getSemesterBySemesterNameAndYear(courseSemesterOrgId.getSemesterName(), courseSemesterOrgId.getSemesterYear());
+        if (semester == null) {
+            // Create new semester
+            if (courseSemesterOrgId.getSemesterName() == null || courseSemesterOrgId.getSemesterYear() == null || courseSemesterOrgId.getSemesterYear() < 1000 || courseSemesterOrgId.getSemesterYear() > 9999) {
+                String errorMessage = "Course has invalid semester: " + courseSemesterOrgId.getSemester() + ". Cannot save course with id " + courseSemesterOrgId.getId() + ".";
+                // Here we only log on the debug level to avoid duplicated warnings (LOG.warn is already called by CampusWriter)
+                LOG.debug(errorMessage);
+                throw new CampusCourseException(errorMessage);
+            }
+            semester = new Semester(courseSemesterOrgId.getSemesterName(), courseSemesterOrgId.getSemesterYear(), false);
+            semesterDao.save(semester);
+        }
+        return semester;
+    }
+
+    private void updateOrgsFromCourseOrgId(Course course, CourseSemesterOrgId courseSemesterOrgId) {
         // Remove org from course if it is not present any more
         Iterator<Org> iterator = course.getOrgs().iterator();
         while (iterator.hasNext()) {
             Org org = iterator.next();
-            if (!org.getId().equals(courseOrgId.getOrg1())
-                    && !org.getId().equals(courseOrgId.getOrg2())
-                    && !org.getId().equals(courseOrgId.getOrg3())
-                    && !org.getId().equals(courseOrgId.getOrg4())
-                    && !org.getId().equals(courseOrgId.getOrg5())
-                    && !org.getId().equals(courseOrgId.getOrg6())
-                    && !org.getId().equals(courseOrgId.getOrg7())
-                    && !org.getId().equals(courseOrgId.getOrg8())
-                    && !org.getId().equals(courseOrgId.getOrg9())) {
+            if (!org.getId().equals(courseSemesterOrgId.getOrg1())
+                    && !org.getId().equals(courseSemesterOrgId.getOrg2())
+                    && !org.getId().equals(courseSemesterOrgId.getOrg3())
+                    && !org.getId().equals(courseSemesterOrgId.getOrg4())
+                    && !org.getId().equals(courseSemesterOrgId.getOrg5())
+                    && !org.getId().equals(courseSemesterOrgId.getOrg6())
+                    && !org.getId().equals(courseSemesterOrgId.getOrg7())
+                    && !org.getId().equals(courseSemesterOrgId.getOrg8())
+                    && !org.getId().equals(courseSemesterOrgId.getOrg9())) {
                 org.getCourses().remove(course);
                 iterator.remove();
             }
@@ -98,32 +117,32 @@ public class CourseDao implements CampusDao<CourseOrgId> {
 
         // Add org to course if it is not present yet
         List<Long> orgIdsOfCourse = course.getOrgs().stream().map(Org::getId).collect(Collectors.toList());
-        if (courseOrgId.getOrg1() != null && !orgIdsOfCourse.contains(courseOrgId.getOrg1())) {
-            addOrgToCourse(courseOrgId.getOrg1(), course);
+        if (courseSemesterOrgId.getOrg1() != null && !orgIdsOfCourse.contains(courseSemesterOrgId.getOrg1())) {
+            addOrgToCourse(courseSemesterOrgId.getOrg1(), course);
         }
-        if (courseOrgId.getOrg2() != null && !orgIdsOfCourse.contains(courseOrgId.getOrg2())) {
-            addOrgToCourse(courseOrgId.getOrg2(), course);
+        if (courseSemesterOrgId.getOrg2() != null && !orgIdsOfCourse.contains(courseSemesterOrgId.getOrg2())) {
+            addOrgToCourse(courseSemesterOrgId.getOrg2(), course);
         }
-        if (courseOrgId.getOrg3() != null && !orgIdsOfCourse.contains(courseOrgId.getOrg3())) {
-            addOrgToCourse(courseOrgId.getOrg3(), course);
+        if (courseSemesterOrgId.getOrg3() != null && !orgIdsOfCourse.contains(courseSemesterOrgId.getOrg3())) {
+            addOrgToCourse(courseSemesterOrgId.getOrg3(), course);
         }
-        if (courseOrgId.getOrg4() != null && !orgIdsOfCourse.contains(courseOrgId.getOrg4())) {
-            addOrgToCourse(courseOrgId.getOrg4(), course);
+        if (courseSemesterOrgId.getOrg4() != null && !orgIdsOfCourse.contains(courseSemesterOrgId.getOrg4())) {
+            addOrgToCourse(courseSemesterOrgId.getOrg4(), course);
         }
-        if (courseOrgId.getOrg5() != null && !orgIdsOfCourse.contains(courseOrgId.getOrg5())) {
-            addOrgToCourse(courseOrgId.getOrg5(), course);
+        if (courseSemesterOrgId.getOrg5() != null && !orgIdsOfCourse.contains(courseSemesterOrgId.getOrg5())) {
+            addOrgToCourse(courseSemesterOrgId.getOrg5(), course);
         }
-        if (courseOrgId.getOrg6() != null && !orgIdsOfCourse.contains(courseOrgId.getOrg6())) {
-            addOrgToCourse(courseOrgId.getOrg6(), course);
+        if (courseSemesterOrgId.getOrg6() != null && !orgIdsOfCourse.contains(courseSemesterOrgId.getOrg6())) {
+            addOrgToCourse(courseSemesterOrgId.getOrg6(), course);
         }
-        if (courseOrgId.getOrg7() != null && !orgIdsOfCourse.contains(courseOrgId.getOrg7())) {
-            addOrgToCourse(courseOrgId.getOrg7(), course);
+        if (courseSemesterOrgId.getOrg7() != null && !orgIdsOfCourse.contains(courseSemesterOrgId.getOrg7())) {
+            addOrgToCourse(courseSemesterOrgId.getOrg7(), course);
         }
-        if (courseOrgId.getOrg8() != null && !orgIdsOfCourse.contains(courseOrgId.getOrg8())) {
-            addOrgToCourse(courseOrgId.getOrg8(), course);
+        if (courseSemesterOrgId.getOrg8() != null && !orgIdsOfCourse.contains(courseSemesterOrgId.getOrg8())) {
+            addOrgToCourse(courseSemesterOrgId.getOrg8(), course);
         }
-        if (courseOrgId.getOrg9() != null && !orgIdsOfCourse.contains(courseOrgId.getOrg9())) {
-            addOrgToCourse(courseOrgId.getOrg9(), course);
+        if (courseSemesterOrgId.getOrg9() != null && !orgIdsOfCourse.contains(courseSemesterOrgId.getOrg9())) {
+            addOrgToCourse(courseSemesterOrgId.getOrg9(), course);
         }
     }
 
@@ -166,6 +185,14 @@ public class CourseDao implements CampusDao<CourseOrgId> {
                 .getResultList(); 
     }
 
+    List<Course> getCreatedCoursesOfCurrentSemesterByStudentIdBookedByStudentOnlyAsParentCourse(Long studentId, String searchString) {
+        return dbInstance.getCurrentEntityManager()
+                .createNamedQuery(Course.GET_CREATED_COURSES_OF_CURRENT_SEMESTER_BY_STUDENT_ID_BOOKED_BY_STUDENT_ONLY_AS_PARENT_COURSE, Course.class)
+                .setParameter("studentId", studentId)
+                .setParameter("searchString", getWildcardLikeSearchString(searchString))
+                .getResultList();
+    }
+
     List<Course> getNotCreatedCreatableCoursesOfCurrentSemesterByStudentId(Long studentId, String searchString) {
         return dbInstance.getCurrentEntityManager()
                 .createNamedQuery(Course.GET_NOT_CREATED_CREATABLE_COURSES_OF_CURRENT_SEMESTER_BY_STUDENT_ID, Course.class)
@@ -174,10 +201,10 @@ public class CourseDao implements CampusDao<CourseOrgId> {
                 .getResultList(); 
     }
 
-    Course getLatestCourseByResourceable(Long resourceableId) throws Exception {
+    Course getLatestCourseByOlatResource(Long olatResourceKey) throws Exception {
         return dbInstance.getCurrentEntityManager()
-                .createNamedQuery(Course.GET_LATEST_COURSE_BY_RESOURCEABLE_ID, Course.class)
-                .setParameter("resourceableId", resourceableId)
+                .createNamedQuery(Course.GET_LATEST_COURSE_BY_OLAT_RESOURCE_KEY, Course.class)
+                .setParameter("olatResourceKey", olatResourceKey)
                 .getSingleResult();
     }
 
@@ -189,14 +216,20 @@ public class CourseDao implements CampusDao<CourseOrgId> {
         deleteCourseBidirectionally(course, dbInstance.getCurrentEntityManager());
     }
 
-    void saveResourceableId(Long courseId, Long resourceableId) {
+    void saveOlatResource(Long courseId, Long olatResourceKey) {
         Course course = getCourseById(courseId);
         if (course == null) {
-            String warningMessage = "No course found with id " + courseId + ". Cannot save resourcable id;";
+            String warningMessage = "No course found with id " + courseId + ". Cannot save olat resource with id " + olatResourceKey;
             LOG.warn(warningMessage);
             return;
         }
-        course.setResourceableId(resourceableId);
+        EntityManager em = dbInstance.getCurrentEntityManager();
+        OLATResource olatResource = em.find(OLATResourceImpl.class, olatResourceKey);
+        if (olatResource == null) {
+            LOG.warn("No olat resource found with id " + olatResourceKey + ". Cannot save olat resource.");
+            return;
+        }
+        course.setOlatResource(olatResource);
     }
 
     void disableSynchronization(Long courseId) {
@@ -209,18 +242,18 @@ public class CourseDao implements CampusDao<CourseOrgId> {
         course.setSynchronizable(false);
     }
 
-    void resetResourceableIdAndParentCourse(Long resourceableId) {
-        List<Course> courses =dbInstance.getCurrentEntityManager()
-                .createNamedQuery(Course.GET_COURSES_BY_RESOURCEABLE_ID, Course.class)
-                .setParameter("resourceableId", resourceableId)
+    void resetOlatResourceAndParentCourse(Long olatResourceKey) {
+        List<Course> courses = dbInstance.getCurrentEntityManager()
+                .createNamedQuery(Course.GET_COURSES_BY_OLAT_RESOURCE_KEY, Course.class)
+                .setParameter("olatResourceKey", olatResourceKey)
                 .getResultList();
         if (courses.isEmpty()) {
-            String warningMessage = "No courses found with resourcable id " + resourceableId + ".";
+            String warningMessage = "No courses found with olat resource id " + olatResourceKey + ".";
             LOG.warn(warningMessage);
             return;
         }
         for (Course course : courses) {
-            course.setResourceableId(null);
+            course.setOlatResource(null);
             course.removeParentCourse();
         }
     }
@@ -274,19 +307,19 @@ public class CourseDao implements CampusDao<CourseOrgId> {
                 .getResultList();
     }
 
-    List<Long> getResourceableIdsOfAllCreatedCoursesOfSpecificSemesters(List<String> shortSemesters) {
+    List<Long> getOlatResourceKeysOfAllCreatedNotContinuedCoursesOfSpecificSemesters(List<Long> semesterIds) {
         return dbInstance.getCurrentEntityManager()
-                .createNamedQuery(Course.GET_RESOURCEABLE_IDS_OF_ALL_CREATED_COURSES_OF_SPECIFIC_SEMESTERS, Long.class)
-                .setParameter("shortSemesters", shortSemesters)
+                .createNamedQuery(Course.GET_OLAT_RESOURCE_KEYS_OF_ALL_CREATED_NOT_CONTINUED_COURSES_OF_SPECIFIC_SEMESTERS, Long.class)
+                .setParameter("semesterIds", semesterIds)
                 .getResultList();
     }
 
-    List<Long> getResourceableIdsOfAllCreatedCoursesOfPreviousSemestersNotTooFarInThePast() {
-        List<String> previousShortSemestersNotTooFarInThePast = getPreviousShortSemestersNotTooFarInThePast();
-        if (previousShortSemestersNotTooFarInThePast.isEmpty()) {
+    List<Long> getOlatResourceKeysOfAllCreatedNotContinuedCoursesOfPreviousSemestersNotTooFarInThePast() {
+        List<Long> previousSemestersNotTooFarInThePast = semesterDao.getPreviousSemestersNotTooFarInThePastInDescendingOrder();
+        if (previousSemestersNotTooFarInThePast.isEmpty()) {
             return new ArrayList<>();
         }
-        return getResourceableIdsOfAllCreatedCoursesOfSpecificSemesters(previousShortSemestersNotTooFarInThePast);
+        return getOlatResourceKeysOfAllCreatedNotContinuedCoursesOfSpecificSemesters(previousSemestersNotTooFarInThePast);
     }
 
     List<Long> getIdsOfAllNotCreatedCreatableCoursesOfCurrentSemester() {
@@ -307,10 +340,10 @@ public class CourseDao implements CampusDao<CourseOrgId> {
                 .getResultList();
     }
 
-    boolean existResourceableId(Long resourceableId) {
+    boolean existCoursesForOlatResource(Long olatResourceKey) {
         List<Long> courseIds = dbInstance.getCurrentEntityManager()
-                .createNamedQuery(Course.GET_COURSE_IDS_BY_RESOURCEABLE_ID, Long.class)
-                .setParameter("resourceableId", resourceableId)
+                .createNamedQuery(Course.GET_COURSE_IDS_BY_OLAT_RESOURCE_KEY, Long.class)
+                .setParameter("olatResourceKey", olatResourceKey)
                 .getResultList();
         return !courseIds.isEmpty();
     }
@@ -329,25 +362,11 @@ public class CourseDao implements CampusDao<CourseOrgId> {
                 .getResultList();
     }
 
-    List<String> getPreviousShortSemestersNotTooFarInThePast() {
-        List<String> shortSemesters = dbInstance.getCurrentEntityManager()
-                .createNamedQuery(Course.GET_ALL_SHORT_SEMESTERS_IN_DESCENDING_ORDER, String.class)
+    List<Course> getCreatedAndNotCreatedCreatableCoursesOfCurrentSemesterByStudentIdBookedByStudentOnlyAsParentCourse(Long studentId) {
+        return dbInstance.getCurrentEntityManager()
+                .createNamedQuery(Course.GET_CREATED_AND_NOT_CREATED_CREATABLE_COURSES_OF_CURRENT_SEMESTER_BY_STUDENT_ID_BOOKED_BY_STUDENT_ONLY_AS_PARENT_COURSE, Course.class)
+                .setParameter("studentId", studentId)
                 .getResultList();
-        int indexOfOldestSemesterNotTooFarInThePast = campusCourseConfiguration.getMaxYearsToKeepCkData() * 2 + 1;
-        if (shortSemesters.size() < 2 || indexOfOldestSemesterNotTooFarInThePast < 1) {
-            return new ArrayList<>();
-        }
-        return shortSemesters.subList(1, Math.min(indexOfOldestSemesterNotTooFarInThePast, shortSemesters.size()));
-    }
-
-    String getPreviousShortSemester() {
-        List<String> shortSemesters = dbInstance.getCurrentEntityManager()
-                .createNamedQuery(Course.GET_ALL_SHORT_SEMESTERS_IN_DESCENDING_ORDER, String.class)
-                .getResultList();
-        if (shortSemesters.size() < 2) {
-            return null;
-        }
-        return shortSemesters.get(1);
     }
 
     private void deleteCourseBidirectionally(Course course, EntityManager em) {

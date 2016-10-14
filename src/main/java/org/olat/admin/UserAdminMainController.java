@@ -104,6 +104,7 @@ public class UserAdminMainController extends MainLayoutBasicController implement
 	private LayoutMain3ColsController columnLayoutCtr;
 	private Controller contentCtr;
 	private UserAdminController userAdminCtr;
+	private UsermanagerUserSearchController userSearchCtrl;
 	private VelocityContainer rolesVC, queriesVC;
 	
 	private String activatePaneInDetailView = null;
@@ -283,16 +284,19 @@ public class UserAdminMainController extends MainLayoutBasicController implement
 			return createAndLockDirectUserDeleteController(ureq, bwControl);
 		} 		
 		
-		//these nodes re-create (not stateful) content Controller (contentCtrl)
-		removeAsListenerAndDispose(contentCtr);
+		
 		if (uobject.equals("usearch") || uobject.equals("useradmin")) {
-			activatePaneInDetailView = null;
-			contentCtr = new UsermanagerUserSearchController(ureq, bwControl);
+			if(contentCtr != userSearchCtrl) {
+				activatePaneInDetailView = null;
+				contentCtr = userSearchCtrl = new UsermanagerUserSearchController(ureq, bwControl);
+				listenTo(contentCtr);
+			}
 			addToHistory(ureq, bwControl);
-			listenTo(contentCtr);
 			return contentCtr.getInitialComponent();
 		}
-		else if (uobject.equals("ucreate")) {
+		//these nodes re-create (not stateful) content Controller (contentCtrl)
+		removeAsListenerAndDispose(contentCtr);
+		if (uobject.equals("ucreate")) {
 			activatePaneInDetailView = null;
 			boolean canCreateOLATPassword = false;
 			if (ureq.getUserSession().getRoles().isOLATAdmin()) {
@@ -323,7 +327,7 @@ public class UserAdminMainController extends MainLayoutBasicController implement
 			return contentCtr.getInitialComponent();
 		}
 		else if (uobject.equals("admingroup")) {
-			activatePaneInDetailView = "";
+			activatePaneInDetailView = null;
 			SecurityGroup[] secGroup = {securityManager.findSecurityGroupByName(Constants.GROUP_ADMIN)};
 			contentCtr = new UsermanagerUserSearchController(ureq, bwControl,secGroup, null, null, null, null, Identity.STATUS_VISIBLE_LIMIT, true);
 			addToHistory(ureq, bwControl);

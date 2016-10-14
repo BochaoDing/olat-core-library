@@ -10,12 +10,10 @@ public final class SapCampusCourseTo implements Comparable<SapCampusCourseTo> {
     private String title;
     private boolean activated;
     private final Long sapCourseId;
-    private final Long olatCourseId;
 
-    public SapCampusCourseTo(String title, Long sapCourseId, Long olatCourseClosed) {
+    public SapCampusCourseTo(String title, Long sapCourseId) {
         this.title = title;
         this.sapCourseId = sapCourseId;
-        this.olatCourseId = olatCourseClosed;
     }
 
     public String getTitle() {
@@ -28,10 +26,6 @@ public final class SapCampusCourseTo implements Comparable<SapCampusCourseTo> {
 
     public Long getSapCourseId() {
         return sapCourseId;
-    }
-
-    public Long getOlatCourseId() {
-        return olatCourseId;
     }
 
     public boolean isActivated() {

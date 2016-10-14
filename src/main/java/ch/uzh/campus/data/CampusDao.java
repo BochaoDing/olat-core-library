@@ -1,5 +1,7 @@
 package ch.uzh.campus.data;
 
+import ch.uzh.campus.CampusCourseException;
+
 import java.util.List;
 
 /**
@@ -8,6 +10,5 @@ import java.util.List;
  * @author aabouc
  */
 public interface CampusDao<T> {
-    void save(List<T> items);
-    void saveOrUpdate(List<T> items);
+    void saveOrUpdate(List<T> items) throws CampusCourseException;
 }

@@ -36,6 +36,8 @@
 				<!--   max size for zip -->
 				MaxZipSelectionSizeMb=${folder.zipSelectionMaxSizeMb}
 				forceDownload=${folder.force.download}
+				<!--   max size for Course export -->
+				MaxCourseExportSizeMb=${folder.maxCourseExportSizeMb}
              </value>
       </property>
 </bean>

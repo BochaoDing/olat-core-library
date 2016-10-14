@@ -2135,7 +2135,7 @@ create index log_gptarget_resid_idx on o_loggingtable(grandparentresid);
 create index log_ggptarget_resid_idx on o_loggingtable(greatgrandparentresid);
 create index log_creationdate_idx on o_loggingtable(creationdate);
 
--- tables for campuskurs
+-- Tables for campus course
 create table if not exists ck_export (
 	id bigint not null,
 	file_name varchar(255) not null,
@@ -2146,7 +2146,6 @@ create table if not exists ck_export (
 
 create table if not exists ck_course (
 	id bigint not null,
-	olat_id bigint,
 	title varchar(255) not null,
 	short_title varchar(255) not null,
 	e_learning_supported boolean not null,
@@ -2156,11 +2155,11 @@ create table if not exists ck_course (
 	start_date date not null,
 	end_date date not null,
 	vvz_link varchar(255) not null,
-	semester char(255) not null,
-	short_semester char(4) not null,
 	exclude boolean not null,
 	synchronizable boolean not null default 1,
-  parent_course_id BIGINT,
+  fk_semester bigint not null,
+  fk_resource bigint,
+  fk_parent_course bigint,
 	date_of_import datetime not null,
 	primary key (id)
 )engine InnoDB;
@@ -2172,14 +2171,17 @@ create table if not exists ck_lecturer (
 	email varchar(255) not null,
 	additionalPersonalNrs varchar(255),
 	date_of_import datetime not null,
+  fk_mapped_identity BIGINT,
+  kind_of_mapping VARCHAR(6),
+  date_of_mapping DATETIME,
 	primary key (id)
 )engine InnoDB;
 
 create table if not exists ck_lecturer_course (
-	course_id bigint not null,
-	lecturer_id bigint not null,
+	fk_lecturer bigint not null,
+  fk_course bigint not null,
 	date_of_import datetime not null,
-	primary key (course_id, lecturer_id)
+	primary key (fk_lecturer, fk_course)
 )engine InnoDB;
 
 create table if not exists ck_student (
@@ -2189,32 +2191,35 @@ create table if not exists ck_student (
 	last_name varchar(255) not null,
 	email varchar(255) not null,
 	date_of_import datetime not null,
+  fk_mapped_identity BIGINT,
+  kind_of_mapping VARCHAR(6),
+  date_of_mapping DATETIME,
 	primary key (id)
 )engine InnoDB;
 
 create table if not exists ck_student_course (
-	course_id bigint not null,
-	student_id bigint not null,
+	fk_student bigint not null,
+  fk_course bigint not null,
 	date_of_import datetime not null,
-	primary key (course_id, student_id)
+	primary key (fk_student, fk_course)
 )engine InnoDB;
 
 create table if not exists ck_event (
 	id bigint not null,
-	course_id bigint not null,
 	date date not null,
 	start time not null,
 	end time not null,
+  fk_course bigint not null,
 	date_of_import datetime not null,
 	primary key (id)
 )engine InnoDB;
 
 create table if not exists ck_text (
 	id bigint not null,
-	course_id bigint not null,
 	type varchar(255) not null,
 	line_seq bigint not null,
 	line varchar(255) not null,
+  fk_course bigint not null,
 	date_of_import datetime not null,
 	primary key (id)
 )engine InnoDB;
@@ -2229,9 +2234,9 @@ create table if not exists ck_org (
 )engine InnoDB;
 
 create table if not exists ck_course_org (
-   course_id bigint not null,
-   org_id bigint not null,
-   primary key (course_id, org_id)
+  fk_course bigint not null,
+  fk_org bigint not null,
+  primary key (fk_course, fk_org)
 )engine InnoDB;
 
 create table if not exists ck_import_statistic (
@@ -2264,60 +2269,58 @@ create table if not exists ck_skip_item (
      primary key (id)
 )engine InnoDB;
 
-create table if not exists ck_olat_user (
-    sap_user_id bigint not null,
- 	olat_user_name VARCHAR(100),
- 	sap_user_type VARCHAR(100),
- 	kind_of_mapping VARCHAR(6) NOT NULL default 'MANUAL',
- 	mapping_timestamp timestamp DEFAULT CURRENT_TIMESTAMP,
-    primary key (sap_user_id)
-)engine InnoDB;
-
-alter table ck_olat_user add unique (olat_user_name, sap_user_type);
-
 create table if not exists ck_delegation (
-  	id bigint not null  AUTO_INCREMENT,
-	delegator VARCHAR(100) not null,
-	delegatee VARCHAR(100) not null,
-	modified_date timestamp DEFAULT CURRENT_TIMESTAMP,
-	primary key (id)
+   fk_delegator_identity bigint not null,
+   fk_delegatee_identity bigint not null,
+	 creationdate datetime not null,
+	 primary key (fk_delegator_identity, fk_delegatee_identity)
 )engine InnoDB;
 
-alter table ck_course add constraint ck_course_f01 foreign key (parent_course_id) references ck_course (id);
-alter table ck_lecturer_course add constraint ck_lecturer_course_f01 foreign key (course_id) references ck_course (id);
-alter table ck_lecturer_course add constraint ck_lecturer_course_f02 foreign key (lecturer_id) references ck_lecturer (id);
-alter table ck_student_course add constraint ck_student_course_f01 foreign key (course_id) references ck_course (id);
-alter table ck_student_course add constraint ck_student_course_f02 foreign key (student_id) references ck_student (id);
-alter table ck_course_org add constraint ck_course_org_f01 foreign key (course_id) references ck_course (id);
-alter table ck_course_org add constraint ck_course_org_f02 foreign key (org_id) references ck_org (id);
-alter table ck_event add constraint ck_event_f01 foreign key (course_id) references ck_course (id);
-alter table ck_text add constraint ck_text_f01 foreign key (course_id) references ck_course (id);
+alter table ck_course add constraint ck_course_f01 foreign key (fk_parent_course) references ck_course (id);
+alter table ck_course add constraint ck_course_f02 foreign key (fk_resource) references o_olatresource (resource_id);
+alter table ck_course add constraint ck_course_f03 foreign key (fk_semester) references ck_semester (id);
+alter table ck_lecturer add constraint ck_lecturer_f01 foreign key (fk_mapped_identity) references o_bs_identity(id);
+alter table ck_lecturer_course add constraint ck_lecturer_course_f01 foreign key (fk_course) references ck_course (id);
+alter table ck_lecturer_course add constraint ck_lecturer_course_f02 foreign key (fk_lecturer) references ck_lecturer (id);
+alter table ck_student add constraint ck_student_f01 foreign key (fk_mapped_identity) references o_bs_identity(id);
+alter table ck_student_course add constraint ck_student_course_f01 foreign key (fk_course) references ck_course (id);
+alter table ck_student_course add constraint ck_student_course_f02 foreign key (fk_student) references ck_student (id);
+alter table ck_course_org add constraint ck_course_org_f01 foreign key (fk_course) references ck_course (id);
+alter table ck_course_org add constraint ck_course_org_f02 foreign key (fk_org) references ck_org (id);
+alter table ck_event add constraint ck_event_f01 foreign key (fk_course) references ck_course (id);
+alter table ck_text add constraint ck_text_f01 foreign key (fk_course) references ck_course (id);
+alter table ck_delegation add constraint ck_delegation_f01 foreign key (fk_delegator_identity) references o_bs_identity(id);
+alter table ck_delegation add constraint ck_delegation_f02 foreign key (fk_delegatee_identity) references o_bs_identity(id);
 
-alter table ck_student_course add unique (student_id, course_id);
-alter table ck_lecturer_course add unique (lecturer_id, course_id);
-alter table ck_course_org add unique (course_id, org_id);
-alter table ck_delegation add unique (delegator,delegatee);
+alter table ck_student_course add unique (fk_student, fk_course);
+alter table ck_lecturer_course add unique (fk_lecturer, fk_course);
+alter table ck_course_org add unique (fk_course, fk_org);
+alter table ck_delegation add unique (fk_delegator_identity, fk_delegatee_identity);
 
+create index ck_xx_parent_course_id_idx on ck_course (fk_parent_course);
+create index ck_xx_step_name_idx on ck_import_statistic(step_name);
+create index ck_xx_start_time_idx on ck_import_statistic(start_time);
+create index ck_xx_end_time_idx on ck_import_statistic(end_time);
 
 create or replace view ck_not_mapped_students as 
 select * from ck_student s where s.id in
-(select sc.student_id from ck_student_course sc, ck_course c  
-where sc.course_id = c.id and c.exclude = 0
-   and exists (select co.course_id from ck_course_org co
-      inner join ck_course c1 on c1.id = co.course_id
-      inner join ck_org o on o.id = co.org_id
+(select sc.fk_student from ck_student_course sc, ck_course c
+where sc.fk_course = c.id and c.exclude = 0
+   and exists (select co.fk_course from ck_course_org co
+      inner join ck_course c1 on c1.id = co.fk_course
+      inner join ck_org o on o.id = co.fk_org
       where c1.id = c.id and o.enabled = 1))
-and s.id not in(select sap_user_id from ck_olat_user ou where ou.sap_user_type= 'STUDENT'); 
+and s.fk_mapped_identity is NULL;
 
 create or replace view ck_not_mapped_lecturers as 
 select * from ck_lecturer l where l.id in
-(select lc.lecturer_id from ck_lecturer_course lc, ck_course c  
-where lc.course_id = c.id and c.exclude = 0
-      and exists (select co.course_id from ck_course_org co
-   inner join ck_course c1 on c1.id = co.course_id
-   inner join ck_org o on o.id = co.org_id
-where c1.id = c.id and o.enabled = 1))
-and l.id not in(select sap_user_id from ck_olat_user ou where ou.sap_user_type= 'LECTURER'); 
+(select lc.fk_lecturer from ck_lecturer_course lc, ck_course c
+where lc.fk_course = c.id and c.exclude = 0
+   and exists (select co.fk_course from ck_course_org co
+      inner join ck_course c1 on c1.id = co.fk_course
+      inner join ck_org o on o.id = co.fk_org
+      where c1.id = c.id and o.enabled = 1))
+and l.fk_mapped_identity is NULL;
 
 create or replace view ck_horizontal_userproperty as
 select u.fk_user_id, i.status,

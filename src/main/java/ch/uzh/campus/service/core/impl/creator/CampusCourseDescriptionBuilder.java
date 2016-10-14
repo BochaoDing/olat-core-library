@@ -1,3 +1,16 @@
+package ch.uzh.campus.service.core.impl.creator;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
+
+import org.olat.core.util.Util;
+import org.olat.core.gui.translator.Translator;
+import org.olat.core.id.Identity;
+import org.olat.core.id.UserConstants;
+import org.springframework.stereotype.Component;
+import ch.uzh.campus.CampusCourseImportTO;
+
 /**
  * OLAT - Online Learning and Training<br>
  * http://www.olat.org
@@ -17,21 +30,7 @@
  * Copyright (c) since 2004 at Multimedia- & E-Learning Services (MELS),<br>
  * University of Zurich, Switzerland.
  * <p>
- */
-package ch.uzh.campus.service.core.impl.creator;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
-
-import org.olat.core.util.Util;
-import org.olat.core.gui.translator.Translator;
-import org.olat.core.id.Identity;
-import org.olat.core.id.UserConstants;
-import org.springframework.stereotype.Component;
-import ch.uzh.campus.CampusCourseImportTO;
-
-/**
+ *
  * Initial Date: 31.05.2012 <br>
  * 
  * @author cg
@@ -55,14 +54,14 @@ public class CampusCourseDescriptionBuilder {
 
     public String buildDescriptionFrom(CampusCourseImportTO campusCourseData, String campusCourseMultiSemester, String language) {
         String[] args = new String[3];
-        args[0] = (campusCourseMultiSemester != null) ? campusCourseMultiSemester : campusCourseData.getSemester();
+        args[0] = (campusCourseMultiSemester != null) ? campusCourseMultiSemester : campusCourseData.getSemester().getSemesterNameYear();
 
-        if (campusCourseData.getDelegateesOfCourseAndParentCourses() != null && !campusCourseData.getDelegateesOfCourseAndParentCourses().isEmpty()) {
-            List<Identity> lecturersWithoutDelegatees = new ArrayList<>(campusCourseData.getLecturersOfCourseAndParentCourses());
-            lecturersWithoutDelegatees.removeAll(campusCourseData.getDelegateesOfCourseAndParentCourses());
+        if (campusCourseData.getDelegateesOfCourse() != null && !campusCourseData.getDelegateesOfCourse().isEmpty()) {
+            List<Identity> lecturersWithoutDelegatees = new ArrayList<>(campusCourseData.getLecturersOfCourse());
+            lecturersWithoutDelegatees.removeAll(campusCourseData.getDelegateesOfCourse());
             args[1] = getLectureList(lecturersWithoutDelegatees);
         } else {
-            args[1] = getLectureList(campusCourseData.getLecturersOfCourseAndParentCourses());
+            args[1] = getLectureList(campusCourseData.getLecturersOfCourse());
         }
 
         args[2] = campusCourseData.getEventDescription();

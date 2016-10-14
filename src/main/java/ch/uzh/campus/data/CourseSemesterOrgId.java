@@ -1,5 +1,7 @@
 package ch.uzh.campus.data;
 
+import org.apache.commons.lang.StringUtils;
+
 import java.util.Date;
 
 /**
@@ -9,7 +11,9 @@ import java.util.Date;
  *
  * @author Martin Schraner
  */
-public class CourseOrgId {
+public class CourseSemesterOrgId {
+
+    private static final String WHITESPACE = " ";
 
     private Long id;
     private String shortTitle;
@@ -22,7 +26,6 @@ public class CourseOrgId {
     private Date endDate;
     private String vvzLink;
     private String semester;
-    private String shortSemester;
     private String exclude;
     private Long org1;
     private Long org2;
@@ -123,14 +126,6 @@ public class CourseOrgId {
         this.semester = semester;
     }
 
-    public String getShortSemester() {
-        return shortSemester;
-    }
-
-    public void setShortSemester(String shortSemester) {
-        this.shortSemester = shortSemester;
-    }
-
     public String getExclude() {
         return exclude;
     }
@@ -219,6 +214,25 @@ public class CourseOrgId {
         this.dateOfImport = dateOfImport;
     }
 
+    SemesterName getSemesterName() {
+        String[] split = StringUtils.split(semester, WHITESPACE);
+        return SemesterName.findByName(split[0]);
+    }
+
+    Integer getSemesterYear() {
+        Integer yyyy = null;
+        String[] split = StringUtils.split(semester, WHITESPACE);
+        if (split != null && split.length >= 2) {
+            String yyyyAsString = (split[1] != null && split[1].length() >= 4) ? split[1].substring(0, 4) : "";
+            try {
+                yyyy = Integer.parseInt(yyyyAsString);
+            } catch (NumberFormatException e) {
+                yyyy = null;
+            }
+        }
+        return yyyy;
+    }
+
 	public void merge(Course course) {
 		course.setId(getId());
 		course.setShortTitle(getShortTitle());
@@ -230,8 +244,6 @@ public class CourseOrgId {
 		course.setStartDate(getStartDate());
 		course.setEndDate(getEndDate());
 		course.setVvzLink(getVvzLink());
-		course.setSemester(getSemester());
-		course.setShortSemester(getShortSemester());
 		course.setExclude("X".equalsIgnoreCase(getExclude()));
 		course.setDateOfImport(getDateOfImport());
 	}

@@ -1,3 +1,19 @@
+package ch.uzh.campus.mapper;
+
+import ch.uzh.campus.data.DaoManager;
+import ch.uzh.campus.data.Lecturer;
+import ch.uzh.campus.utils.ListUtil;
+import org.olat.core.commons.persistence.DB;
+import org.olat.core.logging.OLog;
+import org.olat.core.logging.Tracing;
+import org.springframework.batch.item.ItemReader;
+import org.springframework.batch.item.ItemWriter;
+import org.springframework.beans.factory.annotation.Autowired;
+
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
+import java.util.List;
+
 /**
  * OLAT - Online Learning and Training<br>
  * http://www.olat.org
@@ -17,24 +33,7 @@
  * Copyright (c) since 2004 at Multimedia- & E-Learning Services (MELS),<br>
  * University of Zurich, Switzerland.
  * <p>
- */
-package ch.uzh.campus.mapper;
-
-import ch.uzh.campus.data.DaoManager;
-import ch.uzh.campus.data.Lecturer;
-import ch.uzh.campus.utils.ListUtil;
-import org.olat.core.commons.persistence.DB;
-import org.olat.core.logging.OLog;
-import org.olat.core.logging.Tracing;
-import org.springframework.batch.item.ItemReader;
-import org.springframework.batch.item.ItemWriter;
-import org.springframework.beans.factory.annotation.Autowired;
-
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
-import java.util.List;
-
-/**
+ *
  * {@link ItemWriter} for
  * 
  * Initial Date: 27.11.2012 <br>
@@ -58,7 +57,6 @@ public class LecturerMappingReader implements ItemReader<Lecturer> {
     @PostConstruct
     public void init() {
         try {
-            daoManager.deleteOldLecturerMapping();
             lecturers = daoManager.getAllLecturers();
             dbInstance.commitAndCloseSession();
         } catch (Throwable t) {

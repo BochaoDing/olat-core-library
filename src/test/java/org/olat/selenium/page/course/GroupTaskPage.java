@@ -139,6 +139,17 @@ public class GroupTaskPage {
 		By submitBy = By.cssSelector("#o_step_revision_content .o_sel_course_gta_submit_revisions");
 		browser.findElement(submitBy).click();
 		OOGraphene.waitBusy(browser);
+		return confirmDialog();
+	}
+	
+	/**
+	 * Confirm a yes / no dialog box
+	 */
+	private GroupTaskPage confirmDialog() {
+		By confirmButtonBy = By.cssSelector("div.modal-dialog div.modal-footer a");
+		OOGraphene.waitElement(confirmButtonBy, 5, browser);
+		browser.findElement(confirmButtonBy).click();
+		OOGraphene.waitBusy(browser);
 		return this;
 	}
 	

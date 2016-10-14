@@ -1,3 +1,16 @@
+package ch.uzh.campus.service.core.impl.syncer;
+
+import ch.uzh.campus.CampusCourseConfiguration;
+import ch.uzh.campus.CampusCourseException;
+import ch.uzh.campus.CampusCourseImportTO;
+import ch.uzh.campus.service.CampusCourse;
+import ch.uzh.campus.service.core.impl.CampusCourseFactory;
+import ch.uzh.campus.service.core.impl.syncer.statistic.SynchronizedGroupStatistic;
+import org.olat.core.logging.OLog;
+import org.olat.core.logging.Tracing;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
 /**
  * OLAT - Online Learning and Training<br>
  * http://www.olat.org
@@ -17,20 +30,7 @@
  * Copyright (c) since 2004 at Multimedia- & E-Learning Services (MELS),<br>
  * University of Zurich, Switzerland.
  * <p>
- */
-package ch.uzh.campus.service.core.impl.syncer;
-
-import ch.uzh.campus.CampusCourseConfiguration;
-import ch.uzh.campus.CampusCourseImportTO;
-import ch.uzh.campus.service.CampusCourse;
-import ch.uzh.campus.service.core.impl.CampusCourseFactory;
-import ch.uzh.campus.service.core.impl.syncer.statistic.SynchronizedGroupStatistic;
-import org.olat.core.logging.OLog;
-import org.olat.core.logging.Tracing;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-
-/**
+ *
  * Synchronize the entire course with groups, title, description.
  * 
  * @author cg
@@ -58,15 +58,15 @@ public class CampusCourseSynchronizer {
         this.campusCourseFactory = campusCourseFactory;
     }
 
-    SynchronizedGroupStatistic synchronizeCourse(CampusCourseImportTO sapCourse) {
+    SynchronizedGroupStatistic synchronizeCourse(CampusCourseImportTO sapCourse) throws CampusCourseException {
         if (sapCourse != null) {
-            LOG.debug("synchronizeCourse sapCourseId=" + sapCourse.getSapCourseId() + "  resourceableId=" + sapCourse.getOlatResourceableId());
-            LOG.debug("synchronizeCourse Lecturer size=" + sapCourse.getLecturersOfCourseAndParentCourses().size());
-            LOG.debug("synchronizeCourse Participants size=" + sapCourse.getParticipantsOfCourseAndParentCourses().size());
+            LOG.debug("synchronizeCourse sapCourseId=" + sapCourse.getSapCourseId() + "  resource_id =" + sapCourse.getOlatResource().getKey());
+            LOG.debug("synchronizeCourse Lecturer size=" + sapCourse.getLecturersOfCourse().size());
+            LOG.debug("synchronizeCourse Participants size=" + sapCourse.getParticipantsOfCourse().size());
 
             CampusCourse campusCourse = campusCourseFactory.getCampusCourse(sapCourse);
 
-            courseGroupSynchronizer.addAllLecturesAsOwner(campusCourse, sapCourse.getLecturersOfCourseAndParentCourses());
+            courseGroupSynchronizer.addGroupOwnerRoleToLecturers(campusCourse, sapCourse.getLecturersOfCourse());
             SynchronizedGroupStatistic groupStatistic = courseGroupSynchronizer.synchronizeCourseGroups(campusCourse, sapCourse);
 
             LOG.debug("synchronizeCourse statistic=" + groupStatistic);

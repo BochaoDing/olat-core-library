@@ -56,6 +56,7 @@ import org.olat.portfolio.model.structel.EPStructuredMapTemplate;
 import org.olat.portfolio.model.structel.PortfolioStructure;
 
 import com.thoughtworks.xstream.XStream;
+import org.olat.resource.OLATResourceImpl;
 
 /**
  * 
@@ -81,7 +82,8 @@ public class EPXStreamHandler {
 		myStream.alias("collectionRestriction", CollectRestriction.class);
 		myStream.omitField(EPAbstractMap.class, "ownerGroup"); // see also OLAT-6344
 		myStream.omitField(EPAbstractMap.class, "groups"); // see also OLAT-6344
-		
+		myStream.alias("olatResource", OLATResourceImpl.class);
+		myStream.alias("OLATResource", OLATResourceImpl.class);
 		try {
 			InputStream xsltIn = EPXStreamHandler.class.getResourceAsStream("portfolio_without_artefacts.xsl");
 			Source xsltSource = new StreamSource(xsltIn);

@@ -1,92 +1,106 @@
-/**
- * OLAT - Online Learning and Training<br>
- * http://www.olat.org
- * <p>
- * Licensed under the Apache License, Version 2.0 (the "License"); <br>
- * you may not use this file except in compliance with the License.<br>
- * You may obtain a copy of the License at
- * <p>
- * http://www.apache.org/licenses/LICENSE-2.0
- * <p>
- * Unless required by applicable law or agreed to in writing,<br>
- * software distributed under the License is distributed on an "AS IS" BASIS, <br>
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. <br>
- * See the License for the specific language governing permissions and <br>
- * limitations under the License.
- * <p>
- * Copyright (c) 2008 frentix GmbH, Switzerland<br>
- * <p>
- */
 package ch.uzh.campus.presentation;
 
 import ch.uzh.campus.CampusCourseConfiguration;
+import ch.uzh.campus.data.DaoManager;
+import ch.uzh.campus.data.Semester;
 import org.olat.core.CoreSpringFactory;
 import org.olat.core.gui.UserRequest;
 import org.olat.core.gui.components.form.flexible.FormItem;
 import org.olat.core.gui.components.form.flexible.FormItemContainer;
-import org.olat.core.gui.components.form.flexible.elements.FormLink;
 import org.olat.core.gui.components.form.flexible.elements.SingleSelection;
 import org.olat.core.gui.components.form.flexible.elements.TextElement;
 import org.olat.core.gui.components.form.flexible.impl.FormBasicController;
 import org.olat.core.gui.components.form.flexible.impl.FormEvent;
-import org.olat.core.gui.components.link.Link;
+import org.olat.core.gui.components.form.flexible.impl.FormLayoutContainer;
 import org.olat.core.gui.control.Controller;
 import org.olat.core.gui.control.WindowControl;
 import org.olat.core.logging.OLog;
 import org.olat.core.logging.Tracing;
+import org.olat.core.util.Util;
 import org.olat.course.CorruptedCourseException;
+import org.olat.repository.RepositoryService;
+import org.olat.repository.manager.RepositoryServiceImpl;
 import org.olat.resource.OLATResource;
-import org.olat.resource.OLATResourceManager;
+
+import java.util.List;
 
 /**
  * @author Christian Guretzki
+ * @author Martin Schraner
  */
 public class CampusAdminController extends FormBasicController {
 
     private static final OLog log = Tracing.createLoggerFor(CampusAdminController.class);
-    private TextElement resourceableIdTextElement;
+    private static final int MAX_NUMBER_OF_SEMESTERS_TO_DISPLAY = 2;
+
+    private TextElement repositoryEntryIdTextElement;
     private SingleSelection languagesSelection;
     private static String[] languages = { "DE", "EN", "FR", "IT" };
-    private static String DEFAULT_LANGUAGE = "DE";
-    private FormLink saveButton;
+    private SingleSelection semestersSelection;
+    private Long selectedCurrentSemesterId;
     private CampusCourseConfiguration campusCourseConfiguration;
-    private Long templateCourseResourcableId;
+    private DaoManager daoManager;
 
-    public CampusAdminController(final UserRequest ureq, final WindowControl wControl) {
-        super(ureq, wControl);
+    public CampusAdminController(UserRequest ureq, WindowControl wControl) {
+        super(ureq, wControl, LAYOUT_BAREBONE);
+        setTranslator(Util.createPackageTranslator(RepositoryService.class, getLocale(), getTranslator()));
+
         campusCourseConfiguration = (CampusCourseConfiguration) CoreSpringFactory.getBean(CampusCourseConfiguration.class);
-        templateCourseResourcableId = campusCourseConfiguration.getTemplateCourseResourcableId(DEFAULT_LANGUAGE);
+        daoManager = (DaoManager) CoreSpringFactory.getBean(DaoManager.class);
+
         initForm(this.flc, this, ureq);
     }
 
-    /**
-     * org.olat.presentation.framework.control.Controller, org.olat.presentation.framework.UserRequest)
-     */
     @Override
-    protected void initForm(final FormItemContainer formLayout, final Controller listener, final UserRequest ureq) {
-        setFormTitle("header.campus.admin");
+    protected void initForm(FormItemContainer formLayout, Controller listener, UserRequest ureq) {
+        FormLayoutContainer templateFormLayoutContainer = FormLayoutContainer.createDefaultFormLayout("template", getTranslator());
+        templateFormLayoutContainer.setFormTitle(translate("campus.admin.form.template.title"));
+        formLayout.add(templateFormLayoutContainer);
+        templateFormLayoutContainer.setRootForm(mainForm);
 
-        languagesSelection = uifactory.addDropdownSingleselect("languagesSelection", "campus.admin.form.template.language", formLayout, languages, languages, null);
-        languagesSelection.select(DEFAULT_LANGUAGE, true);
+        languagesSelection = uifactory.addDropdownSingleselect("languagesSelection", "campus.admin.form.template.language", templateFormLayoutContainer, languages, languages, null);
+        String defaultLangauge = "DE";
+        languagesSelection.select(defaultLangauge, true);
         languagesSelection.addActionListener(FormEvent.ONCHANGE);
 
-        resourceableIdTextElement = uifactory.addTextElement("resourceableId", "campus.admin.form.resourceableid", 60, "", formLayout);
-        resourceableIdTextElement.setValue(templateCourseResourcableId.toString());
+        repositoryEntryIdTextElement = uifactory.addTextElement("repositoryEntryId", "campus.admin.form.repositoryEntry.id", 60, "", templateFormLayoutContainer);
+        repositoryEntryIdTextElement.setValue(campusCourseConfiguration.getTemplateRepositoryEntryId(defaultLangauge).toString());
 
-        saveButton = uifactory.addFormLink("save", formLayout, Link.BUTTON);
-        saveButton.addActionListener(FormEvent.ONCLICK);
+        FormLayoutContainer currentSemesterFormLayoutContainer = FormLayoutContainer.createDefaultFormLayout("currentSemester", getTranslator());
+        currentSemesterFormLayoutContainer.setFormTitle(translate("campus.admin.form.currentSemester.title"));
+        formLayout.add(currentSemesterFormLayoutContainer);
+        currentSemesterFormLayoutContainer.setRootForm(mainForm);
+
+        // Prepare semestersSelection
+        List<Semester> semestersAll = daoManager.getSemestersInAscendingOrder();
+        int numberOfSemestersToDisplay = Math.min(semestersAll.size(), MAX_NUMBER_OF_SEMESTERS_TO_DISPLAY);
+        List<Semester> semesters = semestersAll.subList(semestersAll.size() - numberOfSemestersToDisplay, semestersAll.size());
+        Semester currentSemester = daoManager.getCurrentSemester();
+        // Currently set currentSemester must always be selectable
+        if (!semesters.contains(currentSemester)) {
+            semesters.add(0, currentSemester);
+        }
+        String[] semesterNameYears = semesters.stream().map(Semester::getSemesterNameYear).toArray(String[]::new);
+        String[] semesterIdsAsString = semesters.stream().map(semester -> semester.getId().toString()).toArray(String[]::new);
+
+        semestersSelection = uifactory.addDropdownSingleselect("currentSemesterSelection", "campus.admin.form.currentSemester.selection", currentSemesterFormLayoutContainer, semesterIdsAsString, semesterNameYears, null);
+        String defaultSemesterIdAsString = currentSemester.getId().toString();
+        semestersSelection.select(defaultSemesterIdAsString, true);
+        semestersSelection.addActionListener(FormEvent.ONCHANGE);
+        selectedCurrentSemesterId = currentSemester.getId();
+
+        uifactory.addFormSubmitButton("save", formLayout);
     }
 
     @Override
-    protected void formInnerEvent(final UserRequest ureq, final FormItem source, final FormEvent event) {
+    protected void formInnerEvent(UserRequest ureq, FormItem source, FormEvent event) {
         if (source == languagesSelection) {
-            Long templateCourseResourcableId = campusCourseConfiguration.getTemplateCourseResourcableId(languagesSelection.getSelectedKey());
+            Long templateCourseResourcableId = campusCourseConfiguration.getTemplateRepositoryEntryId(languagesSelection.getSelectedKey());
             if (templateCourseResourcableId != null) {
-                resourceableIdTextElement.setValue(templateCourseResourcableId.toString());
+                repositoryEntryIdTextElement.setValue(templateCourseResourcableId.toString());
             }
-        }
-        if (source == saveButton) {
-            source.getRootForm().submit(ureq);
+        } else if (source == semestersSelection) {
+            selectedCurrentSemesterId = Long.parseLong(semestersSelection.getSelectedKey());
         }
     }
 
@@ -98,9 +112,9 @@ public class CampusAdminController extends FormBasicController {
     }
 
     @Override
-    protected boolean validateFormLogic(final UserRequest ureq) {
-        if (!isNumber(resourceableIdTextElement.getValue())) {
-            resourceableIdTextElement.setErrorKey("error.campus.admin.form.resourceableid", null);
+    protected boolean validateFormLogic(UserRequest ureq) {
+        if (!isNumber(repositoryEntryIdTextElement.getValue())) {
+            repositoryEntryIdTextElement.setErrorKey("error.campus.admin.form.repositoryEntry.id", null);
             return false;
         }
         return true;
@@ -116,17 +130,20 @@ public class CampusAdminController extends FormBasicController {
     }
 
     @Override
-    protected void formOK(final UserRequest ureq) {
-        log.info("formOk: value=" + resourceableIdTextElement.getValue());
+    protected void formOK(UserRequest ureq) {
+        log.info("formOk: value=" + repositoryEntryIdTextElement.getValue());
         try {
-            Long templateCourseResourcableIdAsLong = Long.parseLong(resourceableIdTextElement.getValue());
+            Long templateRepositoryEntryAsLong = Long.parseLong(repositoryEntryIdTextElement.getValue());
             // Validate given number by trying to load the course
-            OLATResource resource = OLATResourceManager.getInstance().findResourceable(templateCourseResourcableIdAsLong, "CourseModule");
-            if (resource == null) {
+            RepositoryService repositoryService = (RepositoryServiceImpl) CoreSpringFactory.getBean(RepositoryServiceImpl.class);
+            OLATResource olatResource = repositoryService.loadRepositoryEntryResource(templateRepositoryEntryAsLong);
+            if (olatResource == null) {
                 throw new CorruptedCourseException("Provided template is not valid");
             }
             // Course is now validated and can be used as template => write property
-            campusCourseConfiguration.saveTemplateCourseResourcableId(templateCourseResourcableIdAsLong, languagesSelection.getSelectedKey());
+            campusCourseConfiguration.saveTemplateRepositoryEntryId(templateRepositoryEntryAsLong, languagesSelection.getSelectedKey());
+            // Save currentSemester
+            daoManager.setCurrentSemester(selectedCurrentSemesterId);
         } catch (NumberFormatException ex) {
             this.showWarning("campus.admin.form.could.not.save");
         } catch (CorruptedCourseException ex) {
