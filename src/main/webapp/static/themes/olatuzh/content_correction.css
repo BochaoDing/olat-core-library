@@ -1,7 +1,7 @@
 /*********************************************************************************/
 /* Style fixes for
-/* SOREL https://ns.olat.uzh.ch/url/RepositoryEntry/1227096085
-/* SOREL français https://ns.olat.uzh.ch/url/RepositoryEntry/8053325825
+/* SOREL https://lms.uzh.ch/url/RepositoryEntry/1227096085
+/* SOREL français https://lms.uzh.ch/url/RepositoryEntry/8053325825
 /*********************************************************************************/
 
 body[data-repositoryentry="1227096085"] input.itemRadio,
@@ -51,30 +51,30 @@ body[data-repositoryentry="8053325825"] .buttonSolution_disabled {
 
 /*********************************************************************************/
 /* Style fixes for
-/* CareOL Austausch https://ns.olat.uzh.ch/url/RepositoryEntry/586612738
-/* CareOL BGS Austausch https://ns.olat.uzh.ch/url/RepositoryEntry/439353360
-/* CareOL BGS Home https://ns.olat.uzh.ch/url/RepositoryEntry/684097555
-/* CareOL BZGS 10-OT https://ns.olat.uzh.ch/url/RepositoryEntry/11280089094
-/* CareOL BZGS 10BMA https://ns.olat.uzh.ch/url/RepositoryEntry/11280089096
-/* CareOL BZGS 11-OT https://ns.olat.uzh.ch/url/RepositoryEntry/13617922063
-/* CareOL BZGS 11BMA https://ns.olat.uzh.ch/url/RepositoryEntry/13663305730
-/* CareOL BZGS 8-OT https://ns.olat.uzh.ch/url/RepositoryEntry/6185353217
-/* CareOL BZGS 8BMA https://ns.olat.uzh.ch/url/RepositoryEntry/6185353216
-/* CareOL BZGS 9-OT https://ns.olat.uzh.ch/url/RepositoryEntry/8749056007
-/* CareOL BZGS 9BMA https://ns.olat.uzh.ch/url/RepositoryEntry/8749056008
-/* CareOL CBZ BMA https://ns.olat.uzh.ch/url/RepositoryEntry/768835584
-/* CareOL CBZ HF Pflege https://ns.olat.uzh.ch/url/RepositoryEntry/627310604
-/* CareOL CBZ MTR https://ns.olat.uzh.ch/url/RepositoryEntry/725516293
-/* CareOL CBZ OT https://ns.olat.uzh.ch/url/RepositoryEntry/12042698752
-/* CareOL CDH https://ns.olat.uzh.ch/url/RepositoryEntry/1402961935
-/* CareOL Demo https://ns.olat.uzh.ch/url/RepositoryEntry/4403331073
-/* CareOL E-Books Test https://ns.olat.uzh.ch/url/RepositoryEntry/12859572224
-/* CareOL Helga https://ns.olat.uzh.ch/url/RepositoryEntry/283410454
-/* CareOL Helga II https://ns.olat.uzh.ch/url/RepositoryEntry/448659468
-/* CareOL HF Pflege BB https://ns.olat.uzh.ch/url/RepositoryEntry/14827847688
-/* CareOL Literatur https://ns.olat.uzh.ch/url/RepositoryEntry/12621742080
-/* Die Lernplattform "CareOL" https://ns.olat.uzh.ch/url/RepositoryEntry/5046534146
-/* Schulung_CareOL_CBZ https://ns.olat.uzh.ch/url/RepositoryEntry/3910336514
+/* CareOL Austausch https://lms.uzh.ch/url/RepositoryEntry/586612738
+/* CareOL BGS Austausch https://lms.uzh.ch/url/RepositoryEntry/439353360
+/* CareOL BGS Home https://lms.uzh.ch/url/RepositoryEntry/684097555
+/* CareOL BZGS 10-OT https://lms.uzh.ch/url/RepositoryEntry/11280089094
+/* CareOL BZGS 10BMA https://lms.uzh.ch/url/RepositoryEntry/11280089096
+/* CareOL BZGS 11-OT https://lms.uzh.ch/url/RepositoryEntry/13617922063
+/* CareOL BZGS 11BMA https://lms.uzh.ch/url/RepositoryEntry/13663305730
+/* CareOL BZGS 8-OT https://lms.uzh.ch/url/RepositoryEntry/6185353217
+/* CareOL BZGS 8BMA https://lms.uzh.ch/url/RepositoryEntry/6185353216
+/* CareOL BZGS 9-OT https://lms.uzh.ch/url/RepositoryEntry/8749056007
+/* CareOL BZGS 9BMA https://lms.uzh.ch/url/RepositoryEntry/8749056008
+/* CareOL CBZ BMA https://lms.uzh.ch/url/RepositoryEntry/768835584
+/* CareOL CBZ HF Pflege https://lms.uzh.ch/url/RepositoryEntry/627310604
+/* CareOL CBZ MTR https://lms.uzh.ch/url/RepositoryEntry/725516293
+/* CareOL CBZ OT https://lms.uzh.ch/url/RepositoryEntry/12042698752
+/* CareOL CDH https://lms.uzh.ch/url/RepositoryEntry/1402961935
+/* CareOL Demo https://lms.uzh.ch/url/RepositoryEntry/4403331073
+/* CareOL E-Books Test https://lms.uzh.ch/url/RepositoryEntry/12859572224
+/* CareOL Helga https://lms.uzh.ch/url/RepositoryEntry/283410454
+/* CareOL Helga II https://lms.uzh.ch/url/RepositoryEntry/448659468
+/* CareOL HF Pflege BB https://lms.uzh.ch/url/RepositoryEntry/14827847688
+/* CareOL Literatur https://lms.uzh.ch/url/RepositoryEntry/12621742080
+/* Die Lernplattform "CareOL" https://lms.uzh.ch/url/RepositoryEntry/5046534146
+/* Schulung_CareOL_CBZ https://lms.uzh.ch/url/RepositoryEntry/3910336514
 /*********************************************************************************/
 
 body[data-repositoryentry="586612738"],
@@ -89,7 +89,7 @@ body[data-repositoryentry="6185353216"],
 body[data-repositoryentry="8749056007"],
 body[data-repositoryentry="8749056008"],
 body[data-repositoryentry="768835584"],
-body[data-repositoryentry="627310604"],
+body[data-repositoryentry="10518528"],
 body[data-repositoryentry="725516293"],
 body[data-repositoryentry="12042698752"],
 body[data-repositoryentry="1402961935"],
