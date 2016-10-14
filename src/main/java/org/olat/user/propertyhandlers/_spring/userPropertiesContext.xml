@@ -238,6 +238,8 @@
 								<ref bean="userPropertyFirstName" />
 								<ref bean="userPropertyLastName" />
 								<ref bean="userPropertyEmail" />
+                                <ref bean="userPropertyInstitutionalEmployeeNumber" />
+								<ref bean="userPropertyInstitutionalMatriculationNumber" />
 							</set>
 						</property>
 					</bean>
