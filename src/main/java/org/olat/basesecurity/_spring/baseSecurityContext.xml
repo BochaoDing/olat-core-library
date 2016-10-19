@@ -15,7 +15,6 @@
 		depends-on="database, i18nModule, triggerI18nModuleInit">
 		<property name="resourceManager" ref="resourceManager"/>
 		<property name="loginModule" ref="loginModule"/>
-		<property name="dbInstance" ref="database"/>
 		<property name="invitationDao" ref="invitationDao" />
 		<property name="dbVendor" value="${db.vendor}" />
 	</bean>

@@ -35,6 +35,7 @@ import org.olat.core.util.coordinate.SyncerCallback;
 import org.olat.core.util.coordinate.SyncerExecutor;
 import org.olat.core.util.coordinate.util.DerivedStringSyncer;
 import org.olat.core.util.resource.OresHelper;
+import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * Description:<br>
@@ -49,18 +50,12 @@ public class ClusterSyncer implements Syncer {
 	private int executionTimeThreshold = 3000; // warn if the execution takes longer than three seconds
 	private final ThreadLocal<ThreadLocalClusterSyncer> data = new ThreadLocal<ThreadLocalClusterSyncer>();
 	private PessimisticLockManager pessimisticLockManager;
-	private DB dbInstance;
-	
-	/**
-	 * [used by spring]
-	 * @param pessimisticLockManager
-	 */
-	private ClusterSyncer(PessimisticLockManager pessimisticLockManager) {
-		this.setPessimisticLockManager(pessimisticLockManager);
-	}
+	private final DB dbInstance;
 
-	public void setDbInstance(DB db){
-		dbInstance = db;
+	@Autowired
+	private ClusterSyncer(PessimisticLockManager pessimisticLockManager, DB dbInstance) {
+		this.dbInstance = dbInstance;
+		this.setPessimisticLockManager(pessimisticLockManager);
 	}
 	
 	/**

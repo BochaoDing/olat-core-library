@@ -25,20 +25,6 @@
 
 package org.olat.basesecurity;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-
-import javax.persistence.EntityNotFoundException;
-import javax.persistence.LockModeType;
-import javax.persistence.TemporalType;
-import javax.persistence.TypedQuery;
-
 import org.hibernate.type.StandardBasicTypes;
 import org.hibernate.type.Type;
 import org.olat.admin.quota.GenericQuotaEditController;
@@ -48,16 +34,10 @@ import org.olat.admin.user.UserChangePasswordController;
 import org.olat.admin.user.UserCreateController;
 import org.olat.basesecurity.events.NewIdentityCreatedEvent;
 import org.olat.core.commons.persistence.DB;
-import org.olat.core.commons.persistence.DBFactory;
 import org.olat.core.commons.persistence.DBQuery;
 import org.olat.core.commons.persistence.PersistenceHelper;
 import org.olat.core.gui.translator.Translator;
-import org.olat.core.id.Identity;
-import org.olat.core.id.ModifiedInfo;
-import org.olat.core.id.OLATResourceable;
-import org.olat.core.id.Roles;
-import org.olat.core.id.User;
-import org.olat.core.id.UserConstants;
+import org.olat.core.id.*;
 import org.olat.core.logging.AssertException;
 import org.olat.core.logging.OLog;
 import org.olat.core.logging.Tracing;
@@ -73,6 +53,13 @@ import org.olat.resource.OLATResource;
 import org.olat.resource.OLATResourceManager;
 import org.olat.user.ChangePasswordController;
 import org.olat.user.UserManager;
+import org.springframework.beans.factory.annotation.Autowired;
+
+import javax.persistence.EntityNotFoundException;
+import javax.persistence.LockModeType;
+import javax.persistence.TemporalType;
+import javax.persistence.TypedQuery;
+import java.util.*;
 
 /**
  * <h3>Description:</h3>
@@ -87,7 +74,7 @@ public class BaseSecurityManager implements BaseSecurity {
 	
 	private static final OLog log = Tracing.createLoggerFor(BaseSecurityManager.class);
 	
-	private DB dbInstance;
+	private final DB dbInstance;
 	private LoginModule loginModule;
 	private OLATResourceManager orm;
 	private InvitationDAO invitationDao;
@@ -95,11 +82,10 @@ public class BaseSecurityManager implements BaseSecurity {
 	private static BaseSecurityManager INSTANCE;
 	private static String GUEST_USERNAME_PREFIX = "guest_";
 	public static final OLATResourceable IDENTITY_EVENT_CHANNEL = OresHelper.lookupType(Identity.class);
-	
-	/**
-	 * [used by spring]
-	 */
-	private BaseSecurityManager() {
+
+	@Autowired
+	private BaseSecurityManager(DB dbInstance) {
+		this.dbInstance = dbInstance;
 		INSTANCE = this;
 	}
 	
@@ -121,14 +107,6 @@ public class BaseSecurityManager implements BaseSecurity {
 	 */
 	public void setResourceManager(OLATResourceManager orm) {
 		this.orm = orm;
-	}
-	
-	/**
-	 * [used by Spring]
-	 * @param dbInstance
-	 */
-	public void setDbInstance(DB dbInstance) {
-		this.dbInstance = dbInstance;
 	}
 	
 	/**
@@ -297,7 +275,7 @@ public class BaseSecurityManager implements BaseSecurity {
 		StringBuilder sb = new StringBuilder();
 		sb.append("select poi from ").append(PolicyImpl.class.getName()).append(" as poi where poi.securityGroup.key=:secGroupKey");
 
-		List<Policy> policies = DBFactory.getInstance().getCurrentEntityManager()
+		List<Policy> policies = dbInstance.getCurrentEntityManager()
 				.createQuery(sb.toString(), Policy.class)
 				.setParameter("secGroupKey", secGroup.getKey())
 				.getResultList();
@@ -316,7 +294,7 @@ public class BaseSecurityManager implements BaseSecurity {
 			sb.append(" and poi.securityGroup.key=:secGroupKey");
 		}
 		
-		TypedQuery<Policy> query = DBFactory.getInstance().getCurrentEntityManager()
+		TypedQuery<Policy> query = dbInstance.getCurrentEntityManager()
 				.createQuery(sb.toString(), Policy.class)
 				.setParameter("resourceKey", resource.getKey());
 		if(secGroup != null) {
@@ -348,9 +326,9 @@ public class BaseSecurityManager implements BaseSecurity {
 
 		TypedQuery<Number> query;
 		if(checkTypeRight) {
-			query = DBFactory.getInstance().getCurrentEntityManager().createNamedQuery("isIdentityPermittedOnResourceableCheckType", Number.class);
+			query = dbInstance.getCurrentEntityManager().createNamedQuery("isIdentityPermittedOnResourceableCheckType", Number.class);
 		} else {
-			query = DBFactory.getInstance().getCurrentEntityManager().createNamedQuery("isIdentityPermittedOnResourceable", Number.class);
+			query = dbInstance.getCurrentEntityManager().createNamedQuery("isIdentityPermittedOnResourceable", Number.class);
 		}
 		
 		Number count = query.setParameter("identitykey", identity.getKey())
@@ -477,7 +455,7 @@ public class BaseSecurityManager implements BaseSecurity {
 		  .append("inner join fetch poi.olatResource as resource ")
 		  .append("where secGroup in (select sgmi.securityGroup from ")
 		  .append(SecurityGroupMembershipImpl.class.getName()).append(" as sgmi where sgmi.identity.key=:identityKey)");
-		return DBFactory.getInstance().getCurrentEntityManager()
+		return dbInstance.getCurrentEntityManager()
 				.createQuery(sb.toString(), Policy.class)
 				.setParameter("identityKey", identity.getKey())
 				.getResultList();
@@ -489,7 +467,7 @@ public class BaseSecurityManager implements BaseSecurity {
 	public boolean isIdentityInSecurityGroup(Identity identity, SecurityGroup secGroup) {
 		if (secGroup == null || identity == null) return false;
 		String queryString = "select count(sgmsi) from  org.olat.basesecurity.SecurityGroupMembershipImpl as sgmsi where sgmsi.identity = :identitykey and sgmsi.securityGroup = :securityGroup";
-		DBQuery query = DBFactory.getInstance().createQuery(queryString);
+		DBQuery query = dbInstance.createQuery(queryString);
 		query.setLong("identitykey", identity.getKey());
 		query.setLong("securityGroup", secGroup.getKey());
 		query.setCacheable(true);
@@ -507,7 +485,7 @@ public class BaseSecurityManager implements BaseSecurity {
 		sb.append("select sgmsi from ").append(SecurityGroupMembershipImpl.class.getName()).append(" as sgmsi ")
 		  .append("where sgmsi.identity.key=:identityKey and sgmsi.securityGroup in (:securityGroups)");
 		
-		List<ModifiedInfo> infos = DBFactory.getInstance().getCurrentEntityManager()
+		List<ModifiedInfo> infos = dbInstance.getCurrentEntityManager()
 				.createQuery(sb.toString(), ModifiedInfo.class)
 				.setParameter("identityKey", identity.getKey())
 				.setParameter("securityGroups", secGroups)
@@ -515,7 +493,7 @@ public class BaseSecurityManager implements BaseSecurity {
 		
 		for(ModifiedInfo info:infos) {
 			info.setLastModified(new Date());
-			DBFactory.getInstance().getCurrentEntityManager().merge(info);
+			dbInstance.getCurrentEntityManager().merge(info);
 		}
 	}
 
@@ -524,7 +502,7 @@ public class BaseSecurityManager implements BaseSecurity {
 	 */
 	public SecurityGroup createAndPersistSecurityGroup() {
 		SecurityGroupImpl sgi = new SecurityGroupImpl();
-		DBFactory.getInstance().saveObject(sgi);
+		dbInstance.saveObject(sgi);
 		return sgi;
 	}
 
@@ -534,12 +512,11 @@ public class BaseSecurityManager implements BaseSecurity {
 	public void deleteSecurityGroup(SecurityGroup secGroup) {
 		// we do not use hibernate cascade="delete", but implement our own (to be
 		// sure to understand our code)
-		DB db = DBFactory.getInstance();
 		//FIXME: fj: Please review: Create rep entry, restart olat, delete the rep
 		// entry. previous implementation resulted in orange screen
 		// secGroup = (SecurityGroup)db.loadObject(secGroup); // so we can later
 		// delete it (hibernate needs an associated session)
-		secGroup = (SecurityGroup) db.loadObject(secGroup);
+		secGroup = (SecurityGroup) dbInstance.loadObject(secGroup);
 		//o_clusterREVIEW
 		//db.reputInHibernateSessionCache(secGroup);
 
@@ -550,13 +527,13 @@ public class BaseSecurityManager implements BaseSecurity {
 		// 1) delete associated users (need to do it manually, hibernate knows
 		// nothing about
 		// the membership, modeled manually via many-to-one and not via set)
-		db.delete("from org.olat.basesecurity.SecurityGroupMembershipImpl as msi where msi.securityGroup.key = ?", new Object[] { secGroup
+		dbInstance.delete("from org.olat.basesecurity.SecurityGroupMembershipImpl as msi where msi.securityGroup.key = ?", new Object[] { secGroup
 				.getKey() }, new Type[] { StandardBasicTypes.LONG });
 		// 2) delete all policies
-		db.delete("from org.olat.basesecurity.PolicyImpl as poi where poi.securityGroup = ?", new Object[] { secGroup.getKey() },
+		dbInstance.delete("from org.olat.basesecurity.PolicyImpl as poi where poi.securityGroup = ?", new Object[] { secGroup.getKey() },
 				new Type[] { StandardBasicTypes.LONG });
 		// 3) delete security group
-		db.deleteObject(secGroup);
+		dbInstance.deleteObject(secGroup);
 	}
 
 	/**
@@ -598,7 +575,7 @@ public class BaseSecurityManager implements BaseSecurity {
 		for(SecurityGroup secGroup:secGroups) {
 			secGroupKeys.add(secGroup.getKey());
 		}
-		int rowsAffected = DBFactory.getInstance().getCurrentEntityManager()
+		int rowsAffected = dbInstance.getCurrentEntityManager()
 				.createQuery(sb.toString())
 				.setParameter("identityKeys", identityKeys)
 				.setParameter("secGroupKeys", secGroupKeys)
@@ -626,7 +603,7 @@ public class BaseSecurityManager implements BaseSecurity {
 		pi.setPermission(permission);
 		pi.setFrom(from);
 		pi.setTo(to);
-		DBFactory.getInstance().saveObject(pi);
+		dbInstance.saveObject(pi);
 		return pi;
 	}	
 	
@@ -651,7 +628,7 @@ public class BaseSecurityManager implements BaseSecurity {
 		sb.append("select poi from ").append(PolicyImpl.class.getName()).append(" as poi ")
 		  .append(" where poi.permission=:permission and poi.olatResource.key=:resourceKey and poi.securityGroup.key=:secGroupKey");
 
-		List<Policy> policies = DBFactory.getInstance().getCurrentEntityManager()
+		List<Policy> policies = dbInstance.getCurrentEntityManager()
 				.createQuery(sb.toString(), Policy.class)
 				.setParameter("permission", permission)
 				.setParameter("resourceKey", olatResource.getKey())
@@ -671,7 +648,7 @@ public class BaseSecurityManager implements BaseSecurity {
 		sb.append("delete from ").append(PolicyImpl.class.getName()).append(" as poi ")
 		  .append(" where poi.olatResource.key=:resourceKey");
 
-		int rowDeleted = DBFactory.getInstance().getCurrentEntityManager()
+		int rowDeleted = dbInstance.getCurrentEntityManager()
 				.createQuery(sb.toString())
 				.setParameter("resourceKey", resource.getKey())
 				.executeUpdate();
@@ -798,21 +775,14 @@ public class BaseSecurityManager implements BaseSecurity {
 	private void notifyNewIdentityCreated(Identity newIdentity) {
 		//Save the identity on the DB. So can the listeners of the event retrieve it
 		//in cluster mode
-		DBFactory.getInstance().commit();
+		dbInstance.commit();
 		CoordinatorManager.getInstance().getCoordinator().getEventBus().fireEventToListenersOf(new NewIdentityCreatedEvent(newIdentity), IDENTITY_EVENT_CHANNEL);
 	}
 
-	/**
-	 * @see org.olat.basesecurity.Manager#getIdentitiesOfSecurityGroup(org.olat.basesecurity.SecurityGroup)
-	 */
 	public List<Identity> getIdentitiesOfSecurityGroup(SecurityGroup secGroup) {
 		if (secGroup == null) {
 			throw new AssertException("getIdentitiesOfSecurityGroup: ERROR secGroup was null !!");
-		} 
-		DB db = DBFactory.getInstance();
-		if (db == null) {
-			throw new AssertException("getIdentitiesOfSecurityGroup: ERROR db was null !!");
-		} 
+		}
 
 		List<Identity> idents = getIdentitiesOfSecurityGroup(secGroup, 0, -1);
 		return idents;
@@ -830,7 +800,7 @@ public class BaseSecurityManager implements BaseSecurity {
 	   .append(" inner join fetch  identity.user user ")
 			.append(" where sgmsi.securityGroup=:secGroup");
 
-		TypedQuery<Identity> query = DBFactory.getInstance().getCurrentEntityManager()
+		TypedQuery<Identity> query = dbInstance.getCurrentEntityManager()
 				.createQuery(sb.toString(), Identity.class)
 				.setParameter("secGroup", secGroup);
 		if(firstResult >= 0) {
@@ -886,9 +856,8 @@ public class BaseSecurityManager implements BaseSecurity {
 	 */
 	@Override
 	public int countIdentitiesOfSecurityGroup(SecurityGroup secGroup) {
-		DB db = DBFactory.getInstance();
 		String q = "select count(sgm) from org.olat.basesecurity.SecurityGroupMembershipImpl sgm where sgm.securityGroup = :group";
-		DBQuery query = db.createQuery(q);
+		DBQuery query = dbInstance.createQuery(q);
 		query.setEntity("group", secGroup);
 		query.setCacheable(true);
 		int result = ((Long) query.list().get(0)).intValue();
@@ -902,7 +871,7 @@ public class BaseSecurityManager implements BaseSecurity {
 	public SecurityGroup createAndPersistNamedSecurityGroup(String groupName) {
 		SecurityGroup secG = createAndPersistSecurityGroup();
 		NamedGroupImpl ngi = new NamedGroupImpl(groupName, secG);
-		DBFactory.getInstance().saveObject(ngi);
+		dbInstance.saveObject(ngi);
 		return secG;
 	}
 
@@ -939,7 +908,7 @@ public class BaseSecurityManager implements BaseSecurity {
 		StringBuilder sb = new StringBuilder();
 		sb.append("select ident from ").append(IdentityImpl.class.getName()).append(" as ident where ident.name=:username");
 		
-		List<Identity> identities = DBFactory.getInstance().getCurrentEntityManager()
+		List<Identity> identities = dbInstance.getCurrentEntityManager()
 				.createQuery(sb.toString(), Identity.class)
 				.setParameter("username", identityName)
 				.getResultList();
@@ -992,7 +961,7 @@ public class BaseSecurityManager implements BaseSecurity {
 		StringBuilder sb = new StringBuilder();
 		sb.append("select ident from ").append(IdentityImpl.class.getName()).append(" as ident where ident.name in (:username)");
 		
-		List<Identity> identities = DBFactory.getInstance().getCurrentEntityManager()
+		List<Identity> identities = dbInstance.getCurrentEntityManager()
 				.createQuery(sb.toString(), Identity.class)
 				.setParameter("username", identityNames)
 				.getResultList();
@@ -1006,7 +975,7 @@ public class BaseSecurityManager implements BaseSecurity {
 		StringBuilder sb = new StringBuilder();
 		sb.append("select ident from ").append(IdentityImpl.class.getName()).append(" as ident where ident.user.key=:userKey");
 		
-		List<Identity> identities = DBFactory.getInstance().getCurrentEntityManager()
+		List<Identity> identities = dbInstance.getCurrentEntityManager()
 				.createQuery(sb.toString(), Identity.class)
 				.setParameter("userKey", user.getKey())
 				.getResultList();
@@ -1103,7 +1072,7 @@ public class BaseSecurityManager implements BaseSecurity {
 	public Identity loadIdentityByKey(Long identityKey) {
 		if (identityKey == null) throw new AssertException("findIdentitybyKey: key is null");
 		if(identityKey.equals(Long.valueOf(0))) return null;
-		return DBFactory.getInstance().loadObject(IdentityImpl.class, identityKey);
+		return dbInstance.loadObject(IdentityImpl.class, identityKey);
 	}
 
 	@Override
@@ -1240,7 +1209,7 @@ public class BaseSecurityManager implements BaseSecurity {
 	public Long countUniqueUserLoginsSince (Date lastLoginLimit){
 		String queryStr ="Select count(ident) from org.olat.core.id.Identity as ident where " 
 			+ "ident.lastLogin > :lastLoginLimit and ident.lastLogin != ident.creationDate";	
-		DBQuery dbq = DBFactory.getInstance().createQuery(queryStr);
+		DBQuery dbq = dbInstance.createQuery(queryStr);
 		dbq.setDate("lastLoginLimit", lastLoginLimit);
 		List res = dbq.list();
 		Long cntL = (Long) res.get(0);
@@ -1750,8 +1719,7 @@ public class BaseSecurityManager implements BaseSecurity {
 			
 		// create query object now from string
 		String query = sb.toString();
-		DB db = DBFactory.getInstance();
-		DBQuery dbq = db.createQuery(query);
+		DBQuery dbq = dbInstance.createQuery(query);
 		
 		// add user attributes
 		if (login != null) {
@@ -1839,7 +1807,7 @@ public class BaseSecurityManager implements BaseSecurity {
 	public boolean isIdentityVisible(String identityName) {
 		if (identityName == null) throw new AssertException("findIdentitybyName: name was null");
 		String queryString = "select count(ident) from org.olat.basesecurity.IdentityImpl as ident where ident.name = :identityName and ident.status < :status";
-		DBQuery dbq = DBFactory.getInstance().createQuery(queryString);
+		DBQuery dbq = dbInstance.createQuery(queryString);
 		dbq.setString("identityName", identityName);
 		dbq.setInteger("status", Identity.STATUS_VISIBLE_LIMIT);
 		List res = dbq.list();
@@ -1967,7 +1935,7 @@ public class BaseSecurityManager implements BaseSecurity {
 		  .append(SecurityGroupMembershipImpl.class.getName()).append(" as sgmsi ")
 		  .append(" where sgmsi.securityGroup=sgi and sgmsi.identity.key=:identityKey");
 
-	  List<SecurityGroup> secGroups = DBFactory.getInstance().getCurrentEntityManager()
+	  List<SecurityGroup> secGroups = dbInstance.getCurrentEntityManager()
 	  		.createQuery(sb.toString(), SecurityGroup.class)
 	  		.setParameter("identityKey", identity.getKey())
 	  		.getResultList();

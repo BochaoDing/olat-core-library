@@ -19,7 +19,6 @@
 		init-method="init" destroy-method="destroy" depends-on="systemRegistrationModule">
 		<constructor-arg index="0" ref="schedulerFactoryBean"/>
 		<constructor-arg index="1" value="${cluster.mode}"/>
-		<constructor-arg index="2" ref="database"/>
 		<constructor-arg index="3" ref="systemRegistrationModule"/>
 		<property name="securityManager" ref="baseSecurityManager" />
 		<property name="repositoryManager" ref="repositoryManager" />

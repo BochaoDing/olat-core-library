@@ -68,6 +68,7 @@ import org.quartz.CronTrigger;
 import org.quartz.JobDetail;
 import org.quartz.Scheduler;
 import org.quartz.SchedulerException;
+import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * Description:<br>
@@ -101,6 +102,7 @@ public class SystemRegistrationManager extends BasicManager implements Initializ
 	 * [used by spring]
 	 * Use getInstance(), this is a singleton
 	 */
+	@Autowired
 	private SystemRegistrationManager(Scheduler scheduler, String clusterMode, DB database, SystemRegistrationModule registrationModule) {
 		this.scheduler = scheduler;
 		this.clusterMode = clusterMode;

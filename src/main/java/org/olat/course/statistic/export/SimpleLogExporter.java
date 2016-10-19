@@ -43,6 +43,7 @@ import org.olat.core.commons.persistence.DB;
 import org.olat.core.logging.OLog;
 import org.olat.core.logging.Tracing;
 import org.olat.core.logging.activity.LoggingObject;
+import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * 
@@ -62,20 +63,17 @@ public class SimpleLogExporter implements ICourseLogExporter {
 	private static final OLog log = Tracing.createLoggerFor(SimpleLogExporter.class);
 	private static final String LINE_SEPARATOR = System.getProperty("line.separator");
 	
-	private DB dbInstance;
+	private final DB dbInstance;
 	private LogLineConverter logLineConverter_;
-	
-	private SimpleLogExporter() {
-		// this empty constructor is ok - instantiated via spring
+
+	@Autowired
+	private SimpleLogExporter(DB dbInstance) {
+		this.dbInstance = dbInstance;
 	}
 	
 	/** injected by spring **/
 	public void setLogLineConverter(LogLineConverter logLineConverter) {
 		logLineConverter_ = logLineConverter;
-	}
-	
-	public void setDbInstance(DB dbInstance) {
-		this.dbInstance = dbInstance;
 	}
 
 	@Override

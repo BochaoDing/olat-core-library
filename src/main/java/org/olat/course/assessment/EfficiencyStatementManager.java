@@ -60,6 +60,7 @@ import org.olat.user.UserDataDeletable;
 import org.olat.user.UserManager;
 
 import com.thoughtworks.xstream.XStream;
+import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * Description:<br>
@@ -78,16 +79,14 @@ public class EfficiencyStatementManager extends BasicManager implements UserData
 	
 	private static EfficiencyStatementManager INSTANCE;
 
-	private DB dbInstance;
+	private final DB dbInstance;
 	private UserManager userManager;
 	private RepositoryManager repositoryManager;
 	private final XStream xstream = XStreamHelper.createXStreamInstance();
 
-	
-	/**
-	 * Constructor
-	 */
-	private EfficiencyStatementManager() {
+	@Autowired
+	private EfficiencyStatementManager(DB dbInstance) {
+		this.dbInstance = dbInstance;
 		INSTANCE = this;
 	}
 	
@@ -97,14 +96,6 @@ public class EfficiencyStatementManager extends BasicManager implements UserData
 	 */
 	public static EfficiencyStatementManager getInstance() {
 		return INSTANCE;
-	}
-	
-	/**
-	 * [used by Spring]
-	 * @param dbInstance
-	 */
-	public void setDbInstance(DB dbInstance) {
-		this.dbInstance = dbInstance;
 	}
 	
 	/**

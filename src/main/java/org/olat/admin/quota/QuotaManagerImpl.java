@@ -25,18 +25,11 @@
 
 package org.olat.admin.quota;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 import org.olat.basesecurity.BaseSecurity;
 import org.olat.basesecurity.BaseSecurityManager;
 import org.olat.basesecurity.Constants;
 import org.olat.core.commons.modules.bc.FolderConfig;
-import org.olat.core.commons.persistence.DBFactory;
+import org.olat.core.commons.persistence.DB;
 import org.olat.core.commons.persistence.DBQuery;
 import org.olat.core.gui.UserRequest;
 import org.olat.core.gui.control.Controller;
@@ -54,6 +47,9 @@ import org.olat.properties.Property;
 import org.olat.properties.PropertyManager;
 import org.olat.resource.OLATResource;
 import org.olat.resource.OLATResourceManager;
+import org.springframework.beans.factory.annotation.Autowired;
+
+import java.util.*;
 
 /**
  * <h3>Description:</h3>
@@ -65,6 +61,9 @@ import org.olat.resource.OLATResourceManager;
  * @author Florian Gnaegi, frentix GmbH, http://www.frentix.com
  */
 public class QuotaManagerImpl extends QuotaManager {
+
+	private final DB dbInstance;
+
 	private static final OLog log = Tracing.createLoggerFor(QuotaManagerImpl.class);
 
 	private static final String QUOTA_CATEGORY = "quot";
@@ -72,11 +71,10 @@ public class QuotaManagerImpl extends QuotaManager {
 	private OLATResourceManager resourceManager;
 	private PropertyManager propertyManager;
 	private static Map<String,Quota> defaultQuotas;
-	
-	/**
-	 * [used by spring]
-	 */
-	private QuotaManagerImpl(OLATResourceManager resourceManager, PropertyManager propertyManager) {
+
+	@Autowired
+	private QuotaManagerImpl(DB dbInstance, OLATResourceManager resourceManager, PropertyManager propertyManager) {
+		this.dbInstance = dbInstance;
 		this.resourceManager = resourceManager;
 		this.propertyManager = propertyManager;
 		INSTANCE = this;
@@ -96,7 +94,7 @@ public class QuotaManagerImpl extends QuotaManager {
 	public void init() {
 		quotaResource = resourceManager.findOrPersistResourceable(OresHelper.lookupType(Quota.class));
 		initDefaultQuotas(); // initialize default quotas
-		DBFactory.getInstance().intermediateCommit();
+		dbInstance.intermediateCommit();
 		log.info("Successfully initialized Quota Manager");
 	}
 
@@ -121,7 +119,6 @@ public class QuotaManagerImpl extends QuotaManager {
 	/**
 	 * 
 	 * @param quotaIdentifier
-	 * @param factor Multiplier for some long running resources as blogs
 	 * @return
 	 */
 	private Quota initDefaultQuota(String quotaIdentifier) {
@@ -181,7 +178,7 @@ public class QuotaManagerImpl extends QuotaManager {
 		     .append(" and prop.name=:name")
 		     .append(" and prop.identity is null and prop.grp is null");
 		
-		DBQuery dbquery = DBFactory.getInstance().createQuery(query.toString());
+		DBQuery dbquery = dbInstance.createQuery(query.toString());
 		dbquery.setString("name", path);
 		dbquery.setCacheable(true);
 		@SuppressWarnings("unchecked")
@@ -328,8 +325,7 @@ public class QuotaManagerImpl extends QuotaManager {
 	/**
 	 * get default quota for normal users. On places where you have users with
 	 * different roles use
-	 * 
-	 * @see getDefaultQuotaDependingOnRole(Identity identity)
+	 *
 	 * @return Quota
 	 */
 	private Quota getDefaultQuotaUsers() {
@@ -342,8 +338,7 @@ public class QuotaManagerImpl extends QuotaManager {
 	/**
 	 * get default quota for power users (authors). On places where you have users
 	 * with different roles use
-	 * 
-	 * @see getDefaultQuotaDependingOnRole(Identity identity)
+	 *
 	 * @return Quota
 	 */
 	private Quota getDefaultQuotaPowerUsers() {

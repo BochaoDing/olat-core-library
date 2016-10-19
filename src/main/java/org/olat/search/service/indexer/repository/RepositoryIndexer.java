@@ -53,6 +53,7 @@ import org.olat.search.service.SearchResourceContext;
 import org.olat.search.service.indexer.AbstractHierarchicalIndexer;
 import org.olat.search.service.indexer.Indexer;
 import org.olat.search.service.indexer.OlatFullIndexer;
+import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * Index the whole OLAT-repository.
@@ -63,14 +64,15 @@ public class RepositoryIndexer extends AbstractHierarchicalIndexer {
 	
 	private static final int BATCH_SIZE = 100;
 	
-	private DB dbInstance;
+	private final DB dbInstance;
 	private RepositoryManager repositoryManager;
 	private RepositoryEntryDocumentFactory documentFactory;
 	
 	private List<Long> repositoryBlackList;
 
-	private RepositoryIndexer() {
-		//
+	@Autowired
+	private RepositoryIndexer(DB dbInstance) {
+		this.dbInstance = dbInstance;
 	}
 	
 	/**
@@ -92,13 +94,6 @@ public class RepositoryIndexer extends AbstractHierarchicalIndexer {
 	 */
 	public void setRepositoryManager(RepositoryManager repositoryManager) {
 		this.repositoryManager = repositoryManager;
-	}
-	
-	/**
-	 * [used by spring]
-	 */
-	public void setDbInstance(DB dbInstance) {
-		this.dbInstance = dbInstance;
 	}
 
 	/**

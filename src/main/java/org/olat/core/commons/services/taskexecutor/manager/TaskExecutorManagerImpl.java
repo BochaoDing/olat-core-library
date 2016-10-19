@@ -46,6 +46,7 @@ import org.olat.core.logging.OLog;
 import org.olat.core.logging.Tracing;
 import org.olat.core.manager.BasicManager;
 import org.olat.resource.OLATResource;
+import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * 
@@ -64,22 +65,13 @@ public class TaskExecutorManagerImpl extends BasicManager implements TaskExecuto
 	private final ExecutorService taskExecutor;
 	private final ExecutorService sequentialTaskExecutor;
 	
-	private DB dbInstance;
+	private final DB dbInstance;
 	private PersistentTaskDAO persistentTaskDao;
 
-	/**
-	 * [used by spring]
-	 */
-	private TaskExecutorManagerImpl(ExecutorService mpTaskExecutor, ExecutorService sequentialTaskExecutor) {
+	@Autowired
+	private TaskExecutorManagerImpl(ExecutorService mpTaskExecutor, ExecutorService sequentialTaskExecutor, DB dbInstance) {
 		this.taskExecutor = mpTaskExecutor;
 		this.sequentialTaskExecutor = sequentialTaskExecutor;
-	}
-	
-	/**
-	 * [used by Spring]
-	 * @param dbInstance
-	 */
-	public void setDbInstance(DB dbInstance) {
 		this.dbInstance = dbInstance;
 	}
 

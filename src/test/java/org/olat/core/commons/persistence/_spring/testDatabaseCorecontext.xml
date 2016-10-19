@@ -4,9 +4,10 @@
 	xsi:schemaLocation="
   http://www.springframework.org/schema/beans 
   http://www.springframework.org/schema/beans/spring-beans.xsd">
-  
 
-	<bean id="iQManager" class="org.olat.modules.iq.IQManager">
-		<property name="userManager" ref="userManager" />
+	<bean id="testDatabase" primary="true" class="org.olat.core.commons.persistence.TestDBImpl" destroy-method="destroy">
+		<constructor-arg index="0" ref="${db.vendor}_${db.source}_HibernateProperties"/>
+		<property name="dbVendor" value="${db.vendor}" />
 	</bean>
+
 </beans>

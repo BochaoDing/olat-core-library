@@ -42,7 +42,6 @@
 		<constructor-arg index="0" ref="lockManager" />
 		<!-- if the ClusterSyncer is on debug level and if a sync takes longer than the given threshhold in miliseconds, then a warn message is written into the log -->
 		<property name="executionTimeThreshold" value="1000" />
-		<property name="dbInstance" ref="database"></property>
 	</bean>
 
 	<bean id="org.olat.commons.coordinate.cluster.jms.ClusterEventBus" class="org.olat.commons.coordinate.cluster.jms.ClusterEventBus" 

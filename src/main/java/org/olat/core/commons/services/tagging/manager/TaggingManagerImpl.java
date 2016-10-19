@@ -37,6 +37,7 @@ import org.olat.core.id.OLATResourceable;
 import org.olat.core.logging.AssertException;
 import org.olat.core.manager.BasicManager;
 import org.olat.core.util.StringHelper;
+import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * 
@@ -49,18 +50,11 @@ import org.olat.core.util.StringHelper;
  */
 public class TaggingManagerImpl extends BasicManager implements TaggingManager {
 
-	private DB dbInstance;
+	private final DB dbInstance;
 	private TagProposalManager proposalManager;
-	
-	public TaggingManagerImpl() {
-		//
-	}
-	
-	/**
-	 * [used by Spring]
-	 * @param dbInstance
-	 */
-	public void setDbInstance(DB dbInstance) {
+
+	@Autowired
+	public TaggingManagerImpl(DB dbInstance) {
 		this.dbInstance = dbInstance;
 	}
 	

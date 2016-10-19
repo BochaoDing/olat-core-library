@@ -42,7 +42,7 @@ import javax.jms.ObjectMessage;
 import javax.jms.Session;
 import javax.jms.Topic;
 
-import org.olat.core.commons.persistence.DBFactory;
+import org.olat.core.commons.persistence.DB;
 import org.olat.core.gui.control.Event;
 import org.olat.core.id.OLATResourceable;
 import org.olat.core.logging.OLATRuntimeException;
@@ -55,6 +55,7 @@ import org.olat.core.util.event.MultiUserEvent;
 import org.olat.core.util.event.businfo.BusListenerInfo;
 import org.olat.core.util.event.businfo.BusListenerInfos;
 import org.olat.core.util.resource.OresHelper;
+import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * This class realizes a clustered (multiple java vm) system event bus. it uses JMS 
@@ -63,6 +64,9 @@ import org.olat.core.util.resource.OresHelper;
  * @author Felix Jost
  */
 public class ClusterEventBus extends AbstractEventBus implements MessageListener, GenericEventListener {
+
+	private final DB dbinstance;
+
 	private static final OLog log = Tracing.createLoggerFor(ClusterEventBus.class);
 	//ores helper is limited to 50 character, so truncate it
 	static final OLATResourceable CLUSTER_CHANNEL = OresHelper.createOLATResourceableType(ClusterEventBus.class.getName().substring(0, 50));
@@ -110,13 +114,10 @@ public class ClusterEventBus extends AbstractEventBus implements MessageListener
 	
 	private ExecutorService jmsExecutor;
 	
-	/**
-	 * [used by spring]
-	 * 
-	 * @param jmsTemplate
-	 */
-	ClusterEventBus() {
+	@Autowired
+	ClusterEventBus(DB dbinstance) {
 		super();
+		this.dbinstance = dbinstance;
 	}
 
 	public void springInit() throws JMSException {
@@ -268,7 +269,7 @@ public class ClusterEventBus extends AbstractEventBus implements MessageListener
 			log.error("Error enountered by serve-thread:", er);
 		} finally {
 			try {
-				DBFactory.getInstance().commitAndCloseSession();
+				dbinstance.commitAndCloseSession();
 			} catch (Exception e) {
 				log.error("", e);
 			}

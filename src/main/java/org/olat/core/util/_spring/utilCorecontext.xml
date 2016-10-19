@@ -116,8 +116,8 @@
 	
 	
 	<bean id="org.olat.core.util.vfs.QuotaManager" class="org.olat.admin.quota.QuotaManagerImpl"  init-method="init" >
-		<constructor-arg index="0" ref="resourceManager" />
-		<constructor-arg index="1" ref="propertyManager" />
+		<constructor-arg index="1" ref="resourceManager" />
+		<constructor-arg index="2" ref="propertyManager" />
 	</bean>
 	
 	<bean id="vfsLockManager" class="org.olat.core.util.vfs.lock.VFSLockManagerImpl" >

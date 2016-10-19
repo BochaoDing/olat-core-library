@@ -2390,7 +2390,12 @@
 				</exclusion>
 			</exclusions>
 		</dependency>
-		<!-- End test dependencies -->
+        <dependency>
+            <groupId>javax.inject</groupId>
+            <artifactId>javax.inject</artifactId>
+            <version>1</version>
+        </dependency>
+        <!-- End test dependencies -->
 	</dependencies>
 	
 	<dependencyManagement>

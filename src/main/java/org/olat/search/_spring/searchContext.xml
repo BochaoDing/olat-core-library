@@ -166,7 +166,6 @@
 		<property name="repositoryManager" ref="repositoryManager" />
 		<property name="searchModule" ref="searchModule" />
 		<property name="repositoryEntryDocumentFactory" ref="repositoryEntryDocumentFactory" />
-		<property name="dbInstance" ref="database" />
 		<property name="indexerList">
 			<list>
 				<ref bean="courseIndexer" />
