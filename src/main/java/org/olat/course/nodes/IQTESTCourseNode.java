@@ -114,7 +114,6 @@ public class IQTESTCourseNode extends AbstractAccessableCourseNode implements As
 	public TabbableController createEditController(UserRequest ureq, WindowControl wControl, BreadcrumbPanel stackPanel, ICourse course, UserCourseEnvironment euce) {
 		updateModuleConfigDefaults(false);
 		TabbableController childTabCntrllr = IQUIFactory.createIQTestEditController(ureq, wControl, stackPanel, course, this, course.getCourseEnvironment().getCourseGroupManager(), euce); 
-		CourseNode chosenNode = course.getEditorTreeModel().getCourseNode(euce.getCourseEditorEnv().getCurrentCourseNodeId());
 		return new NodeEditController(ureq, wControl, course.getEditorTreeModel(), course, euce, childTabCntrllr);
 	}
 
