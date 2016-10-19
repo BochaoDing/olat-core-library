@@ -385,11 +385,11 @@ public class Course {
 
         String titleToBeDisplayed = semester.getShortYearShortSemesterName().concat(WHITESPACE);
 
-        if (shortTitle != null && shortTitleActivated && !"".equals(shortTitle)) {
-            if (shortTitle.length() > 4) {
-            	titleToBeDisplayed += shortTitle.substring(4);
+        if (getShortTitle() != null && shortTitleActivated && !"".equals(getShortTitle())) {
+            if (getShortTitle().length() > 4) {
+            	titleToBeDisplayed += getShortTitle().substring(4);
             } else {
-            	titleToBeDisplayed += shortTitle;
+            	titleToBeDisplayed += getShortTitle();
             }
             titleToBeDisplayed += WHITESPACE;
         }
@@ -421,7 +421,7 @@ public class Course {
 
         Course course = (Course) o;
 
-        if (!shortTitle.equals(course.shortTitle)) return false;
+        if (!getShortTitle().equals(course.getShortTitle())) return false;
         if (!title.equals(course.title)) return false;
         return vstNr.equals(course.vstNr);
 
@@ -429,7 +429,7 @@ public class Course {
 
     @Override
     public int hashCode() {
-        int result = shortTitle.hashCode();
+        int result = getShortTitle().hashCode();
         result = 31 * result + title.hashCode();
         result = 31 * result + vstNr.hashCode();
         return result;
