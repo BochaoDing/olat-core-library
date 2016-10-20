@@ -37,7 +37,6 @@ import java.util.concurrent.TimeUnit;
 import org.junit.Assert;
 import org.junit.Test;
 import org.olat.basesecurity.BaseSecurity;
-import org.olat.core.commons.persistence.DB;
 import org.olat.core.commons.persistence.DBFactory;
 import org.olat.core.id.Identity;
 import org.olat.group.BusinessGroup;
@@ -58,9 +57,7 @@ import org.springframework.beans.factory.annotation.Autowired;
  * @author Christian Guretzki
  */
 public class UserDeletionManagerTest extends OlatTestCase {
-	
-	@Autowired
-	private DB dbInstance;
+
 	@Autowired
 	private BaseSecurity securityManager;
 	@Autowired
@@ -71,7 +68,7 @@ public class UserDeletionManagerTest extends OlatTestCase {
 	private UserDeletionManager userDeletionManager;
 	@Autowired
 	private BusinessGroupService businessGroupService;
-	
+
 	@Test
 	public void testDeleteIdentity() {
 		Identity identity = JunitTestHelper.createAndPersistIdentityAsUser("anIdentityToDelete");

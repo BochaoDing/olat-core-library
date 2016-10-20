@@ -80,7 +80,7 @@ public class ProjectBrokerManagerTest extends OlatTestCase {
 	private ProjectGroupManager projectGroupManager;
 	@Autowired
 	private ProjectBrokerManager projectBrokerManager;
-	
+
 
 	/**
 	 * @see junit.framework.TestCase#setUp()

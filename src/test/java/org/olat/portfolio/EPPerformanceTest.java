@@ -33,8 +33,6 @@ import java.util.UUID;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.olat.core.commons.persistence.DB;
-import org.olat.core.commons.persistence.DBFactory;
 import org.olat.core.id.Identity;
 import org.olat.core.id.Roles;
 import org.olat.modules.fo.portfolio.ForumArtefact;
@@ -69,10 +67,6 @@ public class EPPerformanceTest extends OlatTestCase {
 			"felis commodo a rutrum ipsum tristique. Nulla facilisi. Vivamus convallis faucibus augue quis ultrices. Sed quam orci, dignissim metus. ";
 	private static final List<String> tagList1 = new ArrayList<String>(Arrays.asList("Haus", "baum", "Wald"));
 	private static final List<String> tagList2 = new ArrayList<String>(Arrays.asList("Schule", "Lehrer"));
-	
-
-	@Autowired
-	private DB dbInstance;
 
 	@Autowired
 	private EPFrontendManager epFrontendManager;
@@ -123,7 +117,7 @@ public class EPPerformanceTest extends OlatTestCase {
 			}
 			
 			if (j % 10 == 0) {
-				DBFactory.getInstance().closeSession();
+				dbInstance.closeSession();
 			}
 			if (j % 100 == 0){
 				logger.info("created another 100 artefacts! -> " + j);
@@ -189,7 +183,7 @@ public class EPPerformanceTest extends OlatTestCase {
 			i++;
 			epFrontendManager.deletePortfolioStructure(portfolioStructure);
 			if (i % 100 == 0) {
-				DBFactory.getInstance().closeSession();
+				dbInstance.closeSession();
 			}
 		}
 	}

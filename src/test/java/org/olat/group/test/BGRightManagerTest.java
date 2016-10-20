@@ -40,8 +40,6 @@ import org.junit.Test;
 import org.olat.basesecurity.Grant;
 import org.olat.basesecurity.GroupRoles;
 import org.olat.basesecurity.manager.GroupDAO;
-import org.olat.core.commons.persistence.DB;
-import org.olat.core.commons.persistence.DBFactory;
 import org.olat.core.id.Identity;
 import org.olat.core.logging.OLog;
 import org.olat.core.logging.Tracing;
@@ -68,8 +66,6 @@ public class BGRightManagerTest extends OlatTestCase {
 	private static OLog log = Tracing.createLoggerFor(BGRightManagerTest.class);
 	private Identity id1, id2, id3, id4;
 
-	@Autowired
-	private DB dbInstance;
 	@Autowired
 	private GroupDAO groupDao;
 	@Autowired
@@ -455,12 +451,12 @@ public class BGRightManagerTest extends OlatTestCase {
 		rightManager.addBGRight(CourseRights.RIGHT_COURSEEDITOR, g1, BGRightsRole.participant);
 		rightManager.addBGRight(CourseRights.RIGHT_ARCHIVING, g2, BGRightsRole.participant);
 		rightManager.addBGRight(CourseRights.RIGHT_COURSEEDITOR, g3, BGRightsRole.participant);
-		DBFactory.getInstance().closeSession(); // simulate user clicks
+		dbInstance.closeSession(); // simulate user clicks
 
 		List<Grant> grants = groupDao.getGrants(g1.getBaseGroup(), GroupRoles.participant.name());
 		Assert.assertEquals(2, grants.size()); // read, parti, archiving, courseeditor
 
-		DBFactory.getInstance().closeSession(); // simulate user clicks
+		dbInstance.closeSession(); // simulate user clicks
 		assertFalse(rightManager.hasBGRight(CourseRights.RIGHT_ARCHIVING, id1, c2.getOlatResource()));
 		assertTrue(rightManager.hasBGRight(CourseRights.RIGHT_ARCHIVING, id1, c1.getOlatResource()));
 		assertTrue(rightManager.hasBGRight(CourseRights.RIGHT_ARCHIVING, id2, c1.getOlatResource()));
@@ -478,13 +474,13 @@ public class BGRightManagerTest extends OlatTestCase {
 		Assert.assertEquals(2, rightManager.findBGRights(g1, BGRightsRole.participant).size());
 		Assert.assertEquals(1, rightManager.findBGRights(g2, BGRightsRole.participant).size());
 
-		DBFactory.getInstance().closeSession(); // simulate user clicks
+		dbInstance.closeSession(); // simulate user clicks
 		rightManager.removeBGRight(CourseRights.RIGHT_ARCHIVING, g1, c1.getOlatResource(), BGRightsRole.participant);
 		rightManager.removeBGRight(CourseRights.RIGHT_COURSEEDITOR, g1, c1.getOlatResource(), BGRightsRole.participant);
 		rightManager.removeBGRight(CourseRights.RIGHT_ARCHIVING, g2, c1.getOlatResource(), BGRightsRole.participant);
 		rightManager.removeBGRight(CourseRights.RIGHT_COURSEEDITOR, g3, c2.getOlatResource(), BGRightsRole.participant);
 
-		DBFactory.getInstance().closeSession(); // simulate user clicks
+		dbInstance.closeSession(); // simulate user clicks
 		assertFalse(rightManager.hasBGRight(CourseRights.RIGHT_ARCHIVING, id1, c1.getOlatResource()));
 		assertFalse(rightManager.hasBGRight(CourseRights.RIGHT_ARCHIVING, id2, c1.getOlatResource()));
 		assertFalse(rightManager.hasBGRight(CourseRights.RIGHT_COURSEEDITOR, id3, c2.getOlatResource()));

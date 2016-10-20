@@ -42,8 +42,6 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.olat.basesecurity.GroupRoles;
-import org.olat.core.commons.persistence.DB;
-import org.olat.core.commons.persistence.DBFactory;
 import org.olat.core.id.Identity;
 import org.olat.core.logging.OLog;
 import org.olat.core.logging.Tracing;
@@ -67,9 +65,7 @@ public class BGAreaManagerTest extends OlatTestCase {
 	private static OLog log = Tracing.createLoggerFor(BGAreaManagerTest.class);
 
 	private OLATResource c1, c2;
-	
-	@Autowired
-	private DB dbInstance;
+
 	@Autowired
 	private BGAreaManager areaManager;
 	@Autowired
@@ -85,7 +81,7 @@ public class BGAreaManagerTest extends OlatTestCase {
 			c2 = JunitTestHelper.createRandomResource();
 			Assert.assertNotNull(c2);
 
-			DBFactory.getInstance().closeSession();
+			dbInstance.closeSession();
 		} catch (Exception e) {
 			log.error("Exception in setUp(): " + e);
 		}
@@ -745,7 +741,7 @@ public class BGAreaManagerTest extends OlatTestCase {
 					try {
 						BGArea bgArea = areaManager.createAndPersistBGArea(areaName, "description:" + areaName, c1);
 						if (bgArea != null) {
-							DBFactory.getInstance().closeSession();
+							dbInstance.closeSession();
 							// created a new bg area
 							sleep(sleepAfterCreate);
 							areaManager.deleteBGArea(bgArea);
@@ -754,7 +750,7 @@ public class BGAreaManagerTest extends OlatTestCase {
 						exceptionHolder.add(e);
 					} finally {
 						try {
-							DBFactory.getInstance().closeSession();
+							dbInstance.closeSession();
 						} catch (Exception e) {
 							// ignore
 						};
@@ -819,7 +815,7 @@ public class BGAreaManagerTest extends OlatTestCase {
 					for (int i=0; i<maxLoop; i++) {
 						try {
 							BGArea bgArea = areaManager.findBGArea(areaName, c1);
-							DBFactory.getInstance().closeSession();// Detached the bg-area object with closing session 
+							dbInstance.closeSession();// Detached the bg-area object with closing session
 							if (bgArea != null) {
 								bgArea.setDescription("description:" + areaName + i);
 								areaManager.updateBGArea(bgArea);
@@ -828,7 +824,7 @@ public class BGAreaManagerTest extends OlatTestCase {
 							exceptionHolder.add(e);
 						} finally {
 							try {
-								DBFactory.getInstance().closeSession();
+								dbInstance.closeSession();
 							} catch (Exception e) {
 								// ignore
 							};

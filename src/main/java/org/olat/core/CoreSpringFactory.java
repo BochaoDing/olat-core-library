@@ -217,7 +217,12 @@ public class CoreSpringFactory implements ServletContextAware {
 		return clone;
 	}
 
+	/**
+ 	 * Depending on the initialization order (see also the {@link Order}
+	 * annotation of this class), this method may fail.
+ 	 */
 	public static BeanFactory getBeanFactory() {
+		assert beanFactory != null;
 		return beanFactory.get();
 	}
 }

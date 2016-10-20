@@ -110,9 +110,7 @@ public class EnrollmentManagerConcurrentTest extends OlatTestCase implements Win
 	private EnrollmentManager enrollmentManager;
 	@Autowired
 	private BaseSecurity securityManager;
-	@Autowired
-	private DB dbInstance;
-	
+
 	/**
 	 * @see junit.framework.TestCase#setUp()
 	 */

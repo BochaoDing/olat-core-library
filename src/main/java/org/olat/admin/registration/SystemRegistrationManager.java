@@ -109,7 +109,7 @@ public class SystemRegistrationManager extends BasicManager implements Initializ
 		this.database = database;
 		this.registrationModule = registrationModule;
 	}
-	
+
 	/**
 	 * Initialize the configuration
 	 */

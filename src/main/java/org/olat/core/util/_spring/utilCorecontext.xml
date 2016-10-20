@@ -115,7 +115,7 @@
 	<bean id="httpClientFactory" class="org.olat.core.util.httpclient.HttpClientFactory" destroy-method="destroy"/>
 	
 	
-	<bean id="org.olat.core.util.vfs.QuotaManager" class="org.olat.admin.quota.QuotaManagerImpl"  init-method="init" >
+	<bean id="org.olat.core.util.vfs.QuotaManager" class="org.olat.admin.quota.QuotaManagerImpl">
 		<constructor-arg index="1" ref="resourceManager" />
 		<constructor-arg index="2" ref="propertyManager" />
 	</bean>
