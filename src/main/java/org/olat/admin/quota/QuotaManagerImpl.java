@@ -108,7 +108,7 @@ public class QuotaManagerImpl extends QuotaManager {
 			Quota defaultQuotaFeed = initDefaultQuota(QuotaConstants.IDENTIFIER_DEFAULT_FEEDS);
 			tmp.put(QuotaConstants.IDENTIFIER_DEFAULT_FEEDS, defaultQuotaFeed);
 
-			if (defaultQuotas != null) {
+			if (defaultQuotas == null) {
 				defaultQuotas = Collections.unmodifiableMap(tmp);
 			}
 		}
