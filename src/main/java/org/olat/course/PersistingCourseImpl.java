@@ -30,6 +30,7 @@ import java.io.Serializable;
 
 import org.olat.admin.quota.QuotaConstants;
 import org.olat.commons.fileutil.CourseConfigUtil;
+import org.olat.commons.fileutil.CustomQuotaDetectedException;
 import org.olat.commons.fileutil.FileSizeLimitExceededException;
 import org.olat.core.CoreSpringFactory;
 import org.olat.core.commons.modules.bc.vfs.OlatRootFolderImpl;
@@ -44,11 +45,7 @@ import org.olat.core.util.FileUtils;
 import org.olat.core.util.nodes.INode;
 import org.olat.core.util.tree.TreeVisitor;
 import org.olat.core.util.tree.Visitor;
-import org.olat.core.util.vfs.Quota;
-import org.olat.core.util.vfs.QuotaManager;
-import org.olat.core.util.vfs.VFSContainer;
-import org.olat.core.util.vfs.VFSItem;
-import org.olat.core.util.vfs.VFSLeaf;
+import org.olat.core.util.vfs.*;
 import org.olat.core.util.vfs.callbacks.FullAccessWithQuotaCallback;
 import org.olat.core.util.vfs.version.Versionable;
 import org.olat.core.util.vfs.version.VersionsFileManager;
@@ -223,11 +220,19 @@ public class PersistingCourseImpl implements ICourse, OLATResourceable, Serializ
 
 	@Override
 	public boolean exceedsSizeLimit() {
+		// LMSUZH-45: just detect custom quotas on course elements instead of calculating the folder size
 		try {
-			CourseConfigUtil.checkAgainstConfiguredMaxSize(getCourseBaseContainer().getBasefile());
-		} catch (FileSizeLimitExceededException e) {
+			CourseConfigUtil.checkAgainstCustomQuotas(getCourseBaseContainer().getBasefile());
+		} catch (CustomQuotaDetectedException e) {
 			return true;
 		}
+// LMSUZH-45 Keeping the old code based on calculation of folder size, in case we want to build more complex solution
+//		try {
+//			CourseConfigUtil.checkAgainstConfiguredMaxSize(getCourseBaseContainer().getBasefile());
+//		} catch (FileSizeLimitExceededException e) {
+//			return true;
+//		}
+
 		return false;
 	}
 
