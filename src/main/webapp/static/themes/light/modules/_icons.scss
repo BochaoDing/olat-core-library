@@ -177,6 +177,7 @@ $fa-css-prefix: "o_icon" !default;
 .o_icon_provider_linkedin:before { content: $fa-var-linkedin;}
 .o_icon_provider_oauth:before { content: $fa-var-cloud;}
 .o_icon_provider_olat:before { @extend %o_icon_openolat; }
+.o_icon_provider_openid:before { content: $fa-var-openid; }
 .o_icon_provider_performx:before { content: $fa-var-caret-down;}
 .o_icon_provider_shibboleth:before { content: $fa-var-university;}
 .o_icon_provider_twitter:before { content: $fa-var-twitter;}
@@ -244,9 +245,10 @@ $fa-css-prefix: "o_icon" !default;
 .o_icon_upload:before { content: $fa-var-upload; }
 .o_icon_version:before { content: $fa-var-history;}
 .o_icon_video:before { content: $fa-var-film; }
-.o_icon_waiting:before { content: $fa-var-clock-o; }
+.o_icon_visitingcard.o_icon_waiting:before { content: $fa-var-clock-o; }
 .o_icon_warn:before { content: $fa-var-exclamation-triangle; color: $brand-warning;}
 .o_icon_wizard:before { content: $fa-var-magic; }
+.o_icon_xing:before { content: $fa-var-xing; color: #cfdc00;}
 
 /* repository type icons */
 .o_CourseModule_icon:before, .o_course_icon:before { content: $fa-var-cube; }
@@ -270,7 +272,7 @@ $fa-css-prefix: "o_icon" !default;
 .o_FileResource-SOUND_icon:before { content: $fa-var-file-audio-o; }
 .o_FileResource-MOVIE_icon:before { content: $fa-var-file-video-o; }
 .o_FileResource-FILE_icon:before { content: $fa-var-file-o; }
-
+.o_FileResource-VIDEO_icon:before { content: $fa-var-film; }
 .o_CourseModule_icon_closed:before { content: $fa-var-ban; }
 
 /* course element icons */
@@ -304,8 +306,11 @@ $fa-css-prefix: "o_icon" !default;
 .o_cmembers_icon:before { content: $fa-var-users;}
 .o_cl_icon:before { content: $fa-var-check-square-o;}
 .o_vc_icon:before { content: $fa-var-desktop;}
+.o_video_icon:before { content: $fa-var-film;}
 .o_vitero_icon:before { content: $fa-var-desktop;}
 .o_openmeetings_icon:before { content: $fa-var-desktop;}
+.o_gotomeeting_icon:before { content: $fa-var-desktop;}
+
 
 /* portal icons */
 .o_portlet_infomsg_icon:before {content: $fa-var-info-circle; }

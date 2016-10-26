@@ -204,6 +204,7 @@ public class SearchMyRepositoryEntryViewParams {
 		creationDate,
 		lastModified,
 		rating,
+		launchCounter,
 		key,
 		displayname,
 		externalRef,

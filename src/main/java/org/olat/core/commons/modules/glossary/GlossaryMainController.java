@@ -58,6 +58,7 @@ import org.olat.core.util.StringHelper;
 import org.olat.core.util.coordinate.CoordinatorManager;
 import org.olat.core.util.coordinate.LockResult;
 import org.olat.core.util.vfs.VFSContainer;
+import org.olat.resource.OLATResource;
 import org.olat.user.UserInfoMainController;
 import org.olat.user.UserManager;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -102,7 +103,7 @@ public class GlossaryMainController extends BasicController implements Activatea
 	@Autowired
 	private BaseSecurity securityManager;
 
-	public GlossaryMainController(WindowControl control, UserRequest ureq, VFSContainer glossaryFolder, OLATResourceable res,
+	public GlossaryMainController(WindowControl control, UserRequest ureq, VFSContainer glossaryFolder, OLATResource res,
 			GlossarySecurityCallback glossarySecCallback, boolean eventProfil) {
 		super(ureq, control);
 		this.glossarySecCallback = glossarySecCallback;
@@ -159,11 +160,11 @@ public class GlossaryMainController extends BasicController implements Activatea
 	 * @param gIList
 	 * @return List containing the Links.
 	 */
-	protected List<Link> getIndexLinkList(ArrayList<GlossaryItem> gIList) {
-		List<Link> indexLinkList = new ArrayList<Link>(gIList.size());
-		Set<String> addedKeys = new HashSet<String>();
+	protected List<Link> getIndexLinkList(List<GlossaryItem> gIList) {
+		Set<String> addedKeys = new HashSet<>();
 		//get existing indexes
-		for (GlossaryItem gi : gIList) {
+		GlossaryItem[] gIArray = gIList.toArray(new GlossaryItem[gIList.size()]);
+		for (GlossaryItem gi : gIArray) {
 			String indexChar = gi.getIndex();
 			if (!addedKeys.contains(indexChar)) {
 				addedKeys.add(indexChar);
@@ -172,6 +173,7 @@ public class GlossaryMainController extends BasicController implements Activatea
 		//build register, first found should be used later on
 		char alpha;
 		boolean firstIndexFound = false;
+		List<Link> indexLinkList = new ArrayList<>(gIList.size());
 		for (alpha='A'; alpha <= 'Z'; alpha++){
 			String indexChar = String.valueOf(alpha);
 			Link indexLink = LinkFactory.createCustomLink(REGISTER_LINK + indexChar, REGISTER_LINK + indexChar, indexChar, Link.NONTRANSLATED,	glistVC, this);

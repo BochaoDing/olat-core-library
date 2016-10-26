@@ -25,13 +25,7 @@
 
 package org.olat.admin.user;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import org.olat.admin.user.bulkChange.UserBulkChangeManager;
 import org.olat.admin.user.bulkChange.UserBulkChangeStep00;
@@ -126,7 +120,7 @@ public class UsermanagerUserSearchController extends BasicController implements 
 	private UsermanagerUserSearchForm searchform;
 	private TableController tableCtr;
 	private List<Identity> identitiesList, selectedIdentities;
-	private List<String> notUpdatedIdentities = new ArrayList<String>();
+	private ArrayList<String> notUpdatedIdentities = new ArrayList<String>();
 	private ExtendedIdentitiesTableDataModel tdm;
 	private Identity foundIdentity = null;
 	private ContactFormController contactCtr;
@@ -352,15 +346,12 @@ public class UsermanagerUserSearchController extends BasicController implements 
 	 * @param tobeAddedIdentities
 	 */
 	public void addIdentitiesToSearchResult(UserRequest ureq, List<Identity> tobeAddedIdentities) {
+		Set<Identity> identitiesSet = new HashSet<>();
+		if(identitiesList != null) {
+			identitiesSet.addAll(identitiesList);
+		}
 		for (Identity toBeAdded : tobeAddedIdentities) {
-			boolean found = false;
-			for (Identity original : identitiesList) {
-				if (original.getKey().equals(toBeAdded.getKey())) {
-					found = true;
-					break;
-				}
-			}
-			if (!found) {
+			if (!identitiesSet.contains(toBeAdded)) {
 				identitiesList.add(toBeAdded);
 			}
 		}

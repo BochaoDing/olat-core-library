@@ -21,7 +21,6 @@ package org.olat.selenium.page.repository;
 
 import java.io.File;
 
-import org.jboss.arquillian.graphene.Graphene;
 import org.junit.Assert;
 import org.olat.selenium.page.course.CourseWizardPage;
 import org.olat.selenium.page.graphene.OOGraphene;
@@ -39,10 +38,6 @@ import org.openqa.selenium.WebElement;
  */
 public class AuthoringEnvPage {
 	
-	public static final By createModal = By.cssSelector("div.modal.o_sel_author_create_popup");
-	public static final By displayNameInput = By.cssSelector("div.o_sel_author_displayname input");
-	public static final By createSubmit = By.className("o_sel_author_create_submit");
-	public static final By createWizard = By.className("o_sel_author_create_wizard");
 	public static final By createMenuCaretBy = By.cssSelector("a.o_sel_author_create");
 	public static final By createMenuBy = By.cssSelector("ul.o_sel_author_create");
 	
@@ -50,6 +45,19 @@ public class AuthoringEnvPage {
 	
 	public AuthoringEnvPage(WebDriver browser) {
 		this.browser = browser;
+	}
+	
+	/**
+	 * Check that the segment for the "Search" in author environment is selected.
+	 * 
+	 * @return
+	 */
+	public AuthoringEnvPage assertOnGenericSearch() {
+		By genericSearchBy = By.xpath("//div[contains(@class,'o_segments')]//a[contains(@class,'btn-primary')][contains(@onclick,'search.generic')]");
+		OOGraphene.waitElement(genericSearchBy, 5, browser);
+		WebElement genericSearchSegment = browser.findElement(genericSearchBy);
+		Assert.assertTrue(genericSearchSegment.isDisplayed());
+		return this;
 	}
 	
 	public RepositoryEditDescriptionPage createCP(String title) {
@@ -79,10 +87,9 @@ public class AuthoringEnvPage {
 	 */
 	public AuthoringEnvPage openCreateDropDown() {
 		WebElement createMenuCaret = browser.findElement(createMenuCaretBy);
-		
 		Assert.assertTrue(createMenuCaret.isDisplayed());
 		createMenuCaret.click();
-		OOGraphene.waitElement(createMenuBy, browser);
+		OOGraphene.waitElement(createMenuBy, 5, browser);
 		return this;
 	}
 
@@ -107,16 +114,15 @@ public class AuthoringEnvPage {
 	 * @return
 	 */
 	public RepositoryEditDescriptionPage fillCreateForm(String displayName) {
-		WebElement modal = browser.findElement(createModal);
-		WebElement input = modal.findElement(displayNameInput);
-		input.sendKeys(displayName);
-		WebElement submit = modal.findElement(createSubmit);
-		submit.click();
+		OOGraphene.waitModalDialog(browser);
+		By inputBy = By.cssSelector("div.modal.o_sel_author_create_popup div.o_sel_author_displayname input");
+		browser.findElement(inputBy).sendKeys(displayName);
+		By submitBy = By.cssSelector("div.modal.o_sel_author_create_popup .o_sel_author_create_submit");
+		browser.findElement(submitBy).click();
 		OOGraphene.waitBusy(browser);
 		OOGraphene.waitElement(RepositoryEditDescriptionPage.generaltabBy, browser);
-		
-		WebElement main = browser.findElement(By.id("o_main_wrapper"));
-		return Graphene.createPageFragment(RepositoryEditDescriptionPage.class, main);
+		return new RepositoryEditDescriptionPage(browser)
+				.assertOnGeneralTab();
 	}
 	
 	/**
@@ -125,12 +131,12 @@ public class AuthoringEnvPage {
 	 * @return
 	 */
 	public CourseWizardPage fillCreateFormAndStartWizard(String displayName) {
-		WebElement modal = browser.findElement(createModal);
-		WebElement input = modal.findElement(displayNameInput);
-		input.sendKeys(displayName);
-		modal.findElement(createWizard).click();
+		OOGraphene.waitModalDialog(browser);
+		By inputBy = By.cssSelector("div.modal.o_sel_author_create_popup div.o_sel_author_displayname input");
+		browser.findElement(inputBy).sendKeys(displayName);
+		By createBy = By.cssSelector("div.modal.o_sel_author_create_popup .o_sel_author_create_wizard");
+		browser.findElement(createBy).click();
 		OOGraphene.waitBusy(browser);
-		
 		return CourseWizardPage.getWizard(browser);
 	}
 	
