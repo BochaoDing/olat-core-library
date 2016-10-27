@@ -147,7 +147,7 @@ public class VFSManager {
 			File t = new File (l.getBasefile().getAbsolutePath(), childName);
 			if (t.exists()) {
 				String bcroot = FolderConfig.getCanonicalRoot();
-				String fsPath = t.getAbsolutePath().replace('\\', '/');
+				String fsPath = t.getAbsolutePath();
 				if (t.isDirectory()) {
 					VFSContainer subContainer;
 					if (fsPath.startsWith(bcroot)) {

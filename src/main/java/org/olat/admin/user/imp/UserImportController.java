@@ -279,10 +279,10 @@ public class UserImportController extends BasicController {
 						boolean sendNewPasswords = sendNewPasswordsObj == null || sendNewPasswordsObj.booleanValue();					
 						for (TransientIdentity newIdent:newIdents) {
 							Identity createdIdentity = doCreateAndPersistIdentity(newIdent, report);
-							// OLATNG-5: send change password mails
 							if(createdIdentity != null) {
 								newPersistedIdentities.put(newIdent, createdIdentity);
 							}
+							// OLATNG-5: send change password mails
 							try {
 								if (sendNewPasswords) {
 									MailerResult result = util.sendTokenByMail(ureq1, createdIdentity, util.generateMailText(createdIdentity));

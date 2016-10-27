@@ -120,7 +120,7 @@ public class UsermanagerUserSearchController extends BasicController implements 
 	private UsermanagerUserSearchForm searchform;
 	private TableController tableCtr;
 	private List<Identity> identitiesList, selectedIdentities;
-	private ArrayList<String> notUpdatedIdentities = new ArrayList<String>();
+	private List<String> notUpdatedIdentities = new ArrayList<String>();
 	private ExtendedIdentitiesTableDataModel tdm;
 	private Identity foundIdentity = null;
 	private ContactFormController contactCtr;

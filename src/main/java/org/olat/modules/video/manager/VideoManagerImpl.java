@@ -73,6 +73,7 @@ import org.quartz.JobDetail;
 import org.quartz.Scheduler;
 import org.quartz.SchedulerException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 /**
@@ -99,6 +100,7 @@ public class VideoManagerImpl implements VideoManager {
 	@Autowired
 	private VideoTranscodingDAO videoTranscodingDao;
 	@Autowired
+	@Qualifier("schedulerFactoryBean")
 	private Scheduler scheduler;
 	
 	private static final OLog log = Tracing.createLoggerFor(VideoManagerImpl.class);

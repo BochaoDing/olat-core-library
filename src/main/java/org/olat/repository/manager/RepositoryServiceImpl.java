@@ -576,11 +576,19 @@ public class RepositoryServiceImpl implements RepositoryService {
 	}
 
 	@Override
+	/**
+	 * TODO sev26
+	 * Just a delegation. Directly inject the service where it is required.
+	 */
 	public int countMyView(SearchMyRepositoryEntryViewParams params) {
 		return myCourseViewQueries.countViews(params);
 	}
 
 	@Override
+	/**
+	 * TODO sev26
+	 * Just a delegation. Directly inject the service where it is required.
+	 */
 	public List<RepositoryEntryMyView> searchMyView(SearchMyRepositoryEntryViewParams params,
 			int firstResult, int maxResults) {
 		return myCourseViewQueries.searchViews(params, firstResult, maxResults);

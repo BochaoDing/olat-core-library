@@ -281,6 +281,13 @@ public abstract class FormBasicController extends BasicController implements IFo
 	 * @param listener
 	 * @param ureq
 	 */
+	/*
+	 * TODO sev26
+	 * Put this method body in the constructor (in a { } block). There, one
+	 * has access to all construct parameters (allows to eliminate a lot of
+	 * required member variables) and one can use the advantages of final
+	 * member variables (makes the context more trustworthy).
+	 */
 	abstract protected void initForm(FormItemContainer formLayout, Controller listener, UserRequest ureq);
 
 	public FormItem getInitialFormItem() {
@@ -352,7 +359,6 @@ public abstract class FormBasicController extends BasicController implements IFo
 	 * @param source
 	 * @param event
 	 */
-	@SuppressWarnings("unused")
 	protected void formInnerEvent(UserRequest ureq, FormItem source, FormEvent event) {
 	// overwrite if you want to listen to inner form elements events
 	}
