@@ -56,7 +56,7 @@ public class TextDao {
                 .getResultList();
     }
 
-    String getContentsByCourseId(Long courseId) {
+    public String getContentsByCourseId(Long courseId) {
         List<Text> texts = getTextsByCourseIdAndType(courseId, Text.CONTENTS);
         return buildText(texts);
     }

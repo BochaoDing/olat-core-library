@@ -1,3 +1,17 @@
+package ch.uzh.campus.service.core.impl.syncer;
+
+import ch.uzh.campus.CampusCourseConfiguration;
+import org.junit.Before;
+import org.junit.Test;
+import org.olat.basesecurity.BaseSecurity;
+import org.olat.core.id.Identity;
+
+import java.util.List;
+
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 /**
  * OLAT - Online Learning and Training<br>
  * http://www.olat.org
@@ -17,29 +31,14 @@
  * Copyright (c) since 2004 at Multimedia- & E-Learning Services (MELS),<br>
  * University of Zurich, Switzerland.
  * <p>
- */
-package ch.uzh.campus.service.core.impl.syncer;
-
-import ch.uzh.campus.CampusCourseConfiguration;
-import org.junit.Before;
-import org.junit.Test;
-import org.olat.basesecurity.BaseSecurity;
-import org.olat.core.id.Identity;
-
-import java.util.List;
-
-import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
-/**
+ *
  * Initial Date: 12.07.2012 <br>
  * 
  * @author cg
  */
-public class CampusCourseCoOwnersTest {
+public class CampusCourseDefaultCoOwnersTest {
 
-    private CampusCourseCoOwners campusCourseCoOwnersTestObject;
+    private CampusCourseDefaultCoOwners campusCourseDefaultCoOwnersTestObject;
     private BaseSecurity baseSecurityMock;
     private CampusCourseConfiguration campusCourseConfigurationMock;
 
@@ -47,9 +46,7 @@ public class CampusCourseCoOwnersTest {
     public void setup() {
         baseSecurityMock = mock(BaseSecurity.class);
         campusCourseConfigurationMock = mock(CampusCourseConfiguration.class);
-        campusCourseCoOwnersTestObject = new CampusCourseCoOwners();
-        campusCourseCoOwnersTestObject.baseSecurity = baseSecurityMock;
-        campusCourseCoOwnersTestObject.campusCourseConfiguration = campusCourseConfigurationMock;
+        campusCourseDefaultCoOwnersTestObject = new CampusCourseDefaultCoOwners(campusCourseConfigurationMock, baseSecurityMock);
     }
 
     @Test
@@ -57,7 +54,7 @@ public class CampusCourseCoOwnersTest {
         String EMPTY_CO_OWNER_NAMES = "";
         when(campusCourseConfigurationMock.getDefaultCoOwnerUserNames()).thenReturn(EMPTY_CO_OWNER_NAMES);
         // Exercise
-        List<Identity> coOwners = campusCourseCoOwnersTestObject.getDefaultCoOwners();
+        List<Identity> coOwners = campusCourseDefaultCoOwnersTestObject.getDefaultCoOwners();
         assertEquals("Wrong number of owners, must 0 when value is empty", 0, coOwners.size());
     }
 
@@ -66,7 +63,7 @@ public class CampusCourseCoOwnersTest {
         String nonExistingCoOwnerNames = "test1,test2";
         when(campusCourseConfigurationMock.getDefaultCoOwnerUserNames()).thenReturn(nonExistingCoOwnerNames);
         // Exercise
-        List<Identity> coOwners = campusCourseCoOwnersTestObject.getDefaultCoOwners();
+        List<Identity> coOwners = campusCourseDefaultCoOwnersTestObject.getDefaultCoOwners();
         assertEquals("Wrong number of owners, must be 0 when no identities exist", 0, coOwners.size());
     }
 
@@ -77,7 +74,7 @@ public class CampusCourseCoOwnersTest {
         when(campusCourseConfigurationMock.getDefaultCoOwnerUserNames()).thenReturn(coOwnerName);
         when(baseSecurityMock.findIdentityByName(coOwnerName)).thenReturn(coOwnerIdentityMock);
         // Exercise
-        List<Identity> coOwners = campusCourseCoOwnersTestObject.getDefaultCoOwners();
+        List<Identity> coOwners = campusCourseDefaultCoOwnersTestObject.getDefaultCoOwners();
         assertEquals("Wrong number of owners", 1, coOwners.size());
     }
 
@@ -92,7 +89,7 @@ public class CampusCourseCoOwnersTest {
         when(baseSecurityMock.findIdentityByName(coOwnerName)).thenReturn(coOwnerIdentityMock);
         when(baseSecurityMock.findIdentityByName(secondCoOwnerName)).thenReturn(secondCoOwnerIdentityMock);
         // Exercise
-        List<Identity> coOwners = campusCourseCoOwnersTestObject.getDefaultCoOwners();
+        List<Identity> coOwners = campusCourseDefaultCoOwnersTestObject.getDefaultCoOwners();
         assertEquals("Wrong number of owners", 2, coOwners.size());
     }
 
@@ -104,7 +101,7 @@ public class CampusCourseCoOwnersTest {
         when(campusCourseConfigurationMock.getDefaultCoOwnerUserNames()).thenReturn(coOwnerConigValue);
         when(baseSecurityMock.findIdentityByName(coOwnerName)).thenReturn(coOwnerIdentityMock);
         // Exercise
-        List<Identity> coOwners = campusCourseCoOwnersTestObject.getDefaultCoOwners();
+        List<Identity> coOwners = campusCourseDefaultCoOwnersTestObject.getDefaultCoOwners();
         assertEquals("Wrong number of owners, duplicate identity can be added only once", 1, coOwners.size());
     }
 

@@ -9,7 +9,7 @@ import ch.uzh.campus.olat.dialog.controller.selection.ContinueCampusCourseSelect
 import ch.uzh.campus.olat.dialog.controller.selection.CreationCampusCourseSelectionController;
 import ch.uzh.campus.olat.list.CampusCourseRepositoryEntryRow;
 import ch.uzh.campus.olat.tab.controller.CampusCourseTabTableController;
-import ch.uzh.campus.service.learn.CampusCourseService;
+import ch.uzh.campus.service.CampusCourseService;
 import org.olat.core.dispatcher.mapper.MapperService;
 import org.olat.core.gui.UserRequest;
 import org.olat.core.gui.components.velocity.VelocityContainer;
@@ -39,12 +39,12 @@ import org.springframework.context.annotation.Scope;
 @Configuration
 public class CampusCourseBeanFactory {
 
-	public final static String RESOURCEABLE_TYPE_NAME = "CampusCourse";
-	public final static String STUDENT_RESOURCEABLE_TYPE_NAME = "Student" + RESOURCEABLE_TYPE_NAME;;
-	public final static String LECTURER_RESOURCEABLE_TYPE_NAME = "Lecturer"  + RESOURCEABLE_TYPE_NAME;;
+	final static String RESOURCEABLE_TYPE_NAME = "CampusCourse";
+	final static String STUDENT_RESOURCEABLE_TYPE_NAME = "Student" + RESOURCEABLE_TYPE_NAME;
+	public final static String LECTURER_RESOURCEABLE_TYPE_NAME = "Lecturer"  + RESOURCEABLE_TYPE_NAME;
 	public final static String AUTHOR_LECTURER_RESOURCEABLE_TYPE_NAME = "AuthorLecturer"  + RESOURCEABLE_TYPE_NAME;
-	public final static Long NOT_CREATED_CAMPUS_COURSE_KEY = 0L;
-	public final static Long NOT_CREATED_CAMPUSKURS_RESOURCE_ID = 0L;
+	final static Long NOT_CREATED_CAMPUS_COURSE_KEY = 0L;
+	final static Long NOT_CREATED_CAMPUSKURS_RESOURCE_ID = 0L;
 
 	@Autowired
 	private RepositoryModule repositoryModule;

@@ -17,12 +17,24 @@ public class TestDBImpl extends DBImpl {
     @Override
     public void commit() {
         // Do not commit!
-        getCurrentEntityManager().flush();
+        flush();
     }
 
     @Override
     public void intermediateCommit() {
         // Do not commit!
-        getCurrentEntityManager().flush();
+        flush();
+    }
+
+    @Override
+    public void commitAndCloseSession() {
+        // Do not commit!
+        flush();
+    }
+
+    @Override
+    public void closeSession() {
+        // Do not commit!
+        flush();
     }
 }

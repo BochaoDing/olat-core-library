@@ -16,6 +16,7 @@ import org.springframework.test.context.ContextConfiguration;
 import javax.inject.Provider;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static org.junit.Assert.*;
@@ -99,7 +100,7 @@ public class DataConverterTest extends OlatTestCase {
         studentDao.addMapping(student2.getId(), mappedIdentityOfStudent2);
         dbInstance.flush();
 
-        List<Identity> identitiesOfStudents = dataConverter.convertStudentsToIdentities(course.getStudentCourses());
+        Set<Identity> identitiesOfStudents = dataConverter.convertStudentsToIdentities(course.getStudentCourses());
         assertEquals(2, identitiesOfStudents.size());
         assertTrue(identitiesOfStudents.contains(mappedIdentityOfStudent1));
         assertTrue(identitiesOfStudents.contains(mappedIdentityOfStudent2));
@@ -135,32 +136,13 @@ public class DataConverterTest extends OlatTestCase {
         assertTrue(dataConverter.convertLecturersToIdentities(course.getLecturerCourses()).isEmpty());
 
         // Add mapping for lecturer
-        String lecturerUserName = "dataConverterTestLecturer";
-        Identity mappedIdentityOfLecturer = insertTestUser(lecturerUserName, Identity.STATUS_ACTIV);
+        Identity mappedIdentityOfLecturer = insertTestUser("dataConverterTestLecturer", Identity.STATUS_ACTIV);
         lecturerDao.addMapping(lecturer.getPersonalNr(), mappedIdentityOfLecturer);
         dbInstance.flush();
 
-        List<Identity> identitiesOfLecturers = dataConverter.convertLecturersToIdentities(course.getLecturerCourses());
+        Set<Identity> identitiesOfLecturers = dataConverter.convertLecturersToIdentities(course.getLecturerCourses());
         assertEquals(1, identitiesOfLecturers.size());
-        assertEquals(mappedIdentityOfLecturer, identitiesOfLecturers.get(0));
-
-        // Create delegation (i.e. delegator + delegatee) with lecturer as delegator
-        Identity identityOfDelegatee = insertTestUser("dataConverterTestDelegateeOfLecturer", Identity.STATUS_ACTIV);
-        Delegation delegation = new Delegation(mappedIdentityOfLecturer, identityOfDelegatee, new Date());
-        dbInstance.saveObject(delegation);
-        dbInstance.flush();
-
-        identitiesOfLecturers = dataConverter.convertLecturersToIdentities(course.getLecturerCourses());
-        assertEquals(2, identitiesOfLecturers.size());
         assertTrue(identitiesOfLecturers.contains(mappedIdentityOfLecturer));
-        assertTrue(identitiesOfLecturers.contains(identityOfDelegatee));
-
-        // Change status of delegatee to deleted
-        identityOfDelegatee.setStatus(Identity.STATUS_DELETED);
-
-        identitiesOfLecturers = dataConverter.convertLecturersToIdentities(course.getLecturerCourses());
-        assertEquals(1, identitiesOfLecturers.size());
-        assertEquals(lecturerUserName, identitiesOfLecturers.get(0).getName());
 
         // Change status of mapped lecturer to deleted
         mappedIdentityOfLecturer.setStatus(Identity.STATUS_DELETED);
@@ -202,9 +184,9 @@ public class DataConverterTest extends OlatTestCase {
         dbInstance.saveObject(delegation);
         dbInstance.flush();
 
-        List<Identity> identitiesOfLecturers = dataConverter.convertDelegateesToIdentities(course.getLecturerCourses());
-        assertEquals(1, identitiesOfLecturers.size());
-        assertTrue(identitiesOfLecturers.contains(identityOfDelegatee));
+        Set<Identity> identitiesOfDelegatees = dataConverter.convertDelegateesToIdentities(course.getLecturerCourses());
+        assertEquals(1, identitiesOfDelegatees.size());
+        assertTrue(identitiesOfDelegatees.contains(identityOfDelegatee));
 
         // Change status of delegatee to deleted
         identityOfDelegatee.setStatus(Identity.STATUS_DELETED);
@@ -215,8 +197,7 @@ public class DataConverterTest extends OlatTestCase {
     @Test
     public void testGetDelegatees() {
 
-        String delegatorUserName = "dataConverterTestDelegator";
-        Identity identityOfDelegator = insertTestUser(delegatorUserName, Identity.STATUS_ACTIV);
+        Identity identityOfDelegator = insertTestUser("dataConverterTestDelegator", Identity.STATUS_ACTIV);
 
         assertTrue(dataConverter.getDelegatees(identityOfDelegator).isEmpty());
 

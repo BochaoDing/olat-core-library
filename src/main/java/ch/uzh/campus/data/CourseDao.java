@@ -1,18 +1,19 @@
 package ch.uzh.campus.data;
 
 import ch.uzh.campus.CampusCourseException;
+import ch.uzh.campus.service.data.CampusGroups;
 import org.olat.core.commons.persistence.DB;
 import org.olat.core.logging.OLog;
 import org.olat.core.logging.Tracing;
+import org.olat.group.BusinessGroup;
+import org.olat.group.BusinessGroupImpl;
 import org.olat.resource.OLATResource;
 import org.olat.resource.OLATResourceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import javax.persistence.EntityManager;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -157,7 +158,7 @@ public class CourseDao implements CampusDao<CourseSemesterOrgId> {
         }
     }
 
-    Course getCourseById(Long id) {
+    public Course getCourseById(Long id) {
         return dbInstance.findObject(Course.class, id);
     }
 
@@ -212,6 +213,25 @@ public class CourseDao implements CampusDao<CourseSemesterOrgId> {
 		return searchString != null ? "%" + searchString + "%" : "%";
 	}
 
+	Set<CampusGroups> getCampusGroupsByOlatResource(Long olatResourceKey) {
+        List<Course> courses = dbInstance.getCurrentEntityManager()
+                .createNamedQuery(Course.GET_COURSES_BY_OLAT_RESOURCE_KEY, Course.class)
+                .setParameter("olatResourceKey", olatResourceKey)
+                .getResultList();
+        if (courses.isEmpty()) {
+            String warningMessage = "No courses found with olat resource id " + olatResourceKey + ".";
+            LOG.warn(warningMessage);
+            return null;
+        }
+        Set<CampusGroups> setOfCampusGroups = new HashSet<>();
+        for (Course course : courses) {
+            if (course.getCampusGroupA() != null || course.getCampusGroupB() != null) {
+                setOfCampusGroups.add(new CampusGroups(course.getCampusGroupA(), course.getCampusGroupB()));
+            }
+        }
+        return setOfCampusGroups;
+    }
+
     void delete(Course course) {
         deleteCourseBidirectionally(course, dbInstance.getCurrentEntityManager());
     }
@@ -232,6 +252,38 @@ public class CourseDao implements CampusDao<CourseSemesterOrgId> {
         course.setOlatResource(olatResource);
     }
 
+    public void saveCampusGroupA(Long courseId, Long campusGroupAKey) {
+        Course course = getCourseById(courseId);
+        if (course == null) {
+            String warningMessage = "No course found with id " + courseId + ". Cannot save campus group A with id " + campusGroupAKey;
+            LOG.warn(warningMessage);
+            return;
+        }
+
+        BusinessGroup campusGroupA = dbInstance.getCurrentEntityManager().find(BusinessGroupImpl.class, campusGroupAKey);
+        if (campusGroupA == null) {
+            LOG.warn("No business group found with id " + campusGroupAKey + ". Cannot save campus group A.");
+            return;
+        }
+        course.setCampusGroupA(campusGroupA);
+    }
+
+    public void saveCampusGroupB(Long courseId, Long campusGroupBKey) {
+        Course course = getCourseById(courseId);
+        if (course == null) {
+            String warningMessage = "No course found with id " + courseId + ". Cannot save campus group B with id " + campusGroupBKey;
+            LOG.warn(warningMessage);
+            return;
+        }
+
+        BusinessGroup campusGroupB = dbInstance.getCurrentEntityManager().find(BusinessGroupImpl.class, campusGroupBKey);
+        if (campusGroupB == null) {
+            LOG.warn("No business group found with id " + campusGroupBKey + ". Cannot save campus group B.");
+            return;
+        }
+        course.setCampusGroupB(campusGroupB);
+    }
+
     void disableSynchronization(Long courseId) {
         Course course = getCourseById(courseId);
         if (course == null) {
@@ -242,7 +294,7 @@ public class CourseDao implements CampusDao<CourseSemesterOrgId> {
         course.setSynchronizable(false);
     }
 
-    void resetOlatResourceAndParentCourse(Long olatResourceKey) {
+    void resetOlatResourceAndCampusGroupsAndParentCourse(Long olatResourceKey) {
         List<Course> courses = dbInstance.getCurrentEntityManager()
                 .createNamedQuery(Course.GET_COURSES_BY_OLAT_RESOURCE_KEY, Course.class)
                 .setParameter("olatResourceKey", olatResourceKey)
@@ -254,6 +306,8 @@ public class CourseDao implements CampusDao<CourseSemesterOrgId> {
         }
         for (Course course : courses) {
             course.setOlatResource(null);
+            course.setCampusGroupA(null);
+            course.setCampusGroupB(null);
             course.removeParentCourse();
         }
     }

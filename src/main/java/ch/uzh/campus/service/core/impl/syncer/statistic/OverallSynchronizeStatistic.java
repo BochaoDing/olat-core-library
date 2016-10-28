@@ -1,3 +1,8 @@
+package ch.uzh.campus.service.core.impl.syncer.statistic;
+
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * OLAT - Online Learning and Training<br>
  * http://www.olat.org
@@ -17,23 +22,17 @@
  * Copyright (c) since 2004 at Multimedia- & E-Learning Services (MELS),<br>
  * University of Zurich, Switzerland.
  * <p>
- */
-package ch.uzh.campus.service.core.impl.syncer.statistic;
-
-import java.util.ArrayList;
-import java.util.List;
-
-/**
+ *
  * Initial Date: 25.06.2012 <br>
  * 
  * @author cg
  */
 public class OverallSynchronizeStatistic {
 
-    List<SynchronizedGroupStatistic> courseStatisticList;
+    private List<SynchronizedGroupStatistic> courseStatisticList;
 
     public OverallSynchronizeStatistic() {
-        courseStatisticList = new ArrayList<SynchronizedGroupStatistic>();
+        courseStatisticList = new ArrayList<>();
     }
 
     public void add(SynchronizedGroupStatistic courseSynchronizeStatistic) {
@@ -41,31 +40,31 @@ public class OverallSynchronizeStatistic {
     }
 
     public String calculateOverallStatistic() {
-        return "overallAddedOwners=" + getAddedOwners() + " , overallRemovedOwners=" + getRemovedOwners() + " ; overallAddedParticipants=" + getAddedParticipants()
-                + " , overallRemovedParticipants=" + getRemovedParticipants();
+        return "overallAddedCoaches=" + getAddedCoaches() + " , overallRemovedCoaches=" + getRemovedChoaches()
+                + " ; overallAddedParticipants=" + getAddedParticipants() + " , overallRemovedParticipants=" + getRemovedParticipants();
     }
 
-    public int getAddedOwners() {
-        int overallAddedOwners = 0;
+    private int getAddedCoaches() {
+        int overallAddedCoaches = 0;
         for (SynchronizedGroupStatistic groupStatistic : courseStatisticList) {
-            if (groupStatistic.getOwnerGroupStatistic() != null) {
-                overallAddedOwners += groupStatistic.getOwnerGroupStatistic().getAddedStatistic();
+            if (groupStatistic.getCoachGroupStatistic() != null) {
+                overallAddedCoaches += groupStatistic.getCoachGroupStatistic().getAddedStatistic();
             }
         }
-        return overallAddedOwners;
+        return overallAddedCoaches;
     }
 
-    public int getRemovedOwners() {
+    private int getRemovedChoaches() {
         int overallRemovedOwners = 0;
         for (SynchronizedGroupStatistic groupStatistic : courseStatisticList) {
-            if (groupStatistic.getOwnerGroupStatistic() != null) {
-                overallRemovedOwners += groupStatistic.getOwnerGroupStatistic().getRemovedStatistic();
+            if (groupStatistic.getCoachGroupStatistic() != null) {
+                overallRemovedOwners += groupStatistic.getCoachGroupStatistic().getRemovedStatistic();
             }
         }
         return overallRemovedOwners;
     }
 
-    public int getAddedParticipants() {
+    private int getAddedParticipants() {
         int overallAddedParticipants = 0;
         for (SynchronizedGroupStatistic groupStatistic : courseStatisticList) {
             overallAddedParticipants += groupStatistic.getParticipantGroupStatistic().getAddedStatistic();
@@ -73,16 +72,11 @@ public class OverallSynchronizeStatistic {
         return overallAddedParticipants;
     }
 
-    public int getRemovedParticipants() {
+    private int getRemovedParticipants() {
         int overallRemovedParticipants = 0;
         for (SynchronizedGroupStatistic groupStatistic : courseStatisticList) {
             overallRemovedParticipants += groupStatistic.getParticipantGroupStatistic().getRemovedStatistic();
         }
         return overallRemovedParticipants;
     }
-
-    public int getNumberOfSynchronizedCourses() {
-        return courseStatisticList.size();
-    }
-
 }

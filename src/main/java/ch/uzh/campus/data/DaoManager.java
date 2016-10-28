@@ -1,3 +1,18 @@
+package ch.uzh.campus.data;
+
+import ch.uzh.campus.CampusCourseConfiguration;
+import ch.uzh.campus.service.data.CampusGroups;
+import ch.uzh.campus.service.data.SapCampusCourseTO;
+import ch.uzh.campus.utils.ListUtil;
+import org.olat.core.id.Identity;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Repository;
+
+import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
 /**
  * OLAT - Online Learning and Training<br>
  * http://www.olat.org
@@ -18,26 +33,9 @@
  * University of Zurich, Switzerland.
  * <p>
  */
-package ch.uzh.campus.data;
-
-import ch.uzh.campus.CampusCourseConfiguration;
-import ch.uzh.campus.CampusCourseImportTO;
-import ch.uzh.campus.utils.ListUtil;
-import org.olat.core.id.Identity;
-import org.olat.core.logging.OLog;
-import org.olat.core.logging.Tracing;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Repository;
-
-import java.util.*;
-
-import static java.lang.Boolean.TRUE;
 
 @Repository
 public class DaoManager {
-
-    private static final OLog LOG = Tracing.createLoggerFor(DaoManager.class);
 
 	private final CourseDao courseDao;
     private final SemesterDao semesterDao;
@@ -52,9 +50,8 @@ public class DaoManager {
 	private final ImportStatisticDao statisticDao;
 	private final DataConverter dataConverter;
 	private final CampusCourseConfiguration campusCourseConfiguration;
-	private final boolean shortTitleActivated;
 
-	@Autowired
+    @Autowired
 	public DaoManager(CourseDao courseDao,
                       SemesterDao semesterDao,
                       StudentDao studentDao,
@@ -67,8 +64,7 @@ public class DaoManager {
                       OrgDao orgDao,
                       ImportStatisticDao statisticDao,
                       DataConverter dataConverter,
-                      CampusCourseConfiguration campusCourseConfiguration,
-                      @Value("${campus.lv_kuerzel.activated}") String shortTitleActivated) {
+                      CampusCourseConfiguration campusCourseConfiguration) {
 		this.courseDao = courseDao;
         this.semesterDao = semesterDao;
 		this.studentDao = studentDao;
@@ -82,7 +78,6 @@ public class DaoManager {
 		this.statisticDao = statisticDao;
 		this.dataConverter = dataConverter;
 		this.campusCourseConfiguration = campusCourseConfiguration;
-		this.shortTitleActivated = TRUE.toString().equals(shortTitleActivated);
     }
 
     public void saveCourses(List<Course> courses) {
@@ -111,7 +106,7 @@ public class DaoManager {
         return delegationDao.existsDelegation(delegator.getKey(), delegatee.getKey());
     }
 
-    public boolean existCampusCoursesForOlatResource(Long olatResourceKey) {
+    public boolean existCoursesForOlatResource(Long olatResourceKey) {
         return courseDao.existCoursesForOlatResource(olatResourceKey);
     }
 
@@ -388,19 +383,31 @@ public class DaoManager {
         courseDao.saveOlatResource(courseId, olatResourceKey);
     }
 
+    public void saveCampusGroupA(Long courseId, Long campusGroupAKey) {
+        courseDao.saveCampusGroupA(courseId, campusGroupAKey);
+    }
+
+    public void saveCampusGroupB(Long courseId, Long campusGroupBKey) {
+        courseDao.saveCampusGroupB(courseId, campusGroupBKey);
+    }
+
     public Course getLatestCourseByOlatResource(Long olatResourceKey) throws Exception {
         return courseDao.getLatestCourseByOlatResource(olatResourceKey);
     }
 
-    public void resetOlatResourceAndParentCourseReference(Long olatResourceKey) {
-        courseDao.resetOlatResourceAndParentCourse(olatResourceKey);
+    public Set<CampusGroups> getCampusGroupsByOlatResource(Long olatResourceKey) {
+        return courseDao.getCampusGroupsByOlatResource(olatResourceKey);
+    }
+
+    public void resetOlatResourceAndCampusGroupsAndParentCourse(Long olatResourceKey) {
+        courseDao.resetOlatResourceAndCampusGroupsAndParentCourse(olatResourceKey);
     }
 
     public void saveParentCourseId(Long courseId, Long parentCourseId) {
         courseDao.saveParentCourseId(courseId, parentCourseId);
     }
 
-    public List<Long> getAllCreatedSapCourcesIds() {
+    public List<Long> getSapIdsOfAllCreatedOlatCampusCourses() {
         return courseDao.getIdsOfAllCreatedSynchronizableCoursesOfCurrentSemester();
     }
 
@@ -408,7 +415,7 @@ public class DaoManager {
         return courseDao.getOlatResourceKeysOfAllCreatedNotContinuedCoursesOfPreviousSemestersNotTooFarInThePast();
     }
 
-    public List<Long> getAllNotCreatedSapCourcesIds() {
+    public List<Long> getSapIdsOfAllNotCreatedOlatCampusCourses() {
         return courseDao.getIdsOfAllNotCreatedCreatableCoursesOfCurrentSemester();
     }
 
@@ -420,7 +427,7 @@ public class DaoManager {
         return courseDao.getAllCreatedCoursesOfCurrentSemester();
     }
 
-    public CampusCourseImportTO getSapCampusCourse(long courseId) {
+    public SapCampusCourseTO loadSapCampusCourseTO(long courseId) {
         Course course = getCourseById(courseId);
 		if (course == null) {
 			return null;
@@ -434,13 +441,21 @@ public class DaoManager {
 
         Set<LecturerCourse> lecturerCourses = course.getLecturerCourses();
 
-        return new CampusCourseImportTO(course.getTitleToBeDisplayed(shortTitleActivated),
+        return new SapCampusCourseTO(
+                course.getTitleToBeDisplayed(),
 				course.getSemester(),
 				dataConverter.convertLecturersToIdentities(lecturerCourses),
                 dataConverter.convertDelegateesToIdentities(lecturerCourses),
 				dataConverter.convertStudentsToIdentities(studentCourses),
-                textDao.getContentsByCourseId(course.getId()), course.getOlatResource(),
-				course.getId(), course.getLanguage(), course.getVvzLink());
+                course.isContinuedCourse(),
+                course.getTitlesOfCourseAndParentCoursesInAscendingOrder(),
+                textDao.getContentsByCourseId(course.getId()),
+                course.getOlatResource(),
+                course.getCampusGroupA(),
+                course.getCampusGroupB(),
+                course.getId(),
+                course.getLanguage(),
+                course.getVvzLink());
     }
 
     private boolean areStudentCourseBookingsForCurrentSemesterUpToDate(Course course) {

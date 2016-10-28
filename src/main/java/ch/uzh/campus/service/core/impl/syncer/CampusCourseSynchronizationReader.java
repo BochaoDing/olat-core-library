@@ -1,6 +1,6 @@
 package ch.uzh.campus.service.core.impl.syncer;
 
-import ch.uzh.campus.CampusCourseImportTO;
+import ch.uzh.campus.service.data.SapCampusCourseTO;
 import ch.uzh.campus.data.DaoManager;
 import ch.uzh.campus.utils.ListUtil;
 import org.olat.core.commons.persistence.DB;
@@ -33,18 +33,18 @@ import java.util.List;
  * <p>
  *
  * This class is an implementation of {@link ItemReader} that reads all already created campus-course records from the database <br>
- * and converts them to the transfer objects of {@link CampusCourseImportTO}. <br>
+ * and converts them to the transfer objects of {@link SapCampusCourseTO}. <br>
  * It delegates the actual reading of data from the database to the DaoManager. <br>
  * 
  * Initial Date: 31.10.2012 <br>
  * 
  * @author aabouc
  */
-public class CampusCourseSynchronizationReader implements ItemReader<CampusCourseImportTO> {
+public class CampusCourseSynchronizationReader implements ItemReader<SapCampusCourseTO> {
 
     private DaoManager daoManager;
     private DB dbInstance;
-    private List<Long> sapCoursesIds = Collections.emptyList();
+    private List<Long> sapCourseIds = Collections.emptyList();
 
     @Autowired
     public CampusCourseSynchronizationReader(DaoManager daoManager, DB dbInstance) {
@@ -55,27 +55,27 @@ public class CampusCourseSynchronizationReader implements ItemReader<CampusCours
     @PostConstruct
     public void init() {
         if (daoManager.checkImportedData()) {
-            sapCoursesIds = daoManager.getAllCreatedSapCourcesIds();
+            sapCourseIds = daoManager.getSapIdsOfAllCreatedOlatCampusCourses();
         }
         dbInstance.closeSession();
     }
 
     @PreDestroy
     public void destroy() {
-        if (ListUtil.isNotBlank(sapCoursesIds)) {
-            sapCoursesIds.clear();
+        if (ListUtil.isNotBlank(sapCourseIds)) {
+            sapCourseIds.clear();
         }
     }
 
     /**
-     * Reads a {@link CampusCourseImportTO} via the {@link DaoManager} with the given course id from the list of the sapCoursesIds. <br>
-     * It returns null at the end of the list of the sapCoursesIds
+     * Reads a {@link SapCampusCourseTO} via the {@link DaoManager} with the given course id from the list of the sapCourseIds. <br>
+     * It returns null at the end of the list of the sapCourseIds
      */
-    public synchronized CampusCourseImportTO read() throws Exception {
-        if (ListUtil.isNotBlank(sapCoursesIds)) {
-            CampusCourseImportTO campusCourseImportTO = daoManager.getSapCampusCourse(sapCoursesIds.remove(0));
+    public synchronized SapCampusCourseTO read() throws Exception {
+        if (ListUtil.isNotBlank(sapCourseIds)) {
+            SapCampusCourseTO sapCampusCourseTO = daoManager.loadSapCampusCourseTO(sapCourseIds.remove(0));
             dbInstance.closeSession();
-            return campusCourseImportTO;
+            return sapCampusCourseTO;
         }
         return null;
     }

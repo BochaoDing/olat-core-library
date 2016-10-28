@@ -1,3 +1,19 @@
+package ch.uzh.campus.service.core.impl.syncer;
+
+import ch.uzh.campus.service.data.SapCampusCourseTO;
+import ch.uzh.campus.data.DaoManager;
+import org.junit.Before;
+import org.junit.Test;
+import org.olat.core.commons.persistence.DB;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 /**
  * OLAT - Online Learning and Training<br>
  * http://www.olat.org
@@ -17,24 +33,7 @@
  * Copyright (c) since 2004 at Multimedia- & E-Learning Services (MELS),<br>
  * University of Zurich, Switzerland.
  * <p>
- */
-package ch.uzh.campus.service.core.impl.syncer;
-
-import ch.uzh.campus.CampusCourseImportTO;
-import ch.uzh.campus.data.DaoManager;
-import org.junit.Before;
-import org.junit.Test;
-import org.olat.core.commons.persistence.DB;
-
-import java.util.ArrayList;
-import java.util.List;
-
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
-/**
+ *
  * Initial Date: 08.11.2012 <br>
  * 
  * @author aabouc
@@ -85,12 +84,12 @@ public class CampusCourseSynchronizationReaderTest {
         List<Long> CreatedSapCourcesIds = new ArrayList<>();
         CreatedSapCourcesIds.add(100L);
         CreatedSapCourcesIds.add(200L);
-        when(daoManagerMock.getAllCreatedSapCourcesIds()).thenReturn(CreatedSapCourcesIds);
+        when(daoManagerMock.getSapIdsOfAllCreatedOlatCampusCourses()).thenReturn(CreatedSapCourcesIds);
 
-        CampusCourseImportTO courseMock1 = mock(CampusCourseImportTO.class);
-        CampusCourseImportTO courseMock2 = mock(CampusCourseImportTO.class);
-        when(daoManagerMock.getSapCampusCourse(100L)).thenReturn(courseMock1);
-        when(daoManagerMock.getSapCampusCourse(200L)).thenReturn(courseMock2);
+        SapCampusCourseTO sapCampusCourseTOMock1 = mock(SapCampusCourseTO.class);
+        SapCampusCourseTO sapCampusCourseTOMock2 = mock(SapCampusCourseTO.class);
+        when(daoManagerMock.loadSapCampusCourseTO(100L)).thenReturn(sapCampusCourseTOMock1);
+        when(daoManagerMock.loadSapCampusCourseTO(200L)).thenReturn(sapCampusCourseTOMock2);
 
         campusCourseSynchronizationReaderTestObject.init();
         // The first read delivers the first course

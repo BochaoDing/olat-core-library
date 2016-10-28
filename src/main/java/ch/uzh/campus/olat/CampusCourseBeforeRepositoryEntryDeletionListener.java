@@ -26,7 +26,7 @@ public class CampusCourseBeforeRepositoryEntryDeletionListener extends BeforeRep
 	@Override
 	public void onAction(RepositoryEntry repositoryEntry,
 						 OLATResource olatResource) {
-		campusCourseCoreService.resetOlatResourceAndParentCourseReference(olatResource);
-		campusCourseCoreService.deleteCampusCourseGroupsIfExist(repositoryEntry);
+		campusCourseCoreService.resetOlatResourceAndCampusGroupsAndParentCourse(olatResource);
+		campusCourseCoreService.deleteCampusGroups(olatResource);
 	}
 }
