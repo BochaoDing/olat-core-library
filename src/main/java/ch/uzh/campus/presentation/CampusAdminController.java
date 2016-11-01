@@ -38,6 +38,7 @@ public class CampusAdminController extends FormBasicController {
     private static String[] languages = { "DE", "EN", "FR", "IT" };
     private SingleSelection semestersSelection;
     private Long selectedCurrentSemesterId;
+    private Semester currentSemester;
     private CampusCourseConfiguration campusCourseConfiguration;
     private DaoManager daoManager;
 
@@ -58,36 +59,46 @@ public class CampusAdminController extends FormBasicController {
         formLayout.add(templateFormLayoutContainer);
         templateFormLayoutContainer.setRootForm(mainForm);
 
+        // Languages selection
         languagesSelection = uifactory.addDropdownSingleselect("languagesSelection", "campus.admin.form.template.language", templateFormLayoutContainer, languages, languages, null);
         String defaultLangauge = "DE";
         languagesSelection.select(defaultLangauge, true);
         languagesSelection.addActionListener(FormEvent.ONCHANGE);
 
+        // Repository entry id
         repositoryEntryIdTextElement = uifactory.addTextElement("repositoryEntryId", "campus.admin.form.repositoryEntry.id", 60, "", templateFormLayoutContainer);
         repositoryEntryIdTextElement.setValue(campusCourseConfiguration.getTemplateRepositoryEntryId(defaultLangauge).toString());
 
-        FormLayoutContainer currentSemesterFormLayoutContainer = FormLayoutContainer.createDefaultFormLayout("currentSemester", getTranslator());
-        currentSemesterFormLayoutContainer.setFormTitle(translate("campus.admin.form.currentSemester.title"));
-        formLayout.add(currentSemesterFormLayoutContainer);
-        currentSemesterFormLayoutContainer.setRootForm(mainForm);
+        // Semesters selection
+        currentSemester = daoManager.getCurrentSemester();
 
-        // Prepare semestersSelection
-        List<Semester> semestersAll = daoManager.getSemestersInAscendingOrder();
-        int numberOfSemestersToDisplay = Math.min(semestersAll.size(), MAX_NUMBER_OF_SEMESTERS_TO_DISPLAY);
-        List<Semester> semesters = semestersAll.subList(semestersAll.size() - numberOfSemestersToDisplay, semestersAll.size());
-        Semester currentSemester = daoManager.getCurrentSemester();
-        // Currently set currentSemester must always be selectable
-        if (!semesters.contains(currentSemester)) {
-            semesters.add(0, currentSemester);
+        // currentSemester is null if this method is called without ever running a campus course import before
+        // In this case do not add the semesters selection
+        if (currentSemester != null) {
+
+            FormLayoutContainer currentSemesterFormLayoutContainer = FormLayoutContainer.createDefaultFormLayout("currentSemester", getTranslator());
+            currentSemesterFormLayoutContainer.setFormTitle(translate("campus.admin.form.currentSemester.title"));
+            formLayout.add(currentSemesterFormLayoutContainer);
+            currentSemesterFormLayoutContainer.setRootForm(mainForm);
+
+            // Prepare semestersSelection
+            List<Semester> semestersAll = daoManager.getSemestersInAscendingOrder();
+            int numberOfSemestersToDisplay = Math.min(semestersAll.size(), MAX_NUMBER_OF_SEMESTERS_TO_DISPLAY);
+            List<Semester> semesters = semestersAll.subList(semestersAll.size() - numberOfSemestersToDisplay, semestersAll.size());
+
+            // Currently set currentSemester must always be selectable
+            if (!semesters.contains(currentSemester)) {
+                semesters.add(0, currentSemester);
+            }
+            String[] semesterNameYears = semesters.stream().map(Semester::getSemesterNameYear).toArray(String[]::new);
+            String[] semesterIdsAsString = semesters.stream().map(semester -> semester.getId().toString()).toArray(String[]::new);
+
+            semestersSelection = uifactory.addDropdownSingleselect("currentSemesterSelection", "campus.admin.form.currentSemester.selection", currentSemesterFormLayoutContainer, semesterIdsAsString, semesterNameYears, null);
+            String defaultSemesterIdAsString = currentSemester.getId().toString();
+            semestersSelection.select(defaultSemesterIdAsString, true);
+            semestersSelection.addActionListener(FormEvent.ONCHANGE);
+            selectedCurrentSemesterId = currentSemester.getId();
         }
-        String[] semesterNameYears = semesters.stream().map(Semester::getSemesterNameYear).toArray(String[]::new);
-        String[] semesterIdsAsString = semesters.stream().map(semester -> semester.getId().toString()).toArray(String[]::new);
-
-        semestersSelection = uifactory.addDropdownSingleselect("currentSemesterSelection", "campus.admin.form.currentSemester.selection", currentSemesterFormLayoutContainer, semesterIdsAsString, semesterNameYears, null);
-        String defaultSemesterIdAsString = currentSemester.getId().toString();
-        semestersSelection.select(defaultSemesterIdAsString, true);
-        semestersSelection.addActionListener(FormEvent.ONCHANGE);
-        selectedCurrentSemesterId = currentSemester.getId();
 
         uifactory.addFormSubmitButton("save", formLayout);
     }
@@ -143,7 +154,9 @@ public class CampusAdminController extends FormBasicController {
             // Course is now validated and can be used as template => write property
             campusCourseConfiguration.saveTemplateRepositoryEntryId(templateRepositoryEntryAsLong, languagesSelection.getSelectedKey());
             // Save currentSemester
-            daoManager.setCurrentSemester(selectedCurrentSemesterId);
+            if (currentSemester != null) {
+                daoManager.setCurrentSemester(selectedCurrentSemesterId);
+            }
         } catch (NumberFormatException ex) {
             this.showWarning("campus.admin.form.could.not.save");
         } catch (CorruptedCourseException ex) {
