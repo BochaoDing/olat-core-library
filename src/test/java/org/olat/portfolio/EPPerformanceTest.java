@@ -47,6 +47,7 @@ import org.olat.portfolio.model.structel.PortfolioStructureMap;
 import org.olat.test.JunitTestHelper;
 import org.olat.test.OlatTestCase;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ContextConfiguration;
 
 /**
  * Description:<br>
@@ -59,6 +60,7 @@ import org.springframework.beans.factory.annotation.Autowired;
  * 
  * @author Roman Haag, roman.haag@frentix.com, http://www.frentix.com
  */
+@ContextConfiguration(locations = {"classpath:/org/olat/_spring/mainContext.xml"})
 public class EPPerformanceTest extends OlatTestCase {
 
 	private static final String LOREM_STRING_512 = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean id sapien ac justo congue mollis. " +
@@ -273,7 +275,6 @@ public class EPPerformanceTest extends OlatTestCase {
 	}
 
 	/**
-	 * @param mapAmount
 	 * @param start
 	 * @param sharedQ
 	 * @param countArtefactQ

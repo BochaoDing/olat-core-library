@@ -46,16 +46,19 @@ import org.springframework.beans.factory.annotation.Autowired;
  * @author Felix Jost, http://www.goodsolutions.ch
  */
 public class ClusterSyncer implements Syncer {
+
 	private static final OLog log = Tracing.createLoggerFor(ClusterSyncer.class);
-	private int executionTimeThreshold = 3000; // warn if the execution takes longer than three seconds
-	private final ThreadLocal<ThreadLocalClusterSyncer> data = new ThreadLocal<ThreadLocalClusterSyncer>();
-	private PessimisticLockManager pessimisticLockManager;
+
+	private final ThreadLocal<ThreadLocalClusterSyncer> data = new ThreadLocal<>();
+	private final PessimisticLockManager pessimisticLockManager;
 	private final DB dbInstance;
+
+	private int executionTimeThreshold = 3000; // warn if the execution takes longer than three seconds
 
 	@Autowired
 	private ClusterSyncer(PessimisticLockManager pessimisticLockManager, DB dbInstance) {
+		this.pessimisticLockManager = pessimisticLockManager;
 		this.dbInstance = dbInstance;
-		this.setPessimisticLockManager(pessimisticLockManager);
 	}
 	
 	/**
@@ -161,10 +164,6 @@ public class ClusterSyncer implements Syncer {
 			setData(tld);
 		}
 		return tld;
-	}
-
-	public void setPessimisticLockManager(PessimisticLockManager pessimisticLockManager) {
-		this.pessimisticLockManager = pessimisticLockManager;
 	}
 
 	public PessimisticLockManager getPessimisticLockManager() {

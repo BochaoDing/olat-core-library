@@ -50,12 +50,14 @@ import org.olat.portfolio.model.structel.PortfolioStructureMap;
 import org.olat.test.JunitTestHelper;
 import org.olat.test.OlatTestCase;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ContextConfiguration;
 
 /**
  * Description: <br>
  * 
  * @author Christian Guretzki
  */
+@ContextConfiguration(locations = {"classpath:/org/olat/_spring/mainContext.xml"})
 public class UserDeletionManagerTest extends OlatTestCase {
 
 	@Autowired

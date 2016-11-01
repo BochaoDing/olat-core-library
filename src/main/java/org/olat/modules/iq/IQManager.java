@@ -96,18 +96,11 @@ public class IQManager implements UserDataDeletable {
 	private OLog log = Tracing.createLoggerFor(IQManager.class);
 
 	private final DB dbInstance;
-	private UserManager userManager;
+	private final UserManager userManager;
 
 	@Autowired
-	public IQManager(DB dbInstance) {
+	public IQManager(DB dbInstance, UserManager userManager) {
 		this.dbInstance = dbInstance;
-	}
-
-	/**
-	 * [user by Spring]
-	 * @param userManager
-	 */
-	public void setUserManager(UserManager userManager) {
 		this.userManager = userManager;
 	}
 

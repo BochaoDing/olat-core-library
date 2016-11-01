@@ -64,22 +64,18 @@ public class SimpleLogExporter implements ICourseLogExporter {
 	private static final String LINE_SEPARATOR = System.getProperty("line.separator");
 	
 	private final DB dbInstance;
-	private LogLineConverter logLineConverter_;
+	private final LogLineConverter logLineConverter_;
 
 	@Autowired
-	private SimpleLogExporter(DB dbInstance) {
+	private SimpleLogExporter(DB dbInstance, LogLineConverter logLineConverter_) {
 		this.dbInstance = dbInstance;
-	}
-	
-	/** injected by spring **/
-	public void setLogLineConverter(LogLineConverter logLineConverter) {
-		logLineConverter_ = logLineConverter;
+		this.logLineConverter_ = logLineConverter_;
 	}
 
 	@Override
 	public void exportCourseLog(File outFile, String charset, Long resourceableId, Date begin, Date end, boolean resourceAdminAction, boolean anonymize) {
 
-		
+		@SuppressWarnings("JpaQlInspection")
 		String query = "select v from org.olat.core.logging.activity.LoggingObject v " + "where v.resourceAdminAction = :resAdminAction "
 				+ "AND ( " 
 				+ "(v.targetResId = :resId) OR " 
@@ -102,6 +98,7 @@ public class SimpleLogExporter implements ICourseLogExporter {
 				.setParameter("resAdminAction", resourceAdminAction)
 				.setParameter("resId", Long.toString(resourceableId));
 		if (begin != null) {
+			//noinspection JpaQueryApiInspection
 			dbQuery.setParameter("createdAfter", begin, TemporalType.DATE);
 		}
 		if (end != null) {
@@ -109,6 +106,7 @@ public class SimpleLogExporter implements ICourseLogExporter {
 			cal.setTime(end);
 			cal.add(Calendar.DAY_OF_MONTH, 1);
 			end = cal.getTime();
+			//noinspection JpaQueryApiInspection
 			dbQuery.setParameter("createdBefore", end, TemporalType.DATE);
 		}
 		

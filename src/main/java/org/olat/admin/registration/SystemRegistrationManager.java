@@ -69,6 +69,8 @@ import org.quartz.JobDetail;
 import org.quartz.Scheduler;
 import org.quartz.SchedulerException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 
 /**
  * Description:<br>
@@ -91,9 +93,9 @@ public class SystemRegistrationManager extends BasicManager implements Initializ
 	private final Scheduler scheduler;
 	private final String clusterMode;
 	private final DB database;
-	private RepositoryManager repositoryManager;
-	private BaseSecurity securityManager;
-	private BusinessGroupService businessGroupService;
+	private final RepositoryManager repositoryManager;
+	private final BaseSecurity securityManager;
+	private final BusinessGroupService businessGroupService;
 
 	private static final String REGISTRATION_SERVER = "http://registration.openolat.org/registration/restapi/registration/openolat";
 	//private static final String REGISTRATION_SERVER = "http://localhost:8083/registration/restapi/registration/openolat";
@@ -103,11 +105,20 @@ public class SystemRegistrationManager extends BasicManager implements Initializ
 	 * Use getInstance(), this is a singleton
 	 */
 	@Autowired
-	private SystemRegistrationManager(Scheduler scheduler, String clusterMode, DB database, SystemRegistrationModule registrationModule) {
+	private SystemRegistrationManager(@Qualifier("schedulerFactoryBean") Scheduler scheduler,
+									  @Value("${cluster.mode}") String clusterMode,
+									  DB database,
+									  SystemRegistrationModule registrationModule,
+									  RepositoryManager repositoryManager,
+									  BaseSecurity securityManager,
+									  BusinessGroupService businessGroupService) {
 		this.scheduler = scheduler;
 		this.clusterMode = clusterMode;
 		this.database = database;
 		this.registrationModule = registrationModule;
+		this.repositoryManager = repositoryManager;
+		this.securityManager = securityManager;
+		this.businessGroupService = businessGroupService;
 	}
 
 	/**
@@ -123,30 +134,6 @@ public class SystemRegistrationManager extends BasicManager implements Initializ
 	 */
 	public void destroy() {
 		//
-	}
-	
-	/**
-	 * [used by Spring]
-	 * @param repositoryManager
-	 */
-	public void setRepositoryManager(RepositoryManager repositoryManager) {
-		this.repositoryManager = repositoryManager;
-	}
-	
-	/**
-	 * [used by Spring]
-	 * @param securityManager
-	 */
-	public void setSecurityManager(BaseSecurity securityManager) {
-		this.securityManager = securityManager;
-	}
-	
-	/**
-	 * [used by Spring]
-	 * @param businessGroupService
-	 */
-	public void setBusinessGroupService(BusinessGroupService businessGroupService) {
-		this.businessGroupService = businessGroupService;
 	}
 
 	/**

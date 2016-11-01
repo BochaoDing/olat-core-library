@@ -65,35 +65,16 @@ public class RepositoryIndexer extends AbstractHierarchicalIndexer {
 	private static final int BATCH_SIZE = 100;
 	
 	private final DB dbInstance;
-	private RepositoryManager repositoryManager;
-	private RepositoryEntryDocumentFactory documentFactory;
-	
-	private List<Long> repositoryBlackList;
+	private final RepositoryManager repositoryManager;
+	private final RepositoryEntryDocumentFactory documentFactory;
+	private final List<Long> repositoryBlackList;
 
 	@Autowired
-	private RepositoryIndexer(DB dbInstance) {
+	private RepositoryIndexer(DB dbInstance, RepositoryManager repositoryManager, RepositoryEntryDocumentFactory documentFactory, SearchModule searchModule) {
 		this.dbInstance = dbInstance;
-	}
-	
-	/**
-	 * [used by spring]
-	 */
-	public void setSearchModule(SearchModule searchModule) {
-		repositoryBlackList = searchModule.getRepositoryBlackList();
-	}
-	
-	/**
-	 * [used by spring]
-	 */
-	public void setRepositoryEntryDocumentFactory(RepositoryEntryDocumentFactory documentFactory) {
-		this.documentFactory = documentFactory;
-	}
-	
-	/**
-	 * [used by spring]
-	 */
-	public void setRepositoryManager(RepositoryManager repositoryManager) {
 		this.repositoryManager = repositoryManager;
+		this.documentFactory = documentFactory;
+		this.repositoryBlackList = searchModule.getRepositoryBlackList();
 	}
 
 	/**

@@ -75,6 +75,7 @@ import org.olat.resource.OLATResourceManager;
 import org.olat.test.JunitTestHelper;
 import org.olat.test.OlatTestCase;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ContextConfiguration;
 
 /**
  * Description: <BR/>
@@ -84,6 +85,7 @@ import org.springframework.beans.factory.annotation.Autowired;
  * @author patrick
  * @author srosse, stephane.rosse@frentix.com, http://www.frentix.com
  */
+@ContextConfiguration(locations = {"classpath:/org/olat/_spring/mainContext.xml"})
 public class EnrollmentManagerConcurrentTest extends OlatTestCase implements WindowControl {
 	//
 	private static OLog log = Tracing.createLoggerFor(EnrollmentManagerConcurrentTest.class);

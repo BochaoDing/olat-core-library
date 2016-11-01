@@ -97,30 +97,16 @@ public class NotificationsManagerImpl extends NotificationsManager implements Us
 	private final Object publisherTableLock = new Object();
 	
 	private final DB dbInstance;
-	private BaseSecurity securityManager;
-	private PropertyManager propertyManager;
+	private final BaseSecurity securityManager;
+	private final PropertyManager propertyManager;
 
 	@Autowired
-	private NotificationsManagerImpl(DB dbInstance) {
+	private NotificationsManagerImpl(DB dbInstance, BaseSecurity securityManager, PropertyManager propertyManager) {
 		this.dbInstance = dbInstance;
+		this.securityManager = securityManager;
+		this.propertyManager = propertyManager;
 		// private since singleton
 		INSTANCE = this;
-	}
-	
-	/**
-	 * [user by Spring]
-	 * @param securityManager
-	 */
-	public void setSecurityManager(BaseSecurity securityManager) {
-		this.securityManager = securityManager;
-	}
-	
-	/**
-	 * [used by Spring]
-	 * @param propertyManager
-	 */
-	public void setPropertyManager(PropertyManager propertyManager) {
-		this.propertyManager = propertyManager;
 	}
 
 	/**
