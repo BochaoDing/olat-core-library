@@ -5,11 +5,7 @@
   http://www.springframework.org/schema/beans 
   http://www.springframework.org/schema/beans/spring-beans.xsd">
 
-	<bean id="taskExecutorManager" class="org.olat.core.commons.services.taskexecutor.manager.TaskExecutorManagerImpl">
-		<constructor-arg index="0" ref="mpTaskExecutorService" />
-		<constructor-arg index="1" ref="sequentialTaskExecutorService" />
-		<property name="persistentTaskDao" ref="persistentTaskDao"/>
-	</bean>
+	<bean id="taskExecutorManager" class="org.olat.core.commons.services.taskexecutor.manager.TaskExecutorManagerImpl"/>
 	
 	<bean id="mpTaskExecutorService" class="org.springframework.core.task.support.ExecutorServiceAdapter">
 		<constructor-arg index="0" ref="mpTaskSpringExecutor" />

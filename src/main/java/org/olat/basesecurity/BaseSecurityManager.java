@@ -54,6 +54,7 @@ import org.olat.resource.OLATResourceManager;
 import org.olat.user.ChangePasswordController;
 import org.olat.user.UserManager;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 
 import javax.persistence.EntityNotFoundException;
 import javax.persistence.LockModeType;
@@ -75,17 +76,26 @@ public class BaseSecurityManager implements BaseSecurity {
 	private static final OLog log = Tracing.createLoggerFor(BaseSecurityManager.class);
 	
 	private final DB dbInstance;
-	private LoginModule loginModule;
-	private OLATResourceManager orm;
-	private InvitationDAO invitationDao;
-	private String dbVendor = "";
+	private final LoginModule loginModule;
+	private final OLATResourceManager orm;
+	private final InvitationDAO invitationDao;
+	private final String dbVendor;
+
 	private static BaseSecurityManager INSTANCE;
 	private static String GUEST_USERNAME_PREFIX = "guest_";
 	public static final OLATResourceable IDENTITY_EVENT_CHANNEL = OresHelper.lookupType(Identity.class);
 
 	@Autowired
-	private BaseSecurityManager(DB dbInstance) {
+	private BaseSecurityManager(DB dbInstance,
+								LoginModule loginModule,
+								OLATResourceManager orm,
+								InvitationDAO invitationDao,
+								@Value("${db.vendor}") String dbVendor) {
 		this.dbInstance = dbInstance;
+		this.loginModule = loginModule;
+		this.orm = orm;
+		this.invitationDao = invitationDao;
+		this.dbVendor = dbVendor;
 		INSTANCE = this;
 	}
 	
@@ -96,30 +106,7 @@ public class BaseSecurityManager implements BaseSecurity {
 	public static BaseSecurity getInstance() {
 		return INSTANCE;
 	}
-	
-	public void setLoginModule(LoginModule loginModule) {
-		this.loginModule = loginModule;
-	}
-	
-	/**
-	 * [used by spring]
-	 * @param orm
-	 */
-	public void setResourceManager(OLATResourceManager orm) {
-		this.orm = orm;
-	}
-	
-	/**
-	 * [used by Spring]
-	 * @param invitationDao
-	 */
-	public void setInvitationDao(InvitationDAO invitationDao) {
-		this.invitationDao = invitationDao;
-	}
 
-	/**
-	 * @see org.olat.basesecurity.Manager#init()
-	 */
 	public void init() { // called only once at startup and only from one thread
 		// init the system level groups and its policies
 		initSysGroupAdmin();
@@ -1791,14 +1778,6 @@ public class BaseSecurityManager implements BaseSecurity {
 		}
 		// execute query
 		return dbq;
-	}
-	
-	/**
-	 * 
-	 * @param dbVendor
-	 */
-	public void setDbVendor(String dbVendor) {
-		this.dbVendor = dbVendor;
 	}
 
   /**

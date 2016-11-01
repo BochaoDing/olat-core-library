@@ -80,13 +80,15 @@ public class EfficiencyStatementManager extends BasicManager implements UserData
 	private static EfficiencyStatementManager INSTANCE;
 
 	private final DB dbInstance;
-	private UserManager userManager;
-	private RepositoryManager repositoryManager;
+	private final UserManager userManager;
+	private final RepositoryManager repositoryManager;
 	private final XStream xstream = XStreamHelper.createXStreamInstance();
 
 	@Autowired
-	private EfficiencyStatementManager(DB dbInstance) {
+	private EfficiencyStatementManager(DB dbInstance, UserManager userManager, RepositoryManager repositoryManager) {
 		this.dbInstance = dbInstance;
+		this.userManager = userManager;
+		this.repositoryManager = repositoryManager;
 		INSTANCE = this;
 	}
 	
@@ -96,22 +98,6 @@ public class EfficiencyStatementManager extends BasicManager implements UserData
 	 */
 	public static EfficiencyStatementManager getInstance() {
 		return INSTANCE;
-	}
-	
-	/**
-	 * [used by Spring]
-	 * @param repositoryManager
-	 */
-	public void setRepositoryManager(RepositoryManager repositoryManager) {
-		this.repositoryManager = repositoryManager;
-	}
-	
-	/**
-	 * [used by Spring]
-	 * @param userManager
-	 */
-	public void setUserManager(UserManager userManager) {
-		this.userManager = userManager;
 	}
 
 	/**

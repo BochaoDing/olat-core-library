@@ -51,18 +51,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 public class TaggingManagerImpl extends BasicManager implements TaggingManager {
 
 	private final DB dbInstance;
-	private TagProposalManager proposalManager;
+	private final TagProposalManager proposalManager;
 
 	@Autowired
-	public TaggingManagerImpl(DB dbInstance) {
+	public TaggingManagerImpl(DB dbInstance, TagProposalManager proposalManager) {
 		this.dbInstance = dbInstance;
-	}
-	
-	/**
-	 * [used by Spring]
-	 * @param proposalManager
-	 */
-	public void setProposalManager(TagProposalManager proposalManager) {
 		this.proposalManager = proposalManager;
 	}
 

@@ -53,6 +53,7 @@ import org.olat.login.AfterLoginConfig;
 import org.olat.login.AfterLoginInterceptionManager;
 import org.olat.user.propertyhandlers.UserPropertyHandler;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.util.StringUtils;
 
 /**
@@ -79,15 +80,12 @@ public class UserModule extends AbstractOLATModule {
 	private UserManager userManger;
 	private AfterLoginConfig afterLoginConfig; 
 	private AfterLoginInterceptionManager afterLoginInterceptionManager;
-	
 
-	/**
-	 * [used by spring]
-	 * @param dbInstance
-	 * @param authenticationProviderConstant
-	 */
 	@Autowired
-	private UserModule(DB dbInstance, String authenticationProviderConstant, UserManager userManager, AfterLoginInterceptionManager afterLoginInterceptionManager) {
+	private UserModule(DB dbInstance,
+					   @Value("${default.auth.provider.identifier}") String authenticationProviderConstant,
+					   UserManager userManager,
+					   AfterLoginInterceptionManager afterLoginInterceptionManager) {
 		this.dbInstance = dbInstance;
 		this.authenticationProviderConstant = authenticationProviderConstant;
 		this.userManger = userManager;

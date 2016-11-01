@@ -39,7 +39,6 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.rules.TestName;
 import org.olat.core.commons.persistence.DB;
-import org.olat.core.commons.persistence.DBFactory;
 import org.olat.core.helpers.Settings;
 import org.olat.core.logging.OLog;
 import org.olat.core.logging.Tracing;
@@ -70,7 +69,7 @@ public abstract class OlatTestCase extends AbstractJUnit4SpringContextTests {
 	private static boolean started = false;
 
 	@Autowired
-	private DB dbInstance;
+	protected DB dbInstance;
 	
 	 @Rule public TestName name = new TestName();
 	

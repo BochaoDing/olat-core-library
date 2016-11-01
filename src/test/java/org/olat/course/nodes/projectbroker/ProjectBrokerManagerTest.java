@@ -64,12 +64,14 @@ import org.olat.repository.RepositoryEntry;
 import org.olat.test.JunitTestHelper;
 import org.olat.test.OlatTestCase;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ContextConfiguration;
 
 /**
  *   
  * @author Christian Guretzki
  */
 
+@ContextConfiguration(locations = {"classpath:/org/olat/_spring/mainContext.xml"})
 public class ProjectBrokerManagerTest extends OlatTestCase {
 
 	private static Identity id1 = null;
@@ -80,7 +82,7 @@ public class ProjectBrokerManagerTest extends OlatTestCase {
 	private ProjectGroupManager projectGroupManager;
 	@Autowired
 	private ProjectBrokerManager projectBrokerManager;
-	
+
 
 	/**
 	 * @see junit.framework.TestCase#setUp()

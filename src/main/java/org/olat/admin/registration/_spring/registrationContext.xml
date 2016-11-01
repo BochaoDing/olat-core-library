@@ -5,7 +5,7 @@
   http://www.springframework.org/schema/beans 
   http://www.springframework.org/schema/beans/spring-beans.xsd">
 
-	<bean id="systemRegistrationModule" class="org.olat.admin.registration.SystemRegistrationModule" 
+	<bean id="systemRegistrationModule" class="org.olat.admin.registration.SystemRegistrationModule"
 		init-method="init" depends-on="coordinatorManager">
 		<property name="persistedProperties">
 			<bean class="org.olat.core.configuration.PersistedProperties" scope="prototype" init-method="init" destroy-method="destroy">
@@ -15,13 +15,6 @@
 		</property>
 	</bean>
 
-	<bean id="systemRegistrationManager" class="org.olat.admin.registration.SystemRegistrationManager" 
-		init-method="init" destroy-method="destroy" depends-on="systemRegistrationModule">
-		<constructor-arg index="0" ref="schedulerFactoryBean"/>
-		<constructor-arg index="1" value="${cluster.mode}"/>
-		<constructor-arg index="3" ref="systemRegistrationModule"/>
-		<property name="securityManager" ref="baseSecurityManager" />
-		<property name="repositoryManager" ref="repositoryManager" />
-		<property name="businessGroupService" ref="businessGroupService" />
-	</bean>             
+	<bean id="systemRegistrationManager" class="org.olat.admin.registration.SystemRegistrationManager"
+		  init-method="init" destroy-method="destroy" depends-on="systemRegistrationModule"/>
 </beans>
