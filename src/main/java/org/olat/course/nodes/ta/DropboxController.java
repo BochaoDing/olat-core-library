@@ -260,7 +260,7 @@ public class DropboxController extends BasicController {
 					return;
 				}
 				
-				if(fOut instanceof MetaTagged) {
+				if (fOut instanceof MetaTagged) {
 					MetaInfo info = ((MetaTagged)fOut).getMetaInfo();
 					if(info != null) {
 						info.setAuthor(ureq.getIdentity());
@@ -316,7 +316,6 @@ public class DropboxController extends BasicController {
 						NotificationsManager.getInstance().markPublisherNews(subsContext, ureq.getIdentity(), true);
 					}													
 					// configuration is already translated, don't use showInfo(i18nKey)! 
-					//FIXME:FG:6.2: fix problem in info message, not here
 					if(!sendMailError) {
 						getWindowControl().setInfo(confirmation);
 					}
