@@ -288,6 +288,11 @@ public class CourseFactory extends BasicManager {
 			// o_clusterOK by:ld - load and put in cache in doInSync block to ensure
 			// that no invalidate cache event was missed
 			OLATResource resource = OLATResourceManager.getInstance().findResourceable(resourceableId, "CourseModule");
+			// sometimes there's no CourseModule resourceable found. @TODO find out why
+			if (resource == null) {
+				log.error("No CourseModule found for resourceableId " + resourceableId);
+				throw new AssertException("No CourseModule found for resourceableId.");
+			}
 			PersistingCourseImpl theCourse = new PersistingCourseImpl(resource);
 			theCourse.load();
 			
