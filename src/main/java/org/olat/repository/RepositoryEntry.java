@@ -556,7 +556,7 @@ public class RepositoryEntry implements CreateInfo, Persistable , RepositoryEntr
 	public boolean exceedsSizeLimit() {
 		final OLATResource sourceResource = getOlatResource();
 		PersistingCourseImpl sourceCourse = (PersistingCourseImpl) CourseFactory.loadCourse(sourceResource);
-		return sourceCourse.exceedsSizeLimit();
+		return (sourceCourse != null) && sourceCourse.exceedsSizeLimit();
 	}
 
 	/**
