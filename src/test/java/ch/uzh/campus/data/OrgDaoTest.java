@@ -1,28 +1,23 @@
 package ch.uzh.campus.data;
 
 import ch.uzh.campus.CampusCourseException;
-import org.junit.After;
+import ch.uzh.campus.CampusCourseTestCase;
 import org.junit.Test;
-import org.olat.core.commons.persistence.DB;
-import org.olat.test.OlatTestCase;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.ContextConfiguration;
+import org.springframework.stereotype.Component;
 
 import javax.inject.Provider;
-import java.util.*;
+import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static org.junit.Assert.*;
-import static org.junit.Assert.assertTrue;
 
 /**
  * @author Martin Schraner
  */
-@ContextConfiguration(locations = {"classpath:ch/uzh/campus/data/_spring/mockDataContext.xml"})
-public class OrgDaoTest extends OlatTestCase {
-	
-	@Autowired
-	private DB dbInstance;
+@Component
+public class OrgDaoTest extends CampusCourseTestCase {
 
     @Autowired
     private OrgDao orgDao;
@@ -32,11 +27,6 @@ public class OrgDaoTest extends OlatTestCase {
 
     @Autowired
     private Provider<MockDataGenerator> mockDataGeneratorProvider;
-    
-    @After
-    public void after() {
-    	dbInstance.rollback();
-    }
 
     @Test
     public void getOrgById() throws CampusCourseException {

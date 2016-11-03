@@ -1,17 +1,15 @@
 package ch.uzh.campus.data;
 
 import ch.uzh.campus.CampusCourseException;
-import org.junit.After;
+import ch.uzh.campus.CampusCourseTestCase;
 import org.junit.Before;
 import org.junit.Test;
 import org.olat.basesecurity.IdentityImpl;
-import org.olat.core.commons.persistence.DB;
 import org.olat.core.id.Identity;
 import org.olat.core.id.User;
-import org.olat.test.OlatTestCase;
 import org.olat.user.UserManager;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.ContextConfiguration;
+import org.springframework.stereotype.Component;
 
 import javax.inject.Provider;
 import java.util.Date;
@@ -26,14 +24,11 @@ import static org.junit.Assert.*;
  *
  * @author Martin Schraner
  */
-@ContextConfiguration(locations = {"classpath:ch/uzh/campus/data/_spring/mockDataContext.xml"})
-public class DataConverterTest extends OlatTestCase {
+@Component
+public class DataConverterTest extends CampusCourseTestCase {
 
     @Autowired
     private DataConverter dataConverter;
-
-    @Autowired
-    private DB dbInstance;
 
     @Autowired
     private OrgDao orgDao;
@@ -62,11 +57,6 @@ public class DataConverterTest extends OlatTestCase {
     @Before
     public void setup() throws Exception {
         insertTestData();
-    }
-
-    @After
-    public void after() {
-        dbInstance.rollback();
     }
 
     @Test

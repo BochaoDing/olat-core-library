@@ -2,18 +2,18 @@ package ch.uzh.campus.data;
 
 import ch.uzh.campus.CampusCourseConfiguration;
 import ch.uzh.campus.CampusCourseException;
+import ch.uzh.campus.CampusCourseTestCase;
 import ch.uzh.campus.utils.DateUtil;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.olat.core.commons.persistence.DB;
-import org.olat.test.OlatTestCase;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.ContextConfiguration;
+import org.springframework.stereotype.Component;
 
 import javax.inject.Provider;
 import javax.persistence.EntityNotFoundException;
-import java.util.*;
+import java.util.Date;
+import java.util.LinkedList;
+import java.util.List;
 
 import static org.junit.Assert.*;
 
@@ -25,14 +25,11 @@ import static org.junit.Assert.*;
  * @author Martin Schraner
  */
 
-@ContextConfiguration(locations = {"classpath:ch/uzh/campus/data/_spring/mockDataContext.xml" })
-public class LecturerCourseDaoTest extends OlatTestCase {
+@Component
+public class LecturerCourseDaoTest extends CampusCourseTestCase {
 
     @Autowired
     private CampusCourseConfiguration campusCourseConfiguration;
-
-    @Autowired
-    private DB dbInstance;
 
     @Autowired
     private LecturerDao lecturerDao;
@@ -65,11 +62,6 @@ public class LecturerCourseDaoTest extends OlatTestCase {
         Course course = courseDao.getCourseById(100L);
         semesterDao.setCurrentSemester(course.getSemester().getId());
         dbInstance.flush();
-    }
-
-    @After
-    public void after() {
-        dbInstance.rollback();
     }
 
     @Test

@@ -1,10 +1,9 @@
 package ch.uzh.campus;
 
 import org.junit.Test;
-import org.olat.test.OlatTestCase;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.test.context.ContextConfiguration;
+import org.springframework.stereotype.Component;
 
 import static org.junit.Assert.assertEquals;
 
@@ -13,8 +12,8 @@ import static org.junit.Assert.assertEquals;
  * 
  * @author cg
  */
-@ContextConfiguration(locations = {"classpath:/org/olat/_spring/mainContext.xml"})
-public class CampusCourseConfigurationTest extends OlatTestCase {
+@Component
+public class CampusCourseConfigurationTest extends CampusCourseTestCase {
 
     @Autowired
     private CampusCourseConfiguration campusCourseConfiguration;

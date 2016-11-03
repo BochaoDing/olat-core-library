@@ -1,5 +1,6 @@
 package ch.uzh.campus.service.core.impl.creator;
 
+import ch.uzh.campus.CampusCourseTestCase;
 import ch.uzh.campus.data.Semester;
 import ch.uzh.campus.data.SemesterName;
 import ch.uzh.campus.service.data.SapCampusCourseTO;
@@ -8,10 +9,9 @@ import org.junit.Test;
 import org.olat.basesecurity.IdentityImpl;
 import org.olat.core.id.Identity;
 import org.olat.core.id.UserConstants;
-import org.olat.test.OlatTestCase;
 import org.olat.user.UserImpl;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.ContextConfiguration;
+import org.springframework.stereotype.Component;
 
 import java.util.*;
 
@@ -25,8 +25,8 @@ import static org.mockito.Mockito.when;
  * 
  * @author cg
  */
-@ContextConfiguration(locations = {"classpath:/org/olat/_spring/mainContext.xml"})
-public class CampusCourseRepositoryEntryDescriptionBuilderTest extends OlatTestCase {
+@Component
+public class CampusCourseRepositoryEntryDescriptionBuilderTest extends CampusCourseTestCase {
 
     private static final String SORTED_LECTURERS = "first_lectureA last_lectureA, first_lectureB last_lectureB, first_lectureC last_lectureC";
 

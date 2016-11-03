@@ -3,6 +3,7 @@ package ch.uzh.campus.service.core.impl.syncer;
 import ch.uzh.campus.CampusCourseConfiguration;
 import ch.uzh.campus.CampusCourseException;
 import ch.uzh.campus.CampusCourseJunitTestHelper;
+import ch.uzh.campus.CampusCourseTestCase;
 import ch.uzh.campus.data.CourseDao;
 import ch.uzh.campus.service.core.impl.syncer.statistic.SynchronizedGroupStatistic;
 import ch.uzh.campus.service.data.CampusGroups;
@@ -18,10 +19,9 @@ import org.olat.group.area.BGAreaManager;
 import org.olat.repository.RepositoryEntry;
 import org.olat.repository.RepositoryService;
 import org.olat.test.JunitTestHelper;
-import org.olat.test.OlatTestCase;
 import org.olat.user.UserManager;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.ContextConfiguration;
+import org.springframework.stereotype.Component;
 
 import java.util.Collections;
 import java.util.HashSet;
@@ -30,8 +30,8 @@ import java.util.Set;
 
 import static org.junit.Assert.*;
 
-@ContextConfiguration(locations = {"classpath:org/olat/core/commons/persistence/_spring/testDatabaseCorecontext.xml"})
-public class CampusGroupsSynchronizerTest extends OlatTestCase {
+@Component
+public class CampusGroupsSynchronizerTest extends CampusCourseTestCase {
 
     @Autowired
     private UserManager userManager;

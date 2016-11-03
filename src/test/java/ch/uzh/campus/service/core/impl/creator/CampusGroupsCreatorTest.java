@@ -1,6 +1,7 @@
 package ch.uzh.campus.service.core.impl.creator;
 
 import ch.uzh.campus.CampusCourseJunitTestHelper;
+import ch.uzh.campus.CampusCourseTestCase;
 import ch.uzh.campus.service.data.CampusGroups;
 import ch.uzh.campus.service.data.OlatCampusCourse;
 import org.junit.After;
@@ -15,10 +16,9 @@ import org.olat.group.area.BGArea;
 import org.olat.group.area.BGAreaManager;
 import org.olat.repository.RepositoryEntry;
 import org.olat.test.JunitTestHelper;
-import org.olat.test.OlatTestCase;
 import org.olat.user.UserManager;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.ContextConfiguration;
+import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -28,8 +28,8 @@ import static org.junit.Assert.*;
 /**
  * @author Martin Schraner
  */
-@ContextConfiguration(locations = {"classpath:org/olat/core/commons/persistence/_spring/testDatabaseCorecontext.xml"})
-public class CampusGroupsCreatorTest extends OlatTestCase {
+@Component
+public class CampusGroupsCreatorTest extends CampusCourseTestCase {
 
     @Autowired
     private CampusGroupsCreator campusGroupsCreator;

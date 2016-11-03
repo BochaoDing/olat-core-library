@@ -1,16 +1,14 @@
 package ch.uzh.campus.data;
 
-import org.junit.After;
+import ch.uzh.campus.CampusCourseTestCase;
 import org.junit.Before;
 import org.junit.Test;
 import org.olat.basesecurity.IdentityImpl;
-import org.olat.core.commons.persistence.DB;
 import org.olat.core.id.Identity;
 import org.olat.core.id.User;
-import org.olat.test.OlatTestCase;
 import org.olat.user.UserManager;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.ContextConfiguration;
+import org.springframework.stereotype.Component;
 
 import java.util.Date;
 import java.util.List;
@@ -22,11 +20,8 @@ import static org.junit.Assert.*;
  * 
  * @author Martin Schraner
  */
-@ContextConfiguration(locations = {"classpath:/org/olat/_spring/mainContext.xml"})
-public class DelegationDaoTest extends OlatTestCase {
-
-    @Autowired
-    private DB dbInstance;
+@Component
+public class DelegationDaoTest extends CampusCourseTestCase {
 
     @Autowired
     private DelegationDao delegationDao;
@@ -47,11 +42,6 @@ public class DelegationDaoTest extends OlatTestCase {
     @Before
     public void setup() {
         insertTestData();
-    }
-
-    @After
-    public void after() {
-        dbInstance.rollback();
     }
 
     @Test

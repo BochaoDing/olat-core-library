@@ -3,13 +3,14 @@ package ch.uzh.campus.service.core.impl.creator;
 import ch.uzh.campus.CampusCourseConfiguration;
 import ch.uzh.campus.CampusCourseException;
 import ch.uzh.campus.CampusCourseJunitTestHelper;
+import ch.uzh.campus.CampusCourseTestCase;
 import ch.uzh.campus.data.*;
 import ch.uzh.campus.service.core.CampusCourseCoreService;
 import ch.uzh.campus.service.core.impl.CampusCourseCoreServiceImpl;
 import ch.uzh.campus.service.core.impl.OlatCampusCourseProvider;
 import ch.uzh.campus.service.core.impl.syncer.CampusCourseDefaultCoOwners;
-import ch.uzh.campus.service.core.impl.syncer.CampusGroupsSynchronizer;
 import ch.uzh.campus.service.core.impl.syncer.CampusCourseRepositoryEntrySynchronizer;
+import ch.uzh.campus.service.core.impl.syncer.CampusGroupsSynchronizer;
 import ch.uzh.campus.service.data.OlatCampusCourse;
 import ch.uzh.campus.service.data.SapCampusCourseTO;
 import org.junit.After;
@@ -31,9 +32,8 @@ import org.olat.repository.RepositoryService;
 import org.olat.repository.manager.RepositoryEntryDAO;
 import org.olat.resource.OLATResourceManager;
 import org.olat.test.JunitTestHelper;
-import org.olat.test.OlatTestCase;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.ContextConfiguration;
+import org.springframework.stereotype.Component;
 
 import java.util.Collections;
 import java.util.HashSet;
@@ -52,8 +52,8 @@ import static org.mockito.Mockito.when;
  * @author cg
  * @author Martin Schraner
  */
-@ContextConfiguration(locations = {"classpath:org/olat/core/commons/persistence/_spring/testDatabaseCorecontext.xml"})
-public class CampusCourseCoreServiceImplTest extends OlatTestCase {
+@Component
+public class CampusCourseCoreServiceImplTest extends CampusCourseTestCase {
 
     private static final String TEST_EVENT_DESCRIPTION_TEXT = "Event description";
     private static final String CAMPUS_LEARNING_AREA_NAME = "Campuslernbereich";

@@ -2,6 +2,7 @@ package ch.uzh.campus.service.core.impl.creator;
 
 import ch.uzh.campus.CampusCourseConfiguration;
 import ch.uzh.campus.CampusCourseJunitTestHelper;
+import ch.uzh.campus.CampusCourseTestCase;
 import ch.uzh.campus.service.data.OlatCampusCourse;
 import ch.uzh.campus.service.data.SapCampusCourseTO;
 import org.junit.After;
@@ -14,10 +15,9 @@ import org.olat.repository.RepositoryManager;
 import org.olat.repository.RepositoryService;
 import org.olat.resource.OLATResource;
 import org.olat.test.JunitTestHelper;
-import org.olat.test.OlatTestCase;
 import org.olat.user.UserManager;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.ContextConfiguration;
+import org.springframework.stereotype.Component;
 
 import java.util.Collections;
 
@@ -32,8 +32,8 @@ import static org.mockito.Mockito.when;
  * @author cg
  * @author Martin Schraner
  */
-@ContextConfiguration(locations = {"classpath:org/olat/core/commons/persistence/_spring/testDatabaseCorecontext.xml"})
-public class OlatCampusCourseCreatorTest extends OlatTestCase {
+@Component
+public class OlatCampusCourseCreatorTest extends CampusCourseTestCase {
 
     private static final String OWNER_NAME = "ownerNameCampusCourseCreatorTest";
     private static final String TITLE = "Test Title";

@@ -3,18 +3,16 @@ package ch.uzh.campus.data;
 import ch.uzh.campus.CampusCourseConfiguration;
 import ch.uzh.campus.CampusCourseException;
 import ch.uzh.campus.CampusCourseJunitTestHelper;
+import ch.uzh.campus.CampusCourseTestCase;
 import ch.uzh.campus.service.data.CampusGroups;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.olat.core.commons.persistence.DB;
 import org.olat.group.BusinessGroup;
 import org.olat.group.manager.BusinessGroupDAO;
 import org.olat.resource.OLATResource;
 import org.olat.resource.OLATResourceManager;
-import org.olat.test.OlatTestCase;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.ContextConfiguration;
+import org.springframework.stereotype.Component;
 
 import javax.inject.Provider;
 import java.util.*;
@@ -29,14 +27,11 @@ import static org.junit.Assert.*;
  * @author Martin Schraner
  * @author lavinia
  */
-@ContextConfiguration(locations = {"classpath:ch/uzh/campus/data/_spring/mockDataContext.xml"})
-public class CourseDaoTest extends OlatTestCase {
+@Component
+public class CourseDaoTest extends CampusCourseTestCase {
 
     @Autowired
     private CampusCourseConfiguration campusCourseConfiguration;
-
-    @Autowired
-    private DB dbInstance;
 
     @Autowired
     private SemesterDao semesterDao;
@@ -83,11 +78,6 @@ public class CourseDaoTest extends OlatTestCase {
     public void before() {
         campusCourseConfiguration.setMaxYearsToKeepCkData(1);
         courseDao = new CourseDao(dbInstance, semesterDao);
-    }
-
-    @After
-    public void after() {
-        dbInstance.rollback();
     }
 
     @Test
