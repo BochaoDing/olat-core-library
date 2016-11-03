@@ -44,7 +44,7 @@ public class DataConverter {
         Set<Identity> identitiesOfStudents = new HashSet<>();
         for (StudentCourse studentCourse : studentCourses) {
             Identity mappedIdentity = studentCourse.getStudent().getMappedIdentity();
-            if (!Identity.STATUS_DELETED.equals(mappedIdentity.getStatus())) {
+            if (mappedIdentity != null && !mappedIdentity.getStatus().equals(Identity.STATUS_DELETED)) {
                 identitiesOfStudents.add(mappedIdentity);
             }
         }
@@ -55,7 +55,7 @@ public class DataConverter {
         Set<Identity> identitiesOfLecturers = new HashSet<>();
         for (LecturerCourse lecturerCourse : lecturerCourses) {
             Identity mappedIdentity = lecturerCourse.getLecturer().getMappedIdentity();
-            if (!Identity.STATUS_DELETED.equals(mappedIdentity.getStatus())) {
+            if (mappedIdentity != null && !mappedIdentity.getStatus().equals(Identity.STATUS_DELETED)) {
                 identitiesOfLecturers.add(mappedIdentity);
             }
         }
@@ -66,7 +66,7 @@ public class DataConverter {
         Set<Identity> identitiesOfDelegatees = new HashSet<>();
         for (LecturerCourse lecturerCourse : lecturerCourses) {
             Identity mappedIdentity = lecturerCourse.getLecturer().getMappedIdentity();
-            if (!Identity.STATUS_DELETED.equals(mappedIdentity.getStatus())) {
+            if (mappedIdentity != null && !mappedIdentity.getStatus().equals(Identity.STATUS_DELETED)) {
                 List<Delegation> delegations = delegationDao.getDelegationsByDelegator(mappedIdentity.getKey());
                 for (Delegation delegation : delegations) {
                     if (!delegation.getDelegatee().getStatus().equals(Identity.STATUS_DELETED)) {
@@ -82,7 +82,7 @@ public class DataConverter {
         List<Object[]> identitiesOfDelegatees = new ArrayList<>();
         List<Delegation> delegations = delegationDao.getDelegationsByDelegator(delegator.getKey());
         for (Delegation delegation : delegations) {
-            if (!Identity.STATUS_DELETED.equals(delegation.getDelegatee().getStatus())) {
+            if (!delegation.getDelegatee().getStatus().equals(Identity.STATUS_DELETED)) {
                 identitiesOfDelegatees.add(new Object[] { delegation.getDelegatee(), delegation.getCreationDate() });
             }
         }
