@@ -46,7 +46,7 @@ import org.olat.repository.RepositoryEntry;
 import org.olat.test.JunitTestHelper;
 import org.olat.test.OlatTestCase;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.ContextConfiguration;
+import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -62,7 +62,7 @@ import static org.junit.Assert.assertTrue;
  * 
  * @author gnaegi
  */
-@ContextConfiguration(locations = {"classpath:/org/olat/_spring/mainContext.xml"})
+@Component
 public class BGRightManagerTest extends OlatTestCase {
 
 	private static OLog log = Tracing.createLoggerFor(BGRightManagerTest.class);

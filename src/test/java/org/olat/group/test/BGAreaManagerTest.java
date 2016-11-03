@@ -43,7 +43,7 @@ import org.olat.resource.OLATResource;
 import org.olat.test.JunitTestHelper;
 import org.olat.test.OlatTestCase;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.ContextConfiguration;
+import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -58,7 +58,7 @@ import static org.junit.Assert.*;
  * 
  * @author Christian Guretzki, srosse
  */
-@ContextConfiguration(locations = {"classpath:/org/olat/_spring/mainContext.xml"})
+@Component
 public class BGAreaManagerTest extends OlatTestCase {
 
 	private static OLog log = Tracing.createLoggerFor(BGAreaManagerTest.class);
