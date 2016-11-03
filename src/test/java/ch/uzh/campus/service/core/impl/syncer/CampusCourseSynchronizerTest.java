@@ -90,7 +90,7 @@ public class CampusCourseSynchronizerTest {
         Identity creatorMock = mock(Identity.class);
         SynchronizedGroupStatistic groupStatistic = new SynchronizedGroupStatistic(title, null, new SynchronizedSecurityGroupStatistic(5, 10));
         CampusGroupsSynchronizer campusGroupsSynchronizerMock = mock(CampusGroupsSynchronizer.class);
-        when(campusGroupsSynchronizerMock.synchronizeCampusGroups(sapCampusCourseTO.getCampusGroups(), sapCampusCourseTO, refEq(creatorMock))).thenReturn(groupStatistic);
+        when(campusGroupsSynchronizerMock.synchronizeCampusGroups(refEq(sapCampusCourseTO.getCampusGroups()), refEq(sapCampusCourseTO), refEq(creatorMock))).thenReturn(groupStatistic);
 
         // OlatCampusCourseAttributeSynchronizerMock
         CampusCourseRepositoryEntrySynchronizer campusCourseRepositoryEntrySynchronizerMock = mock(CampusCourseRepositoryEntrySynchronizer.class);

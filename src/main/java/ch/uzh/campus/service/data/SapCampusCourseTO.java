@@ -2,7 +2,6 @@ package ch.uzh.campus.service.data;
 
 import ch.uzh.campus.data.Semester;
 import org.olat.core.id.Identity;
-import org.olat.group.BusinessGroup;
 import org.olat.resource.OLATResource;
 
 import java.util.List;

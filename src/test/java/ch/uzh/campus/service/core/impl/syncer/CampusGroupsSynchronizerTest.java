@@ -13,7 +13,6 @@ import org.junit.Test;
 import org.olat.basesecurity.GroupRoles;
 import org.olat.core.commons.persistence.DB;
 import org.olat.core.id.Identity;
-import org.olat.group.BusinessGroup;
 import org.olat.group.BusinessGroupService;
 import org.olat.group.area.BGAreaManager;
 import org.olat.repository.RepositoryEntry;
@@ -29,9 +28,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 @ContextConfiguration(locations = {"classpath:org/olat/core/commons/persistence/_spring/testDatabaseCorecontext.xml"})
 public class CampusGroupsSynchronizerTest extends OlatTestCase {

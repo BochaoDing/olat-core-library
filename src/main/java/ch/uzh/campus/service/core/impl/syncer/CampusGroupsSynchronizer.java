@@ -94,20 +94,20 @@ public class CampusGroupsSynchronizer {
         return new SynchronizedSecurityGroupStatistic(addedIdentityCounter, removedIdentityCounter);
     }
 
-    private int removeNonParticipantsFromBusinessGroup(Identity courseOwner, BusinessGroup businessGroup, Set<Identity> allNewMembers) {
+    private int removeNonParticipantsFromBusinessGroup(Identity courseOwner, BusinessGroup businessGroup, Set<Identity> allNewParticipants) {
         int removedIdentityCounter = 0;        
         List<Identity> previousMembers = businessGroupService.getMembers(businessGroup, GroupRoles.participant.name());
-        List<Identity> removableMembers = new ArrayList<>();
-        for (Identity previousMember : previousMembers) {
+        List<Identity> removableParticipants = new ArrayList<>();
+        for (Identity previousParticipant : previousMembers) {
             // Check if previous member is still in new member-list
-            if (!allNewMembers.contains(previousMember)) {
-                LOG.debug("Course-Group Synchronisation: Remove identity =" + previousMember + " from group =" + businessGroup);
-                removableMembers.add(previousMember);                
+            if (!allNewParticipants.contains(previousParticipant)) {
+                LOG.debug("Course-Group Synchronisation: Remove identity =" + previousParticipant + " from group =" + businessGroup);
+                removableParticipants.add(previousParticipant);
                 removedIdentityCounter++;
             }
         }
-        if (removableMembers.size() > 0) {
-            businessGroupService.removeParticipants(courseOwner, removableMembers, businessGroup, null);
+        if (removableParticipants.size() > 0) {
+            businessGroupService.removeParticipants(courseOwner, removableParticipants, businessGroup, null);
         }
         return removedIdentityCounter;
     }
