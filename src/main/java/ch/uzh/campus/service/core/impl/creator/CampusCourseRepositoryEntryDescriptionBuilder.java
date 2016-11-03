@@ -1,10 +1,12 @@
 package ch.uzh.campus.service.core.impl.creator;
 
+import ch.uzh.campus.CampusCourseConfiguration;
 import ch.uzh.campus.service.data.SapCampusCourseTO;
 import org.olat.core.gui.translator.Translator;
 import org.olat.core.id.Identity;
 import org.olat.core.id.UserConstants;
 import org.olat.core.util.Util;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.text.Collator;
@@ -33,40 +35,30 @@ import java.util.*;
  * Initial Date: 31.05.2012 <br>
  * 
  * @author cg
+ * @author Martin Schraner
  */
 @Component
 public class CampusCourseRepositoryEntryDescriptionBuilder {
 
-    static final String KEY_DESCRIPTION_TEMPLATE = "campus.course.description.template";
+    private static final String KEY_DESCRIPTION_TEMPLATE = "campus.course.description.template";
     private static final String KEY_DESCRIPTION_MULTI_SEMESTER_TEMPLATE = "campus.course.multisemester.description.template";
 
-    public Translator translator;
+    private final CampusCourseConfiguration campusCourseConfiguration;
 
-    public CampusCourseRepositoryEntryDescriptionBuilder() {
-        translator = Util.createPackageTranslator(CampusCourseRepositoryEntryDescriptionBuilder.class, new Locale("de"));
+    @Autowired
+    public CampusCourseRepositoryEntryDescriptionBuilder(CampusCourseConfiguration campusCourseConfiguration) {
+        this.campusCourseConfiguration = campusCourseConfiguration;
     }
 
-    public String buildDescriptionFrom(SapCampusCourseTO sapCampusCourseTO, String language) {
-        return buildDescriptionFrom(sapCampusCourseTO, null, language);
-    }
-
-    public String buildDescriptionFrom(SapCampusCourseTO sapCampusCourseTO, List<String> titlesOfCourseAndParentCourses, String language) {
-
-        String multiSemesterTitle = null;
-        if (titlesOfCourseAndParentCourses != null) {
-            multiSemesterTitle = createMultiSemesterTitle(titlesOfCourseAndParentCourses);
-        }
+    public String buildDescription(SapCampusCourseTO sapCampusCourseTO) {
 
         String[] args = new String[3];
-        args[0] = (multiSemesterTitle != null) ? multiSemesterTitle : sapCampusCourseTO.getSemester().getSemesterNameYear();
-        args[1] = getAlphabeticallySortedLecturerList(sapCampusCourseTO.getLecturersOfCourse());
+        args[0] = (sapCampusCourseTO.isContinuedCourse() ? createMultiSemesterTitle(sapCampusCourseTO.getTitlesOfCourseAndParentCourses()) : sapCampusCourseTO.getSemester().getSemesterNameYear());
+        args[1] = createStringOfAlphabeticallySortedLecturers(sapCampusCourseTO.getLecturersOfCourse());
         args[2] = sapCampusCourseTO.getEventDescription();
 
-        if (language != null) {
-            translator.setLocale(new Locale(language));
-        }
-
-        return translator.translate((multiSemesterTitle != null) ? KEY_DESCRIPTION_MULTI_SEMESTER_TEMPLATE : KEY_DESCRIPTION_TEMPLATE, args);
+        Translator translator = getTranslator(sapCampusCourseTO.getLanguage());
+        return translator.translate((sapCampusCourseTO.isContinuedCourse() ? KEY_DESCRIPTION_MULTI_SEMESTER_TEMPLATE : KEY_DESCRIPTION_TEMPLATE), args);
     }
 
     String createMultiSemesterTitle(List<String> titlesOfCourseAndParentCourses) {
@@ -81,7 +73,7 @@ public class CampusCourseRepositoryEntryDescriptionBuilder {
         return multiSemesterTitle.toString();
     }
 
-    String getAlphabeticallySortedLecturerList(Collection<Identity> lecturers) {
+    String createStringOfAlphabeticallySortedLecturers(Collection<Identity> lecturers) {
         List<FirstNameLastName> firstNameLastNameList = new ArrayList<>();
         for (Identity lecturer : lecturers) {
             String firstname = lecturer.getUser().getProperty(UserConstants.FIRSTNAME, null);
@@ -101,6 +93,11 @@ public class CampusCourseRepositoryEntryDescriptionBuilder {
         namesAsStringBuilder.setLength(namesAsStringBuilder.length() - 2);
 
         return namesAsStringBuilder.toString();
+    }
+
+    private Translator getTranslator(String lvLanguage) {
+        String supportedLvLanguage = campusCourseConfiguration.getSupportedTemplateLanguage(lvLanguage);
+        return  Util.createPackageTranslator(this.getClass(), new Locale(supportedLvLanguage));
     }
 
     private class FirstNameLastName implements Comparable<FirstNameLastName> {

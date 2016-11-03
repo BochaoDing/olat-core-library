@@ -221,7 +221,6 @@ public class CourseDao implements CampusDao<CourseSemesterOrgId> {
         if (courses.isEmpty()) {
             String warningMessage = "No courses found with olat resource id " + olatResourceKey + ".";
             LOG.warn(warningMessage);
-            return null;
         }
         Set<CampusGroups> setOfCampusGroups = new HashSet<>();
         for (Course course : courses) {
@@ -294,21 +293,35 @@ public class CourseDao implements CampusDao<CourseSemesterOrgId> {
         course.setSynchronizable(false);
     }
 
-    void resetOlatResourceAndCampusGroupsAndParentCourse(Long olatResourceKey) {
+    void resetOlatResourceAndParentCourse(Long olatResourceKey) {
         List<Course> courses = dbInstance.getCurrentEntityManager()
                 .createNamedQuery(Course.GET_COURSES_BY_OLAT_RESOURCE_KEY, Course.class)
                 .setParameter("olatResourceKey", olatResourceKey)
                 .getResultList();
-        if (courses.isEmpty()) {
-            String warningMessage = "No courses found with olat resource id " + olatResourceKey + ".";
-            LOG.warn(warningMessage);
-            return;
-        }
         for (Course course : courses) {
             course.setOlatResource(null);
-            course.setCampusGroupA(null);
-            course.setCampusGroupB(null);
             course.removeParentCourse();
+        }
+    }
+
+    void resetCampusGroup(Long campusGroupKey) {
+
+        // Look for courses with id of campus group A equals to campusGroupKey
+        List<Course> courses = dbInstance.getCurrentEntityManager()
+                .createNamedQuery(Course.GET_COURSES_BY_CAMPUS_GROUP_A_KEY, Course.class)
+                .setParameter("campusGroupKey", campusGroupKey)
+                .getResultList();
+        for (Course course : courses) {
+            course.setCampusGroupA(null);
+        }
+
+        // Look for courses with id of campus group B equals to campusGroupKey
+        courses = dbInstance.getCurrentEntityManager()
+                .createNamedQuery(Course.GET_COURSES_BY_CAMPUS_GROUP_B_KEY, Course.class)
+                .setParameter("campusGroupKey", campusGroupKey)
+                .getResultList();
+        for (Course course : courses) {
+            course.setCampusGroupB(null);
         }
     }
 

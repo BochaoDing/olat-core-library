@@ -3,6 +3,7 @@ package ch.uzh.campus.data;
 import ch.uzh.campus.CampusCourseConfiguration;
 import ch.uzh.campus.service.data.CampusGroups;
 import ch.uzh.campus.service.data.SapCampusCourseTO;
+import ch.uzh.campus.service.data.SapCampusCourseTOForUI;
 import ch.uzh.campus.utils.ListUtil;
 import org.olat.core.id.Identity;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -399,8 +400,12 @@ public class DaoManager {
         return courseDao.getCampusGroupsByOlatResource(olatResourceKey);
     }
 
-    public void resetOlatResourceAndCampusGroupsAndParentCourse(Long olatResourceKey) {
-        courseDao.resetOlatResourceAndCampusGroupsAndParentCourse(olatResourceKey);
+    public void resetOlatResourceAndParentCourse(Long olatResourceKey) {
+        courseDao.resetOlatResourceAndParentCourse(olatResourceKey);
+    }
+
+    public void resetCampusGroup(Long campusGroupKey) {
+        courseDao.resetCampusGroup(campusGroupKey);
     }
 
     public void saveParentCourseId(Long courseId, Long parentCourseId) {
@@ -456,6 +461,11 @@ public class DaoManager {
                 course.getId(),
                 course.getLanguage(),
                 course.getVvzLink());
+    }
+
+    public SapCampusCourseTOForUI loadSapCampuCourseTOForUI(long courseId) {
+        Course course = getCourseById(courseId);
+        return new SapCampusCourseTOForUI(course.getTitleToBeDisplayed(), courseId);
     }
 
     private boolean areStudentCourseBookingsForCurrentSemesterUpToDate(Course course) {

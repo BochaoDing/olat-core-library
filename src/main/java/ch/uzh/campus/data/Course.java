@@ -72,6 +72,8 @@ import java.util.*;
         @NamedQuery(name = Course.GET_ALL_NOT_CREATED_ORPHANED_COURSES, query = "select c.id from Course c where c.olatResource is null and c.id not in (select lc.course.id from LecturerCourse lc) and c.id not in (select sc.course.id from StudentCourse sc)"),
         @NamedQuery(name = Course.GET_COURSE_IDS_BY_OLAT_RESOURCE_KEY, query = "select c.id from Course c where c.olatResource.key = :olatResourceKey"),
         @NamedQuery(name = Course.GET_COURSES_BY_OLAT_RESOURCE_KEY, query = "select c from Course c where c.olatResource.key = :olatResourceKey"),
+        @NamedQuery(name = Course.GET_COURSES_BY_CAMPUS_GROUP_A_KEY, query = "select c from Course c where c.campusGroupA.key = :campusGroupKey"),
+        @NamedQuery(name = Course.GET_COURSES_BY_CAMPUS_GROUP_B_KEY, query = "select c from Course c where c.campusGroupB.key = :campusGroupKey"),
         @NamedQuery(name = Course.GET_LATEST_COURSE_BY_OLAT_RESOURCE_KEY, query = "select c from Course c where c.olatResource.key = :olatResourceKey and c.endDate = (select max(c1.endDate) from Course c1 where c1.olatResource.key = :olatResourceKey)")
 })
 @Table(name = "ck_course")
@@ -160,6 +162,7 @@ public class Course {
     @OneToOne(mappedBy = "parentCourse", cascade = CascadeType.ALL)
     private Course childCourse;
 
+    // Must be loaded lazy to avoid parallelization problems at batch import / synchronization
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "fk_parent_course")
     private Course parentCourse;
@@ -211,6 +214,8 @@ public class Course {
     static final String GET_CREATED_AND_NOT_CREATED_CREATABLE_COURSES_OF_CURRENT_SEMESTER_BY_STUDENT_ID = "getCreatedAndNotCreatedCreatableCoursesOfCurrentSemesterByStudentId";
     static final String GET_CREATED_AND_NOT_CREATED_CREATABLE_COURSES_OF_CURRENT_SEMESTER_BY_STUDENT_ID_BOOKED_BY_STUDENT_ONLY_AS_PARENT_COURSE = "getCreatedAndNotCreatedCreatableCoursesOfCurrentSemesterByStudentIdBookedByStudentOnlyAsParentCourse";
     static final String GET_COURSES_BY_OLAT_RESOURCE_KEY = "getCoursesByOlatResourceKey";
+    static final String GET_COURSES_BY_CAMPUS_GROUP_A_KEY = "getCoursesByCampusGroupAKey";
+    static final String GET_COURSES_BY_CAMPUS_GROUP_B_KEY = "getCoursesByCampusGroupBKey";
     static final String GET_LATEST_COURSE_BY_OLAT_RESOURCE_KEY = "getLatestCourseByOlatResourceKey";
 
     public Long getId() {
@@ -404,8 +409,8 @@ public class Course {
     }
 
     @Transient
-    public boolean isContinuedCourse() {
-        return parentCourse != null;
+    boolean isContinuedCourse() {
+        return getParentCourse() != null;
     }
 
     /**
@@ -425,7 +430,7 @@ public class Course {
         Course courseIt = this;
         int count = 0;
         do {
-            titleToBeDisplayed.append(courseIt.semester.getShortYearShortSemesterName()).append("/");
+            titleToBeDisplayed.append(courseIt.getSemester().getShortYearShortSemesterName()).append("/");
             courseIt = courseIt.getParentCourse();
             count++;
         } while (courseIt != null && count <= 10);
@@ -437,7 +442,7 @@ public class Course {
         titleToBeDisplayed.append(getTruncatedLvKuerzelWithAppendedWhitespace(this));
 
         // Add course title
-        titleToBeDisplayed.append(title);
+        titleToBeDisplayed.append(getTitle());
         return titleToBeDisplayed.toString();
     }
 
@@ -456,8 +461,8 @@ public class Course {
         Course courseIt = this;
         int count = 0;
         do {
-            String shortSemesterLvKuerzelTitle = courseIt.semester.getShortYearShortSemesterName() + WHITESPACE
-                    + getTruncatedLvKuerzelWithAppendedWhitespace(courseIt) + courseIt.title;
+            String shortSemesterLvKuerzelTitle = courseIt.getSemester().getShortYearShortSemesterName() + WHITESPACE
+                    + getTruncatedLvKuerzelWithAppendedWhitespace(courseIt) + courseIt.getTitle();
             titlesOfParentCourseAndParentCourses.add(0, shortSemesterLvKuerzelTitle);
             courseIt = courseIt.getParentCourse();
             count++;
@@ -466,11 +471,11 @@ public class Course {
     }
 
     private String getTruncatedLvKuerzelWithAppendedWhitespace(Course course) {
-        if (course.lvKuerzel != null && !course.lvKuerzel.isEmpty()) {
-            if (course.lvKuerzel.length() > 4) {
-            	return course.lvKuerzel.substring(4) + WHITESPACE;
+        if (course.getLvKuerzel() != null && !course.getLvKuerzel().isEmpty()) {
+            if (course.getLvKuerzel().length() > 4) {
+            	return course.getLvKuerzel().substring(4) + WHITESPACE;
             } else {
-            	return course.lvKuerzel + WHITESPACE;
+            	return course.getLvKuerzel() + WHITESPACE;
             }
         } else {
             return "";

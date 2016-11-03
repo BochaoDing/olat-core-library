@@ -341,12 +341,18 @@ public class CampusCourseCoreServiceImpl implements CampusCourseCoreService {
     }
 
     @Override
-    public void resetOlatResourceAndCampusGroupsAndParentCourse(OLATResource olatResource) {
-        LOG.info("resetOlatResourceAndCampusGroupsAndParentCourse for resource_id =" + olatResource.getKey());
-        daoManager.resetOlatResourceAndCampusGroupsAndParentCourse(olatResource.getKey());
+    public void resetOlatResourceAndParentCourse(OLATResource olatResource) {
+        LOG.debug("resetOlatResourceAndParentCourse for resource_id =" + olatResource.getKey());
+        daoManager.resetOlatResourceAndParentCourse(olatResource.getKey());
 
         // Notify possible listeners about DELETED event
         sendCampusCourseEvent(CampusCourseEvent.DELETED);
+    }
+
+    @Override
+    public void resetCampusGroup(BusinessGroup campusGroup) {
+        LOG.debug("resetCampusGroup for group_id =" + campusGroup.getKey());
+        daoManager.resetCampusGroup(campusGroup.getKey());
     }
 
     @Override

@@ -1,6 +1,5 @@
 package ch.uzh.campus.service.core.impl.syncer;
 
-import ch.uzh.campus.CampusCourseConfiguration;
 import ch.uzh.campus.service.core.impl.creator.CampusCourseRepositoryEntryDescriptionBuilder;
 import ch.uzh.campus.service.data.SapCampusCourseTO;
 import org.olat.core.id.Identity;
@@ -40,13 +39,11 @@ public class CampusCourseRepositoryEntrySynchronizer {
     private static final int MAX_DISPLAYNAME_LENGTH = 140;
 
     private final CampusCourseRepositoryEntryDescriptionBuilder campusCourseRepositoryEntryDescriptionBuilder;
-    private final CampusCourseConfiguration campusCourseConfiguration;
     private final RepositoryService repositoryService;
 
     @Autowired
-    public CampusCourseRepositoryEntrySynchronizer(CampusCourseRepositoryEntryDescriptionBuilder campusCourseRepositoryEntryDescriptionBuilder, CampusCourseConfiguration campusCourseConfiguration, RepositoryService repositoryService) {
+    public CampusCourseRepositoryEntrySynchronizer(CampusCourseRepositoryEntryDescriptionBuilder campusCourseRepositoryEntryDescriptionBuilder, RepositoryService repositoryService) {
         this.campusCourseRepositoryEntryDescriptionBuilder = campusCourseRepositoryEntryDescriptionBuilder;
-        this.campusCourseConfiguration = campusCourseConfiguration;
         this.repositoryService = repositoryService;
     }
 
@@ -60,18 +57,10 @@ public class CampusCourseRepositoryEntrySynchronizer {
         String newDisplayname = truncateTitleForRepositoryEntryDisplayname(synchronizedSapCampusCourseTO.getTitleToBeDisplayed());
 
         // New description
-        String newDescription;
-        if (synchronizedSapCampusCourseTO.isContinuedCourse()) {
-            newDescription = campusCourseRepositoryEntryDescriptionBuilder.buildDescriptionFrom(synchronizedSapCampusCourseTO, synchronizedSapCampusCourseTO.getTitlesOfCourseAndParentCourses(), campusCourseConfiguration.getSupportedTemplateLanguage(synchronizedSapCampusCourseTO.getLanguage()));
-        } else {
-            newDescription = campusCourseRepositoryEntryDescriptionBuilder.buildDescriptionFrom(synchronizedSapCampusCourseTO, campusCourseConfiguration.getSupportedTemplateLanguage(synchronizedSapCampusCourseTO.getLanguage()));
-        }
+        String newDescription = campusCourseRepositoryEntryDescriptionBuilder.buildDescription(synchronizedSapCampusCourseTO);
 
         // New initial author
-        String newInitialAuthor = null;
-        if (creator != null) {
-            newInitialAuthor = creator.getName();
-        }
+        String newInitialAuthor = (creator != null ? creator.getName() : null);
 
         // Update repository entry in case an attribute has changed
         boolean repositoryEntryHasToBeUpdated = false;

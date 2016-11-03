@@ -22,7 +22,7 @@ import static org.junit.Assert.*;
  * 
  * @author Martin Schraner
  */
-@ContextConfiguration(locations = {"classpath:ch/uzh/campus/data/_spring/mockDataContext.xml"})
+@ContextConfiguration(locations = {"classpath:/org/olat/_spring/mainContext.xml"})
 public class DelegationDaoTest extends OlatTestCase {
 
     @Autowired

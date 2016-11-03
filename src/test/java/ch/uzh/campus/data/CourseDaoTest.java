@@ -480,26 +480,11 @@ public class CourseDaoTest extends OlatTestCase {
     }
 
     @Test
-    public void testResetOlatResourceAndCampusGroupsAndParentCourse() throws CampusCourseException {
+    public void testResetOlatResourceAndParentCourse() throws CampusCourseException {
         insertTestData();
-        BusinessGroup campusGroupA1 = insertCampusGroup("Campusgruppe A", "Description Campusgruppe A");
-        BusinessGroup campusGroupB1 = insertCampusGroup("Campusgruppe B", "Description Campusgruppe B");
-        BusinessGroup campusGroupA2 = insertCampusGroup("Campusgruppe A", "Description Campusgruppe A");
-        BusinessGroup campusGroupB2 = insertCampusGroup("Campusgruppe B", "Description Campusgruppe B");
-        dbInstance.flush();
-
         Course courseWithoutParentCourse = courseDao.getCourseById(100L);
         Course courseWithParentCourse = courseDao.getCourseById(200L);
-        courseDao.saveCampusGroupA(courseWithoutParentCourse.getId(), campusGroupA1.getKey());
-        courseDao.saveCampusGroupB(courseWithoutParentCourse.getId(), campusGroupB1.getKey());
-        courseDao.saveCampusGroupA(courseWithParentCourse.getId(), campusGroupA2.getKey());
-        courseDao.saveCampusGroupB(courseWithParentCourse.getId(), campusGroupB2.getKey());
         dbInstance.flush();
-
-        assertEquals(campusGroupA1, courseWithoutParentCourse.getCampusGroupA());
-        assertEquals(campusGroupB1, courseWithoutParentCourse.getCampusGroupB());
-        assertEquals(campusGroupA2, courseWithParentCourse.getCampusGroupA());
-        assertEquals(campusGroupB2, courseWithParentCourse.getCampusGroupB());
 
         // Make course 400 to be the parent course of 200
         courseDao.saveParentCourseId(200L, 400L);
@@ -508,17 +493,13 @@ public class CourseDaoTest extends OlatTestCase {
         assertEquals(olatResource2, courseWithParentCourse.getOlatResource());
         assertNotNull(courseWithParentCourse.getParentCourse());
 
-        courseDao.resetOlatResourceAndCampusGroupsAndParentCourse(olatResource1.getKey());
-        courseDao.resetOlatResourceAndCampusGroupsAndParentCourse(olatResource2.getKey());
+        courseDao.resetOlatResourceAndParentCourse(olatResource1.getKey());
+        courseDao.resetOlatResourceAndParentCourse(olatResource2.getKey());
 
         assertNull(courseWithoutParentCourse.getOlatResource());
         assertNull(courseWithoutParentCourse.getParentCourse());
         assertNull(courseWithParentCourse.getOlatResource());
         assertNull(courseWithParentCourse.getParentCourse());
-        assertNull(courseWithoutParentCourse.getCampusGroupA());
-        assertNull(courseWithoutParentCourse.getCampusGroupB());
-        assertNull(courseWithParentCourse.getCampusGroupA());
-        assertNull(courseWithParentCourse.getCampusGroupB());
 
         dbInstance.flush();
         dbInstance.clear();
@@ -529,10 +510,46 @@ public class CourseDaoTest extends OlatTestCase {
         Course updatedCourseWithParentcourse = courseDao.getCourseById(200L);
         assertNull(updatedCourseWithParentcourse.getOlatResource());
         assertNull(updatedCourseWithParentcourse.getParentCourse());
-        assertNull(courseWithoutParentCourse.getCampusGroupA());
-        assertNull(courseWithoutParentCourse.getCampusGroupB());
-        assertNull(courseWithParentCourse.getCampusGroupA());
-        assertNull(courseWithParentCourse.getCampusGroupB());
+    }
+
+    @Test
+    public void testResetCampusGroup() throws CampusCourseException {
+        insertTestData();
+        BusinessGroup campusGroupA = insertCampusGroup("Campusgruppe A", "Description Campusgruppe A");
+        BusinessGroup campusGroupB = insertCampusGroup("Campusgruppe B", "Description Campusgruppe B");
+        dbInstance.flush();
+
+        Course course = courseDao.getCourseById(100L);
+        courseDao.saveCampusGroupA(course.getId(), campusGroupA.getKey());
+        courseDao.saveCampusGroupB(course.getId(), campusGroupB.getKey());
+        dbInstance.flush();
+
+        assertEquals(campusGroupA, course.getCampusGroupA());
+        assertEquals(campusGroupB, course.getCampusGroupB());
+
+        // Reset campus group A
+        courseDao.resetCampusGroup(campusGroupA.getKey());
+        dbInstance.flush();
+
+        course = courseDao.getCourseById(course.getId());
+        assertNull(course.getCampusGroupA());
+        assertEquals(campusGroupB, course.getCampusGroupB());
+
+        // Add campus group A again
+        courseDao.saveCampusGroupA(course.getId(), campusGroupA.getKey());
+        dbInstance.flush();
+
+        course = courseDao.getCourseById(course.getId());
+        assertEquals(campusGroupA, course.getCampusGroupA());
+        assertEquals(campusGroupB, course.getCampusGroupB());
+
+        // Reset campus group B
+        courseDao.resetCampusGroup(campusGroupB.getKey());
+        dbInstance.flush();
+
+        course = courseDao.getCourseById(course.getId());
+        assertEquals(campusGroupA, course.getCampusGroupA());
+        assertNull(course.getCampusGroupB());
     }
 
     @Test
@@ -894,7 +911,7 @@ public class CourseDaoTest extends OlatTestCase {
         dbInstance.flush();
 
         // Make course 2 to be the parent course of course 3 (course with disabled org)
-        courseDao.resetOlatResourceAndCampusGroupsAndParentCourse(course1.getOlatResource().getKey());
+        courseDao.resetOlatResourceAndParentCourse(course1.getOlatResource().getKey());
         courseDao.saveParentCourseId(course3.getId(), course2.getId());
         courseDao.saveOlatResource(course3.getId(), olatResource.getKey());
         courseDao.saveOlatResource(course2.getId(), olatResource.getKey());
@@ -904,7 +921,7 @@ public class CourseDaoTest extends OlatTestCase {
         assertTrue(courseDao.getCreatedAndNotCreatedCreatableCoursesOfCurrentSemesterByStudentIdBookedByStudentOnlyAsParentCourse(student2.getId()).isEmpty());
 
         // Make course 2 to be the parent course of course 4 (excluded course)
-        courseDao.resetOlatResourceAndCampusGroupsAndParentCourse(course3.getOlatResource().getKey());
+        courseDao.resetOlatResourceAndParentCourse(course3.getOlatResource().getKey());
         courseDao.saveParentCourseId(course4.getId(), course2.getId());
         courseDao.saveOlatResource(course4.getId(), olatResource.getKey());
         courseDao.saveOlatResource(course2.getId(), olatResource.getKey());

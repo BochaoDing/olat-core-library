@@ -1,6 +1,7 @@
 package ch.uzh.campus.service.impl;
 
 import ch.uzh.campus.data.Course;
+import ch.uzh.campus.data.DaoManager;
 import ch.uzh.campus.data.SapUserType;
 import ch.uzh.campus.service.CampusCourseService;
 import ch.uzh.campus.service.core.CampusCourseCoreService;
@@ -31,11 +32,12 @@ import static org.olat.repository.RepositoryEntry.ACC_OWNERS_AUTHORS;
 public class CampusCourseServiceImpl implements CampusCourseService {
 
 	private final CampusCourseCoreService campusCourseCoreService;
+	private final DaoManager daoManager;
 
 	@Autowired
-	public CampusCourseServiceImpl(CampusCourseCoreService campusCourseCoreService) {
-		assert campusCourseCoreService != null;
+	public CampusCourseServiceImpl(CampusCourseCoreService campusCourseCoreService, DaoManager daoManager) {
 		this.campusCourseCoreService = campusCourseCoreService;
+		this.daoManager = daoManager;
 	}
 
 	@Override
@@ -64,7 +66,8 @@ public class CampusCourseServiceImpl implements CampusCourseService {
 		{
 			Set<Course> courses = campusCourseCoreService.getCoursesWithoutResourceableId(identity, STUDENT, searchString);
 			for (Course course : courses) {
-				sapCampusCourseTOForUIs.add(new SapCampusCourseTOForUI(course.getTitleToBeDisplayed(), course.getId()));
+				SapCampusCourseTOForUI sapCampusCourseTOForUI = daoManager.loadSapCampuCourseTOForUI(course.getId());
+				sapCampusCourseTOForUIs.add(sapCampusCourseTOForUI);
 			}
 		}
 
@@ -80,7 +83,8 @@ public class CampusCourseServiceImpl implements CampusCourseService {
 				if (repositoryEntry != null) {
 					int access = repositoryEntry.getAccess();
 					if (repositoryEntry.isMembersOnly() == false && (access == ACC_OWNERS || access == ACC_OWNERS_AUTHORS)) {
-						sapCampusCourseTOForUIs.add(new SapCampusCourseTOForUI(course.getTitleToBeDisplayed(), course.getId()));
+						SapCampusCourseTOForUI sapCampusCourseTOForUI = daoManager.loadSapCampuCourseTOForUI(course.getId());
+						sapCampusCourseTOForUIs.add(sapCampusCourseTOForUI);
 					}
 				}
 			}
@@ -95,7 +99,8 @@ public class CampusCourseServiceImpl implements CampusCourseService {
 		List<SapCampusCourseTOForUI> sapCampusCourseTOForUIs = new ArrayList<>();
 		Set<Course> courses = campusCourseCoreService.getCoursesWithoutResourceableId(identity, LECTURER, searchString);
 		for (Course course : courses) {
-			sapCampusCourseTOForUIs.add(new SapCampusCourseTOForUI(course.getTitleToBeDisplayed(), course.getId()));
+			SapCampusCourseTOForUI sapCampusCourseTOForUI = daoManager.loadSapCampuCourseTOForUI(course.getId());
+			sapCampusCourseTOForUIs.add(sapCampusCourseTOForUI);
 		}
 		Collections.sort(sapCampusCourseTOForUIs);
 		return sapCampusCourseTOForUIs;
@@ -106,7 +111,8 @@ public class CampusCourseServiceImpl implements CampusCourseService {
 		List<SapCampusCourseTOForUI> sapCampusCourseTOForUIs = new ArrayList<>();
 		Set<Course> courses = campusCourseCoreService.getCoursesWithResourceableId(identity, userType, searchString);
 		for (Course course : courses) {
-			sapCampusCourseTOForUIs.add(new SapCampusCourseTOForUI(course.getTitleToBeDisplayed(), course.getId()));
+			SapCampusCourseTOForUI sapCampusCourseTOForUI = daoManager.loadSapCampuCourseTOForUI(course.getId());
+			sapCampusCourseTOForUIs.add(sapCampusCourseTOForUI);
 		}
 		Collections.sort(sapCampusCourseTOForUIs);
 		return sapCampusCourseTOForUIs;

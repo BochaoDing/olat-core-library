@@ -65,8 +65,7 @@ public class OlatCampusCourseCreator {
         OLATResourceable cloneOfTemplateCourseOlatResourcable = repositoryService.loadRepositoryEntryResource(cloneOfTemplateRepositoryEntry.getKey());
 
         // 3. Set correct description and access and update repository entry
-        String lvLanguage = campusCourseConfiguration.getSupportedTemplateLanguage(sapCampusCourseTO.getLanguage());
-        String newDescription = campusCourseRepositoryEntryDescriptionBuilder.buildDescriptionFrom(sapCampusCourseTO, lvLanguage);
+        String newDescription = campusCourseRepositoryEntryDescriptionBuilder.buildDescription(sapCampusCourseTO);
         cloneOfTemplateRepositoryEntry.setDescription(newDescription);
 
         // 4. Set access permissions

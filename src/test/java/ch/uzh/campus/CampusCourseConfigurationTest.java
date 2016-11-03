@@ -1,6 +1,5 @@
 package ch.uzh.campus;
 
-import org.junit.Before;
 import org.junit.Test;
 import org.olat.test.OlatTestCase;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,7 +13,7 @@ import static org.junit.Assert.assertEquals;
  * 
  * @author cg
  */
-@ContextConfiguration(locations = {"classpath:ch/uzh/campus/data/_spring/mockDataContext.xml"})
+@ContextConfiguration(locations = {"classpath:/org/olat/_spring/mainContext.xml"})
 public class CampusCourseConfigurationTest extends OlatTestCase {
 
     @Autowired
@@ -25,10 +24,6 @@ public class CampusCourseConfigurationTest extends OlatTestCase {
 
     @Value("${campus.template.defaultLanguage}")
     private String defaultTemplateLanguage;
-
-    @Before
-    public void setup() {
-    }
 
     @Test
     public void getTemplateCourseOlatResourceKey_DefaultValue() {

@@ -2,6 +2,7 @@ package ch.uzh.campus.mapper;
 
 import ch.uzh.campus.CampusCourseConfiguration;
 import org.apache.commons.lang.StringUtils;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.olat.basesecurity.BaseSecurity;
@@ -25,7 +26,7 @@ import static org.junit.Assert.assertNull;
  * @author Martin Schraner
  */
 
-@ContextConfiguration(locations = {"classpath:ch/uzh/campus/data/_spring/mockDataContext.xml" })
+@ContextConfiguration(locations = {"classpath:/org/olat/_spring/mainContext.xml", "classpath:org/olat/core/commons/persistence/_spring/testDatabaseCorecontext.xml"})
 public class UserMapperTest extends OlatTestCase {
 
     private String firstNameTestUser1;
@@ -135,7 +136,12 @@ public class UserMapperTest extends OlatTestCase {
         user6.setProperty(UserConstants.INSTITUTIONALNAME, "dummy");
         securityManager.createAndPersistIdentityAndUser(username6, null, user6, BaseSecurityModule.getDefaultAuthProviderIdentifier(), username6, "secret");
 
-        dbInstance.commitAndCloseSession();
+        dbInstance.flush();
+    }
+
+    @After
+    public void tearDown() throws Exception {
+        dbInstance.rollback();
     }
 
     private Long getPositiveRandomLong(Random random) {

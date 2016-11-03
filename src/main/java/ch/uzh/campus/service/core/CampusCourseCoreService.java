@@ -4,6 +4,7 @@ import ch.uzh.campus.data.Course;
 import ch.uzh.campus.data.SapUserType;
 import ch.uzh.campus.service.data.OlatCampusCourse;
 import org.olat.core.id.Identity;
+import org.olat.group.BusinessGroup;
 import org.olat.resource.OLATResource;
 
 import java.util.List;
@@ -28,7 +29,9 @@ public interface CampusCourseCoreService {
 
     Course getLatestCourseByOlatResource(OLATResource olatResource) throws Exception;
 
-    void resetOlatResourceAndCampusGroupsAndParentCourse(OLATResource olatResource);
+    void resetOlatResourceAndParentCourse(OLATResource olatResource);
+
+    void resetCampusGroup(BusinessGroup campusGroup);
 
     void deleteCampusGroups(OLATResource olatResource);
 

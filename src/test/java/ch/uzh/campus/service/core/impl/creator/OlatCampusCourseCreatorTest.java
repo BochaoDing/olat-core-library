@@ -60,7 +60,7 @@ public class OlatCampusCourseCreatorTest extends OlatTestCase {
     public void setup() {
 
         CampusCourseRepositoryEntryDescriptionBuilder campusCourseRepositoryEntryDescriptionBuilderMock = mock(CampusCourseRepositoryEntryDescriptionBuilder.class);
-        when(campusCourseRepositoryEntryDescriptionBuilderMock.buildDescriptionFrom(any(), any())).thenReturn(DESCRIPTION);
+        when(campusCourseRepositoryEntryDescriptionBuilderMock.buildDescription(any())).thenReturn(DESCRIPTION);
 
         olatCampusCourseCreatorTestObject = new OlatCampusCourseCreator(repositoryManager, repositoryService, campusCourseConfiguration, campusCourseRepositoryEntryDescriptionBuilderMock);
     }

@@ -6,32 +6,37 @@ import ch.uzh.campus.service.data.SapCampusCourseTO;
 import org.junit.Before;
 import org.junit.Test;
 import org.olat.basesecurity.IdentityImpl;
-import org.olat.core.gui.translator.Translator;
 import org.olat.core.id.Identity;
 import org.olat.core.id.UserConstants;
-import org.olat.resource.OLATResource;
+import org.olat.test.OlatTestCase;
 import org.olat.user.UserImpl;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ContextConfiguration;
 
 import java.util.*;
 
+import static junit.framework.TestCase.assertTrue;
 import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 /**
  * Initial Date: 31.05.2012 <br>
  * 
  * @author cg
  */
-public class CampusCourseRepositoryEntryDescriptionBuilderTest {
+@ContextConfiguration(locations = {"classpath:/org/olat/_spring/mainContext.xml"})
+public class CampusCourseRepositoryEntryDescriptionBuilderTest extends OlatTestCase {
 
-    private final static String SORTED_LECTURERS = "first_lectureA last_lectureA, first_lectureB last_lectureB, first_lectureC last_lectureC";
+    private static final String SORTED_LECTURERS = "first_lectureA last_lectureA, first_lectureB last_lectureB, first_lectureC last_lectureC";
 
+    @Autowired
     private CampusCourseRepositoryEntryDescriptionBuilder campusCourseRepositoryEntryDescriptionBuilder;
+
     private Set<Identity> lecturers = new HashSet<>();
 
     @Before
     public void setup() {
-        campusCourseRepositoryEntryDescriptionBuilder = new CampusCourseRepositoryEntryDescriptionBuilder();
         
         Identity identityLectureA = mock(IdentityImpl.class);
         UserImpl userA = mock(UserImpl.class);
@@ -51,9 +56,47 @@ public class CampusCourseRepositoryEntryDescriptionBuilderTest {
         when(identityLectureC.getUser().getProperty(UserConstants.FIRSTNAME, null)).thenReturn("first_lectureC");
         when(identityLectureC.getUser().getProperty(UserConstants.LASTNAME, null)).thenReturn("last_lectureC");
 
+        // Not sorted
         lecturers.add(identityLectureB);
         lecturers.add(identityLectureC);
         lecturers.add(identityLectureA);
+    }
+
+    @Test
+    public void testBuildDescription_notContinuedCampusCourse() {
+        String eventDescription = "Course";
+        Semester semester = new Semester(SemesterName.HERBSTSEMESTER, 2012, false);
+
+        SapCampusCourseTO campusCourseData = new SapCampusCourseTO(
+                null, semester, lecturers, Collections.emptySet(),
+                Collections.emptySet(), false, Collections.emptyList(), eventDescription,
+                null, null, null, null, "de", null);
+
+        String description = campusCourseRepositoryEntryDescriptionBuilder.buildDescription(campusCourseData);
+        assertTrue(description.contains(semester.getSemesterNameYear()));
+        assertTrue(description.contains(SORTED_LECTURERS));
+        assertTrue(description.contains(eventDescription));
+    }
+
+    @Test
+    public void testBuildDescription_continuedCampusCourse() {
+        String title1 = "Course I";
+        String title2 = "Course II";
+        String eventDescription = "Detail_description";
+
+        List<String> titlesOfCourseAndParentCourses = new ArrayList<>();
+        titlesOfCourseAndParentCourses.add(title1);
+        titlesOfCourseAndParentCourses.add(title2);
+
+        SapCampusCourseTO campusCourseData = new SapCampusCourseTO(
+                null, null, lecturers, Collections.emptySet(),
+                Collections.emptySet(), true, titlesOfCourseAndParentCourses, eventDescription,
+                null, null, null, null, "de", null);
+
+        String description = campusCourseRepositoryEntryDescriptionBuilder.buildDescription(campusCourseData);
+        assertTrue(description.contains(campusCourseRepositoryEntryDescriptionBuilder.createMultiSemesterTitle(titlesOfCourseAndParentCourses)));
+        assertTrue(description.contains(SORTED_LECTURERS));
+        assertTrue(description.contains(eventDescription));
     }
 
     @Test
@@ -66,41 +109,8 @@ public class CampusCourseRepositoryEntryDescriptionBuilderTest {
     }
 
     @Test
-    public void testGetAlphabeticallySortedLecturerList() {
-        String generatedLecturesAsString = campusCourseRepositoryEntryDescriptionBuilder.getAlphabeticallySortedLecturerList(lecturers);
-        assertEquals("Wrong lecture list", SORTED_LECTURERS, generatedLecturesAsString);
+    public void testCreateStringOfAlphabeticallySortedLecturers() {
+        String generatedLecturesAsString = campusCourseRepositoryEntryDescriptionBuilder.createStringOfAlphabeticallySortedLecturers(lecturers);
+        assertEquals(SORTED_LECTURERS, generatedLecturesAsString);
     }
-
-    @Test
-    public void testBuildDescriptionFrom() {
-        String title = "Example title";
-        String eventDescription = "Detail_description";
-
-        Semester semester = new Semester(SemesterName.HERBSTSEMESTER, 2012, false);
-
-        String[] argsMock = new String[3];
-        argsMock[0] = semester.getSemesterNameYear();
-        argsMock[1] = SORTED_LECTURERS;
-        argsMock[2] = eventDescription;
-
-        OLATResource olatResourceMock = mock(OLATResource.class);
-
-        SapCampusCourseTO campusCourseData = new SapCampusCourseTO(
-				title, semester, lecturers, Collections.emptySet(),
-				Collections.emptySet(), false, Collections.emptyList(), eventDescription,
-				olatResourceMock, null, null, null, null, null);
-        Translator translatorMock = mock(Translator.class);
-        campusCourseRepositoryEntryDescriptionBuilder.translator = translatorMock;
-
-        // Description example :
-        // 'Herbstsemester 2012/n/nDozent1_Vorname Dozent1_Nachname, Dozent2_Vorname Dozent2_Nachname, Dozent3_Vorname Dozent3_Nachname/nContent'
-        String descriptionSoll = semester + "/n/n" + SORTED_LECTURERS + "/n/n" + eventDescription;
-        when(translatorMock.translate(CampusCourseRepositoryEntryDescriptionBuilder.KEY_DESCRIPTION_TEMPLATE, argsMock)).thenReturn(descriptionSoll);
-        campusCourseRepositoryEntryDescriptionBuilder.buildDescriptionFrom(campusCourseData, "de");
-
-        // Check if argsMock contains the right parameter (argsMock[0] = semester; argsMock[1] = SORTED_LECTURERS; argsMock[2] = eventDescription;)
-        verify(translatorMock).translate(CampusCourseRepositoryEntryDescriptionBuilder.KEY_DESCRIPTION_TEMPLATE, argsMock);
-    }
-
-
 }
