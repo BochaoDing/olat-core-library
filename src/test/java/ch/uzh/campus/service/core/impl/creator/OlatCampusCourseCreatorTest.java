@@ -80,7 +80,7 @@ public class OlatCampusCourseCreatorTest extends OlatTestCase {
         SapCampusCourseTO sapCampusCourseTO = new SapCampusCourseTO(TITLE,
                 null, Collections.emptySet(),
                 Collections.emptySet(), Collections.emptySet(), false, null, DESCRIPTION,
-                null, null, null, null, "DE", null);
+                null, null, null, "DE", null);
 
         // Create template repository entry
         RepositoryEntry templateRepositoryEntry = JunitTestHelper.deployDemoCourse(ownerIdentity);

@@ -2,10 +2,10 @@ package ch.uzh.campus.service.core.impl.syncer;
 
 import ch.uzh.campus.CampusCourseConfiguration;
 import ch.uzh.campus.CampusCourseException;
-import ch.uzh.campus.service.data.SapCampusCourseTO;
-import ch.uzh.campus.service.data.OlatCampusCourse;
 import ch.uzh.campus.service.core.CampusCourseCoreService;
 import ch.uzh.campus.service.core.impl.syncer.statistic.SynchronizedGroupStatistic;
+import ch.uzh.campus.service.data.OlatCampusCourse;
+import ch.uzh.campus.service.data.SapCampusCourseTO;
 import org.olat.basesecurity.GroupRoles;
 import org.olat.core.id.Identity;
 import org.olat.core.logging.OLog;
@@ -82,13 +82,7 @@ public class CampusCourseSynchronizer {
         // Synchronize campus groups
         List<Identity> courseOwners = repositoryService.getMembers(olatCampusCourse.getRepositoryEntry(), GroupRoles.owner.name());
         SynchronizedGroupStatistic groupStatistic = campusGroupsSynchronizer.synchronizeCampusGroups(
-                sapCampusCourseTO.getCampusGroupA(),
-                sapCampusCourseTO.getCampusGroupB(),
-                sapCampusCourseTO.getLecturersOfCourse(),
-                sapCampusCourseTO.getDelegateesOfCourse(),
-                sapCampusCourseTO.getParticipantsOfCourse(),
-                sapCampusCourseTO.getTitleToBeDisplayed(),
-                courseOwners.get(0));
+                sapCampusCourseTO.getCampusGroups(), sapCampusCourseTO, courseOwners.get(0));
         LOG.debug("synchronizeOlatCampusCourse statistic=" + groupStatistic);
 
         return groupStatistic;

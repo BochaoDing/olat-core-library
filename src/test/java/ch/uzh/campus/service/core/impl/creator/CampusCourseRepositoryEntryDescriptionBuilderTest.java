@@ -37,7 +37,6 @@ public class CampusCourseRepositoryEntryDescriptionBuilderTest extends OlatTestC
 
     @Before
     public void setup() {
-        
         Identity identityLectureA = mock(IdentityImpl.class);
         UserImpl userA = mock(UserImpl.class);
         when(identityLectureA.getUser()).thenReturn(userA);
@@ -70,7 +69,7 @@ public class CampusCourseRepositoryEntryDescriptionBuilderTest extends OlatTestC
         SapCampusCourseTO campusCourseData = new SapCampusCourseTO(
                 null, semester, lecturers, Collections.emptySet(),
                 Collections.emptySet(), false, Collections.emptyList(), eventDescription,
-                null, null, null, null, "de", null);
+                null, null, null, "de", null);
 
         String description = campusCourseRepositoryEntryDescriptionBuilder.buildDescription(campusCourseData);
         assertTrue(description.contains(semester.getSemesterNameYear()));
@@ -89,9 +88,9 @@ public class CampusCourseRepositoryEntryDescriptionBuilderTest extends OlatTestC
         titlesOfCourseAndParentCourses.add(title2);
 
         SapCampusCourseTO campusCourseData = new SapCampusCourseTO(
-                null, null, lecturers, Collections.emptySet(),
-                Collections.emptySet(), true, titlesOfCourseAndParentCourses, eventDescription,
-                null, null, null, null, "de", null);
+				null, null, lecturers, Collections.emptySet(),
+				Collections.emptySet(), true, titlesOfCourseAndParentCourses, eventDescription,
+				null, null, null, "de", null);
 
         String description = campusCourseRepositoryEntryDescriptionBuilder.buildDescription(campusCourseData);
         assertTrue(description.contains(campusCourseRepositoryEntryDescriptionBuilder.createMultiSemesterTitle(titlesOfCourseAndParentCourses)));

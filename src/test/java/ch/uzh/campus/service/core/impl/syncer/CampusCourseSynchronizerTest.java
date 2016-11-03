@@ -7,6 +7,7 @@ import ch.uzh.campus.service.core.CampusCourseCoreService;
 import ch.uzh.campus.service.core.impl.OlatCampusCourseProvider;
 import ch.uzh.campus.service.core.impl.syncer.statistic.SynchronizedGroupStatistic;
 import ch.uzh.campus.service.core.impl.syncer.statistic.SynchronizedSecurityGroupStatistic;
+import ch.uzh.campus.service.data.CampusGroups;
 import ch.uzh.campus.service.data.OlatCampusCourse;
 import ch.uzh.campus.service.data.SapCampusCourseTO;
 import org.junit.Before;
@@ -75,7 +76,7 @@ public class CampusCourseSynchronizerTest {
         BusinessGroup campusGroupBMock = mock(BusinessGroup.class);
         sapCampusCourseTO = new SapCampusCourseTO(
                 title, null, students, delegatees, lecturers, false, null, eventDescription,
-                olatResourceMock, campusGroupAMock, campusGroupAMock, null, null, null
+                olatResourceMock, new CampusGroups(campusGroupAMock, campusGroupBMock), null, null, null
         );
 
         // Prepare a test olat campus course
@@ -89,7 +90,7 @@ public class CampusCourseSynchronizerTest {
         Identity creatorMock = mock(Identity.class);
         SynchronizedGroupStatistic groupStatistic = new SynchronizedGroupStatistic(title, null, new SynchronizedSecurityGroupStatistic(5, 10));
         CampusGroupsSynchronizer campusGroupsSynchronizerMock = mock(CampusGroupsSynchronizer.class);
-        when(campusGroupsSynchronizerMock.synchronizeCampusGroups(refEq(campusGroupAMock), refEq(campusGroupBMock), refEq(lecturers), refEq(delegatees), refEq(students), refEq(title), refEq(creatorMock))).thenReturn(groupStatistic);
+        when(campusGroupsSynchronizerMock.synchronizeCampusGroups(sapCampusCourseTO.getCampusGroups(), sapCampusCourseTO, refEq(creatorMock))).thenReturn(groupStatistic);
 
         // OlatCampusCourseAttributeSynchronizerMock
         CampusCourseRepositoryEntrySynchronizer campusCourseRepositoryEntrySynchronizerMock = mock(CampusCourseRepositoryEntrySynchronizer.class);

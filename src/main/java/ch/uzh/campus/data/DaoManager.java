@@ -456,8 +456,7 @@ public class DaoManager {
                 course.getTitlesOfCourseAndParentCoursesInAscendingOrder(),
                 textDao.getContentsByCourseId(course.getId()),
                 course.getOlatResource(),
-                course.getCampusGroupA(),
-                course.getCampusGroupB(),
+                new CampusGroups(course.getCampusGroupA(), course.getCampusGroupB()),
                 course.getId(),
                 course.getLanguage(),
                 course.getVvzLink());

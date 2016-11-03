@@ -44,12 +44,11 @@ public class SapCampusCourseTO {
     private final List<String> titlesOfCourseAndParentCourses;
     private final String eventDescription;
     private final OLATResource olatResource;
-    private final BusinessGroup campusGroupA;
-    private final BusinessGroup campusGroupB;
+	private final CampusGroups campusGroups;
     private final Long sapCourseId;
     private final String vvzLink;
 
-    public SapCampusCourseTO(String titleToBeDisplayed,
+	public SapCampusCourseTO(String titleToBeDisplayed,
                              Semester semester,
                              Set<Identity> lecturersOfCourse,
                              Set<Identity> delegateesOfCourse,
@@ -58,8 +57,7 @@ public class SapCampusCourseTO {
                              List<String> titlesOfCourseAndParentCourses,
                              String eventDescription,
                              OLATResource olatResource,
-                             BusinessGroup campusGroupA,
-                             BusinessGroup campusGroupB,
+							 CampusGroups campusGroups,
                              Long sapCourseId,
                              String language,
                              String vvzLink) {
@@ -72,8 +70,7 @@ public class SapCampusCourseTO {
         this.participantsOfCourse = participantsOfCourse;
         this.eventDescription = eventDescription;
         this.olatResource = olatResource;
-        this.campusGroupA = campusGroupA;
-        this.campusGroupB = campusGroupB;
+		this.campusGroups = campusGroups;
         this.sapCourseId = sapCourseId;
         this.language = language;
         this.vvzLink = vvzLink;
@@ -115,13 +112,9 @@ public class SapCampusCourseTO {
         return olatResource;
     }
 
-    public BusinessGroup getCampusGroupA() {
-        return campusGroupA;
-    }
-
-    public BusinessGroup getCampusGroupB() {
-        return campusGroupB;
-    }
+    public CampusGroups getCampusGroups() {
+		return campusGroups;
+	}
 
     public Long getSapCourseId() {
         return sapCourseId;

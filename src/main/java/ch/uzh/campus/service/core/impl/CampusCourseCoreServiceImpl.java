@@ -209,14 +209,7 @@ public class CampusCourseCoreServiceImpl implements CampusCourseCoreService {
 
                 // Execute the first synchronization
                 try {
-                    campusGroupsSynchronizer.synchronizeCampusGroups(
-                            campusGroups.getCampusGroupA(),
-                            campusGroups.getCampusGroupB(),
-                            sapCampusCourseTO.getLecturersOfCourse(),
-                            sapCampusCourseTO.getDelegateesOfCourse(),
-                            sapCampusCourseTO.getParticipantsOfCourse(),
-                            sapCampusCourseTO.getTitleToBeDisplayed(),
-                            creator);
+                    campusGroupsSynchronizer.synchronizeCampusGroups(campusGroups, sapCampusCourseTO, creator);
                 } catch (CampusCourseException e) {
                     LOG.error(e.getMessage());
                 }
@@ -310,14 +303,7 @@ public class CampusCourseCoreServiceImpl implements CampusCourseCoreService {
 
         // Synchronize campus groups
         try {
-            campusGroupsSynchronizer.synchronizeCampusGroups(
-                    childSapCampusCourseTO.getCampusGroupA(),
-                    childSapCampusCourseTO.getCampusGroupB(),
-                    childSapCampusCourseTO.getLecturersOfCourse(),
-                    childSapCampusCourseTO.getDelegateesOfCourse(),
-                    childSapCampusCourseTO.getParticipantsOfCourse(),
-                    childSapCampusCourseTO.getTitleToBeDisplayed(),
-                    creator);
+            campusGroupsSynchronizer.synchronizeCampusGroups(childSapCampusCourseTO.getCampusGroups(), childSapCampusCourseTO, creator);
         } catch (CampusCourseException e) {
             LOG.error(e.getMessage());
         }

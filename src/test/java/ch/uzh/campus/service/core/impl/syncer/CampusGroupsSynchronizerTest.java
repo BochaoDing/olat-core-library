@@ -6,6 +6,7 @@ import ch.uzh.campus.CampusCourseJunitTestHelper;
 import ch.uzh.campus.data.CourseDao;
 import ch.uzh.campus.service.core.impl.syncer.statistic.SynchronizedGroupStatistic;
 import ch.uzh.campus.service.data.CampusGroups;
+import ch.uzh.campus.service.data.SapCampusCourseTO;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -70,10 +71,9 @@ public class CampusGroupsSynchronizerTest extends OlatTestCase {
     private Set<Identity> delegatees = new HashSet<>();
     private Set<Identity> participants = new HashSet<>();
     private RepositoryEntry olatCampusCourseRepositoryEntry;
-    private BusinessGroup campusGroupA;
-    private BusinessGroup campusGroupB;
+	private CampusGroups campusGroups;
 
-    @Before
+	@Before
     public void setup() {
 
     	 // Setup test users
@@ -101,9 +101,7 @@ public class CampusGroupsSynchronizerTest extends OlatTestCase {
         olatCampusCourseRepositoryEntry = JunitTestHelper.deployDemoCourse(firstLecturerIdentity);
 
         // Create campus groups
-        CampusGroups campusGroups = CampusCourseJunitTestHelper.createCampusGroupsForTest(firstLecturerIdentity, olatCampusCourseRepositoryEntry, campusCourseConfiguration, courseDao, bgAreaManager, businessGroupService, dbInstance);
-        campusGroupA = campusGroups.getCampusGroupA();
-        campusGroupB = campusGroups.getCampusGroupB();
+        campusGroups = CampusCourseJunitTestHelper.createCampusGroupsForTest(firstLecturerIdentity, olatCampusCourseRepositoryEntry, campusCourseConfiguration, courseDao, bgAreaManager, businessGroupService, dbInstance);
     }
 
     @After
@@ -131,17 +129,16 @@ public class CampusGroupsSynchronizerTest extends OlatTestCase {
     public void testSynchronizeCampusGroups_AddLectures_CheckAddedStatisticAndMembers() throws CampusCourseException {
 
         SynchronizedGroupStatistic statistic = campusGroupsSynchronizer.synchronizeCampusGroups(
-                campusGroupA,
-                campusGroupB,
-                lecturers,
-                delegatees,
-                Collections.emptySet(),
-                "CampusCourseTitle",
-                firstLecturerIdentity);
+				campusGroups,
+				new SapCampusCourseTO("CampusCourseTitle", null, lecturers,
+						delegatees, Collections.emptySet(), false, null, null,
+						null, campusGroups, null, "DE", null), firstLecturerIdentity);
+
+
 
         // 1. Check members of campus group A
-        List<Identity> groupCoaches = businessGroupService.getMembers(campusGroupA, GroupRoles.coach.name());
-        List<Identity> groupParticipants = businessGroupService.getMembers(campusGroupA, GroupRoles.participant.name());
+        List<Identity> groupCoaches = businessGroupService.getMembers(campusGroups.getCampusGroupA(), GroupRoles.coach.name());
+        List<Identity> groupParticipants = businessGroupService.getMembers(campusGroups.getCampusGroupA(), GroupRoles.participant.name());
         assertEquals("Wrong number of coaches", 4, groupCoaches.size());
         assertTrue(groupCoaches.contains(firstLecturerIdentity));
         assertTrue(groupCoaches.contains(secondLecturerIdentity));
@@ -150,8 +147,8 @@ public class CampusGroupsSynchronizerTest extends OlatTestCase {
         assertEquals("Wrong number of participants", 0, groupParticipants.size());
 
         // 2. Check members of campus group B
-        groupCoaches = businessGroupService.getMembers(campusGroupB, GroupRoles.coach.name());
-        groupParticipants = businessGroupService.getMembers(campusGroupB, GroupRoles.participant.name());
+        groupCoaches = businessGroupService.getMembers(campusGroups.getCampusGroupB(), GroupRoles.coach.name());
+        groupParticipants = businessGroupService.getMembers(campusGroups.getCampusGroupB(), GroupRoles.participant.name());
         assertEquals("Wrong number of coaches", 4, groupCoaches.size());
         assertTrue(groupCoaches.contains(firstLecturerIdentity));
         assertTrue(groupCoaches.contains(secondLecturerIdentity));
@@ -175,17 +172,15 @@ public class CampusGroupsSynchronizerTest extends OlatTestCase {
     public void testSynchronizeCampusGroups_AddParticipants_CheckAddedStatisticAndMembers() throws CampusCourseException {
 
         SynchronizedGroupStatistic statistic = campusGroupsSynchronizer.synchronizeCampusGroups(
-                campusGroupA,
-                campusGroupB,
-                Collections.emptySet(),
-                Collections.emptySet(),
-                participants,
-                "CampusCourseTitle",
+                campusGroups,
+				new SapCampusCourseTO("CampusCourseTitle", null, Collections.emptySet(),
+						Collections.emptySet(), participants, false, null, null,
+						null, campusGroups, null, "DE", null),
                 firstLecturerIdentity);
 
         // 1. Check members of campus group A
-        List<Identity> groupCoaches =  businessGroupService.getMembers(campusGroupA, GroupRoles.coach.name());
-        List<Identity> groupParticipants = businessGroupService.getMembers(campusGroupA, GroupRoles.participant.name());
+        List<Identity> groupCoaches =  businessGroupService.getMembers(campusGroups.getCampusGroupA(), GroupRoles.coach.name());
+        List<Identity> groupParticipants = businessGroupService.getMembers(campusGroups.getCampusGroupA(), GroupRoles.participant.name());
         assertEquals("Wrong number of coaches", 1, groupCoaches.size());
         assertTrue(groupCoaches.contains(firstLecturerIdentity));
         assertEquals("Wrong number of participants", 3, groupParticipants.size());
@@ -194,8 +189,8 @@ public class CampusGroupsSynchronizerTest extends OlatTestCase {
         assertTrue(groupParticipants.contains(thirdParticipantIdentity));
 
         // 2. Check members of campus group B
-        groupCoaches =  businessGroupService.getMembers(campusGroupB, GroupRoles.coach.name());
-        groupParticipants = businessGroupService.getMembers(campusGroupB, GroupRoles.participant.name());
+        groupCoaches =  businessGroupService.getMembers(campusGroups.getCampusGroupB(), GroupRoles.coach.name());
+        groupParticipants = businessGroupService.getMembers(campusGroups.getCampusGroupB(), GroupRoles.participant.name());
         assertEquals("Wrong number of coaches", 1, groupCoaches.size());
         assertTrue(groupCoaches.contains(firstLecturerIdentity));
         assertEquals("Wrong number of participants", 0, groupParticipants.size());
@@ -221,32 +216,28 @@ public class CampusGroupsSynchronizerTest extends OlatTestCase {
         lecturers.add(secondLecturerIdentity);
 
         campusGroupsSynchronizer.synchronizeCampusGroups(
-                campusGroupA,
-                campusGroupB,
-                lecturers,
-                Collections.emptySet(),
-                Collections.emptySet(),
-                "CampusCourseTitle",
+                campusGroups,
+				new SapCampusCourseTO("CampusCourseTitle", null, lecturers,
+						Collections.emptySet(), Collections.emptySet(), false, null, null,
+						null, campusGroups, null, "DE", null),
                 firstLecturerIdentity);
-        assertEquals("Wrong number of coaches after init", 2, businessGroupService.getMembers(campusGroupA, GroupRoles.coach.name()).size());
-        assertEquals("Wrong number of participants after init", 0, businessGroupService.getMembers(campusGroupA, GroupRoles.participant.name()).size());
+        assertEquals("Wrong number of coaches after init", 2, businessGroupService.getMembers(campusGroups.getCampusGroupA(), GroupRoles.coach.name()).size());
+        assertEquals("Wrong number of participants after init", 0, businessGroupService.getMembers(campusGroups.getCampusGroupA(), GroupRoles.participant.name()).size());
 
         // Remove one owner (secondLecturerIdentity) and add a new owner (thirdParticipantIdentity)
         lecturers.remove(secondLecturerIdentity);
         lecturers.add(thirdLecturerIdentity);
 
         SynchronizedGroupStatistic statistic = campusGroupsSynchronizer.synchronizeCampusGroups(
-                campusGroupA,
-                campusGroupB,
-                lecturers,
-                Collections.emptySet(),
-                Collections.emptySet(),
-                "CampusCourseTitle",
+                campusGroups,
+				new SapCampusCourseTO("CampusCourseTitle", null, lecturers,
+						Collections.emptySet(), Collections.emptySet(), false, null, null,
+						null, campusGroups, null, "DE", null),
                 firstLecturerIdentity);
 
         // 1. Check members
-        List<Identity> groupCoaches = businessGroupService.getMembers(campusGroupA, GroupRoles.coach.name());
-        List<Identity> groupParticipants = businessGroupService.getMembers(campusGroupA, GroupRoles.participant.name());
+        List<Identity> groupCoaches = businessGroupService.getMembers(campusGroups.getCampusGroupA(), GroupRoles.coach.name());
+        List<Identity> groupParticipants = businessGroupService.getMembers(campusGroups.getCampusGroupA(), GroupRoles.participant.name());
         assertEquals("Wrong number of coaches after synchronize", 3, groupCoaches.size());
         assertEquals("Wrong number of participants after synchronize", 0, groupParticipants.size());
         assertTrue("Missing identity (" + firstLecturerIdentity + ") as coach of course-group", groupCoaches.contains(firstLecturerIdentity));
@@ -272,33 +263,29 @@ public class CampusGroupsSynchronizerTest extends OlatTestCase {
         participants.add(secondParticipantIdentity);
 
         campusGroupsSynchronizer.synchronizeCampusGroups(
-                campusGroupA,
-                campusGroupB,
-                Collections.emptySet(),
-                Collections.emptySet(),
-                participants,
-                "CampusCourseTitle",
+                campusGroups,
+				new SapCampusCourseTO("CampusCourseTitle", null, Collections.emptySet(),
+						Collections.emptySet(), participants, false, null, null,
+						null, campusGroups, null, "DE", null),
                 firstLecturerIdentity);
 
-        assertEquals("Wrong number of coaches after init", 1, businessGroupService.getMembers(campusGroupA, GroupRoles.coach.name()).size());
-        assertEquals("Wrong number of participants after init", 2, businessGroupService.getMembers(campusGroupA, GroupRoles.participant.name()).size());
+        assertEquals("Wrong number of coaches after init", 1, businessGroupService.getMembers(campusGroups.getCampusGroupA(), GroupRoles.coach.name()).size());
+        assertEquals("Wrong number of participants after init", 2, businessGroupService.getMembers(campusGroups.getCampusGroupA(), GroupRoles.participant.name()).size());
 
         // Remove one participant (secondParticipantIdentity), add a new participant (thirdParticipantIdentity)
         participants.remove(secondParticipantIdentity);
         participants.add(thirdParticipantIdentity);
 
         SynchronizedGroupStatistic statistic = campusGroupsSynchronizer.synchronizeCampusGroups(
-                campusGroupA,
-                campusGroupB,
-                Collections.emptySet(),
-                Collections.emptySet(),
-                participants,
-                "CampusCourseTitle",
+                campusGroups,
+				new SapCampusCourseTO("CampusCourseTitle", null, Collections.emptySet(),
+						Collections.emptySet(), participants, false, null, null,
+						null, campusGroups, null, "DE", null),
                 firstLecturerIdentity);
 
         // 1. Check members
-        List<Identity> groupCoaches = businessGroupService.getMembers(campusGroupA, GroupRoles.coach.name());
-        List<Identity> groupParticipants = businessGroupService.getMembers(campusGroupA, GroupRoles.participant.name());
+        List<Identity> groupCoaches = businessGroupService.getMembers(campusGroups.getCampusGroupA(), GroupRoles.coach.name());
+        List<Identity> groupParticipants = businessGroupService.getMembers(campusGroups.getCampusGroupA(), GroupRoles.participant.name());
         assertEquals("Wrong number of coaches after synchronize", 1, groupCoaches.size());
         assertEquals("Wrong number of participants after synchronize", 2, groupParticipants.size());
         assertTrue("Missing identity (" + firstLecturerIdentity + ") as coach of course-group", groupCoaches.contains(firstLecturerIdentity));
