@@ -1,6 +1,7 @@
 package ch.uzh.campus.mapper;
 
 import ch.uzh.campus.CampusCourseConfiguration;
+import ch.uzh.campus.CampusCourseTestCase;
 import org.apache.commons.lang.StringUtils;
 import org.junit.After;
 import org.junit.Before;
@@ -11,10 +12,9 @@ import org.olat.core.commons.persistence.DB;
 import org.olat.core.id.Identity;
 import org.olat.core.id.User;
 import org.olat.core.id.UserConstants;
-import org.olat.test.OlatTestCase;
 import org.olat.user.UserManager;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.ContextConfiguration;
+import org.springframework.stereotype.Component;
 
 import java.util.Random;
 import java.util.UUID;
@@ -26,8 +26,8 @@ import static org.junit.Assert.assertNull;
  * @author Martin Schraner
  */
 
-@ContextConfiguration(locations = {"classpath:/org/olat/_spring/mainContext.xml", "classpath:org/olat/core/commons/persistence/_spring/testDatabaseCorecontext.xml"})
-public class UserMapperTest extends OlatTestCase {
+@Component
+public class UserMapperTest extends CampusCourseTestCase {
 
     private String firstNameTestUser1;
     private String firstNameTestUser2;
