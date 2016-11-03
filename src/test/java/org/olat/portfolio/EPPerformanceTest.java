@@ -19,17 +19,6 @@
  */
 package org.olat.portfolio;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
-import java.util.UUID;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -47,7 +36,12 @@ import org.olat.portfolio.model.structel.PortfolioStructureMap;
 import org.olat.test.JunitTestHelper;
 import org.olat.test.OlatTestCase;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.ContextConfiguration;
+import org.springframework.stereotype.Component;
+
+import java.util.*;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 /**
  * Description:<br>
@@ -60,7 +54,7 @@ import org.springframework.test.context.ContextConfiguration;
  * 
  * @author Roman Haag, roman.haag@frentix.com, http://www.frentix.com
  */
-@ContextConfiguration(locations = {"classpath:/org/olat/_spring/mainContext.xml"})
+@Component
 public class EPPerformanceTest extends OlatTestCase {
 
 	private static final String LOREM_STRING_512 = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean id sapien ac justo congue mollis. " +

@@ -25,24 +25,11 @@
 */ 
 package org.olat.course.nodes.en;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Locale;
-import java.util.UUID;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
-
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.olat.basesecurity.BaseSecurity;
 import org.olat.basesecurity.GroupRoles;
-import org.olat.core.commons.persistence.DB;
 import org.olat.core.commons.persistence.DBFactory;
 import org.olat.core.gui.components.Component;
 import org.olat.core.gui.control.WindowBackOffice;
@@ -75,7 +62,12 @@ import org.olat.resource.OLATResourceManager;
 import org.olat.test.JunitTestHelper;
 import org.olat.test.OlatTestCase;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.ContextConfiguration;
+
+import java.util.*;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+
+import static org.junit.Assert.*;
 
 /**
  * Description: <BR/>
@@ -85,7 +77,7 @@ import org.springframework.test.context.ContextConfiguration;
  * @author patrick
  * @author srosse, stephane.rosse@frentix.com, http://www.frentix.com
  */
-@ContextConfiguration(locations = {"classpath:/org/olat/_spring/mainContext.xml"})
+@org.springframework.stereotype.Component
 public class EnrollmentManagerConcurrentTest extends OlatTestCase implements WindowControl {
 	//
 	private static OLog log = Tracing.createLoggerFor(EnrollmentManagerConcurrentTest.class);
