@@ -6,7 +6,7 @@ import ch.uzh.campus.olat.controller.CampusCourseTableController;
 import ch.uzh.campus.olat.dialog.controller.CampusCourseCreateDialogController;
 import ch.uzh.campus.olat.tab.CampusCourseTab;
 import ch.uzh.campus.service.CampusCourseService;
-import ch.uzh.campus.service.data.SapCampusCourseTOForUI;
+import ch.uzh.campus.service.data.CampusCourseTOForUI;
 import org.olat.core.gui.UserRequest;
 import org.olat.core.gui.components.Component;
 import org.olat.core.gui.components.table.TableGuiConfiguration;
@@ -31,7 +31,7 @@ import java.util.List;
  * Initial date: 2016-08-05<br />
  * @author sev26 (UZH)
  */
-public class CampusCourseTabTableController extends CampusCourseTableController<SapCampusCourseTOForUI> {
+public class CampusCourseTabTableController extends CampusCourseTableController<CampusCourseTOForUI> {
 
 	private static TableGuiConfiguration createTableGuiConfiguration() {
 		TableGuiConfiguration result = new TableGuiConfiguration();
@@ -112,15 +112,15 @@ public class CampusCourseTabTableController extends CampusCourseTableController<
 	}
 
 	private int reloadData() {
-		List<SapCampusCourseTOForUI> sapCampusCourseTOForUIs = campusCourseService
+		List<CampusCourseTOForUI> campusCourseTOForUIs = campusCourseService
 				.getCoursesWhichCouldBeCreated(getIdentity(), "");
 
-		setTableDataModel(new CampusCourseTableDataModel(sapCampusCourseTOForUIs,
+		setTableDataModel(new CampusCourseTableDataModel(campusCourseTOForUIs,
 				isAuthor,
 				getLocale()));
 		modelChanged(true);
 
-		return sapCampusCourseTOForUIs.size();
+		return campusCourseTOForUIs.size();
 	}
 
 	@Override
@@ -132,11 +132,11 @@ public class CampusCourseTabTableController extends CampusCourseTableController<
 		 * the surroundings like a "change sorting" event.
 		 */
 		if ("r".equals(event.getCommand())) {
-			SapCampusCourseTOForUI sapCampusCourseTOForUI = getSelectedEntry(event);
+			CampusCourseTOForUI campusCourseTOForUI = getSelectedEntry(event);
 
 			CampusCourseCreateDialogController controller = campusCourseBeanFactory
 					.createCampusCourseCreateDialogController(
-							sapCampusCourseTOForUI.getSapCourseId(),
+							campusCourseTOForUI.getSapCourseId(),
 							getWindowControl(),
 							userRequest);
 			controller.addControllerListener(this);

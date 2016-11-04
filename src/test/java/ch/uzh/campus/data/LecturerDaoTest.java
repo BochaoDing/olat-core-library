@@ -7,10 +7,9 @@ import ch.uzh.campus.utils.DateUtil;
 import org.junit.Test;
 import org.olat.basesecurity.IdentityImpl;
 import org.olat.core.id.Identity;
-import org.olat.core.id.OLATResourceable;
 import org.olat.core.id.User;
-import org.olat.resource.OLATResource;
-import org.olat.resource.OLATResourceManager;
+import org.olat.repository.RepositoryEntry;
+import org.olat.repository.RepositoryService;
 import org.olat.user.UserManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -58,7 +57,7 @@ public class LecturerDaoTest extends CampusCourseTestCase {
     private UserManager userManager;
 
     @Autowired
-    private OLATResourceManager olatResourceManager;
+    private RepositoryService repositoryService;
 
     private List<Lecturer> lecturers;
 
@@ -361,7 +360,7 @@ public class LecturerDaoTest extends CampusCourseTestCase {
         semesterDao.setCurrentSemester(course.getSemester().getId());
         dbInstance.flush();
 
-        addOlatResourceToCourses_100_200_400_500_600();
+        addRepositoryEntryToCourses_100_200_400_500_600();
     }
 
     private Identity insertTestUser(String userName) {
@@ -373,50 +372,23 @@ public class LecturerDaoTest extends CampusCourseTestCase {
         return identity;
     }
 
-    private void addOlatResourceToCourses_100_200_400_500_600() {
+    private void addRepositoryEntryToCourses_100_200_400_500_600() {
+        RepositoryEntry repositoryEntry1 = repositoryService.create("Rei Ayanami", "-", "Repository entry 1 LecturerDaoTest", "", null);
+        RepositoryEntry repositoryEntry2 = repositoryService.create("Rei Ayanami", "-", "Repository entry 2 LecturerDaoTest", "", null);
+        RepositoryEntry repositoryEntry4 = repositoryService.create("Rei Ayanami", "-", "Repository entry 4 LecturerDaoTest", "", null);
+        RepositoryEntry repositoryEntry5 = repositoryService.create("Rei Ayanami", "-", "Repository entry 5 LecturerDaoTest", "", null);
+        RepositoryEntry repositoryEntry6 = repositoryService.create("Rei Ayanami", "-", "Repository entry 6 LecturerDaoTest", "", null);
+        dbInstance.flush();
         Course course1 = courseDao.getCourseById(100L);
         Course course2 = courseDao.getCourseById(200L);
         Course course4 = courseDao.getCourseById(400L);
         Course course5 = courseDao.getCourseById(500L);
         Course course6 = courseDao.getCourseById(600L);
-        OLATResource olatResource1 = insertOlatResource("resourceLecturerDaoTestData1");
-        OLATResource olatResource2 = insertOlatResource("resourceLecturerDaoTestData2");
-        OLATResource olatResource4 = insertOlatResource("resourceLecturerDaoTestData4");
-        OLATResource olatResource5 = insertOlatResource("resourceLecturerDaoTestData5");
-        OLATResource olatResource6 = insertOlatResource("resourceLecturerDaoTestData6");
-        course1.setOlatResource(olatResource1);
-        course2.setOlatResource(olatResource2);
-        course4.setOlatResource(olatResource4);
-        course5.setOlatResource(olatResource5);
-        course6.setOlatResource(olatResource6);
+        course1.setRepositoryEntry(repositoryEntry1);
+        course2.setRepositoryEntry(repositoryEntry2);
+        course4.setRepositoryEntry(repositoryEntry4);
+        course5.setRepositoryEntry(repositoryEntry5);
+        course6.setRepositoryEntry(repositoryEntry6);
         dbInstance.flush();
-    }
-
-    private OLATResource insertOlatResource(String olatResourceName) {
-        olatResourceName = "lecturerDaoTest_" + olatResourceName;
-        TestResourceable resourceable = new TestResourceable(8213649L, olatResourceName);
-        OLATResource olatResource = olatResourceManager.createOLATResourceInstance(resourceable);
-        olatResourceManager.saveOLATResource(olatResource);
-        return olatResource;
-    }
-
-    private static class TestResourceable implements OLATResourceable {
-        private final Long resId;
-        private final String resName;
-
-        TestResourceable(Long resId, String resourceName) {
-            this.resId = resId;
-            this.resName = resourceName;
-        }
-
-        @Override
-        public Long getResourceableId() {
-            return resId;
-        }
-
-        @Override
-        public String getResourceableTypeName() {
-            return resName;
-        }
     }
 }

@@ -1,7 +1,7 @@
 package ch.uzh.campus.service.core.impl.syncer;
 
 import ch.uzh.campus.service.core.impl.creator.CampusCourseRepositoryEntryDescriptionBuilder;
-import ch.uzh.campus.service.data.SapCampusCourseTO;
+import ch.uzh.campus.service.data.CampusCourseTO;
 import org.olat.core.id.Identity;
 import org.olat.core.util.Formatter;
 import org.olat.repository.RepositoryEntry;
@@ -47,22 +47,23 @@ public class CampusCourseRepositoryEntrySynchronizer {
         this.repositoryService = repositoryService;
     }
 
-    void synchronizeDisplaynameAndDescription(RepositoryEntry repositoryEntry, SapCampusCourseTO synchronizedSapCampusCourseTO) {
-        synchronizeDisplaynameAndDescriptionAndInitialAuthor(repositoryEntry, synchronizedSapCampusCourseTO, null);
+    void synchronizeDisplaynameAndDescription(CampusCourseTO campusCourseTO) {
+        synchronizeDisplaynameAndDescriptionAndInitialAuthor(campusCourseTO, null);
     }
 
-    public void synchronizeDisplaynameAndDescriptionAndInitialAuthor(RepositoryEntry repositoryEntry, SapCampusCourseTO synchronizedSapCampusCourseTO, Identity creator) {
+    public void synchronizeDisplaynameAndDescriptionAndInitialAuthor(CampusCourseTO campusCourseTO, Identity creator) {
 
         // New display name
-        String newDisplayname = truncateTitleForRepositoryEntryDisplayname(synchronizedSapCampusCourseTO.getTitleToBeDisplayed());
+        String newDisplayname = truncateTitleForRepositoryEntryDisplayname(campusCourseTO.getTitleToBeDisplayed());
 
         // New description
-        String newDescription = campusCourseRepositoryEntryDescriptionBuilder.buildDescription(synchronizedSapCampusCourseTO);
+        String newDescription = campusCourseRepositoryEntryDescriptionBuilder.buildDescription(campusCourseTO);
 
         // New initial author
         String newInitialAuthor = (creator != null ? creator.getName() : null);
 
         // Update repository entry in case an attribute has changed
+        RepositoryEntry repositoryEntry = campusCourseTO.getRepositoryEntry();
         boolean repositoryEntryHasToBeUpdated = false;
         if (!newDisplayname.equals(repositoryEntry.getDisplayname())) {
             repositoryEntry.setDisplayname(newDisplayname);

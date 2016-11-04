@@ -2,8 +2,7 @@ package ch.uzh.campus.data;
 
 import org.olat.group.BusinessGroup;
 import org.olat.group.BusinessGroupImpl;
-import org.olat.resource.OLATResource;
-import org.olat.resource.OLATResourceImpl;
+import org.olat.repository.RepositoryEntry;
 
 import javax.persistence.*;
 import java.util.*;
@@ -15,40 +14,39 @@ import java.util.*;
  * @author lavinia
  * @author Martin Schraner
  */
-@SuppressWarnings("JpaQlInspection")  // Required to suppress warnings caused by c.olatResource.key
 @Entity
 @NamedQueries({
-        @NamedQuery(name = Course.GET_ALL_CREATED_COURSES_OF_CURRENT_SEMESTER, query = "select c from Course c where c.olatResource is not null and c.semester.currentSemester = true"),
-        @NamedQuery(name = Course.GET_IDS_OF_ALL_CREATED_SYNCHRONIZABLE_COURSES_OF_CURRENT_SEMESTER, query = "select c.id from Course c where c.olatResource is not null and c.synchronizable = true and c.semester.currentSemester = true"),
-        @NamedQuery(name = Course.GET_OLAT_RESOURCE_KEYS_OF_ALL_CREATED_NOT_CONTINUED_COURSES_OF_SPECIFIC_SEMESTERS, query = "select c.olatResource.key from Course c where " +
-                "c.olatResource is not null " +
+        @NamedQuery(name = Course.GET_ALL_CREATED_COURSES_OF_CURRENT_SEMESTER, query = "select c from Course c where c.repositoryEntry is not null and c.semester.currentSemester = true"),
+        @NamedQuery(name = Course.GET_IDS_OF_ALL_CREATED_SYNCHRONIZABLE_COURSES_OF_CURRENT_SEMESTER, query = "select c.id from Course c where c.repositoryEntry is not null and c.synchronizable = true and c.semester.currentSemester = true"),
+        @NamedQuery(name = Course.GET_REPOSITORY_ENTRY_KEYS_OF_ALL_CREATED_NOT_CONTINUED_COURSES_OF_SPECIFIC_SEMESTERS, query = "select c.repositoryEntry.key from Course c where " +
+                "c.repositoryEntry is not null " +
                 "and c.semester.id in :semesterIds " +
                 "and not exists (select c2 from Course c2 where c2.parentCourse.id = c.id)"),
         @NamedQuery(name = Course.GET_IDS_OF_ALL_NOT_CREATED_CREATABLE_COURSES_OF_CURRENT_SEMESTER, query = "select c.id from Course c where " +
-                "c.olatResource is null " +
+                "c.repositoryEntry is null " +
                 "and c.exclude = false " +
                 "and exists (select c1 from Course c1 join c1.orgs o where c1.id = c.id and o.enabled = true) " +
                 "and c.semester.currentSemester = true"),
         @NamedQuery(name = Course.GET_CREATED_COURSES_OF_CURRENT_SEMESTER_BY_LECTURER_ID, query = "select c from Course c join c.lecturerCourses lc where " +
-                "c.olatResource is not null and lc.lecturer.personalNr = :lecturerId " +
+                "c.repositoryEntry is not null and lc.lecturer.personalNr = :lecturerId " +
                 "and c.semester.currentSemester = true and c.title like :searchString"),
         @NamedQuery(name = Course.GET_NOT_CREATED_CREATABLE_COURSES_OF_CURRENT_SEMESTER_BY_LECTURER_ID, query = "select c from Course c join c.lecturerCourses lc where " +
                 "lc.lecturer.personalNr = :lecturerId " +
-                "and c.olatResource is null " +
+                "and c.repositoryEntry is null " +
                 "and c.exclude = false " +
                 "and exists (select c1 from Course c1 join c1.orgs o where c1.id = c.id and o.enabled = true) " +
                 "and c.semester.currentSemester = true " +
                 "and c.title like :searchString"),
         @NamedQuery(name = Course.GET_CREATED_COURSES_OF_CURRENT_SEMESTER_BY_STUDENT_ID, query = "select c from Course c join c.studentCourses sc where " +
-                "c.olatResource is not null and sc.student.id = :studentId " +
+                "c.repositoryEntry is not null and sc.student.id = :studentId " +
                 "and c.semester.currentSemester = true and c.title like :searchString"),
         @NamedQuery(name = Course.GET_CREATED_COURSES_OF_CURRENT_SEMESTER_BY_STUDENT_ID_BOOKED_BY_STUDENT_ONLY_AS_PARENT_COURSE, query = "select c from Course c join c.parentCourse.studentCourses scp where " +
-                "c.parentCourse is not null and c.olatResource is not null and scp.student.id = :studentId " +
+                "c.parentCourse is not null and c.repositoryEntry is not null and scp.student.id = :studentId " +
                 "and not exists (select c1 from Course c1 join c1.studentCourses sc1 where c1.id = c.id and sc1.student.id = :studentId) " +
                 "and c.semester.currentSemester = true and c.title like :searchString"),
         @NamedQuery(name = Course.GET_NOT_CREATED_CREATABLE_COURSES_OF_CURRENT_SEMESTER_BY_STUDENT_ID, query = "select c from Course c join c.studentCourses sc where " +
                 "sc.student.id = :studentId " +
-                "and c.olatResource is null " +
+                "and c.repositoryEntry is null " +
                 "and c.exclude = false " +
                 "and exists (select c1 from Course c1 join c1.orgs o where c1.id = c.id and o.enabled = true) " +
                 "and c.semester.currentSemester = true " +
@@ -69,12 +67,12 @@ import java.util.*;
                 "and c.exclude = false " +
                 "and exists (select c1 from Course c1 join c1.orgs o where c1.id = c.id and o.enabled = true) " +
                 "and c.semester.currentSemester = true"),
-        @NamedQuery(name = Course.GET_ALL_NOT_CREATED_ORPHANED_COURSES, query = "select c.id from Course c where c.olatResource is null and c.id not in (select lc.course.id from LecturerCourse lc) and c.id not in (select sc.course.id from StudentCourse sc)"),
-        @NamedQuery(name = Course.GET_COURSE_IDS_BY_OLAT_RESOURCE_KEY, query = "select c.id from Course c where c.olatResource.key = :olatResourceKey"),
-        @NamedQuery(name = Course.GET_COURSES_BY_OLAT_RESOURCE_KEY, query = "select c from Course c where c.olatResource.key = :olatResourceKey"),
+        @NamedQuery(name = Course.GET_ALL_NOT_CREATED_ORPHANED_COURSES, query = "select c.id from Course c where c.repositoryEntry is null and c.id not in (select lc.course.id from LecturerCourse lc) and c.id not in (select sc.course.id from StudentCourse sc)"),
+        @NamedQuery(name = Course.GET_COURSE_IDS_BY_REPOSITORY_ENTRY_KEY, query = "select c.id from Course c where c.repositoryEntry.key = :repositoryEntryKey"),
+        @NamedQuery(name = Course.GET_COURSES_BY_REPOSITORY_ENTRY_KEY, query = "select c from Course c where c.repositoryEntry.key = :repositoryEntryKey"),
         @NamedQuery(name = Course.GET_COURSES_BY_CAMPUS_GROUP_A_KEY, query = "select c from Course c where c.campusGroupA.key = :campusGroupKey"),
         @NamedQuery(name = Course.GET_COURSES_BY_CAMPUS_GROUP_B_KEY, query = "select c from Course c where c.campusGroupB.key = :campusGroupKey"),
-        @NamedQuery(name = Course.GET_LATEST_COURSE_BY_OLAT_RESOURCE_KEY, query = "select c from Course c where c.olatResource.key = :olatResourceKey and c.endDate = (select max(c1.endDate) from Course c1 where c1.olatResource.key = :olatResourceKey)")
+        @NamedQuery(name = Course.GET_LATEST_COURSE_BY_REPOSITORY_ENTRY_KEY, query = "select c from Course c where c.repositoryEntry.key = :repositoryEntryKey and c.endDate = (select max(c1.endDate) from Course c1 where c1.repositoryEntry.key = :repositoryEntryKey)")
 })
 @Table(name = "ck_course")
 public class Course {
@@ -128,10 +126,9 @@ public class Course {
     @JoinColumn(name = "fk_semester")
     private Semester semester;
 
-    @SuppressWarnings("JpaAttributeTypeInspection")
-    @ManyToOne(targetEntity = OLATResourceImpl.class)
-    @JoinColumn(name = "fk_resource")
-    private OLATResource olatResource;
+    @ManyToOne
+    @JoinColumn(name = "fk_repositoryentry")
+    private RepositoryEntry repositoryEntry;
 
     @ManyToOne(targetEntity = BusinessGroupImpl.class)
     @JoinColumn(name = "fk_campusgroup_a")
@@ -200,7 +197,7 @@ public class Course {
     }
 
     static final String GET_IDS_OF_ALL_CREATED_SYNCHRONIZABLE_COURSES_OF_CURRENT_SEMESTER = "getIdsOfAllCreatedSynchronizableCoursesOfCurrentSemester";
-    static final String GET_OLAT_RESOURCE_KEYS_OF_ALL_CREATED_NOT_CONTINUED_COURSES_OF_SPECIFIC_SEMESTERS = "getOlatResourceKeysOfAllCreatedNotContinuedCoursesOfSpecificSemesters";
+    static final String GET_REPOSITORY_ENTRY_KEYS_OF_ALL_CREATED_NOT_CONTINUED_COURSES_OF_SPECIFIC_SEMESTERS = "getRepositoryEntryKeysOfAllCreatedNotContinuedCoursesOfSpecificSemesters";
     static final String GET_IDS_OF_ALL_NOT_CREATED_CREATABLE_COURSES_OF_CURRENT_SEMESTER = "getIdsOfAllNotCreatedCreatableCoursesOfCurrentSemester";
     static final String GET_ALL_CREATED_COURSES_OF_CURRENT_SEMESTER = "getAllCreatedCoursesOfCurrentSemester";
     static final String GET_CREATED_COURSES_OF_CURRENT_SEMESTER_BY_LECTURER_ID = "getCreatedCoursesOfCurrentSemesterByLecturerId";
@@ -209,14 +206,14 @@ public class Course {
     static final String GET_CREATED_COURSES_OF_CURRENT_SEMESTER_BY_STUDENT_ID_BOOKED_BY_STUDENT_ONLY_AS_PARENT_COURSE = "getCreatedCoursesOfCurrentSemesterByStudentIdBookedByStudentOnlyAsParentCourse";
     static final String GET_NOT_CREATED_CREATABLE_COURSES_OF_CURRENT_SEMESTER_BY_STUDENT_ID = "getNotCreatedCreatableCoursesOfCurrentSemesterByStudentId";
     static final String GET_ALL_NOT_CREATED_ORPHANED_COURSES = "getAllNotCreatedOrphanedCourses";
-    static final String GET_COURSE_IDS_BY_OLAT_RESOURCE_KEY = "getCourseIdsByOlatResourceKey";
+    static final String GET_COURSE_IDS_BY_REPOSITORY_ENTRY_KEY = "getCourseIdsByRepositoryEntryKey";
     static final String GET_CREATED_AND_NOT_CREATED_CREATABLE_COURSES_OF_CURRENT_SEMESTER_BY_LECTURER_ID = "getCreatedAndNotCreatedCreatableCoursesOfCurrentSemesterByLecturerId";
     static final String GET_CREATED_AND_NOT_CREATED_CREATABLE_COURSES_OF_CURRENT_SEMESTER_BY_STUDENT_ID = "getCreatedAndNotCreatedCreatableCoursesOfCurrentSemesterByStudentId";
     static final String GET_CREATED_AND_NOT_CREATED_CREATABLE_COURSES_OF_CURRENT_SEMESTER_BY_STUDENT_ID_BOOKED_BY_STUDENT_ONLY_AS_PARENT_COURSE = "getCreatedAndNotCreatedCreatableCoursesOfCurrentSemesterByStudentIdBookedByStudentOnlyAsParentCourse";
-    static final String GET_COURSES_BY_OLAT_RESOURCE_KEY = "getCoursesByOlatResourceKey";
+    static final String GET_COURSES_BY_REPOSITORY_ENTRY_KEY = "getCoursesByRepositoryEntryKey";
     static final String GET_COURSES_BY_CAMPUS_GROUP_A_KEY = "getCoursesByCampusGroupAKey";
     static final String GET_COURSES_BY_CAMPUS_GROUP_B_KEY = "getCoursesByCampusGroupBKey";
-    static final String GET_LATEST_COURSE_BY_OLAT_RESOURCE_KEY = "getLatestCourseByOlatResourceKey";
+    static final String GET_LATEST_COURSE_BY_REPOSITORY_ENTRY_KEY = "getLatestCourseByRepositoryEntryKey";
 
     public Long getId() {
         return id;
@@ -322,12 +319,12 @@ public class Course {
         this.semester = semester;
     }
 
-    public OLATResource getOlatResource() {
-        return olatResource;
+    public RepositoryEntry getRepositoryEntry() {
+        return repositoryEntry;
     }
 
-    public void setOlatResource(OLATResource olatResource) {
-        this.olatResource = olatResource;
+    public void setRepositoryEntry(RepositoryEntry repositoryEntry) {
+        this.repositoryEntry = repositoryEntry;
     }
 
     public BusinessGroup getCampusGroupA() {
@@ -496,7 +493,7 @@ public class Course {
                 + ",vvzLink=" + getVvzLink()
                 + ",exclude=" + isExclude()
                 + ",semester=" + getSemester()
-                + ",olat resource id=" + (getOlatResource() == null ? "null" : getOlatResource().getKey())
+                + ",olat resource id=" + (getRepositoryEntry() == null ? "null" : getRepositoryEntry().getKey())
                 + ",campus group A id=" + (getCampusGroupA() == null ? "null" : getCampusGroupA().getKey())
                 + ",campus group B id=" + (getCampusGroupB() == null ? "null" : getCampusGroupB().getKey());
     }

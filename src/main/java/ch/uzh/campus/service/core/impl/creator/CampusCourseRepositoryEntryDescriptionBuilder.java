@@ -1,7 +1,7 @@
 package ch.uzh.campus.service.core.impl.creator;
 
 import ch.uzh.campus.CampusCourseConfiguration;
-import ch.uzh.campus.service.data.SapCampusCourseTO;
+import ch.uzh.campus.service.data.CampusCourseTO;
 import org.olat.core.gui.translator.Translator;
 import org.olat.core.id.Identity;
 import org.olat.core.id.UserConstants;
@@ -50,15 +50,15 @@ public class CampusCourseRepositoryEntryDescriptionBuilder {
         this.campusCourseConfiguration = campusCourseConfiguration;
     }
 
-    public String buildDescription(SapCampusCourseTO sapCampusCourseTO) {
+    public String buildDescription(CampusCourseTO campusCourseTO) {
 
         String[] args = new String[3];
-        args[0] = (sapCampusCourseTO.isContinuedCourse() ? createMultiSemesterTitle(sapCampusCourseTO.getTitlesOfCourseAndParentCourses()) : sapCampusCourseTO.getSemester().getSemesterNameYear());
-        args[1] = createStringOfAlphabeticallySortedLecturers(sapCampusCourseTO.getLecturersOfCourse());
-        args[2] = sapCampusCourseTO.getEventDescription();
+        args[0] = (campusCourseTO.isContinuedCourse() ? createMultiSemesterTitle(campusCourseTO.getTitlesOfCourseAndParentCourses()) : campusCourseTO.getSemester().getSemesterNameYear());
+        args[1] = createStringOfAlphabeticallySortedLecturers(campusCourseTO.getLecturersOfCourse());
+        args[2] = campusCourseTO.getEventDescription();
 
-        Translator translator = getTranslator(sapCampusCourseTO.getLanguage());
-        return translator.translate((sapCampusCourseTO.isContinuedCourse() ? KEY_DESCRIPTION_MULTI_SEMESTER_TEMPLATE : KEY_DESCRIPTION_TEMPLATE), args);
+        Translator translator = getTranslator(campusCourseTO.getLanguage());
+        return translator.translate((campusCourseTO.isContinuedCourse() ? KEY_DESCRIPTION_MULTI_SEMESTER_TEMPLATE : KEY_DESCRIPTION_TEMPLATE), args);
     }
 
     String createMultiSemesterTitle(List<String> titlesOfCourseAndParentCourses) {

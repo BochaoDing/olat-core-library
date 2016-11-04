@@ -3,13 +3,13 @@ package ch.uzh.campus.olat.dialog.controller;
 import ch.uzh.campus.olat.CampusCourseBeanFactory;
 import ch.uzh.campus.olat.dialog.controller.CampusCourseCreationChoiceController.CampusCourseCreationChoiceControllerListener;
 import ch.uzh.campus.olat.dialog.controller.selection.CampusCourseDialogSelectionController;
-import ch.uzh.campus.service.data.OlatCampusCourse;
 import org.olat.core.gui.UserRequest;
 import org.olat.core.gui.components.Component;
 import org.olat.core.gui.components.velocity.VelocityContainer;
 import org.olat.core.gui.control.Event;
 import org.olat.core.gui.control.WindowControl;
 import org.olat.core.gui.control.controller.BasicController;
+import org.olat.repository.RepositoryEntry;
 
 import java.util.ArrayList;
 
@@ -90,8 +90,8 @@ public class CampusCourseCreateDialogController extends BasicController implemen
 	}
 
 	@Override
-	public final void onSuccess(UserRequest ureq, OlatCampusCourse olatCampusCourse) {
-		createCampusCourseCompletedEventListeners.forEach(l -> l.onSuccess(ureq, olatCampusCourse));
+	public final void onSuccess(UserRequest ureq, RepositoryEntry repositoryEntry) {
+		createCampusCourseCompletedEventListeners.forEach(l -> l.onSuccess(ureq, repositoryEntry));
 		createCampusCourseCompletedEventListeners.clear();
 	}
 

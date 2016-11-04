@@ -1,7 +1,7 @@
 package ch.uzh.campus.service.core.impl.syncer;
 
 import ch.uzh.campus.CampusCourseException;
-import ch.uzh.campus.service.data.SapCampusCourseTO;
+import ch.uzh.campus.service.data.CampusCourseTO;
 import ch.uzh.campus.service.core.impl.syncer.statistic.OverallSynchronizeStatistic;
 import ch.uzh.campus.service.core.impl.syncer.statistic.SynchronizedGroupStatistic;
 import ch.uzh.campus.service.core.impl.syncer.statistic.SynchronizedSecurityGroupStatistic;
@@ -43,7 +43,7 @@ import static org.mockito.Mockito.when;
  */
 public class CampusCourseSynchronizationWriterTest {
     private CampusCourseSynchronizationWriter campusCourseSynchronizationWriterTestObject;
-    private List<SapCampusCourseTO> twoCoursesList = new ArrayList<>();
+    private List<CampusCourseTO> twoCoursesList = new ArrayList<>();
 
     @Before
     public void setup() throws CampusCourseException {
@@ -59,13 +59,13 @@ public class CampusCourseSynchronizationWriterTest {
         SynchronizedGroupStatistic synchronizedGroupStatisticforCourse1 = new SynchronizedGroupStatistic("course1", null, new SynchronizedSecurityGroupStatistic(15, 0));
         SynchronizedGroupStatistic synchronizedGroupStatisticforCourse2 = new SynchronizedGroupStatistic("course2", null, new SynchronizedSecurityGroupStatistic(0, 9));
 
-        SapCampusCourseTO sapCampusCourseTOMock1 = mock(SapCampusCourseTO.class);
-        SapCampusCourseTO sapCampusCourseTOMock2 = mock(SapCampusCourseTO.class);
-        twoCoursesList.add(sapCampusCourseTOMock1);
-        twoCoursesList.add(sapCampusCourseTOMock2);
+        CampusCourseTO campusCourseTOMock1 = mock(CampusCourseTO.class);
+        CampusCourseTO campusCourseTOMock2 = mock(CampusCourseTO.class);
+        twoCoursesList.add(campusCourseTOMock1);
+        twoCoursesList.add(campusCourseTOMock2);
 
-        when(campusCourseSynchronizerMock.synchronizeOlatCampusCourse(sapCampusCourseTOMock1)).thenReturn(synchronizedGroupStatisticforCourse1);
-        when(campusCourseSynchronizerMock.synchronizeOlatCampusCourse(sapCampusCourseTOMock2)).thenReturn(synchronizedGroupStatisticforCourse2);
+        when(campusCourseSynchronizerMock.synchronizeOlatCampusCourse(campusCourseTOMock1)).thenReturn(synchronizedGroupStatisticforCourse1);
+        when(campusCourseSynchronizerMock.synchronizeOlatCampusCourse(campusCourseTOMock2)).thenReturn(synchronizedGroupStatisticforCourse2);
     }
 
     @Test

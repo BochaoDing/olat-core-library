@@ -2,7 +2,7 @@ package ch.uzh.campus.olat.list.query;
 
 import ch.uzh.campus.olat.CampusCourseOlatHelper;
 import ch.uzh.campus.service.CampusCourseService;
-import ch.uzh.campus.service.data.SapCampusCourseTOForUI;
+import ch.uzh.campus.service.data.CampusCourseTOForUI;
 import org.olat.core.id.Roles;
 import org.olat.repository.RepositoryEntry;
 import org.olat.repository.RepositoryModule;
@@ -37,12 +37,12 @@ public class CampusCourseStudentMyCourseRepositoryQuery extends CampusCourseMyCo
 	}
 
 	@Override
-	protected List<SapCampusCourseTOForUI> getSapCampusCourseTOForUIs(SearchMyRepositoryEntryViewParams param) {
+	protected List<CampusCourseTOForUI> getSapCampusCourseTOForUIs(SearchMyRepositoryEntryViewParams param) {
 		return campusCourseService.getCoursesOfStudent(param.getIdentity(), param.getIdRefsAndTitle());
 	}
 
 	@Override
-	protected RepositoryEntry getRepositoryEntry(SapCampusCourseTOForUI sapCampusCourseTOForUI, Roles roles) {
-		return CampusCourseOlatHelper.getStudentRepositoryEntry(sapCampusCourseTOForUI);
+	protected RepositoryEntry getRepositoryEntry(CampusCourseTOForUI campusCourseTOForUI, Roles roles) {
+		return CampusCourseOlatHelper.getStudentRepositoryEntry(campusCourseTOForUI);
 	}
 }

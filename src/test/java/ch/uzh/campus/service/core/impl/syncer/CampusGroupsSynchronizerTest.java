@@ -7,7 +7,7 @@ import ch.uzh.campus.CampusCourseTestCase;
 import ch.uzh.campus.data.CourseDao;
 import ch.uzh.campus.service.core.impl.syncer.statistic.SynchronizedGroupStatistic;
 import ch.uzh.campus.service.data.CampusGroups;
-import ch.uzh.campus.service.data.SapCampusCourseTO;
+import ch.uzh.campus.service.data.CampusCourseTO;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -67,7 +67,7 @@ public class CampusGroupsSynchronizerTest extends CampusCourseTestCase {
     private Set<Identity> lecturers = new HashSet<>();
     private Set<Identity> delegatees = new HashSet<>();
     private Set<Identity> participants = new HashSet<>();
-    private RepositoryEntry olatCampusCourseRepositoryEntry;
+    private RepositoryEntry demoCourseRepositoryEntry;
 	private CampusGroups campusGroups;
 
 	@Before
@@ -94,11 +94,11 @@ public class CampusGroupsSynchronizerTest extends CampusCourseTestCase {
         participants.add(secondParticipantIdentity);
         participants.add(thirdParticipantIdentity);
 
-        // Create olat campus course with first lecturer as course owner
-        olatCampusCourseRepositoryEntry = JunitTestHelper.deployDemoCourse(firstLecturerIdentity);
+        // Create olat demo course with first lecturer as course owner
+        demoCourseRepositoryEntry = JunitTestHelper.deployDemoCourse(firstLecturerIdentity);
 
         // Create campus groups
-        campusGroups = CampusCourseJunitTestHelper.createCampusGroupsForTest(firstLecturerIdentity, olatCampusCourseRepositoryEntry, campusCourseConfiguration, courseDao, bgAreaManager, businessGroupService, dbInstance);
+        campusGroups = CampusCourseJunitTestHelper.createCampusGroupsForTest(firstLecturerIdentity, demoCourseRepositoryEntry, campusCourseConfiguration, courseDao, bgAreaManager, businessGroupService, dbInstance);
     }
 
     @After
@@ -109,9 +109,9 @@ public class CampusGroupsSynchronizerTest extends CampusCourseTestCase {
     @Test
     public void testAddCourseOwnerRole() {
 
-        campusGroupsSynchronizer.addCourseOwnerRole(olatCampusCourseRepositoryEntry, lecturers);
+        campusGroupsSynchronizer.addCourseOwnerRole(demoCourseRepositoryEntry, lecturers);
 
-        List<Identity> ownerIdentities =  repositoryService.getMembers(olatCampusCourseRepositoryEntry, GroupRoles.owner.name());
+        List<Identity> ownerIdentities =  repositoryService.getMembers(demoCourseRepositoryEntry, GroupRoles.owner.name());
         assertEquals("Wrong number of owners", 3, ownerIdentities.size());
         assertTrue("Missing identity (" + firstLecturerIdentity + ") in owner-group", ownerIdentities.contains(firstLecturerIdentity));
         assertTrue("Missing identity (" + secondLecturerIdentity + ") in owner-group", ownerIdentities.contains(secondLecturerIdentity));
@@ -127,9 +127,9 @@ public class CampusGroupsSynchronizerTest extends CampusCourseTestCase {
 
         SynchronizedGroupStatistic statistic = campusGroupsSynchronizer.synchronizeCampusGroups(
 				campusGroups,
-				new SapCampusCourseTO("CampusCourseTitle", null, lecturers,
-						delegatees, Collections.emptySet(), false, null, null,
-						null, campusGroups, null, "DE", null), firstLecturerIdentity);
+				new CampusCourseTO("CampusCourseTitle", null, lecturers,
+                        delegatees, Collections.emptySet(), false, null, null,
+                        demoCourseRepositoryEntry, campusGroups, null, "DE", null), firstLecturerIdentity);
 
 
 
@@ -170,9 +170,9 @@ public class CampusGroupsSynchronizerTest extends CampusCourseTestCase {
 
         SynchronizedGroupStatistic statistic = campusGroupsSynchronizer.synchronizeCampusGroups(
                 campusGroups,
-				new SapCampusCourseTO("CampusCourseTitle", null, Collections.emptySet(),
+				new CampusCourseTO("CampusCourseTitle", null, Collections.emptySet(),
 						Collections.emptySet(), participants, false, null, null,
-						null, campusGroups, null, "DE", null),
+                        demoCourseRepositoryEntry, campusGroups, null, "DE", null),
                 firstLecturerIdentity);
 
         // 1. Check members of campus group A
@@ -214,9 +214,9 @@ public class CampusGroupsSynchronizerTest extends CampusCourseTestCase {
 
         campusGroupsSynchronizer.synchronizeCampusGroups(
                 campusGroups,
-				new SapCampusCourseTO("CampusCourseTitle", null, lecturers,
+				new CampusCourseTO("CampusCourseTitle", null, lecturers,
 						Collections.emptySet(), Collections.emptySet(), false, null, null,
-						null, campusGroups, null, "DE", null),
+                        demoCourseRepositoryEntry, campusGroups, null, "DE", null),
                 firstLecturerIdentity);
         assertEquals("Wrong number of coaches after init", 2, businessGroupService.getMembers(campusGroups.getCampusGroupA(), GroupRoles.coach.name()).size());
         assertEquals("Wrong number of participants after init", 0, businessGroupService.getMembers(campusGroups.getCampusGroupA(), GroupRoles.participant.name()).size());
@@ -227,9 +227,9 @@ public class CampusGroupsSynchronizerTest extends CampusCourseTestCase {
 
         SynchronizedGroupStatistic statistic = campusGroupsSynchronizer.synchronizeCampusGroups(
                 campusGroups,
-				new SapCampusCourseTO("CampusCourseTitle", null, lecturers,
+				new CampusCourseTO("CampusCourseTitle", null, lecturers,
 						Collections.emptySet(), Collections.emptySet(), false, null, null,
-						null, campusGroups, null, "DE", null),
+                        demoCourseRepositoryEntry, campusGroups, null, "DE", null),
                 firstLecturerIdentity);
 
         // 1. Check members
@@ -261,9 +261,9 @@ public class CampusGroupsSynchronizerTest extends CampusCourseTestCase {
 
         campusGroupsSynchronizer.synchronizeCampusGroups(
                 campusGroups,
-				new SapCampusCourseTO("CampusCourseTitle", null, Collections.emptySet(),
+				new CampusCourseTO("CampusCourseTitle", null, Collections.emptySet(),
 						Collections.emptySet(), participants, false, null, null,
-						null, campusGroups, null, "DE", null),
+                        demoCourseRepositoryEntry, campusGroups, null, "DE", null),
                 firstLecturerIdentity);
 
         assertEquals("Wrong number of coaches after init", 1, businessGroupService.getMembers(campusGroups.getCampusGroupA(), GroupRoles.coach.name()).size());
@@ -275,9 +275,9 @@ public class CampusGroupsSynchronizerTest extends CampusCourseTestCase {
 
         SynchronizedGroupStatistic statistic = campusGroupsSynchronizer.synchronizeCampusGroups(
                 campusGroups,
-				new SapCampusCourseTO("CampusCourseTitle", null, Collections.emptySet(),
+				new CampusCourseTO("CampusCourseTitle", null, Collections.emptySet(),
 						Collections.emptySet(), participants, false, null, null,
-						null, campusGroups, null, "DE", null),
+                        demoCourseRepositoryEntry, campusGroups, null, "DE", null),
                 firstLecturerIdentity);
 
         // 1. Check members

@@ -1,7 +1,6 @@
 package ch.uzh.campus.olat.dialog.controller.selection;
 
 import ch.uzh.campus.olat.dialog.controller.CreateCampusCourseCompletedEventListener;
-import ch.uzh.campus.service.data.OlatCampusCourse;
 import ch.uzh.campus.service.CampusCourseService;
 import org.olat.core.gui.UserRequest;
 import org.olat.core.gui.control.Controller;
@@ -56,9 +55,10 @@ public class CreationCampusCourseSelectionController extends CampusCourseDialogS
 			if (!roles.isOLATAdmin() && template.exceedsSizeLimit()) {
 				showError("copy.skipped.sizelimit.exceeded");
 			} else {
-				OlatCampusCourse olatCampusCourse = campusCourseService.createOlatCampusCourseFromTemplate(templateOlatResource,
+				RepositoryEntry templateRepositoryEntry = repositoryManager.lookupRepositoryEntry(templateOlatResource, true);
+				RepositoryEntry createdRepositoryEntry = campusCourseService.createOlatCampusCourseFromTemplate(templateRepositoryEntry,
 						sapCampusCourseId, userRequest.getIdentity());
-				listener.onSuccess(userRequest, olatCampusCourse);
+				listener.onSuccess(userRequest, createdRepositoryEntry);
 			}
 		} catch (Exception e) {
 

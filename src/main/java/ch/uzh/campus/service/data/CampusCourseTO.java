@@ -2,7 +2,7 @@ package ch.uzh.campus.service.data;
 
 import ch.uzh.campus.data.Semester;
 import org.olat.core.id.Identity;
-import org.olat.resource.OLATResource;
+import org.olat.repository.RepositoryEntry;
 
 import java.util.List;
 import java.util.Set;
@@ -31,7 +31,7 @@ import java.util.Set;
  * 
  * @author cg
  */
-public class SapCampusCourseTO {
+public class CampusCourseTO {
 
     private final String titleToBeDisplayed;
     private final Semester semester;
@@ -42,24 +42,24 @@ public class SapCampusCourseTO {
     private final boolean isContinuedCourse;
     private final List<String> titlesOfCourseAndParentCourses;
     private final String eventDescription;
-    private final OLATResource olatResource;
-	private final CampusGroups campusGroups;
+    private final RepositoryEntry repositoryEntry;
+    private final CampusGroups campusGroups;
     private final Long sapCourseId;
     private final String vvzLink;
 
-	public SapCampusCourseTO(String titleToBeDisplayed,
-                             Semester semester,
-                             Set<Identity> lecturersOfCourse,
-                             Set<Identity> delegateesOfCourse,
-                             Set<Identity> participantsOfCourse,
-                             boolean isContinuedCourse,
-                             List<String> titlesOfCourseAndParentCourses,
-                             String eventDescription,
-                             OLATResource olatResource,
-							 CampusGroups campusGroups,
-                             Long sapCourseId,
-                             String language,
-                             String vvzLink) {
+	public CampusCourseTO(String titleToBeDisplayed,
+                          Semester semester,
+                          Set<Identity> lecturersOfCourse,
+                          Set<Identity> delegateesOfCourse,
+                          Set<Identity> participantsOfCourse,
+                          boolean isContinuedCourse,
+                          List<String> titlesOfCourseAndParentCourses,
+                          String eventDescription,
+                          RepositoryEntry repositoryEntry,
+                          CampusGroups campusGroups,
+                          Long sapCourseId,
+                          String language,
+                          String vvzLink) {
         this.titleToBeDisplayed = titleToBeDisplayed;
         this.semester = semester;
         this.isContinuedCourse = isContinuedCourse;
@@ -68,8 +68,8 @@ public class SapCampusCourseTO {
         this.delegateesOfCourse = delegateesOfCourse;
         this.participantsOfCourse = participantsOfCourse;
         this.eventDescription = eventDescription;
-        this.olatResource = olatResource;
-		this.campusGroups = campusGroups;
+        this.repositoryEntry = repositoryEntry;
+        this.campusGroups = campusGroups;
         this.sapCourseId = sapCourseId;
         this.language = language;
         this.vvzLink = vvzLink;
@@ -107,8 +107,8 @@ public class SapCampusCourseTO {
         return eventDescription;
     }
 
-    public OLATResource getOlatResource() {
-        return olatResource;
+    public RepositoryEntry getRepositoryEntry() {
+        return repositoryEntry;
     }
 
     public CampusGroups getCampusGroups() {

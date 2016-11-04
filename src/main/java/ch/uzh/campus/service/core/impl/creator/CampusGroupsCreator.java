@@ -2,16 +2,17 @@ package ch.uzh.campus.service.core.impl.creator;
 
 import ch.uzh.campus.CampusCourseConfiguration;
 import ch.uzh.campus.service.data.CampusGroups;
-import ch.uzh.campus.service.data.OlatCampusCourse;
 import org.olat.core.gui.translator.Translator;
 import org.olat.core.id.Identity;
 import org.olat.core.util.Util;
+import org.olat.course.CourseFactory;
 import org.olat.course.ICourse;
 import org.olat.course.groupsandrights.CourseGroupManager;
 import org.olat.group.BusinessGroup;
 import org.olat.group.BusinessGroupService;
 import org.olat.group.area.BGArea;
 import org.olat.group.area.BGAreaManager;
+import org.olat.repository.RepositoryEntry;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -35,15 +36,15 @@ public class CampusGroupsCreator {
         this.campusCourseConfiguration = campusCourseConfiguration;
     }
 
-    public CampusGroups createCampusLearningAreaAndCampusGroupsIfNecessary(OlatCampusCourse olatCampusCourse, Identity creatorIdentity, String lvLanguage) {
+    public CampusGroups createCampusLearningAreaAndCampusGroupsIfNecessary(RepositoryEntry repositoryEntry, Identity creatorIdentity, String lvLanguage) {
 
         Translator translator = getTranslator(lvLanguage);
 
         // Check if course has a learning area called campusCourseConfiguration.getCampusGroupsLearningAreaName(). If not, create a learning area with this name.
         String campusLearningAreaName = campusCourseConfiguration.getCampusGroupsLearningAreaName();
-        BGArea campusLearningArea = bgAreaManager.findBGArea(campusLearningAreaName, olatCampusCourse.getRepositoryEntry().getOlatResource());
+        BGArea campusLearningArea = bgAreaManager.findBGArea(campusLearningAreaName, repositoryEntry.getOlatResource());
         if (campusLearningArea == null) {
-            campusLearningArea = bgAreaManager.createAndPersistBGArea(campusLearningAreaName, translator.translate("campus.course.learningArea.desc"), olatCampusCourse.getRepositoryEntry().getOlatResource());
+            campusLearningArea = bgAreaManager.createAndPersistBGArea(campusLearningAreaName, translator.translate("campus.course.learningArea.desc"), repositoryEntry.getOlatResource());
         }
 
         String groupNameA = campusCourseConfiguration.getCampusGroupADefaultName();
@@ -55,13 +56,13 @@ public class CampusGroupsCreator {
 
         List<BusinessGroup> businessGroupsOfCampusLearningArea = bgAreaManager.findBusinessGroupsOfArea(campusLearningArea);
 
-        BusinessGroup campusGroupA = findOrCreateCampusGroup(olatCampusCourse, creatorIdentity, groupNameA, groupDescriptionA, managedFlagsA, campusLearningArea, businessGroupsOfCampusLearningArea);
-        BusinessGroup campusGroupB = findOrCreateCampusGroup(olatCampusCourse, creatorIdentity, groupNameB, groupDescriptionB, managedFlagsB, campusLearningArea, businessGroupsOfCampusLearningArea);
+        BusinessGroup campusGroupA = findOrCreateCampusGroup(repositoryEntry, creatorIdentity, groupNameA, groupDescriptionA, managedFlagsA, campusLearningArea, businessGroupsOfCampusLearningArea);
+        BusinessGroup campusGroupB = findOrCreateCampusGroup(repositoryEntry, creatorIdentity, groupNameB, groupDescriptionB, managedFlagsB, campusLearningArea, businessGroupsOfCampusLearningArea);
 
         return new CampusGroups(campusGroupA, campusGroupB);
     }
 
-    private BusinessGroup findOrCreateCampusGroup(OlatCampusCourse olatCampusCourse, Identity creatorIdentity, String campusGroupName, String groupDescription, String managedFlags, BGArea campusLearningArea, List<BusinessGroup> businessGroupsOfCampusLearningArea) {
+    private BusinessGroup findOrCreateCampusGroup(RepositoryEntry repositoryEntry, Identity creatorIdentity, String campusGroupName, String groupDescription, String managedFlags, BGArea campusLearningArea, List<BusinessGroup> businessGroupsOfCampusLearningArea) {
 
         // Look for campus group in business groups of campus learning area
         BusinessGroup campusGroup = findCampusGroupInBusinessGroupsOfCampusLearningArea(businessGroupsOfCampusLearningArea, campusGroupName);
@@ -71,7 +72,7 @@ public class CampusGroupsCreator {
         }
 
         // Look for campus group in business groups of olat campus course
-        campusGroup = findCampusGroupInBusinessGroupsOfOlatCampusCourse(olatCampusCourse.getCourse(), campusGroupName);
+        campusGroup = findCampusGroupInBusinessGroupsOfOlatCampusCourse(repositoryEntry, campusGroupName);
         if (campusGroup != null) {
             campusGroup = setManagedFlagsAndUpdateBusinessGroup(creatorIdentity, campusGroup, managedFlags);
             addCampusGroupToCampusLearningArea(campusGroup, campusLearningArea);
@@ -79,7 +80,7 @@ public class CampusGroupsCreator {
         }
 
         // Create campus group with managed flags
-        campusGroup = businessGroupService.createBusinessGroup(creatorIdentity, campusGroupName, groupDescription, null, managedFlags, null, null, false, false, olatCampusCourse.getRepositoryEntry());
+        campusGroup = businessGroupService.createBusinessGroup(creatorIdentity, campusGroupName, groupDescription, null, managedFlags, null, null, false, false, repositoryEntry);
         addCampusGroupToCampusLearningArea(campusGroup, campusLearningArea);
         return campusGroup;
     }
@@ -93,8 +94,8 @@ public class CampusGroupsCreator {
         return null;
     }
 
-    private BusinessGroup findCampusGroupInBusinessGroupsOfOlatCampusCourse(ICourse course, String campusGroupName) {
-
+    private BusinessGroup findCampusGroupInBusinessGroupsOfOlatCampusCourse(RepositoryEntry repositoryEntry, String campusGroupName) {
+        ICourse course = CourseFactory.loadCourse(repositoryEntry);
         CourseGroupManager courseGroupManager = course.getCourseEnvironment().getCourseGroupManager();
         List <BusinessGroup> businessGroupsFound = courseGroupManager.getAllBusinessGroups();
 

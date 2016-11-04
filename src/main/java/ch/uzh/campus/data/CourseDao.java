@@ -7,8 +7,7 @@ import org.olat.core.logging.OLog;
 import org.olat.core.logging.Tracing;
 import org.olat.group.BusinessGroup;
 import org.olat.group.BusinessGroupImpl;
-import org.olat.resource.OLATResource;
-import org.olat.resource.OLATResourceImpl;
+import org.olat.repository.RepositoryEntry;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
@@ -202,10 +201,10 @@ public class CourseDao implements CampusDao<CourseSemesterOrgId> {
                 .getResultList(); 
     }
 
-    Course getLatestCourseByOlatResource(Long olatResourceKey) throws Exception {
+    Course getLatestCourseByRepositoryEntry(Long repositoryEntryKey) throws Exception {
         return dbInstance.getCurrentEntityManager()
-                .createNamedQuery(Course.GET_LATEST_COURSE_BY_OLAT_RESOURCE_KEY, Course.class)
-                .setParameter("olatResourceKey", olatResourceKey)
+                .createNamedQuery(Course.GET_LATEST_COURSE_BY_REPOSITORY_ENTRY_KEY, Course.class)
+                .setParameter("repositoryEntryKey", repositoryEntryKey)
                 .getSingleResult();
     }
 
@@ -213,13 +212,13 @@ public class CourseDao implements CampusDao<CourseSemesterOrgId> {
 		return searchString != null ? "%" + searchString + "%" : "%";
 	}
 
-	Set<CampusGroups> getCampusGroupsByOlatResource(Long olatResourceKey) {
+	Set<CampusGroups> getCampusGroupsByRepositoryEntry(Long repositoryEntryKey) {
         List<Course> courses = dbInstance.getCurrentEntityManager()
-                .createNamedQuery(Course.GET_COURSES_BY_OLAT_RESOURCE_KEY, Course.class)
-                .setParameter("olatResourceKey", olatResourceKey)
+                .createNamedQuery(Course.GET_COURSES_BY_REPOSITORY_ENTRY_KEY, Course.class)
+                .setParameter("repositoryEntryKey", repositoryEntryKey)
                 .getResultList();
         if (courses.isEmpty()) {
-            String warningMessage = "No courses found with olat resource id " + olatResourceKey + ".";
+            String warningMessage = "No courses found with repository entry id " + repositoryEntryKey + ".";
             LOG.warn(warningMessage);
         }
         Set<CampusGroups> setOfCampusGroups = new HashSet<>();
@@ -235,20 +234,20 @@ public class CourseDao implements CampusDao<CourseSemesterOrgId> {
         deleteCourseBidirectionally(course, dbInstance.getCurrentEntityManager());
     }
 
-    void saveOlatResource(Long courseId, Long olatResourceKey) {
+    void saveRepositoryEntry(Long courseId, Long repositoryEntryKey) {
         Course course = getCourseById(courseId);
         if (course == null) {
-            String warningMessage = "No course found with id " + courseId + ". Cannot save olat resource with id " + olatResourceKey;
+            String warningMessage = "No course found with id " + courseId + ". Cannot save repository entry with id " + repositoryEntryKey;
             LOG.warn(warningMessage);
             return;
         }
         EntityManager em = dbInstance.getCurrentEntityManager();
-        OLATResource olatResource = em.find(OLATResourceImpl.class, olatResourceKey);
-        if (olatResource == null) {
-            LOG.warn("No olat resource found with id " + olatResourceKey + ". Cannot save olat resource.");
+        RepositoryEntry repositoryEntry = em.find(RepositoryEntry.class, repositoryEntryKey);
+        if (repositoryEntry == null) {
+            LOG.warn("No repository entry found with id " + repositoryEntryKey + ". Cannot save repository entry.");
             return;
         }
-        course.setOlatResource(olatResource);
+        course.setRepositoryEntry(repositoryEntry);
     }
 
     public void saveCampusGroupA(Long courseId, Long campusGroupAKey) {
@@ -293,13 +292,13 @@ public class CourseDao implements CampusDao<CourseSemesterOrgId> {
         course.setSynchronizable(false);
     }
 
-    void resetOlatResourceAndParentCourse(Long olatResourceKey) {
+    void resetRepositoryEntryAndParentCourse(Long repositoryEntryKey) {
         List<Course> courses = dbInstance.getCurrentEntityManager()
-                .createNamedQuery(Course.GET_COURSES_BY_OLAT_RESOURCE_KEY, Course.class)
-                .setParameter("olatResourceKey", olatResourceKey)
+                .createNamedQuery(Course.GET_COURSES_BY_REPOSITORY_ENTRY_KEY, Course.class)
+                .setParameter("repositoryEntryKey", repositoryEntryKey)
                 .getResultList();
         for (Course course : courses) {
-            course.setOlatResource(null);
+            course.setRepositoryEntry(null);
             course.removeParentCourse();
         }
     }
@@ -374,19 +373,19 @@ public class CourseDao implements CampusDao<CourseSemesterOrgId> {
                 .getResultList();
     }
 
-    List<Long> getOlatResourceKeysOfAllCreatedNotContinuedCoursesOfSpecificSemesters(List<Long> semesterIds) {
+    List<Long> getRepositoryEntryKeysOfAllCreatedNotContinuedCoursesOfSpecificSemesters(List<Long> semesterIds) {
         return dbInstance.getCurrentEntityManager()
-                .createNamedQuery(Course.GET_OLAT_RESOURCE_KEYS_OF_ALL_CREATED_NOT_CONTINUED_COURSES_OF_SPECIFIC_SEMESTERS, Long.class)
+                .createNamedQuery(Course.GET_REPOSITORY_ENTRY_KEYS_OF_ALL_CREATED_NOT_CONTINUED_COURSES_OF_SPECIFIC_SEMESTERS, Long.class)
                 .setParameter("semesterIds", semesterIds)
                 .getResultList();
     }
 
-    List<Long> getOlatResourceKeysOfAllCreatedNotContinuedCoursesOfPreviousSemestersNotTooFarInThePast() {
+    List<Long> getRepositoryEntryKeysOfAllCreatedNotContinuedCoursesOfPreviousSemestersNotTooFarInThePast() {
         List<Long> previousSemestersNotTooFarInThePast = semesterDao.getPreviousSemestersNotTooFarInThePastInDescendingOrder();
         if (previousSemestersNotTooFarInThePast.isEmpty()) {
             return new ArrayList<>();
         }
-        return getOlatResourceKeysOfAllCreatedNotContinuedCoursesOfSpecificSemesters(previousSemestersNotTooFarInThePast);
+        return getRepositoryEntryKeysOfAllCreatedNotContinuedCoursesOfSpecificSemesters(previousSemestersNotTooFarInThePast);
     }
 
     List<Long> getIdsOfAllNotCreatedCreatableCoursesOfCurrentSemester() {
@@ -407,10 +406,10 @@ public class CourseDao implements CampusDao<CourseSemesterOrgId> {
                 .getResultList();
     }
 
-    boolean existCoursesForOlatResource(Long olatResourceKey) {
+    boolean existCoursesForRepositoryEntry(Long repositoryEntryKey) {
         List<Long> courseIds = dbInstance.getCurrentEntityManager()
-                .createNamedQuery(Course.GET_COURSE_IDS_BY_OLAT_RESOURCE_KEY, Long.class)
-                .setParameter("olatResourceKey", olatResourceKey)
+                .createNamedQuery(Course.GET_COURSE_IDS_BY_REPOSITORY_ENTRY_KEY, Long.class)
+                .setParameter("repositoryEntryKey", repositoryEntryKey)
                 .getResultList();
         return !courseIds.isEmpty();
     }

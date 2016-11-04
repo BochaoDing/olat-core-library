@@ -2,8 +2,7 @@ package ch.uzh.campus.olat;
 
 import ch.uzh.campus.olat.dialog.controller.CampusCourseCreateDialogController;
 import ch.uzh.campus.olat.dialog.controller.CreateCampusCourseCompletedEventListener;
-import ch.uzh.campus.service.data.OlatCampusCourse;
-import ch.uzh.campus.service.data.SapCampusCourseTOForUI;
+import ch.uzh.campus.service.data.CampusCourseTOForUI;
 import org.olat.NewControllerFactory;
 import org.olat.core.gui.UserRequest;
 import org.olat.core.gui.control.ControllerEventListener;
@@ -30,13 +29,13 @@ public class CampusCourseOlatHelper {
 			CampusCourseOlatHelper.class);
 
 
-	public void openCourseInNewTab(OlatCampusCourse olatCampusCourse,
+	public void openCourseInNewTab(RepositoryEntry repositoryEntry,
 								   WindowControl windowControl,
 								   UserRequest userRequest) {
 		/*
 		 * Open the OLAT course in a new tab.
 		 */
-		String businessPath = "[RepositoryEntry:" + olatCampusCourse.getRepositoryEntry().getKey() + "]";
+		String businessPath = "[RepositoryEntry:" + repositoryEntry.getKey() + "]";
 		NewControllerFactory.getInstance().launch(businessPath, userRequest, windowControl);
 
 		/*
@@ -45,7 +44,7 @@ public class CampusCourseOlatHelper {
 		EventBus singleUserEventBus = userRequest.getUserSession().getSingleUserEventCenter();
 		singleUserEventBus.fireEventToListenersOf(
 				new CampusCourseChangeEvent(),
-				olatCampusCourse.getRepositoryEntry().getOlatResource());
+				repositoryEntry.getOlatResource());
 	}
 
 	public static Translator getTranslator(Locale locale) {
@@ -69,8 +68,8 @@ public class CampusCourseOlatHelper {
 			new CampusCourseOlatResource(NOT_CREATED_CAMPUS_COURSE_KEY,
 					STUDENT_RESOURCEABLE_TYPE_NAME);
 
-	public static RepositoryEntry getStudentRepositoryEntry(SapCampusCourseTOForUI sapCampusCourseTOForUI) {
-		RepositoryEntry result = getRepositoryEntry(sapCampusCourseTOForUI);
+	public static RepositoryEntry getStudentRepositoryEntry(CampusCourseTOForUI campusCourseTOForUI) {
+		RepositoryEntry result = getRepositoryEntry(campusCourseTOForUI);
 		result.setOlatResource(STUDENT_CAMPUS_COURSE_RESOURCE_DUMMY);
 		return result;
 	}
@@ -83,8 +82,8 @@ public class CampusCourseOlatHelper {
 			new CampusCourseOlatResource(NOT_CREATED_CAMPUS_COURSE_KEY,
 					AUTHOR_LECTURER_RESOURCEABLE_TYPE_NAME);
 
-	public static RepositoryEntry getLecturerRepositoryEntry(SapCampusCourseTOForUI sapCampusCourseTOForUI, Roles roles) {
-		RepositoryEntry result = getRepositoryEntry(sapCampusCourseTOForUI);
+	public static RepositoryEntry getLecturerRepositoryEntry(CampusCourseTOForUI campusCourseTOForUI, Roles roles) {
+		RepositoryEntry result = getRepositoryEntry(campusCourseTOForUI);
 		if (roles.isAuthor()) {
 			result.setOlatResource(AUTHOR_LECTURER_CAMPUS_COURSE_RESOURCE_DUMMY);
 		} else {
@@ -93,10 +92,10 @@ public class CampusCourseOlatHelper {
 		return result;
 	}
 
-	private static RepositoryEntry getRepositoryEntry(SapCampusCourseTOForUI sapCampusCourseTOForUI) {
+	private static RepositoryEntry getRepositoryEntry(CampusCourseTOForUI campusCourseTOForUI) {
 		RepositoryEntry result = new RepositoryEntry();
-		result.setKey(sapCampusCourseTOForUI.getSapCourseId());
-		result.setDisplayname(sapCampusCourseTOForUI.getTitle());
+		result.setKey(campusCourseTOForUI.getSapCourseId());
+		result.setDisplayname(campusCourseTOForUI.getTitle());
 		return result;
 	}
 
@@ -113,10 +112,9 @@ public class CampusCourseOlatHelper {
 		controller.addCampusCourseCreateEventListener(new CreateCampusCourseCompletedEventListener() {
 
 			@Override
-			public void onSuccess(UserRequest userRequest, OlatCampusCourse olatCampusCourse) {
+			public void onSuccess(UserRequest userRequest, RepositoryEntry repositoryEntry) {
 				cmc.deactivate();
-				CampusCourseOlatHelper.this.openCourseInNewTab(olatCampusCourse,
-						windowControl, userRequest);
+				CampusCourseOlatHelper.this.openCourseInNewTab(repositoryEntry, windowControl, userRequest);
 			}
 
 			@Override

@@ -3,13 +3,11 @@ package ch.uzh.campus.service.core.impl.creator;
 import ch.uzh.campus.CampusCourseJunitTestHelper;
 import ch.uzh.campus.CampusCourseTestCase;
 import ch.uzh.campus.service.data.CampusGroups;
-import ch.uzh.campus.service.data.OlatCampusCourse;
 import org.junit.After;
 import org.junit.Test;
 import org.olat.core.commons.persistence.DB;
 import org.olat.core.gui.translator.Translator;
 import org.olat.core.id.Identity;
-import org.olat.course.CourseFactory;
 import org.olat.group.BusinessGroup;
 import org.olat.group.BusinessGroupRef;
 import org.olat.group.area.BGArea;
@@ -63,14 +61,13 @@ public class CampusGroupsCreatorTest extends CampusCourseTestCase {
         // Create owner
         Identity ownerIdentity = CampusCourseJunitTestHelper.createTestUser(userManager, dbInstance, "ownerNameCampusCourseCreatorTest");
 
-        // Create olat campus course
-        RepositoryEntry repositoryEntry = JunitTestHelper.deployDemoCourse(ownerIdentity);
-        OlatCampusCourse olatCampusCourse = new OlatCampusCourse(CourseFactory.loadCourse(repositoryEntry), repositoryEntry);
+        // Create olat demo course
+        RepositoryEntry demoCourseRepositoryEntry = JunitTestHelper.deployDemoCourse(ownerIdentity);
 
         // Check that no learning area is related to olat resource
-        assertNull(areaManager.findBGArea(learningAreaName, olatCampusCourse.getRepositoryEntry().getOlatResource()));
+        assertNull(areaManager.findBGArea(learningAreaName, demoCourseRepositoryEntry.getOlatResource()));
 
-        CampusGroups createdCampusGroups1 = campusGroupsCreator.createCampusLearningAreaAndCampusGroupsIfNecessary(olatCampusCourse, ownerIdentity, LV_LANGUAGE);
+        CampusGroups createdCampusGroups1 = campusGroupsCreator.createCampusLearningAreaAndCampusGroupsIfNecessary(demoCourseRepositoryEntry, ownerIdentity, LV_LANGUAGE);
         dbInstance.flush();
 
         // Check campus groups
@@ -86,7 +83,7 @@ public class CampusGroupsCreatorTest extends CampusCourseTestCase {
         assertEquals(groupDescriptionB, campusGroupB.getDescription());
 
         // Check learning area
-        BGArea campusLearningArea = areaManager.findBGArea(learningAreaName, repositoryEntry.getOlatResource());
+        BGArea campusLearningArea = areaManager.findBGArea(learningAreaName, demoCourseRepositoryEntry.getOlatResource());
         assertNotNull(campusLearningArea);
 
         List<BusinessGroup> businessGroupsOfLearningArea = areaManager.findBusinessGroupsOfArea(campusLearningArea);
@@ -96,7 +93,7 @@ public class CampusGroupsCreatorTest extends CampusCourseTestCase {
 
         // Call method again -> We should get the same campus groups as before
         int numberOfGroupsOfAreaBeforeCallingMethod = businessGroupsOfLearningArea.size();
-        CampusGroups createdCampusGroups2 = campusGroupsCreator.createCampusLearningAreaAndCampusGroupsIfNecessary(olatCampusCourse, ownerIdentity, LV_LANGUAGE);
+        CampusGroups createdCampusGroups2 = campusGroupsCreator.createCampusLearningAreaAndCampusGroupsIfNecessary(demoCourseRepositoryEntry, ownerIdentity, LV_LANGUAGE);
 
         assertEquals(createdCampusGroups1, createdCampusGroups2);
         assertEquals(numberOfGroupsOfAreaBeforeCallingMethod, areaManager.findBusinessGroupsOfArea(campusLearningArea).size());

@@ -2,11 +2,11 @@ package ch.uzh.campus.service.impl;
 
 import ch.uzh.campus.data.*;
 import ch.uzh.campus.service.core.CampusCourseCoreService;
-import ch.uzh.campus.service.data.SapCampusCourseTOForUI;
+import ch.uzh.campus.service.data.CampusCourseTOForUI;
 import org.junit.Before;
 import org.junit.Test;
 import org.olat.core.id.Identity;
-import org.olat.resource.OLATResource;
+import org.olat.repository.RepositoryEntry;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -32,7 +32,7 @@ public class CampusCourseServiceImplTest {
         CampusCourseCoreService campusCourseCoreServiceMock = mock(CampusCourseCoreService.class);
         DaoManager daoManagerMock = mock(DaoManager.class);
         campusCourseLearnServiceImplTestObject = new CampusCourseServiceImpl(campusCourseCoreServiceMock, daoManagerMock);
-        OLATResource olatResourceMock = mock(OLATResource.class);
+        RepositoryEntry repositoryEntryMock = mock(RepositoryEntry.class);
 
         // Course which could be created
         Semester semester = new Semester(SemesterName.FRUEHJAHRSSEMESTER, 2016, false);
@@ -43,7 +43,7 @@ public class CampusCourseServiceImplTest {
         course1.setLvNr("111111");
         course1.setSemester(semester);
         coursesWithoutResourceableId.add(course1);
-        when(daoManagerMock.loadSapCampuCourseTOForUI(course1.getId())).thenReturn(new SapCampusCourseTOForUI(course1.getTitleToBeDisplayed(), course1.getId()));
+        when(daoManagerMock.loadCampusCourseTOForUI(course1.getId())).thenReturn(new CampusCourseTOForUI(course1.getTitleToBeDisplayed(), course1.getId()));
 
         // Course which could be opened
         Course course2 = new Course();
@@ -51,10 +51,10 @@ public class CampusCourseServiceImplTest {
         course2.setTitle("English Literature: Textual Analysis, Part II (Vorlesung zum Seminar)");
         course2.setLvKuerzel("ABCD22");
         course2.setLvNr("2222222");
-        course2.setOlatResource(olatResourceMock);
+        course2.setRepositoryEntry(repositoryEntryMock);
         course2.setSemester(semester);
         coursesWithResourceableId.add(course2);
-        when(daoManagerMock.loadSapCampuCourseTOForUI(course2.getId())).thenReturn(new SapCampusCourseTOForUI(course2.getTitleToBeDisplayed(), course2.getId()));
+        when(daoManagerMock.loadCampusCourseTOForUI(course2.getId())).thenReturn(new CampusCourseTOForUI(course2.getTitleToBeDisplayed(), course2.getId()));
 
         // Course which could be created
         Course course3 = new Course();
@@ -64,14 +64,14 @@ public class CampusCourseServiceImplTest {
         course3.setLvNr("333333");
         course3.setSemester(semester);
         coursesWithoutResourceableId.add(course3);
-        when(daoManagerMock.loadSapCampuCourseTOForUI(course3.getId())).thenReturn(new SapCampusCourseTOForUI(course3.getTitleToBeDisplayed(), course3.getId()));
+        when(daoManagerMock.loadCampusCourseTOForUI(course3.getId())).thenReturn(new CampusCourseTOForUI(course3.getTitleToBeDisplayed(), course3.getId()));
 
         // Mock for Identity
         identityMock = mock(Identity.class);
 
-        when(campusCourseCoreServiceMock.getCoursesWithoutResourceableId(identityMock, SapUserType.LECTURER, null))
+        when(campusCourseCoreServiceMock.getNotCreatedCourses(identityMock, SapUserType.LECTURER, null))
                 .thenReturn(coursesWithoutResourceableId);
-        when(campusCourseCoreServiceMock.getCoursesWithResourceableId(identityMock, SapUserType.LECTURER, null))
+        when(campusCourseCoreServiceMock.getCreatedCourses(identityMock, SapUserType.LECTURER, null))
                 .thenReturn(coursesWithResourceableId);
     }
 
