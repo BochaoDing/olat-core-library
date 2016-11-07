@@ -802,7 +802,7 @@ public class AuthorListController extends FormBasicController implements Activat
 		for(AuthoringEntryRow row:rows) {
 			RepositoryEntry sourceEntry = repositoryService.loadByKey(row.getKey());
 			if (!isAdmin && sourceEntry.exceedsSizeLimit()) {
-				LOG.warn("Course sourceEntry.getDisplayname() is not copied because it exceeds the size limit");
+				LOG.warn("Course " + sourceEntry.getDisplayname() + " is not copied because it exceeds the size limit");
 				skippedRows++;
 			} else {
 				String displayname = "Copy of " + sourceEntry.getDisplayname();
@@ -814,7 +814,7 @@ public class AuthorListController extends FormBasicController implements Activat
 		}
 
 		if (skippedRows > 0) {
-			showInfo("details.copy.success.with.some.skipped", new String[]{ Integer.toString(rows.size() - skippedRows, skippedRows) });
+			showInfo("details.copy.success.with.some.skipped", new String[]{ Integer.toString(rows.size() - skippedRows), Integer.toString(skippedRows) });
 		} else {
 			showInfo("details.copy.success", Integer.toString(rows.size()));
 		}
