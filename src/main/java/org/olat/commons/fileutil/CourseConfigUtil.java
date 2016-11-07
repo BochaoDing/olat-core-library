@@ -58,8 +58,8 @@ public class CourseConfigUtil {
         String path = exportDirectory.getPath();
         String pathPrefix = path.substring(path.indexOf("/course/"));
         QuotaManager qm = QuotaManager.getInstance();
-        if (qm.listCustomQuotasKB(pathPrefix).size() > 0) {
-            throw new FileSizeLimitExceededException("Course has custom quotas for its nodes");
+        if (qm.hasCustomQuotas(pathPrefix)) {
+            throw new CustomQuotaDetectedException("Course has custom quotas for its nodes");
         }
     }
 

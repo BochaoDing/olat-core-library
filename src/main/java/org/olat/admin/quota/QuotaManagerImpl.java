@@ -272,14 +272,30 @@ public class QuotaManagerImpl extends QuotaManager {
 		PropertyManager pm = PropertyManager.getInstance();
 		List<Property> props = pm.listProperties(null, null, quotaResource, QUOTA_CATEGORY, null);
 		if (props == null || props.size() == 0) return results;
-		for (Iterator<Property> iter = props.iterator(); iter.hasNext();) {
-			Property prop = iter.next();
+		for (Property prop : props) {
 			Quota q = parseQuota(prop);
 			if (q.getPath().startsWith(pathPrefix)) {
 				results.add(parseQuota(prop));
 			}
 		}
 		return results;
+	}
+
+	@Override
+	public boolean hasCustomQuotas(String pathPrefix) {
+		if (defaultQuotas == null) {
+			throw new OLATRuntimeException(QuotaManagerImpl.class, "Quota manager has not been initialized properly! Must call init() first.", null);
+		}
+		PropertyManager pm = PropertyManager.getInstance();
+		List<Property> props = pm.listProperties(null, null, quotaResource, QUOTA_CATEGORY, null);
+		if (props == null || props.size() == 0) return false;
+		for (Property prop : props) {
+			Quota q = parseQuota(prop);
+			if (q.getPath().startsWith(pathPrefix)) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	/**

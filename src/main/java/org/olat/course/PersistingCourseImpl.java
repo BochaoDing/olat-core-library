@@ -220,10 +220,12 @@ public class PersistingCourseImpl implements ICourse, OLATResourceable, Serializ
 
 	@Override
 	public boolean exceedsSizeLimit() {
+		File exportDirectory = getCourseBaseContainer().getBasefile();
 		// LMSUZH-45: just detect custom quotas on course elements instead of calculating the folder size
 		try {
-			CourseConfigUtil.checkAgainstCustomQuotas(getCourseBaseContainer().getBasefile());
+			CourseConfigUtil.checkAgainstCustomQuotas(exportDirectory);
 		} catch (CustomQuotaDetectedException e) {
+			log.error("Custom quota detected for " + exportDirectory.getPath() + " or its nodes");
 			return true;
 		}
 // LMSUZH-45 Keeping the old code based on calculation of folder size, in case we want to build more complex solution

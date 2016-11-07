@@ -814,7 +814,7 @@ public class AuthorListController extends FormBasicController implements Activat
 		}
 
 		if (skippedRows > 0) {
-			showInfo("details.copy.success.with.some.skipped", new String[]{ Integer.toString(rows.size() - skippedRows), Integer.toString(skippedRows) });
+			showError("details.copy.success.with.some.skipped", new String[]{ Integer.toString(rows.size() - skippedRows), Integer.toString(skippedRows) });
 		} else {
 			showInfo("details.copy.success", Integer.toString(rows.size()));
 		}
@@ -897,8 +897,8 @@ public class AuthorListController extends FormBasicController implements Activat
 		}
 
 		if (!isAdmin && entry.exceedsSizeLimit()) {
-			LOG.warn("Course " + entry.getDisplayname() + " is not exported because it exceeds the size limit");
-			showInfo("error.export.size.exceeded", new String[] { entry.getDisplayname() });
+			LOG.error("Course " + entry.getDisplayname() + " is not exported because it exceeds the size limit");
+			showError("error.export.size.exceeded", new String[] { entry.getDisplayname() });
 			return;
 		}
 		

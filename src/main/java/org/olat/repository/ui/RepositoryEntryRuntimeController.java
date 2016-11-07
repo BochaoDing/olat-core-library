@@ -902,7 +902,7 @@ public class RepositoryEntryRuntimeController extends MainLayoutBasicController 
 		}
 
 		if (!isAdmin && entry.exceedsSizeLimit()) {
-			showInfo("error.export.size.exceeded", new String[] { entry.getDisplayname() });
+			showError("error.export.size.exceeded", new String[] { entry.getDisplayname() });
 			return;
 		}
 
