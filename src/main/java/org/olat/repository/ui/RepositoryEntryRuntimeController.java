@@ -883,6 +883,9 @@ public class RepositoryEntryRuntimeController extends MainLayoutBasicController 
 	}
 	
 	private void doDownload(UserRequest ureq) {
+		Roles roles = ureq.getUserSession().getRoles();
+		boolean isAdmin = roles.isOLATAdmin();
+
 		if (handler == null) {
 			StringBuilder sb = new StringBuilder(translate("error.download"));
 			sb.append(": No download handler for repository entry: ").append(
@@ -895,6 +898,11 @@ public class RepositoryEntryRuntimeController extends MainLayoutBasicController 
 		OLATResourceable ores = entry.getOlatResource();
 		if (ores == null) {
 			showError("error.download");
+			return;
+		}
+
+		if (!isAdmin && entry.exceedsSizeLimit()) {
+			showError("error.export.size.exceeded", new String[] { entry.getDisplayname() });
 			return;
 		}
 
@@ -922,9 +930,8 @@ public class RepositoryEntryRuntimeController extends MainLayoutBasicController 
 						.getOwner());
 				showInfo("warning.course.alreadylocked", fullName);
 			}
-		} catch (FileSizeLimitExceededException e) {
-			String exportMaxSize = String.valueOf(FileSizeLimitExceededException.getExportMaxSizeMB());
-			showError("error.export.failed.too.big", new String[] { exportMaxSize, supportAddr });
+		} catch (Exception e) {
+			showError("error.export");
 		} finally {
 			if (isSuccessfullyLocked(lockResult, isAlreadyLocked)) {
 				handler.releaseLock(lockResult);

@@ -485,7 +485,7 @@ public class CourseHandler implements RepositoryHandler {
 	}
 
 	@Override
-	public MediaResource getAsMediaResource(OLATResourceable res, boolean backwardsCompatible) throws FileSizeLimitExceededException {
+	public MediaResource getAsMediaResource(OLATResourceable res, boolean backwardsCompatible) {
 		RepositoryEntry re = RepositoryManager.getInstance().lookupRepositoryEntry(res, true);
 		String exportFileName = StringHelper.transformDisplayNameToFileSystemName(re.getDisplayname()) + ".zip";
 		File fExportZIP = new File(WebappHelper.getTmpDir(), exportFileName);

@@ -288,6 +288,11 @@ public class CourseFactory extends BasicManager {
 			// o_clusterOK by:ld - load and put in cache in doInSync block to ensure
 			// that no invalidate cache event was missed
 			OLATResource resource = OLATResourceManager.getInstance().findResourceable(resourceableId, "CourseModule");
+			// sometimes there's no CourseModule resourceable found. @TODO find out why
+			if (resource == null) {
+				log.error("No CourseModule found for resourceableId " + resourceableId);
+				throw new AssertException("No CourseModule found for resourceableId.");
+			}
 			PersistingCourseImpl theCourse = new PersistingCourseImpl(resource);
 			theCourse.load();
 			
@@ -445,8 +450,8 @@ public class CourseFactory extends BasicManager {
 	 * course folder will be copied to create a new course.
 	 *  
 	 * 
-	 * @param sourceRes
-	 * @param ureq
+	 * @param sourceRes OLATResourceable
+	 * @param targetRes OLATResource
 	 * @return copy of the course.
 	 */
 	public static OLATResourceable copyCourse(OLATResourceable sourceRes, OLATResource targetRes) {
@@ -514,7 +519,7 @@ public class CourseFactory extends BasicManager {
 	 * @param fTargetZIP
 	 * @return true if successfully exported, false otherwise.
 	 */
-	public static void exportCourseToZIP(OLATResourceable sourceRes, File fTargetZIP, boolean runtimeDatas, boolean backwardsCompatible) throws FileSizeLimitExceededException {
+	public static void exportCourseToZIP(OLATResourceable sourceRes, File fTargetZIP, boolean runtimeDatas, boolean backwardsCompatible) {
 		PersistingCourseImpl sourceCourse = (PersistingCourseImpl) loadCourse(sourceRes);
 
 		// add files to ZIP
@@ -532,7 +537,7 @@ public class CourseFactory extends BasicManager {
 				fileSet.add(files[i]);
 			}
 			ZipUtil.zip(fileSet, fExportDir, fTargetZIP, false);
-		} catch (FileSizeLimitExceededException e) {
+		} catch (Exception e) {
 			log.warn("exportCourseToZIP failed: ", e);
 			throw e; // throw to let the GUI notify the user about the exception
 		} finally {

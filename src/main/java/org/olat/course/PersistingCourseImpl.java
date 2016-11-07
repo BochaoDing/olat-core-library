@@ -30,6 +30,7 @@ import java.io.Serializable;
 
 import org.olat.admin.quota.QuotaConstants;
 import org.olat.commons.fileutil.CourseConfigUtil;
+import org.olat.commons.fileutil.CustomQuotaDetectedException;
 import org.olat.commons.fileutil.FileSizeLimitExceededException;
 import org.olat.core.CoreSpringFactory;
 import org.olat.core.commons.modules.bc.vfs.OlatRootFolderImpl;
@@ -44,11 +45,7 @@ import org.olat.core.util.FileUtils;
 import org.olat.core.util.nodes.INode;
 import org.olat.core.util.tree.TreeVisitor;
 import org.olat.core.util.tree.Visitor;
-import org.olat.core.util.vfs.Quota;
-import org.olat.core.util.vfs.QuotaManager;
-import org.olat.core.util.vfs.VFSContainer;
-import org.olat.core.util.vfs.VFSItem;
-import org.olat.core.util.vfs.VFSLeaf;
+import org.olat.core.util.vfs.*;
 import org.olat.core.util.vfs.callbacks.FullAccessWithQuotaCallback;
 import org.olat.core.util.vfs.version.Versionable;
 import org.olat.core.util.vfs.version.VersionsFileManager;
@@ -223,11 +220,21 @@ public class PersistingCourseImpl implements ICourse, OLATResourceable, Serializ
 
 	@Override
 	public boolean exceedsSizeLimit() {
+		File exportDirectory = getCourseBaseContainer().getBasefile();
+		// LMSUZH-45: just detect custom quotas on course elements instead of calculating the folder size
 		try {
-			CourseConfigUtil.checkAgainstConfiguredMaxSize(getCourseBaseContainer().getBasefile());
-		} catch (FileSizeLimitExceededException e) {
+			CourseConfigUtil.checkAgainstCustomQuotas(exportDirectory);
+		} catch (CustomQuotaDetectedException e) {
+			log.error("Custom quota detected for " + exportDirectory.getPath() + " or its nodes");
 			return true;
 		}
+// LMSUZH-45 Keeping the old code based on calculation of folder size, in case we want to build more complex solution
+//		try {
+//			CourseConfigUtil.checkAgainstConfiguredMaxSize(getCourseBaseContainer().getBasefile());
+//		} catch (FileSizeLimitExceededException e) {
+//			return true;
+//		}
+
 		return false;
 	}
 
@@ -298,7 +305,6 @@ public class PersistingCourseImpl implements ICourse, OLATResourceable, Serializ
 		long s = System.currentTimeMillis();
 		log.info("exportToFilesystem: exporting course "+this+" to "+exportDirectory+"...");
 		File fCourseBase = getCourseBaseContainer().getBasefile();
-		CourseConfigUtil.checkAgainstConfiguredMaxSize(fCourseBase); // check source dir first
 		//make the folder structure
 		File fExportedDataDir = new File(exportDirectory, EXPORTED_DATA_FOLDERNAME);
 		fExportedDataDir.mkdirs();
@@ -348,8 +354,6 @@ public class PersistingCourseImpl implements ICourse, OLATResourceable, Serializ
 		//  pro increased transaction timeout: would fix OLAT-5368 but only move the problem
 		//@TODO OLAT-2597: real solution is a long-running background-task concept...
 		DBFactory.getInstance().intermediateCommit();
-		// OLATNG-26: limit course size when exporting/copying
-		CourseConfigUtil.checkAgainstConfiguredMaxSize(exportDirectory);
 
 		// export shared folder
 		CourseConfig config = getCourseConfig();
@@ -371,8 +375,6 @@ public class PersistingCourseImpl implements ICourse, OLATResourceable, Serializ
 		//  pro increased transaction timeout: would fix OLAT-5368 but only move the problem
 		//@TODO OLAT-2597: real solution is a long-running background-task concept...
 		DBFactory.getInstance().intermediateCommit();
-		// OLATNG-26: limit course size when exporting/copying
-		CourseConfigUtil.checkAgainstConfiguredMaxSize(exportDirectory);
 
 		// export glossary
 		if (config.hasGlossary()) {
@@ -393,8 +395,6 @@ public class PersistingCourseImpl implements ICourse, OLATResourceable, Serializ
 		//  pro increased transaction timeout: would fix OLAT-5368 but only move the problem
 		//@TODO OLAT-2597: real solution is a long-running background-task concept...
 		DBFactory.getInstance().intermediateCommit();
-		// OLATNG-26: limit course size when exporting/copying
-		CourseConfigUtil.checkAgainstConfiguredMaxSize(exportDirectory);
 
 		log.info("exportToFilesystem: exporting course "+this+": configuration and repo data...");
 		// export configuration file
@@ -407,13 +407,11 @@ public class PersistingCourseImpl implements ICourse, OLATResourceable, Serializ
 		importExport.exportDoExportProperties();
 		
 		//OLAT-5368: do intermediate commit to avoid transaction timeout
-		// discussion intermediatecommit vs increased transaction timeout:
-		//  pro intermediatecommit: not much
+		// discussion intermediate commit vs increased transaction timeout:
+		//  pro intermediate commit: not much
 		//  pro increased transaction timeout: would fix OLAT-5368 but only move the problem
 		//@TODO OLAT-2597: real solution is a long-running background-task concept...
 		DBFactory.getInstance().intermediateCommit();
-		// OLATNG-26: limit course size when exporting/copying
-		CourseConfigUtil.checkAgainstConfiguredMaxSize(exportDirectory);
 
 		//export reminders
 		CoreSpringFactory.getImpl(ReminderService.class)

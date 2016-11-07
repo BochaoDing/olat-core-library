@@ -118,6 +118,20 @@ public abstract class QuotaManager extends BasicManager{
 	public abstract List<Quota> listCustomQuotasKB();
 
 	/**
+	 * Get a list of all objects which have an individual quota and have the same path prefix.
+	 *
+	 * @return list of quotas.
+	 */
+	public abstract List<Quota> listCustomQuotasKB(String pathPrefix);
+
+	/**
+	 * Determines if any of objects that have the same path prefix have some individual quota
+	 *
+	 * @return list of quotas.
+	 */
+	public abstract boolean hasCustomQuotas(String pathPrefix);
+
+	/**
 	 * call to get appropriate quota depending on role. Authors have normally
 	 * bigger quotas than normal users.
 	 * 
