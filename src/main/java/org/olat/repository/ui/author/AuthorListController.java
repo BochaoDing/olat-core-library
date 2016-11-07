@@ -877,6 +877,9 @@ public class AuthorListController extends FormBasicController implements Activat
 	}
 	
 	private void doDownload(UserRequest ureq, AuthoringEntryRow row) {
+		Roles roles = ureq.getUserSession().getRoles();
+		boolean isAdmin = roles.isOLATAdmin();
+
 		RepositoryHandler typeToDownload = repositoryHandlerFactory.getRepositoryHandler(row.getResourceType());
 		if (typeToDownload == null) {
 			StringBuilder sb = new StringBuilder(translate("error.download"));
@@ -890,6 +893,12 @@ public class AuthorListController extends FormBasicController implements Activat
 		OLATResourceable ores = entry.getOlatResource();
 		if (ores == null) {
 			showError("error.download");
+			return;
+		}
+
+		if (!isAdmin && entry.exceedsSizeLimit()) {
+			LOG.warn("Course " + entry.getDisplayname() + " is not exported because it exceeds the size limit");
+			showInfo("error.export.size.exceeded", new String[] { entry.getDisplayname() });
 			return;
 		}
 		
