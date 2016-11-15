@@ -489,7 +489,10 @@
 		<property name="strict" value="false"/>
 		<property name="lineMapper" ref="lineMapper"/>
 		<property name="linesToSkip" value="1"/>
+		<property name="recordSeparatorPolicy" ref="blankLineRecordSeparatorPolicy" />
 	</bean>
+
+	<bean id="blankLineRecordSeparatorPolicy" class="ch.uzh.campus.connectors.BlankLineRecordSeparatorPolicy" />
 		
 	<bean id="lineMapper" class="org.springframework.batch.item.file.mapping.DefaultLineMapper" abstract="true" >
 		<property name="lineTokenizer" ref="lineTokenizer" />
