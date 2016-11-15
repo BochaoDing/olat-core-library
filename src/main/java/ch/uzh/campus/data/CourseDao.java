@@ -23,7 +23,7 @@ import java.util.stream.Collectors;
  * @author Martin Schraner
  */
 @Repository
-public class CourseDao implements CampusDao<CourseSemesterOrgId> {
+public class CourseDao {
 
     private static final OLog LOG = Tracing.createLoggerFor(CourseDao.class);
 
@@ -70,13 +70,6 @@ public class CourseDao implements CampusDao<CourseSemesterOrgId> {
     public void save(List<CourseSemesterOrgId> courseSemesterOrgIds) throws CampusCourseException {
         for (CourseSemesterOrgId courseSemesterOrgId : courseSemesterOrgIds) {
             save(courseSemesterOrgId);
-        }
-    }
-
-    @Override
-    public void saveOrUpdate(List<CourseSemesterOrgId> courseSemesterOrgIds) throws CampusCourseException {
-        for (CourseSemesterOrgId courseSemesterOrgId : courseSemesterOrgIds) {
-            saveOrUpdate(courseSemesterOrgId);
         }
     }
 

@@ -21,7 +21,7 @@ import java.util.List;
  * @author Martin Schraner
  */
 @Repository
-public class LecturerDao implements CampusDao<Lecturer> {
+public class LecturerDao {
 
     private static final OLog LOG = Tracing.createLoggerFor(LecturerDao.class);
 
@@ -53,11 +53,6 @@ public class LecturerDao implements CampusDao<Lecturer> {
 
     public void save(List<Lecturer> lecturers) {
         lecturers.forEach(this::save);
-    }
-
-    @Override
-    public void saveOrUpdate(List<Lecturer> lecturers) {
-        lecturers.forEach(this::saveOrUpdate);
     }
 
     public void addMapping(Long lecturerId, Identity identity) {

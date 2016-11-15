@@ -1,3 +1,16 @@
+package ch.uzh.campus.connectors;
+
+import ch.uzh.campus.CampusCourseConfiguration;
+import ch.uzh.campus.CampusCourseException;
+import ch.uzh.campus.data.Export;
+import ch.uzh.campus.utils.DateUtil;
+import org.olat.core.logging.OLog;
+import org.olat.core.logging.Tracing;
+import org.springframework.batch.item.ItemProcessor;
+import org.springframework.beans.factory.annotation.Autowired;
+
+import java.util.Date;
+
 /**
  * OLAT - Online Learning and Training<br>
  * http://www.olat.org
@@ -17,21 +30,7 @@
  * Copyright (c) since 2004 at Multimedia- & E-Learning Services (MELS),<br>
  * University of Zurich, Switzerland.
  * <p>
- */
-package ch.uzh.campus.connectors;
-
-import java.util.Date;
-
-import ch.uzh.campus.CampusCourseException;
-import ch.uzh.campus.data.Export;
-import ch.uzh.campus.CampusCourseConfiguration;
-import ch.uzh.campus.utils.DateUtil;
-import org.olat.core.logging.OLog;
-import org.olat.core.logging.Tracing;
-import org.springframework.batch.item.ItemProcessor;
-import org.springframework.beans.factory.annotation.Autowired;
-
-/**
+ *
  * This is an implementation of {@link ItemProcessor} that validates the input Export item, <br>
  * modifies it according to some criteria and returns it as output Export item. <br>
  * 
@@ -43,8 +42,12 @@ public class ExportProcessor implements ItemProcessor<Export, Export> {
 
     private static final OLog LOG = Tracing.createLoggerFor(ExportProcessor.class);
 
+    private final CampusCourseConfiguration campusCourseConfiguration;
+
     @Autowired
-    CampusCourseConfiguration campusCourseConfiguration;
+    public ExportProcessor(CampusCourseConfiguration campusCourseConfiguration) {
+        this.campusCourseConfiguration = campusCourseConfiguration;
+    }
 
     /**
      * Checks the export and returns it modified

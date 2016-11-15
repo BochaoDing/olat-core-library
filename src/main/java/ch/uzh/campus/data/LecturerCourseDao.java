@@ -76,18 +76,22 @@ public class LecturerCourseDao {
      */
     public void saveOrUpdateWithoutBidirectionalUpdate(LecturerIdCourseIdDateOfImport lecturerIdCourseIdDateOfImport) {
 		EntityManager em = dbInstance.getCurrentEntityManager();
+        Lecturer lecturer = em.getReference(Lecturer.class, lecturerIdCourseIdDateOfImport.getLecturerId());
         try {
-			Lecturer lecturer = em.getReference(Lecturer.class, lecturerIdCourseIdDateOfImport.getLecturerId());
-			try {
-				Course course = em.getReference(Course.class, lecturerIdCourseIdDateOfImport.getCourseId());
-				LecturerCourse lecturerCourse = new LecturerCourse(lecturer, course, lecturerIdCourseIdDateOfImport.getDateOfImport());
-				saveOrUpdateWithoutBidirectionalUpdate(lecturerCourse);
-			} catch (EntityNotFoundException e) {
-				logCourseNotFoundAndThrowException(lecturerIdCourseIdDateOfImport);
-			}
+            // To get a (potential) EntityNotFoundException the object has to be accessed
+            lecturer.getPersonalNr();
         } catch (EntityNotFoundException e) {
             logLecturerNotFoundAndThrowException(lecturerIdCourseIdDateOfImport);
         }
+        Course course = em.getReference(Course.class, lecturerIdCourseIdDateOfImport.getCourseId());
+        try {
+            // To get a (potential) EntityNotFoundException the object has to be accessed
+            course.getId();
+        } catch (EntityNotFoundException e) {
+            logCourseNotFoundAndThrowException(lecturerIdCourseIdDateOfImport);
+        }
+        LecturerCourse lecturerCourse = new LecturerCourse(lecturer, course, lecturerIdCourseIdDateOfImport.getDateOfImport());
+        saveOrUpdateWithoutBidirectionalUpdate(lecturerCourse);
     }
 
     private void logLecturerNotFoundAndThrowException(LecturerIdCourseIdDateOfImport lecturerIdCourseIdDateOfImport) {
