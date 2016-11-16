@@ -422,12 +422,18 @@ public class AuthorListController extends FormBasicController implements Activat
 			}
 			cleanUp();
 		} else if(importCtrl == source) {
+			logAudit("AuthorListController.event importCtrl detected", "");
 			cmc.deactivate();
+			logAudit("AuthorListController.event cmc.deactivate() finished", "");
 			if(Event.DONE_EVENT.equals(event)) {
+				logAudit("AuthorListController.event DONE_EVENT detected", "");
 				reloadRows();
+				logAudit("AuthorListController.event reloadRows() finished", "");
 				launchEditDescription(ureq, importCtrl.getImportedEntry());
+				logAudit("AuthorListController.event launchEditDescription() finished", "");
 			}
 			cleanUp();
+			logAudit("AuthorListController.event cleanUp() finished", "");
 		} else if(wizardCtrl == source) {
 			if (event.equals(Event.CHANGED_EVENT) || event.equals(Event.CANCELLED_EVENT)) {
 				getWindowControl().pop();
