@@ -209,7 +209,6 @@ public class RunMainController extends MainLayoutBasicController implements Gene
 		navHandler = new NavigationHandler(uce, treeFilter, false);
 
 		updateTreeAndContent(ureq, currentCourseNode, null);
-		logAudit("RunMainController constructor: updateTreeAndContent() finished", "");
 
 		//set the launch date after the evaluation
 		setLaunchDates();
@@ -221,7 +220,7 @@ public class RunMainController extends MainLayoutBasicController implements Gene
 		// add text marker wrapper controller to implement course glossary
 		// textMarkerCtr must be created before the toolC!
 		CourseConfig cc = uce.getCourseEnvironment().getCourseConfig();
-		glossaryMarkerCtr = CourseGlossaryFactory.createGlossaryMarkupWrapper(ureq, wControl, contentP, cc);	
+		glossaryMarkerCtr = CourseGlossaryFactory.createGlossaryMarkupWrapper(ureq, wControl, contentP, cc);
 		if (glossaryMarkerCtr != null) {
 			listenTo(glossaryMarkerCtr);
 			// enable / disable glossary highlighting according to user prefs
@@ -232,19 +231,17 @@ public class RunMainController extends MainLayoutBasicController implements Gene
 			if(ureq.getUserSession().getRoles().isGuestOnly()){
 				state = Boolean.TRUE;
 			}
-			
+
 			if (state == null) {
 				glossaryMarkerCtr.setTextMarkingEnabled(false);
 			} else {
 				glossaryMarkerCtr.setTextMarkingEnabled(state.booleanValue());
 			}
-			columnLayoutCtr = new LayoutMain3ColsController(ureq, getWindowControl(), luTree, glossaryMarkerCtr.getInitialComponent(), "course" + course.getResourceableId());				
+			columnLayoutCtr = new LayoutMain3ColsController(ureq, getWindowControl(), luTree, glossaryMarkerCtr.getInitialComponent(), "course" + course.getResourceableId());
 		} else {
-			columnLayoutCtr = new LayoutMain3ColsController(ureq, getWindowControl(), luTree, contentP, "courseRun" + course.getResourceableId());							
+			columnLayoutCtr = new LayoutMain3ColsController(ureq, getWindowControl(), luTree, contentP, "courseRun" + course.getResourceableId());
 		}
 		listenTo(columnLayoutCtr);
-
-		logAudit("RunMainController constructor: columnLayoutCtr listener added", "");
 
 		// activate the custom course css if any
 		setCustomCSS(CourseFactory.getCustomCourseCss(ureq.getUserSession(), uce.getCourseEnvironment()));
@@ -262,17 +259,13 @@ public class RunMainController extends MainLayoutBasicController implements Gene
 		Controller disposedRestartController = new LayoutMain3ColsController(ureq, wControl, courseCloser);
 		setDisposedMsgController(disposedRestartController);
 
-		logAudit("RunMainController constructor: disposedRestartController set as disposed msg controller", "");
-
 		// add as listener to course so we are being notified about course events:
 		// - publish changes
 		// - assessment events
 		// - listen for CourseConfig events
 		CoordinatorManager.getInstance().getCoordinator().getEventBus().registerFor(this, identity, course);
-		logAudit("RunMainController constructor: listener for CourseConfig events added", "");
 		// - group modification events
 		CoordinatorManager.getInstance().getCoordinator().getEventBus().registerFor(this, identity, courseRepositoryEntry);
-		logAudit("RunMainController constructor: listener for group modification events added", "");
 	}
 	
 	protected void setTextMarkingEnabled(boolean enabled) {

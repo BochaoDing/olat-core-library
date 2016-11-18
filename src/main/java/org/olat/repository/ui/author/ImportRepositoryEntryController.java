@@ -240,7 +240,6 @@ public class ImportRepositoryEntryController extends FormBasicController {
 			try {
 				importedEntry = handler.importResource(getIdentity(), null, displayname,
 						"", withReferences, getLocale(), uploadedFile, uploadedFilename);
-				logDebug("imported entry, hopefully for good", "");
 			} catch (Exception e) {
 				logError("Exception when importing repository entry", e);
 				importedEntry = null;
