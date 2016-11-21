@@ -279,7 +279,7 @@ public class CourseHandler implements RepositoryHandler {
 		importReminders(re, fImportBaseDirectory, envMapper, initialAuthor);
 		
 		//clean up export folder
-//		cleanExportAfterImport(fImportBaseDirectory);
+		cleanExportAfterImport(fImportBaseDirectory);
 		
 		return re;
 	}

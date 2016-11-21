@@ -268,8 +268,10 @@ public class WebDAVDispatcherImpl
 	public void execute(HttpServletRequest req, HttpServletResponse resp)
 	throws ServletException, IOException {
 		if (webDAVManager == null) {
+            log.error("WebDAVDispatcherImpl.execute(): webDAVManager is null");
 			resp.sendError(WebdavStatus.SC_INTERNAL_SERVER_ERROR);
 		} else if(webDAVModule == null || !webDAVModule.isEnabled()) {
+            log.error("WebDAVDispatcherImpl.execute(): webDAVModule is null or not enabled");
 			resp.sendError(WebdavStatus.SC_FORBIDDEN);
 		} else if (webDAVManager.handleAuthentication(req, resp)) {
 			webdavService(req, resp);
@@ -1719,7 +1721,7 @@ public class WebDAVDispatcherImpl
             if (!resources.mkdir(dest)) {
                 WebResource destResource = resources.getResource(dest);
                 if (!destResource.isDirectory()) {
-                    errorList.put(dest, new Integer(WebdavStatus.SC_CONFLICT));
+                    errorList.put(dest, WebdavStatus.SC_CONFLICT);
                     return false;
                 }
             }
@@ -1746,7 +1748,7 @@ public class WebDAVDispatcherImpl
                     String parent = destResource.getPath().substring(0, lastSlash);
                     WebResource parentResource = resources.getResource(parent);
                     if (!parentResource.isDirectory()) {
-                        errorList.put(source, new Integer(WebdavStatus.SC_CONFLICT));
+                        errorList.put(source, WebdavStatus.SC_CONFLICT);
                         return false;
                     }
                 }
@@ -1755,15 +1757,18 @@ public class WebDAVDispatcherImpl
         	WebResource movedFrom = moved ? sourceResource : null; 
             try {
 				if (!resources.write(dest, sourceResource.getInputStream(), false, movedFrom)) {
-				    errorList.put(source, new Integer(WebdavStatus.SC_INTERNAL_SERVER_ERROR));
+                    log.error("Could not move resource " + sourceResource.getName() + " to " + dest);
+				    errorList.put(source, WebdavStatus.SC_INTERNAL_SERVER_ERROR);
 				    return false;
 				}
 			} catch (QuotaExceededException e) {
-				errorList.put(source, new Integer(WebdavStatus.SC_INSUFFICIENT_SPACE_ON_RESOURCE));
+                log.error("Resource " + sourceResource.getName() + " is not copied because of QuotaExceededException");
+				errorList.put(source, WebdavStatus.SC_INSUFFICIENT_SPACE_ON_RESOURCE);
 			    return false;
 			}
         } else {
-            errorList.put(source, new Integer(WebdavStatus.SC_INTERNAL_SERVER_ERROR));
+            log.error("Resource " + sourceResource.getName() + " is neither Directory or File");
+            errorList.put(source, WebdavStatus.SC_INTERNAL_SERVER_ERROR);
             return false;
         }
         return true;
@@ -1824,6 +1829,7 @@ public class WebDAVDispatcherImpl
 
         if (!resource.isDirectory()) {
             if (!resources.delete(resource)) {
+                log.error("WebDAVDispatcherImpl.deleteResource(): could not delete a (non-directory) resource " + resource.getName());
                 resp.sendError(WebdavStatus.SC_INTERNAL_SERVER_ERROR);
                 return false;
             }
@@ -1833,8 +1839,8 @@ public class WebDAVDispatcherImpl
 
             deleteCollection(req, path, errorList);
             if (!resources.delete(resource)) {
-                errorList.put(path, new Integer
-                    (WebdavStatus.SC_INTERNAL_SERVER_ERROR));
+                log.error("WebDAVDispatcherImpl.deleteResource(): could not delete a (directory) resource " + resource.getName());
+                errorList.put(path, WebdavStatus.SC_INTERNAL_SERVER_ERROR);
             }
 
             if (!errorList.isEmpty()) {
@@ -1889,7 +1895,7 @@ public class WebDAVDispatcherImpl
 
             if (lockManager.isLocked(childResource, ifHeader + lockTokenHeader, usess.getIdentity())) {
 
-                errorList.put(childName, new Integer(WebdavStatus.SC_LOCKED));
+                errorList.put(childName, WebdavStatus.SC_LOCKED);
 
             } else {
                 if (childResource.isDirectory()) {
@@ -1899,7 +1905,8 @@ public class WebDAVDispatcherImpl
                 if (!resources.delete(childResource)) {
                     if (!childResource.isDirectory()) {
                         // If it's not a collection, then it's an unknown error
-                        errorList.put(childName, new Integer(WebdavStatus.SC_INTERNAL_SERVER_ERROR));
+                        log.error("WebDAVDispatcherImpl.deleteCollection(): could not delete a (non-directory) child resource " + childResource.getName());
+                        errorList.put(childName, WebdavStatus.SC_INTERNAL_SERVER_ERROR);
                     }
                 }
             }
