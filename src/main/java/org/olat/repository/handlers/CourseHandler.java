@@ -118,6 +118,8 @@ import de.tuchemnitz.wizard.workflows.coursecreation.CourseCreationMailHelper;
 import de.tuchemnitz.wizard.workflows.coursecreation.model.CourseCreationConfiguration;
 import de.tuchemnitz.wizard.workflows.coursecreation.steps.CcStep00;
 
+import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
+
 
 /**
  * Initial Date: Apr 15, 2004
@@ -287,7 +289,12 @@ public class CourseHandler implements RepositoryHandler {
 	private void cleanExportAfterImport(File fImportBaseDirectory) {
 		try {
 			Path exportDir = fImportBaseDirectory.toPath();
-			FileUtils.deleteDirsAndFiles(exportDir);
+			// FileUtils.deleteDirsAndFiles(exportDir);
+			File dir = new File(fImportBaseDirectory.getParent() + "/cleanup");
+			if (!dir.mkdir()) {
+				throw new IOException("Could not move export to cleanup");
+			}
+			Files.move(exportDir, dir.toPath(), REPLACE_EXISTING);
 		} catch (Exception e) {
 			log.error("", e);
 		}
