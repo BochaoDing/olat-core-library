@@ -294,7 +294,8 @@ public class CourseHandler implements RepositoryHandler {
 			if (!dir.mkdir()) {
 				throw new IOException("Could not move export to cleanup");
 			}
-			Files.move(exportDir, dir.toPath(), REPLACE_EXISTING);
+			Path moved = Files.move(exportDir, dir.toPath(), REPLACE_EXISTING);
+			log.audit("Cleaned export folder after import by moving it to " + moved.toString());
 		} catch (Exception e) {
 			log.error("", e);
 		}

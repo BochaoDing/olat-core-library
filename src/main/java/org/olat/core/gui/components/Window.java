@@ -344,6 +344,7 @@ public class Window extends AbstractComponent {
 						if (validForDispatching) {
 							DispatchResult dispatchResult = doDispatchToComponent(ureq, null);
 							didDispatch = dispatchResult.isDispatch();
+							log.audit("doDispatchToComponent finished: " + didDispatch);
 							incTimestamp = dispatchResult.isIncTimestamp();
 							forceReload = dispatchResult.isForceReload();
 							if (isDebugLog) {
@@ -356,6 +357,7 @@ public class Window extends AbstractComponent {
 						//REVIEW:PB: this will be the code allowing back forward navigation
 						//-----> if (didDispatch || inlineAfterBackForward) {
 						if (forceReload) {
+							log.audit("Forcing reload");
 							//force RELOAD with a redirect to itself
 							String reRenderUri = buildURIFor(this, timestampID, null);
 							Command rmrcom = CommandFactory.createParentRedirectTo(reRenderUri);
@@ -377,7 +379,8 @@ public class Window extends AbstractComponent {
 								} else {
 									inline = false;
 								}
-							} 
+							}
+							log.audit("Not forcing reload; inline: " + inline);
 							
 							//REVIEW:PB: this will be the code allowing back forward navigation
 							//-----> if (inline) {
@@ -548,6 +551,7 @@ public class Window extends AbstractComponent {
 							log.error("Exception while handling exception!!!!", anotherTh);
 						}
 					}
+					log.audit("ajax variation finished");
 					if (isDebugLog) {
 						long durationDispatchRequest = System.currentTimeMillis() - debug_start;
 						log.debug("Perf-Test: Window return from 1 durationDispatchRequest=" + durationDispatchRequest);
@@ -758,17 +762,16 @@ public class Window extends AbstractComponent {
 						if (isDebugLog) {
 							rstart = System.currentTimeMillis();
 						}
+						log.audit("Allocating StringOutputPool with size 100000");
 						result = StringOutputPool.allocStringBuilder(100000);
 						fr.render(top, result, null);
-						if (isDebugLog) {
-							long rstop = System.currentTimeMillis();
-							long diff = rstop - rstart;
-							debugMsg.append("render:").append(diff).append(LOG_SEPARATOR);
-						}
+						log.audit("Rendered for req=" + request.toString());
+						logDebug(debugMsg, rstart, "render:");
 						if (renderResult.getRenderException() != null) {
 							throw new OLATRuntimeException(Window.class, renderResult.getLogMsg(), renderResult.getRenderException());
 						}
-						
+						log.audit("No exception while rendering for req=" + request.toString());
+
 						//to check HTML by reload
 						//System.out.println();
 						//System.out.println(result.toString());
@@ -783,34 +786,24 @@ public class Window extends AbstractComponent {
 						// any async calls in the near future...
 						latestTimestamp = newTimestamp;
 					}
-					if (isDebugLog) {
-						long diff = System.currentTimeMillis() - debug_start;
-						debugMsg.append("inl_comp:").append(diff).append(LOG_SEPARATOR);
-					}
-					
+					logDebug(debugMsg, debug_start, "inl_comp:");
+					log.audit("Ready to wbackofficeImpl.fireCycleEvent()");
 					wbackofficeImpl.fireCycleEvent(AFTER_INLINE_RENDERING);
+					log.audit("Ready to ServletUtil.serveStringResource()");
 					ServletUtil.serveStringResource(response, result);
+					log.audit("Ready to StringOutputPool.free()");
 					StringOutputPool.free(result);
-					if (isDebugLog) {
-						long diff = System.currentTimeMillis() - debug_start;
-						debugMsg.append("inl_serve:").append(diff).append(LOG_SEPARATOR);
-					}
-			} 
+					logDebug(debugMsg, debug_start, "inl_serve:");
+			}
 			//else serve mediaresource, but postpone serving to when lock has been released,
 			// otherwise e.g. a large download blocks the window, so that the user cannot click until the download is finished
 		} // end of synchronized(this)
 				
 		if (!inline) {
 			// it can be an async media resource, or a resulting mediaresource (image, an excel download, a 302 redirect, and so on.)
-			if (isDebugLog) {
-				long diff = System.currentTimeMillis() - debug_start;
-				debugMsg.append("mr_comp:").append(diff).append(LOG_SEPARATOR);
-			}
+			logDebug(debugMsg, debug_start, "mr_comp:");
 			ServletUtil.serveResource(request, response, mr);
-			if (isDebugLog) {
-				long diff = System.currentTimeMillis() - debug_start;
-				debugMsg.append("mr_serve:").append(diff).append(LOG_SEPARATOR);
-			}
+			logDebug(debugMsg, debug_start, "mr_serve:");
 		}
 		
 		if (isDebugLog) {
@@ -820,8 +813,13 @@ public class Window extends AbstractComponent {
 			log.debug("Perf-Test: Window durationDispatchRequest=" + durationDispatchRequest);
 		}
 	}
-	
-	
+
+	private void logDebug(StringBuilder debugMsg, Long debugStart, String msg) {
+		if (log.isDebug()) {
+			long diff = System.currentTimeMillis() - debugStart;
+			debugMsg.append(msg).append(diff).append(LOG_SEPARATOR);
+		}
+	}
 
 	public DTabs getDTabs() {
 		return dTabs;

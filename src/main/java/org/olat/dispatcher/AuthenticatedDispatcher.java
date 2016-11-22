@@ -94,7 +94,6 @@ public class AuthenticatedDispatcher implements Dispatcher {
 	 * 
 	 * @param request
 	 * @param response
-	 * @param uriPrefix
 	 */
 	@Override
 	public void execute(HttpServletRequest request, HttpServletResponse response) {
@@ -104,7 +103,7 @@ public class AuthenticatedDispatcher implements Dispatcher {
 			startExecute = System.currentTimeMillis();
 		}
 
-		log.audit("AuthenticatedDispatcher.execute(): starting");
+		log.audit("execute(): request=" + request.getRequestURI() + "?" + request.getQueryString());
 		UserSession usess = CoreSpringFactory.getImpl(UserSessionManager.class).getUserSession(request);
 		UserRequest ureq = null;
 		try{
@@ -125,7 +124,7 @@ public class AuthenticatedDispatcher implements Dispatcher {
 		}
 		
 		boolean auth = usess.isAuthenticated();
-		log.audit("AuthenticatedDispatcher.execute(): auth=" + auth);
+		log.audit("execute(): auth=" + auth);
 
 		if (!auth) {
 			if (!ureq.isValidDispatchURI()) {
@@ -211,11 +210,14 @@ public class AuthenticatedDispatcher implements Dispatcher {
 				DispatcherModule.redirectTo(response, url);
 			} else {
 				String businessPath = (String) usess.removeEntryFromNonClearedStore(AUTHDISPATCHER_BUSINESSPATH);
+				log.audit("execute(): businessPath=" + businessPath);
 				if (businessPath != null) {
 					processBusinessPath(businessPath, ureq, usess);
 				} else if (ureq.isValidDispatchURI()) {
 					// valid uri for dispatching (has timestamp, componentid and windowid)
+					log.audit("Ready to processValidDispatchURI()");
 					processValidDispatchURI(ureq, usess, request, response);
+					log.audit("Finished to processValidDispatchURI()");
 				} else {
 					final String origUri = request.getRequestURI();
 					String restPart = origUri.substring(uriPrefix.length());
@@ -254,6 +256,7 @@ public class AuthenticatedDispatcher implements Dispatcher {
 			// do not dispatch (render only), since this is a new Window created as
 			// a result of another window's click.
 		} finally {
+			log.audit("finally {}");
 			if (userBasedLogLevelManager!=null) userBasedLogLevelManager.deactivateUsernameBasedLogLevel();
 			if ( log.isDebug() ) {
 				long durationExecute = System.currentTimeMillis() - startExecute;
