@@ -264,11 +264,13 @@ public class OpenOLATServlet extends HttpServlet {
 	 */
 	private void executeUserRequest(HttpServletRequest request, HttpServletResponse response)
 	throws ServletException, IOException {
+		log.audit("request: " + request.getRequestURI());
 		if (requestBasedLogLevelManager != null) {
 			requestBasedLogLevelManager.activateRequestBasedLogLevel(request);
 		}
 		
 		final String dispatcherName = DispatcherModule.getFirstPath(request);
+		log.audit("dispatcherName=" + dispatcherName);
 		if(dispatcherName != null && !dispatcherName.startsWith("/webdav")) {
 			String userAgent = request.getHeader("User-Agent");
 			if(userAgent != null && userAgent.indexOf("BitKinex") >= 0) {
@@ -286,7 +288,13 @@ public class OpenOLATServlet extends HttpServlet {
 		} else if(dispatchers.containsKey(dispatcherName)) {
 			I18nManager.attachI18nInfoToThread(request);
 			Dispatcher dispatcher = dispatchers.get(dispatcherName);
-			dispatcher.execute(request, response);
+			log.audit("ready to execute dispatcher" + dispatcherName);
+			try {
+				dispatcher.execute(request, response);
+			} catch (Exception e) {
+				log.error("Exception when executing dispatcher " + dispatcherName, e);
+			}
+			log.audit("finished to execute dispatcher" + dispatcherName);
 		} else {
 			//root -> redirect to dmz
 			if("/".equals(dispatcherName)) {

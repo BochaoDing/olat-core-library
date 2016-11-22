@@ -247,7 +247,6 @@ public class AuthenticatedDispatcher implements Dispatcher {
 			}
 		} catch (Throwable th) {
 			// Do not log as Warn or Error here, log as ERROR in MsgFactory => ExceptionWindowController throws an OLATRuntimeException 
-			log.error("(@TODO REMOVE THIS ERROR FROM LOG) handleError in AuthenticatedDispatcher.execute(): throwable=" + th);
 			log.debug("handleError in AuthenticatedDispatcher throwable=" + th);
 			DispatcherModule.handleError();
 			ChiefController msgcc = MsgFactory.createMessageChiefController(ureq, th);
