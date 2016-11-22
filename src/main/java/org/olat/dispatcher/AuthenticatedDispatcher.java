@@ -103,7 +103,8 @@ public class AuthenticatedDispatcher implements Dispatcher {
 		if ( log.isDebug() ) {
 			startExecute = System.currentTimeMillis();
 		}
-		
+
+		log.audit("AuthenticatedDispatcher.execute(): starting");
 		UserSession usess = CoreSpringFactory.getImpl(UserSessionManager.class).getUserSession(request);
 		UserRequest ureq = null;
 		try{
@@ -124,6 +125,7 @@ public class AuthenticatedDispatcher implements Dispatcher {
 		}
 		
 		boolean auth = usess.isAuthenticated();
+		log.audit("AuthenticatedDispatcher.execute(): auth=" + auth);
 
 		if (!auth) {
 			if (!ureq.isValidDispatchURI()) {
@@ -139,7 +141,7 @@ public class AuthenticatedDispatcher implements Dispatcher {
 					try {//TODO xhr
 						response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
 					} catch (IOException e) {
-						log.error("", e);
+						log.error("Could not send error 401", e);
 					}
 				} else {
 					DispatcherModule.redirectToDefaultDispatcher(response);
@@ -239,10 +241,11 @@ public class AuthenticatedDispatcher implements Dispatcher {
 			try {
 				response.sendError(HttpServletResponse.SC_BAD_REQUEST);
 			} catch (IOException e1) {
-				log.error("An exception occured while handling the invalid request parameter exception...", e1);
+				log.error("An exception occurred while handling the invalid request parameter exception...", e1);
 			}
 		} catch (Throwable th) {
 			// Do not log as Warn or Error here, log as ERROR in MsgFactory => ExceptionWindowController throws an OLATRuntimeException 
+			log.error("(@TODO REMOVE THIS ERROR FROM LOG) handleError in AuthenticatedDispatcher.execute(): throwable=" + th);
 			log.debug("handleError in AuthenticatedDispatcher throwable=" + th);
 			DispatcherModule.handleError();
 			ChiefController msgcc = MsgFactory.createMessageChiefController(ureq, th);
@@ -329,10 +332,12 @@ public class AuthenticatedDispatcher implements Dispatcher {
 			NewControllerFactory.getInstance().launch(ureq, bwControl);	
 			// render the window
 			Window w = windowBackOffice.getWindow();
+			log.audit("Ready to dispatch window request " + businessPath);
 			w.dispatchRequest(ureq, true); // renderOnly
+			log.audit("Finished to dispatch window request " + businessPath);
 			return true;
 		} catch (Exception e) {
-			log.error("", e);
+			log.error("Error while processing business path " + businessPath, e);
 			return false;
 		}
 	}
