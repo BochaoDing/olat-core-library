@@ -558,16 +558,20 @@ public class CourseFactory extends BasicManager {
 		PersistingCourseImpl newCourse = new PersistingCourseImpl(ores);
 		CourseConfigManagerImpl.getInstance().deleteConfigOf(newCourse);
 		
-		// Unzip course strucure in new course
+		// Unzip course structure in new course
 		File fCanonicalCourseBasePath = newCourse.getCourseBaseContainer().getBasefile();
+		log.audit("Prepare for unzipping the course from " + zipFile.getPath() + " to " + fCanonicalCourseBasePath.getPath());
 		if (ZipUtil.unzip(zipFile, fCanonicalCourseBasePath)) {
-			// Load course strucure now
+			log.audit("course zip file is now extracted");
+			// Load course structure now
 			try {
 				newCourse.load();
+				log.audit("new course is loaded");
 				CourseConfig cc = CourseConfigManagerImpl.getInstance().loadConfigFor(newCourse);								
 				//newCourse is not in cache yet, so we cannot call setCourseConfig()
 				newCourse.setCourseConfig(cc);
-				loadedCourses.put(newCourse.getResourceableId(), newCourse);						
+				loadedCourses.put(newCourse.getResourceableId(), newCourse);
+				log.audit("new course is cached in loadedCourses");
 				return newCourse;
 			} catch (AssertException ae) {
 				// ok failed, cleanup below
@@ -575,13 +579,13 @@ public class CourseFactory extends BasicManager {
 				log.error("rollback importCourseFromZip",ae);
 			}
 		}
-		// cleanup if not successfull
+		// cleanup if not successful
 		FileUtils.deleteDirsAndFiles(fCanonicalCourseBasePath, true, true);
 		return null;
 	}
 
 	/**
-	 * Deploys a course from an exported course ZIP file. This process is unatended and
+	 * Deploys a course from an exported course ZIP file. This process is unattended and
 	 * therefore relies on some default assumptions on how to setup the entry and add
 	 * any referenced resources to the repository.
 	 * 

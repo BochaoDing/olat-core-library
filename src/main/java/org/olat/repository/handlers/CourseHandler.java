@@ -37,7 +37,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
 
-import org.olat.commons.fileutil.FileSizeLimitExceededException;
 import org.olat.core.CoreSpringFactory;
 import org.olat.core.commons.modules.bc.vfs.OlatRootFolderImpl;
 import org.olat.core.commons.persistence.DBFactory;
@@ -219,6 +218,7 @@ public class CourseHandler implements RepositoryHandler {
 			String description, boolean withReferences, Locale locale, File file, String filename) {
 
 		OLATResource newCourseResource = OLATResourceManager.getInstance().createOLATResourceInstance(CourseModule.class);
+		log.audit("Ready to import course from zip");
 		ICourse course = CourseFactory.importCourseFromZip(newCourseResource, file);
 		// cfc.release();
 		if (course == null) {
@@ -231,12 +231,14 @@ public class CourseHandler implements RepositoryHandler {
 		DBFactory.getInstance().commit();
 
 		// create empty run structure
+		log.audit("Ready to create empty run structure");
 		course = CourseFactory.openCourseEditSession(course.getResourceableId());
 		Structure runStructure = course.getRunStructure();
 		runStructure.getRootNode().removeAllChildren();
 		CourseFactory.saveCourse(course.getResourceableId());
 		
-		//import references
+		// import references
+		log.audit("Ready to import references");
 		CourseEditorTreeNode rootNode = (CourseEditorTreeNode)course.getEditorTreeModel().getRootNode();
 		importReferences(rootNode, course, initialAuthor, locale, withReferences);
 		if(withReferences && course.getCourseConfig().hasCustomSharedFolder()) {
@@ -247,15 +249,18 @@ public class CourseHandler implements RepositoryHandler {
 		}
 
 		// create group management / import groups
+		log.audit("Ready to create group management / import groups");
 		CourseGroupManager cgm = course.getCourseEnvironment().getCourseGroupManager();
 		File fImportBaseDirectory = course.getCourseExportDataDir().getBasefile();
 		CourseEnvironmentMapper envMapper = cgm.importCourseBusinessGroups(fImportBaseDirectory);
 		envMapper.setAuthor(initialAuthor);
-		//upgrade course
+		// upgrade course
+		log.audit("Ready to upgrade course");
 		course = CourseFactory.loadCourse(cgm.getCourseResource());
 		course.postImport(fImportBaseDirectory, envMapper);
 		
-		//rename root nodes
+		// rename root nodes
+		log.audit("Ready to rename root nodes");
 		course.getRunStructure().getRootNode().setShortTitle(Formatter.truncateOnly(displayname, 25)); //do not use truncate!
 		course.getRunStructure().getRootNode().setLongTitle(displayname);
 		//course.saveRunStructure();
@@ -268,34 +273,40 @@ public class CourseHandler implements RepositoryHandler {
 		// root has already been created during export. Unmark it.
 		editorRootNode.setNewnode(false);		
 		
-		//save and close edit session
+		// save and close edit session
+		log.audit("Ready to save and close edit session");
 		CourseFactory.saveCourse(course.getResourceableId());
 		CourseFactory.closeCourseEditSession(course.getResourceableId(), true);
-		
+
+		log.audit("Ready to import content");
 		RepositoryEntryImportExport imp = new RepositoryEntryImportExport(fImportBaseDirectory);
 		if(imp.anyExportedPropertiesAvailable()) {
 			re = imp.importContent(re, getMediaContainer(re));
 		}
 		
 		//import reminders
+		log.audit("Ready to import reminders");
 		importReminders(re, fImportBaseDirectory, envMapper, initialAuthor);
 		
 		//clean up export folder
+		log.audit("Ready to clean up export folder");
 		cleanExportAfterImport(fImportBaseDirectory);
-		
+
+		log.audit("finished to import the resource");
 		return re;
 	}
 	
 	private void cleanExportAfterImport(File fImportBaseDirectory) {
 		try {
 			Path exportDir = fImportBaseDirectory.toPath();
-			// FileUtils.deleteDirsAndFiles(exportDir);
-			File dir = new File(fImportBaseDirectory.getParent() + "/cleanup");
-			if (!dir.mkdir()) {
-				throw new IOException("Could not move export to cleanup");
-			}
-			Path moved = Files.move(exportDir, dir.toPath(), REPLACE_EXISTING);
-			log.audit("Cleaned export folder after import by moving it to " + moved.toString());
+			 FileUtils.deleteDirsAndFiles(exportDir);
+// @TODO find out the good place to move export directory; "../cleanup" is not good enough. Also, write a cron job to clean that folder
+//			File dir = new File(fImportBaseDirectory.getParent() + "/cleanup");
+//			if (!dir.mkdir()) {
+//				throw new IOException("Could not move export to cleanup");
+//			}
+//			Path moved = Files.move(exportDir, dir.toPath(), REPLACE_EXISTING);
+//			log.audit("Cleaned export folder after import by moving it to " + moved.toString());
 		} catch (Exception e) {
 			log.error("", e);
 		}
