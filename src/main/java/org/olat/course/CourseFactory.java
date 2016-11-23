@@ -28,6 +28,7 @@ package org.olat.course;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -73,16 +74,7 @@ import org.olat.core.logging.OLATRuntimeException;
 import org.olat.core.logging.OLog;
 import org.olat.core.logging.Tracing;
 import org.olat.core.manager.BasicManager;
-import org.olat.core.util.CodeHelper;
-import org.olat.core.util.ExportUtil;
-import org.olat.core.util.FileUtils;
-import org.olat.core.util.Formatter;
-import org.olat.core.util.ObjectCloner;
-import org.olat.core.util.StringHelper;
-import org.olat.core.util.UserSession;
-import org.olat.core.util.Util;
-import org.olat.core.util.WebappHelper;
-import org.olat.core.util.ZipUtil;
+import org.olat.core.util.*;
 import org.olat.core.util.cache.CacheWrapper;
 import org.olat.core.util.coordinate.CoordinatorManager;
 import org.olat.core.util.coordinate.SyncerExecutor;
@@ -561,23 +553,31 @@ public class CourseFactory extends BasicManager {
 		// Unzip course structure in new course
 		File fCanonicalCourseBasePath = newCourse.getCourseBaseContainer().getBasefile();
 		log.audit("Prepare for unzipping the course from " + zipFile.getPath() + " to " + fCanonicalCourseBasePath.getPath());
-		if (ZipUtil.unzip(zipFile, fCanonicalCourseBasePath)) {
+//		if (ZipUtil.unzip(zipFile, fCanonicalCourseBasePath)) {
+//		}
+
+		try {
+			UnzipUtility.unzip(zipFile, fCanonicalCourseBasePath);
 			log.audit("course zip file is now extracted");
-			// Load course structure now
-			try {
-				newCourse.load();
-				log.audit("new course is loaded");
-				CourseConfig cc = CourseConfigManagerImpl.getInstance().loadConfigFor(newCourse);								
-				//newCourse is not in cache yet, so we cannot call setCourseConfig()
-				newCourse.setCourseConfig(cc);
-				loadedCourses.put(newCourse.getResourceableId(), newCourse);
-				log.audit("new course is cached in loadedCourses");
-				return newCourse;
-			} catch (AssertException ae) {
-				// ok failed, cleanup below
-				// better logging to search error
-				log.error("rollback importCourseFromZip",ae);
-			}
+		} catch (IOException e) {
+			log.error("Could not extract zip file " + zipFile, e);
+			return null;
+		}
+
+		// Load course structure now
+		try {
+			newCourse.load();
+			log.audit("new course is loaded");
+			CourseConfig cc = CourseConfigManagerImpl.getInstance().loadConfigFor(newCourse);
+			//newCourse is not in cache yet, so we cannot call setCourseConfig()
+			newCourse.setCourseConfig(cc);
+			loadedCourses.put(newCourse.getResourceableId(), newCourse);
+			log.audit("new course is cached in loadedCourses");
+			return newCourse;
+		} catch (AssertException ae) {
+			// ok failed, cleanup below
+			// better logging to search error
+			log.error("rollback importCourseFromZip",ae);
 		}
 		// cleanup if not successful
 		FileUtils.deleteDirsAndFiles(fCanonicalCourseBasePath, true, true);
