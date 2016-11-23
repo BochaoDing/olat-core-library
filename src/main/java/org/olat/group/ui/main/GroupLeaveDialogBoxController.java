@@ -17,7 +17,7 @@
  * frentix GmbH, http://www.frentix.com
  * <p>
  */
-package org.olat.admin.user.groups;
+package org.olat.group.ui.main;
 
 import java.util.Collections;
 import java.util.List;
@@ -70,7 +70,7 @@ public class GroupLeaveDialogBoxController extends FormBasicController {
 			groupToLeaveNames.append(group.getName());
 		}
 		String identityName = UserManager.getInstance().getUserDisplayName(leavingIdentity);
-		String leaveText = translate("unsubscribe.text", new String[]{identityName, groupToLeaveNames.toString()});
+		String leaveText = translate("unsubscribe.group.text", new String[]{identityName, groupToLeaveNames.toString()});
 		uifactory.addStaticTextElement("leaving.desc", null, leaveText, formLayout);
 		String[] values = new String[]{
 				translate("dialog.modal.bg.mail.text")
