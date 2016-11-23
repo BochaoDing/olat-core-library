@@ -136,13 +136,13 @@ public class ICalServlet extends HttpServlet {
 
 			getIcalDocument(requestUrl, request, response);
 		} catch (ValidationException e) {
-			log.error("Validation Error when generate iCal stream for path::" + request.getPathInfo(), e);
+			log.warn("Validation Error when generate iCal stream for path::" + request.getPathInfo(), e);
 			response.sendError(HttpServletResponse.SC_CONFLICT, requestUrl);
 		} catch (IOException e) {
-			log.error("IOException Error when generate iCal stream for path::" + request.getPathInfo(), e);
+			log.warn("IOException Error when generate iCal stream for path::" + request.getPathInfo(), e);
 			response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, requestUrl);
 		} catch (Exception e) {
-			log.error("Unknown Error in icalservlet", e);
+			log.warn("Unknown Error in icalservlet", e);
 			response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, requestUrl);
 		}
 	}
