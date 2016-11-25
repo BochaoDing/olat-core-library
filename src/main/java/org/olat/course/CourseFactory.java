@@ -561,8 +561,6 @@ public class CourseFactory extends BasicManager {
 		// Unzip course structure in new course
 		File fCanonicalCourseBasePath = newCourse.getCourseBaseContainer().getBasefile();
 		if (unzipCourse(zipFile.getPath(), fCanonicalCourseBasePath.getPath())) {
-//		if (ZipUtil.unzip(zipFile, fCanonicalCourseBasePath)) {
-			log.audit("unzpped");
 			// Load course structure now
 			try {
 				newCourse.load();
@@ -584,7 +582,6 @@ public class CourseFactory extends BasicManager {
 
 	private static boolean unzipCourse(String zipFilePath, String destFolder)
 	{
-		log.audit("unzipCourse " + zipFilePath + " to " + destFolder);
 		try {
 			Runtime r = Runtime.getRuntime();
 			Process p = r.exec("unzip " + zipFilePath + " -d " + destFolder);
