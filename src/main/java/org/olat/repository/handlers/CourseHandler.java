@@ -27,11 +27,7 @@ package org.olat.repository.handlers;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.DirectoryStream;
-import java.nio.file.FileVisitResult;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.SimpleFileVisitor;
+import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.List;
 import java.util.Locale;
@@ -82,6 +78,7 @@ import org.olat.course.ICourse;
 import org.olat.course.PersistingCourseImpl;
 import org.olat.course.Structure;
 import org.olat.course.assessment.AssessmentMode;
+import org.olat.course.cleanup.CourseCleanupJob;
 import org.olat.course.config.CourseConfig;
 import org.olat.course.export.CourseEnvironmentMapper;
 import org.olat.course.groupsandrights.CourseGroupManager;
@@ -286,8 +283,16 @@ public class CourseHandler implements RepositoryHandler {
 	
 	private void cleanExportAfterImport(File fImportBaseDirectory) {
 		try {
+			// prepare cleanup folder
+			String courseId = fImportBaseDirectory.getParentFile().getName();
+			File bcRoot = fImportBaseDirectory.getParentFile().getParentFile().getParentFile();
+			File dir = new File(bcRoot.getPath() + File.separator + CourseCleanupJob.CLEANUP_ROOT_DIR_NAME + File.separator + courseId);
+			if (!dir.mkdir()) {
+				throw new IOException("Could not move export to cleanup");
+			}
+			// move export folder to cleanup folder
 			Path exportDir = fImportBaseDirectory.toPath();
-			FileUtils.deleteDirsAndFiles(exportDir);
+			Files.move(exportDir, dir.toPath(), StandardCopyOption.REPLACE_EXISTING);
 		} catch (Exception e) {
 			log.error("", e);
 		}
