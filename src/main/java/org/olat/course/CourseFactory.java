@@ -154,6 +154,7 @@ public class CourseFactory extends BasicManager {
 	private static CacheWrapper<Long,PersistingCourseImpl> loadedCourses;
 	private static ConcurrentMap<Long, ModifyCourseEvent> modifyCourseEvents = new ConcurrentHashMap<Long, ModifyCourseEvent>();
 
+	public static final boolean USE_SYSTEM_UNZIP = false;
 	public static final String COURSE_EDITOR_LOCK = "courseEditLock";
   //this is the lock that must be aquired at course editing, copy course, export course, configure course.
 	private static Map<Long,PersistingCourseImpl> courseEditSessionMap = new ConcurrentHashMap<Long,PersistingCourseImpl>();
@@ -560,7 +561,10 @@ public class CourseFactory extends BasicManager {
 
 		// Unzip course structure in new course
 		File fCanonicalCourseBasePath = newCourse.getCourseBaseContainer().getBasefile();
-		if (unzipCourse(zipFile.getPath(), fCanonicalCourseBasePath.getPath())) {
+		boolean unzipped = USE_SYSTEM_UNZIP
+				? unzipCourse(zipFile, fCanonicalCourseBasePath)
+				: ZipUtil.unzip(zipFile, fCanonicalCourseBasePath);
+		if (unzipped) {
 			// Load course structure now
 			try {
 				newCourse.load();
@@ -580,13 +584,13 @@ public class CourseFactory extends BasicManager {
 		return null;
 	}
 
-	private static boolean unzipCourse(String zipFilePath, String destFolder)
+	private static boolean unzipCourse(File zipFile, File destFolder)
 	{
 		try {
 			Runtime r = Runtime.getRuntime();
-			Process p = r.exec("unzip " + zipFilePath + " -d " + destFolder);
+			Process p = r.exec("unzip " + zipFile.getPath() + " -d " + destFolder.getPath());
 			int result = p.waitFor();
-			return (result == 0);
+			return (result == 0 || ZipUtil.unzip(zipFile, destFolder)); // fallback to OLAT unzipping
 		} catch (Exception e) {
 			return false;
 		}
