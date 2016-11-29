@@ -39,7 +39,8 @@ public class DefaultFlexiColumnModel implements FlexiColumnModel {
 	private int columnIndex;
 
 	private boolean sortable;
-	private boolean exportable = true;
+	private boolean exportable;
+	private boolean forExportOnly;
 	private String sortedKey;
 
 	private boolean defaultVisible;
@@ -65,12 +66,27 @@ public class DefaultFlexiColumnModel implements FlexiColumnModel {
 	public DefaultFlexiColumnModel(boolean defVisible, String headerKey, int columnIndex, boolean sortable, String sortKey) {
 		this(defVisible, headerKey, columnIndex, sortable, sortKey, FlexiColumnModel.ALIGNMENT_LEFT,  new TextFlexiCellRenderer());
 	}
+
+	public DefaultFlexiColumnModel(boolean defVisible, boolean exportable, boolean forExportOnly, String headerKey, int columnIndex, boolean sortable, String sortKey) {
+		this(defVisible, exportable, forExportOnly, headerKey, columnIndex, sortable, sortKey, FlexiColumnModel.ALIGNMENT_LEFT,  new TextFlexiCellRenderer());
+	}
 	
 	public DefaultFlexiColumnModel(boolean defVisible, String headerKey, int columnIndex, boolean sortable, String sortKey, int alignment, FlexiCellRenderer cellRenderer) {
+		this(defVisible, true, false, headerKey, null, columnIndex, sortable, sortKey, alignment, cellRenderer);
+	}
+
+	public DefaultFlexiColumnModel(boolean defVisible, boolean exportable, boolean forExportOnly, String headerKey, int columnIndex, boolean sortable, String sortKey, int alignment, FlexiCellRenderer cellRenderer) {
+		this(defVisible, exportable, forExportOnly, headerKey, null, columnIndex, sortable, sortKey, alignment, cellRenderer);
+	}
+
+	public DefaultFlexiColumnModel(boolean defVisible, boolean exportable, boolean forExportOnly, String headerKey, String headerLabel, int columnIndex, boolean sortable, String sortKey, int alignment, FlexiCellRenderer cellRenderer) {
 		this.defaultVisible = defVisible;
+		this.exportable = exportable;
+		this.forExportOnly = forExportOnly;
 		this.sortable = sortable;
 		this.sortedKey = sortKey;
 		this.headerKey = headerKey;
+		this.headerLabel = headerLabel;
 		this.columnIndex = columnIndex;
 		this.columnKey = headerKey.replace(".", "").toLowerCase();
 		this.alignment = alignment;
@@ -80,6 +96,11 @@ public class DefaultFlexiColumnModel implements FlexiColumnModel {
 	@Override
 	public boolean isAlwaysVisible() {
 		return false;
+	}
+
+	@Override
+	public boolean isForExportOnly() {
+		return forExportOnly;
 	}
 
 	@Override

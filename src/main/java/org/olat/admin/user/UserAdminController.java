@@ -25,17 +25,9 @@
 
 package org.olat.admin.user;
 
-import java.util.List;
-
 import ch.uzh.campus.presentation.DelegationController;
 import org.olat.admin.user.course.CourseOverviewController;
-import org.olat.admin.user.groups.GroupOverviewController;
-import org.olat.basesecurity.Authentication;
-import org.olat.basesecurity.BaseSecurity;
-import org.olat.basesecurity.BaseSecurityManager;
-import org.olat.basesecurity.BaseSecurityModule;
-import org.olat.basesecurity.Constants;
-import org.olat.basesecurity.SecurityGroup;
+import org.olat.basesecurity.*;
 import org.olat.core.commons.modules.bc.FolderConfig;
 import org.olat.core.commons.persistence.DBFactory;
 import org.olat.core.commons.services.notifications.NotificationUIFactory;
@@ -53,22 +45,25 @@ import org.olat.core.gui.control.WindowControl;
 import org.olat.core.gui.control.controller.BasicController;
 import org.olat.core.gui.control.generic.dtabs.Activateable2;
 import org.olat.core.id.Identity;
+import org.olat.core.id.OLATResourceable;
+import org.olat.core.id.context.BusinessControlFactory;
 import org.olat.core.id.context.ContextEntry;
 import org.olat.core.id.context.StateEntry;
 import org.olat.core.logging.OLATSecurityException;
+import org.olat.core.logging.activity.ThreadLocalUserActivityLogger;
 import org.olat.core.util.WebappHelper;
 import org.olat.core.util.resource.OresHelper;
 import org.olat.core.util.vfs.QuotaManager;
 import org.olat.course.certificate.ui.CertificateAndEfficiencyStatementListController;
+import org.olat.group.ui.main.UserAdminBusinessGroupListController;
 import org.olat.ldap.LDAPLoginManager;
 import org.olat.ldap.LDAPLoginModule;
 import org.olat.properties.Property;
-import org.olat.user.ChangePrefsController;
-import org.olat.user.DisplayPortraitController;
-import org.olat.user.ProfileAndHomePageEditController;
-import org.olat.user.PropFoundEvent;
-import org.olat.user.UserPropertiesController;
+import org.olat.user.*;
+import org.olat.util.logging.activity.LoggingResourceable;
 import org.springframework.beans.factory.annotation.Autowired;
+
+import java.util.List;
 
 /**
  *  Initial Date:  Jul 29, 2003
@@ -112,7 +107,6 @@ public class UserAdminController extends BasicController implements Activateable
 	private Link backLink;
 	private ProfileAndHomePageEditController userProfileCtr;
 	private CourseOverviewController courseCtr;
-	private GroupOverviewController grpCtr;
 	private CertificateAndEfficiencyStatementListController efficicencyCtrl;
 
 	private final boolean isOlatAdmin;
@@ -310,12 +304,15 @@ public class UserAdminController extends BasicController implements Activateable
 			this.listenTo(propertiesCtr);
 			userTabP.addTab(translate(NLS_EDIT_UPROP), propertiesCtr.getInitialComponent());
 		}
-		
-		Boolean canStartGroups = BaseSecurityModule.USERMANAGER_CAN_START_GROUPS;
-		grpCtr = new GroupOverviewController(ureq, getWindowControl(), identity, canStartGroups);
-		listenTo(grpCtr);
-		userTabP.addTab(translate(NLS_VIEW_GROUPS), grpCtr.getInitialComponent());
-		
+
+		OLATResourceable ores = OresHelper.createOLATResourceableInstance("AllGroups", 0L);
+		ThreadLocalUserActivityLogger.addLoggingResourceInfo(LoggingResourceable.wrapBusinessPath(ores));
+		WindowControl bwControl = BusinessControlFactory.getInstance().createBusinessWindowControl(ores, null, getWindowControl());
+		UserAdminBusinessGroupListController userAdminBusinessGroupListController = new UserAdminBusinessGroupListController(ureq, bwControl, "adm", identity);
+		listenTo(userAdminBusinessGroupListController);
+		userTabP.addTab(translate(NLS_VIEW_GROUPS), userAdminBusinessGroupListController.getInitialComponent());
+		userAdminBusinessGroupListController.doDefaultSearch();
+
 		courseCtr = new CourseOverviewController(ureq, getWindowControl(), identity);
 		listenTo(courseCtr);
 		userTabP.addTab(translate(NLS_VIEW_COURSES), courseCtr.getInitialComponent());
@@ -386,11 +383,7 @@ public class UserAdminController extends BasicController implements Activateable
 		userShortDescrCtr = new UserShortDescription(ureq, getWindowControl(), identity);
 		myContent.put("userShortDescription", userShortDescrCtr.getInitialComponent());
 	}
-	
-	/**
-	 * 
-	 * @see org.olat.core.gui.control.DefaultController#doDispose(boolean)
-	 */
+
 	@Override
 	protected void doDispose() {
 		//child controllers registered with listenTo get disposed in BasicController

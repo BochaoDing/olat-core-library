@@ -1154,7 +1154,7 @@ public class BusinessGroupDAO {
 		
 		//resources
 		StringBuilder sr = new StringBuilder();
-		sr.append("select entry.key, entry.displayname, bgi.key from repoentrytobusinessgroup as v")
+		sr.append("select distinct entry.key, entry.displayname, bgi.key from repoentrytobusinessgroup as v")
 		  .append(" inner join v.entry entry")
 		  .append(" inner join v.businessGroup relationToGroup")
 		  .append(" inner join relationToGroup.businessGroups bgi");
