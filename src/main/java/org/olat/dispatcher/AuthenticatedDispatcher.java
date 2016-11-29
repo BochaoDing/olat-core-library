@@ -103,11 +103,11 @@ public class AuthenticatedDispatcher implements Dispatcher {
 		if ( log.isDebug() ) {
 			startExecute = System.currentTimeMillis();
 		}
-		
+
 		UserSession usess = CoreSpringFactory.getImpl(UserSessionManager.class).getUserSession(request);
 		UserRequest ureq = null;
 		try{
-			//upon creation URL is checked for 
+			//upon creation URL is checked for
 			ureq = new UserRequestImpl(uriPrefix, request, response);
 		} catch(NumberFormatException nfe) {
 			//MODE could not be decoded
@@ -122,7 +122,7 @@ public class AuthenticatedDispatcher implements Dispatcher {
 			DispatcherModule.sendBadRequest(request.getPathInfo(), response);
 			return;
 		}
-		
+
 		boolean auth = usess.isAuthenticated();
 
 		if (!auth) {
@@ -173,7 +173,7 @@ public class AuthenticatedDispatcher implements Dispatcher {
 
 		// authenticated!
 		try {
-			
+
 			//kill session if not secured via SSL
 			if (forceSecureAccessOnly && !request.isSecure()) {
 				SessionInfo sessionInfo = usess.getSessionInfo();
@@ -190,15 +190,15 @@ public class AuthenticatedDispatcher implements Dispatcher {
 				DispatcherModule.redirectToDefaultDispatcher(response);
 				return;
 			}
-			
+
 			SessionInfo sessionInfo = usess.getSessionInfo();
 			if (sessionInfo==null) {
 				DispatcherModule.redirectToDefaultDispatcher(response);
 				return;
 			}
-			
+
 			if (userBasedLogLevelManager!=null) userBasedLogLevelManager.activateUsernameBasedLogLevel(sessionInfo.getLogin());
-			
+
 			sessionInfo.setLastClickTime();
 			String origUrl = (String) usess.removeEntryFromNonClearedStore(AUTHDISPATCHER_ENTRYURL);
 			if (origUrl != null) {
@@ -222,7 +222,7 @@ public class AuthenticatedDispatcher implements Dispatcher {
 					} catch (UnsupportedEncodingException e) {
 						log.error("Unsupported encoding", e);
 					}
-					
+
 					String[] split = restPart.split("/");
 					if(restPart.startsWith("repo/go")) {
 						businessPath = convertJumpInURL(restPart, ureq);
@@ -242,7 +242,7 @@ public class AuthenticatedDispatcher implements Dispatcher {
 				log.error("An exception occured while handling the invalid request parameter exception...", e1);
 			}
 		} catch (Throwable th) {
-			// Do not log as Warn or Error here, log as ERROR in MsgFactory => ExceptionWindowController throws an OLATRuntimeException 
+			// Do not log as Warn or Error here, log as ERROR in MsgFactory => ExceptionWindowController throws an OLATRuntimeException
 			log.debug("handleError in AuthenticatedDispatcher throwable=" + th);
 			DispatcherModule.handleError();
 			ChiefController msgcc = MsgFactory.createMessageChiefController(ureq, th);
@@ -258,7 +258,7 @@ public class AuthenticatedDispatcher implements Dispatcher {
 			}
 		}
 	}
-	
+
 	/**
 	 * http://localhost:8080/olat/auth/repo/go?rid=819242&amp;par=77013818723561
 	 * @param requestPart
@@ -277,14 +277,14 @@ public class AuthenticatedDispatcher implements Dispatcher {
 				//it can happen
 			}
 		}
-		return businessPath;				
+		return businessPath;
 	}
-	
+
 	private void processValidDispatchURI(UserRequest ureq, UserSession usess, HttpServletRequest request, HttpServletResponse response) {
 		Windows ws = Windows.getWindows(ureq);
 		Window window = ws.getWindow(ureq);
 		if (window == null) {
-			//probably a 
+			//probably a
 			if(usess.isSavedSession() && !usess.getHistoryStack().isEmpty()) {
 				DispatcherModule.redirectToDefaultDispatcher(response);
 			} else {
@@ -303,7 +303,7 @@ public class AuthenticatedDispatcher implements Dispatcher {
 			}
 		}
 	}
-	
+
 	private boolean processBusinessPath(String businessPath, UserRequest ureq, UserSession usess) {
 		WindowBackOffice windowBackOffice = Windows.getWindows(usess).getChiefController().getWindow().getWindowBackOffice();
 
@@ -312,7 +312,7 @@ public class AuthenticatedDispatcher implements Dispatcher {
 			WindowSettings settings = WindowSettings.parse(wSettings);
 			windowBackOffice.setWindowSettings(settings);
 		}
-		
+
 		try {
 			BusinessControl bc = null;
 			String historyPointId = ureq.getHttpReq().getParameter("historyPointId");
@@ -326,7 +326,7 @@ public class AuthenticatedDispatcher implements Dispatcher {
 
 			WindowControl wControl = windowBackOffice.getChiefController().getWindowControl();
 			WindowControl bwControl = BusinessControlFactory.getInstance().createBusinessWindowControl(bc, wControl);
-			NewControllerFactory.getInstance().launch(ureq, bwControl);	
+			NewControllerFactory.getInstance().launch(ureq, bwControl);
 			// render the window
 			Window w = windowBackOffice.getWindow();
 			w.dispatchRequest(ureq, true); // renderOnly

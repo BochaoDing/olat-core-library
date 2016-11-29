@@ -122,21 +122,21 @@ import de.tuchemnitz.wizard.workflows.coursecreation.steps.CcStep00;
 /**
  * Initial Date: Apr 15, 2004
  *
- * @author 
- * 
+ * @author
+ *
  * Comment: Mike Stock
- * 
+ *
  */
 public class CourseHandler implements RepositoryHandler {
 
 	public static final String EDITOR_XML = "editortreemodel.xml";
 	private static final OLog log = Tracing.createLoggerFor(CourseHandler.class);
-	
+
 	@Override
 	public boolean isCreate() {
 		return true;
 	}
-	
+
 	@Override
 	public RepositoryEntry createResource(Identity initialAuthor, String displayname, String description, Object createObject, Locale locale) {
 		RepositoryService repositoryService = CoreSpringFactory.getImpl(RepositoryService.class);
@@ -149,7 +149,7 @@ public class CourseHandler implements RepositoryHandler {
 		log.audit("Course created: " + course.getCourseTitle());
 		return re;
 	}
-	
+
 	@Override
 	public boolean isPostCreateWizardAvailable() {
 		return true;
@@ -166,18 +166,18 @@ public class CourseHandler implements RepositoryHandler {
 		try {
 			IndexFileFilter visitor = new IndexFileFilter();
 			Path fPath = PathUtils.visit(file, filename, visitor);
-			
+
 			if(visitor.isValid()) {
 				Path repoXml = fPath.resolve("export/repo.xml");
 				if(repoXml != null) {
 					eval.setValid(true);
-					
+
 					RepositoryEntryImport re = RepositoryEntryImportExport.getConfiguration(repoXml);
 					if(re != null) {
 						eval.setDisplayname(re.getDisplayname());
 						eval.setDescription(re.getDescription());
 					}
-					
+
 					eval.setReferences(hasReferences(fPath));
 				}
 			}
@@ -187,7 +187,7 @@ public class CourseHandler implements RepositoryHandler {
 		}
 		return eval;
 	}
-	
+
 	/**
 	 * Find references in the export folder with the repo.xml.
 	 * @param fPath
@@ -211,7 +211,7 @@ public class CourseHandler implements RepositoryHandler {
 		}
 		return hasReferences;
 	}
-	
+
 	@Override
 	public RepositoryEntry importResource(Identity initialAuthor, String initialAuthorAlt, String displayname,
 			String description, boolean withReferences, Locale locale, File file, String filename) {
@@ -233,7 +233,7 @@ public class CourseHandler implements RepositoryHandler {
 		Structure runStructure = course.getRunStructure();
 		runStructure.getRootNode().removeAllChildren();
 		CourseFactory.saveCourse(course.getResourceableId());
-		
+
 		//import references
 		CourseEditorTreeNode rootNode = (CourseEditorTreeNode)course.getEditorTreeModel().getRootNode();
 		importReferences(rootNode, course, initialAuthor, locale, withReferences);
@@ -252,7 +252,7 @@ public class CourseHandler implements RepositoryHandler {
 		//upgrade course
 		course = CourseFactory.loadCourse(cgm.getCourseResource());
 		course.postImport(fImportBaseDirectory, envMapper);
-		
+
 		//rename root nodes
 		course.getRunStructure().getRootNode().setShortTitle(Formatter.truncateOnly(displayname, 25)); //do not use truncate!
 		course.getRunStructure().getRootNode().setLongTitle(displayname);
@@ -260,34 +260,41 @@ public class CourseHandler implements RepositoryHandler {
 		CourseEditorTreeNode editorRootNode = ((CourseEditorTreeNode)course.getEditorTreeModel().getRootNode());
 		editorRootNode.getCourseNode().setShortTitle(Formatter.truncateOnly(displayname, 25)); //do not use truncate!
 		editorRootNode.getCourseNode().setLongTitle(displayname);
-	
+
 		// mark entire structure as dirty/new so the user can re-publish
 		markDirtyNewRecursively(editorRootNode);
 		// root has already been created during export. Unmark it.
-		editorRootNode.setNewnode(false);		
-		
+		editorRootNode.setNewnode(false);
+
 		//save and close edit session
 		CourseFactory.saveCourse(course.getResourceableId());
 		CourseFactory.closeCourseEditSession(course.getResourceableId(), true);
-		
+
 		RepositoryEntryImportExport imp = new RepositoryEntryImportExport(fImportBaseDirectory);
 		if(imp.anyExportedPropertiesAvailable()) {
 			re = imp.importContent(re, getMediaContainer(re));
 		}
-		
+
 		//import reminders
 		importReminders(re, fImportBaseDirectory, envMapper, initialAuthor);
-		
+
 		//clean up export folder
 		cleanExportAfterImport(fImportBaseDirectory);
-		
+
 		return re;
 	}
-	
+
 	private void cleanExportAfterImport(File fImportBaseDirectory) {
 		try {
 			Path exportDir = fImportBaseDirectory.toPath();
 			FileUtils.deleteDirsAndFiles(exportDir);
+// @TODO find out the good place to move export directory; "../cleanup" is not good enough. Also, write a cron job to clean that folder
+//			File dir = new File(fImportBaseDirectory.getParent() + "/cleanup");
+//			if (!dir.mkdir()) {
+//				throw new IOException("Could not move export to cleanup");
+//			}
+//			Path moved = Files.move(exportDir, dir.toPath(), REPLACE_EXISTING);
+//			log.audit("Cleaned export folder after import by moving it to " + moved.toString());
 		} catch (Exception e) {
 			log.error("", e);
 		}
