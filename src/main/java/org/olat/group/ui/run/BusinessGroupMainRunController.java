@@ -63,10 +63,7 @@ import org.olat.core.gui.control.generic.messages.MessageUIFactory;
 import org.olat.core.gui.translator.Translator;
 import org.olat.core.id.Identity;
 import org.olat.core.id.OLATResourceable;
-import org.olat.core.id.context.BusinessControlFactory;
-import org.olat.core.id.context.ContextEntry;
-import org.olat.core.id.context.HistoryPoint;
-import org.olat.core.id.context.StateEntry;
+import org.olat.core.id.context.*;
 import org.olat.core.logging.AssertException;
 import org.olat.core.logging.activity.OlatResourceableType;
 import org.olat.core.logging.activity.ThreadLocalUserActivityLogger;
@@ -879,6 +876,10 @@ public class BusinessGroupMainRunController extends MainLayoutBasicController im
 	}
 	
 	protected final void doClose(UserRequest ureq) {
+		// Remove context to be closed from history stack
+		BusinessControl businessControl = getWindowControl().getBusinessControl();
+		UserSession userSession = ureq.getUserSession();
+		userSession.removeFromHistory(businessControl);
 		OLATResourceable ores = businessGroup.getResource();
 		getWindowControl().getWindowBackOffice().getWindow()
 			.getDTabs().closeDTab(ureq, ores, launchedFromPoint);

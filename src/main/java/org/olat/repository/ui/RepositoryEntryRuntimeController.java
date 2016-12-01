@@ -47,10 +47,7 @@ import org.olat.core.gui.control.generic.layout.MainLayoutController;
 import org.olat.core.gui.media.MediaResource;
 import org.olat.core.id.OLATResourceable;
 import org.olat.core.id.Roles;
-import org.olat.core.id.context.BusinessControlFactory;
-import org.olat.core.id.context.ContextEntry;
-import org.olat.core.id.context.HistoryPoint;
-import org.olat.core.id.context.StateEntry;
+import org.olat.core.id.context.*;
 import org.olat.core.logging.OLATSecurityException;
 import org.olat.core.logging.activity.ThreadLocalUserActivityLogger;
 import org.olat.core.util.StringHelper;
@@ -697,6 +694,10 @@ public class RepositoryEntryRuntimeController extends MainLayoutBasicController 
 	}
 	
 	protected final void doClose(UserRequest ureq) {
+		// Remove context to be closed from history stack
+		BusinessControl businessControl = getWindowControl().getBusinessControl();
+		UserSession userSession = ureq.getUserSession();
+		userSession.removeFromHistory(businessControl);
 		// Now try to go back to place that is attacked to (optional) root back business path
 		getWindowControl().getWindowBackOffice().getWindow().getDTabs()
 			.closeDTab(ureq, re.getOlatResource(), launchedFromPoint);
