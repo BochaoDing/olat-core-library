@@ -144,16 +144,17 @@ import org.olat.util.logging.activity.LoggingResourceable;
  * Description: <BR>
  * Use the course factory to create course run and edit controllers or to load a
  * course from disk
- * 
+ *
  * Initial Date: Oct 12, 2004
  * @author Felix Jost
  * @author guido
  */
 public class CourseFactory extends BasicManager {
-		
+
 	private static CacheWrapper<Long,PersistingCourseImpl> loadedCourses;
 	private static ConcurrentMap<Long, ModifyCourseEvent> modifyCourseEvents = new ConcurrentHashMap<Long, ModifyCourseEvent>();
 
+	public static final boolean USE_SYSTEM_UNZIP = false;
 	public static final String COURSE_EDITOR_LOCK = "courseEditLock";
   //this is the lock that must be aquired at course editing, copy course, export course, configure course.
 	private static Map<Long,PersistingCourseImpl> courseEditSessionMap = new ConcurrentHashMap<Long,PersistingCourseImpl>();
@@ -161,8 +162,8 @@ public class CourseFactory extends BasicManager {
 	private static RepositoryManager repositoryManager;
 	private static ReferenceManager referenceManager;
 	private static RepositoryService repositoryService;
-	
-	
+
+
 	/**
 	 * [used by spring]
 	 */
@@ -176,7 +177,7 @@ public class CourseFactory extends BasicManager {
 
 	/**
 	 * Create an editor controller for the given course resourceable
-	 * 
+	 *
 	 * @param ureq
 	 * @param wControl
 	 * @param courseEntry
@@ -209,7 +210,7 @@ public class CourseFactory extends BasicManager {
 	/**
 	 * Creates an empty course with a single root node. The course is linked to
 	 * the resourceable ores. The efficiency statment are enabled per default!
-	 * 
+	 *
 	 * @param ores
 	 * @param shortTitle Short title of root node
 	 * @param longTitle Long title of root node
@@ -220,9 +221,9 @@ public class CourseFactory extends BasicManager {
 			String shortTitle, String longTitle, String learningObjectives) {
 		OLATResource courseResource = courseEntry.getOlatResource();
 		PersistingCourseImpl newCourse = new PersistingCourseImpl(courseResource);
-		// Put new course in course cache    
+		// Put new course in course cache
 		loadedCourses.put(newCourse.getResourceableId(), newCourse);
-		
+
 		Structure initialStructure = new Structure();
 		CourseNode runRootNode = new STCourseNode();
 		runRootNode.setShortTitle(shortTitle);
@@ -237,7 +238,7 @@ public class CourseFactory extends BasicManager {
 		editorTreeModel.setRootNode(editorRootNode);
 		newCourse.setEditorTreeModel(editorTreeModel);
 		newCourse.saveEditorTreeModel();
-		
+
 		//enable efficiency statement per default
 		CourseConfig courseConfig = newCourse.getCourseConfig();
 		courseConfig.setEfficencyStatementIsEnabled(true);
@@ -245,8 +246,8 @@ public class CourseFactory extends BasicManager {
 
 		return newCourse;
 	}
-	
-	
+
+
 
 	/**
 	 * Gets the course from cache if already there, or loads the course and puts it into cache.
@@ -266,7 +267,7 @@ public class CourseFactory extends BasicManager {
 			// that no invalidate cache event was missed
 			PersistingCourseImpl theCourse = new PersistingCourseImpl(courseEntry);
 			theCourse.load();
-			
+
 			PersistingCourseImpl cachedCourse = loadedCourses.putIfAbsent(resourceableId, theCourse);
 			if(cachedCourse != null) {
 				course = cachedCourse;
@@ -277,10 +278,10 @@ public class CourseFactory extends BasicManager {
 		} else {
 			course.updateCourseEntry(courseEntry);
 		}
-		
+
 		return course;
 	}
-	
+
 	public static ICourse loadCourse(final Long resourceableId) {
 		if (resourceableId == null) throw new AssertException("No resourceable ID found.");
 		PersistingCourseImpl course = loadedCourses.get(resourceableId);
@@ -295,7 +296,7 @@ public class CourseFactory extends BasicManager {
 			}
 			PersistingCourseImpl theCourse = new PersistingCourseImpl(resource);
 			theCourse.load();
-			
+
 			PersistingCourseImpl cachedCourse = loadedCourses.putIfAbsent(resourceableId, theCourse);
 			if(cachedCourse != null) {
 				course = cachedCourse;
@@ -308,7 +309,7 @@ public class CourseFactory extends BasicManager {
 
 	/**
 	 * Load the course for the given course resourceable
-	 * 
+	 *
 	 * @param olatResource
 	 * @return the course for the given course resourceable
 	 */
@@ -316,30 +317,30 @@ public class CourseFactory extends BasicManager {
 		Long resourceableId = olatResource.getResourceableId();
 		return loadCourse(resourceableId);
 	}
-			
+
 	/**
-	 * 
+	 *
 	 * @param resourceableId
 	 */
 	private static void removeFromCache(Long resourceableId) { //o_clusterOK by: ld
-		loadedCourses.remove(resourceableId);	
+		loadedCourses.remove(resourceableId);
 		log.debug("removeFromCache");
 	}
-	
+
 	/**
 	 * Puts the current course in the local cache and removes it from other caches (other cluster nodes).
 	 * @param resourceableId
 	 * @param course
 	 */
-	private static void updateCourseInCache(Long resourceableId, PersistingCourseImpl course) { //o_clusterOK by:ld    
-		loadedCourses.update(resourceableId, course);				
+	private static void updateCourseInCache(Long resourceableId, PersistingCourseImpl course) { //o_clusterOK by:ld
+		loadedCourses.update(resourceableId, course);
 		log.debug("updateCourseInCache");
 	}
 
 	/**
 	 * Delete a course including its course folder and all references to resources
 	 * this course holds.
-	 * 
+	 *
 	 * @param res
 	 */
 	public static void deleteCourse(RepositoryEntry entry, OLATResource res) {
@@ -352,7 +353,7 @@ public class CourseFactory extends BasicManager {
 		} catch (CorruptedCourseException e) {
 			log.error("Try to delete a corrupted course, I make want I can.");
 		}
-		
+
 		// call cleanupOnDelete for nodes
 		if(course != null) {
 			Visitor visitor = new NodeDeletionVisitor(course);
@@ -372,7 +373,7 @@ public class CourseFactory extends BasicManager {
 		if(course != null) {
 			CourseConfigManagerImpl.getInstance().deleteConfigOf(course);
 		}
-		
+
 		CoreSpringFactory.getImpl(TaskExecutorManager.class).delete(res);
 
 		// delete course group- and rightmanagement
@@ -413,7 +414,7 @@ public class CourseFactory extends BasicManager {
 		CalendarManager calMan = CoreSpringFactory.getImpl(CalendarManager.class);
 		CalendarNotificationManager notificationManager = CoreSpringFactory.getImpl(CalendarNotificationManager.class);
 		NotificationsManager nfm = NotificationsManager.getInstance();
-		
+
 		if(course != null) {
 			CourseGroupManager courseGroupManager = course.getCourseEnvironment().getCourseGroupManager();
 			List<BusinessGroup> learningGroups = courseGroupManager.getAllBusinessGroups();
@@ -431,7 +432,7 @@ public class CourseFactory extends BasicManager {
 		try {
 			/**
 			 * TODO:gs 2010-01-26
-			 * OLAT-4947: if we do not have an repo entry we get an exception here. 
+			 * OLAT-4947: if we do not have an repo entry we get an exception here.
 			 * This is normal in the case of courseimport and click canceling.
 			 */
 			KalendarRenderWrapper courseCalendar = calMan.getCalendarForDeletion(res);
@@ -444,12 +445,12 @@ public class CourseFactory extends BasicManager {
 			//if we have a broken course (e.g. canceled import or no repo entry somehow) skip calendar deletion...
 		}
 	}
-	
+
 	/**
 	 * Copies a course. More specifically, the run and editor structures and the
 	 * course folder will be copied to create a new course.
-	 *  
-	 * 
+	 *
+	 *
 	 * @param sourceRes OLATResourceable
 	 * @param targetRes OLATResource
 	 * @return copy of the course.
@@ -458,10 +459,10 @@ public class CourseFactory extends BasicManager {
 		PersistingCourseImpl sourceCourse = (PersistingCourseImpl)loadCourse(sourceRes);
 		PersistingCourseImpl targetCourse = new PersistingCourseImpl(targetRes);
 		File fTargetCourseBasePath = targetCourse.getCourseBaseContainer().getBasefile();
-		
+
 		//close connection before file copy
 		DBFactory.getInstance().commitAndCloseSession();
-		
+
 		synchronized (sourceCourse) { // o_clusterNOK - cannot be solved with doInSync since could take too long (leads to error: "Lock wait timeout exceeded")
 			// copy configuration
 			CourseConfig courseConf = CourseConfigManagerImpl.getInstance().copyConfigOf(sourceCourse);
@@ -475,7 +476,7 @@ public class CourseFactory extends BasicManager {
 			// copy course folder
 			File fSourceCourseFolder = sourceCourse.getIsolatedCourseBaseFolder();
 			if (fSourceCourseFolder.exists()) FileUtils.copyDirToDir(fSourceCourseFolder, fTargetCourseBasePath, false, "copy course folder");
-			
+
 			// copy folder nodes directories
 			File fSourceFoldernodesFolder = new File(
 					FolderConfig.getCanonicalRoot() + BCCourseNode.getFoldernodesPathRelToFolderBase(sourceCourse.getCourseEnvironment())
@@ -487,7 +488,7 @@ public class CourseFactory extends BasicManager {
 					FolderConfig.getCanonicalRoot() + TACourseNode.getTaskFoldersPathRelToFolderRoot(sourceCourse.getCourseEnvironment())
 			);
 			if (fSourceTaskfoldernodesFolder.exists()) FileUtils.copyDirToDir(fSourceTaskfoldernodesFolder, fTargetCourseBasePath, false, "copy task folder directories");
-			
+
 			// update references
 			List<Reference> refs = referenceManager.getReferences(sourceCourse);
 			int count = 0;
@@ -497,7 +498,7 @@ public class CourseFactory extends BasicManager {
 					DBFactory.getInstance().intermediateCommit();
 				}
 			}
-			
+
 			// set quotas
 			Quota sourceQuota = VFSManager.isTopLevelQuotaContainer(sourceCourse.getCourseFolderContainer());
 			Quota targetQuota = VFSManager.isTopLevelQuotaContainer(targetCourse.getCourseFolderContainer());
@@ -509,12 +510,12 @@ public class CourseFactory extends BasicManager {
 				}
 			}
 		}
-		return targetRes;			
+		return targetRes;
 	}
 
 	/**
-	 * Exports an entire course to a zip file. 
-	 * 
+	 * Exports an entire course to a zip file.
+	 *
 	 * @param sourceRes
 	 * @param fTargetZIP
 	 * @return true if successfully exported, false otherwise.
@@ -548,7 +549,7 @@ public class CourseFactory extends BasicManager {
 
 	/**
 	 * Import a course from a ZIP file.
-	 * 
+	 *
 	 * @param ores
 	 * @param zipFile
 	 * @return New Course.
@@ -557,17 +558,20 @@ public class CourseFactory extends BasicManager {
 		// Generate course with filesystem
 		PersistingCourseImpl newCourse = new PersistingCourseImpl(ores);
 		CourseConfigManagerImpl.getInstance().deleteConfigOf(newCourse);
-		
-		// Unzip course strucure in new course
+
+		// Unzip course structure in new course
 		File fCanonicalCourseBasePath = newCourse.getCourseBaseContainer().getBasefile();
-		if (ZipUtil.unzip(zipFile, fCanonicalCourseBasePath)) {
-			// Load course strucure now
+		boolean unzipped = USE_SYSTEM_UNZIP
+				? unzipCourse(zipFile, fCanonicalCourseBasePath)
+				: ZipUtil.unzip(zipFile, fCanonicalCourseBasePath);
+		if (unzipped) {
+			// Load course structure now
 			try {
 				newCourse.load();
-				CourseConfig cc = CourseConfigManagerImpl.getInstance().loadConfigFor(newCourse);								
+				CourseConfig cc = CourseConfigManagerImpl.getInstance().loadConfigFor(newCourse);
 				//newCourse is not in cache yet, so we cannot call setCourseConfig()
 				newCourse.setCourseConfig(cc);
-				loadedCourses.put(newCourse.getResourceableId(), newCourse);						
+				loadedCourses.put(newCourse.getResourceableId(), newCourse);
 				return newCourse;
 			} catch (AssertException ae) {
 				// ok failed, cleanup below
@@ -575,9 +579,21 @@ public class CourseFactory extends BasicManager {
 				log.error("rollback importCourseFromZip",ae);
 			}
 		}
-		// cleanup if not successfull
+		// cleanup if not successful
 		FileUtils.deleteDirsAndFiles(fCanonicalCourseBasePath, true, true);
 		return null;
+	}
+
+	private static boolean unzipCourse(File zipFile, File destFolder)
+	{
+		try {
+			Runtime r = Runtime.getRuntime();
+			Process p = r.exec("unzip " + zipFile.getPath() + " -d " + destFolder.getPath());
+			int result = p.waitFor();
+			return (result == 0 || ZipUtil.unzip(zipFile, destFolder)); // fallback to OLAT unzipping
+		} catch (Exception e) {
+			return false;
+		}
 	}
 
 	/**

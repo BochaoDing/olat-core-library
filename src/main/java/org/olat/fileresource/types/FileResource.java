@@ -143,6 +143,10 @@ public class FileResource implements OLATResourceable {
 			
 			Path destDir = targetDirectory.toPath();
 			Files.walkFileTree(path, new CopyVisitor(path, destDir, filter));
+			try {
+				path.getFileSystem().close(); // LMSUZH-45 make sure that ZipFileSystem is closed, so that resource is really freed.
+			} catch (UnsupportedOperationException e) {
+			}
 			return true;
 		} catch (IOException e) {
 			log.error("", e);

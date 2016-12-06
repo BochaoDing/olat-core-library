@@ -50,16 +50,18 @@ public class CreationCampusCourseSelectionController extends CampusCourseDialogS
 		OLATResource templateOlatResource = OLATResourceManager.getInstance().findResourceable(
 				table.getSelectedEntry(event).getOlatResource());
 		try {
-			// OLATNG-283: check the size of the course and how it's combined with user role. Only admins can create large courses.
-			Roles roles = userRequest.getUserSession().getRoles();
-			ICourse template = CourseFactory.loadCourse(templateOlatResource.getResourceableId());
-			if (!roles.isOLATAdmin() && template.exceedsSizeLimit()) {
-				showError("copy.skipped.sizelimit.exceeded");
-			} else {
-				CampusCourse campusCourse = campusCourseService.createCampusCourseFromTemplate(templateOlatResource,
-						sapCampusCourseId, userRequest.getIdentity());
-				listener.onSuccess(userRequest, campusCourse);
+			// Check template course for custom quotas only if it is requested, otherwise let copying of any course
+			if (checkTemplateForQuotas()) {
+				Roles roles = userRequest.getUserSession().getRoles();
+				ICourse template = CourseFactory.loadCourse(templateOlatResource.getResourceableId());
+				if (!roles.isOLATAdmin() && template.exceedsSizeLimit()) {
+					showError("copy.skipped.sizelimit.exceeded");
+					return;
+				}
 			}
+			CampusCourse campusCourse = campusCourseService.createCampusCourseFromTemplate(templateOlatResource,
+					sapCampusCourseId, userRequest.getIdentity());
+			listener.onSuccess(userRequest, campusCourse);
 		} catch (Exception e) {
 
 			// OLATNG-341: Error log to find out more about error (to be removed after problem is solved)
@@ -72,4 +74,9 @@ public class CreationCampusCourseSelectionController extends CampusCourseDialogS
 			listener.onError(userRequest, e);
 		}
 	}
+
+	private boolean checkTemplateForQuotas() {
+		return false; // TODO make it configurable
+	}
+
 }
