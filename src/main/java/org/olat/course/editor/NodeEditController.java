@@ -106,8 +106,10 @@ public class NodeEditController extends ActivateableTabbableDefaultController im
 		/*
 		 * the direct child tabs.
 		 */
-		this.childTabsCntrllr = childTabsController;		
-		listenTo(childTabsCntrllr);
+		if (childTabsController != null) {
+			childTabsCntrllr = childTabsController;
+			listenTo(childTabsCntrllr);
+		}
 		
 		// description and metadata component		
 		descriptionVc = createVelocityContainer("nodeedit");
