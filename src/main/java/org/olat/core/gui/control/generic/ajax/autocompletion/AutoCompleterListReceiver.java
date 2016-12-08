@@ -98,7 +98,7 @@ public class AutoCompleterListReceiver extends LogDelegator implements ListRecei
 				}
 			}
 			// add value to be displayed
-			object.put(VALUE, StringHelper.escapeHtml(displayText));
+			object.put(VALUE, displayText);
 			// add optional css class
 			if (iconCssClass == null) {
 				object.put(CSS_CLASS, CSS_CLASS_EMPTY);								
