@@ -35,6 +35,7 @@ import org.olat.core.gui.control.Event;
 import org.olat.core.gui.control.WindowControl;
 import org.olat.core.gui.control.generic.tabbable.ActivateableTabbableDefaultController;
 import org.olat.core.gui.control.generic.tabbable.TabbableController;
+import org.olat.core.gui.translator.Translator;
 import org.olat.core.helpers.Settings;
 import org.olat.core.logging.activity.CourseLoggingAction;
 import org.olat.core.logging.activity.ThreadLocalUserActivityLogger;
@@ -88,6 +89,15 @@ public class NodeEditController extends ActivateableTabbableDefaultController im
 	public static final Event NODECONFIG_CHANGED_EVENT = new Event("nodeconfigchanged");
 	private static final String[] paneKeys = { PANE_TAB_VISIBILITY, PANE_TAB_GENERAL };
 
+	public NodeEditController(UserRequest ureq, WindowControl wControl,
+							  CourseEditorTreeModel editorModel,
+							  ICourse course, CourseNode luNode,
+							  UserCourseEnvironment euce,
+							  TabbableController childTabsController) {
+		this(ureq, wControl, editorModel, course, luNode, euce,
+				childTabsController,null);
+	}
+
 	/**
 	 * @param ureq
 	 * @param editorModel
@@ -96,8 +106,8 @@ public class NodeEditController extends ActivateableTabbableDefaultController im
 	 * @param groupMgr
 	 */
 	public NodeEditController(UserRequest ureq, WindowControl wControl, CourseEditorTreeModel editorModel, ICourse course, CourseNode luNode,
-			UserCourseEnvironment euce, TabbableController childTabsController) {
-		super(ureq,wControl);
+			UserCourseEnvironment euce, TabbableController childTabsController, Translator translator) {
+		super(ureq,wControl,translator);
 		this.courseNode = luNode;
 		
 		addLoggingResourceable(LoggingResourceable.wrap(course));
