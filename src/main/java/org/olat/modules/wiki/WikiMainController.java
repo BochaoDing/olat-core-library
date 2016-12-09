@@ -177,7 +177,8 @@ public class WikiMainController extends BasicController implements CloneableCont
 	private boolean isImageDetailView = false;
 	
 	private CloseableModalController cmc;
-	
+	private CloseableModalController closeableModalControllerMediaTable;
+
 	WikiMainController(UserRequest ureq, WindowControl wControl, OLATResourceable ores,
 			WikiSecurityCallback securityCallback, String initialPageName) {
 		super(ureq, wControl);
@@ -875,12 +876,11 @@ public class WikiMainController extends BasicController implements CloneableCont
 					if (isImage(element.getFilename()) ) { // show images inline as modal overlay
 						imageDisplay.contextPut("mediaElement", element);
 						imageDisplay.contextPut("imageUri", wikiArticleComp.getImageBaseUri());
+
+						closeableModalControllerMediaTable = new CloseableModalController(getWindowControl(), translate("close"), imageDisplay);
+						listenTo(closeableModalControllerMediaTable);
 						
-						removeAsListenerAndDispose(cmc);
-						cmc = new CloseableModalController(getWindowControl(), translate("close"), imageDisplay);
-						listenTo(cmc);
-						
-						cmc.activate();
+						closeableModalControllerMediaTable.activate();
 					} else {
 						deliverMediaFile(ureq, element.getFilename());
 					}
@@ -892,6 +892,9 @@ public class WikiMainController extends BasicController implements CloneableCont
 						editContent.contextPut("fileList", wiki.getMediaFileList());
 				}
 			}
+		} else if (source == closeableModalControllerMediaTable && CloseableModalController.CLOSE_MODAL_EVENT.getCommand().equals(event.getCommand())) {
+			removeAsListenerAndDispose(closeableModalControllerMediaTable);
+			closeableModalControllerMediaTable = null;
 		} else if (source == archiveWikiDialogCtr) {
 			if (DialogBoxUIFactory.isOkEvent(event)) {
 				WikiToCPResource rsrc = new WikiToCPResource(ores, getIdentity(), getTranslator());
@@ -1083,11 +1086,11 @@ public class WikiMainController extends BasicController implements CloneableCont
 			mediaMgntContent = createVelocityContainer("media");
 			refreshTableDataModel(ureq, wiki);
 			mediaMgntContent.put("mediaMgmtTable", mediaTableCtr.getInitialComponent());
-			
+
 			removeAsListenerAndDispose(cmc);
 			cmc = new CloseableModalController(getWindowControl(), translate("close"), mediaMgntContent, true, translate("manage.media"));
 			listenTo(cmc);
-			
+
 			cmc.activate();
 		}
 	}
