@@ -47,6 +47,7 @@
 	<bean name="shibbolethUserMapping" class="java.util.HashMap" scope="prototype" >
 	    <constructor-arg>
 	        <map key-type="java.lang.String" value-type="java.lang.String">
+				<!-- NB! make sure that each value is registered as a key in attributeTranslator map below! -->
 			<entry key="FirstName" 			      value="Shib-InetOrgPerson-givenName" />
 			<entry key="LastName" 			      value="Shib-Person-surname" />
 			<entry key="EMail" 			      value="Shib-InetOrgPerson-mail" />
@@ -67,7 +68,7 @@
 		<!--
 				Attributes to translate for easier reading/handling within OLAT.
 				Attributes will be available by their translated name (value) within OLAT.
-				
+
 				As an option, for each attribute predefined selectable values can be added as 
 				in the example below. These are used in the course editors easy mode to display
 				a list of items to choose from instead of a text input field.
@@ -84,6 +85,9 @@
 				swissEduPersonHomeOrganization.uzh.ch= University of Zuerich
 				swissEduPersonHomeOrganization.ethz.ch= ETH Zuerich
 				...
+				NB! this map is a base for verification of headers in ShibbolethDispatcher.getShibbolethAttributesFromRequest()
+				 it means that if key is not registered here, the header will be not mapped even if it is listed
+				 in shibbolethUserMapping HashMap bean above!
 			 -->
 			<entry key="Shib-EP-Entitlement" value="eduPersonEntitlement" />
 			<entry key="Shib-SwissEP-UniqueID" value="swissEduPersonUniqueID" />
