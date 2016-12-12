@@ -341,23 +341,6 @@ public class DropboxController extends BasicController {
 		return body + "." + tStamp + ext;
 	}
 
-	private String getDropboxLink() {
-		String dropboxLink = config.getStringValue(TACourseNode.CONF_DROPBOX_CONFIRMATION_LINK, translate("conf.stdtext.link"));
-
-		// window business path already has RepositoryEntry and CourseNode, add assessmentTool and Identity to it
-		String businessPath = this.getWindowControl().getBusinessControl().getAsString();
-		businessPath = businessPath.substring(0, businessPath.indexOf("[CourseNode:"));
-		String repositoryEntry = businessPath.substring(businessPath.indexOf("[RepositoryEntry:") + "[RepositoryEntry:".length(), businessPath.indexOf("]"));
-		businessPath += "[assessmentTool:" + repositoryEntry + "][Identity:" + getIdentity().getKey() + "]";
-		String url = BusinessControlFactory.getInstance().getURLFromBusinessPathString(businessPath);
-
-		Context c = new VelocityContext();
-		c.put("url", url);
-
-		String processedConfirmation = VelocityHelper.getInstance().evaluateVTL(dropboxLink, c);
-		return processedConfirmation.replace("\n", "&#10;").replace("\r", "&#10;").replace("\u2028", "&#10;");
-	}
-
 	private String getConfirmation(UserRequest ureq, String filename) {
 		//grab confirmation-text from bb-config
 		// OLATNG-327: Avoid NullPointerException by providing the default value

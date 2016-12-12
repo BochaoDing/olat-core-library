@@ -100,7 +100,7 @@ public abstract class AbstractTaskNotificationHandler extends LogDelegator {
 							
 							Date modDate = fi.getLastModified();
 							String desc = translator.translate(getNotificationEntryKey(), new String[] { filePath, fullUserName });
-							String businessPath = p.getBusinessPath();
+							String businessPath = getBusinessPath(p, metaInfo);
 							String urlToSend = BusinessControlFactory.getInstance().getURLFromBusinessPathString(businessPath);
 							
 							String iconCssClass =  null;
@@ -119,6 +119,11 @@ public abstract class AbstractTaskNotificationHandler extends LogDelegator {
 			si = NotificationsManager.getInstance().getNoSubscriptionInfo();
 		}
 		return si;
+	}
+
+	protected String getBusinessPath(Publisher p, MetaInfo metaInfo) {
+		// LMSUZH-101 By default, return Publisher's business path, but let other notification handlers overwriting it
+		return p.getBusinessPath();
 	}
 
 	/**
