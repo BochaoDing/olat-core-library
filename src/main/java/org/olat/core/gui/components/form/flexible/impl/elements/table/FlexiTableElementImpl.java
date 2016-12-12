@@ -677,10 +677,7 @@ public class FlexiTableElementImpl extends FormItemImpl implements FlexiTableEle
 	protected void dispatchFormRequest(UserRequest ureq) {
 		super.dispatchFormRequest(ureq);
 	}
-	
-	/**
-	 * @see org.olat.core.gui.components.form.flexible.FormItemImpl#evalFormRequest(org.olat.core.gui.UserRequest)
-	 */
+
 	@Override
 	public void evalFormRequest(UserRequest ureq) {
 		String[] selectedIndexArr = getRootForm().getRequestParameterValues("tb_ms");
@@ -958,7 +955,7 @@ public class FlexiTableElementImpl extends FormItemImpl implements FlexiTableEle
 
 	@Override
 	public boolean isColumnModelVisible(FlexiColumnModel col) {
-		return col.isAlwaysVisible() || enabledColumnIndex.contains(col.getColumnIndex());
+		return !col.isForExportOnly() && (col.isAlwaysVisible() || enabledColumnIndex.contains(col.getColumnIndex()));
 	}
 
 	@Override

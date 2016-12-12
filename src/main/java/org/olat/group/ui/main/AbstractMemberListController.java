@@ -85,12 +85,7 @@ import org.olat.core.util.mail.MailPackage;
 import org.olat.core.util.resource.OresHelper;
 import org.olat.core.util.session.UserSessionManager;
 import org.olat.course.member.MemberListController;
-import org.olat.group.BusinessGroup;
-import org.olat.group.BusinessGroupManagedFlag;
-import org.olat.group.BusinessGroupMembership;
-import org.olat.group.BusinessGroupModule;
-import org.olat.group.BusinessGroupService;
-import org.olat.group.BusinessGroupShort;
+import org.olat.group.*;
 import org.olat.group.model.BusinessGroupMembershipChange;
 import org.olat.group.ui.main.MemberListTableModel.Cols;
 import org.olat.instantMessaging.InstantMessagingModule;
@@ -122,6 +117,7 @@ public abstract class AbstractMemberListController extends FormBasicController i
 	protected static final String USER_PROPS_ID = MemberListController.class.getCanonicalName();
 	
 	public static final int USER_PROPS_OFFSET = 500;
+	public static final int BUSINESS_COLUMNS_OFFSET = 1000;  // Must be larger than USER_PROPS_OFFSET
 	
 	public static final String TABLE_ACTION_EDIT = "tbl_edit";
 	public static final String TABLE_ACTION_MAIL = "tbl_mail";
@@ -147,6 +143,7 @@ public abstract class AbstractMemberListController extends FormBasicController i
 	private CloseableCalloutWindowController toolsCalloutCtrl;
 	private EditSingleMembershipController editSingleMemberCtrl;
 	private final List<UserPropertyHandler> userPropertyHandlers;
+	private List<BusinessGroup> businessGroupColumnHeaders = new ArrayList<>();
 
 	private final AtomicInteger counter = new AtomicInteger();
 	protected final RepositoryEntry repoEntry;
@@ -204,6 +201,10 @@ public abstract class AbstractMemberListController extends FormBasicController i
 		isAdministrativeUser = securityModule.isUserAllowedAdminProps(roles);
 		isLastVisitVisible = securityModule.isUserLastVisitVisible(roles);
 		userPropertyHandlers = userManager.getUserPropertyHandlersFor(USER_PROPS_ID, isAdministrativeUser);
+		if (repoEntry != null) {
+			// Ascending sorted
+			businessGroupColumnHeaders = businessGroupService.findBusinessGroups(null, repoEntry, 0, -1, BusinessGroupOrder.nameAsc);
+		}
 		
 		initForm(ureq);
 	}
@@ -213,7 +214,7 @@ public abstract class AbstractMemberListController extends FormBasicController i
 		FlexiTableColumnModel columnsModel = FlexiTableDataModelFactory.createFlexiTableColumnModel();
 		SortKey defaultSortKey = initColumns(columnsModel);
 		
-		memberListModel = new MemberListTableModel(columnsModel, imModule.isOnlineStatusEnabled());
+		memberListModel = new MemberListTableModel(columnsModel, imModule.isOnlineStatusEnabled(), businessGroupColumnHeaders);
 		membersTable = uifactory.addTableElement(getWindowControl(), "memberList", memberListModel, 20, false, getTranslator(), formLayout);
 		membersTable.setMultiSelect(true);
 		membersTable.setEmtpyTableMessageKey("nomembers");
@@ -306,12 +307,20 @@ public abstract class AbstractMemberListController extends FormBasicController i
 		columnsModel.addFlexiColumnModel(new DefaultFlexiColumnModel(Cols.role.i18n(), Cols.role.ordinal(), true, Cols.role.name(), roleRenderer));
 		if(repoEntry != null) {
 			GroupCellRenderer groupRenderer = new GroupCellRenderer();
-			columnsModel.addFlexiColumnModel(new DefaultFlexiColumnModel(Cols.groups.i18n(), Cols.groups.ordinal(), true, Cols.groups.name(), groupRenderer));
+			columnsModel.addFlexiColumnModel(new DefaultFlexiColumnModel(true, false, false, Cols.groups.i18n(), Cols.groups.ordinal(), true, Cols.groups.name(), FlexiColumnModel.ALIGNMENT_LEFT, groupRenderer));
 		}
 		
 		DefaultFlexiColumnModel toolsCol = new DefaultFlexiColumnModel(Cols.tools.i18n(), Cols.tools.ordinal());
 		toolsCol.setExportable(false);
 		columnsModel.addFlexiColumnModel(toolsCol);
+
+		// Column per group (for export only)
+		if (repoEntry != null) {
+			for (int i = 0; i < businessGroupColumnHeaders.size(); i++) {
+				columnsModel.addFlexiColumnModel(new DefaultFlexiColumnModel(false, true, true, businessGroupColumnHeaders.get(i).getName(), businessGroupColumnHeaders.get(i).getName(), i + BUSINESS_COLUMNS_OFFSET, false, null, FlexiColumnModel.ALIGNMENT_LEFT, new TextFlexiCellRenderer()));
+			}
+		}
+
 		return defaultSortKey;
 	}
 

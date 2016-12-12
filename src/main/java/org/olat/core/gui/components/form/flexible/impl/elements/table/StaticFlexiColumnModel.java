@@ -63,6 +63,11 @@ public class StaticFlexiColumnModel extends AbstractFlexiColumnModel {
 	}
 
 	@Override
+	public boolean isForExportOnly() {
+		return false;
+	}
+
+	@Override
 	public String getAction() {
 		return action;
 	}

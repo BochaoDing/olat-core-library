@@ -2144,6 +2144,14 @@ create table if not exists ck_export (
 	primary key (id)
 )engine InnoDB;
 
+create table if not exists ck_semester (
+  id bigint not null,
+  name varchar(255) not null,
+  year int(4) not null,
+  current_semester boolean not null,
+  primary key (id)
+)engine InnoDB;
+
 create table if not exists ck_course (
 	id bigint not null,
 	title varchar(255) not null,
@@ -2276,6 +2284,7 @@ create table if not exists ck_delegation (
 	 primary key (fk_delegator_identity, fk_delegatee_identity)
 )engine InnoDB;
 
+alter table ck_semester add constraint ck_semester_f01 unique (name, year);
 alter table ck_course add constraint ck_course_f01 foreign key (fk_parent_course) references ck_course (id);
 alter table ck_course add constraint ck_course_f02 foreign key (fk_resource) references o_olatresource (resource_id);
 alter table ck_course add constraint ck_course_f03 foreign key (fk_semester) references ck_semester (id);

@@ -802,7 +802,7 @@ public class AuthorListController extends FormBasicController implements Activat
 		for(AuthoringEntryRow row:rows) {
 			RepositoryEntry sourceEntry = repositoryService.loadByKey(row.getKey());
 			if (!isAdmin && sourceEntry.exceedsSizeLimit()) {
-				LOG.warn("Course sourceEntry.getDisplayname() is not copied because it exceeds the size limit");
+				LOG.warn("Course " + sourceEntry.getDisplayname() + " is not copied because it exceeds the size limit");
 				skippedRows++;
 			} else {
 				String displayname = "Copy of " + sourceEntry.getDisplayname();
@@ -814,7 +814,7 @@ public class AuthorListController extends FormBasicController implements Activat
 		}
 
 		if (skippedRows > 0) {
-			showInfo("details.copy.success.with.some.skipped", new String[]{ Integer.toString(rows.size() - skippedRows, skippedRows) });
+			showError("details.copy.success.with.some.skipped", new String[]{ Integer.toString(rows.size() - skippedRows), Integer.toString(skippedRows) });
 		} else {
 			showInfo("details.copy.success", Integer.toString(rows.size()));
 		}
@@ -877,6 +877,9 @@ public class AuthorListController extends FormBasicController implements Activat
 	}
 	
 	private void doDownload(UserRequest ureq, AuthoringEntryRow row) {
+		Roles roles = ureq.getUserSession().getRoles();
+		boolean isAdmin = roles.isOLATAdmin();
+
 		RepositoryHandler typeToDownload = repositoryHandlerFactory.getRepositoryHandler(row.getResourceType());
 		if (typeToDownload == null) {
 			StringBuilder sb = new StringBuilder(translate("error.download"));
@@ -890,6 +893,12 @@ public class AuthorListController extends FormBasicController implements Activat
 		OLATResourceable ores = entry.getOlatResource();
 		if (ores == null) {
 			showError("error.download");
+			return;
+		}
+
+		if (!isAdmin && entry.exceedsSizeLimit()) {
+			LOG.error("Course " + entry.getDisplayname() + " is not exported because it exceeds the size limit");
+			showError("error.export.size.exceeded", new String[] { entry.getDisplayname() });
 			return;
 		}
 		

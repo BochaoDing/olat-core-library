@@ -209,7 +209,7 @@ public class RunMainController extends MainLayoutBasicController implements Gene
 		navHandler = new NavigationHandler(uce, treeFilter, false);
 
 		updateTreeAndContent(ureq, currentCourseNode, null);
-		
+
 		//set the launch date after the evaluation
 		setLaunchDates();
 
@@ -220,7 +220,7 @@ public class RunMainController extends MainLayoutBasicController implements Gene
 		// add text marker wrapper controller to implement course glossary
 		// textMarkerCtr must be created before the toolC!
 		CourseConfig cc = uce.getCourseEnvironment().getCourseConfig();
-		glossaryMarkerCtr = CourseGlossaryFactory.createGlossaryMarkupWrapper(ureq, wControl, contentP, cc);	
+		glossaryMarkerCtr = CourseGlossaryFactory.createGlossaryMarkupWrapper(ureq, wControl, contentP, cc);
 		if (glossaryMarkerCtr != null) {
 			listenTo(glossaryMarkerCtr);
 			// enable / disable glossary highlighting according to user prefs
@@ -231,15 +231,15 @@ public class RunMainController extends MainLayoutBasicController implements Gene
 			if(ureq.getUserSession().getRoles().isGuestOnly()){
 				state = Boolean.TRUE;
 			}
-			
+
 			if (state == null) {
 				glossaryMarkerCtr.setTextMarkingEnabled(false);
 			} else {
 				glossaryMarkerCtr.setTextMarkingEnabled(state.booleanValue());
 			}
-			columnLayoutCtr = new LayoutMain3ColsController(ureq, getWindowControl(), luTree, glossaryMarkerCtr.getInitialComponent(), "course" + course.getResourceableId());				
+			columnLayoutCtr = new LayoutMain3ColsController(ureq, getWindowControl(), luTree, glossaryMarkerCtr.getInitialComponent(), "course" + course.getResourceableId());
 		} else {
-			columnLayoutCtr = new LayoutMain3ColsController(ureq, getWindowControl(), luTree, contentP, "courseRun" + course.getResourceableId());							
+			columnLayoutCtr = new LayoutMain3ColsController(ureq, getWindowControl(), luTree, contentP, "courseRun" + course.getResourceableId());
 		}
 		listenTo(columnLayoutCtr);
 

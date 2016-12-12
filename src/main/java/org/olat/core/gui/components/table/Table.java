@@ -980,7 +980,12 @@ class ChoiceTableDataModel implements ChoiceModel {
 	public boolean isDisabled(int row) {
 		return false;
 	}
-	
+
+	@Override
+	public boolean isForExportOnly(int row) {
+		return false;
+	}
+
 	public ColumnDescriptor getObject(int row) {
 		return allCDs.get(isMultiSelect? (row + 1): row);
 	}
