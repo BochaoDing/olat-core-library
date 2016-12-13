@@ -64,6 +64,8 @@ public class FileUtils {
 	private static final OLog log = Tracing.createLoggerFor(FileUtils.class);
 	
 	private static int buffSize = 32 * 1024;
+	// the following is for cleaning up file I/O stuff ... so it works fine on NFS
+	public static final int BSIZE = 8*1024;
 
 	// matches files and folders of type:
 	// bla, bla1, bla12, bla.html, bla1.html, bla12.html
@@ -790,10 +792,12 @@ public class FileUtils {
 	 * @return return empty String "" without suffix. 
 	 */
 	public static String getFileSuffix(String filePath) {
-		int lastDot = filePath.lastIndexOf('.');
-		if (lastDot > 0) {
-			if (lastDot < filePath.length())
-				return filePath.substring(lastDot + 1).toLowerCase();
+		if(StringHelper.containsNonWhitespace(filePath)) { 
+			int lastDot = filePath.lastIndexOf('.');
+			if (lastDot > 0) {
+				if (lastDot < filePath.length())
+					return filePath.substring(lastDot + 1).toLowerCase();
+			}
 		}
 		return "";
 	}
@@ -850,6 +854,8 @@ public class FileUtils {
 		return nameSanitized;
 	}
 	
+	
+	
 	/**
 	 * Creates a new directory in the specified directory, using the given prefix and suffix strings to generate its name.
 	 * It uses File.createTempFile() and should provide a unique name.
@@ -874,11 +880,6 @@ public class FileUtils {
 		}
 		return tmpDir;
 	}
-	
-	
-	// the following is for cleaning up file I/O stuff ... so it works fine on NFS
-	
-	public static final int BSIZE = 8*1024;
 	
 	public static void bcopy (File src, File dst, String wt) throws FileNotFoundException, IOException {
 		bcopy (new FileInputStream(src), new FileOutputStream(dst), wt);

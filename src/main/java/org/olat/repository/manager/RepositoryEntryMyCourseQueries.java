@@ -52,7 +52,6 @@ import org.olat.repository.model.SearchMyRepositoryEntryViewParams;
 import org.olat.repository.model.SearchMyRepositoryEntryViewParams.Filter;
 import org.olat.repository.model.SearchMyRepositoryEntryViewParams.OrderBy;
 import org.olat.resource.OLATResource;
-import org.olat.resource.accesscontrol.model.OfferImpl;
 import org.olat.user.UserImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -189,7 +188,7 @@ public class RepositoryEntryMyCourseQueries implements MyCourseRepositoryQuery {
 				  .append("   where mark.creator.key=:identityKey and mark.resId=v.key and mark.resName='RepositoryEntry'")
 				  .append(" ) as marks,");
 			}
-			sb.append(" (select count(offer.key) from ").append(OfferImpl.class.getName()).append(" as offer ")
+			sb.append(" (select count(offer.key) from acoffer as offer ")
 			  .append("   where offer.resource=res and offer.valid=true")
 			  //TODO validity
 			  .append(" ) as offers, ");
@@ -270,6 +269,8 @@ public class RepositoryEntryMyCourseQueries implements MyCourseRepositoryQuery {
 			PersistenceHelper.appendFuzzyLike(sb, "v.description", "displaytext", dbInstance.getDbVendor());
 			sb.append(" or ");
 			PersistenceHelper.appendFuzzyLike(sb, "v.objectives", "displaytext", dbInstance.getDbVendor());
+			sb.append(" or ");
+			PersistenceHelper.appendFuzzyLike(sb, "v.authors", "displaytext", dbInstance.getDbVendor());
 			sb.append(")");
 		}
 		
@@ -451,7 +452,14 @@ public class RepositoryEntryMyCourseQueries implements MyCourseRepositoryQuery {
 		return needIdentityKey;
 	}
 	
-
+	/**
+	 * Append additional informations and values to the select part of the query
+	 * needed by the order by.
+	 * 
+	 * @param params
+	 * @param sb
+	 * @return
+	 */
 	private boolean appendOrderByInSelect(SearchMyRepositoryEntryViewParams params, StringBuilder sb) {
 		boolean needIdentityKey = false;
 		OrderBy orderBy = params.getOrderBy();
@@ -487,7 +495,7 @@ public class RepositoryEntryMyCourseQueries implements MyCourseRepositoryQuery {
 			switch(orderBy) {
 				case automatic://! the sorting is reverse
 					if(asc) {
-						sb.append(" order by recentLaunch desc nulls last, lifecycle.validFrom desc nulls last, marks asc nulls last, lower(v.displayname) asc ");
+						sb.append(" order by recentLaunch desc nulls last, lifecycle.validFrom desc nulls last, marks desc nulls last, lower(v.displayname) asc ");
 					} else {
 						sb.append(" order by recentLaunch asc nulls last, lifecycle.validFrom asc nulls last, marks asc nulls last, lower(v.displayname) desc ");
 					}
@@ -512,8 +520,12 @@ public class RepositoryEntryMyCourseQueries implements MyCourseRepositoryQuery {
 					appendAsc(sb, asc).append(" nulls last, lower(v.displayname) asc");
 					break;
 				case title:
-					sb.append(" order by lower(v.displayname)");
-					appendAsc(sb, asc);
+					//life cycle always sorted from the newer to the older.
+					if(asc) {
+						sb.append(" order by lower(v.displayname) asc, lifecycle.validFrom desc nulls last, lower(v.externalRef) asc nulls last");
+					} else {
+						sb.append(" order by lower(v.displayname) desc, lifecycle.validFrom desc nulls last, lower(v.externalRef) desc nulls last");
+					}
 					break;
 				case lifecycle:
 					sb.append(" order by lifecycle.validFrom ");
@@ -544,6 +556,15 @@ public class RepositoryEntryMyCourseQueries implements MyCourseRepositoryQuery {
 					}
 					sb.append(", lower(v.displayname) asc");
 					break;
+				case launchCounter:
+					sb.append(" order by v.statistics.launchCounter ");
+					if(asc) {
+						sb.append(" asc nulls first");
+					} else {
+						sb.append(" desc nulls last");
+					}
+					sb.append(", lower(v.displayname) asc");
+					break;
 				case key:
 					sb.append(" order by v.key");
 					appendAsc(sb, asc);
@@ -561,18 +582,12 @@ public class RepositoryEntryMyCourseQueries implements MyCourseRepositoryQuery {
 					appendAsc(sb, asc);	
 					break;
 				case lifecycleLabel:
-					if(asc) {
-						sb.append(" order by lifecycle.label nulls last, lower(v.displayname) asc");
-					} else {
-						sb.append(" order by lifecycle.label nulls last, lower(v.displayname) desc");
-					}
+					sb.append(" order by lifecycle.label");
+					appendAsc(sb, asc).append(" nulls last, lower(v.displayname) asc");
 					break;
 				case lifecycleSoftkey:
-					if(asc) {
-						sb.append(" order by lifecycle.softKey nulls last, lower(v.displayname) asc");
-					} else {
-						sb.append(" order by lifecycle.softKey nulls last, lower(v.displayname) desc");
-					}
+					sb.append(" order by lifecycle.softKey");
+					appendAsc(sb, asc).append(" nulls last, lower(v.displayname) asc");
 					break;
 				case lifecycleStart:
 					sb.append(" order by lifecycle.validFrom ");
@@ -583,8 +598,11 @@ public class RepositoryEntryMyCourseQueries implements MyCourseRepositoryQuery {
 					appendAsc(sb, asc).append(" nulls last, lower(v.displayname) asc");
 					break;
 				default:
-					sb.append(" order by lower(v.displayname)");
-					appendAsc(sb, asc);
+					if(asc) {
+						sb.append(" order by lower(v.displayname) asc, lifecycle.validFrom desc nulls last, lower(v.externalRef) asc nulls last");
+					} else {
+						sb.append(" order by lower(v.displayname) desc, lifecycle.validFrom desc nulls last, lower(v.externalRef) desc nulls last");
+					}
 					break;
 			}
 		}

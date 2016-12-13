@@ -128,10 +128,8 @@ public class GroupTaskPage {
 		OOGraphene.waitBusy(browser);
 		
 		//confirm
-		By confirmButtonBy = By.cssSelector("div.modal-dialog div.modal-footer a");
-		List<WebElement> buttonsEl = browser.findElements(confirmButtonBy);
-		buttonsEl.get(0).click();
-		OOGraphene.waitBusy(browser);
+		confirmDialog();
+		OOGraphene.waitAndCloseBlueMessageWindow(browser);
 		return this;
 	}
 	

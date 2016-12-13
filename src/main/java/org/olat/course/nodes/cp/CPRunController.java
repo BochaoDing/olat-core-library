@@ -103,7 +103,8 @@ public class CPRunController extends BasicController implements ControllerEventL
 	 * @param wControl
 	 * @param cpNode
 	 */
-	public CPRunController(ModuleConfiguration config, UserRequest ureq, WindowControl wControl, CPCourseNode cpNode, String nodecmd, OLATResourceable course, boolean preview) {
+	public CPRunController(ModuleConfiguration config, UserRequest ureq, WindowControl wControl, CPCourseNode cpNode, String nodecmd,
+			OLATResourceable course, boolean preview) {
 		super(ureq, wControl);
 		this.nodecmd = nodecmd;
 		this.courseResource = OresHelper.clone(course);

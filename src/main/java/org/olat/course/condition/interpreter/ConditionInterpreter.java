@@ -101,6 +101,7 @@ public class ConditionInterpreter {
 		env.addVariable(NowVariable.name, new NowVariable(userCourseEnv));
 		env.addVariable(TodayVariable.name, new TodayVariable(userCourseEnv));
 		env.addVariable(NeverVariable.name, new NeverVariable(userCourseEnv));
+		env.addVariable(AnyCourseVariable.name, new AnyCourseVariable());
 
 		// functions
 		env.addFunction(DateFunction.name, new DateFunction(userCourseEnv));
@@ -126,6 +127,19 @@ public class ConditionInterpreter {
 		env.addFunction(eaf.name, eaf);
 		eaf = new EvalAttributeFunction(userCourseEnv, EvalAttributeFunction.FUNCTION_TYPE_ATTRIBUTE_STARTS_WITH);
 		env.addFunction(eaf.name, eaf);
+		EvalUserPropertyFunction eupf;
+		eupf = new EvalUserPropertyFunction(userCourseEnv, EvalUserPropertyFunction.FUNCTION_TYPE_HAS_NOT_PROPERTY);
+		env.addFunction(EvalUserPropertyFunction.FUNCTION_NAME_HAS_NOT_PROPERTY, eupf);
+		eupf = new EvalUserPropertyFunction(userCourseEnv, EvalUserPropertyFunction.FUNCTION_TYPE_HAS_PROPERTY);
+		env.addFunction(EvalUserPropertyFunction.FUNCTION_NAME_HAS_PROPERTY, eupf);
+		eupf = new EvalUserPropertyFunction(userCourseEnv, EvalUserPropertyFunction.FUNCTION_TYPE_IS_IN_PROPERTY);
+		env.addFunction(EvalUserPropertyFunction.FUNCTION_NAME_IS_IN_PROPERTY, eupf);
+		eupf = new EvalUserPropertyFunction(userCourseEnv, EvalUserPropertyFunction.FUNCTION_TYPE_IS_NOT_IN_PROPERTY);
+		env.addFunction(EvalUserPropertyFunction.FUNCTION_NAME_IS_NOT_IN_PROPERTY, eupf);
+		eupf = new EvalUserPropertyFunction(userCourseEnv, EvalUserPropertyFunction.FUNCTION_TYPE_PROPERTY_ENDS_WITH);
+		env.addFunction(EvalUserPropertyFunction.FUNCTION_NAME_PROPERTY_ENDS_WITH, eupf);
+		eupf = new EvalUserPropertyFunction(userCourseEnv, EvalUserPropertyFunction.FUNCTION_TYPE_PROPERTY_STARTS_WITH);
+		env.addFunction(EvalUserPropertyFunction.FUNCTION_NAME_PROPERTY_STARTS_WITH, eupf);
 		env.addFunction(GetUserPropertyFunction.name, new GetUserPropertyFunction(userCourseEnv));
 		env.addFunction(GetUserCourseDBFunction.name, new GetUserCourseDBFunction(userCourseEnv));
 		env.addFunction(HasLanguageFunction.name, new HasLanguageFunction(userCourseEnv));

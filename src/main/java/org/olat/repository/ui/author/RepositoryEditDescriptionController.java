@@ -26,6 +26,9 @@
 package org.olat.repository.ui.author;
 
 import java.io.File;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -192,7 +195,7 @@ public class RepositoryEditDescriptionController extends FormBasicController {
 		
 		language = uifactory.addTextElement("cif.mainLanguage", "cif.mainLanguage", 16, repositoryEntry.getMainLanguage(), descCont);
 		
-		location = uifactory.addTextElement("cif.location", "cif.location", 16, repositoryEntry.getLocation(), descCont);
+		location = uifactory.addTextElement("cif.location", "cif.location", 255, repositoryEntry.getLocation(), descCont);
 		location.setEnabled(!RepositoryEntryManagedFlag.isManaged(repositoryEntry, RepositoryEntryManagedFlag.location));
 		
 		RepositoryHandler handler = RepositoryHandlerFactory.getInstance().getRepositoryHandler(repositoryEntry);
@@ -228,22 +231,33 @@ public class RepositoryEditDescriptionController extends FormBasicController {
 			dateTypesEl.addActionListener(FormEvent.ONCHANGE);
 	
 			List<RepositoryEntryLifecycle> cycles = lifecycleDao.loadPublicLifecycle();
-			String[] publicKeys = new String[cycles.size()];
-			String[] publicValues = new String[cycles.size()];
-			int count = 0;	
+			List<RepositoryEntryLifecycle> filteredCycles = new ArrayList<>();
+			//just make the upcomming and acutual running cycles or the pre-selected visible in the UI
+			LocalDateTime now = LocalDateTime.now();
 			for(RepositoryEntryLifecycle cycle:cycles) {
-				publicKeys[count] = cycle.getKey().toString();
-				
-				StringBuilder sb = new StringBuilder(32);
-				boolean labelAvailable = StringHelper.containsNonWhitespace(cycle.getLabel());
-				if(labelAvailable) {
-					sb.append(cycle.getLabel());
+				if(cycle.getValidTo() == null
+						|| now.isBefore(LocalDateTime.ofInstant(cycle.getValidTo().toInstant(), ZoneId.systemDefault()))
+						|| (repositoryEntry.getLifecycle() != null && repositoryEntry.getLifecycle().equals(cycle))) {
+					filteredCycles.add(cycle);
 				}
-				if(StringHelper.containsNonWhitespace(cycle.getSoftKey())) {
-					if(labelAvailable) sb.append(" - ");
-					sb.append(cycle.getSoftKey());
-				}
-				publicValues[count++] = sb.toString();
+			}
+			
+			String[] publicKeys = new String[filteredCycles.size()];
+			String[] publicValues = new String[filteredCycles.size()];
+			int count = 0;		
+			for(RepositoryEntryLifecycle cycle:filteredCycles) {
+					publicKeys[count] = cycle.getKey().toString();
+					
+					StringBuilder sb = new StringBuilder(32);
+					boolean labelAvailable = StringHelper.containsNonWhitespace(cycle.getLabel());
+					if(labelAvailable) {
+						sb.append(cycle.getLabel());
+					}
+					if(StringHelper.containsNonWhitespace(cycle.getSoftKey())) {
+						if(labelAvailable) sb.append(" - ");
+						sb.append(cycle.getSoftKey());
+					}
+					publicValues[count++] = sb.toString();
 			}
 			publicDatesEl = uifactory.addDropdownSingleselect("cif.public.dates", descCont, publicKeys, publicValues, null);
 	
@@ -308,7 +322,7 @@ public class RepositoryEditDescriptionController extends FormBasicController {
 		
 		VFSLeaf img = repositoryManager.getImage(repositoryEntry);
 		fileUpload = uifactory.addFileElement(getWindowControl(), "rentry.pic", "rentry.pic", descCont);
-		fileUpload.setExampleKey("rentry.pic.example", new String[] {RepositoryManager.PICTUREWIDTH + "x" + (RepositoryManager.PICTUREWIDTH / 3 * 2)});
+		fileUpload.setExampleKey("rentry.pic.example", new String[] {RepositoryManager.PICTURE_WIDTH + "x" + (RepositoryManager.PICTURE_HEIGHT)});
 		fileUpload.setMaxUploadSizeKB(picUploadlimitKB, null, null);
 		fileUpload.setPreview(ureq.getUserSession(), true);
 		fileUpload.addActionListener(FormEvent.ONCHANGE);
@@ -318,7 +332,7 @@ public class RepositoryEditDescriptionController extends FormBasicController {
 			fileUpload.setInitialFile(((LocalFileImpl)img).getBasefile());
 		}
 		fileUpload.setVisible(!managed);
-		fileUpload.limitToMimeType(imageMimeTypes, null, null);
+		fileUpload.limitToMimeType(imageMimeTypes, "cif.error.mimetype", new String[]{ imageMimeTypes.toString()} );
 
 		VFSLeaf movie = repositoryService.getIntroductionMovie(repositoryEntry);
 		movieUpload = uifactory.addFileElement(getWindowControl(), "rentry.movie", "rentry.movie", descCont);
@@ -326,7 +340,7 @@ public class RepositoryEditDescriptionController extends FormBasicController {
 		movieUpload.setMaxUploadSizeKB(movieUploadlimitKB, null, null);
 		movieUpload.setPreview(ureq.getUserSession(), true);
 		movieUpload.addActionListener(FormEvent.ONCHANGE);
-		movieUpload.setDeleteEnabled(movie != null && !managed);
+		movieUpload.setDeleteEnabled(!managed);
 		if(movie instanceof LocalFileImpl) {
 			movieUpload.setPreview(ureq.getUserSession(), true);
 			movieUpload.setInitialFile(((LocalFileImpl)movie).getBasefile());
@@ -395,7 +409,6 @@ public class RepositoryEditDescriptionController extends FormBasicController {
 			}
 		}
 
-		// Ok, passed all checks
 		return allOk & super.validateFormLogic(ureq);
 	}
 	
@@ -422,6 +435,7 @@ public class RepositoryEditDescriptionController extends FormBasicController {
 			updateDatesVisibility();
 		} else if (source == fileUpload) {
 			if(FileElementEvent.DELETE.equals(event.getCommand())) {
+				fileUpload.clearError();
 				VFSLeaf img = repositoryManager.getImage(repositoryEntry);
 				if(fileUpload.getUploadFile() != null && fileUpload.getUploadFile() != fileUpload.getInitialFile()) {
 					fileUpload.reset();
@@ -436,6 +450,7 @@ public class RepositoryEditDescriptionController extends FormBasicController {
 			}
 		} else if (source == movieUpload) {
 			if(FileElementEvent.DELETE.equals(event.getCommand())) {
+				movieUpload.clearError();
 				VFSLeaf movie = repositoryService.getIntroductionMovie(repositoryEntry);
 				if(movieUpload.getUploadFile() != null && movieUpload.getUploadFile() != movieUpload.getInitialFile()) {
 					movieUpload.reset();
@@ -455,7 +470,7 @@ public class RepositoryEditDescriptionController extends FormBasicController {
 	@Override
 	protected void formOK(UserRequest ureq) {
 		File uploadedImage = fileUpload.getUploadFile();
-		if(uploadedImage != null) {
+		if(uploadedImage != null && uploadedImage.exists()) {
 			VFSContainer tmpHome = new LocalFolderImpl(new File(WebappHelper.getTmpDir()));
 			VFSContainer container = tmpHome.createChildContainer(UUID.randomUUID().toString());
 			VFSLeaf newFile = fileUpload.moveUploadFileTo(container);//give it it's real name and extension
@@ -472,7 +487,7 @@ public class RepositoryEditDescriptionController extends FormBasicController {
 		}
 
 		File uploadedMovie = movieUpload.getUploadFile();
-		if(uploadedMovie != null) {
+		if(uploadedMovie != null && uploadedMovie.exists()) {
 			VFSContainer m = (VFSContainer)mediaContainer.resolve("media");
 			VFSLeaf newFile = movieUpload.moveUploadFileTo(m);
 			if (newFile == null) {

@@ -263,10 +263,16 @@ public class WebappHelper implements Initializable, Destroyable, ServletContextA
 		try {
 			String resource = "/serviceconfig/olat.properties";
 			Resource res = new ClassPathResource(resource);
-			String path = res.getFile().getParentFile().getParentFile().getAbsolutePath();
-			return path;
+			String protocol = res.getURL().getProtocol();
+			if("file".equals(protocol)) {
+				String path = res.getFile().getParentFile().getParentFile().getAbsolutePath();
+				return path;
+			} else {
+				return null;
+			}
 		} catch (IOException e) {
-			throw new StartupException("could not find classpath resource: 'serviceconfig/olat.properties'", e);
+			log.error("Path to build output is not accessible", e);
+			return null;
 		}
 	}
 
@@ -413,12 +419,12 @@ public class WebappHelper implements Initializable, Destroyable, ServletContextA
 	/**
 	 * Test if filesystem is capable to store UTF-8 characters
 	 * Try to read/write a file with UTF-8 chars in the filename in a temporary directory.
-	 *
+	 * This test fails always under Windows.
 	 */
 	private void testUtf8FileSystem() {
 		File tmpDir = new File(new File(WebappHelper.getUserDataRoot()), "tmp");
 		if (!tmpDir.exists()) tmpDir.mkdir();
-		File writeFile = new File(tmpDir, "UTF-8 test läsÖiç-首页 新");
+		File writeFile = new File(tmpDir, "UTF-8 test läsÖiç-首页|新");
 		if (writeFile.exists()) {
 			// remove exising files first
 			writeFile.delete();
@@ -430,11 +436,11 @@ public class WebappHelper implements Initializable, Destroyable, ServletContextA
 		}
 		// try to lookup file: get files from filesystem and search for file we created above
 		File[] tmpFiles = tmpDir.listFiles();
-		boolean foundUtf8File = false; //LD: never gets true on Windows
+		boolean foundUtf8File = false;
 		if(tmpFiles != null){
 			for (int i = 0; i < tmpFiles.length; i++) {
 				File tmpFile = tmpFiles[i];
-				if (tmpFile.getName().equals("UTF-8 test läsÖiç-首页 新")) {
+				if (tmpFile.getName().equals("UTF-8 test läsÖiç-首页|新")) {
 					foundUtf8File = true;
 					break;
 				}

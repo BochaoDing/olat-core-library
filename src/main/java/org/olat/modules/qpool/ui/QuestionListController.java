@@ -52,6 +52,7 @@ import org.olat.core.id.Identity;
 import org.olat.core.id.context.BusinessControlFactory;
 import org.olat.core.id.context.ContextEntry;
 import org.olat.core.id.context.StateEntry;
+import org.olat.core.util.StringHelper;
 import org.olat.core.util.resource.OresHelper;
 import org.olat.group.BusinessGroup;
 import org.olat.group.model.BusinessGroupSelectionEvent;
@@ -88,7 +89,7 @@ import org.olat.repository.controllers.ReferencableEntriesSearchController;
 import org.olat.repository.controllers.RepositorySearchController.Can;
 import org.olat.repository.handlers.RepositoryHandler;
 import org.olat.repository.handlers.RepositoryHandlerFactory;
-import org.olat.repository.ui.author.CreateRepositoryEntryController;
+import org.olat.repository.ui.author.CreateEntryController;
 import org.olat.search.service.indexer.LifeFullIndexer;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -126,7 +127,7 @@ public class QuestionListController extends AbstractItemListController implement
 	private ImportController importItemCtrl;
 	private CollectionTargetController listTargetCtrl;
 	private ShareTargetController shareTargetCtrl;
-	private CreateRepositoryEntryController addController;
+	private CreateEntryController addController;
 	private QuestionItemDetailsController currentDetailsCtrl;
 	private LayoutMain3ColsController currentMainDetailsCtrl;
 	private MetadataBulkChangeController bulkChangeCtrl;
@@ -760,7 +761,7 @@ public class QuestionListController extends AbstractItemListController implement
 		
 		String type = TestFileResource.TYPE_NAME;
 		RepositoryHandler handler = repositoryHandlerFactory.getRepositoryHandler(type);
-		addController = new CreateRepositoryEntryController(ureq, getWindowControl(), handler);
+		addController = handler.createCreateRepositoryEntryController(ureq, getWindowControl());
 		addController.setCreateObject(new QItemList(items));
 		listenTo(addController);
 		cmc = new CloseableModalController(getWindowControl(), translate("close"), addController.getInitialComponent());
@@ -809,13 +810,25 @@ public class QuestionListController extends AbstractItemListController implement
 	}
 	
 	private void doConfirmDelete(UserRequest ureq, List<QuestionItemShort> items) {
-		confirmDeleteBox = activateYesNoDialog(ureq, null, translate("confirm.delete"), confirmDeleteBox);
+		StringBuilder sb = new StringBuilder();
+		for(QuestionItemShort item:items) {
+			if(sb.length() > 0) sb.append(", ");
+			sb.append(StringHelper.escapeHtml(item.getTitle()));
+		}
+		
+		String msg;
+		if(items.size() > 1) {
+			msg = translate("confirm.delete.plural", sb.toString());
+		} else {
+			msg = translate("confirm.delete", sb.toString());
+		}
+		confirmDeleteBox = activateYesNoDialog(ureq, null, msg, confirmDeleteBox);
 		confirmDeleteBox.setUserObject(items);
 	}
 	
 	private void doDelete(List<QuestionItemShort> items) {
 		qpoolService.deleteItems(items);
-		getItemsTable().reset();
+		getItemsTable().reset(true, true, true);
 		showInfo("item.deleted");
 	}
 	

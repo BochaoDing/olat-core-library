@@ -449,7 +449,7 @@ public class NavigationHandler implements Disposable {
 					ncr = new NodeRunConstructionResult(courseNode.createPreviewController(ureq, bwControl, userCourseEnv, nodeEval));
 				} else {
 					// cleanup already existing controllers with external models for this node first, never disposed otherwise
-					if (externalTreeModels.containsKey(courseNode.getIdent())
+					if(externalTreeModels.containsKey(courseNode.getIdent())
 							&& !(TreeEvent.COMMAND_TREENODE_OPEN.equals(nodeSubCmd) || TreeEvent.COMMAND_TREENODE_CLOSE.equals(nodeSubCmd))) {
 						SubTree subTree = externalTreeModels.get(courseNode.getIdent());
 						ControllerEventListener existingSubtreemodelListener = subTree.getTreeModelListener();
@@ -457,7 +457,7 @@ public class NavigationHandler implements Disposable {
 							currentNodeController.dispose();
 						}
 					}
-
+					
 					ncr = courseNode.createNodeRunConstructionResult(ureq, bwControl, userCourseEnv, nodeEval, nodecmd);
 
 					// remember as instance variable for next click
