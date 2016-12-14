@@ -1302,6 +1302,21 @@ function o_ffXHREvent(formNam, dispIdField, dispId, eventIdField, eventInt, dirt
 }
 
 function o_XHREvent(targetUrl, dirtyCheck, push) {
+	/*
+	 * Must be URL encoded in order that e.g. all of the following
+	 * (sub)strings work: '%', '\', '%2F', '%5C'
+	 */
+	targetUrl = encodeURI(targetUrl);
+
+	/*
+	 * Encode '#' as well because jQuery strips it off.
+	 *
+	 * TODO
+	 * In jQuery 3.0 this bug is fixed, see:
+	 * https://jquery.com/upgrade-guide/3.0/#breaking-change-hash-in-a-url-is-preserved-in-a-jquery-ajax-call
+	 */
+	targetUrl = targetUrl.replace(/#/g, '%23');
+
 	if(dirtyCheck) {
 		if(!o2cl()) return false;
 	} else {
