@@ -25,16 +25,8 @@
 
 package org.olat.properties;
 
-import java.util.Collections;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
-
-import javax.persistence.Query;
-import javax.persistence.TypedQuery;
-
 import org.olat.basesecurity.IdentityRef;
-import org.olat.core.commons.persistence.DBFactory;
+import org.olat.core.commons.persistence.DB;
 import org.olat.core.id.Identity;
 import org.olat.core.id.OLATResourceable;
 import org.olat.core.logging.AssertException;
@@ -43,6 +35,14 @@ import org.olat.core.util.StringHelper;
 import org.olat.group.BusinessGroup;
 import org.olat.group.BusinessGroupRef;
 import org.olat.user.UserDataDeletable;
+import org.springframework.beans.factory.annotation.Autowired;
+
+import javax.persistence.Query;
+import javax.persistence.TypedQuery;
+import java.util.Collections;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
 
 /**
  * Initial Date:  Mar 10, 2004
@@ -53,12 +53,14 @@ import org.olat.user.UserDataDeletable;
  * 
  */
 public class PropertyManager extends BasicManager implements UserDataDeletable {
+
+	private final DB dbInstance;
+
 	private static PropertyManager INSTANCE;
 
-	/**
-	 * [used by spring]
-	 */
-	private PropertyManager() {
+	@Autowired
+	private PropertyManager(DB dbInstance) {
+		this.dbInstance = dbInstance;
 		INSTANCE = this;
 	}
 
@@ -121,7 +123,7 @@ public class PropertyManager extends BasicManager implements UserDataDeletable {
 	 * @param p the property
 	 */
 	public void deleteProperty(Property p) {
-		DBFactory.getInstance().deleteObject(p);
+		dbInstance.deleteObject(p);
 	}
 	
 	/**
@@ -130,7 +132,7 @@ public class PropertyManager extends BasicManager implements UserDataDeletable {
 	 */
 	public void saveProperty(Property p) {
 		p.setLastModified(new Date());
-		DBFactory.getInstance().saveObject(p);
+		dbInstance.saveObject(p);
 	}
 
 	/**
@@ -139,7 +141,7 @@ public class PropertyManager extends BasicManager implements UserDataDeletable {
 	 */
 	public void updateProperty(Property p) {
 		p.setLastModified(new Date());
-		DBFactory.getInstance().updateObject(p);
+		dbInstance.updateObject(p);
 	}
 
 	/**
@@ -156,7 +158,7 @@ public class PropertyManager extends BasicManager implements UserDataDeletable {
 		  .append(" inner join fetch v.identity identity ")
 		  .append(" where identity.key=:identityKey and v.category=:cat and v.name=:name and v.grp is null and v.resourceTypeName is null and v.resourceTypeId is null");
 		
-		List<Property> props = DBFactory.getInstance().getCurrentEntityManager()
+		List<Property> props = dbInstance.getCurrentEntityManager()
 				.createQuery(sb.toString(), Property.class)
 				.setParameter("identityKey", identity.getKey())
 				.setParameter("cat", category)
@@ -184,7 +186,7 @@ public class PropertyManager extends BasicManager implements UserDataDeletable {
 		  .append(" inner join v.identity identity ")
 		  .append(" where identity.key=:identityKey and v.category=:cat and v.name=:name");
 		
-		return DBFactory.getInstance().getCurrentEntityManager()
+		return dbInstance.getCurrentEntityManager()
 				.createQuery(sb.toString(), Property.class)
 				.setParameter("identityKey", identity.getKey())
 				.setParameter("cat", category)
@@ -330,7 +332,7 @@ public class PropertyManager extends BasicManager implements UserDataDeletable {
 			sb.append("v.stringValue=:string");			
 		}
 		
-		TypedQuery<U> queryProps = DBFactory.getInstance().getCurrentEntityManager().createQuery(sb.toString(), resultClass);
+		TypedQuery<U> queryProps = dbInstance.getCurrentEntityManager().createQuery(sb.toString(), resultClass);
 		if (identity != null) {
 			queryProps.setParameter("identityKey", identity.getKey());
 		}
@@ -397,7 +399,7 @@ public class PropertyManager extends BasicManager implements UserDataDeletable {
 			sb.append("v.name=:name");
 		}
 		
-		Query queryProps = DBFactory.getInstance().getCurrentEntityManager().createQuery(sb.toString());
+		Query queryProps = dbInstance.getCurrentEntityManager().createQuery(sb.toString());
 		if (identity != null) {
 			queryProps.setParameter("identityKey", identity.getKey());
 		}
@@ -479,7 +481,7 @@ public class PropertyManager extends BasicManager implements UserDataDeletable {
 		if (name != null) sb.append("=:name");
 		else sb.append(" is null");
 		
-		TypedQuery<Property> queryProps = DBFactory.getInstance().getCurrentEntityManager().createQuery(sb.toString(), Property.class);
+		TypedQuery<Property> queryProps = dbInstance.getCurrentEntityManager().createQuery(sb.toString(), Property.class);
 		if (identity != null) {
 			queryProps.setParameter("identityKey", identity.getKey());
 		}
@@ -559,7 +561,7 @@ public class PropertyManager extends BasicManager implements UserDataDeletable {
 			and = appendAnd(sb, "p.name is null", and);
 		}
 		
-		TypedQuery<Identity> queryIdentities = DBFactory.getInstance().getCurrentEntityManager()
+		TypedQuery<Identity> queryIdentities = dbInstance.getCurrentEntityManager()
 				.createQuery(sb.toString(), Identity.class);
 		if (resourceTypeName != null) {
 			queryIdentities.setParameter("resName", resourceTypeName);
@@ -617,7 +619,7 @@ public class PropertyManager extends BasicManager implements UserDataDeletable {
 		  .append(" and p.grp.key=:groupKey")
 		  .append(" and p.resourceTypeName=:resourceTypeName and p.resourceTypeId=:resourceableId");
 
-		List<Property> properties = DBFactory.getInstance().getCurrentEntityManager()
+		List<Property> properties = dbInstance.getCurrentEntityManager()
 				.createQuery(sb.toString(), Property.class)
 				.setParameter("groupKey", businessGroup.getKey())
 				.setParameter("resourceTypeName", resourceable.getResourceableTypeName())
@@ -656,7 +658,7 @@ public class PropertyManager extends BasicManager implements UserDataDeletable {
 			query.append(" and p.name=:name");
 		}
 		
-		TypedQuery<Property> dbQuery = DBFactory.getInstance().getCurrentEntityManager()
+		TypedQuery<Property> dbQuery = dbInstance.getCurrentEntityManager()
 				.createQuery(query.toString(), Property.class)
 				.setParameter("identities", identities);;
 		if (resourceable != null) {
@@ -674,8 +676,7 @@ public class PropertyManager extends BasicManager implements UserDataDeletable {
 	}
 	
 	/**
-	 * 
-	 * @param resourceables
+	 *
 	 * @param category
 	 * @param name
 	 * @return
@@ -696,7 +697,7 @@ public class PropertyManager extends BasicManager implements UserDataDeletable {
 			query.append(" and p.name=:name");
 		}
 		
-		TypedQuery<Property> dbQuery = DBFactory.getInstance().getCurrentEntityManager()
+		TypedQuery<Property> dbQuery = dbInstance.getCurrentEntityManager()
 				.createQuery(query.toString(), Property.class)
 				.setParameter("resourceTypeName", resourceableTypeName)
 				.setParameter("resourceableIds", resourceableIds);
@@ -718,12 +719,12 @@ public class PropertyManager extends BasicManager implements UserDataDeletable {
 	public List<String> getAllResourceTypeNames() {
 		StringBuilder sb = new StringBuilder();
 		sb.append("select distinct v.resourceTypeName from ").append(Property.class.getName()).append(" as v where v.resourceTypeName is not null");
-		return DBFactory.getInstance().getCurrentEntityManager().createQuery(sb.toString(), String.class).getResultList();
+		return dbInstance.getCurrentEntityManager().createQuery(sb.toString(), String.class).getResultList();
 	}
 
 	/**
 	 * Delete all properties of a certain identity.
-	 * @see org.olat.user.UserDataDeletable#deleteUserData(org.olat.core.id.Identity)
+	 *
 	 */
 	@Override
 	public void deleteUserData(Identity identity, String newDeletedUserName) {

@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -39,53 +40,38 @@ public class DataConverter {
         this.delegationDao = delegationDao;
     }
 
-    List<Identity> convertStudentsToIdentities(Set<StudentCourse> studentCourses) {
-        List<Identity> identitiesOfStudents = new ArrayList<>();
+    public Set<Identity> convertStudentsToIdentities(Set<StudentCourse> studentCourses) {
+        Set<Identity> identitiesOfStudents = new HashSet<>();
         for (StudentCourse studentCourse : studentCourses) {
             Identity mappedIdentity = studentCourse.getStudent().getMappedIdentity();
-            if (mappedIdentity == null || mappedIdentity.getStatus().equals(Identity.STATUS_DELETED)) {
-                continue;
-            }
-            if (!identitiesOfStudents.contains(mappedIdentity)) {
+            if (mappedIdentity != null && !mappedIdentity.getStatus().equals(Identity.STATUS_DELETED)) {
                 identitiesOfStudents.add(mappedIdentity);
             }
         }
         return identitiesOfStudents;
     }
 
-    List<Identity> convertLecturersToIdentities(Set<LecturerCourse> lecturerCourses) {
-        List<Identity> identitiesOfLecturers = new ArrayList<>();
+    public Set<Identity> convertLecturersToIdentities(Set<LecturerCourse> lecturerCourses) {
+        Set<Identity> identitiesOfLecturers = new HashSet<>();
         for (LecturerCourse lecturerCourse : lecturerCourses) {
             Identity mappedIdentity = lecturerCourse.getLecturer().getMappedIdentity();
-            if (mappedIdentity == null || mappedIdentity.getStatus().equals(Identity.STATUS_DELETED)) {
-                continue;
-            }
-            if (!identitiesOfLecturers.contains(mappedIdentity)) {
+            if (mappedIdentity != null && !mappedIdentity.getStatus().equals(Identity.STATUS_DELETED)) {
                 identitiesOfLecturers.add(mappedIdentity);
-            }
-
-            // Also add delegatees of lecturer
-            List<Delegation> delegations = delegationDao.getDelegationsByDelegator(mappedIdentity.getKey());
-            for (Delegation delegation : delegations) {
-                if (!delegation.getDelegatee().getStatus().equals(Identity.STATUS_DELETED) && !identitiesOfLecturers.contains(delegation.getDelegatee())) {
-                    identitiesOfLecturers.add(delegation.getDelegatee());
-                }
             }
         }
         return identitiesOfLecturers;
     }
 
-    List<Identity> convertDelegateesToIdentities(Set<LecturerCourse> lecturerCourses) {
-        List<Identity> identitiesOfDelegatees = new ArrayList<>();
+    public Set<Identity> convertDelegateesToIdentities(Set<LecturerCourse> lecturerCourses) {
+        Set<Identity> identitiesOfDelegatees = new HashSet<>();
         for (LecturerCourse lecturerCourse : lecturerCourses) {
             Identity mappedIdentity = lecturerCourse.getLecturer().getMappedIdentity();
-            if (mappedIdentity == null || mappedIdentity.getStatus().equals(Identity.STATUS_DELETED)) {
-                continue;
-            }
-            List<Delegation> delegations = delegationDao.getDelegationsByDelegator(mappedIdentity.getKey());
-            for (Delegation delegation : delegations) {
-                if (!delegation.getDelegatee().getStatus().equals(Identity.STATUS_DELETED) && !identitiesOfDelegatees.contains(delegation.getDelegatee())) {
-                    identitiesOfDelegatees.add(delegation.getDelegatee());
+            if (mappedIdentity != null && !mappedIdentity.getStatus().equals(Identity.STATUS_DELETED)) {
+                List<Delegation> delegations = delegationDao.getDelegationsByDelegator(mappedIdentity.getKey());
+                for (Delegation delegation : delegations) {
+                    if (!delegation.getDelegatee().getStatus().equals(Identity.STATUS_DELETED)) {
+                        identitiesOfDelegatees.add(delegation.getDelegatee());
+                    }
                 }
             }
         }
@@ -102,5 +88,4 @@ public class DataConverter {
         }
         return identitiesOfDelegatees;
     }
-
 }

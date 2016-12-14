@@ -1,6 +1,6 @@
 package ch.uzh.campus.service.core.impl.syncer;
 
-import ch.uzh.campus.CampusCourseImportTO;
+import ch.uzh.campus.service.data.SapCampusCourseTO;
 import ch.uzh.campus.service.core.impl.syncer.statistic.OverallSynchronizeStatistic;
 import ch.uzh.campus.service.core.impl.syncer.statistic.SynchronizedGroupStatistic;
 import org.olat.core.commons.persistence.DB;
@@ -40,7 +40,7 @@ import java.util.List;
  * 
  * @author aabouc
  */
-public class CampusCourseSynchronizationWriter implements ItemWriter<CampusCourseImportTO> {
+public class CampusCourseSynchronizationWriter implements ItemWriter<SapCampusCourseTO> {
 
     private static final OLog LOG = Tracing.createLoggerFor(CampusCourseSynchronizationWriter.class);
 
@@ -76,14 +76,12 @@ public class CampusCourseSynchronizationWriter implements ItemWriter<CampusCours
 
     /**
      * Delegates the actual synchronizing of the SAP data to the OLAT data to the {@link CampusCourseSynchronizer}.<br>
-     * 
-     * @param sapCourses
-     *            the CampusCourseImportTO
+     *
      */
-    public void write(List<? extends CampusCourseImportTO> sapCourses) throws Exception {
-        for (CampusCourseImportTO sapCourse : sapCourses) {
+    public void write(List<? extends SapCampusCourseTO> sapCampusCourseTOs) throws Exception {
+        for (SapCampusCourseTO sapCampusCourseTO : sapCampusCourseTOs) {
             try {
-                SynchronizedGroupStatistic courseSynchronizeStatistic = campusCourseSynchronizer.synchronizeCourse(sapCourse);
+                SynchronizedGroupStatistic courseSynchronizeStatistic = campusCourseSynchronizer.synchronizeOlatCampusCourse(sapCampusCourseTO);
                 synchronizeStatistic.add(courseSynchronizeStatistic);
                 dbInstance.commitAndCloseSession();
             } catch (Throwable t) {
@@ -92,8 +90,8 @@ public class CampusCourseSynchronizationWriter implements ItemWriter<CampusCours
                 // First for the sapCourses according to commit-interval in campusBatchJobContext.xml, and then (after rollbacking)
                 // for each entry of the original sapCourses separately enabling commits containing only one entry.
                 // To avoid duplicated warnings we only log a warning in the latter case.
-                String msg = "Could not synchronize campus course '" + sapCourse.getTitle() + "': " + t.getMessage();
-                if (sapCourses.size() == 1) {
+                String msg = "Could not synchronize campus course '" + sapCampusCourseTO.getTitleToBeDisplayed() + "': " + t.getMessage();
+                if (sapCampusCourseTOs.size() == 1) {
                     LOG.error(msg);
                 } else {
                     LOG.debug(msg);

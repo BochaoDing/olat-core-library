@@ -2,27 +2,32 @@ package ch.uzh.campus.service.core.impl.syncer;
 
 import ch.uzh.campus.CampusCourseConfiguration;
 import ch.uzh.campus.CampusCourseException;
-import ch.uzh.campus.CampusCourseImportTO;
 import ch.uzh.campus.data.DaoManager;
-import ch.uzh.campus.data.Semester;
-import ch.uzh.campus.data.SemesterName;
-import ch.uzh.campus.service.CampusCourse;
-import ch.uzh.campus.service.core.impl.CampusCourseFactory;
+import ch.uzh.campus.service.core.CampusCourseCoreService;
+import ch.uzh.campus.service.core.impl.OlatCampusCourseProvider;
 import ch.uzh.campus.service.core.impl.syncer.statistic.SynchronizedGroupStatistic;
 import ch.uzh.campus.service.core.impl.syncer.statistic.SynchronizedSecurityGroupStatistic;
+import ch.uzh.campus.service.data.CampusGroups;
+import ch.uzh.campus.service.data.OlatCampusCourse;
+import ch.uzh.campus.service.data.SapCampusCourseTO;
 import org.junit.Before;
 import org.junit.Test;
+import org.olat.basesecurity.GroupRoles;
 import org.olat.core.id.Identity;
 import org.olat.course.ICourse;
+import org.olat.group.BusinessGroup;
 import org.olat.repository.RepositoryEntry;
+import org.olat.repository.RepositoryService;
 import org.olat.resource.OLATResource;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 import static org.junit.Assert.*;
 import static org.mockito.Matchers.refEq;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -51,13 +56,10 @@ import static org.mockito.Mockito.when;
  */
 public class CampusCourseSynchronizerTest {
 
-    private static final long NOT_EXISTING_SAP_COURSE_ID = 4455;
     private static final long EXISTING_SAP_COURSE_ID = 4456;
     private CampusCourseSynchronizer campusCourseSynchronizerTestObject;
 
-    private CampusCourseImportTO campusCourseImportTO;
-    private List<Identity> lecturers = new ArrayList<>();
-    private List<Identity> participants = new ArrayList<>();
+    private SapCampusCourseTO sapCampusCourseTO;
 
     @Before
     public void setup() throws CampusCourseException {
@@ -65,56 +67,64 @@ public class CampusCourseSynchronizerTest {
         String title = "title";
         String eventDescription = "eventDescription";
 
-        // Prepare a test CampusCourse
-        ICourse course = mock(ICourse.class);
-        RepositoryEntry repositoryEntry = mock(RepositoryEntry.class);
-        when(repositoryEntry.getDisplayname()).thenReturn(title);
-        when(repositoryEntry.getDescription()).thenReturn(eventDescription);
+        // Prepare a test sap campus course
+        Set<Identity> lecturers = Collections.emptySet();
+        Set<Identity> delegatees = Collections.emptySet();
+        Set<Identity> students = Collections.emptySet();
         OLATResource olatResourceMock = mock(OLATResource.class);
-        CampusCourse campusCourse = new CampusCourse(course, repositoryEntry);
-
-        // Prepare a test CampusCourseImportTO
-        Semester semester = new Semester(SemesterName.HERBSTSEMESTER, 2016, false);
-        campusCourseImportTO = new CampusCourseImportTO(
-                title, semester, lecturers, Collections.emptyList(), participants, eventDescription,
-                olatResourceMock, EXISTING_SAP_COURSE_ID, null, null
+        BusinessGroup campusGroupAMock = mock(BusinessGroup.class);
+        BusinessGroup campusGroupBMock = mock(BusinessGroup.class);
+        sapCampusCourseTO = new SapCampusCourseTO(
+                title, null, students, delegatees, lecturers, false, null, eventDescription,
+                olatResourceMock, new CampusGroups(campusGroupAMock, campusGroupBMock), null, null, null
         );
 
-        // mock injections for CampusCourseSynchronizer
+        // Prepare a test olat campus course
+        ICourse courseMock = mock(ICourse.class);
+        RepositoryEntry repositoryEntryMock = mock(RepositoryEntry.class);
+        when(repositoryEntryMock.getDisplayname()).thenReturn(title);
+        when(repositoryEntryMock.getDescription()).thenReturn(eventDescription);
+        OlatCampusCourse olatCampusCourse = new OlatCampusCourse(courseMock, repositoryEntryMock);
+
+        // CampusGroupsSynchronizerMock
+        Identity creatorMock = mock(Identity.class);
         SynchronizedGroupStatistic groupStatistic = new SynchronizedGroupStatistic(title, null, new SynchronizedSecurityGroupStatistic(5, 10));
-        CampusCourseGroupSynchronizer campusCourseGroupSynchronizerMock = mock(CampusCourseGroupSynchronizer.class);
-        when(campusCourseGroupSynchronizerMock.synchronizeCourseGroups(campusCourse, campusCourseImportTO)).thenReturn(groupStatistic);
-        CampusCourseAttributeSynchronizer campusCourseAttributeSynchronizerMock = mock(CampusCourseAttributeSynchronizer.class);
+        CampusGroupsSynchronizer campusGroupsSynchronizerMock = mock(CampusGroupsSynchronizer.class);
+        when(campusGroupsSynchronizerMock.synchronizeCampusGroups(refEq(sapCampusCourseTO.getCampusGroups()), refEq(sapCampusCourseTO), refEq(creatorMock))).thenReturn(groupStatistic);
+
+        // OlatCampusCourseAttributeSynchronizerMock
+        CampusCourseRepositoryEntrySynchronizer campusCourseRepositoryEntrySynchronizerMock = mock(CampusCourseRepositoryEntrySynchronizer.class);
         CampusCourseConfiguration campusCourseConfigurationMock = mock(CampusCourseConfiguration.class);
-        CampusCourseFactory campusCourseFactoryMock = mock(CampusCourseFactory.class);
-        when(campusCourseFactoryMock.getCampusCourse(refEq(campusCourseImportTO))).thenReturn(campusCourse);
+
+        // OlatCampusCourseProviderMock
+        OlatCampusCourseProvider olatCampusCourseProviderMock = mock(OlatCampusCourseProvider.class);
+        when(olatCampusCourseProviderMock.loadOlatCampusCourse(refEq(sapCampusCourseTO.getOlatResource()))).thenReturn(olatCampusCourse);
+
+        // CampusCourseCoreServiceMock
+        CampusCourseCoreService campusCourseCoreServiceMock = mock(CampusCourseCoreService.class);
+        when(campusCourseCoreServiceMock.loadOlatCampusCourse(refEq(sapCampusCourseTO.getOlatResource()))).thenReturn(olatCampusCourse);
+
+        // RepositoryServiceMock
+        RepositoryService repositoryServiceMock = mock(RepositoryService.class);
+        List<Identity> courseOwners = new ArrayList<>();
+        courseOwners.add(creatorMock);
+        when(repositoryServiceMock.getMembers(refEq(olatCampusCourse.getRepositoryEntry()), eq(GroupRoles.owner.name()))).thenReturn(courseOwners);
 
         campusCourseSynchronizerTestObject = new CampusCourseSynchronizer(
-                campusCourseGroupSynchronizerMock, campusCourseAttributeSynchronizerMock,
-                campusCourseConfigurationMock, campusCourseFactoryMock
-        );
+                campusGroupsSynchronizerMock,
+                campusCourseRepositoryEntrySynchronizerMock,
+                campusCourseConfigurationMock,
+                campusCourseCoreServiceMock,
+                repositoryServiceMock);
     }
-    
-    @Test
-    public void synchronizeCourse_CouldNotFindCourse() throws CampusCourseException {
-        DaoManager daoManagerMock = mock(DaoManager.class);
-        when(daoManagerMock.getSapCampusCourse(NOT_EXISTING_SAP_COURSE_ID)).thenReturn(null);
 
-        SynchronizedGroupStatistic statistic = campusCourseSynchronizerTestObject.synchronizeCourse(null);
-        assertNotNull(statistic);
-        assertTrue(statistic.getCourseTitle().startsWith(SynchronizedGroupStatistic.EMPTY_STATISTIC));
-        assertEquals(0, statistic.getParticipantGroupStatistic().getAddedStatistic());
-        assertEquals(0, statistic.getParticipantGroupStatistic().getRemovedStatistic());
-    }
-    
     @Test
-    public void synchronizeCourse_FoundCourse() throws CampusCourseException {
+    public void synchronizeCourse() throws CampusCourseException {
         DaoManager daoManagerMock = mock(DaoManager.class);
-        when(daoManagerMock.getSapCampusCourse(EXISTING_SAP_COURSE_ID)).thenReturn(campusCourseImportTO);
+        when(daoManagerMock.loadSapCampusCourseTO(EXISTING_SAP_COURSE_ID)).thenReturn(sapCampusCourseTO);
 
-        SynchronizedGroupStatistic statistic = campusCourseSynchronizerTestObject.synchronizeCourse(campusCourseImportTO);
+        SynchronizedGroupStatistic statistic = campusCourseSynchronizerTestObject.synchronizeOlatCampusCourse(sapCampusCourseTO);
         assertNotNull(statistic);
-        assertFalse(statistic.getCourseTitle().startsWith(SynchronizedGroupStatistic.EMPTY_STATISTIC));
         assertEquals(5, statistic.getParticipantGroupStatistic().getAddedStatistic());
         assertEquals(10, statistic.getParticipantGroupStatistic().getRemovedStatistic());
     }

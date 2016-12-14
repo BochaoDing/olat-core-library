@@ -35,6 +35,7 @@ import org.olat.core.util.coordinate.SyncerCallback;
 import org.olat.core.util.coordinate.SyncerExecutor;
 import org.olat.core.util.coordinate.util.DerivedStringSyncer;
 import org.olat.core.util.resource.OresHelper;
+import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * Description:<br>
@@ -45,22 +46,19 @@ import org.olat.core.util.resource.OresHelper;
  * @author Felix Jost, http://www.goodsolutions.ch
  */
 public class ClusterSyncer implements Syncer {
-	private static final OLog log = Tracing.createLoggerFor(ClusterSyncer.class);
-	private int executionTimeThreshold = 3000; // warn if the execution takes longer than three seconds
-	private final ThreadLocal<ThreadLocalClusterSyncer> data = new ThreadLocal<ThreadLocalClusterSyncer>();
-	private PessimisticLockManager pessimisticLockManager;
-	private DB dbInstance;
-	
-	/**
-	 * [used by spring]
-	 * @param pessimisticLockManager
-	 */
-	private ClusterSyncer(PessimisticLockManager pessimisticLockManager) {
-		this.setPessimisticLockManager(pessimisticLockManager);
-	}
 
-	public void setDbInstance(DB db){
-		dbInstance = db;
+	private static final OLog log = Tracing.createLoggerFor(ClusterSyncer.class);
+
+	private final ThreadLocal<ThreadLocalClusterSyncer> data = new ThreadLocal<>();
+	private final PessimisticLockManager pessimisticLockManager;
+	private final DB dbInstance;
+
+	private int executionTimeThreshold = 3000; // warn if the execution takes longer than three seconds
+
+	@Autowired
+	private ClusterSyncer(PessimisticLockManager pessimisticLockManager, DB dbInstance) {
+		this.pessimisticLockManager = pessimisticLockManager;
+		this.dbInstance = dbInstance;
 	}
 	
 	/**
@@ -166,10 +164,6 @@ public class ClusterSyncer implements Syncer {
 			setData(tld);
 		}
 		return tld;
-	}
-
-	public void setPessimisticLockManager(PessimisticLockManager pessimisticLockManager) {
-		this.pessimisticLockManager = pessimisticLockManager;
 	}
 
 	public PessimisticLockManager getPessimisticLockManager() {

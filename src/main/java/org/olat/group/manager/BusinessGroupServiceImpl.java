@@ -112,6 +112,7 @@ import org.olat.repository.RepositoryEntryRelationType;
 import org.olat.repository.RepositoryEntryShort;
 import org.olat.repository.RepositoryManager;
 import org.olat.repository.RepositoryService;
+import org.olat.repository.listener.BeforeBusinessGroupDeletionListener;
 import org.olat.repository.manager.RepositoryEntryRelationDAO;
 import org.olat.repository.model.RepositoryEntryToGroupRelation;
 import org.olat.repository.model.SearchRepositoryEntryParameters;
@@ -166,6 +167,8 @@ public class BusinessGroupServiceImpl implements BusinessGroupService, UserDataD
 	private ACReservationDAO reservationDao;
 	@Autowired
 	private DB dbInstance;
+	@Autowired
+	private BeforeBusinessGroupDeletionListener[] beforeBusinessGroupDeletionListeners;
 	
 	@Override
 	public void deleteUserData(Identity identity, String newDeletedUserName) {
@@ -746,6 +749,11 @@ public class BusinessGroupServiceImpl implements BusinessGroupService, UserDataD
 	
 			// refresh object to avoid stale object exceptions
 			group = loadBusinessGroup(group);
+
+			for (BeforeBusinessGroupDeletionListener beforeBusinessGroupDeletionListener : beforeBusinessGroupDeletionListeners) {
+				beforeBusinessGroupDeletionListener.onAction(group);
+			}
+
 			// 0) Loop over all deletableGroupData
 			Map<String,DeletableGroupData> deleteListeners = CoreSpringFactory.getBeansOfType(DeletableGroupData.class);
 			for (DeletableGroupData deleteListener : deleteListeners.values()) {
@@ -948,10 +956,8 @@ public class BusinessGroupServiceImpl implements BusinessGroupService, UserDataD
 	/**
 	 * this method is for internal usage only. It add the identity to to group without synchronization or checks!
 	 * @param ureqIdentity
-	 * @param ureqRoles
 	 * @param identityToAdd
 	 * @param group
-	 * @param syncIM
 	 */
 	private void internalAddParticipant(Identity ureqIdentity, Identity identityToAdd, BusinessGroup group,
 			List<BusinessGroupModifiedEvent.Deferred> events) {
@@ -1427,7 +1433,6 @@ public class BusinessGroupServiceImpl implements BusinessGroupService, UserDataD
 	 * @param ureqIdentity
 	 * @param group
 	 * @param mailing
-	 * @param syncIM
 	 */
 	private void transferFirstIdentityFromWaitingToParticipant(Identity ureqIdentity, BusinessGroup group, 
 			MailPackage mailing, List<BusinessGroupModifiedEvent.Deferred> events) {

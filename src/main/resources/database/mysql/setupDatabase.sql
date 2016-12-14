@@ -2239,7 +2239,7 @@ create table if not exists ck_semester (
 create table if not exists ck_course (
 	id bigint not null,
 	title varchar(255) not null,
-	short_title varchar(255) not null,
+	lv_kuerzel varchar(255) not null,
 	e_learning_supported boolean not null,
 	language varchar(255) not null,
 	category varchar(255) not null,
@@ -2251,6 +2251,8 @@ create table if not exists ck_course (
 	synchronizable boolean not null default 1,
   fk_semester bigint not null,
   fk_resource bigint,
+  fk_campusgroup_a bigint,
+  fk_campusgroup_b bigint,
   fk_parent_course bigint,
 	date_of_import datetime not null,
 	primary key (id)
@@ -2372,6 +2374,8 @@ alter table ck_semester add constraint ck_semester_f01 unique (name, year);
 alter table ck_course add constraint ck_course_f01 foreign key (fk_parent_course) references ck_course (id);
 alter table ck_course add constraint ck_course_f02 foreign key (fk_resource) references o_olatresource (resource_id);
 alter table ck_course add constraint ck_course_f03 foreign key (fk_semester) references ck_semester (id);
+alter table ck_course add constraint ck_course_f04 foreign key (fk_campusgroup_a) references o_gp_business (group_id);
+alter table ck_course add constraint ck_course_f05 foreign key (fk_campusgroup_b) references o_gp_business (group_id);
 alter table ck_lecturer add constraint ck_lecturer_f01 foreign key (fk_mapped_identity) references o_bs_identity(id);
 alter table ck_lecturer_course add constraint ck_lecturer_course_f01 foreign key (fk_course) references ck_course (id);
 alter table ck_lecturer_course add constraint ck_lecturer_course_f02 foreign key (fk_lecturer) references ck_lecturer (id);

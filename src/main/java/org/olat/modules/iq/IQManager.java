@@ -85,6 +85,7 @@ import org.olat.repository.RepositoryManager;
 import org.olat.user.UserDataDeletable;
 import org.olat.user.UserManager;
 import org.olat.util.logging.activity.LoggingResourceable;
+import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * Initial Date: Mar 4, 2004
@@ -93,20 +94,13 @@ import org.olat.util.logging.activity.LoggingResourceable;
 public class IQManager implements UserDataDeletable {
 	
 	private OLog log = Tracing.createLoggerFor(IQManager.class);
-	
 
-	private DB dbInstance;
-	private UserManager userManager;
+	private final DB dbInstance;
+	private final UserManager userManager;
 
-	public void setDbInstance(DB dbInstance) {
+	@Autowired
+	public IQManager(DB dbInstance, UserManager userManager) {
 		this.dbInstance = dbInstance;
-	}
-
-	/**
-	 * [user by Spring]
-	 * @param userManager
-	 */
-	public void setUserManager(UserManager userManager) {
 		this.userManager = userManager;
 	}
 
@@ -217,7 +211,6 @@ public class IQManager implements UserDataDeletable {
 	/**
 	 * 
 	 * @param ai
-	 * @param ureq
 	 * @return
 	 */
 	public Document getResultsReporting(AssessmentInstance ai, Identity assessedIdentity, Locale locale) {
@@ -240,7 +233,6 @@ public class IQManager implements UserDataDeletable {
 	 * 
 	 * @param docResReporting
 	 * @param locale
-	 * @param detailed
 	 * @return
 	 */
 	public String transformResultsReporting(Document docResReporting, Locale locale, int summaryType) {
@@ -303,9 +295,6 @@ public class IQManager implements UserDataDeletable {
 	 * 
 	 * 
 	 * @param ai
-	 * @param resId
-	 * @param resDetail
-	 * @param ureq
 	 */
 
 	public void persistResults(AssessmentInstance ai) {
@@ -430,7 +419,6 @@ public class IQManager implements UserDataDeletable {
 
 	/**
 	 * Delete all qti.ser and qti-resreporting files.
-	 * @see org.olat.user.UserDataDeletable#deleteUserData(org.olat.core.id.Identity)
 	 */
 	public void deleteUserData(Identity identity, String newDeletedUserName) {
 		FilePersister.deleteUserData(identity);

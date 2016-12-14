@@ -1,3 +1,18 @@
+package ch.uzh.campus.service.core.impl.creator;
+
+import org.olat.core.id.Identity;
+import org.olat.core.util.nodes.INode;
+import org.olat.course.CourseFactory;
+import org.olat.course.ICourse;
+import org.olat.course.editor.PublishProcess;
+import org.olat.course.tree.CourseEditorTreeModel;
+import org.olat.course.tree.CourseEditorTreeNode;
+import org.springframework.stereotype.Component;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
+
 /**
  * OLAT - Online Learning and Training<br>
  * http://www.olat.org
@@ -17,24 +32,7 @@
  * Copyright (c) since 2004 at Multimedia- & E-Learning Services (MELS),<br>
  * University of Zurich, Switzerland.
  * <p>
- */
-
-package ch.uzh.campus.service.core.impl.creator;
-
-import org.olat.core.id.Identity;
-import org.olat.core.util.nodes.INode;
-import org.olat.course.CourseFactory;
-import org.olat.course.ICourse;
-import org.olat.course.editor.PublishProcess;
-import org.olat.course.tree.CourseEditorTreeModel;
-import org.olat.course.tree.CourseEditorTreeNode;
-import org.springframework.stereotype.Component;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
-
-/**
+ *
  * Initial Date: 31.05.2012 <br>
  * 
  * @author cg

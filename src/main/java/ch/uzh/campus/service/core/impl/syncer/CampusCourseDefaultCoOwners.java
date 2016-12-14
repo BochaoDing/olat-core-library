@@ -19,35 +19,32 @@ import ch.uzh.campus.CampusCourseConfiguration;
  * @author cg
  */
 @Component
-public class CampusCourseCoOwners {
+public class CampusCourseDefaultCoOwners {
     
-	private static final OLog log = Tracing.createLoggerFor(CampusCourseCoOwners.class);
-
+	private static final OLog LOG = Tracing.createLoggerFor(CampusCourseDefaultCoOwners.class);
     private static final String DELIMITER = ",";
 
-    @Autowired
-    public CampusCourseConfiguration campusCourseConfiguration;
+    private final CampusCourseConfiguration campusCourseConfiguration;
+    private final BaseSecurity baseSecurity;
+
+    private List<Identity> defaultCoOnwerIdentites;
 
     @Autowired
-    public BaseSecurity baseSecurity;
-
-    public void setCampusCourseConfiguration(CampusCourseConfiguration campusCourseConfiguration) {
+    public CampusCourseDefaultCoOwners(CampusCourseConfiguration campusCourseConfiguration, BaseSecurity baseSecurity) {
         this.campusCourseConfiguration = campusCourseConfiguration;
+        this.baseSecurity = baseSecurity;
     }
 
-    private List<Identity> identites;
-
-    List<Identity> getDefaultCoOwners() {
-        if (identites != null) {
-            return identites;
+    public List<Identity> getDefaultCoOwners() {
+        if (defaultCoOnwerIdentites != null) {
+            return defaultCoOnwerIdentites;
         } else {
-            identites = initCoOwnerIdentities();
-            return identites;
+            defaultCoOnwerIdentites = initDefaultCoOwnerIdentities();
+            return defaultCoOnwerIdentites;
         }
-
     }
 
-    private List<Identity> initCoOwnerIdentities() {
+    private List<Identity> initDefaultCoOwnerIdentities() {
         String defaultCoOwnerUserNamesPropertyValue = campusCourseConfiguration.getDefaultCoOwnerUserNames();
         List<Identity> identites = new ArrayList<>();
         StringTokenizer tok = new StringTokenizer(defaultCoOwnerUserNamesPropertyValue, DELIMITER);
@@ -59,7 +56,7 @@ public class CampusCourseCoOwners {
                     identites.add(identity);
                 }
             } else {
-                log.warn("getDefaultCoOwners: Could not found an OLAT identity for username:'" + identityName + "' , check Campuskurs configuration-value:'"
+                LOG.warn("getDefaultCoOwners: Could not found an OLAT identity for username:'" + identityName + "' , check Campuskurs configuration-value:'"
                         + defaultCoOwnerUserNamesPropertyValue + "'");
             }
         }

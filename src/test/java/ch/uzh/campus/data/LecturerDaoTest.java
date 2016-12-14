@@ -2,20 +2,18 @@ package ch.uzh.campus.data;
 
 import ch.uzh.campus.CampusCourseConfiguration;
 import ch.uzh.campus.CampusCourseException;
+import ch.uzh.campus.CampusCourseTestCase;
 import ch.uzh.campus.utils.DateUtil;
-import org.junit.After;
 import org.junit.Test;
 import org.olat.basesecurity.IdentityImpl;
-import org.olat.core.commons.persistence.DB;
 import org.olat.core.id.Identity;
 import org.olat.core.id.OLATResourceable;
 import org.olat.core.id.User;
 import org.olat.resource.OLATResource;
 import org.olat.resource.OLATResourceManager;
-import org.olat.test.OlatTestCase;
 import org.olat.user.UserManager;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.ContextConfiguration;
+import org.springframework.stereotype.Component;
 
 import javax.inject.Provider;
 import java.util.Date;
@@ -32,14 +30,11 @@ import static org.junit.Assert.*;
  * @author Martin Schraner
  */
 
-@ContextConfiguration(locations = {"classpath:ch/uzh/campus/data/_spring/mockDataContext.xml"})
-public class LecturerDaoTest extends OlatTestCase {
+@Component
+public class LecturerDaoTest extends CampusCourseTestCase {
 
     @Autowired
     private CampusCourseConfiguration campusCourseConfiguration;
-
-    @Autowired
-    private DB dbInstance;
 
     @Autowired
     private LecturerDao lecturerDao;
@@ -66,11 +61,6 @@ public class LecturerDaoTest extends OlatTestCase {
     private OLATResourceManager olatResourceManager;
 
     private List<Lecturer> lecturers;
-
-    @After
-    public void after() {
-       dbInstance.rollback();
-    }
 
     @Test
     public void testAddMapping() throws CampusCourseException {

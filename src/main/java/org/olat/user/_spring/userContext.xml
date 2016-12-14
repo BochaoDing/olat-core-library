@@ -15,10 +15,6 @@
 
     <bean id="userModule" class="org.olat.user.UserModule"
           depends-on="notificationsManager, database, baseSecurityManager, triggerI18nModuleInit">
-        <!-- default auth string -->
-        <constructor-arg index="0" value="${default.auth.provider.identifier}" />
-        <constructor-arg index="1" ref="userManager" />
-        <constructor-arg index="2" ref="afterLoginInterceptionManager" />
 
         <property name="persistedProperties">
             <bean class="org.olat.core.configuration.PersistedProperties" scope="prototype" init-method="init" destroy-method="destroy">

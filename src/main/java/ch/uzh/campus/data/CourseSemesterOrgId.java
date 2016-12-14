@@ -16,9 +16,9 @@ public class CourseSemesterOrgId {
     private static final String WHITESPACE = " ";
 
     private Long id;
-    private String shortTitle;
+    private String lvKuerzel;
     private String title;
-    private String vstNr;
+    private String lvNr;
     private String eLearningSupported;
     private String language;
     private String category;
@@ -46,12 +46,12 @@ public class CourseSemesterOrgId {
         this.id = id;
     }
 
-    public String getShortTitle() {
-        return shortTitle;
+    public String getLvKuerzel() {
+        return lvKuerzel;
     }
 
-    public void setShortTitle(String shortTitle) {
-        this.shortTitle = shortTitle;
+    public void setLvKuerzel(String lvKuerzel) {
+        this.lvKuerzel = lvKuerzel;
     }
 
     public String getTitle() {
@@ -62,12 +62,12 @@ public class CourseSemesterOrgId {
         this.title = title;
     }
 
-    public String getVstNr() {
-        return vstNr;
+    public String getLvNr() {
+        return lvNr;
     }
 
-    public void setVstNr(String vstNr) {
-        this.vstNr = vstNr;
+    public void setLvNr(String lvNr) {
+        this.lvNr = lvNr;
     }
 
     public String getELearningSupported() {
@@ -235,9 +235,9 @@ public class CourseSemesterOrgId {
 
 	public void merge(Course course) {
 		course.setId(getId());
-		course.setShortTitle(getShortTitle());
+		course.setLvKuerzel(getLvKuerzel());
 		course.setTitle(getTitle());
-		course.setVstNr(getVstNr());
+		course.setLvNr(getLvNr());
 		course.setELearningSupported("X".equalsIgnoreCase(getELearningSupported()));
 		course.setLanguage(getLanguage());
 		course.setCategory(getCategory());

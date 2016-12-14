@@ -32,6 +32,7 @@ import org.olat.core.commons.persistence.DBQuery;
 import org.olat.core.id.Identity;
 import org.olat.core.id.OLATResourceable;
 import org.olat.core.util.StringHelper;
+import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * 
@@ -44,21 +45,12 @@ import org.olat.core.util.StringHelper;
  */
 public class InfoMessageManagerImpl extends InfoMessageManager {
 	
-	private DB dbInstance;
-	
-	/**
-	 * [used by Spring]
-	 */
-	private InfoMessageManagerImpl() {
-		INSTANCE = this;
-	}
-	
-	/**
-	 * [used by Spring]
-	 * @param dbInstance
-	 */
-	public void setDbInstance(DB dbInstance) {
+	private final DB dbInstance;
+
+	@Autowired
+	private InfoMessageManagerImpl(DB dbInstance) {
 		this.dbInstance = dbInstance;
+		INSTANCE = this;
 	}
 
 	@Override

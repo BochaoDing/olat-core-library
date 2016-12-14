@@ -43,22 +43,22 @@ public class CampusCourseConfiguration {
     private String defaultTemplateRepositoryEntryId;
 
     @Value("${campus.template.supportedLanguages}")
-    private String templateSupportedLanguages;
+    private String supportedTemplateLanguages;
 
-    @Value("${campus.template.course.learningArea.name}")
-    private String campusCourseLearningAreaName;
+    @Value("${campus.groupA.defaultName}")
+    private String campusGroupADefaultName;
 
-    @Value("${campus.template.course.groupA.name}")
-    private String courseGroupAName;
+    @Value("${campus.groupB.defaultName}")
+    private String campusGroupBDefaultName;
 
-    @Value("${campus.template.course.groupB.name}")
-    private String courseGroupBName;
+    @Value("${campus.groupA.managedFlags}")
+    private String campusGroupAManagedFlags;
 
-    @Value("${campus.template.course.groupA.managedFlags}")
-    private String courseGroupAManagedFlags;
-
-    @Value("${campus.template.course.groupB.managedFlags}")
+    @Value("${campus.groupB.managedFlags}")
     private String courseGroupBManagedFlags;
+
+    @Value("${campus.groups.learningArea.name}")
+    private String campusGroupsLearningAreaName;
 
     @Value("${campus.template.course.vvzLink}")
     private String templateCourseVvzLink;
@@ -75,8 +75,8 @@ public class CampusCourseConfiguration {
     @Value("${campus.description.startsWith.string}")
     private String descriptionStartWithString;
 
-    @Value("${campus.enable.synchronizeTitleAndDescription}")
-    private boolean synchronizeTitleAndDescription;
+    @Value("${campus.enable.synchronizeDisplaynameAndDescription}")
+    private boolean synchronizeDisplaynameAndDescription;
 
     @Value("${campus.template.defaultLanguage}")
     private String defaultTemplateLanguage;
@@ -99,15 +99,15 @@ public class CampusCourseConfiguration {
     // @Value("${campus.start.spring.semester}")
     // private String startDateSpringSemester;
 
-    public String getTemplateLanguage(String language) {
-        if (StringUtils.isBlank(language) || !StringUtils.contains(getTemplateSupportedLanguages(), language)) {
+    public String getSupportedTemplateLanguage(String language) {
+        if (StringUtils.isBlank(language) || !StringUtils.contains(getSupportedTemplateLanguages(), language)) {
             language = getDefaultTemplateLanguage();
         }
         return language;
     }
 
     public Long getTemplateRepositoryEntryId(String language) {
-        language = getTemplateLanguage(language);
+        language = getSupportedTemplateLanguage(language);
 
         String propertyStringValue = null;
         try {
@@ -148,7 +148,7 @@ public class CampusCourseConfiguration {
     }
 
     void deleteTemplateRepositoryEntryIdPropertyIfExists(String language) {
-        language = getTemplateLanguage(language);
+        language = getSupportedTemplateLanguage(language);
         Property property = findCampusProperty(language.concat(TEMPLATE_COURSE_REPOSITORY_ENTRY_ID_PROPERTY_KEY));
         if (property != null) {
             propertyManager.deleteProperty(property);
@@ -163,24 +163,24 @@ public class CampusCourseConfiguration {
         this.maxYearsToKeepCkData = maxYearsToKeepCkData;
     }
 
-    public String getCampusCourseLearningAreaName() {
-        return campusCourseLearningAreaName;
+    public String getCampusGroupADefaultName() {
+        return campusGroupADefaultName;
     }
 
-    public String getCourseGroupAName() {
-        return courseGroupAName;
+    public String getCampusGroupBDefaultName() {
+        return campusGroupBDefaultName;
     }
 
-    public String getCourseGroupBName() {
-        return courseGroupBName;
-    }
-
-    public String getCourseGroupAManagedFlags() {
-        return courseGroupAManagedFlags;
+    public String getCampusGroupAManagedFlags() {
+        return campusGroupAManagedFlags;
     }
 
     public String getCourseGroupBManagedFlags() {
         return courseGroupBManagedFlags;
+    }
+
+    public String getCampusGroupsLearningAreaName() {
+        return campusGroupsLearningAreaName;
     }
 
     public String getTemplateCourseVvzLink() {
@@ -199,27 +199,15 @@ public class CampusCourseConfiguration {
         return defaultCoOwnerUserNames;
     }
 
-    public boolean isSynchronizeTitleAndDescriptionEnabled() {
-        return synchronizeTitleAndDescription;
+    public boolean isSynchronizeDisplaynameAndDescriptionEnabled() {
+        return synchronizeDisplaynameAndDescription;
     }
 
-    public String getDescriptionStartWithString() {
-        return descriptionStartWithString;
+    private String getSupportedTemplateLanguages() {
+        return supportedTemplateLanguages;
     }
 
-    public String[] getDescriptionStartWithStringAsArray() {
-        String[] splittArray = null;
-        if (!StringUtils.isBlank(descriptionStartWithString)) {
-            splittArray = descriptionStartWithString.split(",");
-        }
-        return splittArray;
-    }
-
-    public String getTemplateSupportedLanguages() {
-        return templateSupportedLanguages;
-    }
-
-    public String getDefaultTemplateLanguage() {
+    private String getDefaultTemplateLanguage() {
         return defaultTemplateLanguage;
     }
 
@@ -239,24 +227,7 @@ public class CampusCourseConfiguration {
         return connectionPoolTimeout;
     }
 
-    public void setConnectionPoolTimeout(int connectionPoolTimeout) {
-        this.connectionPoolTimeout = connectionPoolTimeout;
-    }
-
     public int getMaxYearsToKeepCkData() {
         return maxYearsToKeepCkData;
     }
-
-    // TODO: How to handle start-date of semester ?
-    // public String getStartDateAutumnSemester() {
-    // return startDateAutumnSemester;
-    // }
-    //
-    // public String getStartDateSpringSemester() {
-    // return startDateSpringSemester;
-    // }
-
-    // TODO: Configuration via Admin-GUI/JMX: Add setter methods and use PropertyManager to save values.
-    // The Spring properties values can be used as default values.
-
 }

@@ -49,6 +49,8 @@ import org.olat.resource.OLATResource;
 import org.quartz.JobDetail;
 import org.quartz.Scheduler;
 import org.quartz.SchedulerException;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 
 /**
  * 
@@ -64,43 +66,24 @@ import org.quartz.SchedulerException;
  */
 public class TaskExecutorManagerImpl extends BasicManager implements TaskExecutorManager {
 	private static final OLog log = Tracing.createLoggerFor(TaskExecutorManagerImpl.class);
+
 	private final ExecutorService taskExecutor;
 	private final ExecutorService sequentialTaskExecutor;
-	
-	private DB dbInstance;
-	private Scheduler scheduler;
-	private PersistentTaskDAO persistentTaskDao;
+	private final DB dbInstance;
+	private final PersistentTaskDAO persistentTaskDao;
+	private final Scheduler scheduler;
 
-	/**
-	 * [used by spring]
-	 */
-	private TaskExecutorManagerImpl(ExecutorService mpTaskExecutor, ExecutorService sequentialTaskExecutor) {
+	@Autowired
+	private TaskExecutorManagerImpl(@Qualifier("mpTaskExecutorService") ExecutorService mpTaskExecutor,
+									@Qualifier("searchExecutor") ExecutorService sequentialTaskExecutor,
+									DB dbInstance,
+									PersistentTaskDAO persistentTaskDao,
+									@Qualifier("schedulerFactoryBean") Scheduler scheduler) {
 		this.taskExecutor = mpTaskExecutor;
 		this.sequentialTaskExecutor = sequentialTaskExecutor;
-	}
-	
-	/**
-	 * [used by Spring]
-	 * @param scheduler
-	 */
-	public void setScheduler(Scheduler scheduler) {
-		this.scheduler = scheduler;
-	}
-	
-	/**
-	 * [used by Spring]
-	 * @param dbInstance
-	 */
-	public void setDbInstance(DB dbInstance) {
 		this.dbInstance = dbInstance;
-	}
-
-	/**
-	 * [used by Spring]
-	 * @param persistentTaskDao
-	 */
-	public void setPersistentTaskDao(PersistentTaskDAO persistentTaskDao) {
 		this.persistentTaskDao = persistentTaskDao;
+		this.scheduler = scheduler;
 	}
 
 	public void shutdown() {
@@ -156,7 +139,7 @@ public class TaskExecutorManagerImpl extends BasicManager implements TaskExecuto
 			log.error("", e);
 		}
 	}
-	
+
 	protected void processTaskToDo() {
 		try {
 			List<Long> todos = persistentTaskDao.tasksToDo();

@@ -2,16 +2,17 @@ package ch.uzh.campus.data;
 
 import ch.uzh.campus.CampusCourseConfiguration;
 import ch.uzh.campus.CampusCourseException;
-import org.junit.After;
+import ch.uzh.campus.CampusCourseJunitTestHelper;
+import ch.uzh.campus.CampusCourseTestCase;
+import ch.uzh.campus.service.data.CampusGroups;
 import org.junit.Before;
 import org.junit.Test;
-import org.olat.core.commons.persistence.DB;
-import org.olat.core.id.OLATResourceable;
+import org.olat.group.BusinessGroup;
+import org.olat.group.manager.BusinessGroupDAO;
 import org.olat.resource.OLATResource;
 import org.olat.resource.OLATResourceManager;
-import org.olat.test.OlatTestCase;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.ContextConfiguration;
+import org.springframework.stereotype.Component;
 
 import javax.inject.Provider;
 import java.util.*;
@@ -26,14 +27,11 @@ import static org.junit.Assert.*;
  * @author Martin Schraner
  * @author lavinia
  */
-@ContextConfiguration(locations = {"classpath:ch/uzh/campus/data/_spring/mockDataContext.xml"})
-public class CourseDaoTest extends OlatTestCase {
+@Component
+public class CourseDaoTest extends CampusCourseTestCase {
 
     @Autowired
     private CampusCourseConfiguration campusCourseConfiguration;
-
-    @Autowired
-    private DB dbInstance;
 
     @Autowired
     private SemesterDao semesterDao;
@@ -60,6 +58,9 @@ public class CourseDaoTest extends OlatTestCase {
     private EventDao eventDao;
 
     @Autowired
+    private BusinessGroupDAO businessGroupDao;
+
+    @Autowired
     private OLATResourceManager olatResourceManager;
 
     @Autowired
@@ -77,11 +78,6 @@ public class CourseDaoTest extends OlatTestCase {
     public void before() {
         campusCourseConfiguration.setMaxYearsToKeepCkData(1);
         courseDao = new CourseDao(dbInstance, semesterDao);
-    }
-
-    @After
-    public void after() {
-        dbInstance.rollback();
     }
 
     @Test
@@ -348,14 +344,63 @@ public class CourseDaoTest extends OlatTestCase {
     }
 
     @Test
+    public void testGetCampusGroupsByOlatResource() throws CampusCourseException {
+        insertTestData();
+
+        Course course1 = courseDao.getCourseById(200L);
+        OLATResource olatResource1 = course1.getOlatResource();
+        assertNotNull(olatResource1);
+
+        Course course2 = courseDao.getCourseById(300L);
+        // Add the olat resource of course 1 to course 2
+        courseDao.saveOlatResource(course2.getId(), olatResource1.getKey());
+        dbInstance.flush();
+
+        // Add different campus groups
+        BusinessGroup campusGroupA1 = insertCampusGroup("Campusgruppe A", "Description Campusgruppe A");
+        BusinessGroup campusGroupB1 = insertCampusGroup("Campusgruppe B", "Description Campusgruppe B");
+        BusinessGroup campusGroupA2 = insertCampusGroup("Campusgruppe A", "Description Campusgruppe A");
+        BusinessGroup campusGroupB2 = insertCampusGroup("Campusgruppe B", "Description Campusgruppe B");
+        dbInstance.flush();
+
+        courseDao.saveCampusGroupA(course1.getId(), campusGroupA1.getKey());
+        courseDao.saveCampusGroupB(course1.getId(), campusGroupB1.getKey());
+        courseDao.saveCampusGroupA(course2.getId(), campusGroupA2.getKey());
+        courseDao.saveCampusGroupB(course2.getId(), campusGroupB2.getKey());
+        dbInstance.flush();
+
+        Set<CampusGroups> setOfCampusGroups = courseDao.getCampusGroupsByOlatResource(olatResource1.getKey());
+
+        assertNotNull(setOfCampusGroups);
+        assertEquals(2, setOfCampusGroups.size());
+
+        Set<Long> campusGroupAKeys = setOfCampusGroups.stream().map(campusGroups -> campusGroups.getCampusGroupA().getKey()).collect(Collectors.toSet());
+        Set<Long> campusGroupBKeys = setOfCampusGroups.stream().map(campusGroups -> campusGroups.getCampusGroupB().getKey()).collect(Collectors.toSet());
+        assertTrue(campusGroupAKeys.contains(campusGroupA1.getKey()));
+        assertTrue(campusGroupAKeys.contains(campusGroupA2.getKey()));
+        assertTrue(campusGroupBKeys.contains(campusGroupB1.getKey()));
+        assertTrue(campusGroupBKeys.contains(campusGroupB2.getKey()));
+
+        // Campus course without campus groups
+        Course course3 = courseDao.getCourseById(100L);
+        OLATResource olatResource3 = course3.getOlatResource();
+        assertNotNull(olatResource3);
+        assertNull(course3.getCampusGroupA());
+        assertNull(course3.getCampusGroupB());
+
+        setOfCampusGroups = courseDao.getCampusGroupsByOlatResource(olatResource3.getKey());
+
+        assertNotNull(setOfCampusGroups);
+        assertTrue(setOfCampusGroups.isEmpty());
+    }
+
+    @Test
     public void testSaveOlatResource() throws CampusCourseException {
         insertTestData();
         Course course = courseDao.getCourseById(300L);
         assertNull(course.getOlatResource());
 
-        OLATResource olatResource = insertOlatResource("resourceCourseDao3");
-        dbInstance.flush();
-
+        OLATResource olatResource = CampusCourseJunitTestHelper.createOlatResourceForTest(olatResourceManager, dbInstance, "resourceCourseDao3");
         courseDao.saveOlatResource(course.getId(), olatResource.getKey());
 
         assertEquals(olatResource, course.getOlatResource());
@@ -365,6 +410,46 @@ public class CourseDaoTest extends OlatTestCase {
 
         Course updatedCourse = courseDao.getCourseById(course.getId());
         assertEquals(olatResource, updatedCourse.getOlatResource());
+    }
+
+    @Test
+    public void testSaveCampusGroupA() throws CampusCourseException {
+        insertTestData();
+        Course course = courseDao.getCourseById(300L);
+        assertNull(course.getCampusGroupA());
+
+        BusinessGroup campusGroupA = insertCampusGroup("Campusgruppe A", "Description Campusgruppe A");
+        dbInstance.flush();
+
+        courseDao.saveCampusGroupA(course.getId(), campusGroupA.getKey());
+
+        assertEquals(campusGroupA, course.getCampusGroupA());
+
+        dbInstance.flush();
+        dbInstance.clear();
+
+        Course updatedCourse = courseDao.getCourseById(course.getId());
+        assertEquals(campusGroupA, updatedCourse.getCampusGroupA());
+    }
+
+    @Test
+    public void testSaveCampusGroupB() throws CampusCourseException {
+        insertTestData();
+        Course course = courseDao.getCourseById(300L);
+        assertNull(course.getCampusGroupB());
+
+        BusinessGroup campusGroupB = insertCampusGroup("Campusgruppe B", "Description Campusgruppe B");
+        dbInstance.flush();
+
+        courseDao.saveCampusGroupB(course.getId(), campusGroupB.getKey());
+
+        assertEquals(campusGroupB, course.getCampusGroupB());
+
+        dbInstance.flush();
+        dbInstance.clear();
+
+        Course updatedCourse = courseDao.getCourseById(course.getId());
+        assertEquals(campusGroupB, updatedCourse.getCampusGroupB());
     }
 
     @Test
@@ -389,6 +474,8 @@ public class CourseDaoTest extends OlatTestCase {
         insertTestData();
         Course courseWithoutParentCourse = courseDao.getCourseById(100L);
         Course courseWithParentCourse = courseDao.getCourseById(200L);
+        dbInstance.flush();
+
         // Make course 400 to be the parent course of 200
         courseDao.saveParentCourseId(200L, 400L);
         assertEquals(olatResource1, courseWithoutParentCourse.getOlatResource());
@@ -410,9 +497,49 @@ public class CourseDaoTest extends OlatTestCase {
         Course updatedCourseWithoutParentCourse = courseDao.getCourseById(100L);
         assertNull(updatedCourseWithoutParentCourse.getOlatResource());
         assertNull(updatedCourseWithoutParentCourse.getParentCourse());
-        Course updatedCourseWithParentCourse = courseDao.getCourseById(200L);
-        assertNull(updatedCourseWithParentCourse.getOlatResource());
-        assertNull(updatedCourseWithParentCourse.getParentCourse());
+        Course updatedCourseWithParentcourse = courseDao.getCourseById(200L);
+        assertNull(updatedCourseWithParentcourse.getOlatResource());
+        assertNull(updatedCourseWithParentcourse.getParentCourse());
+    }
+
+    @Test
+    public void testResetCampusGroup() throws CampusCourseException {
+        insertTestData();
+        BusinessGroup campusGroupA = insertCampusGroup("Campusgruppe A", "Description Campusgruppe A");
+        BusinessGroup campusGroupB = insertCampusGroup("Campusgruppe B", "Description Campusgruppe B");
+        dbInstance.flush();
+
+        Course course = courseDao.getCourseById(100L);
+        courseDao.saveCampusGroupA(course.getId(), campusGroupA.getKey());
+        courseDao.saveCampusGroupB(course.getId(), campusGroupB.getKey());
+        dbInstance.flush();
+
+        assertEquals(campusGroupA, course.getCampusGroupA());
+        assertEquals(campusGroupB, course.getCampusGroupB());
+
+        // Reset campus group A
+        courseDao.resetCampusGroup(campusGroupA.getKey());
+        dbInstance.flush();
+
+        course = courseDao.getCourseById(course.getId());
+        assertNull(course.getCampusGroupA());
+        assertEquals(campusGroupB, course.getCampusGroupB());
+
+        // Add campus group A again
+        courseDao.saveCampusGroupA(course.getId(), campusGroupA.getKey());
+        dbInstance.flush();
+
+        course = courseDao.getCourseById(course.getId());
+        assertEquals(campusGroupA, course.getCampusGroupA());
+        assertEquals(campusGroupB, course.getCampusGroupB());
+
+        // Reset campus group B
+        courseDao.resetCampusGroup(campusGroupB.getKey());
+        dbInstance.flush();
+
+        course = courseDao.getCourseById(course.getId());
+        assertEquals(campusGroupA, course.getCampusGroupA());
+        assertNull(course.getCampusGroupB());
     }
 
     @Test
@@ -471,9 +598,7 @@ public class CourseDaoTest extends OlatTestCase {
         dbInstance.clear();
         courseDao.saveParentCourseId(300L, 400L);
 
-        OLATResource olatResource = insertOlatResource("resourceCourseDao1");
-        dbInstance.flush();
-
+        OLATResource olatResource = CampusCourseJunitTestHelper.createOlatResourceForTest(olatResourceManager, dbInstance, "resourceCourseDao1");
         courseDao.saveOlatResource(300L, olatResource.getKey());
         courseDao.saveOlatResource(400L, olatResource.getKey());
         dbInstance.flush();
@@ -509,9 +634,7 @@ public class CourseDaoTest extends OlatTestCase {
         dbInstance.clear();
         courseDao.saveParentCourseId(300L, 400L);
 
-        OLATResource olatResource = insertOlatResource("resourceCourseDao1");
-        dbInstance.flush();
-
+        OLATResource olatResource = CampusCourseJunitTestHelper.createOlatResourceForTest(olatResourceManager, dbInstance, "resourceCourseDao1");
         courseDao.saveOlatResource(300L, olatResource.getKey());
         courseDao.saveOlatResource(400L, olatResource.getKey());
         dbInstance.flush();
@@ -590,8 +713,7 @@ public class CourseDaoTest extends OlatTestCase {
     public void testExistCoursesForOlatReource() throws CampusCourseException {
         insertTestData();
 
-        OLATResource olatResource = insertOlatResource("resourceCourseDao3");
-        dbInstance.flush();
+        OLATResource olatResource = CampusCourseJunitTestHelper.createOlatResourceForTest(olatResourceManager, dbInstance, "resourceCourseDao1");
 
         assertFalse(courseDao.existCoursesForOlatResource(olatResource.getKey()));
 
@@ -632,7 +754,7 @@ public class CourseDaoTest extends OlatTestCase {
         // Make course 2 to be the parent course of course 1 and set set the same olat resource for courses 1 and 2
         courseDao.saveParentCourseId(course1.getId(), course2.getId());
 
-        OLATResource olatResource = insertOlatResource("resourceCourseDao1");
+        OLATResource olatResource = CampusCourseJunitTestHelper.createOlatResourceForTest(olatResourceManager, dbInstance, "resourceCourseDao1");
         course1.setOlatResource(olatResource);
         course2.setOlatResource(olatResource);
         dbInstance.flush();
@@ -755,9 +877,7 @@ public class CourseDaoTest extends OlatTestCase {
         assertTrue(courseIds.contains(course1.getId()));
 
         // Add olat resource to courses 1 and 2, i.e. make it created
-        OLATResource olatResource = insertOlatResource("resourceCourseDao1");
-        dbInstance.flush();
-
+        OLATResource olatResource = CampusCourseJunitTestHelper.createOlatResourceForTest(olatResourceManager, dbInstance, "resourceCourseDao1");
         courseDao.saveOlatResource(course1.getId(), olatResource.getKey());
         courseDao.saveOlatResource(course2.getId(), olatResource.getKey());
         dbInstance.flush();
@@ -856,11 +976,11 @@ public class CourseDaoTest extends OlatTestCase {
         Course course4 = courseDao.getCourseById(400L);
         Course course5 = courseDao.getCourseById(500L);
         Course course6 = courseDao.getCourseById(600L);
-        olatResource1 = insertOlatResource("resourceCourseDaoTestData1");
-        olatResource2 = insertOlatResource("resourceCourseDaoTestData2");
-        olatResource4 = insertOlatResource("resourceCourseDaoTestData4");
-        olatResource5 = insertOlatResource("resourceCourseDaoTestData5");
-        olatResource6 = insertOlatResource("resourceCourseDaoTestData6");
+        olatResource1 = CampusCourseJunitTestHelper.createOlatResourceForTest(olatResourceManager, dbInstance, "resourceCourseDaoTestData1");
+        olatResource2 = CampusCourseJunitTestHelper.createOlatResourceForTest(olatResourceManager, dbInstance, "resourceCourseDaoTestData2");
+        olatResource4 = CampusCourseJunitTestHelper.createOlatResourceForTest(olatResourceManager, dbInstance, "resourceCourseDaoTestData4");
+        olatResource5 = CampusCourseJunitTestHelper.createOlatResourceForTest(olatResourceManager, dbInstance, "resourceCourseDaoTestData5");
+        olatResource6 = CampusCourseJunitTestHelper.createOlatResourceForTest(olatResourceManager, dbInstance, "resourceCourseDaoTestData6");
         course1.setOlatResource(olatResource1);
         course2.setOlatResource(olatResource2);
         course4.setOlatResource(olatResource4);
@@ -869,31 +989,7 @@ public class CourseDaoTest extends OlatTestCase {
         dbInstance.flush();
     }
 
-    private OLATResource insertOlatResource(String olatResourceName) {
-        olatResourceName = "courseDaoTest_" + olatResourceName;
-        TestResourceable resourceable = new TestResourceable(8213649L, olatResourceName);
-        OLATResource olatResource = olatResourceManager.createOLATResourceInstance(resourceable);
-        olatResourceManager.saveOLATResource(olatResource);
-        return olatResource;
-    }
-
-    private static class TestResourceable implements OLATResourceable {
-        private final Long resId;
-        private final String resName;
-
-        TestResourceable(Long resId, String resourceName) {
-            this.resId = resId;
-            this.resName = resourceName;
-        }
-
-        @Override
-        public Long getResourceableId() {
-            return resId;
-        }
-
-        @Override
-        public String getResourceableTypeName() {
-            return resName;
-        }
+    private BusinessGroup insertCampusGroup(String groupName, String groupDescription) {
+        return businessGroupDao.createAndPersist(null, groupName, groupDescription, -1, -1, false, false, false, false, false);
     }
 }

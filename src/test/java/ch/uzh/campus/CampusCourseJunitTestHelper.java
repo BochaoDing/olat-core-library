@@ -1,12 +1,22 @@
 package ch.uzh.campus;
 
-import ch.uzh.campus.service.CampusCourseGroups;
+import ch.uzh.campus.data.*;
+import ch.uzh.campus.service.data.CampusGroups;
+import org.olat.basesecurity.IdentityImpl;
+import org.olat.core.commons.persistence.DB;
 import org.olat.core.id.Identity;
+import org.olat.core.id.OLATResourceable;
+import org.olat.core.id.User;
 import org.olat.group.BusinessGroup;
 import org.olat.group.BusinessGroupService;
 import org.olat.group.area.BGArea;
 import org.olat.group.area.BGAreaManager;
 import org.olat.repository.RepositoryEntry;
+import org.olat.resource.OLATResource;
+import org.olat.resource.OLATResourceManager;
+import org.olat.user.UserManager;
+
+import java.util.Date;
 
 /**
  * OLAT - Online Learning and Training<br>
@@ -31,22 +41,81 @@ import org.olat.repository.RepositoryEntry;
  * Initial Date: 04.06.2012 <br>
  * 
  * @author cg
+ * @author Martin Schraner
  */
 public class CampusCourseJunitTestHelper {
 
-    public static CampusCourseGroups setupCampusCourseGroupsForTest(Identity creatorIdentity, RepositoryEntry repositoryEntry, CampusCourseConfiguration campusCourseConfiguration, BGAreaManager bgAreaManager, BusinessGroupService businessGroupService) {
+    public static Course createCourseForTest(Long id, Semester semester, SemesterDao semesterDao, CourseDao courseDao, DB dbInstance) {
+        semesterDao.save(semester);
+
+        Course sapCampusCourse = new Course(id, "XXXXlvKuerzel", "title", "lvNr", false, "DE", "category", new Date(), new Date(), "vvzLink", false, true, new Date(), semester);
+        courseDao.save(sapCampusCourse);
+
+        dbInstance.flush();
+        return sapCampusCourse;
+    }
+
+    public static CampusGroups createCampusGroupsForTest(Identity creatorIdentity, RepositoryEntry repositoryEntry, CampusCourseConfiguration campusCourseConfiguration, CourseDao courseDao, BGAreaManager bgAreaManager, BusinessGroupService businessGroupService, DB dbInstance) {
+        return createCampusGroupsForTest(null, creatorIdentity, repositoryEntry, campusCourseConfiguration, courseDao, bgAreaManager, businessGroupService, dbInstance);
+    }
+
+    private static CampusGroups createCampusGroupsForTest(Course sapCampusCourse, Identity creatorIdentity, RepositoryEntry repositoryEntry, CampusCourseConfiguration campusCourseConfiguration, CourseDao courseDao, BGAreaManager bgAreaManager, BusinessGroupService businessGroupService, DB dbInstance) {
         // Create learning area
-        String learningAreaName = campusCourseConfiguration.getCampusCourseLearningAreaName();
+        String learningAreaName = campusCourseConfiguration.getCampusGroupsLearningAreaName();
         BGArea campusLearningArea = bgAreaManager.createAndPersistBGArea(learningAreaName, "Campuslernbereich Test", repositoryEntry.getOlatResource());
 
-        // Create Campusgruppe A
-        BusinessGroup bgA = businessGroupService.createBusinessGroup(creatorIdentity, campusCourseConfiguration.getCourseGroupAName(), "Campusgruppe A Test", null, null, false, false, repositoryEntry);
-        bgAreaManager.addBGToBGArea(bgA, campusLearningArea);
+        // Create campus group A
+        BusinessGroup campusGroupA = businessGroupService.createBusinessGroup(creatorIdentity, campusCourseConfiguration.getCampusGroupADefaultName(), "Campusgruppe A Test", null, null, false, false, repositoryEntry);
+        bgAreaManager.addBGToBGArea(campusGroupA, campusLearningArea);
+        if (sapCampusCourse != null) {
+            courseDao.saveCampusGroupA(sapCampusCourse.getId(), campusGroupA.getKey());
+        }
 
-        // Create Campusgruppe B
-        BusinessGroup bgB = businessGroupService.createBusinessGroup(creatorIdentity, campusCourseConfiguration.getCourseGroupBName(), "Campusgruppe B Test", null, null, false, false, repositoryEntry);
-        bgAreaManager.addBGToBGArea(bgB, campusLearningArea);
+        // Create campus group B
+        BusinessGroup campusGroupB = businessGroupService.createBusinessGroup(creatorIdentity, campusCourseConfiguration.getCampusGroupBDefaultName(), "Campusgruppe B Test", null, null, false, false, repositoryEntry);
+        bgAreaManager.addBGToBGArea(campusGroupB, campusLearningArea);
+        if (sapCampusCourse != null) {
+            courseDao.saveCampusGroupB(sapCampusCourse.getId(), campusGroupB.getKey());
+        }
 
-        return new CampusCourseGroups(bgA, bgB);
+        dbInstance.flush();
+        return new CampusGroups(campusGroupA, campusGroupB);
 	}
+
+    public static Identity createTestUser(UserManager userManager, DB dbInstance, String userName) {
+        User user = userManager.createUser("testUserFirstName" + userName, "testUserLastName" + userName, userName + "@uzh.ch");
+        dbInstance.saveObject(user);
+        Identity identity = new IdentityImpl(userName, user);
+        dbInstance.saveObject(identity);
+        dbInstance.flush();
+        return identity;
+    }
+
+    public static OLATResource createOlatResourceForTest(OLATResourceManager olatResourceManager, DB dbInstance, String olatResourceName) {
+        TestResourceable resourceable = new TestResourceable(8213649L, olatResourceName);
+        OLATResource olatResource = olatResourceManager.createOLATResourceInstance(resourceable);
+        olatResourceManager.saveOLATResource(olatResource);
+        dbInstance.flush();
+        return olatResource;
+    }
+
+    private static class TestResourceable implements OLATResourceable {
+        private final Long resId;
+        private final String resName;
+
+        TestResourceable(Long resId, String resourceName) {
+            this.resId = resId;
+            this.resName = resourceName;
+        }
+
+        @Override
+        public Long getResourceableId() {
+            return resId;
+        }
+
+        @Override
+        public String getResourceableTypeName() {
+            return resName;
+        }
+    }
 }

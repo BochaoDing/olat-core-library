@@ -2269,7 +2269,6 @@
 			<groupId>javax.inject</groupId>
 			<artifactId>javax.inject</artifactId>
 			<version>1</version>
-			<scope>test</scope>
 		</dependency>
 		<!-- end Spring dependencies -->
 		<!-- Start Jersey dependency -->
@@ -2355,6 +2354,11 @@
 		<dependency>
 			<groupId>org.jboss.arquillian.extension</groupId>
 			<artifactId>arquillian-drone-impl</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.jboss.arquillian.extension</groupId>
+			<artifactId>arquillian-drone-selenium</artifactId>
 			<scope>test</scope>
 		</dependency>
 		<dependency>

@@ -1,17 +1,17 @@
-package ch.uzh.campus.service.learn;
+package ch.uzh.campus.service.data;
 
 /**
  * Initial Date: 06.06.2012 <br>
  * 
  * @author cg
  */
-public final class SapCampusCourseTo implements Comparable<SapCampusCourseTo> {
+public final class SapCampusCourseTOForUI implements Comparable<SapCampusCourseTOForUI> {
 
     private String title;
     private boolean activated;
     private final Long sapCourseId;
 
-    public SapCampusCourseTo(String title, Long sapCourseId) {
+    public SapCampusCourseTOForUI(String title, Long sapCourseId) {
         this.title = title;
         this.sapCourseId = sapCourseId;
     }
@@ -37,8 +37,8 @@ public final class SapCampusCourseTo implements Comparable<SapCampusCourseTo> {
     }
 
     @Override
-    public int compareTo(SapCampusCourseTo compareSapCampusCourseTo) {
-        String compareTitle = compareSapCampusCourseTo.getTitle();
+    public int compareTo(SapCampusCourseTOForUI compareSapCampusCourseTOForUI) {
+        String compareTitle = compareSapCampusCourseTOForUI.getTitle();
         // ASCENDING ORDER
         return this.getTitle().compareTo(compareTitle);
     }

@@ -1,7 +1,9 @@
 package ch.uzh.campus.mapper;
 
 import ch.uzh.campus.CampusCourseConfiguration;
+import ch.uzh.campus.CampusCourseTestCase;
 import org.apache.commons.lang.StringUtils;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.olat.basesecurity.BaseSecurity;
@@ -10,10 +12,9 @@ import org.olat.core.commons.persistence.DB;
 import org.olat.core.id.Identity;
 import org.olat.core.id.User;
 import org.olat.core.id.UserConstants;
-import org.olat.test.OlatTestCase;
 import org.olat.user.UserManager;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.ContextConfiguration;
+import org.springframework.stereotype.Component;
 
 import java.util.Random;
 import java.util.UUID;
@@ -25,8 +26,8 @@ import static org.junit.Assert.assertNull;
  * @author Martin Schraner
  */
 
-@ContextConfiguration(locations = {"classpath:ch/uzh/campus/data/_spring/mockDataContext.xml" })
-public class UserMapperTest extends OlatTestCase {
+@Component
+public class UserMapperTest extends CampusCourseTestCase {
 
     private String firstNameTestUser1;
     private String firstNameTestUser2;
@@ -135,7 +136,12 @@ public class UserMapperTest extends OlatTestCase {
         user6.setProperty(UserConstants.INSTITUTIONALNAME, "dummy");
         securityManager.createAndPersistIdentityAndUser(username6, null, user6, BaseSecurityModule.getDefaultAuthProviderIdentifier(), username6, "secret");
 
-        dbInstance.commitAndCloseSession();
+        dbInstance.flush();
+    }
+
+    @After
+    public void tearDown() throws Exception {
+        dbInstance.rollback();
     }
 
     private Long getPositiveRandomLong(Random random) {

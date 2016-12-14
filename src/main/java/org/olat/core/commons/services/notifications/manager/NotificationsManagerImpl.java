@@ -62,6 +62,7 @@ import org.olat.core.util.resource.OresHelper;
 import org.olat.properties.Property;
 import org.olat.properties.PropertyManager;
 import org.olat.user.UserDataDeletable;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.persistence.EntityManager;
 import javax.persistence.LockModeType;
@@ -95,40 +96,17 @@ public class NotificationsManagerImpl extends NotificationsManager implements Us
 	private final Object subscriberTableLock = new Object();
 	private final Object publisherTableLock = new Object();
 	
-	private DB dbInstance;
-	private BaseSecurity securityManager;
-	private PropertyManager propertyManager;
-	
-	/*
-	 * [used by spring]
-	 */
-	private NotificationsManagerImpl() {
+	private final DB dbInstance;
+	private final BaseSecurity securityManager;
+	private final PropertyManager propertyManager;
+
+	@Autowired
+	private NotificationsManagerImpl(DB dbInstance, BaseSecurity securityManager, PropertyManager propertyManager) {
+		this.dbInstance = dbInstance;
+		this.securityManager = securityManager;
+		this.propertyManager = propertyManager;
 		// private since singleton
 		INSTANCE = this;
-	}
-
-	/**
-	 * [used by Spring]
-	 * @param dbInstance
-	 */
-	public void setDbInstance(DB dbInstance) {
-		this.dbInstance = dbInstance;
-	}
-	
-	/**
-	 * [user by Spring]
-	 * @param securityManager
-	 */
-	public void setSecurityManager(BaseSecurity securityManager) {
-		this.securityManager = securityManager;
-	}
-	
-	/**
-	 * [used by Spring]
-	 * @param propertyManager
-	 */
-	public void setPropertyManager(PropertyManager propertyManager) {
-		this.propertyManager = propertyManager;
 	}
 
 	/**

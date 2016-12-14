@@ -1,12 +1,12 @@
 package ch.uzh.campus.data;
 
+import org.olat.group.BusinessGroup;
+import org.olat.group.BusinessGroupImpl;
 import org.olat.resource.OLATResource;
 import org.olat.resource.OLATResourceImpl;
 
 import javax.persistence.*;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Initial Date: 04.06.2012 <br>
@@ -72,6 +72,8 @@ import java.util.Set;
         @NamedQuery(name = Course.GET_ALL_NOT_CREATED_ORPHANED_COURSES, query = "select c.id from Course c where c.olatResource is null and c.id not in (select lc.course.id from LecturerCourse lc) and c.id not in (select sc.course.id from StudentCourse sc)"),
         @NamedQuery(name = Course.GET_COURSE_IDS_BY_OLAT_RESOURCE_KEY, query = "select c.id from Course c where c.olatResource.key = :olatResourceKey"),
         @NamedQuery(name = Course.GET_COURSES_BY_OLAT_RESOURCE_KEY, query = "select c from Course c where c.olatResource.key = :olatResourceKey"),
+        @NamedQuery(name = Course.GET_COURSES_BY_CAMPUS_GROUP_A_KEY, query = "select c from Course c where c.campusGroupA.key = :campusGroupKey"),
+        @NamedQuery(name = Course.GET_COURSES_BY_CAMPUS_GROUP_B_KEY, query = "select c from Course c where c.campusGroupB.key = :campusGroupKey"),
         @NamedQuery(name = Course.GET_LATEST_COURSE_BY_OLAT_RESOURCE_KEY, query = "select c from Course c where c.olatResource.key = :olatResourceKey and c.endDate = (select max(c1.endDate) from Course c1 where c1.olatResource.key = :olatResourceKey)")
 })
 @Table(name = "ck_course")
@@ -82,14 +84,14 @@ public class Course {
     @Id
     private Long id;
 
-    @Column(name = "short_title", nullable = false)
-    private String shortTitle;
+    @Column(name = "lv_kuerzel", nullable = false)
+    private String lvKuerzel;
 
     @Column(name = "title", nullable = false)
     private String title;
 
     @Column(name = "lv_nr", nullable = false)
-    private String vstNr;
+    private String lvNr;
 
     @Column(name = "e_learning_supported")
     private boolean eLearningSupported;
@@ -127,9 +129,17 @@ public class Course {
     private Semester semester;
 
     @SuppressWarnings("JpaAttributeTypeInspection")
-    @ManyToOne(targetEntity=OLATResourceImpl.class)
+    @ManyToOne(targetEntity = OLATResourceImpl.class)
     @JoinColumn(name = "fk_resource")
     private OLATResource olatResource;
+
+    @ManyToOne(targetEntity = BusinessGroupImpl.class)
+    @JoinColumn(name = "fk_campusgroup_a")
+    private BusinessGroup campusGroupA;
+
+    @ManyToOne(targetEntity = BusinessGroupImpl.class)
+    @JoinColumn(name = "fk_campusgroup_b")
+    private BusinessGroup campusGroupB;
 
     @OneToMany(mappedBy = "course")
     private Set<LecturerCourse> lecturerCourses = new HashSet<>();
@@ -152,11 +162,42 @@ public class Course {
     @OneToOne(mappedBy = "parentCourse", cascade = CascadeType.ALL)
     private Course childCourse;
 
+    // Must be loaded lazy to avoid parallelization problems at batch import / synchronization
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "fk_parent_course")
     private Course parentCourse;
 
     public Course() {}
+
+    public Course(Long id,
+                  String lvKuerzel,
+                  String title,
+                  String lvNr,
+                  boolean eLearningSupported,
+                  String language,
+                  String category,
+                  Date startDate,
+                  Date endDate,
+                  String vvzLink,
+                  boolean exclude,
+                  boolean synchronizable,
+                  Date dateOfImport,
+                  Semester semester) {
+        this.id = id;
+        this.lvKuerzel = lvKuerzel;
+        this.title = title;
+        this.lvNr = lvNr;
+        this.eLearningSupported = eLearningSupported;
+        this.language = language;
+        this.category = category;
+        this.startDate = startDate;
+        this.endDate = endDate;
+        this.vvzLink = vvzLink;
+        this.exclude = exclude;
+        this.synchronizable = synchronizable;
+        this.dateOfImport = dateOfImport;
+        this.semester = semester;
+    }
 
     static final String GET_IDS_OF_ALL_CREATED_SYNCHRONIZABLE_COURSES_OF_CURRENT_SEMESTER = "getIdsOfAllCreatedSynchronizableCoursesOfCurrentSemester";
     static final String GET_OLAT_RESOURCE_KEYS_OF_ALL_CREATED_NOT_CONTINUED_COURSES_OF_SPECIFIC_SEMESTERS = "getOlatResourceKeysOfAllCreatedNotContinuedCoursesOfSpecificSemesters";
@@ -173,6 +214,8 @@ public class Course {
     static final String GET_CREATED_AND_NOT_CREATED_CREATABLE_COURSES_OF_CURRENT_SEMESTER_BY_STUDENT_ID = "getCreatedAndNotCreatedCreatableCoursesOfCurrentSemesterByStudentId";
     static final String GET_CREATED_AND_NOT_CREATED_CREATABLE_COURSES_OF_CURRENT_SEMESTER_BY_STUDENT_ID_BOOKED_BY_STUDENT_ONLY_AS_PARENT_COURSE = "getCreatedAndNotCreatedCreatableCoursesOfCurrentSemesterByStudentIdBookedByStudentOnlyAsParentCourse";
     static final String GET_COURSES_BY_OLAT_RESOURCE_KEY = "getCoursesByOlatResourceKey";
+    static final String GET_COURSES_BY_CAMPUS_GROUP_A_KEY = "getCoursesByCampusGroupAKey";
+    static final String GET_COURSES_BY_CAMPUS_GROUP_B_KEY = "getCoursesByCampusGroupBKey";
     static final String GET_LATEST_COURSE_BY_OLAT_RESOURCE_KEY = "getLatestCourseByOlatResourceKey";
 
     public Long getId() {
@@ -183,12 +226,12 @@ public class Course {
         this.id = id;
     }
 
-    public String getShortTitle() {
-        return shortTitle;
+    public String getLvKuerzel() {
+        return lvKuerzel;
     }
 
-    public void setShortTitle(String shortTitle) {
-        this.shortTitle = shortTitle;
+    public void setLvKuerzel(String lvKuerzel) {
+        this.lvKuerzel = lvKuerzel;
     }
 
     public String getTitle() {
@@ -199,12 +242,12 @@ public class Course {
         this.title = title;
     }
 
-    public String getVstNr() {
-        return vstNr;
+    public String getLvNr() {
+        return lvNr;
     }
 
-    public void setVstNr(String vstNr) {
-        this.vstNr = vstNr;
+    public void setLvNr(String vstNr) {
+        this.lvNr = vstNr;
     }
 
     public boolean isELearningSupported() {
@@ -287,6 +330,22 @@ public class Course {
         this.olatResource = olatResource;
     }
 
+    public BusinessGroup getCampusGroupA() {
+        return campusGroupA;
+    }
+
+    public void setCampusGroupA(BusinessGroup campusgroupA) {
+        this.campusGroupA = campusgroupA;
+    }
+
+    public BusinessGroup getCampusGroupB() {
+        return campusGroupB;
+    }
+
+    public void setCampusGroupB(BusinessGroup campusgroupB) {
+        this.campusGroupB = campusgroupB;
+    }
+
     public Date getDateOfImport() {
         return dateOfImport;
     }
@@ -350,59 +409,85 @@ public class Course {
     }
 
     @Transient
-    public String getContents() {
-        return buildText(Text.CONTENTS);
+    boolean isContinuedCourse() {
+        return getParentCourse() != null;
     }
 
+    /**
+     * Create title to be displayed in OLAT (used as repository entry displayname and in course editor model).
+     *
+     * E.g. 16FS <LV-Kuerzel starting at position 4> Course Title
+     *      16FS/15HS <LV-Kuerzel starting at position 4> Course Title
+     *      16FS/15HS/15FS <LV-Kuerzel starting at position 4> Course Title
+     *
+     * @return title to be displayed
+     */
     @Transient
-    public String getInfos() {
-        return buildText(Text.INFOS);
+    public String getTitleToBeDisplayed() {
+
+        // Add short semester(s)
+        StringBuilder titleToBeDisplayed = new StringBuilder();
+        Course courseIt = this;
+        int count = 0;
+        do {
+            titleToBeDisplayed.append(courseIt.getSemester().getShortYearShortSemesterName()).append("/");
+            courseIt = courseIt.getParentCourse();
+            count++;
+        } while (courseIt != null && count <= 10);
+        // Remove last "/"
+        titleToBeDisplayed.setLength(titleToBeDisplayed.length() - 1);
+        titleToBeDisplayed.append(WHITESPACE);
+
+        // Add lvKuerzel starting at position 4
+        titleToBeDisplayed.append(getTruncatedLvKuerzelWithAppendedWhitespace(this));
+
+        // Add course title
+        titleToBeDisplayed.append(getTitle());
+        return titleToBeDisplayed.toString();
     }
 
+    /**
+     * Create list with title of course and parent courses in ascending order.
+     *
+     * E.g. (15FS <LV-Kuerzel starting at position 4> Test Course I,
+     *       15HS <LV-Kuerzel starting at position 4> Test Course II,
+     *       16FS <LV-Kuerzel starting at position 4> Test Course III)
+     *
+     * @return list with titles
+     */
     @Transient
-    public String getMaterials() {
-        return buildText(Text.MATERIALS);
+    public List<String> getTitlesOfCourseAndParentCoursesInAscendingOrder() {
+        List<String> titlesOfParentCourseAndParentCourses = new ArrayList<>();
+        Course courseIt = this;
+        int count = 0;
+        do {
+            String shortSemesterLvKuerzelTitle = courseIt.getSemester().getShortYearShortSemesterName() + WHITESPACE
+                    + getTruncatedLvKuerzelWithAppendedWhitespace(courseIt) + courseIt.getTitle();
+            titlesOfParentCourseAndParentCourses.add(0, shortSemesterLvKuerzelTitle);
+            courseIt = courseIt.getParentCourse();
+            count++;
+        } while (courseIt != null && count <= 10);
+        return titlesOfParentCourseAndParentCourses;
     }
 
-    @Transient
-    private String buildText(String type) {
-        StringBuilder content = new StringBuilder();
-        for (Text text : this.getTexts()) {
-            if (type.equalsIgnoreCase(text.getType())) {
-                content.append(text.getLine());
-                content.append(Text.BREAK_TAG);
-            }
-        }
-        return content.toString();
-    }
-
-    @Transient
-    public String getTitleToBeDisplayed(boolean shortTitleActivated) {
-
-        if (semester == null) {
-            return title;
-        }
-
-        String titleToBeDisplayed = semester.getShortYearShortSemesterName().concat(WHITESPACE);
-
-        if (getShortTitle() != null && shortTitleActivated && !"".equals(getShortTitle())) {
-            if (getShortTitle().length() > 4) {
-            	titleToBeDisplayed += getShortTitle().substring(4);
+    private String getTruncatedLvKuerzelWithAppendedWhitespace(Course course) {
+        if (course.getLvKuerzel() != null && !course.getLvKuerzel().isEmpty()) {
+            if (course.getLvKuerzel().length() > 4) {
+            	return course.getLvKuerzel().substring(4) + WHITESPACE;
             } else {
-            	titleToBeDisplayed += getShortTitle();
+            	return course.getLvKuerzel() + WHITESPACE;
             }
-            titleToBeDisplayed += WHITESPACE;
+        } else {
+            return "";
         }
-
-        return titleToBeDisplayed.concat(title);
     }
 
     @Override
     public String toString() {
         return "id=" + getId()
-                + ",shortTitle=" + getShortTitle()
+                + ",lvKuerzel=" + getLvKuerzel()
                 + ",title=" + getTitle()
-                + ",vstNr=" + getVstNr()
+                + ",lvNr=" + getLvNr()
                 + ",isELearningSupported=" + isELearningSupported()
                 + ",language=" + getLanguage()
                 + ",category=" + getCategory()
@@ -411,7 +496,9 @@ public class Course {
                 + ",vvzLink=" + getVvzLink()
                 + ",exclude=" + isExclude()
                 + ",semester=" + getSemester()
-                + ",olat resource id=" + (getOlatResource() == null ? "null" : getOlatResource().getKey());
+                + ",olat resource id=" + (getOlatResource() == null ? "null" : getOlatResource().getKey())
+                + ",campus group A id=" + (getCampusGroupA() == null ? "null" : getCampusGroupA().getKey())
+                + ",campus group B id=" + (getCampusGroupB() == null ? "null" : getCampusGroupB().getKey());
     }
 
     @Override
@@ -421,17 +508,17 @@ public class Course {
 
         Course course = (Course) o;
 
-        if (!getShortTitle().equals(course.getShortTitle())) return false;
+        if (!lvKuerzel.equals(course.lvKuerzel)) return false;
         if (!title.equals(course.title)) return false;
-        return vstNr.equals(course.vstNr);
+        return lvNr.equals(course.lvNr);
 
     }
 
     @Override
     public int hashCode() {
-        int result = getShortTitle().hashCode();
+        int result = lvKuerzel.hashCode();
         result = 31 * result + title.hashCode();
-        result = 31 * result + vstNr.hashCode();
+        result = 31 * result + lvNr.hashCode();
         return result;
     }
 }

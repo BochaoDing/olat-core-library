@@ -1,6 +1,6 @@
 package ch.uzh.campus.olat.dialog.controller;
 
-import ch.uzh.campus.service.CampusCourse;
+import ch.uzh.campus.service.data.OlatCampusCourse;
 import org.olat.core.gui.UserRequest;
 
 /**
@@ -8,7 +8,7 @@ import org.olat.core.gui.UserRequest;
  * @author sev26 (UZH)
  */
 public interface CreateCampusCourseCompletedEventListener {
-	void onSuccess(UserRequest ureq, CampusCourse campusCourse);
+	void onSuccess(UserRequest ureq, OlatCampusCourse olatCampusCourse);
 	void onCancel(UserRequest ureq);
 	void onError(UserRequest ureq, Exception e);
 }

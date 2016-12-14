@@ -38,7 +38,7 @@ import org.olat.basesecurity.BaseSecurityManager;
 import org.olat.basesecurity.Constants;
 import org.olat.basesecurity.SecurityGroup;
 import org.olat.core.CoreSpringFactory;
-import org.olat.core.commons.persistence.DBFactory;
+import org.olat.core.commons.persistence.DB;
 import org.olat.core.configuration.AbstractOLATModule;
 import org.olat.core.configuration.PersistedProperties;
 import org.olat.core.id.Identity;
@@ -52,6 +52,8 @@ import org.olat.ldap.LDAPLoginManager;
 import org.olat.login.AfterLoginConfig;
 import org.olat.login.AfterLoginInterceptionManager;
 import org.olat.user.propertyhandlers.UserPropertyHandler;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.util.StringUtils;
 
 /**
@@ -61,6 +63,8 @@ import org.springframework.util.StringUtils;
  * @author Florian Gnägi
  */
 public class UserModule extends AbstractOLATModule {
+
+	private final DB dbInstance;
 	private List<String> loginBlacklist;
 	private static List<String> loginBlacklistChecked = new ArrayList<String>();
 	private static boolean hasTestUsers;
@@ -77,13 +81,13 @@ public class UserModule extends AbstractOLATModule {
 	private UserManager userManger;
 	private AfterLoginConfig afterLoginConfig; 
 	private AfterLoginInterceptionManager afterLoginInterceptionManager;
-	
 
-	/**
-	 * [used by spring]
-	 * @param authenticationProviderConstant
-	 */
-	private UserModule(String authenticationProviderConstant, UserManager userManager, AfterLoginInterceptionManager afterLoginInterceptionManager) {
+	@Autowired
+	private UserModule(DB dbInstance,
+					   @Value("${default.auth.provider.identifier}") String authenticationProviderConstant,
+					   UserManager userManager,
+					   AfterLoginInterceptionManager afterLoginInterceptionManager) {
+		this.dbInstance = dbInstance;
 		this.authenticationProviderConstant = authenticationProviderConstant;
 		this.userManger = userManager;
 		this.afterLoginInterceptionManager = afterLoginInterceptionManager;
@@ -121,10 +125,7 @@ public class UserModule extends AbstractOLATModule {
 		}
 		return false;
 	}
-	
-	/**
-	 * @see org.olat.core.configuration.OLATModule#init(com.anthonyeden.lib.config.Configuration)
-	 */
+
 	public void init() {
 		pwdchangeallowed = getBooleanConfigParameter("passwordChangeAllowed", true);
 		pwdchangeallowedLDAP = getBooleanConfigParameter("passwordChangeAllowedLDAP", false);
@@ -172,7 +173,7 @@ public class UserModule extends AbstractOLATModule {
 		}
 		// Cleanup, otherwhise this subjects will have problems in normal OLAT
 		// operation
-		DBFactory.getInstance().commitAndCloseSession();
+		dbInstance.commitAndCloseSession();
 		
 		adminUserName = getStringConfigParameter("adminUserName", "administrator", false);
 		
