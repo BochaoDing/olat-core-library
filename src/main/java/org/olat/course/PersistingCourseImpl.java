@@ -100,7 +100,7 @@ public class PersistingCourseImpl implements ICourse, OLATResourceable, Serializ
 	private CourseConfig courseConfig;
 	private final CourseEnvironmentImpl courseEnvironment;
 	private OlatRootFolderImpl courseRootContainer;
-	private String courseTitle = null;
+	private String courseTitle;
 	/** courseTitleSyncObj is a final Object only used for synchronizing the courseTitle getter - see OLAT-5654 */
 	private final Object courseTitleSyncObj = new Object();
 	private static OLog log = Tracing.createLoggerFor(PersistingCourseImpl.class);
@@ -206,8 +206,10 @@ public class PersistingCourseImpl implements ICourse, OLATResourceable, Serializ
 	public String getCourseTitle() {	
 		if (courseTitle == null) {
 			synchronized (courseTitleSyncObj) { //o_clusterOK by:ld/se
-				// load repository entry for this course and get title from it
-				courseTitle = RepositoryManager.getInstance().lookupDisplayNameByOLATResourceableId(resourceableId);	
+				if (courseTitle == null) {
+					// load repository entry for this course and get title from it
+					courseTitle = RepositoryManager.getInstance().lookupDisplayNameByOLATResourceableId(resourceableId);
+				}
 			}
 		}
 		return courseTitle;
@@ -216,6 +218,7 @@ public class PersistingCourseImpl implements ICourse, OLATResourceable, Serializ
 	public void updateCourseEntry(RepositoryEntry courseEntry) {
 		courseTitle = courseEntry.getDisplayname();
 		courseEnvironment.updateCourseEntry(courseEntry);
+		synchronizeLongCourseTitle();
 	}
 
 	@Override
@@ -453,7 +456,9 @@ public class PersistingCourseImpl implements ICourse, OLATResourceable, Serializ
 	}
 
 	/**
-	 * Load the course from disk/database, load the run structure from xml file etc.
+	 * Load the course from disk/database, load the run structure from XML file etc.
+	 * The long title in the XML files are replaced with the long title stored
+	 * in the database in order to provide a consistent string.
 	 */
 	void load() {
 		/*
@@ -468,7 +473,14 @@ public class PersistingCourseImpl implements ICourse, OLATResourceable, Serializ
 		
 		obj = readObject(EDITORTREEMODEL_XML);
 		if (!(obj instanceof CourseEditorTreeModel)) throw new AssertException("Error reading course editor tree model.");
-		editorTreeModel = (CourseEditorTreeModel) obj;	
+		editorTreeModel = (CourseEditorTreeModel) obj;
+
+		synchronizeLongCourseTitle();
+	}
+
+	private void synchronizeLongCourseTitle() {
+		runStructure.getRootNode().setLongTitle(getCourseTitle());
+		((CourseEditorTreeNode) editorTreeModel.getRootNode()).setLongTitle(getCourseTitle());
 	}
 
 	/**
@@ -584,7 +596,7 @@ public class PersistingCourseImpl implements ICourse, OLATResourceable, Serializ
 	 * @see java.lang.Object#toString()
 	 */
 	public String toString() {
-		return "Course:[" + getResourceableId() + "," + courseTitle + "], " + super.toString();
+		return "Course:[" + getResourceableId() + "," + getCourseTitle() + "], " + super.toString();
 	}
 
 }

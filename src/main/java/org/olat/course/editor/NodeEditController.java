@@ -74,15 +74,15 @@ public class NodeEditController extends ActivateableTabbableDefaultController im
   /** Take the same encoding as the content **/
 	public final static String CONFIG_JS_ENCODING_AUTO = "auto";
 	
-	private CourseNode courseNode;
-	private VelocityContainer descriptionVc, visibilityVc;
+	private final CourseNode courseNode;
+	private final VelocityContainer descriptionVc, visibilityVc;
 
-	private NodeConfigFormController nodeConfigController;
+	private final NodeConfigFormController nodeConfigController;
 
-	private ConditionEditController visibilityCondContr;
-	private NoAccessExplEditController noAccessContr;
+	private final ConditionEditController visibilityCondContr;
+	private final NoAccessExplEditController noAccessContr;
 	private TabbedPane myTabbedPane;
-	private TabbableController childTabsCntrllr;
+	private final TabbableController childTabsCntrllr;
 
 	/** Event that signals that the node configuration has been changed * */
 	public static final Event NODECONFIG_CHANGED_EVENT = new Event("nodeconfigchanged");
@@ -95,10 +95,10 @@ public class NodeEditController extends ActivateableTabbableDefaultController im
 	 * @param luNode
 	 * @param groupMgr
 	 */
-	public NodeEditController(UserRequest ureq, WindowControl wControl, CourseEditorTreeModel editorModel, ICourse course, CourseNode luNode,
-			UserCourseEnvironment euce, TabbableController childTabsController) {
+	public NodeEditController(UserRequest ureq, WindowControl wControl, CourseEditorTreeModel editorModel, ICourse course,
+			UserCourseEnvironment userCourseEnvironment, TabbableController childTabsController) {
 		super(ureq,wControl);
-		this.courseNode = luNode;
+		courseNode = course.getEditorTreeModel().getCourseNode(userCourseEnvironment.getCourseEditorEnv().getCurrentCourseNodeId());
 		
 		addLoggingResourceable(LoggingResourceable.wrap(course));
 		addLoggingResourceable(LoggingResourceable.wrap(courseNode));
@@ -117,17 +117,17 @@ public class NodeEditController extends ActivateableTabbableDefaultController im
 		StringBuilder extLink = new StringBuilder();
 		extLink.append(Settings.getServerContextPathURI())
 			.append("/url/RepositoryEntry/").append(repoKey)
-			.append("/CourseNode/").append(luNode.getIdent());
+			.append("/CourseNode/").append(courseNode.getIdent());
 		StringBuilder intLink = new StringBuilder();
-		intLink.append("javascript:parent.gotonode(").append(luNode.getIdent()).append(")");
+		intLink.append("javascript:parent.gotonode(").append(courseNode.getIdent()).append(")");
 		
 		descriptionVc.contextPut("extLink", extLink.toString());
 		descriptionVc.contextPut("intLink", intLink.toString());
-		descriptionVc.contextPut("nodeId", luNode.getIdent());
+		descriptionVc.contextPut("nodeId", courseNode.getIdent());
 		
 		putInitialPanel(descriptionVc);
 
-		nodeConfigController = new NodeConfigFormController(ureq, wControl, luNode);
+		nodeConfigController = new NodeConfigFormController(ureq, wControl, courseNode, course.getEditorTreeModel().isRootNode(courseNode));
 		listenTo(nodeConfigController);
 		descriptionVc.put("nodeConfigForm", nodeConfigController.getInitialComponent());
 		
@@ -135,15 +135,15 @@ public class NodeEditController extends ActivateableTabbableDefaultController im
 		visibilityVc = createVelocityContainer("visibilityedit");
 
 		// Visibility precondition
-		Condition visibCondition = luNode.getPreConditionVisibility();
-		visibilityCondContr = new ConditionEditController(ureq, getWindowControl(), euce, visibCondition, 
-				AssessmentHelper.getAssessableNodes(editorModel, luNode));
+		Condition visibCondition = courseNode.getPreConditionVisibility();
+		visibilityCondContr = new ConditionEditController(ureq, getWindowControl(), userCourseEnvironment, visibCondition,
+				AssessmentHelper.getAssessableNodes(editorModel, courseNode));
 		//set this useractivity logger for the visibility condition controller
 		listenTo(visibilityCondContr);
 		visibilityVc.put("visibilityCondition", visibilityCondContr.getInitialComponent());
 
 		// No-Access-Explanation
-		String noAccessExplanation = luNode.getNoAccessExplanation();
+		String noAccessExplanation = courseNode.getNoAccessExplanation();
 		noAccessContr = new NoAccessExplEditController(ureq, getWindowControl(), noAccessExplanation);		
 		listenTo(noAccessContr);
 		visibilityVc.put("noAccessExplanationComp", noAccessContr.getInitialComponent());
