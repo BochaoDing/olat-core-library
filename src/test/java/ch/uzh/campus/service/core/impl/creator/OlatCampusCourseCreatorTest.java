@@ -3,17 +3,16 @@ package ch.uzh.campus.service.core.impl.creator;
 import ch.uzh.campus.CampusCourseConfiguration;
 import ch.uzh.campus.CampusCourseJunitTestHelper;
 import ch.uzh.campus.CampusCourseTestCase;
-import ch.uzh.campus.service.data.OlatCampusCourse;
-import ch.uzh.campus.service.data.SapCampusCourseTO;
+import ch.uzh.campus.service.data.CampusCourseTO;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.olat.core.commons.persistence.DB;
 import org.olat.core.id.Identity;
+import org.olat.course.CourseFactory;
+import org.olat.course.ICourse;
 import org.olat.repository.RepositoryEntry;
-import org.olat.repository.RepositoryManager;
 import org.olat.repository.RepositoryService;
-import org.olat.resource.OLATResource;
 import org.olat.test.JunitTestHelper;
 import org.olat.user.UserManager;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,9 +42,6 @@ public class OlatCampusCourseCreatorTest extends CampusCourseTestCase {
     private DB dbInstance;
 
     @Autowired
-    private RepositoryManager repositoryManager;
-
-    @Autowired
     private UserManager userManager;
 
     @Autowired
@@ -62,7 +58,7 @@ public class OlatCampusCourseCreatorTest extends CampusCourseTestCase {
         CampusCourseRepositoryEntryDescriptionBuilder campusCourseRepositoryEntryDescriptionBuilderMock = mock(CampusCourseRepositoryEntryDescriptionBuilder.class);
         when(campusCourseRepositoryEntryDescriptionBuilderMock.buildDescription(any())).thenReturn(DESCRIPTION);
 
-        olatCampusCourseCreatorTestObject = new OlatCampusCourseCreator(repositoryManager, repositoryService, campusCourseConfiguration, campusCourseRepositoryEntryDescriptionBuilderMock);
+        olatCampusCourseCreatorTestObject = new OlatCampusCourseCreator(repositoryService, campusCourseConfiguration, campusCourseRepositoryEntryDescriptionBuilderMock);
     }
 
     @After
@@ -77,31 +73,31 @@ public class OlatCampusCourseCreatorTest extends CampusCourseTestCase {
         Identity ownerIdentity = CampusCourseJunitTestHelper.createTestUser(userManager, dbInstance, OWNER_NAME);
 
         // Create TO of olat course to be created
-        SapCampusCourseTO sapCampusCourseTO = new SapCampusCourseTO(TITLE,
+        CampusCourseTO campusCourseTO = new CampusCourseTO(TITLE,
                 null, Collections.emptySet(),
                 Collections.emptySet(), Collections.emptySet(), false, null, DESCRIPTION,
                 null, null, null, "DE", null);
 
         // Create template repository entry
         RepositoryEntry templateRepositoryEntry = JunitTestHelper.deployDemoCourse(ownerIdentity);
-        OLATResource templateOlatResource = templateRepositoryEntry.getOlatResource();
 
-        OlatCampusCourse createdOlatCampusCourse = olatCampusCourseCreatorTestObject.createOlatCampusCourseFromTemplate(sapCampusCourseTO, templateOlatResource, ownerIdentity, true);
+        RepositoryEntry createdRepositoryEntry = olatCampusCourseCreatorTestObject.createOlatCampusCourseFromTemplate(templateRepositoryEntry, campusCourseTO, ownerIdentity, true);
 
-        assertNotNull(createdOlatCampusCourse);
+        assertNotNull(createdRepositoryEntry);
 
         // Check repository entry and olat resource
-        assertNotNull(createdOlatCampusCourse.getRepositoryEntry());
-        assertNotEquals("Copy must have different repository id", templateRepositoryEntry.getKey(), createdOlatCampusCourse.getRepositoryEntry().getKey());
-        assertNotEquals("Copy must have different resourceable id", templateOlatResource.getResourceableId(), createdOlatCampusCourse.getCourse().getResourceableId());
-        assertEquals("Wrong ownerName in copy", OWNER_NAME, createdOlatCampusCourse.getRepositoryEntry().getInitialAuthor());
-        assertEquals(TITLE, createdOlatCampusCourse.getRepositoryEntry().getDisplayname());
-        assertEquals(DESCRIPTION, createdOlatCampusCourse.getRepositoryEntry().getDescription());
-        assertEquals(RepositoryEntry.ACC_USERS_GUESTS, createdOlatCampusCourse.getRepositoryEntry().getAccess());
+        assertNotNull(createdRepositoryEntry);
+        assertNotEquals("Copy must have different repository id", templateRepositoryEntry.getKey(), createdRepositoryEntry.getKey());
+        assertNotEquals("Copy must have different resourceable id", templateRepositoryEntry.getOlatResource().getResourceableId(), createdRepositoryEntry.getOlatResource().getResourceableId());
+        assertEquals("Wrong ownerName in copy", OWNER_NAME, createdRepositoryEntry.getInitialAuthor());
+        assertEquals(TITLE, createdRepositoryEntry.getDisplayname());
+        assertEquals(DESCRIPTION, createdRepositoryEntry.getDescription());
+        assertEquals(RepositoryEntry.ACC_USERS_GUESTS, createdRepositoryEntry.getAccess());
 
         // Check course
-        assertNotNull(createdOlatCampusCourse.getCourse());
-        assertEquals(TITLE, createdOlatCampusCourse.getCourse().getCourseTitle());
+        ICourse course = CourseFactory.loadCourse(createdRepositoryEntry);
+        assertNotNull(course);
+        assertEquals(TITLE, course.getCourseTitle());
     }
 }
 

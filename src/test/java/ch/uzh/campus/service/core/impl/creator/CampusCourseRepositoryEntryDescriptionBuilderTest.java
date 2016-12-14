@@ -3,7 +3,7 @@ package ch.uzh.campus.service.core.impl.creator;
 import ch.uzh.campus.CampusCourseTestCase;
 import ch.uzh.campus.data.Semester;
 import ch.uzh.campus.data.SemesterName;
-import ch.uzh.campus.service.data.SapCampusCourseTO;
+import ch.uzh.campus.service.data.CampusCourseTO;
 import org.junit.Before;
 import org.junit.Test;
 import org.olat.basesecurity.IdentityImpl;
@@ -66,12 +66,12 @@ public class CampusCourseRepositoryEntryDescriptionBuilderTest extends CampusCou
         String eventDescription = "Course";
         Semester semester = new Semester(SemesterName.HERBSTSEMESTER, 2012, false);
 
-        SapCampusCourseTO campusCourseData = new SapCampusCourseTO(
+        CampusCourseTO campusCourseTO = new CampusCourseTO(
                 null, semester, lecturers, Collections.emptySet(),
                 Collections.emptySet(), false, Collections.emptyList(), eventDescription,
                 null, null, null, "de", null);
 
-        String description = campusCourseRepositoryEntryDescriptionBuilder.buildDescription(campusCourseData);
+        String description = campusCourseRepositoryEntryDescriptionBuilder.buildDescription(campusCourseTO);
         assertTrue(description.contains(semester.getSemesterNameYear()));
         assertTrue(description.contains(SORTED_LECTURERS));
         assertTrue(description.contains(eventDescription));
@@ -87,12 +87,12 @@ public class CampusCourseRepositoryEntryDescriptionBuilderTest extends CampusCou
         titlesOfCourseAndParentCourses.add(title1);
         titlesOfCourseAndParentCourses.add(title2);
 
-        SapCampusCourseTO campusCourseData = new SapCampusCourseTO(
+        CampusCourseTO campusCourseTO = new CampusCourseTO(
 				null, null, lecturers, Collections.emptySet(),
 				Collections.emptySet(), true, titlesOfCourseAndParentCourses, eventDescription,
-				null, null, null, "de", null);
+                null, null, null, "de", null);
 
-        String description = campusCourseRepositoryEntryDescriptionBuilder.buildDescription(campusCourseData);
+        String description = campusCourseRepositoryEntryDescriptionBuilder.buildDescription(campusCourseTO);
         assertTrue(description.contains(campusCourseRepositoryEntryDescriptionBuilder.createMultiSemesterTitle(titlesOfCourseAndParentCourses)));
         assertTrue(description.contains(SORTED_LECTURERS));
         assertTrue(description.contains(eventDescription));

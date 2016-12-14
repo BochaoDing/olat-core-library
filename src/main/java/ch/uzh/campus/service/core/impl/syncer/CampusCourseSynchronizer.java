@@ -2,10 +2,8 @@ package ch.uzh.campus.service.core.impl.syncer;
 
 import ch.uzh.campus.CampusCourseConfiguration;
 import ch.uzh.campus.CampusCourseException;
-import ch.uzh.campus.service.core.CampusCourseCoreService;
 import ch.uzh.campus.service.core.impl.syncer.statistic.SynchronizedGroupStatistic;
-import ch.uzh.campus.service.data.OlatCampusCourse;
-import ch.uzh.campus.service.data.SapCampusCourseTO;
+import ch.uzh.campus.service.data.CampusCourseTO;
 import org.olat.basesecurity.GroupRoles;
 import org.olat.core.id.Identity;
 import org.olat.core.logging.OLog;
@@ -48,7 +46,6 @@ public class CampusCourseSynchronizer {
     private final CampusGroupsSynchronizer campusGroupsSynchronizer;
     private final CampusCourseRepositoryEntrySynchronizer campusCourseRepositoryEntrySynchronizer;
     private final CampusCourseConfiguration campusCourseConfiguration;
-    private final CampusCourseCoreService campusCourseCoreService;
     private final RepositoryService repositoryService;
 
     @Autowired
@@ -56,33 +53,28 @@ public class CampusCourseSynchronizer {
             CampusGroupsSynchronizer campusGroupsSynchronizer,
             CampusCourseRepositoryEntrySynchronizer campusCourseRepositoryEntrySynchronizer,
             CampusCourseConfiguration campusCourseConfiguration,
-            CampusCourseCoreService campusCourseCoreService,
             RepositoryService repositoryService) {
         this.campusGroupsSynchronizer = campusGroupsSynchronizer;
         this.campusCourseRepositoryEntrySynchronizer = campusCourseRepositoryEntrySynchronizer;
         this.campusCourseConfiguration = campusCourseConfiguration;
-        this.campusCourseCoreService = campusCourseCoreService;
         this.repositoryService = repositoryService;
     }
 
-    SynchronizedGroupStatistic synchronizeOlatCampusCourse(SapCampusCourseTO sapCampusCourseTO) throws CampusCourseException {
-
-        // Load olat campus course
-        OlatCampusCourse olatCampusCourse = campusCourseCoreService.loadOlatCampusCourse(sapCampusCourseTO.getOlatResource());
+    SynchronizedGroupStatistic synchronizeOlatCampusCourse(CampusCourseTO campusCourseTO) throws CampusCourseException {
 
         // Synchronize olat campus course repository entry
         if (campusCourseConfiguration.isSynchronizeDisplaynameAndDescriptionEnabled()) {
-            campusCourseRepositoryEntrySynchronizer.synchronizeDisplaynameAndDescription(olatCampusCourse.getRepositoryEntry(), sapCampusCourseTO);
+            campusCourseRepositoryEntrySynchronizer.synchronizeDisplaynameAndDescription(campusCourseTO);
         }
 
         // Add course owner role to lectures and delegatees
-        campusGroupsSynchronizer.addCourseOwnerRole(olatCampusCourse.getRepositoryEntry(), sapCampusCourseTO.getLecturersOfCourse());
-        campusGroupsSynchronizer.addCourseOwnerRole(olatCampusCourse.getRepositoryEntry(), sapCampusCourseTO.getDelegateesOfCourse());
+        campusGroupsSynchronizer.addCourseOwnerRole(campusCourseTO.getRepositoryEntry(), campusCourseTO.getLecturersOfCourse());
+        campusGroupsSynchronizer.addCourseOwnerRole(campusCourseTO.getRepositoryEntry(), campusCourseTO.getDelegateesOfCourse());
 
         // Synchronize campus groups
-        List<Identity> courseOwners = repositoryService.getMembers(olatCampusCourse.getRepositoryEntry(), GroupRoles.owner.name());
+        List<Identity> courseOwners = repositoryService.getMembers(campusCourseTO.getRepositoryEntry(), GroupRoles.owner.name());
         SynchronizedGroupStatistic groupStatistic = campusGroupsSynchronizer.synchronizeCampusGroups(
-                sapCampusCourseTO.getCampusGroups(), sapCampusCourseTO, courseOwners.get(0));
+                campusCourseTO.getCampusGroups(), campusCourseTO, courseOwners.get(0));
         LOG.debug("synchronizeOlatCampusCourse statistic=" + groupStatistic);
 
         return groupStatistic;

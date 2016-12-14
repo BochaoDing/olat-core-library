@@ -5,13 +5,13 @@ package ch.uzh.campus.service.data;
  * 
  * @author cg
  */
-public final class SapCampusCourseTOForUI implements Comparable<SapCampusCourseTOForUI> {
+public final class CampusCourseTOForUI implements Comparable<CampusCourseTOForUI> {
 
     private String title;
     private boolean activated;
     private final Long sapCourseId;
 
-    public SapCampusCourseTOForUI(String title, Long sapCourseId) {
+    public CampusCourseTOForUI(String title, Long sapCourseId) {
         this.title = title;
         this.sapCourseId = sapCourseId;
     }
@@ -37,8 +37,8 @@ public final class SapCampusCourseTOForUI implements Comparable<SapCampusCourseT
     }
 
     @Override
-    public int compareTo(SapCampusCourseTOForUI compareSapCampusCourseTOForUI) {
-        String compareTitle = compareSapCampusCourseTOForUI.getTitle();
+    public int compareTo(CampusCourseTOForUI compareCampusCourseTOForUI) {
+        String compareTitle = compareCampusCourseTOForUI.getTitle();
         // ASCENDING ORDER
         return this.getTitle().compareTo(compareTitle);
     }

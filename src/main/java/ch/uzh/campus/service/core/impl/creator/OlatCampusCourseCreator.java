@@ -2,12 +2,10 @@ package ch.uzh.campus.service.core.impl.creator;
 
 import ch.uzh.campus.CampusCourseConfiguration;
 import ch.uzh.campus.service.core.impl.syncer.CampusCourseRepositoryEntrySynchronizer;
-import ch.uzh.campus.service.data.OlatCampusCourse;
-import ch.uzh.campus.service.data.SapCampusCourseTO;
+import ch.uzh.campus.service.data.CampusCourseTO;
 import org.olat.core.gui.translator.Translator;
 import org.olat.core.helpers.Settings;
 import org.olat.core.id.Identity;
-import org.olat.core.id.OLATResourceable;
 import org.olat.core.util.Formatter;
 import org.olat.core.util.Util;
 import org.olat.course.CourseFactory;
@@ -18,9 +16,7 @@ import org.olat.course.nodes.co.COEditController;
 import org.olat.course.tree.CourseEditorTreeModel;
 import org.olat.modules.ModuleConfiguration;
 import org.olat.repository.RepositoryEntry;
-import org.olat.repository.RepositoryManager;
 import org.olat.repository.RepositoryService;
-import org.olat.resource.OLATResource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -37,38 +33,31 @@ import java.util.Locale;
 @Component
 public class OlatCampusCourseCreator {
 
-    private final RepositoryManager repositoryManager;
     private final RepositoryService repositoryService;
     private final CampusCourseConfiguration campusCourseConfiguration;
     private final CampusCourseRepositoryEntryDescriptionBuilder campusCourseRepositoryEntryDescriptionBuilder;
 
     @Autowired
-    public OlatCampusCourseCreator(RepositoryManager repositoryManager, RepositoryService repositoryService, CampusCourseConfiguration campusCourseConfiguration, CampusCourseRepositoryEntryDescriptionBuilder campusCourseRepositoryEntryDescriptionBuilder) {
-        this.repositoryManager = repositoryManager;
+    public OlatCampusCourseCreator(RepositoryService repositoryService, CampusCourseConfiguration campusCourseConfiguration, CampusCourseRepositoryEntryDescriptionBuilder campusCourseRepositoryEntryDescriptionBuilder) {
         this.repositoryService = repositoryService;
         this.campusCourseConfiguration = campusCourseConfiguration;
         this.campusCourseRepositoryEntryDescriptionBuilder = campusCourseRepositoryEntryDescriptionBuilder;
     }
 
-    public OlatCampusCourse createOlatCampusCourseFromTemplate(SapCampusCourseTO sapCampusCourseTO, OLATResource templateOlatResource, Identity owner, boolean isStandardTemplateUsed) {
+    public RepositoryEntry createOlatCampusCourseFromTemplate(RepositoryEntry templateRepositoryEntry, CampusCourseTO campusCourseTO, Identity owner, boolean isStandardTemplateUsed) {
 
-        // 1. Lookup template
-        ICourse templateCourse = CourseFactory.loadCourse(templateOlatResource.getResourceableId());
-        RepositoryEntry templateRepositoryEntry = repositoryManager.lookupRepositoryEntry(templateCourse, true);
-
-        // 2. Copy repository entry and implicit the Course
+        // 1. Copy repository entry and implicit the Course
         // NB: New displayname must be set when calling repositoryService.copy(). Otherwise copyCourse.getCourseTitle()
         // (see 4.) will still yield the old displayname from sourceRepositoryName. Reason: copyCourse.getCourseTitle()
         // gets its value from a cache, which is not updated when displayname of repositoryEntry is changed!
-        String newDisplayname = CampusCourseRepositoryEntrySynchronizer.truncateTitleForRepositoryEntryDisplayname(sapCampusCourseTO.getTitleToBeDisplayed());
+        String newDisplayname = CampusCourseRepositoryEntrySynchronizer.truncateTitleForRepositoryEntryDisplayname(campusCourseTO.getTitleToBeDisplayed());
         RepositoryEntry cloneOfTemplateRepositoryEntry = repositoryService.copy(templateRepositoryEntry, owner, newDisplayname);
-        OLATResourceable cloneOfTemplateCourseOlatResourcable = repositoryService.loadRepositoryEntryResource(cloneOfTemplateRepositoryEntry.getKey());
 
-        // 3. Set correct description and access and update repository entry
-        String newDescription = campusCourseRepositoryEntryDescriptionBuilder.buildDescription(sapCampusCourseTO);
+        // 2. Set correct description and access and update repository entry
+        String newDescription = campusCourseRepositoryEntryDescriptionBuilder.buildDescription(campusCourseTO);
         cloneOfTemplateRepositoryEntry.setDescription(newDescription);
 
-        // 4. Set access permissions
+        // 3. Set access permissions
 		if (isStandardTemplateUsed) {
 			cloneOfTemplateRepositoryEntry.setAccess(RepositoryEntry.ACC_USERS_GUESTS);
 		} else {
@@ -76,13 +65,10 @@ public class OlatCampusCourseCreator {
 		}
         cloneOfTemplateRepositoryEntry.setLastModified(new Date());
 
-		// 5. Persist
+		// 4. Persist
 		repositoryService.update(cloneOfTemplateRepositoryEntry);
 
-        // 6. Load copy of course
-        ICourse copyOfTemplateCourse = CourseFactory.loadCourse(cloneOfTemplateCourseOlatResourcable.getResourceableId());
-
-        return new OlatCampusCourse(copyOfTemplateCourse, cloneOfTemplateRepositoryEntry);
+        return cloneOfTemplateRepositoryEntry;
     }
 
     /**
@@ -90,27 +76,30 @@ public class OlatCampusCourseCreator {
      * Adds the vvzLink to the learning objectives, if not null. <br>
      * Sets SentFromCourse in the @OLAT-Support email node, if the node exists.
      */
-    public void updateCourseRunAndEditorModels(ICourse course, Long repositoryEntryKey, String title, String vvzLink, String lvLanguage, boolean isStandardTemplateUsed) {
+    public ICourse updateCourseRunAndEditorModels(RepositoryEntry repositoryEntry, CampusCourseTO campusCourseTO, boolean isStandardTemplateUsed) {
 
-        Translator translator = getTranslator(lvLanguage);
+        Translator translator = getTranslator(campusCourseTO.getLanguage());
+
+        // Load course
+        ICourse course = CourseFactory.loadCourse(repositoryEntry);
 
         // Open courseEditSession
         CourseFactory.openCourseEditSession(course.getResourceableId());
 
         // Update course run model
         CourseNode runRoot = course.getRunStructure().getRootNode();
-        runRoot.setShortTitle(Formatter.truncate(title, NodeConfigFormController.SHORT_TITLE_MAX_LENGTH));
-        runRoot.setLongTitle(title);
+        runRoot.setShortTitle(Formatter.truncate(campusCourseTO.getTitleToBeDisplayed(), NodeConfigFormController.SHORT_TITLE_MAX_LENGTH));
+        runRoot.setLongTitle(campusCourseTO.getTitleToBeDisplayed());
 
-        String newObjective = getModelObjectivesWithVVZLink(runRoot, translator, isStandardTemplateUsed, vvzLink);
+        String newObjective = getModelObjectivesWithVVZLink(runRoot, translator, isStandardTemplateUsed, campusCourseTO.getVvzLink());
         if (newObjective != null && !newObjective.isEmpty()) {
             runRoot.setLearningObjectives(newObjective);
         }
 
         // Set sentFromCourse in the @OLAT-Support email node
         CourseNode olatSupportEmailNode = null;
-        String externalLink = Settings.getServerContextPathURI() + "/url/RepositoryEntry/" + repositoryEntryKey;
-        String sentFromCourse = "<a href=\"" + externalLink + "\">" + title + "</a>";
+        String externalLink = Settings.getServerContextPathURI() + "/url/RepositoryEntry/" + repositoryEntry.getKey();
+        String sentFromCourse = "<a href=\"" + externalLink + "\">" + campusCourseTO.getTitleToBeDisplayed() + "</a>";
         if (!sentFromCourse.isEmpty()) {
             olatSupportEmailNode = findOlatSupportEmailNode(runRoot);
             if (olatSupportEmailNode != null) {
@@ -123,10 +112,10 @@ public class OlatCampusCourseCreator {
         // Update course editor model
         CourseEditorTreeModel cetm = course.getEditorTreeModel();
         CourseNode rootNode = cetm.getCourseNode(course.getRunStructure().getRootNode().getIdent());
-        rootNode.setShortTitle(Formatter.truncate(title, NodeConfigFormController.SHORT_TITLE_MAX_LENGTH));
-        rootNode.setLongTitle(title);
+        rootNode.setShortTitle(Formatter.truncate(campusCourseTO.getTitleToBeDisplayed(), NodeConfigFormController.SHORT_TITLE_MAX_LENGTH));
+        rootNode.setLongTitle(campusCourseTO.getTitleToBeDisplayed());
 
-        String newEditorObjective = getModelObjectivesWithVVZLink(rootNode, translator, isStandardTemplateUsed, vvzLink);
+        String newEditorObjective = getModelObjectivesWithVVZLink(rootNode, translator, isStandardTemplateUsed, campusCourseTO.getVvzLink());
         if (newEditorObjective != null && !newEditorObjective.isEmpty()) {
             rootNode.setLearningObjectives(newEditorObjective);
             cetm.setLatestPublishTimestamp(-1);
@@ -140,6 +129,8 @@ public class OlatCampusCourseCreator {
         course.getEditorTreeModel().nodeConfigChanged(course.getRunStructure().getRootNode());
         CourseFactory.saveCourseEditorTreeModel(course.getResourceableId());
         CourseFactory.closeCourseEditSession(course.getResourceableId(), true);
+
+        return course;
     }
 
     /**

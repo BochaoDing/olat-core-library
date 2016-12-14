@@ -2,13 +2,9 @@ package ch.uzh.campus.connectors;
 
 import ch.uzh.campus.data.CourseSemesterOrgId;
 import org.apache.commons.lang.StringUtils;
-import org.olat.core.logging.OLog;
-import org.olat.core.logging.Tracing;
 import org.springframework.batch.item.ItemProcessor;
 
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
-import java.util.*;
+import java.util.Date;
 
 /**
  * OLAT - Online Learning and Training<br>
@@ -38,68 +34,49 @@ import java.util.*;
  * @author aabouc
  */
 public class CourseProcessor implements ItemProcessor<CourseSemesterOrgId, CourseSemesterOrgId> {
-	
-	private static final OLog LOG = Tracing.createLoggerFor(CourseProcessor.class);
 
-    private Set<Long> processedIdsSet;
-
-    @PostConstruct
-    public void init() {
-        processedIdsSet = new HashSet<>();
-    }
-
-    @PreDestroy
-    public void cleanUp() {
-        processedIdsSet.clear();
-    }
+    private static final String SEMICOLON_REPLACEMENT = "&Semikolon&";
+    private static final String SEMICOLON = ";";
 
     /**
-     * Returns null if the input course has been already processed, <br>
-     * otherwise modifies it according to some criteria and returns it as output
+     * Modifies course according to some criteria and returns it as output.
      * 
-     * @param courseSemesterOrgId
-     *            the Course to be processed
+     * @param courseSemesterOrgId the Course to be processed
      */
     @Override
     public CourseSemesterOrgId process(CourseSemesterOrgId courseSemesterOrgId) throws Exception {
 
-        // JUST IGNORE THE DUPLICATES
-        if (!CampusUtils.addIfNotAlreadyProcessed(processedIdsSet, courseSemesterOrgId.getId())) {
-            LOG.debug("This is a duplicate of this course [" + courseSemesterOrgId.getId() + "]");
-            return null;
-        }
-
         courseSemesterOrgId.setDateOfImport(new Date());
 
-        if (courseSemesterOrgId.getTitle().contains(CampusUtils.SEMICOLON_REPLACEMENT)) {
-            courseSemesterOrgId.setTitle(StringUtils.replace(courseSemesterOrgId.getTitle(), CampusUtils.SEMICOLON_REPLACEMENT, CampusUtils.SEMICOLON));
+        if (courseSemesterOrgId.getTitle().contains(SEMICOLON_REPLACEMENT)) {
+            courseSemesterOrgId.setTitle(StringUtils.replace(courseSemesterOrgId.getTitle(), SEMICOLON_REPLACEMENT, SEMICOLON));
         }
 
-        if (courseSemesterOrgId.getOrg1().equals(0L)) {
+        if (courseSemesterOrgId.getOrg1() != null && courseSemesterOrgId.getOrg1() == 0L) {
             courseSemesterOrgId.setOrg1(null);
         }
-        if (courseSemesterOrgId.getOrg2().equals(0L)) {
+        if (courseSemesterOrgId.getOrg2() != null && courseSemesterOrgId.getOrg2() == 0L) {
             courseSemesterOrgId.setOrg2(null);
         }
-        if (courseSemesterOrgId.getOrg3().equals(0L)) {
+        if (courseSemesterOrgId.getOrg3() != null && courseSemesterOrgId.getOrg3() == 0L) {
             courseSemesterOrgId.setOrg3(null);
         }
-        if (courseSemesterOrgId.getOrg4().equals(0L)) {
+        if (courseSemesterOrgId.getOrg4() != null && courseSemesterOrgId.getOrg4() == 0L) {
             courseSemesterOrgId.setOrg4(null);
         }
-        if (courseSemesterOrgId.getOrg5().equals(0L)) {
+        if (courseSemesterOrgId.getOrg5() != null && courseSemesterOrgId.getOrg5() == 0L) {
             courseSemesterOrgId.setOrg5(null);
         }
-        if (courseSemesterOrgId.getOrg6().equals(0L)) {
+        if (courseSemesterOrgId.getOrg6() != null && courseSemesterOrgId.getOrg6() == 0L) {
             courseSemesterOrgId.setOrg6(null);
         }
-        if (courseSemesterOrgId.getOrg7().equals(0L)) {
+        if (courseSemesterOrgId.getOrg7() != null && courseSemesterOrgId.getOrg7() == 0L) {
             courseSemesterOrgId.setOrg7(null);
         }
-        if (courseSemesterOrgId.getOrg8().equals(0L)) {
+        if (courseSemesterOrgId.getOrg8() != null && courseSemesterOrgId.getOrg8() == 0L) {
             courseSemesterOrgId.setOrg8(null);
         }
-        if (courseSemesterOrgId.getOrg9().equals(0L)) {
+        if (courseSemesterOrgId.getOrg9() != null && courseSemesterOrgId.getOrg9() == 0L) {
             courseSemesterOrgId.setOrg9(null);
         }
 

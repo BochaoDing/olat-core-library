@@ -1,19 +1,10 @@
 package ch.uzh.campus.connectors;
 
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Set;
-
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
-
-import org.apache.commons.lang.StringUtils;
-
-import org.olat.core.logging.OLog;
-import org.olat.core.logging.Tracing;
 import ch.uzh.campus.data.Lecturer;
-
+import org.apache.commons.lang.StringUtils;
 import org.springframework.batch.item.ItemProcessor;
+
+import java.util.Date;
 
 /**
  * OLAT - Online Learning and Training<br>
@@ -44,38 +35,20 @@ import org.springframework.batch.item.ItemProcessor;
  */
 public class LecturerProcessor implements ItemProcessor<Lecturer, Lecturer> {
 
-	private static final OLog LOG = Tracing.createLoggerFor(LecturerProcessor.class);
-
-    private Set<Long> processedIdsSet;
-
-    @PostConstruct
-    public void init() {
-        processedIdsSet = new HashSet<>();
-    }
-
-    @PreDestroy
-    public void cleanUp() {
-        processedIdsSet.clear();
-    }
-
     /**
-     * Returns null if the input lecturer has been already processed, <br>
-     * otherwise modifies it according to some criteria and returns it as output
+     * Modifies lecturer according to some criteria and returns it as output.
      * 
-     * @param lecturer
-     *            the Lecturer to be processed
+     * @param lecturer the Lecturer to be processed
      */
     @Override
     public Lecturer process(Lecturer lecturer) throws Exception {
-        // JUST IGNORE THE DUPLICATES
-        if (!CampusUtils.addIfNotAlreadyProcessed(processedIdsSet, lecturer.getPersonalNr())) {
-            LOG.debug("This is a duplicate of this lecturer [" + lecturer.getPersonalNr() + "]");
-            return null;
-        }
+
+        lecturer.setDateOfImport(new Date());
+
         if (StringUtils.isBlank(lecturer.getEmail())) {
             lecturer.setEmail(lecturer.getPrivateEmail());
         }
-        lecturer.setDateOfImport(new Date());
+
         return lecturer;
     }
 

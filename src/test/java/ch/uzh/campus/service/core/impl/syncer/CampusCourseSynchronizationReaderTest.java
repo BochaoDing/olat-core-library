@@ -1,6 +1,6 @@
 package ch.uzh.campus.service.core.impl.syncer;
 
-import ch.uzh.campus.service.data.SapCampusCourseTO;
+import ch.uzh.campus.service.data.CampusCourseTO;
 import ch.uzh.campus.data.DaoManager;
 import org.junit.Before;
 import org.junit.Test;
@@ -86,10 +86,10 @@ public class CampusCourseSynchronizationReaderTest {
         CreatedSapCourcesIds.add(200L);
         when(daoManagerMock.getSapIdsOfAllCreatedOlatCampusCourses()).thenReturn(CreatedSapCourcesIds);
 
-        SapCampusCourseTO sapCampusCourseTOMock1 = mock(SapCampusCourseTO.class);
-        SapCampusCourseTO sapCampusCourseTOMock2 = mock(SapCampusCourseTO.class);
-        when(daoManagerMock.loadSapCampusCourseTO(100L)).thenReturn(sapCampusCourseTOMock1);
-        when(daoManagerMock.loadSapCampusCourseTO(200L)).thenReturn(sapCampusCourseTOMock2);
+        CampusCourseTO campusCourseTOMock1 = mock(CampusCourseTO.class);
+        CampusCourseTO campusCourseTOMock2 = mock(CampusCourseTO.class);
+        when(daoManagerMock.loadCampusCourseTO(100L)).thenReturn(campusCourseTOMock1);
+        when(daoManagerMock.loadCampusCourseTO(200L)).thenReturn(campusCourseTOMock2);
 
         campusCourseSynchronizationReaderTestObject.init();
         // The first read delivers the first course

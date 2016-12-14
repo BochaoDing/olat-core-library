@@ -22,7 +22,7 @@ import java.util.List;
  */
 
 @Repository
-public class StudentDao implements CampusDao<Student> {
+public class StudentDao {
 
     private static final OLog LOG = Tracing.createLoggerFor(StudentDao.class);
 
@@ -54,11 +54,6 @@ public class StudentDao implements CampusDao<Student> {
 
     public void save(List<Student> students) {
         students.forEach(this::save);
-    }
-
-    @Override
-    public void saveOrUpdate(List<Student> students) {
-        students.forEach(this::saveOrUpdate);
     }
 
     public void addMapping(Long studentId, Identity identity) {

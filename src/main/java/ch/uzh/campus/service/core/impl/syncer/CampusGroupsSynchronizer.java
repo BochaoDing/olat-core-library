@@ -4,7 +4,7 @@ import ch.uzh.campus.CampusCourseException;
 import ch.uzh.campus.service.core.impl.syncer.statistic.SynchronizedGroupStatistic;
 import ch.uzh.campus.service.core.impl.syncer.statistic.SynchronizedSecurityGroupStatistic;
 import ch.uzh.campus.service.data.CampusGroups;
-import ch.uzh.campus.service.data.SapCampusCourseTO;
+import ch.uzh.campus.service.data.CampusCourseTO;
 import org.olat.basesecurity.GroupRoles;
 import org.olat.core.id.Identity;
 import org.olat.core.logging.OLog;
@@ -59,7 +59,7 @@ public class CampusGroupsSynchronizer {
     * Synchronize group coaches and participants of campus group A and the group coaches of campus group B.
     */
     public SynchronizedGroupStatistic synchronizeCampusGroups(CampusGroups campusGroups,
-															  SapCampusCourseTO sapCampusCourseTO,
+															  CampusCourseTO campusCourseTO,
                                                               Identity creator) throws CampusCourseException {
 
         if (campusGroups.getCampusGroupA() == null) {
@@ -70,13 +70,13 @@ public class CampusGroupsSynchronizer {
         }
 
         // Synchronize group coaches and participants of campus group A
-        SynchronizedSecurityGroupStatistic coachGroupStatistic = synchronizeGroupCoaches(creator, campusGroups.getCampusGroupA(), sapCampusCourseTO.getLecturersOfCourse(), sapCampusCourseTO.getDelegateesOfCourse());
-        SynchronizedSecurityGroupStatistic participantGroupStatistic = synchronizeGroupParticipants(creator, campusGroups.getCampusGroupA(), sapCampusCourseTO.getParticipantsOfCourse());
+        SynchronizedSecurityGroupStatistic coachGroupStatistic = synchronizeGroupCoaches(creator, campusGroups.getCampusGroupA(), campusCourseTO.getLecturersOfCourse(), campusCourseTO.getDelegateesOfCourse());
+        SynchronizedSecurityGroupStatistic participantGroupStatistic = synchronizeGroupParticipants(creator, campusGroups.getCampusGroupA(), campusCourseTO.getParticipantsOfCourse());
 
         // Synchronize group coaches of campus group B
-        synchronizeGroupCoaches(creator, campusGroups.getCampusGroupB(), sapCampusCourseTO.getLecturersOfCourse(), sapCampusCourseTO.getDelegateesOfCourse());
+        synchronizeGroupCoaches(creator, campusGroups.getCampusGroupB(), campusCourseTO.getLecturersOfCourse(), campusCourseTO.getDelegateesOfCourse());
         
-        return new SynchronizedGroupStatistic(sapCampusCourseTO.getTitleToBeDisplayed(), coachGroupStatistic, participantGroupStatistic);
+        return new SynchronizedGroupStatistic(campusCourseTO.getTitleToBeDisplayed(), coachGroupStatistic, participantGroupStatistic);
     }
     
     private SynchronizedSecurityGroupStatistic synchronizeGroupCoaches(Identity courseOwner, BusinessGroup businessGroup, Set<Identity> lecturers, Set<Identity> delegatees) {

@@ -1,7 +1,7 @@
 package ch.uzh.campus.connectors;
 
-import ch.uzh.campus.data.StudentCourseDao;
-import ch.uzh.campus.data.StudentIdCourseIdDateOfImport;
+import ch.uzh.campus.data.Lecturer;
+import ch.uzh.campus.data.LecturerDao;
 import org.olat.core.commons.persistence.DB;
 import org.olat.core.logging.OLog;
 import org.olat.core.logging.Tracing;
@@ -10,7 +10,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * OLAT - Online Learning and Training<br>
@@ -36,33 +38,44 @@ import java.util.List;
  */
 @Scope("step")
 @Component
-public class StudentCourseWriter implements ItemWriter<StudentIdCourseIdDateOfImport> {
+public class LecturerWriter implements ItemWriter<Lecturer> {
 
-    private static final OLog LOG = Tracing.createLoggerFor(StudentCourseWriter.class);
+    private static final OLog LOG = Tracing.createLoggerFor(LecturerWriter.class);
 
-    private final StudentCourseDao studentCourseDao;
+    private final LecturerDao lecturerDao;
     private final DB dbInstance;
 
+    private Set<Long> successfullyProcessedIds = new HashSet<>();
+
     @Autowired
-    public StudentCourseWriter(StudentCourseDao studentCourseDao, DB dbInstance) {
-        this.studentCourseDao = studentCourseDao;
+    public LecturerWriter(LecturerDao lecturerDao, DB dbInstance) {
+        this.lecturerDao = lecturerDao;
         this.dbInstance = dbInstance;
     }
 
     @Override
-    public void write(List<? extends StudentIdCourseIdDateOfImport> studentIdCourseIdDateOfImportList) throws Exception {
+    public void write(List<? extends Lecturer> lecturers) throws Exception {
         try {
-            for (StudentIdCourseIdDateOfImport studentIdCourseIdDateOfImport : studentIdCourseIdDateOfImportList) {
-                studentCourseDao.saveOrUpdateWithoutBidirectionalUpdate(studentIdCourseIdDateOfImport);
+            for (Lecturer lecturer : lecturers) {
+                // Avoid duplicates
+                if (!successfullyProcessedIds.contains(lecturer.getPersonalNr())) {
+                    successfullyProcessedIds.add(lecturer.getPersonalNr());
+                    lecturerDao.saveOrUpdate(lecturer);
+                } else {
+                    LOG.debug("This is a duplicate of lecturer with id " + lecturer.getPersonalNr());
+                }
             }
             dbInstance.commitAndCloseSession();
         } catch (Throwable t) {
             dbInstance.rollbackAndCloseSession();
+            for (Lecturer lecturer : lecturers) {
+                successfullyProcessedIds.remove(lecturer.getPersonalNr());
+            }
             // In the case of an exception, Spring Batch calls this method several times:
-            // First for the studentIdCourseIdDateOfImportList according to commit-interval in campusBatchJobContext.xml, and then (after rollbacking)
-            // for each entry of the original studentIdCourseIdDateOfImportList separately enabling commits containing only one entry.
+            // First for the lecturer according to commit-interval in campusBatchJobContext.xml, and then (after rollbacking)
+            // for each entry of the original lecturers separately enabling commits containing only one entry.
             // To avoid duplicated warnings we only log a warning in the latter case.
-            if (studentIdCourseIdDateOfImportList.size() == 1) {
+            if (lecturers.size() == 1) {
                 LOG.warn(t.getMessage());
             } else {
                 LOG.debug(t.getMessage());

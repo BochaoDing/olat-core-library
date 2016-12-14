@@ -1,9 +1,9 @@
 package ch.uzh.campus.data;
 
 import ch.uzh.campus.CampusCourseConfiguration;
+import ch.uzh.campus.service.data.CampusCourseTO;
+import ch.uzh.campus.service.data.CampusCourseTOForUI;
 import ch.uzh.campus.service.data.CampusGroups;
-import ch.uzh.campus.service.data.SapCampusCourseTO;
-import ch.uzh.campus.service.data.SapCampusCourseTOForUI;
 import ch.uzh.campus.utils.ListUtil;
 import org.olat.core.id.Identity;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -107,8 +107,8 @@ public class DaoManager {
         return delegationDao.existsDelegation(delegator.getKey(), delegatee.getKey());
     }
 
-    public boolean existCoursesForOlatResource(Long olatResourceKey) {
-        return courseDao.existCoursesForOlatResource(olatResourceKey);
+    public boolean existCoursesForRepositoryEntry(Long repositoryEntryKey) {
+        return courseDao.existCoursesForRepositoryEntry(repositoryEntryKey);
     }
 
     public void deleteCourse(Course course) {
@@ -332,30 +332,30 @@ public class DaoManager {
         return courseDao.getNotCreatedCreatableCoursesOfCurrentSemesterByLecturerId(id, searchString);
     }
 
-    public Set<Course> getCampusCoursesWithoutResourceableId(Identity identity, SapUserType userType, String searchString) {
-        Set<Course> coursesWithoutResourceableId = new HashSet<>();
-        coursesWithoutResourceableId.addAll(getCourses(identity, userType, false, searchString));// false --- > notCreatedCourses
+    public Set<Course> getNotCreatedCourses(Identity identity, SapUserType userType, String searchString) {
+        Set<Course> courses = new HashSet<>();
+        courses.addAll(getCourses(identity, userType, false, searchString));// false --- > notCreatedCourses
         // THE CASE OF LECTURER, ADD THE APPROPRIATE DELEGATES
         if (userType.equals(SapUserType.LECTURER)) {
             List<Delegation> delegations = delegationDao.getDelegationsByDelegatee(identity.getKey());
             for (Delegation delegation : delegations) {
-                coursesWithoutResourceableId.addAll(getCourses(delegation.getDelegator(), userType, false, searchString));// false --- > notCreatedCourses
+                courses.addAll(getCourses(delegation.getDelegator(), userType, false, searchString));// false --- > notCreatedCourses
             }
         }
-        return coursesWithoutResourceableId;
+        return courses;
     }
 
-    public Set<Course> getCampusCoursesWithResourceableId(Identity identity, SapUserType userType, String searchString) {
-        Set<Course> coursesWithResourceableId = new HashSet<>();
-        coursesWithResourceableId.addAll(getCourses(identity, userType, true, searchString));// true --- > CreatedCourses
+    public Set<Course> getCreatedCourses(Identity identity, SapUserType userType, String searchString) {
+        Set<Course> courses = new HashSet<>();
+        courses.addAll(getCourses(identity, userType, true, searchString));// true --- > CreatedCourses
         // THE CASE OF LECTURER, ADD THE APPROPRIATE DELEGATES
         if (userType.equals(SapUserType.LECTURER)) {
             List<Delegation> delegations = delegationDao.getDelegationsByDelegatee(identity.getKey());
             for (Delegation delegation : delegations) {
-                coursesWithResourceableId.addAll(getCourses(delegation.getDelegator(), userType, true, searchString));// true --- > CreatedCourses
+                courses.addAll(getCourses(delegation.getDelegator(), userType, true, searchString));// true --- > CreatedCourses
             }
         }
-        return coursesWithResourceableId;
+        return courses;
     }
 
     public Set<Course> getCourses(Identity identity, SapUserType userType, boolean created, String searchString) {
@@ -380,8 +380,8 @@ public class DaoManager {
         return courses;
     }
 
-    public void saveCampusCourseOlatResource(Long courseId, Long olatResourceKey) {
-        courseDao.saveOlatResource(courseId, olatResourceKey);
+    public void saveCampusCourseRepositoryEntry(Long courseId, Long repositoryEntryKey) {
+        courseDao.saveRepositoryEntry(courseId, repositoryEntryKey);
     }
 
     public void saveCampusGroupA(Long courseId, Long campusGroupAKey) {
@@ -392,16 +392,16 @@ public class DaoManager {
         courseDao.saveCampusGroupB(courseId, campusGroupBKey);
     }
 
-    public Course getLatestCourseByOlatResource(Long olatResourceKey) throws Exception {
-        return courseDao.getLatestCourseByOlatResource(olatResourceKey);
+    public Course getLatestCourseByRepositoryEntry(Long repositoryEntryKey) throws Exception {
+        return courseDao.getLatestCourseByRepositoryEntry(repositoryEntryKey);
     }
 
-    public Set<CampusGroups> getCampusGroupsByOlatResource(Long olatResourceKey) {
-        return courseDao.getCampusGroupsByOlatResource(olatResourceKey);
+    public Set<CampusGroups> getCampusGroupsByRepositoryEntry(Long repositoryEntryKey) {
+        return courseDao.getCampusGroupsByRepositoryEntry(repositoryEntryKey);
     }
 
-    public void resetOlatResourceAndParentCourse(Long olatResourceKey) {
-        courseDao.resetOlatResourceAndParentCourse(olatResourceKey);
+    public void resetRepositoryEntryAndParentCourse(Long repositoryEntryKey) {
+        courseDao.resetRepositoryEntryAndParentCourse(repositoryEntryKey);
     }
 
     public void resetCampusGroup(Long campusGroupKey) {
@@ -416,8 +416,8 @@ public class DaoManager {
         return courseDao.getIdsOfAllCreatedSynchronizableCoursesOfCurrentSemester();
     }
 
-    public List<Long> getOlatResourceKeysOfAllCreatedNotContinuedCoursesOfPreviousSemesters() {
-        return courseDao.getOlatResourceKeysOfAllCreatedNotContinuedCoursesOfPreviousSemestersNotTooFarInThePast();
+    public List<Long> getRepositoryEntryKeysOfAllCreatedNotContinuedCoursesOfPreviousSemesters() {
+        return courseDao.getRepositoryEntryKeysOfAllCreatedNotContinuedCoursesOfPreviousSemestersNotTooFarInThePast();
     }
 
     public List<Long> getSapIdsOfAllNotCreatedOlatCampusCourses() {
@@ -432,7 +432,7 @@ public class DaoManager {
         return courseDao.getAllCreatedCoursesOfCurrentSemester();
     }
 
-    public SapCampusCourseTO loadSapCampusCourseTO(long courseId) {
+    public CampusCourseTO loadCampusCourseTO(long courseId) {
         Course course = getCourseById(courseId);
 		if (course == null) {
 			return null;
@@ -446,7 +446,7 @@ public class DaoManager {
 
         Set<LecturerCourse> lecturerCourses = course.getLecturerCourses();
 
-        return new SapCampusCourseTO(
+        return new CampusCourseTO(
                 course.getTitleToBeDisplayed(),
 				course.getSemester(),
 				dataConverter.convertLecturersToIdentities(lecturerCourses),
@@ -455,16 +455,16 @@ public class DaoManager {
                 course.isContinuedCourse(),
                 course.getTitlesOfCourseAndParentCoursesInAscendingOrder(),
                 textDao.getContentsByCourseId(course.getId()),
-                course.getOlatResource(),
+                course.getRepositoryEntry(),
                 new CampusGroups(course.getCampusGroupA(), course.getCampusGroupB()),
                 course.getId(),
                 course.getLanguage(),
                 course.getVvzLink());
     }
 
-    public SapCampusCourseTOForUI loadSapCampuCourseTOForUI(long courseId) {
+    public CampusCourseTOForUI loadCampusCourseTOForUI(long courseId) {
         Course course = getCourseById(courseId);
-        return new SapCampusCourseTOForUI(course.getTitleToBeDisplayed(), courseId);
+        return new CampusCourseTOForUI(course.getTitleToBeDisplayed(), courseId);
     }
 
     private boolean areStudentCourseBookingsForCurrentSemesterUpToDate(Course course) {

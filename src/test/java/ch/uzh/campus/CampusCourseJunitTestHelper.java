@@ -1,19 +1,19 @@
 package ch.uzh.campus;
 
-import ch.uzh.campus.data.*;
+import ch.uzh.campus.data.Course;
+import ch.uzh.campus.data.CourseDao;
+import ch.uzh.campus.data.Semester;
+import ch.uzh.campus.data.SemesterDao;
 import ch.uzh.campus.service.data.CampusGroups;
 import org.olat.basesecurity.IdentityImpl;
 import org.olat.core.commons.persistence.DB;
 import org.olat.core.id.Identity;
-import org.olat.core.id.OLATResourceable;
 import org.olat.core.id.User;
 import org.olat.group.BusinessGroup;
 import org.olat.group.BusinessGroupService;
 import org.olat.group.area.BGArea;
 import org.olat.group.area.BGAreaManager;
 import org.olat.repository.RepositoryEntry;
-import org.olat.resource.OLATResource;
-import org.olat.resource.OLATResourceManager;
 import org.olat.user.UserManager;
 
 import java.util.Date;
@@ -89,33 +89,5 @@ public class CampusCourseJunitTestHelper {
         dbInstance.saveObject(identity);
         dbInstance.flush();
         return identity;
-    }
-
-    public static OLATResource createOlatResourceForTest(OLATResourceManager olatResourceManager, DB dbInstance, String olatResourceName) {
-        TestResourceable resourceable = new TestResourceable(8213649L, olatResourceName);
-        OLATResource olatResource = olatResourceManager.createOLATResourceInstance(resourceable);
-        olatResourceManager.saveOLATResource(olatResource);
-        dbInstance.flush();
-        return olatResource;
-    }
-
-    private static class TestResourceable implements OLATResourceable {
-        private final Long resId;
-        private final String resName;
-
-        TestResourceable(Long resId, String resourceName) {
-            this.resId = resId;
-            this.resName = resourceName;
-        }
-
-        @Override
-        public Long getResourceableId() {
-            return resId;
-        }
-
-        @Override
-        public String getResourceableTypeName() {
-            return resName;
-        }
     }
 }

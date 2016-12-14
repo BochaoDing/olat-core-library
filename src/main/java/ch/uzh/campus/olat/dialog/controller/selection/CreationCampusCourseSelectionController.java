@@ -1,7 +1,6 @@
 package ch.uzh.campus.olat.dialog.controller.selection;
 
 import ch.uzh.campus.olat.dialog.controller.CreateCampusCourseCompletedEventListener;
-import ch.uzh.campus.service.data.OlatCampusCourse;
 import ch.uzh.campus.service.CampusCourseService;
 import org.olat.core.gui.UserRequest;
 import org.olat.core.gui.control.Controller;
@@ -59,9 +58,10 @@ public class CreationCampusCourseSelectionController extends CampusCourseDialogS
 					return;
 				}
 			}
-			OlatCampusCourse olatCampusCourse = campusCourseService.createOlatCampusCourseFromTemplate(templateOlatResource,
-					sapCampusCourseId, userRequest.getIdentity());
-			listener.onSuccess(userRequest, olatCampusCourse);
+			RepositoryEntry templateRepositoryEntry = repositoryManager.lookupRepositoryEntry(templateOlatResource, true);
+			RepositoryEntry createdRepositoryEntry = campusCourseService.createOlatCampusCourseFromTemplate(templateRepositoryEntry,
+						sapCampusCourseId, userRequest.getIdentity());
+			listener.onSuccess(userRequest, createdRepositoryEntry);
 		} catch (Exception e) {
 
 			// OLATNG-341: Error log to find out more about error (to be removed after problem is solved)

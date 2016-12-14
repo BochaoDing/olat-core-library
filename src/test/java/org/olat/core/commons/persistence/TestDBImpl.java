@@ -3,6 +3,8 @@ package org.olat.core.commons.persistence;
 import java.util.Properties;
 
 /**
+ * DB implementation for tests, which does not commit.
+ *
  * @author Martin Schraner
  */
 public class TestDBImpl extends DBImpl {
@@ -16,25 +18,24 @@ public class TestDBImpl extends DBImpl {
 
     @Override
     public void commit() {
-        // Do not commit!
-        flush();
+        flush();  // Instead of commit()
     }
 
     @Override
     public void intermediateCommit() {
-        // Do not commit!
-        flush();
+        flush();  // Instead of commit()
+        clear();  // Instead of closeSession()
     }
 
     @Override
     public void commitAndCloseSession() {
-        // Do not commit!
-        flush();
+        flush();  // Instead of commit()
+        clear();  // Instead of closeSession()
     }
 
     @Override
     public void closeSession() {
-        // Do not commit!
-        flush();
+        flush();  // Instead of commit()
+        clear();  // Instead of closeSession()
     }
 }
