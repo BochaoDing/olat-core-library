@@ -418,14 +418,10 @@
 	<!-- ============== USERMAPPING(Reader, Writer)================== -->  
 	<!-- ======================================================================================= -->  
 	<bean id="studentMappingReader" class="ch.uzh.campus.mapper.StudentMappingReader" scope="step"/>
-	<bean id="studentMappingWriter" class="ch.uzh.campus.mapper.StudentMappingWriter" scope="step">
-		<property name="mappingStatistic" ref="mappingStatistic" />
-	</bean>
+	<bean id="studentMappingWriter" class="ch.uzh.campus.mapper.StudentMappingWriter" scope="step"/>
 	
 	<bean id="lecturerMappingReader" class="ch.uzh.campus.mapper.LecturerMappingReader" scope="step"/>
-	<bean id="lecturerMappingWriter" class="ch.uzh.campus.mapper.LecturerMappingWriter" scope="step">
-		<property name="mappingStatistic" ref="mappingStatistic" />
-	</bean>
+	<bean id="lecturerMappingWriter" class="ch.uzh.campus.mapper.LecturerMappingWriter" scope="step"/>
 	
 	<bean id="mappingStatistic" class="ch.uzh.campus.mapper.MappingStatistic" scope='prototype'/>
 
