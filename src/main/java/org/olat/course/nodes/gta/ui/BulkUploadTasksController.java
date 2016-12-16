@@ -21,9 +21,7 @@ import org.olat.course.nodes.gta.model.TaskDefinition;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.*;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -33,6 +31,11 @@ import java.util.stream.Collectors;
  *
  */
 public class BulkUploadTasksController extends FormBasicController {
+
+	private static final Set<String> zipMimeTypes = new HashSet<String>();
+	static {
+		zipMimeTypes.add("application/zip");
+	}
 
 	private FileElement fileEl;
 
@@ -53,6 +56,7 @@ public class BulkUploadTasksController extends FormBasicController {
 
 		fileEl = uifactory.addFileElement(getWindowControl(), "file", "task.file", formLayout);
 		fileEl.setExampleKey("add.multipleTasks.hint",null);
+		fileEl.limitToMimeType(zipMimeTypes, "add.multipleTasks.mimeLimit",null);
 		fileEl.setMandatory(true);
 		fileEl.addActionListener(FormEvent.ONCHANGE);
 
