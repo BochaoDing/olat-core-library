@@ -32,6 +32,7 @@ import org.olat.core.gui.components.form.flexible.FormItem;
 import org.olat.core.gui.components.form.flexible.FormItemContainer;
 import org.olat.core.gui.components.form.flexible.elements.DownloadLink;
 import org.olat.core.gui.components.form.flexible.elements.FlexiTableElement;
+import org.olat.core.gui.components.form.flexible.elements.FlexiTableSortOptions;
 import org.olat.core.gui.components.form.flexible.elements.FormLink;
 import org.olat.core.gui.components.form.flexible.impl.FormBasicController;
 import org.olat.core.gui.components.form.flexible.impl.FormEvent;
@@ -144,9 +145,11 @@ abstract class AbstractAssignmentEditController extends FormBasicController {
 						new StaticFlexiCellRenderer(translate("edit"), "edit"),
 						new StaticFlexiCellRenderer(translate("replace"), "edit"))));
 		columnsModel.addFlexiColumnModel(new StaticFlexiColumnModel("table.header.edit", translate("delete"), "delete"));
-		
+
+		FlexiTableSortOptions options = new FlexiTableSortOptions();
 		taskModel = new TaskDefinitionTableModel(columnsModel);
 		taskDefTableEl = uifactory.addTableElement(getWindowControl(), "taskTable", taskModel, getTranslator(), tasksCont);
+		taskDefTableEl.setSortSettings(options);
 		taskDefTableEl.setExportEnabled(true);
 		updateModel();
 	}
@@ -198,8 +201,7 @@ abstract class AbstractAssignmentEditController extends FormBasicController {
 			}
 			cmc.deactivate();
 			cleanUp();
-		} else {
-			if (editTaskCtrl == source) {
+		} else if (editTaskCtrl == source) {
 				if (event == Event.DONE_EVENT) {
 					doFinishReplacementOfTask(editTaskCtrl.getFilenameToReplace(), editTaskCtrl.getTask());
 					updateModel();
@@ -208,7 +210,7 @@ abstract class AbstractAssignmentEditController extends FormBasicController {
 				}
 				cmc.deactivate();
 				cleanUp();
-			} else if (newTaskCtrl == source) {
+		} else if (newTaskCtrl == source) {
 				TaskDefinition newTask = newTaskCtrl.getTaskDefinition();
 				cmc.deactivate();
 				cleanUp();
@@ -218,7 +220,7 @@ abstract class AbstractAssignmentEditController extends FormBasicController {
 					doCreateTaskEditor(ureq, newTask);
 					updateModel();
 				}
-			} else if (newTaskEditorCtrl == source) {
+		} else if (newTaskEditorCtrl == source) {
 				if (event == Event.DONE_EVENT) {
 					updateModel();
 					//fireEvent(ureq, Event.DONE_EVENT);
@@ -226,7 +228,7 @@ abstract class AbstractAssignmentEditController extends FormBasicController {
 				}
 				cmc.deactivate();
 				cleanUp();
-			} else if (editTaskEditorCtrl == source) {
+		} else if (editTaskEditorCtrl == source) {
 				if (event == Event.DONE_EVENT) {
 					gtaManager.updateTaskDefinition(null, editTaskEditorCtrl.getTask(), courseEnv, gtaNode);
 					updateModel();
@@ -235,15 +237,14 @@ abstract class AbstractAssignmentEditController extends FormBasicController {
 				}
 				cmc.deactivate();
 				cleanUp();
-			} else if (confirmDeleteCtrl == source) {
+		} else if (confirmDeleteCtrl == source) {
 				if (DialogBoxUIFactory.isOkEvent(event) || DialogBoxUIFactory.isYesEvent(event)) {
 					TaskDefinition row = (TaskDefinition) confirmDeleteCtrl.getUserObject();
 					doDelete(ureq, row);
 					//fireEvent(ureq, Event.DONE_EVENT);
 				}
-			} else if (cmc == source) {
+		} else if (cmc == source) {
 				cleanUp();
-			}
 		}
 		super.event(ureq, source, event);
 	}
