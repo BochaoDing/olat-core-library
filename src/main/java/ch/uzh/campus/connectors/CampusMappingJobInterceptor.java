@@ -2,7 +2,6 @@ package ch.uzh.campus.connectors;
 
 import ch.uzh.campus.data.ImportStatistic;
 import ch.uzh.campus.data.ImportStatisticDao;
-import ch.uzh.campus.metric.CampusNotifier;
 import org.olat.core.commons.persistence.DB;
 import org.olat.core.logging.OLog;
 import org.olat.core.logging.Tracing;
@@ -40,21 +39,18 @@ public class CampusMappingJobInterceptor implements JobExecutionListener {
 
     private static final OLog LOG = Tracing.createLoggerFor(CampusMappingJobInterceptor.class);
 
-    private final CampusNotifier campusNotifier;
     private final DB dbInstance;
     private final ImportStatisticDao importStatisticDao;
 
     @Autowired
-    public CampusMappingJobInterceptor(DB dbInstance, ImportStatisticDao importStatisticDao, CampusNotifier campusNotifier) {
+    public CampusMappingJobInterceptor(DB dbInstance, ImportStatisticDao importStatisticDao) {
         this.dbInstance = dbInstance;
         this.importStatisticDao = importStatisticDao;
-        this.campusNotifier = campusNotifier;
     }
 
     @Override
     public void afterJob(JobExecution jobExecution) {
         LOG.info("afterJob " + jobExecution.getJobInstance().getJobName());
-        campusNotifier.notifyJobExecution(jobExecution);
     }
 
     @Override
