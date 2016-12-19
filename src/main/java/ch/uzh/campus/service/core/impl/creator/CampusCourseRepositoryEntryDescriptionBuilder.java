@@ -74,6 +74,11 @@ public class CampusCourseRepositoryEntryDescriptionBuilder {
     }
 
     String createStringOfAlphabeticallySortedLecturers(Collection<Identity> lecturers) {
+
+        if (lecturers.size() == 0) {
+            return "";
+        }
+
         List<FirstNameLastName> firstNameLastNameList = new ArrayList<>();
         for (Identity lecturer : lecturers) {
             String firstname = lecturer.getUser().getProperty(UserConstants.FIRSTNAME, null);
