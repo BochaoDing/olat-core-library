@@ -148,7 +148,7 @@ abstract class AbstractAssignmentEditController extends FormBasicController {
 
 		FlexiTableSortOptions options = new FlexiTableSortOptions();
 		taskModel = new TaskDefinitionTableModel(columnsModel);
-		taskDefTableEl = uifactory.addTableElement(getWindowControl(), "taskTable", taskModel, getTranslator(), tasksCont);
+		taskDefTableEl = uifactory.addTableElement(getWindowControl(),"taskTable", taskModel, 20,true, getTranslator(),tasksCont);
 		taskDefTableEl.setSortSettings(options);
 		taskDefTableEl.setExportEnabled(true);
 		updateModel();

@@ -104,9 +104,11 @@ public class BulkUploadTasksController extends FormBasicController {
 					try {
 						Path upload = taskFile.toPath();
 						File target = new File(taskContainer, taskFile.getName());
-						Files.move(upload, target.toPath(), StandardCopyOption.REPLACE_EXISTING);
-					} catch (Exception ex) {
-						logError("", ex);
+						Files.move(upload, target.toPath());
+					} catch (FileAlreadyExistsException e){
+						logDebug("taskfile wasnt added because it already existed", taskFile.getAbsolutePath());
+					} catch (Exception e) {
+						logError("", e);
 					}
 				}
 			}
