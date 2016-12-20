@@ -167,20 +167,19 @@
 		<class>org.olat.portfolio.model.structel.EPStructureElementToGroupRelation</class>
 		
 		<!-- campuskurs hibernate entities -->
-		<class>ch.uzh.campus.data.Org</class>
-		<class>ch.uzh.campus.data.Text</class>
-		<class>ch.uzh.campus.data.Course</class>
-		<class>ch.uzh.campus.data.Semester</class>
-		<class>ch.uzh.campus.data.Student</class>
-		<class>ch.uzh.campus.data.StudentCourse</class>
-		<class>ch.uzh.campus.data.Lecturer</class>
-		<class>ch.uzh.campus.data.LecturerCourse</class>
-		<class>ch.uzh.campus.data.Event</class>
-		<class>ch.uzh.campus.data.Export</class>
-		<class>ch.uzh.campus.data.Delegation</class>
-		<class>ch.uzh.campus.data.SkipItem</class>
-		<class>ch.uzh.campus.data.DaoManager</class>
-		<class>ch.uzh.campus.data.ImportStatistic</class>
+		<class>ch.uzh.extension.campuscourse.data.entity.Org</class>
+		<class>ch.uzh.extension.campuscourse.data.entity.Text</class>
+		<class>ch.uzh.extension.campuscourse.data.entity.Course</class>
+		<class>ch.uzh.extension.campuscourse.data.entity.Semester</class>
+		<class>ch.uzh.extension.campuscourse.data.entity.Student</class>
+		<class>ch.uzh.extension.campuscourse.data.entity.StudentCourse</class>
+		<class>ch.uzh.extension.campuscourse.data.entity.Lecturer</class>
+		<class>ch.uzh.extension.campuscourse.data.entity.LecturerCourse</class>
+		<class>ch.uzh.extension.campuscourse.data.entity.Event</class>
+		<class>ch.uzh.extension.campuscourse.data.entity.Export</class>
+		<class>ch.uzh.extension.campuscourse.data.entity.Delegation</class>
+		<class>ch.uzh.extension.campuscourse.data.entity.SkipItem</class>
+		<class>ch.uzh.extension.campuscourse.data.entity.ImportStatistic</class>
 
 		<properties>
 			<property name="hibernate.generate_statistics" value="true"/>

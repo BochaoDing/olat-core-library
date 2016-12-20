@@ -1,0 +1,578 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	   xmlns:batch="http://www.springframework.org/schema/batch"
+	   xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/batch
+        http://www.springframework.org/schema/batch/spring-batch-2.1.xsd">
+
+	<import resource="classpath:org/olat/core/commons/persistence/_spring/databaseCorecontext.xml" />
+
+	<!-- ======================================================================================= -->
+	<!-- ==============IMPORT JOB================== -->  
+	<!-- ======================================================================================= -->
+	<batch:job id="importJob" >
+		<batch:listeners>
+            <batch:listener ref="campusImportJobInterceptor" />
+		</batch:listeners>
+		<batch:step id="import_controlFile" parent="campusStep" >
+			<batch:tasklet>
+				<batch:chunk reader="exportReader" processor="exportProcessor"  writer="exportWriter" skip-limit="8" retry-limit="5"/>
+			</batch:tasklet>
+			<batch:next on="COMPLETED" to="import_orgs"/>
+			<batch:fail on="FAILED" exit-code="EARLY TERMINATION"/>
+		</batch:step>
+
+		<batch:step id="import_orgs" parent="campusStep">
+			<batch:tasklet>
+				<batch:chunk reader="orgReader" processor="orgProcessor" writer="orgWriter" commit-interval="20" skip-limit="100" retry-limit="5"/>
+			</batch:tasklet>
+			<batch:next on="COMPLETED" to="importStammDaten"/>
+			<batch:fail on="FAILED" exit-code="EARLY TERMINATION"/>
+		</batch:step>
+
+		<batch:split id="importStammDaten" task-executor="splitTaskExecutor">
+			<batch:next on="COMPLETED" to="importBooking" />
+			<batch:fail on="FAILED" exit-code="EARLY TERMINATION"/>
+			<batch:flow>
+				<batch:step id="import_students" parent="campusStep">
+					<batch:tasklet>
+						<batch:chunk reader="studentReader" processor="studentProcessor" writer="studentWriter" commit-interval="20" skip-limit="1000" retry-limit="5"/>
+					</batch:tasklet>
+				</batch:step>
+			</batch:flow>
+			<batch:flow>
+				<batch:step id="import_lecturers" parent="campusStep">
+					<batch:tasklet>
+						<batch:chunk reader="lecturerReader" processor="lecturerProcessor" writer="lecturerWriter" commit-interval="20" skip-limit="500" retry-limit="5"/>
+					</batch:tasklet>
+				</batch:step>
+			</batch:flow>
+			<batch:flow>
+				<batch:step id="import_courses" parent="campusStep">
+					<batch:tasklet>
+						<batch:chunk reader="courseReader" processor="courseProcessor" writer="courseWriter" commit-interval="20" skip-limit="100" retry-limit="5"/>
+					</batch:tasklet>
+				</batch:step>
+			</batch:flow>
+		</batch:split>
+
+		<batch:split id="importBooking" task-executor="splitTaskExecutor">
+			<batch:flow>
+				<batch:step id="import_students_Courses" parent="campusStep">
+					<batch:tasklet>
+						<batch:chunk reader="studentCourseReader" processor="studentCourseProcessor" writer="studentCourseWriter" commit-interval="20" skip-limit="1000" retry-limit="5"/>
+					</batch:tasklet>
+				</batch:step>
+			</batch:flow>
+			<batch:flow>
+				<batch:step id="import_lecturers_Courses" parent="campusStep">
+					<batch:tasklet>
+						<batch:chunk reader="lecturerCourseReader" processor="lecturerCourseProcessor" writer="lecturerCourseWriter" commit-interval="20" skip-limit="500" retry-limit="5"/>
+					</batch:tasklet>
+				</batch:step>
+			</batch:flow>
+			<batch:flow>
+				<batch:step id="import_texts" parent="campusStep">
+					<batch:tasklet>
+						<batch:chunk reader="textReader" processor="textProcessor" writer="textWriter" skip-limit="100000" commit-interval="20" retry-limit="5"/>
+					</batch:tasklet>
+				</batch:step>
+			</batch:flow>
+			<!-- DISABLED FOR NOW -->
+			<!--
+			<batch:flow>
+				<batch:step id="import_events" parent="campusStep">
+					<batch:tasklet>
+						<batch:chunk reader="eventReader" processor="eventProcessor" writer="eventWriter" commit-interval="50" skip-limit="100000" retry-limit="5">
+						</batch:chunk>
+					</batch:tasklet>
+				</batch:step>
+			</batch:flow>
+			 -->
+		</batch:split>
+	</batch:job>
+
+	<!-- ======================================================================================= -->
+	<!-- ==============USERMAPPING/ABGLEICH JOB================== -->  
+	<!-- ======================================================================================= -->
+	<batch:job id="userMappingJob">
+		<batch:listeners>
+			<batch:listener ref="campusMappingJobInterceptor" />
+		</batch:listeners>
+
+		<batch:split id="userMapping" task-executor="splitTaskExecutor">
+			<batch:next on="COMPLETED" to="campusSynchronisation" />
+			<batch:flow>
+				<batch:step id="studentMapping" parent="campusStep">
+		    		<batch:tasklet task-executor="taskletTaskExecutor">
+						<batch:chunk reader="studentMappingReader"  writer="studentMappingWriter" commit-interval="20" skip-limit="10" retry-limit="5"/>
+					</batch:tasklet>
+				</batch:step>
+			</batch:flow>
+			<batch:flow>
+				<batch:step id="lecturerMapping" parent="campusStep">
+				    <batch:tasklet task-executor="taskletTaskExecutor">
+						<batch:chunk reader="lecturerMappingReader"  writer="lecturerMappingWriter" commit-interval="20" skip-limit="10" retry-limit="5"/>
+					</batch:tasklet>
+				</batch:step>
+			</batch:flow>
+		</batch:split>
+		
+		<batch:step id="campusSynchronisation" parent="campusStep">
+		    <batch:tasklet task-executor="synchronizationTaskletTaskExecutor">
+				<batch:chunk reader="synchronizationReader"  writer="synchronizationWriter" commit-interval="20" skip-limit="50" retry-limit="5"/>
+			</batch:tasklet>
+		</batch:step>
+	</batch:job>
+
+	<bean id="jobOperator" class="org.springframework.batch.core.launch.support.SimpleJobOperator">
+		<property name="jobExplorer" ref="jobExplorer"/>
+		<property name="jobRepository" ref="jobRepository" />
+		<property name="jobRegistry" ref="jobRegistry" />
+		<property name="jobLauncher" ref="jobLauncher" />
+	</bean>
+	<bean id="jobRegistry" class="org.springframework.batch.core.configuration.support.MapJobRegistry" />
+	<bean id="jobExplorer" class="org.springframework.batch.core.explore.support.JobExplorerFactoryBean">
+		<property name="dataSource" ref="${db.vendor}_${db.source}_DataSource"/>
+	</bean>
+
+	<!-- ======================================================================================= -->
+	<!-- ==============Export(Reader, Writer, Processor, Entity, Dao)================== -->  
+	<!-- ======================================================================================= -->
+	<bean id="exportReader" parent="campusReader" scope="step">
+		<property name="resource" value="#{jobParameters['exportResource']}" />
+		 <property name="lineMapper">
+			<bean parent="lineMapper">
+				<property name="lineTokenizer" >
+					<bean parent="lineTokenizer">
+						<property name="names" value="fileName, exportDate" />
+					</bean>
+				</property>
+				<property name="fieldSetMapper" >
+					<bean parent="fieldSetMapper2">
+						<property name="prototypeBeanName" value="export" />
+					</bean>
+				</property>
+			</bean>
+		</property>
+	</bean>
+	
+	<bean id="exportWriter" parent="campusWriter" scope="step">
+		<property name="campuskursDao" ref="exportDao" />
+	</bean>
+	
+	<bean id="exportProcessor" class="ch.uzh.extension.campuscourse.batchprocessing.sapimport.ExportProcessor" scope="step"/>
+
+	<bean id="exportDao" class="ch.uzh.extension.campuscourse.data.dao.ExportDao"/>
+
+	<bean id='export' class ='ch.uzh.extension.campuscourse.data.entity.Export' scope="prototype" />
+	
+	<!-- ======================================================================================= -->
+	<!-- ==============STUDENT(Reader, Writer, Processor, Entity, Dao)================== -->  
+	<!-- ======================================================================================= -->
+	<bean id="studentReader" parent="campusReader" scope="step">
+		<property name="resource" value="#{jobParameters['studentResource']}" />
+		 <property name="lineMapper">
+			<bean parent="lineMapper">
+				<property name="lineTokenizer" >
+					<bean parent="lineTokenizer">
+						<property name="names" value="id,registrationNr,fristName,lastName,email, objectId(NOT USED)" />
+					</bean>
+				</property>
+				<property name="fieldSetMapper" >
+					<bean parent="fieldSetMapper">
+						<property name="prototypeBeanName" value="student" />
+					</bean>
+				</property>
+			</bean>
+		</property>
+	</bean>
+	
+	<bean id="studentWriter" class="ch.uzh.extension.campuscourse.batchprocessing.sapimport.StudentWriter" scope="step" />
+	
+	<bean id="studentProcessor" class="ch.uzh.extension.campuscourse.batchprocessing.sapimport.StudentProcessor" scope="step"/>
+
+	<bean id="studentDao" class="ch.uzh.extension.campuscourse.data.dao.StudentDao"/>
+
+	<bean id='student' class ='ch.uzh.extension.campuscourse.data.entity.Student' scope="prototype" />
+	
+	<!-- ======================================================================================= -->
+	<!-- ==============lecturer(Reader, Writer, Processor, Entity, Dao)================== -->
+	<!-- ======================================================================================= -->  
+	<bean id="lecturerReader" parent="campusReader" scope="step">
+		<property name="resource" value="#{jobParameters['lecturerResource']}" />
+		 <property name="lineMapper">
+			<bean parent="lineMapper">
+				<property name="lineTokenizer" >
+					<bean parent="lineTokenizer">
+						<property name="names" value="PersonalNr,firstName,lastname,privateEmail,email,additionalPersonalNrs" />
+						<property name="strict" value="false"/>
+					</bean>
+				</property>
+				<property name="fieldSetMapper" >
+					<bean parent="fieldSetMapper">
+						<property name="prototypeBeanName" value="lecturer" />
+					</bean>
+				</property>
+			</bean>
+		</property>
+	</bean>
+ 
+	<bean id="lecturerWriter" class="ch.uzh.extension.campuscourse.batchprocessing.sapimport.LecturerWriter" scope="step" />
+	
+	<bean id="lecturerProcessor" class="ch.uzh.extension.campuscourse.batchprocessing.sapimport.LecturerProcessor" scope="step"/>
+
+	<bean id="lecturerDao" class="ch.uzh.extension.campuscourse.data.dao.LecturerDao"/>
+	
+	<bean id='lecturer' class ='ch.uzh.extension.campuscourse.data.entity.Lecturer' scope="prototype" />
+	
+	<!-- ======================================================================================= -->
+	<!-- ==============LEHRVERANSTALTUNG(Reader, Writer, Processor, Entity, Dao)================== -->  
+	<!-- ======================================================================================= -->  
+	<bean id="courseReader" parent="campusReader" scope="step">
+		<property name="resource" value="#{jobParameters['courseResource']}" />
+		 <property name="lineMapper">
+			<bean parent="lineMapper">
+				<property name="lineTokenizer" >
+					<bean parent="lineTokenizer">
+						<property name="names" value="id, lvKuerzel, title, lvNr, language, category, eLearningSupported, startDate, endDate, vzzLink, semester, exclude, org1, org2, org3, org4, org5, org6, org7, org8, org9" />
+						<property name="strict" value="false"/>
+					</bean>
+				</property>
+				<property name="fieldSetMapper" >
+					<bean parent="fieldSetMapper">
+						<property name="prototypeBeanName" value="courseSemesterOrgId" />
+					</bean>
+				</property>
+			</bean>
+		</property>
+	</bean>
+
+	<bean id="courseWriter" class="ch.uzh.extension.campuscourse.batchprocessing.sapimport.CourseWriter" scope="step" />
+
+	<bean id="courseProcessor" class="ch.uzh.extension.campuscourse.batchprocessing.sapimport.CourseProcessor" scope="step" />
+
+	<bean id="courseDao" class="ch.uzh.extension.campuscourse.data.dao.CourseDao"/>
+	
+	<bean id="courseSemesterOrgId" class ='ch.uzh.extension.campuscourse.model.CourseSemesterOrgId' scope="prototype" />
+	
+	<!-- ======================================================================================= -->
+	<!-- ==============BUCHUNG:STUDENT-KURS(Reader, Writer, Processor, Entity, Dao)================== -->  
+	<!-- ======================================================================================= -->  	
+	<bean id="studentCourseReader" parent="campusReader" scope="step">
+		<property name="resource" value="#{jobParameters['studentCourseResource']}" />
+		 <property name="lineMapper">
+			<bean parent="lineMapper">
+				<property name="lineTokenizer" >
+					<bean parent="lineTokenizer">
+						<property name="names" value="OT(not used),courseId,VO(not used),studentId" />
+					</bean>
+				</property>
+				<property name="fieldSetMapper" >
+					<bean parent="fieldSetMapper">
+						<property name="prototypeBeanName" value="studentIdCourseId" />
+					</bean>
+				</property>
+			</bean>
+		</property>
+	</bean>
+
+	<bean id="studentCourseWriter" class="ch.uzh.extension.campuscourse.batchprocessing.sapimport.StudentCourseWriter" scope="step" />
+
+	<bean id="studentCourseProcessor" class="ch.uzh.extension.campuscourse.batchprocessing.sapimport.StudentCourseProcessor" scope="step"/>
+	
+	<bean id='studentIdCourseId' class ='ch.uzh.extension.campuscourse.model.StudentIdCourseId' scope="prototype" />
+	
+	<!-- ======================================================================================= -->
+	<!-- ==============BUCHUNG:lecturer-KURS(Reader, Writer, Processor, Entity, Dao)================== -->
+	<!-- ======================================================================================= -->  	
+	<bean id="lecturerCourseReader" parent="campusReader" scope="step">
+		<property name="resource" value="#{jobParameters['lecturerCourseResource']}" />
+		 <property name="lineMapper">
+			<bean parent="lineMapper">
+				<property name="lineTokenizer" >
+					<bean parent="lineTokenizer">
+						<property name="names" value="courseId, lecturerId" />
+					</bean>
+				</property>
+				<property name="fieldSetMapper" >
+					<bean parent="fieldSetMapper">
+						<property name="prototypeBeanName" value="lecturerIdCourseId" />
+					</bean>
+				</property>
+			</bean>
+		</property>
+	</bean>
+
+	<bean id="lecturerCourseWriter" class="ch.uzh.extension.campuscourse.batchprocessing.sapimport.LecturerCourseWriter" scope="step" />
+
+	<bean id="lecturerCourseProcessor" class="ch.uzh.extension.campuscourse.batchprocessing.sapimport.LecturerCourseProcessor" scope="step"/>
+	
+	<bean id='lecturerIdCourseId' class ='ch.uzh.extension.campuscourse.model.LecturerIdCourseId' scope="prototype" />
+	
+	<!-- ======================================================================================= -->
+	<!-- ==============BUCHUNG:KURS-TEXTE(Reader, Writer, Processor, Entity, Dao)================== -->  
+	<!-- ======================================================================================= -->  
+	<bean id="textReader" parent="campusReader" scope="step">
+		<property name="resource" value="#{jobParameters['textResource']}" />
+		 <property name="lineMapper">
+			<bean parent="lineMapper">
+				<property name="lineTokenizer" >
+					<bean parent="lineTokenizer">
+						<property name="names" value="courseId,code(NOT USED),type,lineSeq,line" />
+					</bean>
+				</property>
+				<property name="fieldSetMapper" >
+					<bean parent="fieldSetMapper">
+						<property name="prototypeBeanName" value="text" />
+					</bean>
+				</property>
+			</bean>
+		</property>
+	</bean>
+ 
+	<bean id="textWriter" class="ch.uzh.extension.campuscourse.batchprocessing.sapimport.TextWriter" scope="step" />
+	
+	<bean id="textProcessor" class="ch.uzh.extension.campuscourse.batchprocessing.sapimport.TextProcessor" scope="step"/>
+	
+	<bean id='text' class ='ch.uzh.extension.campuscourse.model.TextCourseId' scope="prototype" />
+	
+	<!-- ======================================================================================= -->
+	<!-- ==============BUCHUNG:KURS-EVENTS(Reader, Writer, Processor, Entity, Dao)================== -->  
+	<!-- ======================================================================================= -->
+	<!-- DISABLED FOR NOW -->
+	<!-- 
+	<bean id="eventReader" parent="campusReader" scope="step">
+		<property name="resource" value="#{jobParameters['eventResource']}" />
+		 <property name="lineMapper">
+			<bean parent="lineMapper">
+				<property name="lineTokenizer" >
+					<bean parent="lineTokenizer">
+						<property name="names" value="courseId, date,start,end" />
+					</bean>
+				</property>
+				<property name="fieldSetMapper" >
+					<bean parent="fieldSetMapper">
+						<property name="prototypeBeanName" value="event" />
+					</bean>
+				</property>
+			</bean>
+		</property>
+	</bean>
+ 
+	<bean id="eventWriter" class="ch.uzh.campus.extension.campuscourse.batchprocessing.sapimport.CampusWriter" scope="step">
+		<property name="campuskursDao" ref="eventDao" />
+	</bean>
+	
+	<bean id="eventProcessor" class="ch.uzh.campus.extension.campuscourse.batchprocessing.sapimport.EventProcessor" scope="step"/>
+
+	<bean id="eventDao" class="extension.campuscourse.data.dao.EventDao"/>
+	
+	<bean id='event' class ='extension.campuscourse.entity.Event' scope="prototype" />
+	--> 
+	
+	<!-- ======================================================================================= -->
+	<!-- ==============ORG(Reader, Writer, Processor, Entity, Dao)================== -->  
+	<!-- ======================================================================================= --> 
+	<bean id="orgReader" parent="campusReader" scope="step">
+		<property name="resource" value="#{jobParameters['orgResource']}" />
+		 <property name="lineMapper">
+			<bean parent="lineMapper">
+				<property name="lineTokenizer" >
+					<bean parent="lineTokenizer">
+						<property name="names" value="id, 2(NOT USED), 3(NOT USED), 4(NOT_USED), 5(NOT USED), 6(NOT USED), 7(NOT USED), 8(NOT USED), 9(NOT USED), 10(NOT USED), shortName, 12(NOT USED), name, 14(NOT USED), 15(NOT USED), 16(NOT USED), 17(NOT USED), 18(NOT USED), 19(NOT USED), 20(NOT USED), 21(NOT USED), 22(NOT USED)" />
+					</bean>
+				</property>
+				<property name="fieldSetMapper" >
+					<bean parent="fieldSetMapper">
+						<property name="prototypeBeanName" value="org" />
+					</bean>
+				</property>
+			</bean>
+		</property>
+	</bean>
+ 
+	<bean id="orgWriter" class="ch.uzh.extension.campuscourse.batchprocessing.sapimport.CampusWriter" scope="step">
+		<property name="campuskursDao" ref="orgDao" />
+	</bean>
+	
+	<bean id="orgProcessor" class="ch.uzh.extension.campuscourse.batchprocessing.sapimport.OrgProcessor" scope="step"/>
+
+	<bean id="orgDao" class="ch.uzh.extension.campuscourse.data.dao.OrgDao" />
+	
+	<bean id='org' class ='ch.uzh.extension.campuscourse.data.entity.Org' scope="prototype" />
+	
+	<!-- ======================================================================================= -->
+	<!-- ============== ABGLEICH(Reader, Writer, Processor)================== -->  
+	<!-- ======================================================================================= -->  
+	<bean id="synchronizationReader" class="ch.uzh.extension.campuscourse.batchprocessing.mappingandsynchronization.synchronization.CampusCourseSynchronizationReader" scope="step"/>
+	<bean id="synchronizationWriter" class="ch.uzh.extension.campuscourse.batchprocessing.mappingandsynchronization.synchronization.CampusCourseSynchronizationWriter" scope="step">
+		<property name="synchronizeStatistic" ref="synchronizeStatistic" />
+	</bean>
+	
+	<bean id="synchronizeStatistic" class= 'ch.uzh.extension.campuscourse.service.synchronization.statistic.OverallSynchronizeStatistic' scope='prototype'/>
+
+	<!-- ======================================================================================= -->
+	<!-- ============== USERMAPPING(Reader, Writer)================== -->  
+	<!-- ======================================================================================= -->  
+	<bean id="studentMappingReader" class="ch.uzh.extension.campuscourse.batchprocessing.mappingandsynchronization.usermapping.StudentMappingReader" scope="step"/>
+	<bean id="studentMappingWriter" class="ch.uzh.extension.campuscourse.batchprocessing.mappingandsynchronization.usermapping.StudentMappingWriter" scope="step"/>
+	
+	<bean id="lecturerMappingReader" class="ch.uzh.extension.campuscourse.batchprocessing.mappingandsynchronization.usermapping.LecturerMappingReader" scope="step"/>
+	<bean id="lecturerMappingWriter" class="ch.uzh.extension.campuscourse.batchprocessing.mappingandsynchronization.usermapping.LecturerMappingWriter" scope="step"/>
+	
+	<bean id="userMappingStatistic" class="ch.uzh.extension.campuscourse.batchprocessing.mappingandsynchronization.usermapping.UserMappingStatistic" scope='prototype'/>
+
+	<!-- ======================================================================================= -->
+	<!-- ==============GENERIC STUFF: READER, WRITER, STEP, INTERCEPTOR================== -->  
+	<!-- ======================================================================================= --> 
+	<batch:step id="campusStep" abstract="true">
+		<batch:tasklet>
+			<batch:chunk commit-interval="500">
+				<batch:retryable-exception-classes>
+					<batch:include 
+						class="org.hibernate.StaleObjectStateException" />
+					<batch:include
+						class="org.springframework.dao.OptimisticLockingFailureException" />
+					<batch:include 
+						class="org.hibernate.NonUniqueObjectException" />
+					<batch:include 
+						class="org.hibernate.StaleStateException" />
+					<batch:include 
+						class="org.hibernate.exception.LockAcquisitionException" />
+				</batch:retryable-exception-classes>
+				<batch:skippable-exception-classes>
+					<batch:include
+						class="org.springframework.batch.item.file.FlatFileParseException" />
+					<batch:include 
+						class="org.hibernate.exception.ConstraintViolationException" />
+					<batch:include 
+						class="ch.uzh.extension.campuscourse.common.CampusCourseException" />
+					<batch:include 
+						class="org.hibernate.LazyInitializationException" />
+					<batch:include 
+						class="java.lang.NullPointerException" />		
+					<batch:include 
+						class="org.olat.core.logging.AssertException" />		
+					<batch:include
+						class="javax.persistence.EntityNotFoundException" />
+				</batch:skippable-exception-classes>
+			</batch:chunk>
+		</batch:tasklet>
+		<batch:listeners>
+			<batch:listener ref="campusInterceptor" />
+		</batch:listeners>
+	</batch:step>
+
+	<bean id="campusInterceptor" class="ch.uzh.extension.campuscourse.batchprocessing.CampusInterceptor" scope="step">
+		<property name="fixedNumberOfFilesToBeExported" value="8" />
+	</bean>
+
+    <bean id="campusImportJobInterceptor" class="ch.uzh.extension.campuscourse.batchprocessing.sapimport.SapImportJobInterceptor" scope="singleton"/>
+
+	<bean id="campusMappingJobInterceptor" class="ch.uzh.extension.campuscourse.batchprocessing.mappingandsynchronization.UserMappingAndSynchronizationJobInterceptor" scope="singleton"/>
+	
+	<bean id="statisticDao" class="ch.uzh.extension.campuscourse.data.dao.ImportStatisticDao"/>
+
+	<bean id="skipItemDao" class="ch.uzh.extension.campuscourse.data.dao.SkipItemDao"/>
+
+	<bean id="campusWriter" class="ch.uzh.extension.campuscourse.batchprocessing.sapimport.CampusWriter"  />
+	
+	<bean id="campusReader" class="org.springframework.batch.item.file.FlatFileItemReader" abstract="true" >
+		<property name="encoding" value="UTF-8"/>
+		<property name="strict" value="false"/>
+		<property name="lineMapper" ref="lineMapper"/>
+		<property name="linesToSkip" value="1"/>
+		<property name="recordSeparatorPolicy" ref="blankLineRecordSeparatorPolicy" />
+	</bean>
+
+	<bean id="blankLineRecordSeparatorPolicy" class="ch.uzh.extension.campuscourse.batchprocessing.BlankLineRecordSeparatorPolicy" />
+		
+	<bean id="lineMapper" class="org.springframework.batch.item.file.mapping.DefaultLineMapper" abstract="true" >
+		<property name="lineTokenizer" ref="lineTokenizer" />
+		<property name="fieldSetMapper" ref="fieldSetMapper" />
+	</bean>
+	
+	<bean id="lineTokenizer"
+		class="org.springframework.batch.item.file.transform.DelimitedLineTokenizer" abstract="true" >
+		<property name="delimiter" value=";" />
+		<property name="quoteCharacter" value="☠" />
+	</bean>
+	
+	<bean id="fieldSetMapper"
+		class="org.springframework.batch.item.file.mapping.BeanWrapperFieldSetMapper" abstract="true">
+		<property name="strict" value="false" />
+		<property name="customEditors">
+			<map>
+			<entry key="org.springframework.batch.item.file.transform.Range[]">
+				<bean class="org.springframework.batch.item.file.transform.RangeArrayPropertyEditor" />
+			</entry>
+			<entry key="java.util.Date">
+				<bean class="org.springframework.beans.propertyeditors.CustomDateEditor">
+					<constructor-arg>
+						<bean class="java.text.SimpleDateFormat">
+							<constructor-arg value="dd.MM.yyyy" />
+						</bean>
+					</constructor-arg>
+					<constructor-arg value="true" />
+				</bean>
+			</entry>
+		</map>
+	</property>
+	</bean>
+	
+	<bean id="fieldSetMapper2"
+		class="org.springframework.batch.item.file.mapping.BeanWrapperFieldSetMapper" abstract="true">
+		<property name="strict" value="false" />
+		<property name="customEditors">
+			<map>
+			<entry key="org.springframework.batch.item.file.transform.Range[]">
+				<bean class="org.springframework.batch.item.file.transform.RangeArrayPropertyEditor" />
+			</entry>
+			<entry key="java.util.Date">
+				<bean class="org.springframework.beans.propertyeditors.CustomDateEditor">
+					<constructor-arg>
+						<bean class="java.text.SimpleDateFormat">
+							<constructor-arg value="yyyy-MM-dd hh:mm:ss" />
+						</bean>
+					</constructor-arg>
+					<constructor-arg value="true" />
+				</bean>
+			</entry>
+		</map>
+	</property>
+	</bean>
+
+	<!-- ======================================================================================= -->
+	<!-- ==============Task Executors================== -->  
+	<!-- ======================================================================================= --> 
+	<bean id="splitTaskExecutor"
+		class="org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor">
+		<property name="corePoolSize" value="3" />
+		<property name="maxPoolSize" value="5" />
+	</bean>
+
+	<bean id="taskletTaskExecutor"
+		class="org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor">
+		<property name="corePoolSize" value="5" />
+		<property name="maxPoolSize" value="10" />
+	</bean>
+	
+	<bean id="synchronizationTaskletTaskExecutor"
+		class="org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor">
+		<property name="corePoolSize" value="3" />
+		<property name="maxPoolSize" value="3" />
+	</bean>
+
+	<!--<tx:annotation-driven transaction-manager="transactionManager"/>-->
+	<bean id="transactionManager" class="org.springframework.orm.jpa.JpaTransactionManager">
+		<property name="entityManagerFactory" ref="entityManagerFactory"/>
+	</bean>
+	<bean id="entityManagerFactory" class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean">
+		<property name="persistenceUnitName" value="default"/>
+		<property name="dataSource" ref="${db.vendor}_${db.source}_DataSource"/>
+	</bean>
+
+</beans>

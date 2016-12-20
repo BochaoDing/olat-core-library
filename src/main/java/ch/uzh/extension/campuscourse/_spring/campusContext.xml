@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:context="http://www.springframework.org/schema/context" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+	    http://www.springframework.org/schema/beans/spring-beans.xsd
+	    http://www.springframework.org/schema/context
+        http://www.springframework.org/schema/context/spring-context.xsd">
+
+	<context:annotation-config />
+	<context:component-scan base-package="ch.uzh.extension.campuscourse" />
+
+    <import resource="classpath:/ch/uzh/extension/campuscourse/batchprocessing/_spring/campusBatchInfrastructureContext.xml"/>
+    <import resource="classpath:/ch/uzh/extension/campuscourse/batchprocessing/_spring/campusJobSchedulerContext.xml"/>
+    <import resource="classpath:/ch/uzh/extension/campuscourse/batchprocessing/_spring/campusBatchJobContext.xml"/>
+
+    <import resource="classpath:/ch/uzh/extension/campuscourse/olat/_spring/olatContext.xml"/>
+    <import resource="classpath:/ch/uzh/extension/campuscourse/olat/admin/_spring/campusPresentationContext.xml"/>
+</beans>
