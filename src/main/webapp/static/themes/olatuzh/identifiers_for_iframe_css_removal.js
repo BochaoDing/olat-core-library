@@ -1234,3 +1234,11 @@ identifiers_for_iframe_css_removal.push({"15891857410" : "all"});
 // Vet: Histo. Präparate
 // https://lms.uzh.ch/url/RepositoryEntry/214401027/CourseNode/72310536722495
 identifiers_for_iframe_css_removal.push({"214401027" : "all"});
+
+// Master gi - Vollkurs (Kopie)
+// https://lms.uzh.ch/url/RepositoryEntry/16159735886
+identifiers_for_iframe_css_removal.push({"16159735886" : "all"});
+
+// Master gi - Vollkurs (Kopie)
+// https://lms.uzh.ch/url/RepositoryEntry/16159735874
+identifiers_for_iframe_css_removal.push({"16159735874" : "all"});

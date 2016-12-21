@@ -1,0 +1,67 @@
+@charset "UTF-8";
+
+@font-face {
+    font-family: "Source Sans Pro";
+    src: url('fonts/SourceSansPro-Regular-webfont.eot');
+    src: url('fonts/SourceSansPro-Regular-webfont.eot?#iefix') format('embedded-opentype'), 
+    url('fonts/SourceSansPro-Regular-webfont.woff') format("woff"),
+    url('fonts/SourceSansPro-Regular-webfont.ttf') format('truetype'),
+    url('fonts/SourceSansPro-Regular-webfont.svg#Miso') format('svg');
+    font-style: normal;
+    font-weight: normal;
+}
+
+@font-face {
+    font-family: "Source Sans Pro";
+    src: url('fonts/SourceSansPro-Bold-webfont.eot');
+    src: url('fonts/SourceSansPro-Bold-webfont.eot?#iefix') format('embedded-opentype'), 
+    url('fonts/SourceSansPro-Bold-webfont.woff') format("woff"),
+    url('fonts/SourceSansPro-Bold-webfont.ttf') format('truetype'),
+    url('fonts/SourceSansPro-Bold-webfont.svg#Miso') format('svg');
+    font-style: normal;
+    font-weight: bold;
+}
+
+@font-face {
+    font-family: "Source Sans Pro";
+    src: url('fonts/SourceSansPro-Bold-webfont.eot');
+    src: url('fonts/SourceSansPro-Bold-webfont.eot?#iefix') format('embedded-opentype'), 
+    url('fonts/SourceSansPro-Bold-webfont.woff') format("woff"),
+    url('fonts/SourceSansPro-Bold-webfont.ttf') format('truetype'),
+    url('fonts/SourceSansPro-Bold-webfont.svg#Miso') format('svg');
+    font-style: normal;
+    font-weight: 500;
+}
+
+@font-face {
+    font-family: "Source Sans Pro";
+    src: url('fonts/SourceSansPro-It-webfont.eot');
+    src: url('fonts/SourceSansPro-It-webfont.eot?#iefix') format('embedded-opentype'), 
+    url('fonts/SourceSansPro-It-webfont.woff') format("woff"),
+    url('fonts/SourceSansPro-It-webfont.ttf') format('truetype'),
+    url('fonts/SourceSansPro-It-webfont.svg#Miso') format('svg');
+    font-style: italic;
+    font-weight: normal;
+}
+
+@font-face {
+    font-family: "Source Sans Pro";
+    src: url('fonts/SourceSansPro-BoldIt-webfont.eot');
+    src: url('fonts/SourceSansPro-BoldIt-webfont.eot?#iefix') format('embedded-opentype'), 
+    url('fonts/SourceSansPro-BoldIt-webfont.woff') format("woff"),
+    url('fonts/SourceSansPro-BoldIt-webfont.ttf') format('truetype'),
+    url('fonts/SourceSansPro-BoldIt-webfont.svg#Miso') format('svg');
+    font-style: italic;
+    font-weight: bold;
+}
+
+@font-face {
+    font-family: "Source Sans Pro";
+    src: url('fonts/SourceSansPro-BoldIt-webfont.eot');
+    src: url('fonts/SourceSansPro-BoldIt-webfont.eot?#iefix') format('embedded-opentype'), 
+    url('fonts/SourceSansPro-BoldIt-webfont.woff') format("woff"),
+    url('fonts/SourceSansPro-BoldIt-webfont.ttf') format('truetype'),
+    url('fonts/SourceSansPro-BoldIt-webfont.svg#Miso') format('svg');
+    font-style: italic;
+    font-weight: 500;
+}
