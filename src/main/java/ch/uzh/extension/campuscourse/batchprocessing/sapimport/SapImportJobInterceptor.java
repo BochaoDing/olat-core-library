@@ -10,6 +10,7 @@ import org.springframework.batch.core.BatchStatus;
 import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.JobExecutionListener;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.util.List;
 
@@ -17,6 +18,7 @@ import java.util.List;
  * Initial date: 2016-07-05<br />
  * @author sev26 (UZH)
  */
+@Component
 public class SapImportJobInterceptor implements JobExecutionListener {
 
 	private static final OLog LOG = Tracing.createLoggerFor(SapImportJobInterceptor.class);

@@ -36,8 +36,8 @@ import java.util.Set;
  *
  * @author Martin Schraner
  */
-@Scope("step")
 @Component
+@Scope("step")
 public class CourseWriter implements ItemWriter<CourseSemesterOrgId> {
 
     private static final OLog LOG = Tracing.createLoggerFor(CourseWriter.class);

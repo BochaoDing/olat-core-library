@@ -53,9 +53,7 @@ public class CampusCourseSynchronizationWriterTest {
         // Mock for DBImpl
         DB campusCourseDBImplMock = mock(DB.class);
         // Test object
-        campusCourseSynchronizationWriterTestObject = new CampusCourseSynchronizationWriter(campusCourseSynchronizerMock, campusCourseDBImplMock);
-        // Test OverallSynchronizeStatistic
-        campusCourseSynchronizationWriterTestObject.setSynchronizeStatistic(new OverallSynchronizeStatistic());
+        campusCourseSynchronizationWriterTestObject = new CampusCourseSynchronizationWriter(campusCourseSynchronizerMock, campusCourseDBImplMock, new OverallSynchronizeStatistic());
         // Test SynchronizedGroupStatistic
         SynchronizedGroupStatistic synchronizedGroupStatisticforCourse1 = new SynchronizedGroupStatistic("course1", null, new SynchronizedSecurityGroupStatistic(15, 0));
         SynchronizedGroupStatistic synchronizedGroupStatisticforCourse2 = new SynchronizedGroupStatistic("course2", null, new SynchronizedSecurityGroupStatistic(0, 9));
@@ -73,13 +71,13 @@ public class CampusCourseSynchronizationWriterTest {
     public void write_emptyCoursesList() throws Exception {
         campusCourseSynchronizationWriterTestObject.write(Collections.emptyList());
         assertEquals("overallAddedCoaches=0 , overallRemovedCoaches=0 ; overallAddedParticipants=0 , overallRemovedParticipants=0",
-                campusCourseSynchronizationWriterTestObject.getSynchronizeStatistic().calculateOverallStatistic());
+                campusCourseSynchronizationWriterTestObject.getOverallSynchronizeStatistic().calculateOverallStatistic());
     }
 
     @Test
     public void write_twoCoursesList() throws Exception {
         campusCourseSynchronizationWriterTestObject.write(twoCoursesList);
         assertEquals("overallAddedCoaches=0 , overallRemovedCoaches=0 ; overallAddedParticipants=15 , overallRemovedParticipants=9",
-                campusCourseSynchronizationWriterTestObject.getSynchronizeStatistic().calculateOverallStatistic());
+                campusCourseSynchronizationWriterTestObject.getOverallSynchronizeStatistic().calculateOverallStatistic());
     }
 }

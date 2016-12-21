@@ -33,8 +33,8 @@ import java.util.List;
  * <p>
  * @author Martin Schraner
  */
-@Scope("step")
 @Component
+@Scope("step")
 public class EventWriter implements ItemWriter<EventCourseId> {
 
     private static final OLog LOG = Tracing.createLoggerFor(EventWriter.class);

@@ -1,6 +1,7 @@
 package ch.uzh.extension.campuscourse.batchprocessing;
 
 import org.springframework.batch.item.file.separator.SimpleRecordSeparatorPolicy;
+import org.springframework.stereotype.Component;
 
 /**
  * Avoid that batch reader stops in case of a blank line.
@@ -9,6 +10,7 @@ import org.springframework.batch.item.file.separator.SimpleRecordSeparatorPolicy
  *
  * @author Martin Schraner
  */
+@Component
 public class BlankLineRecordSeparatorPolicy extends SimpleRecordSeparatorPolicy {
 
     @Override

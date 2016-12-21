@@ -3,6 +3,8 @@ package ch.uzh.extension.campuscourse.data.entity;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Repository;
 
 import javax.persistence.*;
 import java.util.Date;
@@ -17,6 +19,8 @@ import java.util.Set;
  */
 @Entity
 @Table(name = "ck_org")
+@Repository
+@Scope("prototype")
 @NamedQueries({ @NamedQuery(name = Org.GET_IDS_OF_ALL_ENABLED_ORGS, query = "select id from Org"),
         @NamedQuery(name = Org.GET_ALL_ORPHANED_ORGS, query = "select o.id from Org o where o.id not in (select o1.id from Course c join c.orgs o1)")})
 public class Org {

@@ -8,6 +8,8 @@ import org.olat.core.logging.OLog;
 import org.olat.core.logging.Tracing;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
 
 import javax.annotation.PreDestroy;
 import java.util.List;
@@ -36,6 +38,8 @@ import java.util.List;
  * 
  * @author aabouc
  */
+@Component
+@Scope("step")
 public class LecturerMappingWriter implements ItemWriter<Lecturer> {
 
     private static final OLog LOG = Tracing.createLoggerFor(LecturerMappingWriter.class);

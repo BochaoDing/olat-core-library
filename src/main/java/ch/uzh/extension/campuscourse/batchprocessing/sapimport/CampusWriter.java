@@ -61,13 +61,6 @@ public class CampusWriter<T> implements ItemWriter<T> {
     }
 
     /**
-     * Returns the CampuskursDao
-     */
-    public CampusDao<T> getCampuskursDao() {
-        return campuskursDao;
-    }
-
-    /**
      * Delegates the actual saving or updating of the given list of items to the <br>
      * concrete implementation of {@link CampusDao}
      *

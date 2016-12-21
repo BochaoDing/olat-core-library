@@ -31,10 +31,10 @@ import java.util.Date;
  * 
  * @author aabouc
  */
-@SuppressWarnings("JpaQlInspection")
 @Entity
 @Table(name = "ck_delegation")
 @IdClass(DelegatorDelegateeId.class)
+@SuppressWarnings("JpaQlInspection")
 @NamedQueries({
         @NamedQuery(name = Delegation.GET_BY_DELEGATOR, query = "select d from Delegation d where d.delegator.key = :delegatorKey"),
         @NamedQuery(name = Delegation.GET_BY_DELEGATEE, query = "select d from Delegation d where d.delegatee.key = :delegateeKey")

@@ -34,8 +34,8 @@ import java.util.List;
  *
  * @author Martin Schraner
  */
-@Scope("step")
 @Component
+@Scope("step")
 public class TextWriter implements ItemWriter<TextCourseId> {
 
     private static final OLog LOG = Tracing.createLoggerFor(TextWriter.class);

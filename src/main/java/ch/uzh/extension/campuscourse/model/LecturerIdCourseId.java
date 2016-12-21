@@ -1,8 +1,13 @@
 package ch.uzh.extension.campuscourse.model;
 
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Repository;
+
 /**
  * @author Martin Schraner
  */
+@Repository
+@Scope("prototype")
 public class LecturerIdCourseId extends JoinTableIds {
 
     // Required by Spring

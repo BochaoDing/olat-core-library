@@ -5,6 +5,8 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.olat.basesecurity.IdentityImpl;
 import org.olat.core.id.Identity;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Repository;
 
 import javax.persistence.*;
 import java.util.Date;
@@ -17,9 +19,11 @@ import java.util.Set;
  * @author aabouc
  * @author Martin Schraner
  */
-@SuppressWarnings("JpaQlInspection")  // Required to suppress warnings in named query GET_LECTURERS_BY_MAPPED_IDENTITY_KEY
 @Entity
 @Table(name = "ck_lecturer")
+@Repository
+@Scope("prototype")
+@SuppressWarnings("JpaQlInspection")  // Required to suppress warnings in named query GET_LECTURERS_BY_MAPPED_IDENTITY_KEY
 @NamedQueries({
         @NamedQuery(name = Lecturer.GET_LECTURER_BY_EMAIL, query = "select l from Lecturer l where l.email = :email"),
         @NamedQuery(name = Lecturer.GET_ALL_LECTURERS_WITH_CREATED_OR_NOT_CREATED_CREATABLE_COURSES, query = "select distinct l from Lecturer l join l.lecturerCourses lc where " +

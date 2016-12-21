@@ -1,5 +1,8 @@
 package ch.uzh.extension.campuscourse.service.synchronization.statistic;
 
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -27,6 +30,8 @@ import java.util.List;
  * 
  * @author cg
  */
+@Component
+@Scope("prototype")
 public class OverallSynchronizeStatistic {
 
     private List<SynchronizedGroupStatistic> courseStatisticList;

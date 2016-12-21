@@ -4,6 +4,8 @@ import ch.uzh.extension.campuscourse.model.StudentIdCourseId;
 import ch.uzh.extension.campuscourse.model.StudentIdCourseIdDateOfImport;
 
 import org.springframework.batch.item.ItemProcessor;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
 
 import java.util.Date;
 
@@ -30,6 +32,8 @@ import java.util.Date;
  * @author aabouc
  * @author Martin Schraner
  */
+@Component
+@Scope("step")
 public class StudentCourseProcessor implements ItemProcessor<StudentIdCourseId, StudentIdCourseIdDateOfImport> {
 
     @Override

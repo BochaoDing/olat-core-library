@@ -2,6 +2,8 @@ package ch.uzh.extension.campuscourse.data.entity;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.hibernate.annotations.GenericGenerator;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Repository;
 
 import javax.persistence.*;
 import java.util.Date;
@@ -14,6 +16,8 @@ import java.util.Date;
  */
 @Entity
 @Table(name = "ck_event")
+@Repository
+@Scope("prototype")
 @NamedQueries({ @NamedQuery(name = Event.GET_IDS_OF_ALL_EVENTS, query = "select e.id from Event e"),
         @NamedQuery(name = Event.GET_EVENTS_BY_COURSE_ID, query = "select e from Event e where e.course.id = :courseId"),
         @NamedQuery(name = Event.GET_EVENT_IDS_BY_COURSE_ID, query = "select e.id from Event e where e.course.id = :courseId"),

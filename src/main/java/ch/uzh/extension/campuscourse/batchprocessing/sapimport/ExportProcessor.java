@@ -8,6 +8,8 @@ import org.olat.core.logging.OLog;
 import org.olat.core.logging.Tracing;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
 
 import java.util.Date;
 
@@ -38,6 +40,8 @@ import java.util.Date;
  * 
  * @author aabouc
  */
+@Component
+@Scope("step")
 public class ExportProcessor implements ItemProcessor<Export, Export> {
 
     private static final OLog LOG = Tracing.createLoggerFor(ExportProcessor.class);

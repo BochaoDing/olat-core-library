@@ -3,6 +3,8 @@ package ch.uzh.extension.campuscourse.batchprocessing.sapimport;
 import ch.uzh.extension.campuscourse.model.CourseSemesterOrgId;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.batch.item.ItemProcessor;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
 
 import java.util.Date;
 
@@ -33,6 +35,8 @@ import java.util.Date;
  * 
  * @author aabouc
  */
+@Component
+@Scope("step")
 public class CourseProcessor implements ItemProcessor<CourseSemesterOrgId, CourseSemesterOrgId> {
 
     private static final String SEMICOLON_REPLACEMENT = "&Semikolon&";

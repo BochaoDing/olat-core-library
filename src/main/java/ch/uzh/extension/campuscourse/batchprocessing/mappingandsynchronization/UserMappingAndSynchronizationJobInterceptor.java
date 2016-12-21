@@ -8,6 +8,7 @@ import org.olat.core.logging.Tracing;
 import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.JobExecutionListener;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.util.List;
 
@@ -35,6 +36,7 @@ import java.util.List;
  * 
  * @author aabouc
  */
+@Component
 public class UserMappingAndSynchronizationJobInterceptor implements JobExecutionListener {
 
     private static final OLog LOG = Tracing.createLoggerFor(UserMappingAndSynchronizationJobInterceptor.class);

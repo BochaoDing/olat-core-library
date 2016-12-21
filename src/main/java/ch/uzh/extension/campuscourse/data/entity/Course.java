@@ -15,6 +15,7 @@ import java.util.*;
  * @author Martin Schraner
  */
 @Entity
+@Table(name = "ck_course")
 @NamedQueries({
         @NamedQuery(name = Course.GET_ALL_CREATED_COURSES_OF_CURRENT_SEMESTER, query = "select c from Course c where c.repositoryEntry is not null and c.semester.currentSemester = true"),
         @NamedQuery(name = Course.GET_IDS_OF_ALL_CREATED_SYNCHRONIZABLE_COURSES_OF_CURRENT_SEMESTER, query = "select c.id from Course c where c.repositoryEntry is not null and c.synchronizable = true and c.semester.currentSemester = true"),
@@ -74,7 +75,6 @@ import java.util.*;
         @NamedQuery(name = Course.GET_COURSES_BY_CAMPUS_GROUP_B_KEY, query = "select c from Course c where c.campusGroupB.key = :campusGroupKey"),
         @NamedQuery(name = Course.GET_LATEST_COURSE_BY_REPOSITORY_ENTRY_KEY, query = "select c from Course c where c.repositoryEntry.key = :repositoryEntryKey and c.endDate = (select max(c1.endDate) from Course c1 where c1.repositoryEntry.key = :repositoryEntryKey)")
 })
-@Table(name = "ck_course")
 public class Course {
 
     private static final String WHITESPACE = " ";

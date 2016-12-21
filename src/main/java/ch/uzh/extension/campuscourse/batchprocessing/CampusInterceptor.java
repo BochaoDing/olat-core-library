@@ -32,7 +32,7 @@ public class CampusInterceptor<T, S> implements StepExecutionListener, ItemWrite
 	private static final OLog LOG = Tracing.createLoggerFor(CampusInterceptor.class);
 
     private final DB dbInstance;
-	private final ImportStatisticDao statisticDao;
+	private final ImportStatisticDao importStatisticDao;
 	private final SkipItemDao skipItemDao;
 	private final DaoManager daoManager;
     private final CampusCourseConfiguration campusCourseConfiguration;
@@ -43,10 +43,10 @@ public class CampusInterceptor<T, S> implements StepExecutionListener, ItemWrite
     private long chunkStartTime;
 
 	@Autowired
-	public CampusInterceptor(DB dbInstance, ImportStatisticDao statisticDao, SkipItemDao skipItemDao,
+	public CampusInterceptor(DB dbInstance, ImportStatisticDao importStatisticDao, SkipItemDao skipItemDao,
                              DaoManager daoManager, CampusCourseConfiguration campusCourseConfiguration) {
 		this.dbInstance = dbInstance;
-		this.statisticDao = statisticDao;
+		this.importStatisticDao = importStatisticDao;
 		this.skipItemDao = skipItemDao;
 		this.daoManager = daoManager;
         this.campusCourseConfiguration = campusCourseConfiguration;
@@ -95,7 +95,7 @@ public class CampusInterceptor<T, S> implements StepExecutionListener, ItemWrite
     public ExitStatus afterStep(StepExecution se) {
         try {
             LOG.info(se.toString());
-            statisticDao.saveOrUpdate(createImportStatistic(se));
+            importStatisticDao.saveOrUpdate(createImportStatistic(se));
 			dbInstance.commitAndCloseSession();
             if (CampusProcessStep.IMPORT_CONTROLFILE.name().equalsIgnoreCase(se.getStepName())) {
                 if (se.getWriteCount() != getFixedNumberOfFilesToBeExported()) {

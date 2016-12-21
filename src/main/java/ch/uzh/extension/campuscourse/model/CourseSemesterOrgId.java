@@ -2,6 +2,8 @@ package ch.uzh.extension.campuscourse.model;
 
 import ch.uzh.extension.campuscourse.data.entity.Course;
 import org.apache.commons.lang.StringUtils;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Repository;
 
 import java.util.Date;
 
@@ -12,6 +14,8 @@ import java.util.Date;
  *
  * @author Martin Schraner
  */
+@Repository
+@Scope("prototype")
 public class CourseSemesterOrgId {
 
     private static final String WHITESPACE = " ";

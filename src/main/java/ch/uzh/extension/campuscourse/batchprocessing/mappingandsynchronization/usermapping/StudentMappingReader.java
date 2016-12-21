@@ -9,6 +9,8 @@ import org.olat.core.logging.OLog;
 import org.olat.core.logging.Tracing;
 import org.springframework.batch.item.ItemReader;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -34,7 +36,8 @@ import java.util.List;
  * University of Zurich, Switzerland.
  * <p>
  */
-
+@Component
+@Scope("step")
 public class StudentMappingReader implements ItemReader<Student> {
 
     private static final OLog LOG = Tracing.createLoggerFor(StudentMappingReader.class);

@@ -5,6 +5,8 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.olat.basesecurity.IdentityImpl;
 import org.olat.core.id.Identity;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Repository;
 
 import javax.persistence.*;
 import java.util.Date;
@@ -18,8 +20,11 @@ import java.util.Set;
  * @author Martin Schraner
  * 
  */
-@SuppressWarnings("JpaQlInspection")  // Required to suppress warnings in named query GET_STUDENTS_BY_MAPPED_IDENTITY_KEY
 @Entity
+@Table(name = "ck_student")
+@Repository
+@Scope("prototype")
+@SuppressWarnings("JpaQlInspection")  // Required to suppress warnings in named query GET_STUDENTS_BY_MAPPED_IDENTITY_KEY
 @NamedQueries({
         @NamedQuery(name = Student.GET_ALL_STUDENTS_WITH_CREATED_OR_NOT_CREATED_CREATABLE_COURSES, query = "select distinct s from Student s join s.studentCourses sc where " +
                 "sc.course.repositoryEntry is not null or " +
@@ -37,7 +42,6 @@ import java.util.Set;
                 "sc.course.id = :courseId and sc.student.id = scp.student.id"),
         @NamedQuery(name = Student.DELETE_BY_STUDENT_IDS, query = "delete from Student s where s.id in :studentIds")
 })
-@Table(name = "ck_student")
 public class Student {
 	
     @Id    

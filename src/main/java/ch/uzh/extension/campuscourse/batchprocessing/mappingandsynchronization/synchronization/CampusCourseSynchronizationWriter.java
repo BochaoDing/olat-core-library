@@ -9,6 +9,8 @@ import org.olat.core.logging.OLog;
 import org.olat.core.logging.Tracing;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
 
 import javax.annotation.PreDestroy;
 import java.util.List;
@@ -41,38 +43,26 @@ import java.util.List;
  * 
  * @author aabouc
  */
+@Component
+@Scope("step")
 public class CampusCourseSynchronizationWriter implements ItemWriter<CampusCourseTO> {
 
     private static final OLog LOG = Tracing.createLoggerFor(CampusCourseSynchronizationWriter.class);
 
-    private OverallSynchronizeStatistic synchronizeStatistic;
-
     private final CampusCourseSynchronizer campusCourseSynchronizer;
     private final DB dbInstance;
+    private final OverallSynchronizeStatistic overallSynchronizeStatistic;
 
     @Autowired
-    public CampusCourseSynchronizationWriter(CampusCourseSynchronizer campusCourseSynchronizer, DB dbInstance) {
+    public CampusCourseSynchronizationWriter(CampusCourseSynchronizer campusCourseSynchronizer, DB dbInstance, OverallSynchronizeStatistic synchronizeStatistic) {
         this.campusCourseSynchronizer = campusCourseSynchronizer;
         this.dbInstance = dbInstance;
-    }
-
-    OverallSynchronizeStatistic getSynchronizeStatistic() {
-        return synchronizeStatistic;
-    }
-
-    /**
-     * Sets the OverallSynchronizeStatistic to be used for gathering the results during the synchronizing.
-     * 
-     * @param synchronizeStatistic
-     *            the OverallSynchronizeStatistic
-     */
-    public void setSynchronizeStatistic(OverallSynchronizeStatistic synchronizeStatistic) {
-        this.synchronizeStatistic = synchronizeStatistic;
-    }
+		this.overallSynchronizeStatistic = synchronizeStatistic;
+	}
 
     @PreDestroy
     public void destroy() {
-        LOG.info("synchronizeAllSapCourses overallSynchronizeStatistic=" + synchronizeStatistic.calculateOverallStatistic());
+        LOG.info("synchronizeAllSapCourses overallSynchronizeStatistic=" + overallSynchronizeStatistic.calculateOverallStatistic());
     }
 
     /**
@@ -83,7 +73,7 @@ public class CampusCourseSynchronizationWriter implements ItemWriter<CampusCours
         for (CampusCourseTO campusCourseTO : campusCourseTOs) {
             try {
                 SynchronizedGroupStatistic courseSynchronizeStatistic = campusCourseSynchronizer.synchronizeOlatCampusCourse(campusCourseTO);
-                synchronizeStatistic.add(courseSynchronizeStatistic);
+                overallSynchronizeStatistic.add(courseSynchronizeStatistic);
                 dbInstance.commitAndCloseSession();
             } catch (Throwable t) {
                 dbInstance.rollbackAndCloseSession();
@@ -101,4 +91,8 @@ public class CampusCourseSynchronizationWriter implements ItemWriter<CampusCours
             }
         }
     }
+
+	OverallSynchronizeStatistic getOverallSynchronizeStatistic() {
+		return overallSynchronizeStatistic;
+	}
 }

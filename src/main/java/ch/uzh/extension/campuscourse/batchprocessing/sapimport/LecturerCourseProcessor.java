@@ -3,6 +3,8 @@ package ch.uzh.extension.campuscourse.batchprocessing.sapimport;
 import ch.uzh.extension.campuscourse.model.LecturerIdCourseId;
 import ch.uzh.extension.campuscourse.model.LecturerIdCourseIdDateOfImport;
 import org.springframework.batch.item.ItemProcessor;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
 
 import java.util.Date;
 
@@ -31,6 +33,8 @@ import java.util.Date;
  * @author aabouc
  * @author Martin Schraner
  */
+@Component
+@Scope("step")
 public class LecturerCourseProcessor implements ItemProcessor<LecturerIdCourseId, LecturerIdCourseIdDateOfImport> {
 
     @Override

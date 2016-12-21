@@ -4,6 +4,8 @@ import java.util.Date;
 
 import ch.uzh.extension.campuscourse.data.entity.Event;
 import org.springframework.batch.item.ItemProcessor;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
 
 /**
  * OLAT - Online Learning and Training<br>
@@ -32,6 +34,8 @@ import org.springframework.batch.item.ItemProcessor;
  * 
  * @author aabouc
  */
+@Component
+@Scope("step")
 public class EventProcessor implements ItemProcessor<Event, Event> {
 
     /**

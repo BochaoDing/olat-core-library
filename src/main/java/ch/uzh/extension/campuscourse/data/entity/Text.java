@@ -2,6 +2,8 @@ package ch.uzh.extension.campuscourse.data.entity;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.hibernate.annotations.GenericGenerator;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Repository;
 
 import javax.persistence.*;
 import java.util.Date;
@@ -16,6 +18,8 @@ import java.util.Date;
  */
 @Entity
 @Table(name = "ck_text")
+@Repository
+@Scope("prototype")
 @NamedQueries({ @NamedQuery(name = Text.GET_IDS_OF_ALL_TEXTS, query = "select t.id from Text t"),
         @NamedQuery(name = Text.GET_TEXTS_BY_COURSE_ID_AND_TYPE, query = "select t from Text t where t.course.id = :courseId and t.type = :type order by t.lineSeq asc"),
         @NamedQuery(name = Text.GET_TEXT_IDS_BY_COURSE_ID, query = "select t.id from Text t where t.course.id = :courseId"),

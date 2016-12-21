@@ -6,6 +6,8 @@ import java.util.List;
 import ch.uzh.extension.campuscourse.data.entity.Org;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
 
 /**
  * OLAT - Online Learning and Training<br>
@@ -34,6 +36,8 @@ import org.springframework.beans.factory.annotation.Value;
  * 
  * @author aabouc
  */
+@Component
+@Scope("step")
 public class OrgProcessor implements ItemProcessor<Org, Org> {
 
     @Value("#{'${campus.org.identifiers}'.split(',')}")

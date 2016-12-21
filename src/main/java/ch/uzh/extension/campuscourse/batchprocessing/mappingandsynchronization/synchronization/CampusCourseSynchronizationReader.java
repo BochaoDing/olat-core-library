@@ -6,6 +6,8 @@ import ch.uzh.extension.campuscourse.util.ListUtil;
 import org.olat.core.commons.persistence.DB;
 import org.springframework.batch.item.ItemReader;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -40,6 +42,8 @@ import java.util.List;
  * 
  * @author aabouc
  */
+@Component
+@Scope("step")
 public class CampusCourseSynchronizationReader implements ItemReader<CampusCourseTO> {
 
     private DaoManager daoManager;

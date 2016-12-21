@@ -2,6 +2,8 @@ package ch.uzh.extension.campuscourse.batchprocessing.sapimport;
 
 import ch.uzh.extension.campuscourse.data.entity.Student;
 import org.springframework.batch.item.ItemProcessor;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
 
 import java.util.Date;
 /**
@@ -34,6 +36,8 @@ import java.util.Date;
  * 
  * @author aabouc
  */
+@Component
+@Scope("step")
 public class StudentProcessor implements ItemProcessor<Student, Student> {
 
     /**

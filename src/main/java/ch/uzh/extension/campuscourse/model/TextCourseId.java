@@ -1,7 +1,12 @@
 package ch.uzh.extension.campuscourse.model;
 
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Repository;
+
 import java.util.Date;
 
+@Repository
+@Scope("prototype")
 public class TextCourseId {
 
     private String type;

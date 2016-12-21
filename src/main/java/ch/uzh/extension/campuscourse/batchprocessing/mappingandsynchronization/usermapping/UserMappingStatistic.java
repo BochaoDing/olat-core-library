@@ -21,12 +21,16 @@
 package ch.uzh.extension.campuscourse.batchprocessing.mappingandsynchronization.usermapping;
 
 import ch.uzh.extension.campuscourse.service.usermapping.UserMappingResult;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Repository;
 
 /**
  * Initial Date: 28.06.2012 <br>
  * 
  * @author cg
  */
+@Repository
+@Scope("prototype")
 public class UserMappingStatistic {
 
     private int newMappingByEmailCounter;
