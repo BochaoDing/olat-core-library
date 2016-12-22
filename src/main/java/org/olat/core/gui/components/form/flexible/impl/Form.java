@@ -343,7 +343,11 @@ public class Form extends LogDelegator {
 					String value = IOUtils.toString(part.getInputStream(), "UTF-8");
 					addRequestParameter(name, value);
 				}
-				part.delete();
+				/*
+				 * The Jetty servlet container "delete()" method really
+				 * deletes the uploaded data.
+				 */
+				//part.delete();
 			}
 		} catch (IOException | ServletException e) {
 			log.error("", e);

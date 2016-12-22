@@ -35,6 +35,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.checkerframework.checker.initialization.qual.UnderInitialization;
+import org.checkerframework.checker.initialization.qual.UnknownInitialization;
+import org.checkerframework.checker.nullness.qual.EnsuresNonNull;
 import org.olat.core.commons.persistence.ResultInfos;
 import org.olat.core.commons.persistence.SortKey;
 import org.olat.core.gui.UserRequest;
@@ -189,7 +192,8 @@ public class FlexiTableElementImpl extends FormItemImpl implements FlexiTableEle
 	}
 
 	@Override
-	public void setRendererType(FlexiTableRendererType rendererType) {
+	@EnsuresNonNull("rendererType")
+	public void setRendererType(@UnderInitialization(FlexiTableElementImpl.class) FlexiTableElementImpl this, FlexiTableRendererType rendererType) {
 		// activate active render button
 		if(customTypeButton != null) {
 			customTypeButton.setActive(FlexiTableRendererType.custom == rendererType);
@@ -257,7 +261,8 @@ public class FlexiTableElementImpl extends FormItemImpl implements FlexiTableEle
 	}
 
 	@Override
-	public void setCustomizeColumns(boolean customizeColumns) {
+	@EnsuresNonNull("customizeColumns")
+	public void setCustomizeColumns(@UnderInitialization(FlexiTableElementImpl.class) FlexiTableElementImpl this, boolean customizeColumns) {
 		this.customizeColumns = customizeColumns;
 	}
 
@@ -1366,7 +1371,7 @@ public class FlexiTableElementImpl extends FormItemImpl implements FlexiTableEle
 	}
 
 	@Override
-	public void reloadData() {
+	public void reloadData(@UnderInitialization(FlexiTableElementImpl.class) FlexiTableElementImpl this) {
 		if(dataSource != null) {
 			dataSource.clear();
 			int firstResult = currentPage * getPageSize();

@@ -28,6 +28,7 @@ package org.olat.core.gui.components.form.flexible.impl;
 import java.util.List;
 import java.util.Locale;
 
+import org.checkerframework.checker.initialization.qual.UnderInitialization;
 import org.olat.core.CoreSpringFactory;
 import org.olat.core.commons.services.help.HelpModule;
 import org.olat.core.gui.UserRequest;
@@ -192,7 +193,7 @@ public abstract class FormItemImpl implements FormItem, InlineElement {
 		return rootForm;
 	}
 	
-	public void setRootForm(Form rootForm){
+	public void setRootForm(@UnderInitialization(FormItemImpl.class) FormItemImpl this, Form rootForm){
 		this.rootForm = rootForm;
 		rootFormAvailable();
 	}
