@@ -29,6 +29,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
+import org.checkerframework.checker.initialization.qual.UnderInitialization;
 import org.olat.core.CoreSpringFactory;
 import org.olat.core.dispatcher.mapper.Mapper;
 import org.olat.core.dispatcher.mapper.MapperService;
@@ -138,7 +139,7 @@ public abstract class BasicController extends DefaultController {
 	 * @throws AssertException
 	 *             if the controller to be added is already contained.
 	 */
-	protected Controller listenTo(Controller controller) {
+	protected Controller listenTo(@UnderInitialization(BasicController.class) BasicController this, Controller controller) {
 		controller.addControllerListener(this);
 		if (childControllers == null) {
 			childControllers = new ArrayList<Controller>(4);
@@ -240,7 +241,7 @@ public abstract class BasicController extends DefaultController {
 	 *            or "edit". The suffix ".html" gets automatically added to the
 	 *            page name e.g. "index.html".
 	 */
-	protected VelocityContainer createVelocityContainer(String page) {
+	protected VelocityContainer createVelocityContainer(@UnderInitialization(BasicController.class) BasicController this, String page) {
 		return createVelocityContainer(null, page);
 	}
 	
@@ -258,7 +259,7 @@ public abstract class BasicController extends DefaultController {
 				+ ".html", translator, this);
 	}
 
-	protected StackedPanel putInitialPanel(Component initialContent) {
+	protected StackedPanel putInitialPanel(@UnderInitialization(BasicController.class) BasicController this, Component initialContent) {
 		if(initialContent instanceof StackedPanel) {
 			super.setInitialComponent(initialContent);
 			return (StackedPanel)initialContent;
