@@ -179,13 +179,15 @@ abstract class AbstractAssignmentEditController extends FormBasicController {
 	@Override
 	protected void event(UserRequest ureq, Controller source, Event event) {
 		if(addTaskCtrl == source) {
-			if(event == Event.DONE_EVENT) {
-				TaskDefinition newTask = addTaskCtrl.getTask();
-				gtaManager.addTaskDefinition(newTask, courseEnv, gtaNode);
-				fireEvent(ureq, Event.DONE_EVENT);
-				updateModel();
-				notificationsManager.markPublisherNews(subscriptionContext, null, false);
-			}
+				if(event == Event.DONE_EVENT) {
+					TaskDefinition newTask = addTaskCtrl.getTask();
+					if(!gtaManager.getTaskDefinitions(courseEnv, gtaNode).stream().anyMatch(task -> task.getFilename().equals(newTask.getFilename()))) {
+						gtaManager.addTaskDefinition(newTask, courseEnv, gtaNode);
+						fireEvent(ureq, Event.DONE_EVENT);
+						updateModel();
+						notificationsManager.markPublisherNews(subscriptionContext, null, false);
+					}
+				}
 			cmc.deactivate();
 			cleanUp();
 			//fireEvent(ureq, Event.DONE_EVENT);
