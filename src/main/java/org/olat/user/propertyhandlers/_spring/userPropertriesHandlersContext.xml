@@ -135,7 +135,7 @@
 	<bean id="userPropertyInstitutionalEmployeeNumber" class="org.olat.user.propertyhandlers.Generic127CharTextPropertyHandler">
 		<property name="name" value="institutionalEmployeeNumber" />
 		<property name="group" value="institute" />
-		<property name="deletable" value="false" />
+		<property name="deletable" value="true" />
 	</bean>
 	
 	<bean id="userPropertyInstitutionalMatriculationNumber" class="org.olat.user.propertyhandlers.Generic127CharTextPropertyHandler">

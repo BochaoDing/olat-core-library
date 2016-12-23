@@ -59,7 +59,7 @@ public class LecturerCourseWriter implements ItemWriter<LecturerIdCourseIdDateOf
         } catch (Throwable t) {
             dbInstance.rollbackAndCloseSession();
             // In the case of an exception, Spring Batch calls this method several times:
-            // First for the lecturerIdCourseIdDateOfImportList according to commit-interval in campusBatchJobConlecturerCourse.xml, and then (after rollbacking)
+            // First for the lecturerIdCourseIdDateOfImportList according to commit-interval in campusBatchJobContext.xml, and then (after rollbacking)
             // for each entry of the original lecturerIdCourseIdDateOfImportList separately enabling commits containing only one entry.
             // To avoid duplicated warnings we only log a warning in the latter case.
             if (lecturerIdCourseIdDateOfImportList.size() == 1) {

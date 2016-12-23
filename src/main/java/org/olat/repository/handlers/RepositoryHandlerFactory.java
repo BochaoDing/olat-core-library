@@ -87,7 +87,7 @@ public class RepositoryHandlerFactory {
 		registerHandler(new SharedFolderHandler(), 40);
 		registerHandler(new GlossaryHandler(), 41);
 		registerHandler(new PortfolioHandler(), 42);
-
+		registerHandler(new VideoHandler(), 43);
 		/**
 		 * TODO sev26
 		 * Create a new class rather than injecting the type as string.

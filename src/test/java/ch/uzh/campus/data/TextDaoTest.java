@@ -1,14 +1,12 @@
 package ch.uzh.campus.data;
 
 import ch.uzh.campus.CampusCourseException;
+import ch.uzh.campus.CampusCourseTestCase;
 import org.apache.commons.lang.StringUtils;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.olat.core.commons.persistence.DB;
-import org.olat.test.OlatTestCase;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.ContextConfiguration;
+import org.springframework.stereotype.Component;
 
 import javax.inject.Provider;
 import javax.persistence.EntityNotFoundException;
@@ -25,11 +23,8 @@ import static org.junit.Assert.*;
  * @author lavinia
  * @author Martin Schraner
  */
-@ContextConfiguration(locations = {"classpath:ch/uzh/campus/data/_spring/mockDataContext.xml" })
-public class TextDaoTest extends OlatTestCase {
-	
-	@Autowired
-	private DB dbInstance;
+@Component
+public class TextDaoTest extends CampusCourseTestCase {
 
  	@Autowired
     private TextDao textDao;
@@ -46,11 +41,6 @@ public class TextDaoTest extends OlatTestCase {
         List<CourseSemesterOrgId> courseSemesterOrgIds = mockDataGeneratorProvider.get().getCourseSemesterOrgIds();
         courseDao.save(courseSemesterOrgIds);
         dbInstance.flush();
-	}
-	    
-	@After
-	public void after() {
-	  	dbInstance.rollback();
 	}
 
 	@Test

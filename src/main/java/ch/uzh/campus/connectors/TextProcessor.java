@@ -35,6 +35,9 @@ import java.util.Date;
  */
 public class TextProcessor implements ItemProcessor<TextCourseId, TextCourseId> {
 
+    private static final String SEMICOLON_REPLACEMENT = "&Semikolon&";
+    private static final String SEMICOLON = ";";
+
     /**
      * Modifies the input text and returns it as output
      * 
@@ -44,7 +47,7 @@ public class TextProcessor implements ItemProcessor<TextCourseId, TextCourseId> 
      */
     @Override
     public TextCourseId process(TextCourseId text) throws Exception {
-        text.setLine(StringUtils.replace(text.getLine(), CampusUtils.SEMICOLON_REPLACEMENT, CampusUtils.SEMICOLON));
+        text.setLine(StringUtils.replace(text.getLine(), SEMICOLON_REPLACEMENT, SEMICOLON));
         text.setDateOfImport(new Date());
         return text;
     }

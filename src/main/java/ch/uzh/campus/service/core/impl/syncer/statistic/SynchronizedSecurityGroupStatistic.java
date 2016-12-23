@@ -1,3 +1,5 @@
+package ch.uzh.campus.service.core.impl.syncer.statistic;
+
 /**
  * OLAT - Online Learning and Training<br>
  * http://www.olat.org
@@ -17,10 +19,7 @@
  * Copyright (c) since 2004 at Multimedia- & E-Learning Services (MELS),<br>
  * University of Zurich, Switzerland.
  * <p>
- */
-package ch.uzh.campus.service.core.impl.syncer.statistic;
-
-/**
+ *
  * Initial Date: 21.06.2012 <br>
  * 
  * @author cg
@@ -30,22 +29,13 @@ public class SynchronizedSecurityGroupStatistic {
     private int addedIdentityCounter;
     private int removedIdentityCounter;
 
-    /**
-     * @param addedIdentityCounter
-     * @param removedIdentityCounter
-     */
     public SynchronizedSecurityGroupStatistic(int addedIdentityCounter, int removedIdentityCounter) {
         this.addedIdentityCounter = addedIdentityCounter;
         this.removedIdentityCounter = removedIdentityCounter;
     }
 
     public String toString() {
-        StringBuilder builder = new StringBuilder();
-        builder.append("added=");
-        builder.append(addedIdentityCounter);
-        builder.append(", removed=");
-        builder.append(removedIdentityCounter);
-        return builder.toString();
+        return "added=" + addedIdentityCounter + ", removed=" + removedIdentityCounter;
     }
 
     public int getAddedStatistic() {

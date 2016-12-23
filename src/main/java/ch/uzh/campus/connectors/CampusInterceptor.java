@@ -1,29 +1,7 @@
-/**
- * OLAT - Online Learning and Training<br>
- * http://www.olat.org
- * <p>
- * Licensed under the Apache License, Version 2.0 (the "License"); <br>
- * you may not use this file except in compliance with the License.<br>
- * You may obtain a copy of the License at
- * <p>
- * http://www.apache.org/licenses/LICENSE-2.0
- * <p>
- * Unless required by applicable law or agreed to in writing,<br>
- * software distributed under the License is distributed on an "AS IS" BASIS, <br>
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. <br>
- * See the License for the specific language governing permissions and <br>
- * limitations under the License.
- * <p>
- * Copyright (c) since 2004 at Multimedia- & E-Learning Services (MELS),<br>
- * University of Zurich, Switzerland.
- * <p>
- */
 package ch.uzh.campus.connectors;
 
 import ch.uzh.campus.CampusCourseConfiguration;
 import ch.uzh.campus.data.*;
-import ch.uzh.campus.metric.CampusNotifier;
-import ch.uzh.campus.metric.CampusStatistics;
 import org.olat.core.commons.persistence.DB;
 import org.olat.core.logging.OLog;
 import org.olat.core.logging.Tracing;
@@ -53,8 +31,7 @@ public class CampusInterceptor<T, S> implements StepExecutionListener, ItemWrite
 	private final ImportStatisticDao statisticDao;
 	private final SkipItemDao skipItemDao;
 	private final DaoManager daoManager;
-    private final CampusNotifier campusNotifier;
-	private final CampusCourseConfiguration campusCourseConfiguration;
+    private final CampusCourseConfiguration campusCourseConfiguration;
 
     private StepExecution stepExecution;
     private int fixedNumberOfFilesToBeExported;
@@ -62,16 +39,13 @@ public class CampusInterceptor<T, S> implements StepExecutionListener, ItemWrite
     private long chunkStartTime;
 
 	@Autowired
-	public CampusInterceptor(DB dbInstance, ImportStatisticDao statisticDao,
-                             SkipItemDao skipItemDao, DaoManager daoManager,
-                             CampusNotifier campusNotifier,
-                             CampusCourseConfiguration campusCourseConfiguration) {
+	public CampusInterceptor(DB dbInstance, ImportStatisticDao statisticDao, SkipItemDao skipItemDao,
+                             DaoManager daoManager, CampusCourseConfiguration campusCourseConfiguration) {
 		this.dbInstance = dbInstance;
 		this.statisticDao = statisticDao;
 		this.skipItemDao = skipItemDao;
 		this.daoManager = daoManager;
-		this.campusNotifier = campusNotifier;
-		this.campusCourseConfiguration = campusCourseConfiguration;
+        this.campusCourseConfiguration = campusCourseConfiguration;
 	}
 
     /**
@@ -118,7 +92,6 @@ public class CampusInterceptor<T, S> implements StepExecutionListener, ItemWrite
         try {
             LOG.info(se.toString());
             statisticDao.saveOrUpdate(createImportStatistic(se));
-            notifyMetrics(se);
 			dbInstance.commitAndCloseSession();
             if (CampusProcessStep.IMPORT_CONTROLFILE.name().equalsIgnoreCase(se.getStepName())) {
                 if (se.getWriteCount() != getFixedNumberOfFilesToBeExported()) {
@@ -130,39 +103,6 @@ public class CampusInterceptor<T, S> implements StepExecutionListener, ItemWrite
             dbInstance.rollbackAndCloseSession();
             throw t;
         }
-    }
-
-    /**
-     * Prepares the metric data and delegates the actual notification to the {@link CampusNotifier}.
-     *
-     * @param se
-     *            the StepExecution
-     */
-    private void notifyMetrics(StepExecution se) {
-        if (CampusProcessStep.IMPORT_CONTROLFILE.name().equalsIgnoreCase(se.getStepName())) {
-            campusNotifier.notifyStartOfImportProcess();
-            CampusStatistics.EXPORT_STATUS exportStatus = CampusStatistics.EXPORT_STATUS.OK;
-
-            if (se.getReadCount() != getFixedNumberOfFilesToBeExported() && se.getReadCount() != 2 * getFixedNumberOfFilesToBeExported()) {
-                // THE CASE THAT THE EXPORT FILE (CONTROL FILE) HASN'T BEEN CREATED YET
-                if (se.getReadCount() == 0) {
-                    exportStatus = CampusStatistics.EXPORT_STATUS.NO_EXPORT;
-                }
-                // THE CASE OF EXPORTING LESS THAN THE EXPECTED FILES (LESS THAN 8(ONLY CURRENT) OR LESS THAN 16 (CURRENT AND NEXT)
-                else {
-                    exportStatus = CampusStatistics.EXPORT_STATUS.INCOMPLETE_EXPORT;
-                }
-            }
-            // THE CASE OF EXPORTING THE OLD FILES
-            if (se.getWriteCount() != getFixedNumberOfFilesToBeExported()) {
-                exportStatus = CampusStatistics.EXPORT_STATUS.NO_EXPORT;
-            }
-
-            campusNotifier.notifyExportStatus(exportStatus);
-        }
-
-        campusNotifier.notifyStepExecution(se);
-
     }
 
     /**
@@ -319,8 +259,8 @@ public class CampusInterceptor<T, S> implements StepExecutionListener, ItemWrite
 
     @Override
     public void beforeChunk() {
-		/**
-		 * Chunk count and duration is beeing logged for sync step since this
+		/*
+		 * Chunk count and duration is being logged for sync step since this
 		 * may be slow and potentially break timeout.
 		 */
         if (CampusProcessStep.CAMPUSSYNCHRONISATION.name().equalsIgnoreCase(stepExecution.getStepName())) {
@@ -330,7 +270,7 @@ public class CampusInterceptor<T, S> implements StepExecutionListener, ItemWrite
 
     @Override
     public void afterChunk() {
-		/**
+		/*
 		 * Chunk count and duration is being logged for sync step since this
 		 * may be slow and potentially break timeout.
 		 */

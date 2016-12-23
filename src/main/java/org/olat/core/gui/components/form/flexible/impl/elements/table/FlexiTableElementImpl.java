@@ -35,6 +35,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.checkerframework.checker.initialization.qual.UnderInitialization;
+import org.checkerframework.checker.initialization.qual.UnknownInitialization;
+import org.checkerframework.checker.nullness.qual.EnsuresNonNull;
 import org.olat.core.commons.persistence.ResultInfos;
 import org.olat.core.commons.persistence.SortKey;
 import org.olat.core.gui.UserRequest;
@@ -189,7 +192,8 @@ public class FlexiTableElementImpl extends FormItemImpl implements FlexiTableEle
 	}
 
 	@Override
-	public void setRendererType(FlexiTableRendererType rendererType) {
+	@EnsuresNonNull("rendererType")
+	public void setRendererType(@UnderInitialization(FlexiTableElementImpl.class) FlexiTableElementImpl this, FlexiTableRendererType rendererType) {
 		// activate active render button
 		if(customTypeButton != null) {
 			customTypeButton.setActive(FlexiTableRendererType.custom == rendererType);
@@ -257,7 +261,8 @@ public class FlexiTableElementImpl extends FormItemImpl implements FlexiTableEle
 	}
 
 	@Override
-	public void setCustomizeColumns(boolean customizeColumns) {
+	@EnsuresNonNull("customizeColumns")
+	public void setCustomizeColumns(@UnderInitialization(FlexiTableElementImpl.class) FlexiTableElementImpl this, boolean customizeColumns) {
 		this.customizeColumns = customizeColumns;
 	}
 
@@ -819,6 +824,8 @@ public class FlexiTableElementImpl extends FormItemImpl implements FlexiTableEle
 	
 	@Override
 	public void sort(String sortKey, boolean asc) {
+		collapseAllDetails();
+		
 		SortKey key = new SortKey(sortKey, asc);
 		orderBy = new SortKey[]{ key };
 		if(dataModel instanceof SortableFlexiTableDataModel) {
@@ -826,7 +833,7 @@ public class FlexiTableElementImpl extends FormItemImpl implements FlexiTableEle
 		} else if(dataSource != null) {
 			currentPage = 0;
 			dataSource.clear();
-			dataSource.load(null, conditionalQueries, 0, getPageSize(), orderBy);
+			dataSource.load(getSearchText(), conditionalQueries, 0, getPageSize(), orderBy);
 		}
 		reorderMultiSelectIndex();
 		selectSortOption(sortKey, asc);
@@ -849,7 +856,7 @@ public class FlexiTableElementImpl extends FormItemImpl implements FlexiTableEle
 		// In the case of a data source, we need to check if all index has been found.
 		// If not, we need to load all the data and find them
 		if(dataSource != null && multiSelectedIndex.size() != selectedObjects.size()) {
-			dataSource.load(getSearchText(), getConditionalQueries(), 0, -1);
+			dataSource.load(getSearchText(), conditionalQueries, 0, -1, orderBy);
 			for(int i=dataModel.getRowCount(); i-->0; ) {
 				Object obj = dataModel.getObject(i);
 				if(obj != null && selectedObjects.contains(obj)) {
@@ -1179,6 +1186,7 @@ public class FlexiTableElementImpl extends FormItemImpl implements FlexiTableEle
 		if(multiSelectedIndex != null) {
 			multiSelectedIndex.clear();
 		}
+		allSelectedNeedLoadOfWholeModel = false;
 	}
 	
 	protected void doSelect(UserRequest ureq, int index) {
@@ -1286,7 +1294,7 @@ public class FlexiTableElementImpl extends FormItemImpl implements FlexiTableEle
 		try {
 			Integer row = new Integer(rowStr);
 			if(multiSelectedIndex.containsKey(row)) {
-				if(multiSelectedIndex.remove(row) != null & allSelectedNeedLoadOfWholeModel) {
+				if(multiSelectedIndex.remove(row) != null && allSelectedNeedLoadOfWholeModel) {
 					allSelectedNeedLoadOfWholeModel = false;
 				}
 			} else {
@@ -1353,6 +1361,7 @@ public class FlexiTableElementImpl extends FormItemImpl implements FlexiTableEle
 		rowCount = -1;
 		component.setDirty(true);
 		multiSelectedIndex = null;
+		detailsIndex = null;
 	}
 	
 	@Override
@@ -1362,7 +1371,7 @@ public class FlexiTableElementImpl extends FormItemImpl implements FlexiTableEle
 	}
 
 	@Override
-	public void reloadData() {
+	public void reloadData(@UnderInitialization(FlexiTableElementImpl.class) FlexiTableElementImpl this) {
 		if(dataSource != null) {
 			dataSource.clear();
 			int firstResult = currentPage * getPageSize();

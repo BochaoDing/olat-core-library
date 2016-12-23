@@ -2,8 +2,7 @@ package ch.uzh.campus.olat.dialog.controller.selection;
 
 import ch.uzh.campus.data.Course;
 import ch.uzh.campus.olat.dialog.controller.CreateCampusCourseCompletedEventListener;
-import ch.uzh.campus.service.CampusCourse;
-import ch.uzh.campus.service.learn.CampusCourseService;
+import ch.uzh.campus.service.CampusCourseService;
 import org.olat.core.gui.UserRequest;
 import org.olat.core.gui.components.Component;
 import org.olat.core.gui.control.Controller;
@@ -53,15 +52,14 @@ public class ContinueCampusCourseSelectionController extends CampusCourseDialogS
 			super.event(userRequest, source, event);
 
 			if ("link_0".equals(event.getCommand())) {
-				if (campusCourseService.checkDelegation(sapCampusCourseId, userRequest.getIdentity()) == false) {
+				if (!campusCourseService.isIdentityLecturerOrDelegateeOfSapCourse(sapCampusCourseId, userRequest.getIdentity())) {
 					showError("popup.course.notContinued.becauseOfRemovedDelegation.text");
 				} else {
 					try {
-						Course parentCourse = campusCourseService.getLatestCourseByOlatResource(repositoryEntry
-								.getOlatResource());
-						CampusCourse campusCourse = campusCourseService.continueCampusCourse(sapCampusCourseId,
+						Course parentCourse = campusCourseService.getLatestCourseByRepositoryEntry(repositoryEntry);
+						RepositoryEntry repositoryEntry = campusCourseService.continueOlatCampusCourse(sapCampusCourseId,
 								parentCourse.getId(), userRequest.getIdentity());
-						listener.onSuccess(userRequest, campusCourse);
+						listener.onSuccess(userRequest, repositoryEntry);
 					} catch (Exception e) {
 						listener.onError(userRequest, e);
 					}
@@ -83,10 +81,10 @@ public class ContinueCampusCourseSelectionController extends CampusCourseDialogS
 		List<RepositoryEntry> campusCourseEntries = new ArrayList<>();
 		List<RepositoryEntry> entries = repositoryManager.queryByOwner(userRequest.getIdentity(), "CourseModule");
 		if (!entries.isEmpty()) {
-			List<Long> olatResourceKeysOfAllCreatedNotContinuedCoursesOfPreviousSemesters = campusCourseService.getOlatResourceKeysOfAllCreatedNotContinuedCoursesOfPreviousSemesters();
+			List<Long> repositoryEntryKeysOfAllCreatedNotContinuedCoursesOfPreviousSemesters = campusCourseService.getRepositoryEntryKeysOfAllCreatedNotContinuedCoursesOfPreviousSemesters();
 			for (RepositoryEntry entry : entries) {
-				Long olatResourceKey = entry.getOlatResource().getKey();
-				if (olatResourceKeysOfAllCreatedNotContinuedCoursesOfPreviousSemesters.contains(olatResourceKey)) {
+				Long repositoryEntryKey = entry.getKey();
+				if (repositoryEntryKeysOfAllCreatedNotContinuedCoursesOfPreviousSemesters.contains(repositoryEntryKey)) {
                     campusCourseEntries.add(entry);
 				}
 			}

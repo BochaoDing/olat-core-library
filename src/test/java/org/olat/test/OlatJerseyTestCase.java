@@ -105,7 +105,7 @@ public abstract class OlatJerseyTestCase extends OlatTestCase {
 				        .setContextPath("/" + CONTEXT_PATH)
 				        .setDeploymentName("rest.war")
 				        .addServlets(
-				                servlet("REST Servlet",  com.sun.jersey.spi.container.servlet.ServletContainer.class)
+				                servlet("REST Servlet", org.glassfish.jersey.servlet.ServletContainer.class)
 		        		        		.addInitParam("javax.ws.rs.Application", OlatRestApplication.class.getName())
 		        		        		.setMultipartConfig(new MultipartConfigElement((String)null))
 				                        .addMapping("/*"))

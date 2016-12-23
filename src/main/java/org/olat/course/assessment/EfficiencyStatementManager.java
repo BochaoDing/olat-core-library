@@ -60,6 +60,7 @@ import org.olat.user.UserDataDeletable;
 import org.olat.user.UserManager;
 
 import com.thoughtworks.xstream.XStream;
+import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * Description:<br>
@@ -78,16 +79,16 @@ public class EfficiencyStatementManager extends BasicManager implements UserData
 	
 	private static EfficiencyStatementManager INSTANCE;
 
-	private DB dbInstance;
-	private UserManager userManager;
-	private RepositoryManager repositoryManager;
+	private final DB dbInstance;
+	private final UserManager userManager;
+	private final RepositoryManager repositoryManager;
 	private final XStream xstream = XStreamHelper.createXStreamInstance();
 
-	
-	/**
-	 * Constructor
-	 */
-	private EfficiencyStatementManager() {
+	@Autowired
+	private EfficiencyStatementManager(DB dbInstance, UserManager userManager, RepositoryManager repositoryManager) {
+		this.dbInstance = dbInstance;
+		this.userManager = userManager;
+		this.repositoryManager = repositoryManager;
 		INSTANCE = this;
 	}
 	
@@ -97,30 +98,6 @@ public class EfficiencyStatementManager extends BasicManager implements UserData
 	 */
 	public static EfficiencyStatementManager getInstance() {
 		return INSTANCE;
-	}
-	
-	/**
-	 * [used by Spring]
-	 * @param dbInstance
-	 */
-	public void setDbInstance(DB dbInstance) {
-		this.dbInstance = dbInstance;
-	}
-	
-	/**
-	 * [used by Spring]
-	 * @param repositoryManager
-	 */
-	public void setRepositoryManager(RepositoryManager repositoryManager) {
-		this.repositoryManager = repositoryManager;
-	}
-	
-	/**
-	 * [used by Spring]
-	 * @param userManager
-	 */
-	public void setUserManager(UserManager userManager) {
-		this.userManager = userManager;
 	}
 
 	/**

@@ -27,8 +27,6 @@ package org.olat.course.nodes;
 
 import java.util.List;
 
-import org.olat.core.commons.modules.bc.vfs.OlatNamedContainerImpl;
-import org.olat.core.commons.modules.bc.vfs.OlatRootFolderImpl;
 import org.olat.core.gui.UserRequest;
 import org.olat.core.gui.components.stack.BreadcrumbPanel;
 import org.olat.core.gui.control.Controller;
@@ -47,7 +45,6 @@ import org.olat.course.editor.StatusDescription;
 import org.olat.course.nodes.sp.SPEditController;
 import org.olat.course.nodes.sp.SPPeekviewController;
 import org.olat.course.nodes.sp.SPRunController;
-import org.olat.course.run.environment.CourseEnvironment;
 import org.olat.course.run.navigation.NodeRunConstructionResult;
 import org.olat.course.run.userview.NodeEvaluation;
 import org.olat.course.run.userview.UserCourseEnvironment;
@@ -82,8 +79,7 @@ public class SPCourseNode extends AbstractAccessableCourseNode {
 	public TabbableController createEditController(UserRequest ureq, WindowControl wControl, BreadcrumbPanel stackPanel, ICourse course, UserCourseEnvironment euce) {
 		updateModuleConfigDefaults(false);
 		SPEditController childTabCntrllr = new SPEditController(getModuleConfiguration(), ureq, wControl, this, course, euce);
-		CourseNode chosenNode = course.getEditorTreeModel().getCourseNode(euce.getCourseEditorEnv().getCurrentCourseNodeId());
-		NodeEditController nodeEditController = new NodeEditController(ureq, wControl, course.getEditorTreeModel(), course, chosenNode, euce, childTabCntrllr);
+		NodeEditController nodeEditController = new NodeEditController(ureq, wControl, course.getEditorTreeModel(), course, euce, childTabCntrllr);
 		// special case: listen to sp edit controller, must be informed when the short title is being modified
 		nodeEditController.addControllerListener(childTabCntrllr); 
 		return nodeEditController;
@@ -231,39 +227,5 @@ public class SPCourseNode extends AbstractAccessableCourseNode {
 			
 			//there was a version 3 but all keys new in this version have been removed
 		}
-	}
-
-	// Copy from BCCourseNode => Merge together
-	// ///////////////////////
-	/**
-	 * @param courseEnv
-	 * @param node
-	 * @return the relative folder base path for this folder node
-	 */
-	// public static String getFoldernodePathRelToFolderBase(CourseEnvironment
-	// courseEnv, CourseNode node) {
-	// return getFoldernodesPathRelToFolderBase(courseEnv) + "/" +
-	// node.getIdent();
-	// }
-	/**
-	 * @param courseEnv
-	 * @return the relative folder base path for folder nodes
-	 */
-	public static String getFoldernodesPathRelToFolderBase(CourseEnvironment courseEnv) {
-		return courseEnv.getCourseBaseContainer().getRelPath() + "/coursefolder";
-	}
-
-	/**
-	 * Get a named container of a node with the node title as its name.
-	 * 
-	 * @param node
-	 * @param courseEnv
-	 * @return
-	 */
-	public static OlatNamedContainerImpl getNodeFolderContainer(SPCourseNode node, CourseEnvironment courseEnv) {
-		String path = getFoldernodesPathRelToFolderBase(courseEnv);
-		OlatRootFolderImpl rootFolder = new OlatRootFolderImpl(path, null);
-		OlatNamedContainerImpl namedFolder = new OlatNamedContainerImpl(node.getShortTitle(), rootFolder);
-		return namedFolder;
 	}
 }

@@ -1,12 +1,11 @@
 package ch.uzh.campus.data;
 
-import org.olat.resource.OLATResource;
-import org.olat.resource.OLATResourceImpl;
+import org.olat.group.BusinessGroup;
+import org.olat.group.BusinessGroupImpl;
+import org.olat.repository.RepositoryEntry;
 
 import javax.persistence.*;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Initial Date: 04.06.2012 <br>
@@ -15,40 +14,39 @@ import java.util.Set;
  * @author lavinia
  * @author Martin Schraner
  */
-@SuppressWarnings("JpaQlInspection")  // Required to suppress warnings caused by c.olatResource.key
 @Entity
 @NamedQueries({
-        @NamedQuery(name = Course.GET_ALL_CREATED_COURSES_OF_CURRENT_SEMESTER, query = "select c from Course c where c.olatResource is not null and c.semester.currentSemester = true"),
-        @NamedQuery(name = Course.GET_IDS_OF_ALL_CREATED_SYNCHRONIZABLE_COURSES_OF_CURRENT_SEMESTER, query = "select c.id from Course c where c.olatResource is not null and c.synchronizable = true and c.semester.currentSemester = true"),
-        @NamedQuery(name = Course.GET_OLAT_RESOURCE_KEYS_OF_ALL_CREATED_NOT_CONTINUED_COURSES_OF_SPECIFIC_SEMESTERS, query = "select c.olatResource.key from Course c where " +
-                "c.olatResource is not null " +
+        @NamedQuery(name = Course.GET_ALL_CREATED_COURSES_OF_CURRENT_SEMESTER, query = "select c from Course c where c.repositoryEntry is not null and c.semester.currentSemester = true"),
+        @NamedQuery(name = Course.GET_IDS_OF_ALL_CREATED_SYNCHRONIZABLE_COURSES_OF_CURRENT_SEMESTER, query = "select c.id from Course c where c.repositoryEntry is not null and c.synchronizable = true and c.semester.currentSemester = true"),
+        @NamedQuery(name = Course.GET_REPOSITORY_ENTRY_KEYS_OF_ALL_CREATED_NOT_CONTINUED_COURSES_OF_SPECIFIC_SEMESTERS, query = "select c.repositoryEntry.key from Course c where " +
+                "c.repositoryEntry is not null " +
                 "and c.semester.id in :semesterIds " +
                 "and not exists (select c2 from Course c2 where c2.parentCourse.id = c.id)"),
         @NamedQuery(name = Course.GET_IDS_OF_ALL_NOT_CREATED_CREATABLE_COURSES_OF_CURRENT_SEMESTER, query = "select c.id from Course c where " +
-                "c.olatResource is null " +
+                "c.repositoryEntry is null " +
                 "and c.exclude = false " +
                 "and exists (select c1 from Course c1 join c1.orgs o where c1.id = c.id and o.enabled = true) " +
                 "and c.semester.currentSemester = true"),
         @NamedQuery(name = Course.GET_CREATED_COURSES_OF_CURRENT_SEMESTER_BY_LECTURER_ID, query = "select c from Course c join c.lecturerCourses lc where " +
-                "c.olatResource is not null and lc.lecturer.personalNr = :lecturerId " +
+                "c.repositoryEntry is not null and lc.lecturer.personalNr = :lecturerId " +
                 "and c.semester.currentSemester = true and c.title like :searchString"),
         @NamedQuery(name = Course.GET_NOT_CREATED_CREATABLE_COURSES_OF_CURRENT_SEMESTER_BY_LECTURER_ID, query = "select c from Course c join c.lecturerCourses lc where " +
                 "lc.lecturer.personalNr = :lecturerId " +
-                "and c.olatResource is null " +
+                "and c.repositoryEntry is null " +
                 "and c.exclude = false " +
                 "and exists (select c1 from Course c1 join c1.orgs o where c1.id = c.id and o.enabled = true) " +
                 "and c.semester.currentSemester = true " +
                 "and c.title like :searchString"),
         @NamedQuery(name = Course.GET_CREATED_COURSES_OF_CURRENT_SEMESTER_BY_STUDENT_ID, query = "select c from Course c join c.studentCourses sc where " +
-                "c.olatResource is not null and sc.student.id = :studentId " +
+                "c.repositoryEntry is not null and sc.student.id = :studentId " +
                 "and c.semester.currentSemester = true and c.title like :searchString"),
         @NamedQuery(name = Course.GET_CREATED_COURSES_OF_CURRENT_SEMESTER_BY_STUDENT_ID_BOOKED_BY_STUDENT_ONLY_AS_PARENT_COURSE, query = "select c from Course c join c.parentCourse.studentCourses scp where " +
-                "c.parentCourse is not null and c.olatResource is not null and scp.student.id = :studentId " +
+                "c.parentCourse is not null and c.repositoryEntry is not null and scp.student.id = :studentId " +
                 "and not exists (select c1 from Course c1 join c1.studentCourses sc1 where c1.id = c.id and sc1.student.id = :studentId) " +
                 "and c.semester.currentSemester = true and c.title like :searchString"),
         @NamedQuery(name = Course.GET_NOT_CREATED_CREATABLE_COURSES_OF_CURRENT_SEMESTER_BY_STUDENT_ID, query = "select c from Course c join c.studentCourses sc where " +
                 "sc.student.id = :studentId " +
-                "and c.olatResource is null " +
+                "and c.repositoryEntry is null " +
                 "and c.exclude = false " +
                 "and exists (select c1 from Course c1 join c1.orgs o where c1.id = c.id and o.enabled = true) " +
                 "and c.semester.currentSemester = true " +
@@ -69,10 +67,12 @@ import java.util.Set;
                 "and c.exclude = false " +
                 "and exists (select c1 from Course c1 join c1.orgs o where c1.id = c.id and o.enabled = true) " +
                 "and c.semester.currentSemester = true"),
-        @NamedQuery(name = Course.GET_ALL_NOT_CREATED_ORPHANED_COURSES, query = "select c.id from Course c where c.olatResource is null and c.id not in (select lc.course.id from LecturerCourse lc) and c.id not in (select sc.course.id from StudentCourse sc)"),
-        @NamedQuery(name = Course.GET_COURSE_IDS_BY_OLAT_RESOURCE_KEY, query = "select c.id from Course c where c.olatResource.key = :olatResourceKey"),
-        @NamedQuery(name = Course.GET_COURSES_BY_OLAT_RESOURCE_KEY, query = "select c from Course c where c.olatResource.key = :olatResourceKey"),
-        @NamedQuery(name = Course.GET_LATEST_COURSE_BY_OLAT_RESOURCE_KEY, query = "select c from Course c where c.olatResource.key = :olatResourceKey and c.endDate = (select max(c1.endDate) from Course c1 where c1.olatResource.key = :olatResourceKey)")
+        @NamedQuery(name = Course.GET_ALL_NOT_CREATED_ORPHANED_COURSES, query = "select c.id from Course c where c.repositoryEntry is null and c.id not in (select lc.course.id from LecturerCourse lc) and c.id not in (select sc.course.id from StudentCourse sc)"),
+        @NamedQuery(name = Course.GET_COURSE_IDS_BY_REPOSITORY_ENTRY_KEY, query = "select c.id from Course c where c.repositoryEntry.key = :repositoryEntryKey"),
+        @NamedQuery(name = Course.GET_COURSES_BY_REPOSITORY_ENTRY_KEY, query = "select c from Course c where c.repositoryEntry.key = :repositoryEntryKey"),
+        @NamedQuery(name = Course.GET_COURSES_BY_CAMPUS_GROUP_A_KEY, query = "select c from Course c where c.campusGroupA.key = :campusGroupKey"),
+        @NamedQuery(name = Course.GET_COURSES_BY_CAMPUS_GROUP_B_KEY, query = "select c from Course c where c.campusGroupB.key = :campusGroupKey"),
+        @NamedQuery(name = Course.GET_LATEST_COURSE_BY_REPOSITORY_ENTRY_KEY, query = "select c from Course c where c.repositoryEntry.key = :repositoryEntryKey and c.endDate = (select max(c1.endDate) from Course c1 where c1.repositoryEntry.key = :repositoryEntryKey)")
 })
 @Table(name = "ck_course")
 public class Course {
@@ -82,14 +82,14 @@ public class Course {
     @Id
     private Long id;
 
-    @Column(name = "short_title", nullable = false)
-    private String shortTitle;
+    @Column(name = "lv_kuerzel", nullable = false)
+    private String lvKuerzel;
 
     @Column(name = "title", nullable = false)
     private String title;
 
     @Column(name = "lv_nr", nullable = false)
-    private String vstNr;
+    private String lvNr;
 
     @Column(name = "e_learning_supported")
     private boolean eLearningSupported;
@@ -126,10 +126,17 @@ public class Course {
     @JoinColumn(name = "fk_semester")
     private Semester semester;
 
-    @SuppressWarnings("JpaAttributeTypeInspection")
-    @ManyToOne(targetEntity=OLATResourceImpl.class)
-    @JoinColumn(name = "fk_resource")
-    private OLATResource olatResource;
+    @ManyToOne
+    @JoinColumn(name = "fk_repositoryentry")
+    private RepositoryEntry repositoryEntry;
+
+    @ManyToOne(targetEntity = BusinessGroupImpl.class)
+    @JoinColumn(name = "fk_campusgroup_a")
+    private BusinessGroup campusGroupA;
+
+    @ManyToOne(targetEntity = BusinessGroupImpl.class)
+    @JoinColumn(name = "fk_campusgroup_b")
+    private BusinessGroup campusGroupB;
 
     @OneToMany(mappedBy = "course")
     private Set<LecturerCourse> lecturerCourses = new HashSet<>();
@@ -152,14 +159,45 @@ public class Course {
     @OneToOne(mappedBy = "parentCourse", cascade = CascadeType.ALL)
     private Course childCourse;
 
+    // Must be loaded lazy to avoid parallelization problems at batch import / synchronization
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "fk_parent_course")
     private Course parentCourse;
 
     public Course() {}
 
+    public Course(Long id,
+                  String lvKuerzel,
+                  String title,
+                  String lvNr,
+                  boolean eLearningSupported,
+                  String language,
+                  String category,
+                  Date startDate,
+                  Date endDate,
+                  String vvzLink,
+                  boolean exclude,
+                  boolean synchronizable,
+                  Date dateOfImport,
+                  Semester semester) {
+        this.id = id;
+        this.lvKuerzel = lvKuerzel;
+        this.title = title;
+        this.lvNr = lvNr;
+        this.eLearningSupported = eLearningSupported;
+        this.language = language;
+        this.category = category;
+        this.startDate = startDate;
+        this.endDate = endDate;
+        this.vvzLink = vvzLink;
+        this.exclude = exclude;
+        this.synchronizable = synchronizable;
+        this.dateOfImport = dateOfImport;
+        this.semester = semester;
+    }
+
     static final String GET_IDS_OF_ALL_CREATED_SYNCHRONIZABLE_COURSES_OF_CURRENT_SEMESTER = "getIdsOfAllCreatedSynchronizableCoursesOfCurrentSemester";
-    static final String GET_OLAT_RESOURCE_KEYS_OF_ALL_CREATED_NOT_CONTINUED_COURSES_OF_SPECIFIC_SEMESTERS = "getOlatResourceKeysOfAllCreatedNotContinuedCoursesOfSpecificSemesters";
+    static final String GET_REPOSITORY_ENTRY_KEYS_OF_ALL_CREATED_NOT_CONTINUED_COURSES_OF_SPECIFIC_SEMESTERS = "getRepositoryEntryKeysOfAllCreatedNotContinuedCoursesOfSpecificSemesters";
     static final String GET_IDS_OF_ALL_NOT_CREATED_CREATABLE_COURSES_OF_CURRENT_SEMESTER = "getIdsOfAllNotCreatedCreatableCoursesOfCurrentSemester";
     static final String GET_ALL_CREATED_COURSES_OF_CURRENT_SEMESTER = "getAllCreatedCoursesOfCurrentSemester";
     static final String GET_CREATED_COURSES_OF_CURRENT_SEMESTER_BY_LECTURER_ID = "getCreatedCoursesOfCurrentSemesterByLecturerId";
@@ -168,12 +206,14 @@ public class Course {
     static final String GET_CREATED_COURSES_OF_CURRENT_SEMESTER_BY_STUDENT_ID_BOOKED_BY_STUDENT_ONLY_AS_PARENT_COURSE = "getCreatedCoursesOfCurrentSemesterByStudentIdBookedByStudentOnlyAsParentCourse";
     static final String GET_NOT_CREATED_CREATABLE_COURSES_OF_CURRENT_SEMESTER_BY_STUDENT_ID = "getNotCreatedCreatableCoursesOfCurrentSemesterByStudentId";
     static final String GET_ALL_NOT_CREATED_ORPHANED_COURSES = "getAllNotCreatedOrphanedCourses";
-    static final String GET_COURSE_IDS_BY_OLAT_RESOURCE_KEY = "getCourseIdsByOlatResourceKey";
+    static final String GET_COURSE_IDS_BY_REPOSITORY_ENTRY_KEY = "getCourseIdsByRepositoryEntryKey";
     static final String GET_CREATED_AND_NOT_CREATED_CREATABLE_COURSES_OF_CURRENT_SEMESTER_BY_LECTURER_ID = "getCreatedAndNotCreatedCreatableCoursesOfCurrentSemesterByLecturerId";
     static final String GET_CREATED_AND_NOT_CREATED_CREATABLE_COURSES_OF_CURRENT_SEMESTER_BY_STUDENT_ID = "getCreatedAndNotCreatedCreatableCoursesOfCurrentSemesterByStudentId";
     static final String GET_CREATED_AND_NOT_CREATED_CREATABLE_COURSES_OF_CURRENT_SEMESTER_BY_STUDENT_ID_BOOKED_BY_STUDENT_ONLY_AS_PARENT_COURSE = "getCreatedAndNotCreatedCreatableCoursesOfCurrentSemesterByStudentIdBookedByStudentOnlyAsParentCourse";
-    static final String GET_COURSES_BY_OLAT_RESOURCE_KEY = "getCoursesByOlatResourceKey";
-    static final String GET_LATEST_COURSE_BY_OLAT_RESOURCE_KEY = "getLatestCourseByOlatResourceKey";
+    static final String GET_COURSES_BY_REPOSITORY_ENTRY_KEY = "getCoursesByRepositoryEntryKey";
+    static final String GET_COURSES_BY_CAMPUS_GROUP_A_KEY = "getCoursesByCampusGroupAKey";
+    static final String GET_COURSES_BY_CAMPUS_GROUP_B_KEY = "getCoursesByCampusGroupBKey";
+    static final String GET_LATEST_COURSE_BY_REPOSITORY_ENTRY_KEY = "getLatestCourseByRepositoryEntryKey";
 
     public Long getId() {
         return id;
@@ -183,12 +223,12 @@ public class Course {
         this.id = id;
     }
 
-    public String getShortTitle() {
-        return shortTitle;
+    public String getLvKuerzel() {
+        return lvKuerzel;
     }
 
-    public void setShortTitle(String shortTitle) {
-        this.shortTitle = shortTitle;
+    public void setLvKuerzel(String lvKuerzel) {
+        this.lvKuerzel = lvKuerzel;
     }
 
     public String getTitle() {
@@ -199,12 +239,12 @@ public class Course {
         this.title = title;
     }
 
-    public String getVstNr() {
-        return vstNr;
+    public String getLvNr() {
+        return lvNr;
     }
 
-    public void setVstNr(String vstNr) {
-        this.vstNr = vstNr;
+    public void setLvNr(String vstNr) {
+        this.lvNr = vstNr;
     }
 
     public boolean isELearningSupported() {
@@ -279,12 +319,28 @@ public class Course {
         this.semester = semester;
     }
 
-    public OLATResource getOlatResource() {
-        return olatResource;
+    public RepositoryEntry getRepositoryEntry() {
+        return repositoryEntry;
     }
 
-    public void setOlatResource(OLATResource olatResource) {
-        this.olatResource = olatResource;
+    public void setRepositoryEntry(RepositoryEntry repositoryEntry) {
+        this.repositoryEntry = repositoryEntry;
+    }
+
+    public BusinessGroup getCampusGroupA() {
+        return campusGroupA;
+    }
+
+    public void setCampusGroupA(BusinessGroup campusgroupA) {
+        this.campusGroupA = campusgroupA;
+    }
+
+    public BusinessGroup getCampusGroupB() {
+        return campusGroupB;
+    }
+
+    public void setCampusGroupB(BusinessGroup campusgroupB) {
+        this.campusGroupB = campusgroupB;
     }
 
     public Date getDateOfImport() {
@@ -350,59 +406,85 @@ public class Course {
     }
 
     @Transient
-    public String getContents() {
-        return buildText(Text.CONTENTS);
+    boolean isContinuedCourse() {
+        return getParentCourse() != null;
     }
 
+    /**
+     * Create title to be displayed in OLAT (used as repository entry displayname and in course editor model).
+     *
+     * E.g. 16FS <LV-Kuerzel starting at position 4> Course Title
+     *      16FS/15HS <LV-Kuerzel starting at position 4> Course Title
+     *      16FS/15HS/15FS <LV-Kuerzel starting at position 4> Course Title
+     *
+     * @return title to be displayed
+     */
     @Transient
-    public String getInfos() {
-        return buildText(Text.INFOS);
+    public String getTitleToBeDisplayed() {
+
+        // Add short semester(s)
+        StringBuilder titleToBeDisplayed = new StringBuilder();
+        Course courseIt = this;
+        int count = 0;
+        do {
+            titleToBeDisplayed.append(courseIt.getSemester().getShortYearShortSemesterName()).append("/");
+            courseIt = courseIt.getParentCourse();
+            count++;
+        } while (courseIt != null && count <= 10);
+        // Remove last "/"
+        titleToBeDisplayed.setLength(titleToBeDisplayed.length() - 1);
+        titleToBeDisplayed.append(WHITESPACE);
+
+        // Add lvKuerzel starting at position 4
+        titleToBeDisplayed.append(getTruncatedLvKuerzelWithAppendedWhitespace(this));
+
+        // Add course title
+        titleToBeDisplayed.append(getTitle());
+        return titleToBeDisplayed.toString();
     }
 
+    /**
+     * Create list with title of course and parent courses in ascending order.
+     *
+     * E.g. (15FS <LV-Kuerzel starting at position 4> Test Course I,
+     *       15HS <LV-Kuerzel starting at position 4> Test Course II,
+     *       16FS <LV-Kuerzel starting at position 4> Test Course III)
+     *
+     * @return list with titles
+     */
     @Transient
-    public String getMaterials() {
-        return buildText(Text.MATERIALS);
+    public List<String> getTitlesOfCourseAndParentCoursesInAscendingOrder() {
+        List<String> titlesOfParentCourseAndParentCourses = new ArrayList<>();
+        Course courseIt = this;
+        int count = 0;
+        do {
+            String shortSemesterLvKuerzelTitle = courseIt.getSemester().getShortYearShortSemesterName() + WHITESPACE
+                    + getTruncatedLvKuerzelWithAppendedWhitespace(courseIt) + courseIt.getTitle();
+            titlesOfParentCourseAndParentCourses.add(0, shortSemesterLvKuerzelTitle);
+            courseIt = courseIt.getParentCourse();
+            count++;
+        } while (courseIt != null && count <= 10);
+        return titlesOfParentCourseAndParentCourses;
     }
 
-    @Transient
-    private String buildText(String type) {
-        StringBuilder content = new StringBuilder();
-        for (Text text : this.getTexts()) {
-            if (type.equalsIgnoreCase(text.getType())) {
-                content.append(text.getLine());
-                content.append(Text.BREAK_TAG);
-            }
-        }
-        return content.toString();
-    }
-
-    @Transient
-    public String getTitleToBeDisplayed(boolean shortTitleActivated) {
-
-        if (semester == null) {
-            return title;
-        }
-
-        String titleToBeDisplayed = semester.getShortYearShortSemesterName().concat(WHITESPACE);
-
-        if (shortTitle != null && shortTitleActivated && !"".equals(shortTitle)) {
-            if (shortTitle.length() > 4) {
-            	titleToBeDisplayed += shortTitle.substring(4);
+    private String getTruncatedLvKuerzelWithAppendedWhitespace(Course course) {
+        if (course.getLvKuerzel() != null && !course.getLvKuerzel().isEmpty()) {
+            if (course.getLvKuerzel().length() > 4) {
+            	return course.getLvKuerzel().substring(4) + WHITESPACE;
             } else {
-            	titleToBeDisplayed += shortTitle;
+            	return course.getLvKuerzel() + WHITESPACE;
             }
-            titleToBeDisplayed += WHITESPACE;
+        } else {
+            return "";
         }
-
-        return titleToBeDisplayed.concat(title);
     }
 
     @Override
     public String toString() {
         return "id=" + getId()
-                + ",shortTitle=" + getShortTitle()
+                + ",lvKuerzel=" + getLvKuerzel()
                 + ",title=" + getTitle()
-                + ",vstNr=" + getVstNr()
+                + ",lvNr=" + getLvNr()
                 + ",isELearningSupported=" + isELearningSupported()
                 + ",language=" + getLanguage()
                 + ",category=" + getCategory()
@@ -411,7 +493,9 @@ public class Course {
                 + ",vvzLink=" + getVvzLink()
                 + ",exclude=" + isExclude()
                 + ",semester=" + getSemester()
-                + ",olat resource id=" + (getOlatResource() == null ? "null" : getOlatResource().getKey());
+                + ",olat resource id=" + (getRepositoryEntry() == null ? "null" : getRepositoryEntry().getKey())
+                + ",campus group A id=" + (getCampusGroupA() == null ? "null" : getCampusGroupA().getKey())
+                + ",campus group B id=" + (getCampusGroupB() == null ? "null" : getCampusGroupB().getKey());
     }
 
     @Override
@@ -421,17 +505,17 @@ public class Course {
 
         Course course = (Course) o;
 
-        if (!shortTitle.equals(course.shortTitle)) return false;
+        if (!lvKuerzel.equals(course.lvKuerzel)) return false;
         if (!title.equals(course.title)) return false;
-        return vstNr.equals(course.vstNr);
+        return lvNr.equals(course.lvNr);
 
     }
 
     @Override
     public int hashCode() {
-        int result = shortTitle.hashCode();
+        int result = lvKuerzel.hashCode();
         result = 31 * result + title.hashCode();
-        result = 31 * result + vstNr.hashCode();
+        result = 31 * result + lvNr.hashCode();
         return result;
     }
 }

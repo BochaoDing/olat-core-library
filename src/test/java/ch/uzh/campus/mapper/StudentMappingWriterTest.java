@@ -1,7 +1,6 @@
 package ch.uzh.campus.mapper;
 
 import ch.uzh.campus.data.Student;
-import ch.uzh.campus.metric.CampusNotifier;
 import org.junit.Before;
 import org.junit.Test;
 import org.olat.core.commons.persistence.DB;
@@ -58,13 +57,7 @@ public class StudentMappingWriterTest {
         // Mock for DBImpl
         DB dBImplMock = mock(DB.class);
 
-        // Mock for campusNotifier
-        CampusNotifier campusNotifierMock = mock(CampusNotifier.class);
-
-        studentMappingWriterTestObject = new StudentMappingWriter(dBImplMock, campusNotifierMock, studentMapperMock);
-
-        // Test MappingStatistic
-        studentMappingWriterTestObject.setMappingStatistic(new MappingStatistic());
+        studentMappingWriterTestObject = new StudentMappingWriter(dBImplMock, studentMapperMock, new MappingStatistic());
     }
 
     @Test

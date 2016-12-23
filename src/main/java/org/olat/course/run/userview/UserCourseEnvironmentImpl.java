@@ -43,9 +43,7 @@ import org.olat.course.run.environment.CourseEnvironment;
 import org.olat.course.run.scoring.ScoreAccounting;
 import org.olat.group.BusinessGroup;
 import org.olat.repository.RepositoryEntry;
-import org.olat.repository.RepositoryManager;
 import org.olat.repository.model.RepositoryEntryLifecycle;
-import org.olat.resource.OLATResource;
 
 /**
  * Initial Date:  Feb 6, 2004
@@ -65,9 +63,8 @@ public class UserCourseEnvironmentImpl implements UserCourseEnvironment {
 	
 	private final WindowControl windowControl;
 	
-	private Boolean coach;
-	private Boolean admin;
-	private Boolean participant;
+	private Boolean admin, coach, participant;
+	private Boolean adminAnyCourse, coachAnyCourse, participantAnyCourse;
 	
 	private Boolean certification;
 	
@@ -172,6 +169,44 @@ public class UserCourseEnvironmentImpl implements UserCourseEnvironment {
 	}
 
 	@Override
+	public boolean isAdminOfAnyCourse() {
+		if(adminAnyCourse != null) {
+			return adminAnyCourse.booleanValue();
+		}
+
+		CourseGroupManager cgm = courseEnvironment.getCourseGroupManager();
+		boolean adminLazy = identityEnvironment.getRoles().isOLATAdmin()
+				|| identityEnvironment.getRoles().isInstitutionalResourceManager()
+				|| cgm.isIdentityAnyCourseAdministrator(identityEnvironment.getIdentity());
+		adminAnyCourse = new Boolean(adminLazy);
+		return adminLazy;
+	}
+
+	@Override
+	public boolean isCoachOfAnyCourse() {
+		if(coachAnyCourse != null) {
+			return coachAnyCourse.booleanValue();
+		}
+
+		CourseGroupManager cgm = courseEnvironment.getCourseGroupManager();
+		boolean coachLazy = cgm.isIdentityAnyCourseCoach(identityEnvironment.getIdentity());
+		coachAnyCourse = new Boolean(coachLazy);
+		return coachLazy;
+	}
+
+	@Override
+	public boolean isParticipantOfAnyCourse() {
+		if(participantAnyCourse != null) {
+			return participantAnyCourse.booleanValue();
+		}
+
+		CourseGroupManager cgm = courseEnvironment.getCourseGroupManager();
+		boolean participantLazy = cgm.isIdentityAnyCourseParticipant(identityEnvironment.getIdentity());
+		participantAnyCourse = new Boolean(participantLazy);
+		return participantLazy;
+	}
+
+	@Override
 	public RepositoryEntryLifecycle getLifecycle() {
 		if(lifecycle == null) {
 			RepositoryEntry re = getCourseRepositoryEntry();
@@ -184,9 +219,7 @@ public class UserCourseEnvironmentImpl implements UserCourseEnvironment {
 
 	public RepositoryEntry getCourseRepositoryEntry() {
 		if(courseRepoEntry == null) {
-			CourseGroupManager cgm = courseEnvironment.getCourseGroupManager();
-			OLATResource courseResource = cgm.getCourseResource();
-			courseRepoEntry = RepositoryManager.getInstance().lookupRepositoryEntry(courseResource, false);
+			courseRepoEntry = courseEnvironment.getCourseGroupManager().getCourseEntry();
 		}
 		return courseRepoEntry;
 	}

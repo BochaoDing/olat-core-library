@@ -47,11 +47,13 @@ import org.olat.core.manager.BasicManager;
  */
 public abstract class QuotaManager extends BasicManager{
 
+	@Deprecated // TODO sev26 Use Spring for this.
 	protected static QuotaManager INSTANCE;
 
 	/**
 	 * @return an instance via the spring bean loading mechanism. 
 	 */
+	@Deprecated // TODO sev26 Use Spring for this.
 	public static QuotaManager getInstance() {
 		return INSTANCE;
 	}
@@ -64,12 +66,6 @@ public abstract class QuotaManager extends BasicManager{
 	 * @return
 	 */
 	public abstract Quota createQuota(String path, Long quotaKB, Long ulLimitKB);
-
-	/**
-	 * Initialize the 
-	 *
-	 */
-	public abstract void init();
 	
 	/**
 	 * Get the identifyers for the default quotas

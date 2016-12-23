@@ -1,3 +1,5 @@
+package ch.uzh.campus.service.core.impl.syncer.statistic;
+
 /**
  * OLAT - Online Learning and Training<br>
  * http://www.olat.org
@@ -17,73 +19,38 @@
  * Copyright (c) since 2004 at Multimedia- & E-Learning Services (MELS),<br>
  * University of Zurich, Switzerland.
  * <p>
- */
-package ch.uzh.campus.service.core.impl.syncer.statistic;
-
-/**
+ *
  * Initial Date: 25.06.2012 <br>
  * 
  * @author cg
  */
 public class SynchronizedGroupStatistic {
 
-    public static final String EMPTY_STATISTIC = "Empty statistic";
-
     private String courseTitle;
-    private SynchronizedSecurityGroupStatistic ownerGroupStatistic;
+    private SynchronizedSecurityGroupStatistic coachGroupStatistic;
     private SynchronizedSecurityGroupStatistic participantGroupStatistic;
 
-    /**
-     * @param courseTitle
-     * @param ownerGroupStatistic
-     * @param participantGroupStatistic
-     */
-    public SynchronizedGroupStatistic(String courseTitle, SynchronizedSecurityGroupStatistic ownerGroupStatistic,
+    public SynchronizedGroupStatistic(String courseTitle, SynchronizedSecurityGroupStatistic coachGroupStatistic,
             SynchronizedSecurityGroupStatistic participantGroupStatistic) {
         this.courseTitle = courseTitle;
-        this.ownerGroupStatistic = ownerGroupStatistic;
+        this.coachGroupStatistic = coachGroupStatistic;
         this.participantGroupStatistic = participantGroupStatistic;
     }
 
-    /**
-     * @param string
-     */
-    public SynchronizedGroupStatistic(String title) {
-        this.courseTitle = title;
-        this.ownerGroupStatistic = new SynchronizedSecurityGroupStatistic(0, 0);
-        this.participantGroupStatistic = new SynchronizedSecurityGroupStatistic(0, 0);
-    }
-
     public String toString() {
-        StringBuilder builder = new StringBuilder();
-        builder.append("SynchronizedGroupStatistic: ");
-        builder.append("course='");
-        builder.append(courseTitle);
-        builder.append("' ");
-        builder.append("Owner-Group: ");
-        builder.append(ownerGroupStatistic);
-        builder.append("Participant-Group: ");
-        builder.append(participantGroupStatistic);
-        return builder.toString();
+        return "SynchronizedGroupStatistic: " + "course='" + courseTitle + "' " +
+                "Coach-Group: " + coachGroupStatistic + "Participant-Group: " + participantGroupStatistic;
     }
 
     public String getCourseTitle() {
         return courseTitle;
     }
 
-    public SynchronizedSecurityGroupStatistic getOwnerGroupStatistic() {
-        return ownerGroupStatistic;
+    public SynchronizedSecurityGroupStatistic getCoachGroupStatistic() {
+        return coachGroupStatistic;
     }
 
     public SynchronizedSecurityGroupStatistic getParticipantGroupStatistic() {
         return participantGroupStatistic;
-    }
-
-    public static SynchronizedGroupStatistic createEmptyStatistic(long sapCourseId) {
-        return new SynchronizedGroupStatistic(EMPTY_STATISTIC + " sapCourseId=" + sapCourseId);
-    }
-
-    public static SynchronizedGroupStatistic createEmptyStatistic() {
-        return new SynchronizedGroupStatistic(EMPTY_STATISTIC + " sapCourseId");
     }
 }

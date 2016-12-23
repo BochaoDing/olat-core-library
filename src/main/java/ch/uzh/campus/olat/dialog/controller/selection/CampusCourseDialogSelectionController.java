@@ -1,11 +1,10 @@
 package ch.uzh.campus.olat.dialog.controller.selection;
 
-import ch.uzh.campus.olat.CampusCourseOlatHelper;
 import ch.uzh.campus.olat.controller.CampusCourseSelectionController;
 import ch.uzh.campus.olat.controller.CampusCourseTableController;
 import ch.uzh.campus.olat.dialog.controller.CreateCampusCourseCompletedEventListener;
 import ch.uzh.campus.olat.dialog.controller.table.CampusCourseDialogTableController;
-import ch.uzh.campus.service.learn.CampusCourseService;
+import ch.uzh.campus.service.CampusCourseService;
 import org.olat.core.gui.UserRequest;
 import org.olat.core.gui.control.WindowControl;
 import org.olat.repository.RepositoryEntry;

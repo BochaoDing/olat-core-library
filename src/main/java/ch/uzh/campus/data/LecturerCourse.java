@@ -36,10 +36,10 @@ public class LecturerCourse {
     public LecturerCourse() {
     }
 
-    public LecturerCourse(Lecturer lecturer, Course course, Date modifiedDate) {
+    public LecturerCourse(Lecturer lecturer, Course course, Date dateOfImport) {
         this.lecturer = lecturer;
         this.course = course;
-        this.dateOfImport = modifiedDate;
+        this.dateOfImport = dateOfImport;
     }
 
     static final String GET_ALL_NOT_UPDATED_LC_BOOKING_OF_CURRENT_SEMESTER = "getAllNotUpdatedLCBookingOfCurrentSemester";

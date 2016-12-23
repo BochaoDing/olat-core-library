@@ -1,12 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
-    xmlns:context="http://www.springframework.org/schema/context"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xmlns:batch="http://www.springframework.org/schema/batch"
-	xsi:schemaLocation="http://www.springframework.org/schema/beans
+	   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	   xmlns:batch="http://www.springframework.org/schema/batch"
+	   xsi:schemaLocation="http://www.springframework.org/schema/beans
         http://www.springframework.org/schema/beans/spring-beans.xsd
-        http://www.springframework.org/schema/context
-        http://www.springframework.org/schema/context/spring-context.xsd
         http://www.springframework.org/schema/batch
         http://www.springframework.org/schema/batch/spring-batch-2.1.xsd">
 
@@ -193,9 +190,7 @@
 		</property>
 	</bean>
 	
-	<bean id="studentWriter" parent="campusWriter" scope="step">
-		<property name="campuskursDao" ref="studentDao" />
-	</bean>
+	<bean id="studentWriter" class="ch.uzh.campus.connectors.StudentWriter" scope="step" />
 	
 	<bean id="studentProcessor" class="ch.uzh.campus.connectors.StudentProcessor" scope="step"/>
 
@@ -225,9 +220,7 @@
 		</property>
 	</bean>
  
-	<bean id="lecturerWriter" class="ch.uzh.campus.connectors.CampusWriter" scope="step">
-		<property name="campuskursDao" ref="lecturerDao" />
-	</bean>
+	<bean id="lecturerWriter" class="ch.uzh.campus.connectors.LecturerWriter" scope="step" />
 	
 	<bean id="lecturerProcessor" class="ch.uzh.campus.connectors.LecturerProcessor" scope="step"/>
 
@@ -244,7 +237,7 @@
 			<bean parent="lineMapper">
 				<property name="lineTokenizer" >
 					<bean parent="lineTokenizer">
-						<property name="names" value="id, shortTitle, title, vstNr, language, category, eLearningSupported, startDate, endDate, vzzLink, semester, exclude, org1, org2, org3, org4, org5, org6, org7, org8, org9" />
+						<property name="names" value="id, lvKuerzel, title, lvNr, language, category, eLearningSupported, startDate, endDate, vzzLink, semester, exclude, org1, org2, org3, org4, org5, org6, org7, org8, org9" />
 						<property name="strict" value="false"/>
 					</bean>
 				</property>
@@ -256,10 +249,8 @@
 			</bean>
 		</property>
 	</bean>
- 
-	<bean id="courseWriter" class="ch.uzh.campus.connectors.CampusWriter" scope="step">
-		<property name="campuskursDao" ref="courseDao" />
-	</bean>
+
+	<bean id="courseWriter" class="ch.uzh.campus.connectors.CourseWriter" scope="step" />
 
 	<bean id="courseProcessor" class="ch.uzh.campus.connectors.CourseProcessor" scope="step" />
 
@@ -427,14 +418,10 @@
 	<!-- ============== USERMAPPING(Reader, Writer)================== -->  
 	<!-- ======================================================================================= -->  
 	<bean id="studentMappingReader" class="ch.uzh.campus.mapper.StudentMappingReader" scope="step"/>
-	<bean id="studentMappingWriter" class="ch.uzh.campus.mapper.StudentMappingWriter" scope="step">
-		<property name="mappingStatistic" ref="mappingStatistic" />
-	</bean>
+	<bean id="studentMappingWriter" class="ch.uzh.campus.mapper.StudentMappingWriter" scope="step"/>
 	
 	<bean id="lecturerMappingReader" class="ch.uzh.campus.mapper.LecturerMappingReader" scope="step"/>
-	<bean id="lecturerMappingWriter" class="ch.uzh.campus.mapper.LecturerMappingWriter" scope="step">
-		<property name="mappingStatistic" ref="mappingStatistic" />
-	</bean>
+	<bean id="lecturerMappingWriter" class="ch.uzh.campus.mapper.LecturerMappingWriter" scope="step"/>
 	
 	<bean id="mappingStatistic" class="ch.uzh.campus.mapper.MappingStatistic" scope='prototype'/>
 
@@ -498,7 +485,10 @@
 		<property name="strict" value="false"/>
 		<property name="lineMapper" ref="lineMapper"/>
 		<property name="linesToSkip" value="1"/>
+		<property name="recordSeparatorPolicy" ref="blankLineRecordSeparatorPolicy" />
 	</bean>
+
+	<bean id="blankLineRecordSeparatorPolicy" class="ch.uzh.campus.connectors.BlankLineRecordSeparatorPolicy" />
 		
 	<bean id="lineMapper" class="org.springframework.batch.item.file.mapping.DefaultLineMapper" abstract="true" >
 		<property name="lineTokenizer" ref="lineTokenizer" />

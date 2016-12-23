@@ -26,6 +26,7 @@
 
 package org.olat.core.gui.components.link;
 
+import org.checkerframework.checker.initialization.qual.UnderInitialization;
 import org.olat.core.gui.components.ComponentEventListener;
 import org.olat.core.gui.components.velocity.VelocityContainer;
 import org.olat.core.gui.translator.Translator;
@@ -210,7 +211,7 @@ public class LinkFactory {
 	 * @param listener
 	 * @return the link component
 	 */
-	public static Link createButtonLarge(String name, VelocityContainer vc, ComponentEventListener listener){
+	public static Link createButtonLarge(String name, VelocityContainer vc, @UnderInitialization(ComponentEventListener.class) ComponentEventListener listener){
 		return new Link(name, name, name, Link.BUTTON_LARGE, vc, listener);
 	}
 

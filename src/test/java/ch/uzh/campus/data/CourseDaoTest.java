@@ -2,16 +2,16 @@ package ch.uzh.campus.data;
 
 import ch.uzh.campus.CampusCourseConfiguration;
 import ch.uzh.campus.CampusCourseException;
-import org.junit.After;
+import ch.uzh.campus.CampusCourseTestCase;
+import ch.uzh.campus.service.data.CampusGroups;
 import org.junit.Before;
 import org.junit.Test;
-import org.olat.core.commons.persistence.DB;
-import org.olat.core.id.OLATResourceable;
-import org.olat.resource.OLATResource;
-import org.olat.resource.OLATResourceManager;
-import org.olat.test.OlatTestCase;
+import org.olat.group.BusinessGroup;
+import org.olat.group.manager.BusinessGroupDAO;
+import org.olat.repository.RepositoryEntry;
+import org.olat.repository.RepositoryService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.ContextConfiguration;
+import org.springframework.stereotype.Component;
 
 import javax.inject.Provider;
 import java.util.*;
@@ -26,14 +26,11 @@ import static org.junit.Assert.*;
  * @author Martin Schraner
  * @author lavinia
  */
-@ContextConfiguration(locations = {"classpath:ch/uzh/campus/data/_spring/mockDataContext.xml"})
-public class CourseDaoTest extends OlatTestCase {
+@Component
+public class CourseDaoTest extends CampusCourseTestCase {
 
     @Autowired
     private CampusCourseConfiguration campusCourseConfiguration;
-
-    @Autowired
-    private DB dbInstance;
 
     @Autowired
     private SemesterDao semesterDao;
@@ -60,28 +57,26 @@ public class CourseDaoTest extends OlatTestCase {
     private EventDao eventDao;
 
     @Autowired
-    private OLATResourceManager olatResourceManager;
+    private BusinessGroupDAO businessGroupDao;
+
+    @Autowired
+    private RepositoryService repositoryService;
 
     @Autowired
     private Provider<MockDataGenerator> mockDataGeneratorProvider;
 
     private CourseDao courseDao;
 
-    private OLATResource olatResource1;
-    private OLATResource olatResource2;
-    private OLATResource olatResource4;
-    private OLATResource olatResource5;
-    private OLATResource olatResource6;
+    private RepositoryEntry repositoryEntry1;
+    private RepositoryEntry repositoryEntry2;
+    private RepositoryEntry repositoryEntry4;
+    private RepositoryEntry repositoryEntry5;
+    private RepositoryEntry repositoryEntry6;
 
     @Before
     public void before() {
         campusCourseConfiguration.setMaxYearsToKeepCkData(1);
         courseDao = new CourseDao(dbInstance, semesterDao);
-    }
-
-    @After
-    public void after() {
-        dbInstance.rollback();
     }
 
     @Test
@@ -226,19 +221,19 @@ public class CourseDaoTest extends OlatTestCase {
     }
 
     @Test
-    public void testLatestCourseByOlatResource() throws Exception {
+    public void testLatestCourseByRepositoryEntry() throws Exception {
         insertTestData();
 
-        // Make course 400 to be the parent course of 300, 500 the parent of 400 and 600 the parent of 500 and set for courses 300, 400 and 500 the olat resource of course 600
+        // Make course 400 to be the parent course of 300, 500 the parent of 400 and 600 the parent of 500 and set for courses 300, 400 and 500 the repository entry of course 600
         courseDao.saveParentCourseId(300L, 400L);
         courseDao.saveParentCourseId(400L, 500L);
         courseDao.saveParentCourseId(500L, 600L);
         Course course = courseDao.getCourseById(600L);
-        courseDao.saveOlatResource(300L, course.getOlatResource().getKey());
-        courseDao.saveOlatResource(400L, course.getOlatResource().getKey());
-        courseDao.saveOlatResource(500L, course.getOlatResource().getKey());
+        courseDao.saveRepositoryEntry(300L, course.getRepositoryEntry().getKey());
+        courseDao.saveRepositoryEntry(400L, course.getRepositoryEntry().getKey());
+        courseDao.saveRepositoryEntry(500L, course.getRepositoryEntry().getKey());
 
-        course = courseDao.getLatestCourseByOlatResource(course.getOlatResource().getKey());
+        course = courseDao.getLatestCourseByRepositoryEntry(course.getRepositoryEntry().getKey());
         assertNotNull(course);
         assertEquals(300L, course.getId().longValue());
     }
@@ -348,23 +343,112 @@ public class CourseDaoTest extends OlatTestCase {
     }
 
     @Test
-    public void testSaveOlatResource() throws CampusCourseException {
+    public void testGetCampusGroupsByRepositoryEntry() throws CampusCourseException {
         insertTestData();
-        Course course = courseDao.getCourseById(300L);
-        assertNull(course.getOlatResource());
 
-        OLATResource olatResource = insertOlatResource("resourceCourseDao3");
+        Course course1 = courseDao.getCourseById(200L);
+        RepositoryEntry repositoryEntry1 = course1.getRepositoryEntry();
+        assertNotNull(repositoryEntry1);
+
+        Course course2 = courseDao.getCourseById(300L);
+        // Add the repository entry of course 1 to course 2
+        courseDao.saveRepositoryEntry(course2.getId(), repositoryEntry1.getKey());
         dbInstance.flush();
 
-        courseDao.saveOlatResource(course.getId(), olatResource.getKey());
+        // Add different campus groups
+        BusinessGroup campusGroupA1 = insertCampusGroup("Campusgruppe A", "Description Campusgruppe A");
+        BusinessGroup campusGroupB1 = insertCampusGroup("Campusgruppe B", "Description Campusgruppe B");
+        BusinessGroup campusGroupA2 = insertCampusGroup("Campusgruppe A", "Description Campusgruppe A");
+        BusinessGroup campusGroupB2 = insertCampusGroup("Campusgruppe B", "Description Campusgruppe B");
+        dbInstance.flush();
 
-        assertEquals(olatResource, course.getOlatResource());
+        courseDao.saveCampusGroupA(course1.getId(), campusGroupA1.getKey());
+        courseDao.saveCampusGroupB(course1.getId(), campusGroupB1.getKey());
+        courseDao.saveCampusGroupA(course2.getId(), campusGroupA2.getKey());
+        courseDao.saveCampusGroupB(course2.getId(), campusGroupB2.getKey());
+        dbInstance.flush();
+
+        Set<CampusGroups> setOfCampusGroups = courseDao.getCampusGroupsByRepositoryEntry(repositoryEntry1.getKey());
+
+        assertNotNull(setOfCampusGroups);
+        assertEquals(2, setOfCampusGroups.size());
+
+        Set<Long> campusGroupAKeys = setOfCampusGroups.stream().map(campusGroups -> campusGroups.getCampusGroupA().getKey()).collect(Collectors.toSet());
+        Set<Long> campusGroupBKeys = setOfCampusGroups.stream().map(campusGroups -> campusGroups.getCampusGroupB().getKey()).collect(Collectors.toSet());
+        assertTrue(campusGroupAKeys.contains(campusGroupA1.getKey()));
+        assertTrue(campusGroupAKeys.contains(campusGroupA2.getKey()));
+        assertTrue(campusGroupBKeys.contains(campusGroupB1.getKey()));
+        assertTrue(campusGroupBKeys.contains(campusGroupB2.getKey()));
+
+        // Campus course without campus groups
+        Course course3 = courseDao.getCourseById(100L);
+        RepositoryEntry repositoryEntry3 = course3.getRepositoryEntry();
+        assertNotNull(repositoryEntry3);
+        assertNull(course3.getCampusGroupA());
+        assertNull(course3.getCampusGroupB());
+
+        setOfCampusGroups = courseDao.getCampusGroupsByRepositoryEntry(repositoryEntry3.getKey());
+
+        assertNotNull(setOfCampusGroups);
+        assertTrue(setOfCampusGroups.isEmpty());
+    }
+
+    @Test
+    public void testSaveRepositoryEntry() throws CampusCourseException {
+        insertTestData();
+        Course course = courseDao.getCourseById(300L);
+        assertNull(course.getRepositoryEntry());
+
+        RepositoryEntry repositoryEntry3 = repositoryService.create("Rei Ayanami", "-", "Repository entry 3 CourseDaoTest", "", null);
+        courseDao.saveRepositoryEntry(course.getId(), repositoryEntry3.getKey());
+
+        assertEquals(repositoryEntry3, course.getRepositoryEntry());
 
         dbInstance.flush();
         dbInstance.clear();
 
         Course updatedCourse = courseDao.getCourseById(course.getId());
-        assertEquals(olatResource, updatedCourse.getOlatResource());
+        assertEquals(repositoryEntry3, updatedCourse.getRepositoryEntry());
+    }
+
+    @Test
+    public void testSaveCampusGroupA() throws CampusCourseException {
+        insertTestData();
+        Course course = courseDao.getCourseById(300L);
+        assertNull(course.getCampusGroupA());
+
+        BusinessGroup campusGroupA = insertCampusGroup("Campusgruppe A", "Description Campusgruppe A");
+        dbInstance.flush();
+
+        courseDao.saveCampusGroupA(course.getId(), campusGroupA.getKey());
+
+        assertEquals(campusGroupA, course.getCampusGroupA());
+
+        dbInstance.flush();
+        dbInstance.clear();
+
+        Course updatedCourse = courseDao.getCourseById(course.getId());
+        assertEquals(campusGroupA, updatedCourse.getCampusGroupA());
+    }
+
+    @Test
+    public void testSaveCampusGroupB() throws CampusCourseException {
+        insertTestData();
+        Course course = courseDao.getCourseById(300L);
+        assertNull(course.getCampusGroupB());
+
+        BusinessGroup campusGroupB = insertCampusGroup("Campusgruppe B", "Description Campusgruppe B");
+        dbInstance.flush();
+
+        courseDao.saveCampusGroupB(course.getId(), campusGroupB.getKey());
+
+        assertEquals(campusGroupB, course.getCampusGroupB());
+
+        dbInstance.flush();
+        dbInstance.clear();
+
+        Course updatedCourse = courseDao.getCourseById(course.getId());
+        assertEquals(campusGroupB, updatedCourse.getCampusGroupB());
     }
 
     @Test
@@ -385,34 +469,76 @@ public class CourseDaoTest extends OlatTestCase {
     }
 
     @Test
-    public void testResetOlatResourceAndParentCourse() throws CampusCourseException {
+    public void testResetRepositoryEntryAndParentCourse() throws CampusCourseException {
         insertTestData();
         Course courseWithoutParentCourse = courseDao.getCourseById(100L);
         Course courseWithParentCourse = courseDao.getCourseById(200L);
+        dbInstance.flush();
+
         // Make course 400 to be the parent course of 200
         courseDao.saveParentCourseId(200L, 400L);
-        assertEquals(olatResource1, courseWithoutParentCourse.getOlatResource());
+        assertEquals(repositoryEntry1, courseWithoutParentCourse.getRepositoryEntry());
         assertNull(courseWithoutParentCourse.getParentCourse());
-        assertEquals(olatResource2, courseWithParentCourse.getOlatResource());
+        assertEquals(repositoryEntry2, courseWithParentCourse.getRepositoryEntry());
         assertNotNull(courseWithParentCourse.getParentCourse());
 
-        courseDao.resetOlatResourceAndParentCourse(olatResource1.getKey());
-        courseDao.resetOlatResourceAndParentCourse(olatResource2.getKey());
+        courseDao.resetRepositoryEntryAndParentCourse(repositoryEntry1.getKey());
+        courseDao.resetRepositoryEntryAndParentCourse(repositoryEntry2.getKey());
 
-        assertNull(courseWithoutParentCourse.getOlatResource());
+        assertNull(courseWithoutParentCourse.getRepositoryEntry());
         assertNull(courseWithoutParentCourse.getParentCourse());
-        assertNull(courseWithParentCourse.getOlatResource());
+        assertNull(courseWithParentCourse.getRepositoryEntry());
         assertNull(courseWithParentCourse.getParentCourse());
 
         dbInstance.flush();
         dbInstance.clear();
 
         Course updatedCourseWithoutParentCourse = courseDao.getCourseById(100L);
-        assertNull(updatedCourseWithoutParentCourse.getOlatResource());
+        assertNull(updatedCourseWithoutParentCourse.getRepositoryEntry());
         assertNull(updatedCourseWithoutParentCourse.getParentCourse());
-        Course updatedCourseWithParentCourse = courseDao.getCourseById(200L);
-        assertNull(updatedCourseWithParentCourse.getOlatResource());
-        assertNull(updatedCourseWithParentCourse.getParentCourse());
+        Course updatedCourseWithParentcourse = courseDao.getCourseById(200L);
+        assertNull(updatedCourseWithParentcourse.getRepositoryEntry());
+        assertNull(updatedCourseWithParentcourse.getParentCourse());
+    }
+
+    @Test
+    public void testResetCampusGroup() throws CampusCourseException {
+        insertTestData();
+        BusinessGroup campusGroupA = insertCampusGroup("Campusgruppe A", "Description Campusgruppe A");
+        BusinessGroup campusGroupB = insertCampusGroup("Campusgruppe B", "Description Campusgruppe B");
+        dbInstance.flush();
+
+        Course course = courseDao.getCourseById(100L);
+        courseDao.saveCampusGroupA(course.getId(), campusGroupA.getKey());
+        courseDao.saveCampusGroupB(course.getId(), campusGroupB.getKey());
+        dbInstance.flush();
+
+        assertEquals(campusGroupA, course.getCampusGroupA());
+        assertEquals(campusGroupB, course.getCampusGroupB());
+
+        // Reset campus group A
+        courseDao.resetCampusGroup(campusGroupA.getKey());
+        dbInstance.flush();
+
+        course = courseDao.getCourseById(course.getId());
+        assertNull(course.getCampusGroupA());
+        assertEquals(campusGroupB, course.getCampusGroupB());
+
+        // Add campus group A again
+        courseDao.saveCampusGroupA(course.getId(), campusGroupA.getKey());
+        dbInstance.flush();
+
+        course = courseDao.getCourseById(course.getId());
+        assertEquals(campusGroupA, course.getCampusGroupA());
+        assertEquals(campusGroupB, course.getCampusGroupB());
+
+        // Reset campus group B
+        courseDao.resetCampusGroup(campusGroupB.getKey());
+        dbInstance.flush();
+
+        course = courseDao.getCourseById(course.getId());
+        assertEquals(campusGroupA, course.getCampusGroupA());
+        assertNull(course.getCampusGroupB());
     }
 
     @Test
@@ -445,7 +571,7 @@ public class CourseDaoTest extends OlatTestCase {
     }
 
     @Test
-    public void testGetOlatResourceKeysOfAllCreatedNotContinuedCoursesOfSpecificSemesters() throws CampusCourseException {
+    public void testGetRepositoryEntryKeysOfAllCreatedNotContinuedCoursesOfSpecificSemesters() throws CampusCourseException {
         insertTestData();
 
         Semester semester1 = semesterDao.getSemesterBySemesterNameAndYear(SemesterName.FRUEHJAHRSSEMESTER, 2099);
@@ -460,28 +586,26 @@ public class CourseDaoTest extends OlatTestCase {
         semesterIds.add(semester2.getId());
         semesterIds.add(semester3.getId());
 
-        List<Long> olatResourceKeysOfAllCreatedNotContinuedCoursesOfSpecificSemesters = courseDao.getOlatResourceKeysOfAllCreatedNotContinuedCoursesOfSpecificSemesters(semesterIds);
-        assertEquals(3, olatResourceKeysOfAllCreatedNotContinuedCoursesOfSpecificSemesters.size());
-        assertTrue(olatResourceKeysOfAllCreatedNotContinuedCoursesOfSpecificSemesters.contains(olatResource4.getKey()));
-        assertTrue(olatResourceKeysOfAllCreatedNotContinuedCoursesOfSpecificSemesters.contains(olatResource5.getKey()));
-        assertTrue(olatResourceKeysOfAllCreatedNotContinuedCoursesOfSpecificSemesters.contains(olatResource6.getKey()));
+        List<Long> repositoryEntryKeysOfAllCreatedNotContinuedCoursesOfSpecificSemesters = courseDao.getRepositoryEntryKeysOfAllCreatedNotContinuedCoursesOfSpecificSemesters(semesterIds);
+        assertEquals(3, repositoryEntryKeysOfAllCreatedNotContinuedCoursesOfSpecificSemesters.size());
+        assertTrue(repositoryEntryKeysOfAllCreatedNotContinuedCoursesOfSpecificSemesters.contains(repositoryEntry4.getKey()));
+        assertTrue(repositoryEntryKeysOfAllCreatedNotContinuedCoursesOfSpecificSemesters.contains(repositoryEntry5.getKey()));
+        assertTrue(repositoryEntryKeysOfAllCreatedNotContinuedCoursesOfSpecificSemesters.contains(repositoryEntry6.getKey()));
 
-        // Make course 400 to be the parent course of 300 and set set the same olat resource for courses 300 and 400
+        // Make course 400 to be the parent course of 300 and set set the same repository entry for courses 300 and 400
         // -> Should not contain course 400 any more, because it is continued, i.e. it is the parent of course 300
         dbInstance.clear();
         courseDao.saveParentCourseId(300L, 400L);
 
-        OLATResource olatResource = insertOlatResource("resourceCourseDao1");
+        RepositoryEntry repositoryEntry = repositoryService.create("Rei Ayanami", "-", "Repository entry CourseDaoTest", "", null);
+        courseDao.saveRepositoryEntry(300L, repositoryEntry.getKey());
+        courseDao.saveRepositoryEntry(400L, repositoryEntry.getKey());
         dbInstance.flush();
 
-        courseDao.saveOlatResource(300L, olatResource.getKey());
-        courseDao.saveOlatResource(400L, olatResource.getKey());
-        dbInstance.flush();
-
-        olatResourceKeysOfAllCreatedNotContinuedCoursesOfSpecificSemesters = courseDao.getOlatResourceKeysOfAllCreatedNotContinuedCoursesOfSpecificSemesters(semesterIds);
-        assertEquals(2, olatResourceKeysOfAllCreatedNotContinuedCoursesOfSpecificSemesters.size());
-        assertTrue(olatResourceKeysOfAllCreatedNotContinuedCoursesOfSpecificSemesters.contains(olatResource5.getKey()));
-        assertTrue(olatResourceKeysOfAllCreatedNotContinuedCoursesOfSpecificSemesters.contains(olatResource6.getKey()));
+        repositoryEntryKeysOfAllCreatedNotContinuedCoursesOfSpecificSemesters = courseDao.getRepositoryEntryKeysOfAllCreatedNotContinuedCoursesOfSpecificSemesters(semesterIds);
+        assertEquals(2, repositoryEntryKeysOfAllCreatedNotContinuedCoursesOfSpecificSemesters.size());
+        assertTrue(repositoryEntryKeysOfAllCreatedNotContinuedCoursesOfSpecificSemesters.contains(repositoryEntry5.getKey()));
+        assertTrue(repositoryEntryKeysOfAllCreatedNotContinuedCoursesOfSpecificSemesters.contains(repositoryEntry6.getKey()));
 
         // If we look for courses in 99HS, we should get course 300, which has a parent, but is not continued itself
         dbInstance.clear();
@@ -492,33 +616,31 @@ public class CourseDaoTest extends OlatTestCase {
         semesterIds = new ArrayList<>();
         semesterIds.add(semester4.getId());
 
-        olatResourceKeysOfAllCreatedNotContinuedCoursesOfSpecificSemesters = courseDao.getOlatResourceKeysOfAllCreatedNotContinuedCoursesOfSpecificSemesters(semesterIds);
-        assertTrue(olatResourceKeysOfAllCreatedNotContinuedCoursesOfSpecificSemesters.contains(olatResource.getKey()));
+        repositoryEntryKeysOfAllCreatedNotContinuedCoursesOfSpecificSemesters = courseDao.getRepositoryEntryKeysOfAllCreatedNotContinuedCoursesOfSpecificSemesters(semesterIds);
+        assertTrue(repositoryEntryKeysOfAllCreatedNotContinuedCoursesOfSpecificSemesters.contains(repositoryEntry.getKey()));
     }
 
     @Test
-    public void testGetOlatResourceKeysOfAllCreatedNotContinuedCoursesOfPreviousSemestersNotTooFarInThePast() throws CampusCourseException {
+    public void testGetRepositoryEntryKeysOfAllCreatedNotContinuedCoursesOfPreviousSemestersNotTooFarInThePast() throws CampusCourseException {
         insertTestData();
-        List<Long> olatResourceKeysOfAllCreatedNotContinuedCoursesOfOldSemestersNotTooFarInThePast = courseDao.getOlatResourceKeysOfAllCreatedNotContinuedCoursesOfPreviousSemestersNotTooFarInThePast();
-        assertEquals(2, olatResourceKeysOfAllCreatedNotContinuedCoursesOfOldSemestersNotTooFarInThePast.size());
-        assertTrue(olatResourceKeysOfAllCreatedNotContinuedCoursesOfOldSemestersNotTooFarInThePast.contains(olatResource4.getKey()));
-        assertTrue(olatResourceKeysOfAllCreatedNotContinuedCoursesOfOldSemestersNotTooFarInThePast.contains(olatResource5.getKey()));
+        List<Long> repositoryEntryKeysOfAllCreatedNotContinuedCoursesOfOldSemestersNotTooFarInThePast = courseDao.getRepositoryEntryKeysOfAllCreatedNotContinuedCoursesOfPreviousSemestersNotTooFarInThePast();
+        assertEquals(2, repositoryEntryKeysOfAllCreatedNotContinuedCoursesOfOldSemestersNotTooFarInThePast.size());
+        assertTrue(repositoryEntryKeysOfAllCreatedNotContinuedCoursesOfOldSemestersNotTooFarInThePast.contains(repositoryEntry4.getKey()));
+        assertTrue(repositoryEntryKeysOfAllCreatedNotContinuedCoursesOfOldSemestersNotTooFarInThePast.contains(repositoryEntry5.getKey()));
 
-        // Make course 400 to be the parent course of 300 and set set the same olat resource for courses 300 and 400
+        // Make course 400 to be the parent course of 300 and set set the same repository entry for courses 300 and 400
         // -> Should not contain course 400 any more, because it is continued, i.e. it is the parent of course 300
         dbInstance.clear();
         courseDao.saveParentCourseId(300L, 400L);
 
-        OLATResource olatResource = insertOlatResource("resourceCourseDao1");
+        RepositoryEntry repositoryEntry = repositoryService.create("Rei Ayanami", "-", "Repository entry CourseDaoTest", "", null);
+        courseDao.saveRepositoryEntry(300L, repositoryEntry.getKey());
+        courseDao.saveRepositoryEntry(400L, repositoryEntry.getKey());
         dbInstance.flush();
 
-        courseDao.saveOlatResource(300L, olatResource.getKey());
-        courseDao.saveOlatResource(400L, olatResource.getKey());
-        dbInstance.flush();
-
-        olatResourceKeysOfAllCreatedNotContinuedCoursesOfOldSemestersNotTooFarInThePast = courseDao.getOlatResourceKeysOfAllCreatedNotContinuedCoursesOfPreviousSemestersNotTooFarInThePast();
-        assertEquals(1, olatResourceKeysOfAllCreatedNotContinuedCoursesOfOldSemestersNotTooFarInThePast.size());
-        assertTrue(olatResourceKeysOfAllCreatedNotContinuedCoursesOfOldSemestersNotTooFarInThePast.contains(olatResource5.getKey()));
+        repositoryEntryKeysOfAllCreatedNotContinuedCoursesOfOldSemestersNotTooFarInThePast = courseDao.getRepositoryEntryKeysOfAllCreatedNotContinuedCoursesOfPreviousSemestersNotTooFarInThePast();
+        assertEquals(1, repositoryEntryKeysOfAllCreatedNotContinuedCoursesOfOldSemestersNotTooFarInThePast.size());
+        assertTrue(repositoryEntryKeysOfAllCreatedNotContinuedCoursesOfOldSemestersNotTooFarInThePast.contains(repositoryEntry5.getKey()));
     }
 
     @Test
@@ -526,9 +648,9 @@ public class CourseDaoTest extends OlatTestCase {
         insertTestData();
         assertEquals(2, courseDao.getIdsOfAllCreatedSynchronizableCoursesOfCurrentSemester().size());
 
-        // Remove OLAT resource from course 100
+        // Remove repository entry from course 100
         Course course = courseDao.getCourseById(100L);
-        course.setOlatResource(null);
+        course.setRepositoryEntry(null);
         dbInstance.flush();
 
         assertEquals(1, courseDao.getIdsOfAllCreatedSynchronizableCoursesOfCurrentSemester().size());
@@ -541,9 +663,9 @@ public class CourseDaoTest extends OlatTestCase {
         assertEquals(1, idsFound.size());
         assertTrue(idsFound.contains(300L));
 
-        // Remove OLAT resource from course 100
+        // Remove repository entry from course 100
         Course course = courseDao.getCourseById(100L);
-        course.setOlatResource(null);
+        course.setRepositoryEntry(null);
         dbInstance.flush();
 
         idsFound = courseDao.getIdsOfAllNotCreatedCreatableCoursesOfCurrentSemester();
@@ -587,20 +709,19 @@ public class CourseDaoTest extends OlatTestCase {
     }
 
     @Test
-    public void testExistCoursesForOlatReource() throws CampusCourseException {
+    public void testExistCoursesForRepositoryEntry() throws CampusCourseException {
         insertTestData();
 
-        OLATResource olatResource = insertOlatResource("resourceCourseDao3");
-        dbInstance.flush();
+        RepositoryEntry repositoryEntry = repositoryService.create("Rei Ayanami", "-", "Repository entry CourseDaoTest", "", null);
 
-        assertFalse(courseDao.existCoursesForOlatResource(olatResource.getKey()));
+        assertFalse(courseDao.existCoursesForRepositoryEntry(repositoryEntry.getKey()));
 
         Course course = courseDao.getCourseById(300L);
         assertNotNull(course);
-        courseDao.saveOlatResource(course.getId(), olatResource.getKey());
+        courseDao.saveRepositoryEntry(course.getId(), repositoryEntry.getKey());
         dbInstance.flush();
 
-        assertTrue(courseDao.existCoursesForOlatResource(olatResource.getKey()));
+        assertTrue(courseDao.existCoursesForRepositoryEntry(repositoryEntry.getKey()));
     }
 
     @Test
@@ -629,12 +750,12 @@ public class CourseDaoTest extends OlatTestCase {
         Course course1 = courseDao.getCourseById(300L);
         Course course2 = courseDao.getCourseById(400L);
 
-        // Make course 2 to be the parent course of course 1 and set set the same olat resource for courses 1 and 2
+        // Make course 2 to be the parent course of course 1 and set set the same repository entry for courses 1 and 2
         courseDao.saveParentCourseId(course1.getId(), course2.getId());
 
-        OLATResource olatResource = insertOlatResource("resourceCourseDao1");
-        course1.setOlatResource(olatResource);
-        course2.setOlatResource(olatResource);
+        RepositoryEntry repositoryEntry = repositoryService.create("Rei Ayanami", "-", "Repository entry CourseDaoTest", "", null);
+        course1.setRepositoryEntry(repositoryEntry);
+        course2.setRepositoryEntry(repositoryEntry);
         dbInstance.flush();
 
         // Student 1 has only a booking for course course 1, but not for it's parent course
@@ -754,12 +875,10 @@ public class CourseDaoTest extends OlatTestCase {
         List<Long> courseIds = coursesFound.stream().map(Course::getId).collect(Collectors.toList());
         assertTrue(courseIds.contains(course1.getId()));
 
-        // Add olat resource to courses 1 and 2, i.e. make it created
-        OLATResource olatResource = insertOlatResource("resourceCourseDao1");
-        dbInstance.flush();
-
-        courseDao.saveOlatResource(course1.getId(), olatResource.getKey());
-        courseDao.saveOlatResource(course2.getId(), olatResource.getKey());
+        // Add repository entry to courses 1 and 2, i.e. make it created
+        RepositoryEntry repositoryEntry = repositoryService.create("Rei Ayanami", "-", "Repository entry CourseDaoTest", "", null);
+        courseDao.saveRepositoryEntry(course1.getId(), repositoryEntry.getKey());
+        courseDao.saveRepositoryEntry(course2.getId(), repositoryEntry.getKey());
         dbInstance.flush();
 
         // Should behave as before
@@ -781,20 +900,20 @@ public class CourseDaoTest extends OlatTestCase {
         dbInstance.flush();
 
         // Make course 2 to be the parent course of course 3 (course with disabled org)
-        courseDao.resetOlatResourceAndParentCourse(course1.getOlatResource().getKey());
+        courseDao.resetRepositoryEntryAndParentCourse(course1.getRepositoryEntry().getKey());
         courseDao.saveParentCourseId(course3.getId(), course2.getId());
-        courseDao.saveOlatResource(course3.getId(), olatResource.getKey());
-        courseDao.saveOlatResource(course2.getId(), olatResource.getKey());
+        courseDao.saveRepositoryEntry(course3.getId(), repositoryEntry.getKey());
+        courseDao.saveRepositoryEntry(course2.getId(), repositoryEntry.getKey());
         dbInstance.flush();
 
         // Course 3 should not be found, since it has a disabled org
         assertTrue(courseDao.getCreatedAndNotCreatedCreatableCoursesOfCurrentSemesterByStudentIdBookedByStudentOnlyAsParentCourse(student2.getId()).isEmpty());
 
         // Make course 2 to be the parent course of course 4 (excluded course)
-        courseDao.resetOlatResourceAndParentCourse(course3.getOlatResource().getKey());
+        courseDao.resetRepositoryEntryAndParentCourse(course3.getRepositoryEntry().getKey());
         courseDao.saveParentCourseId(course4.getId(), course2.getId());
-        courseDao.saveOlatResource(course4.getId(), olatResource.getKey());
-        courseDao.saveOlatResource(course2.getId(), olatResource.getKey());
+        courseDao.saveRepositoryEntry(course4.getId(), repositoryEntry.getKey());
+        courseDao.saveRepositoryEntry(course2.getId(), repositoryEntry.getKey());
         dbInstance.flush();
 
         // Course 4 should not be found, since it has a disabled org
@@ -847,53 +966,30 @@ public class CourseDaoTest extends OlatTestCase {
         semesterDao.setCurrentSemester(course.getSemester().getId());
         dbInstance.flush();
 
-        addOlatResourceToCourses_100_200_400_500_600();
+        addOlatRepositoryEntryToCourses_100_200_400_500_600();
     }
 
-    private void addOlatResourceToCourses_100_200_400_500_600() {
+    private void addOlatRepositoryEntryToCourses_100_200_400_500_600() {
+        repositoryEntry1 = repositoryService.create("Rei Ayanami", "-", "Repository entry 1 CourseDaoTest", "", null);
+        repositoryEntry2 = repositoryService.create("Rei Ayanami", "-", "Repository entry 2 CourseDaoTest", "", null);
+        repositoryEntry4 = repositoryService.create("Rei Ayanami", "-", "Repository entry 4 CourseDaoTest", "", null);
+        repositoryEntry5 = repositoryService.create("Rei Ayanami", "-", "Repository entry 5 CourseDaoTest", "", null);
+        repositoryEntry6 = repositoryService.create("Rei Ayanami", "-", "Repository entry 6 CourseDaoTest", "", null);
+        dbInstance.flush();
         Course course1 = courseDao.getCourseById(100L);
         Course course2 = courseDao.getCourseById(200L);
         Course course4 = courseDao.getCourseById(400L);
         Course course5 = courseDao.getCourseById(500L);
         Course course6 = courseDao.getCourseById(600L);
-        olatResource1 = insertOlatResource("resourceCourseDaoTestData1");
-        olatResource2 = insertOlatResource("resourceCourseDaoTestData2");
-        olatResource4 = insertOlatResource("resourceCourseDaoTestData4");
-        olatResource5 = insertOlatResource("resourceCourseDaoTestData5");
-        olatResource6 = insertOlatResource("resourceCourseDaoTestData6");
-        course1.setOlatResource(olatResource1);
-        course2.setOlatResource(olatResource2);
-        course4.setOlatResource(olatResource4);
-        course5.setOlatResource(olatResource5);
-        course6.setOlatResource(olatResource6);
+        course1.setRepositoryEntry(repositoryEntry1);
+        course2.setRepositoryEntry(repositoryEntry2);
+        course4.setRepositoryEntry(repositoryEntry4);
+        course5.setRepositoryEntry(repositoryEntry5);
+        course6.setRepositoryEntry(repositoryEntry6);
         dbInstance.flush();
     }
 
-    private OLATResource insertOlatResource(String olatResourceName) {
-        olatResourceName = "courseDaoTest_" + olatResourceName;
-        TestResourceable resourceable = new TestResourceable(8213649L, olatResourceName);
-        OLATResource olatResource = olatResourceManager.createOLATResourceInstance(resourceable);
-        olatResourceManager.saveOLATResource(olatResource);
-        return olatResource;
-    }
-
-    private static class TestResourceable implements OLATResourceable {
-        private final Long resId;
-        private final String resName;
-
-        TestResourceable(Long resId, String resourceName) {
-            this.resId = resId;
-            this.resName = resourceName;
-        }
-
-        @Override
-        public Long getResourceableId() {
-            return resId;
-        }
-
-        @Override
-        public String getResourceableTypeName() {
-            return resName;
-        }
+    private BusinessGroup insertCampusGroup(String groupName, String groupDescription) {
+        return businessGroupDao.createAndPersist(null, groupName, groupDescription, -1, -1, false, false, false, false, false);
     }
 }

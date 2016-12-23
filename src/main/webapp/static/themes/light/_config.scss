@@ -300,6 +300,7 @@ $o-coursesite-catalog-space-xs 	: $padding-xs-vertical !default;
 $o-coursesite-catalog-border 	: $brand-primary !default;
 $o-coursesite-meta-title-color	: $brand-primary !default;
 $o-coursesite-meta-author-color	: $state-success-text !default;
+$o-coursesite-meta-title-font-size	: ceil(($font-size-base * 2.6)) !default; /* same as h1 default size: 36px */
 $o-coursesite-start-color		: $btn-primary-color !default;
 $o-coursesite-start-bg			: $btn-primary-bg !default;
 $o-coursesite-start-border		: darken($o-coursesite-start-bg, 5%) !default;
@@ -382,6 +383,8 @@ $o-search-details-color			: $text-muted !default;
 $o-search-details-font-size		: $font-size-small !default;
 $o-search-details-bg			: #fff !default;
 $o-search-excerpt-color			: $gray !default;
+$o-search-highlight-color		: $state-warning-bg !default;
+$o-search-highlight-font-weight	: bold !default;
 
 /* Message boxes */
 $o-box-margin					: 20px !default;
@@ -430,6 +433,14 @@ $o-step-done-color			: lighten($brand-primary,10%) !default;
 $o-step-done-marker-color	: $brand-success !default;
 $o-step-meta-color			: $text-muted !default;
 $o-step-meta-size			: $font-size-small !default;
+
+/* Placeholder panels */
+$o-panel-placeholder-border-width	: 2px !default;
+$o-panel-placeholder-border-radius	: 10px !default;
+$o-panel-placeholder-color			: $brand-primary !default;
+$o-panel-placeholder-font-weight	: bold !default;
+$o-panel-placeholder-border-color	: lighten($o-panel-placeholder-color, 20%) !default;
+$o-panel-placeholder-padding		: 10px !default;
 
 /* other configurations */
 $o-portrait-radius				: 50% !default;

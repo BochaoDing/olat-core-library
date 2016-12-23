@@ -25,18 +25,11 @@
 
 package org.olat.admin.quota;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 import org.olat.basesecurity.BaseSecurity;
 import org.olat.basesecurity.BaseSecurityManager;
 import org.olat.basesecurity.Constants;
 import org.olat.core.commons.modules.bc.FolderConfig;
-import org.olat.core.commons.persistence.DBFactory;
+import org.olat.core.commons.persistence.DB;
 import org.olat.core.commons.persistence.DBQuery;
 import org.olat.core.gui.UserRequest;
 import org.olat.core.gui.control.Controller;
@@ -54,6 +47,9 @@ import org.olat.properties.Property;
 import org.olat.properties.PropertyManager;
 import org.olat.resource.OLATResource;
 import org.olat.resource.OLATResourceManager;
+import org.springframework.beans.factory.annotation.Autowired;
+
+import java.util.*;
 
 /**
  * <h3>Description:</h3>
@@ -65,21 +61,27 @@ import org.olat.resource.OLATResourceManager;
  * @author Florian Gnaegi, frentix GmbH, http://www.frentix.com
  */
 public class QuotaManagerImpl extends QuotaManager {
-	private static final OLog log = Tracing.createLoggerFor(QuotaManagerImpl.class);
 
+	private static final OLog log = Tracing.createLoggerFor(QuotaManagerImpl.class);
 	private static final String QUOTA_CATEGORY = "quot";
-	private OLATResource quotaResource;
-	private OLATResourceManager resourceManager;
-	private PropertyManager propertyManager;
-	private static Map<String,Quota> defaultQuotas;
-	
-	/**
-	 * [used by spring]
-	 */
-	private QuotaManagerImpl(OLATResourceManager resourceManager, PropertyManager propertyManager) {
+	private static Map<String, Quota> defaultQuotas;
+
+	private final DB dbInstance;
+	private final OLATResourceManager resourceManager;
+	private final PropertyManager propertyManager;
+	private final OLATResource quotaResource;
+
+	@Autowired
+	private QuotaManagerImpl(DB dbInstance, OLATResourceManager resourceManager, PropertyManager propertyManager) {
+		this.dbInstance = dbInstance;
 		this.resourceManager = resourceManager;
 		this.propertyManager = propertyManager;
 		INSTANCE = this;
+
+		quotaResource = resourceManager.findOrPersistResourceable(OresHelper.lookupType(Quota.class));
+		initDefaultQuotas(); // initialize default quotas
+		dbInstance.intermediateCommit();
+		log.info("Successfully initialized Quota Manager");
 	}
 
 	/**
@@ -89,39 +91,33 @@ public class QuotaManagerImpl extends QuotaManager {
 		return new QuotaImpl(path, quotaKB, ulLimitKB);
 	}
 
-	/**
-	 * [called by spring]
-	 *
-	 */
-	public void init() {
-		quotaResource = resourceManager.findOrPersistResourceable(OresHelper.lookupType(Quota.class));
-		initDefaultQuotas(); // initialize default quotas
-		DBFactory.getInstance().intermediateCommit();
-		log.info("Successfully initialized Quota Manager");
-	}
-
 	private void initDefaultQuotas() {
-		defaultQuotas = new HashMap<String,Quota>();
-		Quota defaultQuotaUsers = initDefaultQuota(QuotaConstants.IDENTIFIER_DEFAULT_USERS);
-		defaultQuotas.put(QuotaConstants.IDENTIFIER_DEFAULT_USERS, defaultQuotaUsers);
-		Quota defaultQuotaPowerusers = initDefaultQuota(QuotaConstants.IDENTIFIER_DEFAULT_POWER);
-		defaultQuotas.put(QuotaConstants.IDENTIFIER_DEFAULT_POWER, defaultQuotaPowerusers);
-		Quota defaultQuotaGroups = initDefaultQuota(QuotaConstants.IDENTIFIER_DEFAULT_GROUPS);
-		defaultQuotas.put(QuotaConstants.IDENTIFIER_DEFAULT_GROUPS, defaultQuotaGroups);
-		Quota defaultQuotaRepository = initDefaultQuota(QuotaConstants.IDENTIFIER_DEFAULT_REPO);
-		defaultQuotas.put(QuotaConstants.IDENTIFIER_DEFAULT_REPO, defaultQuotaRepository);
-		Quota defaultQuotaCourseFolder = initDefaultQuota(QuotaConstants.IDENTIFIER_DEFAULT_COURSE);
-		defaultQuotas.put(QuotaConstants.IDENTIFIER_DEFAULT_COURSE, defaultQuotaCourseFolder);
-		Quota defaultQuotaNodeFolder = initDefaultQuota(QuotaConstants.IDENTIFIER_DEFAULT_NODES);
-		defaultQuotas.put(QuotaConstants.IDENTIFIER_DEFAULT_NODES, defaultQuotaNodeFolder);
-		Quota defaultQuotaFeed = initDefaultQuota(QuotaConstants.IDENTIFIER_DEFAULT_FEEDS);
-		defaultQuotas.put(QuotaConstants.IDENTIFIER_DEFAULT_FEEDS, defaultQuotaFeed);
+		if (defaultQuotas == null) {
+			HashMap<String, Quota> tmp = new HashMap<>();
+			Quota defaultQuotaUsers = initDefaultQuota(QuotaConstants.IDENTIFIER_DEFAULT_USERS);
+			tmp.put(QuotaConstants.IDENTIFIER_DEFAULT_USERS, defaultQuotaUsers);
+			Quota defaultQuotaPowerusers = initDefaultQuota(QuotaConstants.IDENTIFIER_DEFAULT_POWER);
+			tmp.put(QuotaConstants.IDENTIFIER_DEFAULT_POWER, defaultQuotaPowerusers);
+			Quota defaultQuotaGroups = initDefaultQuota(QuotaConstants.IDENTIFIER_DEFAULT_GROUPS);
+			tmp.put(QuotaConstants.IDENTIFIER_DEFAULT_GROUPS, defaultQuotaGroups);
+			Quota defaultQuotaRepository = initDefaultQuota(QuotaConstants.IDENTIFIER_DEFAULT_REPO);
+			tmp.put(QuotaConstants.IDENTIFIER_DEFAULT_REPO, defaultQuotaRepository);
+			Quota defaultQuotaCourseFolder = initDefaultQuota(QuotaConstants.IDENTIFIER_DEFAULT_COURSE);
+			tmp.put(QuotaConstants.IDENTIFIER_DEFAULT_COURSE, defaultQuotaCourseFolder);
+			Quota defaultQuotaNodeFolder = initDefaultQuota(QuotaConstants.IDENTIFIER_DEFAULT_NODES);
+			tmp.put(QuotaConstants.IDENTIFIER_DEFAULT_NODES, defaultQuotaNodeFolder);
+			Quota defaultQuotaFeed = initDefaultQuota(QuotaConstants.IDENTIFIER_DEFAULT_FEEDS);
+			tmp.put(QuotaConstants.IDENTIFIER_DEFAULT_FEEDS, defaultQuotaFeed);
+
+			if (defaultQuotas == null) {
+				defaultQuotas = Collections.unmodifiableMap(tmp);
+			}
+		}
 	}
 
 	/**
 	 * 
 	 * @param quotaIdentifier
-	 * @param factor Multiplier for some long running resources as blogs
 	 * @return
 	 */
 	private Quota initDefaultQuota(String quotaIdentifier) {
@@ -141,9 +137,6 @@ public class QuotaManagerImpl extends QuotaManager {
 	 */
 	@Override
 	public Set<String> getDefaultQuotaIdentifyers() {
-		if (defaultQuotas == null) {
-			throw new OLATRuntimeException(QuotaManagerImpl.class, "Quota manager has not been initialized properly! Must call init() first.", null);
-		}
 		return defaultQuotas.keySet();
 	}
 	
@@ -155,9 +148,6 @@ public class QuotaManagerImpl extends QuotaManager {
 	 * @return
 	 */
 	public Quota getDefaultQuota(String identifyer) {
-		if (defaultQuotas == null) {
-			throw new OLATRuntimeException(QuotaManagerImpl.class, "Quota manager has not been initialized properly! Must call init() first.", null);
-		}
 		return defaultQuotas.get(identifyer);
 	}
 
@@ -169,10 +159,6 @@ public class QuotaManagerImpl extends QuotaManager {
 	 * @return Quota object.
 	 */
 	public Quota getCustomQuota(String path) {
-		if (defaultQuotas == null) {
-			throw new OLATRuntimeException(QuotaManagerImpl.class, "Quota manager has not been initialized properly! Must call init() first.", null);
-		}
-		
 		StringBuilder query = new StringBuilder();
 		query.append("select prop.name, prop.stringValue from ").append(Property.class.getName()).append(" as prop where ")
 		     .append(" prop.category='").append(QUOTA_CATEGORY).append("'")
@@ -181,7 +167,7 @@ public class QuotaManagerImpl extends QuotaManager {
 		     .append(" and prop.name=:name")
 		     .append(" and prop.identity is null and prop.grp is null");
 		
-		DBQuery dbquery = DBFactory.getInstance().createQuery(query.toString());
+		DBQuery dbquery = dbInstance.createQuery(query.toString());
 		dbquery.setString("name", path);
 		dbquery.setCacheable(true);
 		@SuppressWarnings("unchecked")
@@ -200,9 +186,6 @@ public class QuotaManagerImpl extends QuotaManager {
 	 * @param quota
 	 */
 	public void setCustomQuotaKB(Quota quota) {
-		if (defaultQuotas == null) {
-			throw new OLATRuntimeException(QuotaManagerImpl.class, "Quota manager has not been initialized properly! Must call init() first.", null);
-		}
 		PropertyManager pm = PropertyManager.getInstance();
 		Property p = pm.findProperty(null, null, quotaResource, QUOTA_CATEGORY, quota.getPath());
 		if (p == null) { // create new entry
@@ -224,9 +207,6 @@ public class QuotaManagerImpl extends QuotaManager {
 	 *         not deleted because it was a default quota that can not be deleted
 	 */
 	public boolean deleteCustomQuota(Quota quota) {
-		if (defaultQuotas == null) {
-			throw new OLATRuntimeException(QuotaManagerImpl.class, "Quota manager has not been initialized properly! Must call init() first.", null);
-		}
 		// do not allow to delete default quotas!
 		if (quota.getPath().startsWith(QuotaConstants.IDENTIFIER_DEFAULT)) {
 			return false;
@@ -244,9 +224,6 @@ public class QuotaManagerImpl extends QuotaManager {
 	 */
 	@Override
 	public List<Quota> listCustomQuotasKB() {
-		if (defaultQuotas == null) {
-			throw new OLATRuntimeException(QuotaManagerImpl.class, "Quota manager has not been initialized properly! Must call init() first.", null);
-		}
 		List<Quota> results = new ArrayList<Quota>();
 		PropertyManager pm = PropertyManager.getInstance();
 		List<Property> props = pm.listProperties(null, null, quotaResource, QUOTA_CATEGORY, null);
@@ -368,28 +345,20 @@ public class QuotaManagerImpl extends QuotaManager {
 	/**
 	 * get default quota for normal users. On places where you have users with
 	 * different roles use
-	 * 
-	 * @see getDefaultQuotaDependingOnRole(Identity identity)
+	 *
 	 * @return Quota
 	 */
 	private Quota getDefaultQuotaUsers() {
-		if (defaultQuotas == null) {
-			throw new OLATRuntimeException(QuotaManagerImpl.class, "Quota manager has not been initialized properly! Must call init() first.", null);
-		}
 		return defaultQuotas.get(QuotaConstants.IDENTIFIER_DEFAULT_USERS);
 	}
 
 	/**
 	 * get default quota for power users (authors). On places where you have users
 	 * with different roles use
-	 * 
-	 * @see getDefaultQuotaDependingOnRole(Identity identity)
+	 *
 	 * @return Quota
 	 */
 	private Quota getDefaultQuotaPowerUsers() {
-		if (defaultQuotas == null) {
-			throw new OLATRuntimeException(QuotaManagerImpl.class, "Quota manager has not been initialized properly! Must call init() first.", null);
-		}
 		return defaultQuotas.get(QuotaConstants.IDENTIFIER_DEFAULT_POWER);
 	}
 

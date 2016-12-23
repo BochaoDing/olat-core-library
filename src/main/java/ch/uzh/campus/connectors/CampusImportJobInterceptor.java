@@ -3,7 +3,6 @@ package ch.uzh.campus.connectors;
 import ch.uzh.campus.data.DaoManager;
 import ch.uzh.campus.data.LecturerIdCourseId;
 import ch.uzh.campus.data.StudentIdCourseId;
-import ch.uzh.campus.metric.CampusNotifier;
 import org.olat.core.commons.persistence.DB;
 import org.olat.core.logging.OLog;
 import org.olat.core.logging.Tracing;
@@ -24,13 +23,11 @@ public class CampusImportJobInterceptor implements JobExecutionListener {
 
     private final DB dbInstance;
 	private final DaoManager daoManager;
-	private final CampusNotifier campusNotifier;
 
 	@Autowired
-	public CampusImportJobInterceptor(DB dbInstance, DaoManager daoManager, CampusNotifier campusNotifier) {
+	public CampusImportJobInterceptor(DB dbInstance, DaoManager daoManager) {
 		this.dbInstance = dbInstance;
 		this.daoManager = daoManager;
-		this.campusNotifier = campusNotifier;
 	}
 
 	@Override
@@ -41,19 +38,11 @@ public class CampusImportJobInterceptor implements JobExecutionListener {
 	@Override
 	public void afterJob(JobExecution jobExecution) {
 		LOG.info("afterJob " + jobExecution.getJobInstance().getJobName());
-		removeOldDataIfExist(jobExecution);
-		campusNotifier.notifyJobExecution(jobExecution);
+		removeNotUpdatedData(jobExecution);
 	}
 
-	/**
-	 * Delegates the actual deletion of old data to the {@link DaoManager} in
-	 * the case of a successful job processing.
-	 *
-	 * @param jobExecution
-	 *            the JobExecution
-	 */
-	private void removeOldDataIfExist(JobExecution jobExecution) {
-		if ((BatchStatus.COMPLETED == jobExecution.getStatus()) == false) {
+	private void removeNotUpdatedData(JobExecution jobExecution) {
+		if (jobExecution.getStatus() != BatchStatus.COMPLETED) {
 			return;
 		}
 

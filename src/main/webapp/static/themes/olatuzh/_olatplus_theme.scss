@@ -1,0 +1,186 @@
+/* Nav bar */
+#o_navbar_wrapper {
+	border: 0;
+	border-bottom: 5px solid #1aa6be; /* style guide */
+}
+.o_navbar-brand {
+	/* width - height */
+	@include img-retina("images/logo-1x.png", "images/logo-2x.png", 50px, 50px);
+	background-position: 0 0;
+	background-repeat: no-repeat;
+	height: 50px;
+	width: 60px;	
+}
+
+/* desaturate login bg images to match theme style */
+#o_body.o_dmz #o_bg {
+	filter: grayscale(70%);
+}
+
+/* when inverting navbar, prevent hover bg on right navbar elements */
+#o_navbar_tools_permanent, #o_navbar_tools_personal {
+	> li > a {
+		&:focus,
+		&:hover {
+			background-color: transparent;
+			color: inherit;
+		}
+	}	
+}
+
+/* bold active navbar items */
+.o_navbar-nav>.active>a,
+.o_navbar-nav>.active>a:hover {
+	font-weight: bold;
+}
+
+/* Active segments without hover effect, bold font */
+.o_segments {
+	font-color: #333; 				/* style guide */
+	.btn-default {
+		background-color: #e6e6e6;	/* style guide */	
+		&:hover, 
+		&:focus, 
+		&.focus, 
+		&:active, 
+		&.active {
+			background-color: #e6e6e6;	/* style guide */
+			color: #1aa6be;				/* style guide */
+		}	
+	}
+	.btn-primary {
+		background-color: #cdcdcd; 	/* style guide */
+		border-color: #e6e6e6;		
+		color: #333;				/* style guide */
+		font-weight: bold;			/* style guide */
+		&:hover, 
+		&:focus, 
+		&.focus, 
+		&:active, 
+		&.active {
+			background-color: #cdcdcd;	/* style guide */
+			border-color: #e6e6e6;		
+			color: #333;				/* style guide */
+		}	
+	}	
+}
+
+/* No underlined links in menu tree */
+.o_tree {
+	a:hover, a:focus {
+		text-decoration: none;
+	}
+}
+
+/* Tabbed panes styling */
+.nav-tabs {
+	a {
+		color: #555; 			/* style guide */
+		&:hover {
+			color: #1aa6be; 	/* style guide */		
+		}
+	}
+	
+	.active a {
+		color: #555; 			/* style guide */
+		font-weight: bold;		/* style guide */
+		&:hover {
+			color: #1aa6be; 	/* style guide */		
+		}
+	}
+}
+
+/* Remove OpenOLAT logo and version info in footer and replace it with UZH logo to hide the real product beeing used */
+/* style guide */
+#o_footer_powered,
+#o_footer_version {
+	display: none;
+}
+
+/* Add custom footer. Element is added to DOM in theme.js */
+/* style guide */
+#o_footer_uzh { 
+	position: absolute; 
+	top: ($line-height-computed + $o-footer-padding-top);
+	right: ($grid-gutter-width / 2);
+	z-index: 1;
+	@include img-retina("images/logo-footer-1x.png", "images/logo-footer-2x.png", 100px, 44px);
+	background-repeat: no-repeat;	
+	background-size: 100px 44px;
+	width: 100px;
+	height:44px;
+}	
+#o_footer_olatplus { 
+	position: absolute; 
+	top: $o-footer-padding-top;
+	right: ($grid-gutter-width / 2);
+	width: 100px;
+	text-align: center;
+}
+/* hide images and stuff on mobile */
+@media (max-width: $screen-xs-max) { 
+	#o_footer_wrapper {
+		height: 60px;
+	}
+	#o_footer_uzh {
+		top: $o-footer-padding-top;
+		background-image: none;
+		width: auto;
+		heigt: auto;
+		&:after { 
+			content:"Universität Zürich"; 
+			font-family: $font-family-base; 
+			font-size: $o-footer-share-font-size;
+		}
+	}
+	#o_footer_olatplus {
+		display: none;
+	}
+}
+
+/* Remove about menu to hide real authorship of product */
+/* style guide */
+#o_navbar_about {
+	display: none;
+}
+
+/* Remove OpenOLAT logo */
+/* style guide */
+.o_icon_provider_olat:before { 
+	font: normal normal normal 2em FontAwesome !important;
+	content: $fa-var-sign-in;
+}
+
+
+/* Use Fontawesome icon as placeholder for no-preview icon */
+/* style guide */
+.o_visual .o_visual_not_available {
+	background-image: url('images/visual_not_available.png');
+}
+
+/* Fix wrong alignment of group creation link in course creation wizard */
+.o_sel_course_create_wizard .o_wizard_steps_current_content td:last-child {
+	padding-top: 35px !important;
+}
+
+
+/* Replace portrait images with custom avatars */
+.o_portrait_avatar,
+.o_portrait_dummy,
+.o_portrait_dummy_female_big,
+.o_portrait_dummy_male_big,
+.o_portrait_anonymous 			 {width: 100px; height: 100px;}
+.o_portrait_dummy                {background-image: url('images/avatar/dummy.png');}
+.o_portrait_dummy_female_big     {background-image: url('images/avatar/dummy_female_big.png');}
+.o_portrait_dummy_male_big       {background-image: url('images/avatar/dummy_male_big.png');}
+.o_portrait_anonymous 			 {background-image: url('images/avatar/anonymous.png'); }
+
+.o_portrait_avatar_small,
+.o_portrait_dummy_small,
+.o_portrait_dummy_female_small,
+.o_portrait_dummy_male_small,
+.o_portrait_anonymous_small 	 {width: 30px; height: 30px;}
+.o_portrait_dummy_small          {background-image: url('images/avatar/dummy_small.png');}
+.o_portrait_dummy_female_small   {background-image: url('images/avatar/dummy_female_small.png');}
+.o_portrait_dummy_male_small     {background-image: url('images/avatar/dummy_male_small.png');}
+.o_portrait_anonymous_small 	 {background-image: url('images/avatar/anonymous_small.png'); } 

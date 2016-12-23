@@ -41,6 +41,7 @@ import org.olat.core.id.UserConstants;
 import org.olat.core.logging.OLog;
 import org.olat.core.logging.Tracing;
 import org.olat.user.UserDataDeletable;
+import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * Description: Useful functions for download
@@ -53,12 +54,11 @@ public class QTIResultManager implements UserDataDeletable {
 
 	private static QTIResultManager instance;
 	
-	private DB dbInstance;
+	private final DB dbInstance;
 
-	/**
-	 * Constructor for QTIResultManager.
-	 */
-	private QTIResultManager() {
+	@Autowired
+	private QTIResultManager(DB dbInstance) {
+		this.dbInstance = dbInstance;
 		instance = this;
 	}
 
@@ -67,14 +67,6 @@ public class QTIResultManager implements UserDataDeletable {
 	 */
 	public static QTIResultManager getInstance() {
 		return instance;
-	}
-	
-	/**
-	 * [user by Spring]
-	 * @param dbInstance
-	 */
-	public void setDbInstance(DB dbInstance) {
-		this.dbInstance = dbInstance;
 	}
 
 	/**

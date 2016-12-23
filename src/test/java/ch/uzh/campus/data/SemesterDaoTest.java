@@ -1,13 +1,11 @@
 package ch.uzh.campus.data;
 
 import ch.uzh.campus.CampusCourseConfiguration;
-import org.junit.After;
+import ch.uzh.campus.CampusCourseTestCase;
 import org.junit.Before;
 import org.junit.Test;
-import org.olat.core.commons.persistence.DB;
-import org.olat.test.OlatTestCase;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.ContextConfiguration;
+import org.springframework.stereotype.Component;
 
 import java.util.List;
 
@@ -18,11 +16,8 @@ import static org.junit.Assert.*;
 /**
  * @author Martin Schraner
  */
-@ContextConfiguration(locations = {"classpath:ch/uzh/campus/data/_spring/mockDataContext.xml"})
-public class SemesterDaoTest extends OlatTestCase {
-	
-	@Autowired
-	private DB dbInstance;
+@Component
+public class SemesterDaoTest extends CampusCourseTestCase {
 
     @Autowired
     private CampusCourseConfiguration campusCourseConfiguration;
@@ -46,11 +41,6 @@ public class SemesterDaoTest extends OlatTestCase {
         campusCourseConfiguration.setMaxYearsToKeepCkData(3);
         semesterDao = new SemesterDao(dbInstance, campusCourseConfiguration);
         insertTestData();
-    }
-    
-    @After
-    public void after() {
-    	dbInstance.rollback();
     }
 
     @Test

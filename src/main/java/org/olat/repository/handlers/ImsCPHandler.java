@@ -55,6 +55,7 @@ import org.olat.core.util.vfs.QuotaManager;
 import org.olat.core.util.vfs.callbacks.FullAccessWithQuotaCallback;
 import org.olat.core.util.vfs.callbacks.VFSSecurityCallback;
 import org.olat.course.assessment.AssessmentMode;
+import org.olat.course.assessment.manager.UserCourseInformationsManager;
 import org.olat.fileresource.FileResourceManager;
 import org.olat.fileresource.ZippedDirectoryMediaResource;
 import org.olat.fileresource.types.FileResource;
@@ -201,8 +202,12 @@ public class ImsCPHandler extends FileHandler {
 							RepositoryEntry entry, RepositoryEntrySecurity security, AssessmentMode assessmentMode) {
 						boolean activateFirstPage = true;
 						String initialUri = null;
+
+						CoreSpringFactory.getImpl(UserCourseInformationsManager.class)
+							.updateUserCourseInformations(entry.getOlatResource(), uureq.getIdentity());
 						
-						CPDisplayController cpCtr = new CPDisplayController(uureq, wwControl, vfsWrapper, true, true, activateFirstPage, true, deliveryOptions, initialUri, entry.getOlatResource(), "", false);
+						CPDisplayController cpCtr = new CPDisplayController(uureq, wwControl, vfsWrapper, true, true, activateFirstPage, true, deliveryOptions,
+								initialUri, entry.getOlatResource(), "", false);
 						MainLayout3ColumnsController ctr = new LayoutMain3ColsController(uureq, wwControl, cpCtr.getMenuComponent(), cpCtr.getInitialComponent(), vfsWrapper.getName());
 						ctr.addDisposableChildController(cpCtr);
 						return ctr;

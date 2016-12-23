@@ -2,20 +2,17 @@ package ch.uzh.campus.data;
 
 import ch.uzh.campus.CampusCourseConfiguration;
 import ch.uzh.campus.CampusCourseException;
+import ch.uzh.campus.CampusCourseTestCase;
 import ch.uzh.campus.utils.DateUtil;
-import org.junit.After;
 import org.junit.Test;
 import org.olat.basesecurity.IdentityImpl;
-import org.olat.core.commons.persistence.DB;
 import org.olat.core.id.Identity;
-import org.olat.core.id.OLATResourceable;
 import org.olat.core.id.User;
-import org.olat.resource.OLATResource;
-import org.olat.resource.OLATResourceManager;
-import org.olat.test.OlatTestCase;
+import org.olat.repository.RepositoryEntry;
+import org.olat.repository.RepositoryService;
 import org.olat.user.UserManager;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.ContextConfiguration;
+import org.springframework.stereotype.Component;
 
 import javax.inject.Provider;
 import java.util.Date;
@@ -33,14 +30,11 @@ import static org.junit.Assert.*;
  * @author Martin Schraner
  */
 
-@ContextConfiguration(locations = {"classpath:ch/uzh/campus/data/_spring/mockDataContext.xml" })
-public class StudentDaoTest extends OlatTestCase {
+@Component
+public class StudentDaoTest extends CampusCourseTestCase {
 
     @Autowired
     private CampusCourseConfiguration campusCourseConfiguration;
-
-    @Autowired
-    private DB dbInstance;
 
     @Autowired
     private StudentDao studentDao;
@@ -64,14 +58,9 @@ public class StudentDaoTest extends OlatTestCase {
     private UserManager userManager;
 
     @Autowired
-    private OLATResourceManager olatResourceManager;
+    private RepositoryService repositoryService;
 
     private List<Student> students;
-    
-    @After
-    public void after() {
-    	dbInstance.rollback();
-    }
 
     @Test
     public void testAddMapping() throws CampusCourseException {
@@ -494,49 +483,22 @@ public class StudentDaoTest extends OlatTestCase {
     }
 
     private void addOlatResourceToCourses_100_200_400_500_600() {
+        RepositoryEntry repositoryEntry1 = repositoryService.create("Rei Ayanami", "-", "Repository entry 1 StudentDaoTest", "", null);
+        RepositoryEntry repositoryEntry2 = repositoryService.create("Rei Ayanami", "-", "Repository entry 2 StudentDaoTest", "", null);
+        RepositoryEntry repositoryEntry4 = repositoryService.create("Rei Ayanami", "-", "Repository entry 4 StudentDaoTest", "", null);
+        RepositoryEntry repositoryEntry5 = repositoryService.create("Rei Ayanami", "-", "Repository entry 5 StudentDaoTest", "", null);
+        RepositoryEntry repositoryEntry6 = repositoryService.create("Rei Ayanami", "-", "Repository entry 6 StudentDaoTest", "", null);
+        dbInstance.flush();
         Course course1 = courseDao.getCourseById(100L);
         Course course2 = courseDao.getCourseById(200L);
         Course course4 = courseDao.getCourseById(400L);
         Course course5 = courseDao.getCourseById(500L);
         Course course6 = courseDao.getCourseById(600L);
-        OLATResource olatResource1 = insertOlatResource("resourceStudentDaoTestData1");
-        OLATResource olatResource2 = insertOlatResource("resourceStudentDaoTestData2");
-        OLATResource olatResource4 = insertOlatResource("resourceStudentDaoTestData4");
-        OLATResource olatResource5 = insertOlatResource("resourceStudentDaoTestData5");
-        OLATResource olatResource6 = insertOlatResource("resourceStudentDaoTestData6");
-        course1.setOlatResource(olatResource1);
-        course2.setOlatResource(olatResource2);
-        course4.setOlatResource(olatResource4);
-        course5.setOlatResource(olatResource5);
-        course6.setOlatResource(olatResource6);
+        course1.setRepositoryEntry(repositoryEntry1);
+        course2.setRepositoryEntry(repositoryEntry2);
+        course4.setRepositoryEntry(repositoryEntry4);
+        course5.setRepositoryEntry(repositoryEntry5);
+        course6.setRepositoryEntry(repositoryEntry6);
         dbInstance.flush();
-    }
-
-    private OLATResource insertOlatResource(String olatResourceName) {
-        olatResourceName = "studentDaoTest_" + olatResourceName;
-        TestResourceable resourceable = new TestResourceable(8213649L, olatResourceName);
-        OLATResource olatResource = olatResourceManager.createOLATResourceInstance(resourceable);
-        olatResourceManager.saveOLATResource(olatResource);
-        return olatResource;
-    }
-
-    private static class TestResourceable implements OLATResourceable {
-        private final Long resId;
-        private final String resName;
-
-        TestResourceable(Long resId, String resourceName) {
-            this.resId = resId;
-            this.resName = resourceName;
-        }
-
-        @Override
-        public Long getResourceableId() {
-            return resId;
-        }
-
-        @Override
-        public String getResourceableTypeName() {
-            return resName;
-        }
     }
 }

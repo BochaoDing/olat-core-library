@@ -179,7 +179,7 @@ public class WikiMainController extends BasicController implements CloneableCont
 	private CloseableModalController cmc;
 	private CloseableModalController closeableModalControllerMediaTable;
 
-	WikiMainController(UserRequest ureq, WindowControl wControl, OLATResourceable ores,
+	public WikiMainController(UserRequest ureq, WindowControl wControl, OLATResourceable ores,
 			WikiSecurityCallback securityCallback, String initialPageName) {
 		super(ureq, wControl);
 		
@@ -711,9 +711,17 @@ public class WikiMainController extends BasicController implements CloneableCont
 
 
 	private void deliverMediaFile(UserRequest ureq, String command) {
-		VFSLeaf leaf = (VFSLeaf)WikiManager.getInstance().getMediaFolder(ores).resolve(command);
-		if(leaf == null) showError("wiki.error.file.not.found");
-		else ureq.getDispatchResult().setResultingMediaResource(new VFSMediaResource(leaf));
+		VFSItem item = WikiManager.getInstance().getMediaFolder(ores).resolve(command);
+		if(item == null) {
+			//try to replace blanck with _
+			item = WikiManager.getInstance().getMediaFolder(ores).resolve(command.replace(" ", "_"));
+		}
+		if(item instanceof VFSLeaf) {
+			ureq.getDispatchResult()
+				.setResultingMediaResource(new VFSMediaResource((VFSLeaf)item));
+		} else {
+			showError("wiki.error.file.not.found");
+		}
 	}
 
 
@@ -1086,11 +1094,11 @@ public class WikiMainController extends BasicController implements CloneableCont
 			mediaMgntContent = createVelocityContainer("media");
 			refreshTableDataModel(ureq, wiki);
 			mediaMgntContent.put("mediaMgmtTable", mediaTableCtr.getInitialComponent());
-
+			
 			removeAsListenerAndDispose(cmc);
 			cmc = new CloseableModalController(getWindowControl(), translate("close"), mediaMgntContent, true, translate("manage.media"));
 			listenTo(cmc);
-
+			
 			cmc.activate();
 		}
 	}

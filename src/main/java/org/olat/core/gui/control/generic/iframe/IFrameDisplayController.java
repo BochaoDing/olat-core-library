@@ -27,6 +27,7 @@
 package org.olat.core.gui.control.generic.iframe;
 
 import java.io.File;
+import java.util.List;
 
 import org.olat.core.gui.UserRequest;
 import org.olat.core.gui.components.Component;
@@ -39,9 +40,13 @@ import org.olat.core.gui.components.velocity.VelocityContainer;
 import org.olat.core.gui.control.Event;
 import org.olat.core.gui.control.WindowControl;
 import org.olat.core.gui.control.controller.BasicController;
+import org.olat.core.gui.control.generic.dtabs.Activateable2;
 import org.olat.core.gui.control.generic.textmarker.TextMarkerManagerImpl;
 import org.olat.core.gui.media.MediaResource;
 import org.olat.core.id.OLATResourceable;
+import org.olat.core.id.context.BusinessControlFactory;
+import org.olat.core.id.context.ContextEntry;
+import org.olat.core.id.context.StateEntry;
 import org.olat.core.util.CodeHelper;
 import org.olat.core.util.StringHelper;
 import org.olat.core.util.event.GenericEventListener;
@@ -61,7 +66,7 @@ import org.olat.core.util.vfs.VFSMediaResource;
  *         
  * @author guido
  */
-public class IFrameDisplayController extends BasicController implements GenericEventListener {
+public class IFrameDisplayController extends BasicController implements GenericEventListener, Activateable2 {
 	private static final String NEW_URI_EVENT = "newUriEvent";
 	protected static final String FILE_SUFFIX_HTM = "htm";
 	protected static final String FILE_SUFFIX_JS = ".js";
@@ -136,17 +141,17 @@ public class IFrameDisplayController extends BasicController implements GenericE
 	 * @param enableTextmarking to enable textmakring of the content in the iframe enable it here
 	 */
 	public IFrameDisplayController(final UserRequest ureq, WindowControl wControl, VFSContainer rootDir, String frameId,
-			OLATResourceable contextRecourcable, DeliveryOptions options, boolean persistMapper, boolean randomizeMapper) {
+			OLATResourceable contextResourceable, DeliveryOptions options, boolean persistMapper, boolean randomizeMapper) {
 		super(ureq, wControl);
 		
 		//register this object for textMarking on/off events
 		//TODO:gs how to unregister and where? unregister need ureq so dispose does not work
-		if (contextRecourcable != null) {
-			ureq.getUserSession().getSingleUserEventCenter().registerFor(this, getIdentity(), contextRecourcable);
+		if (contextResourceable != null) {
+			ureq.getUserSession().getSingleUserEventCenter().registerFor(this, getIdentity(), contextResourceable);
 		}
 		this.deliveryOptions = options;
 		
-		boolean  enableTextmarking = TextMarkerManagerImpl.getInstance().isTextmarkingEnabled(ureq, contextRecourcable);
+		boolean  enableTextmarking = TextMarkerManagerImpl.getInstance().isTextmarkingEnabled(ureq, contextResourceable);
 		// Set correct user content theme
 		String themeBaseUri = wControl.getWindowBackOffice().getWindow().getGuiTheme().getBaseURI();
 		if (frameId == null) {
@@ -327,7 +332,20 @@ public class IFrameDisplayController extends BasicController implements GenericE
 		if(!allowDownload || !StringHelper.containsNonWhitespace(uri)) {
 			return false;
 		}
+		// remove any URL parameters
 		String uriLc = uri.toLowerCase();
+		int qmarkPos = uriLc.indexOf("?");
+		if (qmarkPos != -1) {
+			// e.g. index.html?olatraw=true
+			uriLc = uriLc.substring(0, qmarkPos);
+		}
+		// remove any anchor references
+		int hTagPos = uri.indexOf("#");
+		if (hTagPos != -1) {
+			// e.g. index.html#checkThisOut
+			uriLc = uriLc.substring(0, hTagPos);
+		}
+		// HTML pages are rendered inline, everything else is regarded as "downloadable"
 		if(uriLc.endsWith(".html") || uriLc.endsWith(".htm") || uriLc.endsWith(".xhtml")) {
 			return false;
 		}
@@ -437,4 +455,15 @@ public class IFrameDisplayController extends BasicController implements GenericE
 			getWindowControl().getWindowBackOffice().removeCycleListener(this);
 		}
 	}
+	
+	@Override
+	public void activate(UserRequest ureq, List<ContextEntry> entries, StateEntry state) {
+		if(entries == null || entries.isEmpty()) return;
+		Long id = entries.get(0).getOLATResourceable().getResourceableId();
+		if(id == 0) {
+			String path = BusinessControlFactory.getInstance().getPath(entries.get(0));
+			changeCurrentURI(path, false);
+		}
+	}
+
 }

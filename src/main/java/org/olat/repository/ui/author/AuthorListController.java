@@ -142,7 +142,7 @@ public class AuthorListController extends FormBasicController implements Activat
 	private StepsMainRunController closeCtrl;
 	private ConfirmDeleteController confirmDeleteCtrl;
 	private ImportRepositoryEntryController importCtrl;
-	private CreateRepositoryEntryController createCtrl;
+	private CreateEntryController createCtrl;
 	private CloseableCalloutWindowController toolsCalloutCtrl;
 	
 	private boolean hasAuthorRight;
@@ -446,6 +446,7 @@ public class AuthorListController extends FormBasicController implements Activat
 				searchParams.setAuthor(null);
 				searchParams.setDisplayname(null);
 				searchParams.setDescription(null);
+				searchParams.setOwnedResourcesOnly(false);
 			}
 		} else if(userSearchCtr == source) {
 			@SuppressWarnings("unchecked")
@@ -634,7 +635,7 @@ public class AuthorListController extends FormBasicController implements Activat
 		if(createCtrl != null) return;
 
 		removeAsListenerAndDispose(createCtrl);
-		createCtrl = new CreateRepositoryEntryController(ureq, getWindowControl(), handler);
+		createCtrl = handler.createCreateRepositoryEntryController(ureq, getWindowControl());
 		listenTo(createCtrl);
 		removeAsListenerAndDispose(cmc);
 		
@@ -727,7 +728,7 @@ public class AuthorListController extends FormBasicController implements Activat
 		}
 		
 		if(manageableRows.isEmpty()) {
-			showWarning("bulk.update.nothing.selected");
+			showWarning("bulk.update.nothing.applicable.selected");
 		} else {
 			removeAsListenerAndDispose(userSearchCtr);
 			userSearchCtr = new UserSearchController(ureq, getWindowControl(), false, true, UserSearchController.ACTION_KEY_CHOOSE_FINISH);
@@ -779,7 +780,7 @@ public class AuthorListController extends FormBasicController implements Activat
 			showWarning("repositoryentry.not.existing");
 			tableEl.reloadData();
 		} else if(copyableRows.isEmpty()) {
-			showWarning("bulk.update.nothing.selected");
+			showWarning("bulk.update.nothing.applicable.selected");
 		} else {
 			StringBuilder sb = new StringBuilder();
 			for(AuthoringEntryRow row:copyableRows) {
@@ -861,7 +862,7 @@ public class AuthorListController extends FormBasicController implements Activat
 		
 		List<RepositoryEntry> entriesToDelete = repositoryManager.lookupRepositoryEntries(deleteableRowKeys);
 		if(entriesToDelete.isEmpty()) {
-			showWarning("bulk.update.nothing.selected");
+			showWarning("bulk.update.nothing.applicable.selected");
 		} else {
 			removeAsListenerAndDispose(confirmDeleteCtrl);
 			removeAsListenerAndDispose(cmc);

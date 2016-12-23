@@ -2,8 +2,7 @@ package ch.uzh.campus.olat.dialog.controller.selection;
 
 import ch.uzh.campus.olat.CampusCourseOlatHelper;
 import ch.uzh.campus.olat.dialog.controller.CreateCampusCourseCompletedEventListener;
-import ch.uzh.campus.service.CampusCourse;
-import ch.uzh.campus.service.learn.CampusCourseService;
+import ch.uzh.campus.service.CampusCourseService;
 import org.olat.core.gui.UserRequest;
 import org.olat.core.gui.components.Component;
 import org.olat.core.gui.components.link.Link;
@@ -12,6 +11,7 @@ import org.olat.core.gui.components.velocity.VelocityContainer;
 import org.olat.core.gui.control.Event;
 import org.olat.core.gui.control.WindowControl;
 import org.olat.core.gui.control.controller.BasicController;
+import org.olat.repository.RepositoryEntry;
 
 /**
  * Initial date: 2016-07-13<br />
@@ -60,12 +60,12 @@ public class CampusCourseSubmitController extends BasicController {
 	protected void event(UserRequest userRequest, Component source, Event event) {
 		if (source == createButton) {
 			try {
-				CampusCourse campusCourse = campusCourseService
-						.createCampusCourseFromStandardTemplate(sapCampusCourseId,
+				RepositoryEntry createdRepositoryEntry = campusCourseService
+						.createOlatCampusCourseFromStandardTemplate(sapCampusCourseId,
 								userRequest.getIdentity());
 
 				listener.onCancel(userRequest);
-				campusCourseOlatHelper.openCourseInNewTab(campusCourse, getWindowControl(), userRequest);
+				campusCourseOlatHelper.openCourseInNewTab(createdRepositoryEntry, getWindowControl(), userRequest);
 			} catch (Exception e) {
 				listener.onError(userRequest, e);
 			}

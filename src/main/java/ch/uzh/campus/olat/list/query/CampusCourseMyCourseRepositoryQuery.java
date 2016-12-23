@@ -1,7 +1,7 @@
 package ch.uzh.campus.olat.list.query;
 
-import ch.uzh.campus.service.learn.CampusCourseService;
-import ch.uzh.campus.service.learn.SapCampusCourseTo;
+import ch.uzh.campus.service.CampusCourseService;
+import ch.uzh.campus.service.data.CampusCourseTOForUI;
 import org.olat.core.id.Roles;
 import org.olat.repository.RepositoryEntry;
 import org.olat.repository.RepositoryEntryMyView;
@@ -49,14 +49,14 @@ public abstract class CampusCourseMyCourseRepositoryQuery implements MyCourseRep
 
 			List<RepositoryEntryMyView> result = new ArrayList<>();
 
-			List<SapCampusCourseTo> sapCampusCourseTos = getSapCampusCourseTos(param);
+			List<CampusCourseTOForUI> campusCourseTOForUIs = getSapCampusCourseTOForUIs(param);
 
 			boolean requiresStatistics = repositoryModule.isRatingEnabled() ||
 					repositoryModule.isCommentEnabled();
 
-			for (SapCampusCourseTo sapCampusCourseTo : sapCampusCourseTos) {
+			for (CampusCourseTOForUI campusCourseTOForUI : campusCourseTOForUIs) {
 				RepositoryEntry repositoryEntry = getRepositoryEntry(
-						sapCampusCourseTo, param.getRoles());
+                        campusCourseTOForUI, param.getRoles());
 				RepositoryEntryMyCourseImpl view = new RepositoryEntryMyCourseImpl(
 						repositoryEntry,
 						requiresStatistics ? repositoryEntry.getStatistics() : null, false,
@@ -72,9 +72,9 @@ public abstract class CampusCourseMyCourseRepositoryQuery implements MyCourseRep
 
 	protected abstract boolean filter(List<Filter> filters);
 
-	protected abstract List<SapCampusCourseTo> getSapCampusCourseTos(
+	protected abstract List<CampusCourseTOForUI> getSapCampusCourseTOForUIs(
 			SearchMyRepositoryEntryViewParams param);
 
 	protected abstract RepositoryEntry getRepositoryEntry(
-			SapCampusCourseTo sapCampusCourseTo, Roles roles);
+            CampusCourseTOForUI campusCourseTOForUI, Roles roles);
 }

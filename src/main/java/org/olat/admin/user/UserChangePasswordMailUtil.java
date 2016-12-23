@@ -23,6 +23,7 @@ import org.olat.registration.TemporaryKey;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
 import java.util.Locale;
 
 @Component
@@ -83,12 +84,20 @@ public class UserChangePasswordMailUtil {
             throw new UserChangePasswordException(sessionTrans.translate("error.sendTokenByMail.no.mailmanager"));
         }
 
-        // check if user has an OLAT provider token, otherwise a password change makes no sense
-        Authentication auth = BaseSecurityManager.getInstance().findAuthentication(user, BaseSecurityModule.getDefaultAuthProviderIdentifier());
-        if (auth == null) {
-            LOG.error(user.getName() + " has no OLAT provider token");
-            throw new UserChangePasswordException(sessionTrans.translate("error.sendTokenByMail.no.provider.token", new String[] { user.getName() }));
-        }
+		// We allow creation of password token when user has no password so far or when he as an OpenOLAT Password.
+		// For other cases such as Shibboleth, LDAP, oAuth etc. we don't allow creation of token as this is most
+		// likely not a desired action.
+		List<Authentication> authentications = BaseSecurityManager.getInstance().getAuthentications(user);
+		boolean isOOpwdAllowed = (authentications.size() == 0);
+		for (Authentication authentication : authentications) {
+			if (authentication.getProvider().equals(BaseSecurityModule.getDefaultAuthProviderIdentifier())) {
+				isOOpwdAllowed = true;
+			}
+		}
+		if (!isOOpwdAllowed) {
+			LOG.error("sendtoken.wrong.auth");
+			throw new UserChangePasswordException(sessionTrans.translate("sendtoken.wrong.auth", new String[] { user.getName() }));
+		}
 
         Locale locale = getUserLocale(user);
         String emailAdress = user.getUser().getProperty(UserConstants.EMAIL, locale);
@@ -99,6 +108,7 @@ public class UserChangePasswordMailUtil {
 
         // Validate if template corresponds to our expectations (should contain dummy key)
         if (!text.contains(getDummyKey(emailAdress))) {
+			LOG.warn("Can not replace temporary registration token in change pwd mail token dialog, user probably changed temporary token in mai template", null);
             LOG.error("Dummy key not found in prepared email");
             throw new UserChangePasswordException(sessionTrans.translate("error.sendTokenByMail.no.dummy.key"));
         }

@@ -17,16 +17,14 @@ public class CampusCourseBeforeRepositoryEntryDeletionListener extends BeforeRep
 	private final CampusCourseCoreService campusCourseCoreService;
 
 	@Autowired
-	public CampusCourseBeforeRepositoryEntryDeletionListener(
-			CampusCourseCoreService campusCourseCoreService) {
+	public CampusCourseBeforeRepositoryEntryDeletionListener(CampusCourseCoreService campusCourseCoreService) {
 		this.campusCourseCoreService = campusCourseCoreService;
 
 	}
 
 	@Override
-	public void onAction(RepositoryEntry repositoryEntry,
-						 OLATResource olatResource) {
-		campusCourseCoreService.resetOlatResourceAndParentCourseReference(olatResource);
-		campusCourseCoreService.deleteCampusCourseGroupsIfExist(repositoryEntry);
+	public void onAction(RepositoryEntry repositoryEntry, OLATResource olatResource) {
+		campusCourseCoreService.deleteCampusGroups(repositoryEntry);
+		campusCourseCoreService.resetRepositoryEntryAndParentCourse(repositoryEntry);
 	}
 }

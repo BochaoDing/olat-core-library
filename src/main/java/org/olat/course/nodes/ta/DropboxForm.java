@@ -77,7 +77,8 @@ public class DropboxForm extends FormBasicController {
 	protected void formOK(UserRequest ureq) {
 		fireEvent (ureq, Event.DONE_EVENT);
 	}
-	
+
+	@Override
 	protected void formInnerEvent (UserRequest ureq, FormItem source, FormEvent event) {
 		if (source == enablemail) {
 			confirmation.setMandatory (enablemail.isSelected(0));
@@ -119,7 +120,7 @@ public class DropboxForm extends FormBasicController {
 
 		confirmation.setMandatory(enableMail);
 		enablemail = uifactory.addCheckboxesHorizontal("enablemail", "form.dropbox.enablemail", formLayout, new String[]{"xx"}, new String[]{null});
-		enablemail.select("xx", enableMail);
+		enablemail.select("xx", enableMail != null ? enableMail.booleanValue() : true);
 		enablemail.addActionListener(FormEvent.ONCLICK);
 	
 		uifactory.addFormSubmitButton("submit", formLayout);

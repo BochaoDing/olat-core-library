@@ -1,3 +1,17 @@
+package ch.uzh.campus.data;
+
+import ch.uzh.campus.CampusCourseTestCase;
+import org.junit.Before;
+import org.junit.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
+import javax.inject.Provider;
+import java.util.List;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
 /**
  * OLAT - Online Learning and Training<br>
  * http://www.olat.org
@@ -18,27 +32,8 @@
  * University of Zurich, Switzerland.
  * <p>
  */
-package ch.uzh.campus.data;
-
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.olat.core.commons.persistence.DB;
-import org.olat.test.OlatTestCase;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.ContextConfiguration;
-
-import javax.inject.Provider;
-import java.util.List;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-
-@ContextConfiguration(locations = {"classpath:ch/uzh/campus/data/_spring/mockDataContext.xml"})
-public class ImportStatisticDaoTest extends OlatTestCase {
-
-    @Autowired
-    private DB dbInstance;
+@Component
+public class ImportStatisticDaoTest extends CampusCourseTestCase {
 
     @Autowired
     private ImportStatisticDao importStatisticDao;
@@ -51,11 +46,6 @@ public class ImportStatisticDaoTest extends OlatTestCase {
     @Before
     public void setup() {
         importStatistics = mockDataGeneratorProvider.get().getImportStatistics();
-    }
-
-    @After
-    public void after() {
-        dbInstance.rollback();
     }
 
     @Test

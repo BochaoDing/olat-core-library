@@ -10,11 +10,7 @@
 
 	<context:component-scan base-package="org.olat.course.assessment" />
 
-	<bean id="org.olat.course.assessment.EfficiencyStatementManager" class="org.olat.course.assessment.EfficiencyStatementManager">
-		<property name="dbInstance" ref="database"/>
-		<property name="userManager" ref="userManager"/>
-		<property name="repositoryManager" ref="repositoryManager"/>
-	</bean>
+	<bean id="org.olat.course.assessment.EfficiencyStatementManager" class="org.olat.course.assessment.EfficiencyStatementManager"/>
 	
 	<bean id="assessmentNotificationsTrigger" class="org.springframework.scheduling.quartz.CronTriggerBean">
 	    <property name="jobDetail" ref="assessmentNotificationsJob" />
