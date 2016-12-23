@@ -10,7 +10,6 @@
 	<context:annotation-config />
 	<context:component-scan base-package="ch.uzh.extension.campuscourse" />
 
-    <import resource="classpath:/ch/uzh/extension/campuscourse/batchprocessing/_spring/campusBatchInfrastructureContext.xml"/>
     <import resource="classpath:/ch/uzh/extension/campuscourse/batchprocessing/_spring/campusJobSchedulerContext.xml"/>
     <import resource="classpath:/ch/uzh/extension/campuscourse/batchprocessing/_spring/campusBatchJobContext.xml"/>
 

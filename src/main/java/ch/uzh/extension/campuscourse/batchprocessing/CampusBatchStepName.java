@@ -27,7 +27,7 @@ package ch.uzh.extension.campuscourse.batchprocessing;
  * 
  * @author aabouc
  */
-public enum CampusProcessStep {
+public enum CampusBatchStepName {
     /**
      * This step describes the import of the control file which gathers all the exported csv files.
      */
@@ -67,13 +67,13 @@ public enum CampusProcessStep {
     /**
      * This step describes the synchronization of courses and participants.
      */
-    CAMPUSSYNCHRONISATION,
+    SYNCHRONISATION,
     /**
      * 
      */
-    STUDENTMAPPING,
+    STUDENT_MAPPING,
     /**
      * 
      */
-    LECTURERMAPPING
+    LECTURER_MAPPING
 }

@@ -5,7 +5,7 @@ import org.olat.core.commons.persistence.DB;
 import org.olat.core.logging.OLog;
 import org.olat.core.logging.Tracing;
 import org.springframework.batch.item.ItemWriter;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.util.List;
 
@@ -45,7 +45,6 @@ public class CampusWriter<T> implements ItemWriter<T> {
 
     private CampusDao<T> campuskursDao;
 
-    @Autowired
     public CampusWriter(DB dbInstance) {
         this.dbInstance = dbInstance;
     }

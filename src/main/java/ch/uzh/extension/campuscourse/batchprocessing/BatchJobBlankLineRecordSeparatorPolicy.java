@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
  * @author Martin Schraner
  */
 @Component
-public class BlankLineRecordSeparatorPolicy extends SimpleRecordSeparatorPolicy {
+public class BatchJobBlankLineRecordSeparatorPolicy extends SimpleRecordSeparatorPolicy {
 
     @Override
     public boolean isEndOfRecord(final String line) {

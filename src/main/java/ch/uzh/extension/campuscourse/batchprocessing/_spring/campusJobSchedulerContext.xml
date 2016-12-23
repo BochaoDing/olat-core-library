@@ -9,32 +9,32 @@
 	<!-- ==============Quartz Scheduler with the configured triggers================== -->  
 	<!-- ======================================================================================= -->
 	<bean id="campusSchedulerFactoryBean" class="org.springframework.scheduling.quartz.SchedulerFactoryBean" depends-on="userModule">
-	   <property name="triggers">
-	  		<list>
-				<ref bean="enabled.importProcessTrigger" />
-				<ref bean="enabled.userMappingProcessTrigger" />
-        	</list>
+		<property name="triggers">
+			<list>
+				<ref bean="cronSapImportJobTrigger" />
+				<ref bean="cronUserMappingAndSynchronizationJobTrigger" />
+			</list>
 		</property>
 	</bean>
 	
 	<!-- ======================================================================================= -->
 	<!-- ==============JOB STARTER FOR IMPORT PROCESS================== -->
 	<!-- ======================================================================================= -->
-	<bean id="enabled.importProcessTrigger" class="org.springframework.scheduling.quartz.CronTriggerBean">
-		<property name="jobDetail" ref="importProcessJobDetail" />
+	<bean id="cronSapImportJobTrigger" class="org.springframework.scheduling.quartz.CronTriggerBean">
+		<property name="jobDetail" ref="sapImportJobDetail" />
 		<property name="cronExpression" value="${campus.import.process.cron.expression}" />
 		<property name="startDelay" value="300" />
 	</bean>
 	
-	<bean id="disabled.importProcessTrigger" class="org.springframework.scheduling.quartz.SimpleTriggerBean">
-		<property name="jobDetail" ref="importProcessJobDetail" />
+	<bean id="manualSapImportJobTrigger" class="org.springframework.scheduling.quartz.SimpleTriggerBean">
+		<property name="jobDetail" ref="sapImportJobDetail" />
 		<property name="repeatCount" value="0"/>
 		<property name="repeatInterval" value="1" />
 		<property name="startDelay" value="300" />
 	</bean>
 
-	<bean id="importProcessJobDetail" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
-		<property name="targetObject" ref="importProcess" />
+	<bean id="sapImportJobDetail" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+		<property name="targetObject" ref="sapImportJobLauncher" />
 		<property name="targetMethod" value="process" />
 		 <property name="concurrent" value="false"/>
 		  <property name="arguments">
@@ -45,10 +45,10 @@
         </property>
 	</bean>
   
-	<bean id="importProcess" class="ch.uzh.extension.campuscourse.batchprocessing.CampusProcess">
-		<property name="job" ref="importJob" />
-		<property name="jobLauncher" ref="jobLauncher" />
-		<property name="parameters">
+	<bean id="sapImportJobLauncher" class="ch.uzh.extension.campuscourse.batchprocessing.CampusBatchJobLauncher">
+		<constructor-arg ref="sapImportJob" />
+		<constructor-arg ref="jobLauncher" />
+		<constructor-arg>
 			<map>
 				<entry key="exportResource">
 				<bean class="org.springframework.batch.core.JobParameter">
@@ -97,28 +97,28 @@
 				</bean>
 			</entry>
 			</map>
-		</property>
+		</constructor-arg>
 	</bean>
 	
     <!-- ======================================================================================= -->
 	<!-- ==============JOB STARTER FOR USERMAPPING PROCESS================== -->  
 	<!-- ======================================================================================= -->
-	<bean id="enabled.userMappingProcessTrigger" class="org.springframework.scheduling.quartz.CronTriggerBean">
-		<property name="jobDetail" ref="userMappingProcessJobDetail" />
+	<bean id="cronUserMappingAndSynchronizationJobTrigger" class="org.springframework.scheduling.quartz.CronTriggerBean">
+		<property name="jobDetail" ref="userMappingAndSynchronizationJobDetail" />
 		<property name="cronExpression" value="${campus.userMapping.process.cron.expression}" />
 		<property name="startDelay" value="300" />
 	</bean>
 
-	<bean id="disabled.userMappingProcessTrigger" class="org.springframework.scheduling.quartz.SimpleTriggerBean">
-		<property name="jobDetail" ref="userMappingProcessJobDetail" />
+	<bean id="manualUserMappingAndSynchronizationJobTrigger" class="org.springframework.scheduling.quartz.SimpleTriggerBean">
+		<property name="jobDetail" ref="userMappingAndSynchronizationJobDetail" />
 		<property name="repeatCount" value="0"/>
 		<property name="repeatInterval" value="1" />
 		<property name="startDelay" value="300" />
 	</bean>
 
-	<bean id="userMappingProcessJobDetail"
+	<bean id="userMappingAndSynchronizationJobDetail"
 		class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
-		<property name="targetObject" ref="userMappingProcess" />
+		<property name="targetObject" ref="userMappingAndSynchronizationJobLauncher" />
 		<property name="targetMethod" value="process" />
 		<property name="concurrent" value="false"/>
 		<property name="arguments">
@@ -129,12 +129,12 @@
         </property>
 	</bean>
    
-    <bean id="userMappingProcess" class="ch.uzh.extension.campuscourse.batchprocessing.CampusProcess">
-		<property name="job" ref="userMappingJob" />
-		<property name="jobLauncher" ref="jobLauncher" />
-		<property name="parameters">
+    <bean id="userMappingAndSynchronizationJobLauncher" class="ch.uzh.extension.campuscourse.batchprocessing.CampusBatchJobLauncher">
+		<constructor-arg ref="userMappingAndSynchronizationJob" />
+		<constructor-arg ref="jobLauncher" />
+		<constructor-arg>
 			<map/>
-		</property>
+		</constructor-arg>
 	</bean>
 
 </beans>

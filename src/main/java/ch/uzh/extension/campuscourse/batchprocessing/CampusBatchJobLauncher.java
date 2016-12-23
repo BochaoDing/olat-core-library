@@ -1,3 +1,17 @@
+package ch.uzh.extension.campuscourse.batchprocessing;
+
+import java.util.Map;
+
+import javax.annotation.PostConstruct;
+
+import org.olat.core.logging.OLog;
+import org.olat.core.logging.Tracing;
+
+import org.springframework.batch.core.Job;
+import org.springframework.batch.core.JobParameter;
+import org.springframework.batch.core.JobParameters;
+import org.springframework.batch.core.launch.JobLauncher;
+
 /**
  * OLAT - Online Learning and Training<br>
  * http://www.olat.org
@@ -17,74 +31,37 @@
  * Copyright (c) since 2004 at Multimedia- & E-Learning Services (MELS),<br>
  * University of Zurich, Switzerland.
  * <p>
- */
-package ch.uzh.extension.campuscourse.batchprocessing;
-
-import java.util.Map;
-
-import javax.annotation.PostConstruct;
-
-import org.olat.core.logging.OLog;
-import org.olat.core.logging.Tracing;
-
-import org.springframework.batch.core.Job;
-import org.springframework.batch.core.JobParameter;
-import org.springframework.batch.core.JobParameters;
-import org.springframework.batch.core.launch.JobLauncher;
-
-/**
+ *
  * This class serves as a generic targetObject for the quartz MethodInvokingJobDetailFactoryBean. <br>
  * 
  * Initial Date: 11.06.2012 <br>
  * 
  * @author aabouc
  */
-public class CampusProcess {
+public class CampusBatchJobLauncher {
 
-    
-	private static final OLog LOG = Tracing.createLoggerFor(CampusProcess.class);
+	private static final OLog LOG = Tracing.createLoggerFor(CampusBatchJobLauncher.class);
+	private static final String PROCESS_DISABLED = "disabled";
 
-    private JobLauncher jobLauncher;
+	private final Job job;
+	private final Map<String, JobParameter> jobParameters;
+    private final JobLauncher jobLauncher;
 
-    private Job job;
-
-    private Map<String, JobParameter> parameters;
-
-    private final String PROCESS_DISABLED = "disabled";
-
-    /**
-     * Sets the Map of the JobParameters needed to run the job
-     * 
-     * @param parameters
-     *            the map of the JobParameters
-     */
-    public void setParameters(Map<String, JobParameter> parameters) {
-        this.parameters = parameters;
-    }
-
-    /**
-     * Sets the JobLauncher needed to run the job
-     * 
-     * @param jobLauncher
-     *            the JobLauncher
-     */
-    public void setJobLauncher(JobLauncher jobLauncher) {
-        this.jobLauncher = jobLauncher;
-    }
-
-    /**
-     * Sets the job needed to be run
-     * 
-     * @param job
-     *            the Job
-     */
-    public void setJob(Job job) {
-        this.job = job;
-    }
+	/**
+	 *
+	 * @param job the job needed to be run
+	 * @param jobParameters the map of the JobParameters needed to run the job
+	 * @param jobLauncher he JobLauncher needed to run the job
+	 */
+	public CampusBatchJobLauncher(Job job, Map<String, JobParameter> jobParameters, JobLauncher jobLauncher) {
+		this.job = job;
+		this.jobParameters = jobParameters;
+		this.jobLauncher = jobLauncher;
+	}
 
     @PostConstruct
     public void init() {
-        LOG.info("JobParameters: [" + parameters + "]");
+        LOG.info("JobParameters: [" + jobParameters + "]");
     }
 
     /**
@@ -97,20 +74,20 @@ public class CampusProcess {
      *            the name of the process
      */
     public void process(String status, String campusProcess) throws Exception {
+
         LOG.info("THE " + campusProcess + " IS: [" + status + "]");
 
         if (PROCESS_DISABLED.equalsIgnoreCase(status)) {
             LOG.warn("Job is disabled! Check campusJobSchedulerContext.xml");
             return;
         }
-        parameters.put("run.ts", new JobParameter(System.currentTimeMillis()));
+        jobParameters.put("run.ts", new JobParameter(System.currentTimeMillis()));
 
         if (job == null) {
             LOG.warn("Job is not set! Check campusJobSchedulerContext.xml");
             return;
         }
 
-        jobLauncher.run(job, new JobParameters(parameters));
-
+        jobLauncher.run(job, new JobParameters(jobParameters));
     }
 }

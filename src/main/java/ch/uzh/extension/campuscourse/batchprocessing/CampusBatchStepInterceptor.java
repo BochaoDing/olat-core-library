@@ -1,16 +1,17 @@
 package ch.uzh.extension.campuscourse.batchprocessing;
 
 import ch.uzh.extension.campuscourse.common.CampusCourseConfiguration;
-import ch.uzh.extension.campuscourse.service.dao.DaoManager;
 import ch.uzh.extension.campuscourse.data.dao.ImportStatisticDao;
 import ch.uzh.extension.campuscourse.data.dao.SkipItemDao;
 import ch.uzh.extension.campuscourse.data.entity.ImportStatistic;
 import ch.uzh.extension.campuscourse.data.entity.SkipItem;
+import ch.uzh.extension.campuscourse.service.dao.DaoManager;
 import org.olat.core.commons.persistence.DB;
 import org.olat.core.logging.OLog;
 import org.olat.core.logging.Tracing;
 import org.springframework.batch.core.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.util.List;
 
@@ -27,9 +28,10 @@ import java.util.List;
  * 
  * @author aabouc
  */
-public class CampusInterceptor<T, S> implements StepExecutionListener, ItemWriteListener<S>, SkipListener<T, S>, ChunkListener {
+@Component
+public class CampusBatchStepInterceptor<T, S> implements StepExecutionListener, ItemWriteListener<S>, SkipListener<T, S>, ChunkListener {
 
-	private static final OLog LOG = Tracing.createLoggerFor(CampusInterceptor.class);
+	private static final OLog LOG = Tracing.createLoggerFor(CampusBatchStepInterceptor.class);
 
     private final DB dbInstance;
 	private final ImportStatisticDao importStatisticDao;
@@ -37,14 +39,13 @@ public class CampusInterceptor<T, S> implements StepExecutionListener, ItemWrite
 	private final DaoManager daoManager;
     private final CampusCourseConfiguration campusCourseConfiguration;
 
-    private StepExecution stepExecution;
-    private int fixedNumberOfFilesToBeExported;
+	private StepExecution stepExecution;
     private int chunkCount;
     private long chunkStartTime;
 
-	@Autowired
-	public CampusInterceptor(DB dbInstance, ImportStatisticDao importStatisticDao, SkipItemDao skipItemDao,
-                             DaoManager daoManager, CampusCourseConfiguration campusCourseConfiguration) {
+    @Autowired
+	public CampusBatchStepInterceptor(DB dbInstance, ImportStatisticDao importStatisticDao, SkipItemDao skipItemDao,
+									  DaoManager daoManager, CampusCourseConfiguration campusCourseConfiguration) {
 		this.dbInstance = dbInstance;
 		this.importStatisticDao = importStatisticDao;
 		this.skipItemDao = skipItemDao;
@@ -65,11 +66,11 @@ public class CampusInterceptor<T, S> implements StepExecutionListener, ItemWrite
 
 			this.stepExecution = se;
             // Chunk count and duration is being logged for sync step since this may be slow and potentially break timeout
-            if (CampusProcessStep.CAMPUSSYNCHRONISATION.name().equalsIgnoreCase(se.getStepName())) {
+            if (CampusBatchStepName.SYNCHRONISATION.name().equalsIgnoreCase(se.getStepName())) {
                 chunkCount = 0;
             }
             // Before importing Texts, delete all old ones
-            if (CampusProcessStep.IMPORT_TEXTS.name().equalsIgnoreCase(se.getStepName())) {
+            if (CampusBatchStepName.IMPORT_TEXTS.name().equalsIgnoreCase(se.getStepName())) {
                 daoManager.deleteAllTexts();
             }
             // DISABLED FOR NOW
@@ -97,8 +98,8 @@ public class CampusInterceptor<T, S> implements StepExecutionListener, ItemWrite
             LOG.info(se.toString());
             importStatisticDao.saveOrUpdate(createImportStatistic(se));
 			dbInstance.commitAndCloseSession();
-            if (CampusProcessStep.IMPORT_CONTROLFILE.name().equalsIgnoreCase(se.getStepName())) {
-                if (se.getWriteCount() != getFixedNumberOfFilesToBeExported()) {
+            if (CampusBatchStepName.IMPORT_CONTROLFILE.name().equalsIgnoreCase(se.getStepName())) {
+                if (se.getWriteCount() != campusCourseConfiguration.getMustCompletedImportedFiles()) {
                     return ExitStatus.FAILED;
                 }
             }
@@ -244,30 +245,13 @@ public class CampusInterceptor<T, S> implements StepExecutionListener, ItemWrite
         return skipItem;
     }
 
-    /**
-     * Gets the fixedNumberOfFilesToBeExported.
-     */
-    private int getFixedNumberOfFilesToBeExported() {
-        return fixedNumberOfFilesToBeExported;
-    }
-
-    /**
-     * Sets the fixedNumberOfFilesToBeExported.
-     * 
-     * @param fixedNumberOfFilesToBeExported
-     *            the fixedNumberOfFilesToBeExported
-     */
-    public void setFixedNumberOfFilesToBeExported(int fixedNumberOfFilesToBeExported) {
-        this.fixedNumberOfFilesToBeExported = fixedNumberOfFilesToBeExported;
-    }
-
     @Override
     public void beforeChunk() {
 		/*
 		 * Chunk count and duration is being logged for sync step since this
 		 * may be slow and potentially break timeout.
 		 */
-        if (CampusProcessStep.CAMPUSSYNCHRONISATION.name().equalsIgnoreCase(stepExecution.getStepName())) {
+        if (CampusBatchStepName.SYNCHRONISATION.name().equalsIgnoreCase(stepExecution.getStepName())) {
             chunkStartTime = System.currentTimeMillis();
         }
     }
@@ -279,7 +263,7 @@ public class CampusInterceptor<T, S> implements StepExecutionListener, ItemWrite
 		 * may be slow and potentially break timeout.
 		 */
         int timeout = campusCourseConfiguration.getConnectionPoolTimeout(); // milliseconds!
-        if (timeout > 0 && CampusProcessStep.CAMPUSSYNCHRONISATION.name().equalsIgnoreCase(stepExecution.getStepName())) {
+        if (timeout > 0 && CampusBatchStepName.SYNCHRONISATION.name().equalsIgnoreCase(stepExecution.getStepName())) {
             chunkCount++;
             long chunkProcessingDuration = System.currentTimeMillis() - chunkStartTime;
             if (chunkProcessingDuration > timeout * 0.9) {
