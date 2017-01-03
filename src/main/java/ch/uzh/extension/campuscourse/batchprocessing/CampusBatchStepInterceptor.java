@@ -10,6 +10,7 @@ import org.olat.core.commons.persistence.DB;
 import org.olat.core.logging.OLog;
 import org.olat.core.logging.Tracing;
 import org.springframework.batch.core.*;
+import org.springframework.batch.core.scope.context.ChunkContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -246,7 +247,7 @@ public class CampusBatchStepInterceptor<T, S> implements StepExecutionListener, 
     }
 
     @Override
-    public void beforeChunk() {
+    public void beforeChunk(ChunkContext chunkContext) {
 		/*
 		 * Chunk count and duration is being logged for sync step since this
 		 * may be slow and potentially break timeout.
@@ -257,7 +258,7 @@ public class CampusBatchStepInterceptor<T, S> implements StepExecutionListener, 
     }
 
     @Override
-    public void afterChunk() {
+    public void afterChunk(ChunkContext chunkContext) {
 		/*
 		 * Chunk count and duration is being logged for sync step since this
 		 * may be slow and potentially break timeout.
@@ -278,5 +279,10 @@ public class CampusBatchStepInterceptor<T, S> implements StepExecutionListener, 
                 LOG.debug("Chunk no " + chunkCount + " for campus synchronisation took " + chunkProcessingDuration + " ms (timeout is " + timeout + " s).");
             }
         }
+    }
+
+    @Override
+    public void afterChunkError(ChunkContext chunkContext) {
+
     }
 }

@@ -149,7 +149,7 @@ public class SapImportJobConfig {
 
 		DelimitedLineTokenizer delimitedLineTokenizer = new DelimitedLineTokenizer();
 		delimitedLineTokenizer.setStrict(true);
-		delimitedLineTokenizer.setDelimiter(';');
+		delimitedLineTokenizer.setDelimiter(";");
 		delimitedLineTokenizer.setQuoteCharacter('☠');
 		if (includedColumns != null) {
 			delimitedLineTokenizer.setIncludedFields(includedColumns);
