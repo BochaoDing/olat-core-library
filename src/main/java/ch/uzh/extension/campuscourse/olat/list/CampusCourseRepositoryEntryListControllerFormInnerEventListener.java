@@ -1,7 +1,7 @@
 package ch.uzh.extension.campuscourse.olat.list;
 
-import ch.uzh.extension.campuscourse.olat.CampusCourseBeanFactory;
 import ch.uzh.extension.campuscourse.olat.CampusCourseOlatHelper;
+import ch.uzh.extension.campuscourse.olat.CampusOlatControllerFactory;
 import ch.uzh.extension.campuscourse.olat.coursecreation.controller.CampusCourseCreateDialogController;
 import org.olat.core.gui.UserRequest;
 import org.olat.core.gui.components.form.flexible.FormItem;
@@ -21,15 +21,15 @@ import org.springframework.stereotype.Component;
 @Component
 public class CampusCourseRepositoryEntryListControllerFormInnerEventListener extends RepositoryEntryListControllerFormInnerEventListener {
 
-	private final CampusCourseBeanFactory campusCourseBeanFactory;
+	private final CampusOlatControllerFactory campusOlatControllerFactory;
 	private final CampusCourseOlatHelper campusCourseOlatHelper;
 
 	@Autowired
 	public CampusCourseRepositoryEntryListControllerFormInnerEventListener(
-			CampusCourseBeanFactory campusCourseBeanFactory,
+			CampusOlatControllerFactory campusOlatControllerFactory,
 			CampusCourseOlatHelper campusCourseOlatHelper
 	) {
-		this.campusCourseBeanFactory = campusCourseBeanFactory;
+		this.campusOlatControllerFactory = campusOlatControllerFactory;
 		this.campusCourseOlatHelper = campusCourseOlatHelper;
 	}
 
@@ -41,7 +41,7 @@ public class CampusCourseRepositoryEntryListControllerFormInnerEventListener ext
 			if ("createCampusCourse".equals(formLink.getCmd())) {
 				RepositoryEntryRow row = (RepositoryEntryRow) formLink.getUserObject();
 
-				CampusCourseCreateDialogController controller = campusCourseBeanFactory
+				CampusCourseCreateDialogController controller = campusOlatControllerFactory
 						.createCampusCourseCreateDialogController(row.getKey(),
 								windowControl, userRequest);
 				controller.addControllerListener(parent);

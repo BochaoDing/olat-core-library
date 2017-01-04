@@ -19,7 +19,7 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
  */
 @Configuration
 @ImportResource("classpath:org/olat/core/commons/persistence/_spring/databaseCorecontext.xml")
-public class CampusBatchJobConfig {
+public class CampusBatchJobBeanFactory {
 
 	@Autowired
 	@Qualifier("mysql_local_DataSource")

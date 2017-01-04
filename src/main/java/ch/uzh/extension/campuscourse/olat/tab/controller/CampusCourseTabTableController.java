@@ -1,12 +1,12 @@
 package ch.uzh.extension.campuscourse.olat.tab.controller;
 
-import ch.uzh.extension.campuscourse.olat.CampusCourseBeanFactory;
+import ch.uzh.extension.campuscourse.model.CampusCourseTOForUI;
 import ch.uzh.extension.campuscourse.olat.CampusCourseOlatHelper;
+import ch.uzh.extension.campuscourse.olat.CampusOlatControllerFactory;
 import ch.uzh.extension.campuscourse.olat.common.controller.CampusCourseTableController;
 import ch.uzh.extension.campuscourse.olat.coursecreation.controller.CampusCourseCreateDialogController;
 import ch.uzh.extension.campuscourse.olat.tab.CampusCourseTab;
 import ch.uzh.extension.campuscourse.service.CampusCourseService;
-import ch.uzh.extension.campuscourse.model.CampusCourseTOForUI;
 import org.olat.core.gui.UserRequest;
 import org.olat.core.gui.components.Component;
 import org.olat.core.gui.components.table.TableGuiConfiguration;
@@ -53,7 +53,7 @@ public class CampusCourseTabTableController extends CampusCourseTableController<
 
 	private final CampusCourseService campusCourseService;
 	private final CampusCourseOlatHelper campusCourseOlatHelper;
-	private final CampusCourseBeanFactory campusCourseBeanFactory;
+	private final CampusOlatControllerFactory campusOlatControllerFactory;
 	private final NavElement navElement;
 	private final boolean isAuthor;
 	private GenericEventListener campusCourseTabTableControllerListener;
@@ -62,7 +62,7 @@ public class CampusCourseTabTableController extends CampusCourseTableController<
 
 	public CampusCourseTabTableController(CampusCourseService campusCourseService,
 										  CampusCourseOlatHelper campusCourseOlatHelper,
-										  CampusCourseBeanFactory campusCourseBeanFactory,
+										  CampusOlatControllerFactory campusOlatControllerFactory,
 										  StateSite stateSite,
 										  WindowControl windowControl,
 										  UserRequest userRequest) {
@@ -76,7 +76,7 @@ public class CampusCourseTabTableController extends CampusCourseTableController<
 
 		this.campusCourseService = campusCourseService;
 		this.campusCourseOlatHelper = campusCourseOlatHelper;
-		this.campusCourseBeanFactory = campusCourseBeanFactory;
+		this.campusOlatControllerFactory = campusOlatControllerFactory;
 		this.userSession = userRequest.getUserSession();
 		campusCourseTabTableControllerListener = new CampusCourseTabTableControllerListener();
 		courseModule = new Resourceable("CourseModule", null);
@@ -134,7 +134,7 @@ public class CampusCourseTabTableController extends CampusCourseTableController<
 		if ("r".equals(event.getCommand())) {
 			CampusCourseTOForUI campusCourseTOForUI = getSelectedEntry(event);
 
-			CampusCourseCreateDialogController controller = campusCourseBeanFactory
+			CampusCourseCreateDialogController controller = campusOlatControllerFactory
 					.createCampusCourseCreateDialogController(
 							campusCourseTOForUI.getSapCourseId(),
 							getWindowControl(),

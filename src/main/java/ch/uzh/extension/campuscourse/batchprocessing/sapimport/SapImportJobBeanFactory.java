@@ -30,7 +30,7 @@ import java.util.Map;
  * @author Martin Schraner
  */
 @Configuration
-public class SapImportJobConfig {
+public class SapImportJobBeanFactory {
 
 	@Autowired
 	private DBImpl dbInstance;

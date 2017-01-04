@@ -5,7 +5,7 @@ import org.olat.resource.OLATResource;
 
 import java.util.Date;
 
-import static ch.uzh.extension.campuscourse.olat.CampusCourseBeanFactory.NOT_CREATED_CAMPUSKURS_RESOURCE_ID;
+import static ch.uzh.extension.campuscourse.olat.CampusOlatConfig.NOT_CREATED_CAMPUS_COURSE_RESOURCE_ID;
 
 /**
  * Initial date: 2016-08-05<br />
@@ -16,7 +16,7 @@ final class CampusCourseOlatResource implements OLATResource {
 	private final Long key;
 	private final String resourceableTypeName;
 
-	public CampusCourseOlatResource(Long key, String resourceableTypeName) {
+	CampusCourseOlatResource(Long key, String resourceableTypeName) {
 		assert key != null;
 		assert resourceableTypeName != null;
 		this.key = key;
@@ -35,7 +35,7 @@ final class CampusCourseOlatResource implements OLATResource {
 
 	@Override
 	public Long getResourceableId() {
-		return NOT_CREATED_CAMPUSKURS_RESOURCE_ID;
+		return NOT_CREATED_CAMPUS_COURSE_RESOURCE_ID;
 	}
 
 	@Override

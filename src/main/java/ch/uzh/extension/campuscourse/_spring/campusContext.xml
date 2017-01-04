@@ -12,7 +12,4 @@
 
     <import resource="classpath:/ch/uzh/extension/campuscourse/batchprocessing/_spring/campusJobSchedulerContext.xml"/>
     <import resource="classpath:/ch/uzh/extension/campuscourse/batchprocessing/_spring/campusBatchJobContext.xml"/>
-
-    <import resource="classpath:/ch/uzh/extension/campuscourse/olat/_spring/olatContext.xml"/>
-    <import resource="classpath:/ch/uzh/extension/campuscourse/olat/admin/_spring/campusPresentationContext.xml"/>
 </beans>

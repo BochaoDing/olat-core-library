@@ -51,51 +51,51 @@
 		<constructor-arg>
 			<map>
 				<entry key="exportResource">
-				<bean class="org.springframework.batch.core.JobParameter">
-					<constructor-arg value="${campus.import.process.sap.resources}/export.csv" />
-				</bean>
-			</entry>
+					<bean class="org.springframework.batch.core.JobParameter">
+						<constructor-arg value="${campus.import.process.sap.resources}/export.csv" />
+					</bean>
+				</entry>
 				<entry key="studentResource">
-				<bean class="org.springframework.batch.core.JobParameter">
-					<constructor-arg value="${campus.import.process.sap.resources}/ZCM_LEHRE===ZCM_EXP_STUD2=${campus.import.process.sap.files.suffix}" />
-				</bean>
-			</entry>
-			<entry key="lecturerResource">
-				<bean class="org.springframework.batch.core.JobParameter">
-					<constructor-arg value="${campus.import.process.sap.resources}/ZCM_LEHRE===ZCM_EXP_DOZ2==${campus.import.process.sap.files.suffix}" />
-				</bean>
-			</entry>
-			<entry key="courseResource">
-				<bean class="org.springframework.batch.core.JobParameter">
-					<constructor-arg value="${campus.import.process.sap.resources}/ZCM_LEHRE===ZCM_ED========${campus.import.process.sap.files.suffix}" />
-				</bean>
-			</entry>
-			<entry key="studentCourseResource">
-				<bean class="org.springframework.batch.core.JobParameter">
-					<constructor-arg value="${campus.import.process.sap.resources}/ZCM_LEHRE===ZCM_EXP_STUD_E${campus.import.process.sap.files.suffix}" />
-				</bean>
-			</entry>
-			<entry key="lecturerCourseResource">
-				<bean class="org.springframework.batch.core.JobParameter">
-					<constructor-arg value="${campus.import.process.sap.resources}/ZCM_LEHRE===ZCM_EXP_DOZ_E=${campus.import.process.sap.files.suffix}" />
-				</bean>
-			</entry>
-			<entry key="textResource">
-				<bean class="org.springframework.batch.core.JobParameter">
-					<constructor-arg value="${campus.import.process.sap.resources}/ZCM_LEHRE===ZCM_EXP_E_TEXT${campus.import.process.sap.files.suffix}" />
-				</bean>
-			</entry>
-			<!-- DISABLED FOR NOW -->
-			<!-- entry key="eventResource">
-				<bean class="org.springframework.batchprocessing.core.JobParameter">
-					<constructor-arg value="${campus.import.process.sap.resources}/ZCM_LEHRE===ZCM_EXP_E_TERM${campus.import.process.sap.files.suffix}" />
-				</bean>
-			</entry-->
-			<entry key="orgResource">
-				<bean class="org.springframework.batch.core.JobParameter">
-					<constructor-arg value="${campus.import.process.sap.resources}/ZCM_LEHRE===ZCM_EXP_ORG===${campus.import.process.sap.files.suffix}" />
-				</bean>
-			</entry>
+					<bean class="org.springframework.batch.core.JobParameter">
+						<constructor-arg value="${campus.import.process.sap.resources}/ZCM_LEHRE===ZCM_EXP_STUD2=${campus.import.process.sap.files.suffix}" />
+					</bean>
+				</entry>
+				<entry key="lecturerResource">
+					<bean class="org.springframework.batch.core.JobParameter">
+						<constructor-arg value="${campus.import.process.sap.resources}/ZCM_LEHRE===ZCM_EXP_DOZ2==${campus.import.process.sap.files.suffix}" />
+					</bean>
+				</entry>
+				<entry key="courseResource">
+					<bean class="org.springframework.batch.core.JobParameter">
+						<constructor-arg value="${campus.import.process.sap.resources}/ZCM_LEHRE===ZCM_ED========${campus.import.process.sap.files.suffix}" />
+					</bean>
+				</entry>
+				<entry key="studentCourseResource">
+					<bean class="org.springframework.batch.core.JobParameter">
+						<constructor-arg value="${campus.import.process.sap.resources}/ZCM_LEHRE===ZCM_EXP_STUD_E${campus.import.process.sap.files.suffix}" />
+					</bean>
+				</entry>
+				<entry key="lecturerCourseResource">
+					<bean class="org.springframework.batch.core.JobParameter">
+						<constructor-arg value="${campus.import.process.sap.resources}/ZCM_LEHRE===ZCM_EXP_DOZ_E=${campus.import.process.sap.files.suffix}" />
+					</bean>
+				</entry>
+				<entry key="textResource">
+					<bean class="org.springframework.batch.core.JobParameter">
+						<constructor-arg value="${campus.import.process.sap.resources}/ZCM_LEHRE===ZCM_EXP_E_TEXT${campus.import.process.sap.files.suffix}" />
+					</bean>
+				</entry>
+				<!-- DISABLED FOR NOW -->
+				<!-- entry key="eventResource">
+					<bean class="org.springframework.batchprocessing.core.JobParameter">
+						<constructor-arg value="${campus.import.process.sap.resources}/ZCM_LEHRE===ZCM_EXP_E_TERM${campus.import.process.sap.files.suffix}" />
+					</bean>
+				</entry-->
+				<entry key="orgResource">
+					<bean class="org.springframework.batch.core.JobParameter">
+						<constructor-arg value="${campus.import.process.sap.resources}/ZCM_LEHRE===ZCM_EXP_ORG===${campus.import.process.sap.files.suffix}" />
+					</bean>
+				</entry>
 			</map>
 		</constructor-arg>
 	</bean>
@@ -124,7 +124,7 @@
 		<property name="arguments">
             <list>
                 <value>enabled</value>
-                  <value>USER MAPPING PROCESS</value>
+				<value>USER MAPPING PROCESS</value>
             </list>
         </property>
 	</bean>

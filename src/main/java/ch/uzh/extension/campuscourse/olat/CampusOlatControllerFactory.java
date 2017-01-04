@@ -2,98 +2,35 @@ package ch.uzh.extension.campuscourse.olat;
 
 import ch.uzh.extension.campuscourse.olat.coursecreation.controller.CampusCourseCreateDialogController;
 import ch.uzh.extension.campuscourse.olat.coursecreation.controller.CampusCourseCreationChoiceController;
-import ch.uzh.extension.campuscourse.olat.coursecreation.controller.CampusCourseCreationChoiceController.CampusCourseCreationChoiceControllerListener;
 import ch.uzh.extension.campuscourse.olat.coursecreation.controller.CreateCampusCourseCompletedEventListener;
 import ch.uzh.extension.campuscourse.olat.coursecreation.controller.selection.CampusCourseSubmitController;
 import ch.uzh.extension.campuscourse.olat.coursecreation.controller.selection.ContinueCampusCourseSelectionController;
 import ch.uzh.extension.campuscourse.olat.coursecreation.controller.selection.CreationCampusCourseSelectionController;
-import ch.uzh.extension.campuscourse.olat.list.CampusCourseRepositoryEntryRow;
 import ch.uzh.extension.campuscourse.olat.tab.controller.CampusCourseTabTableController;
 import ch.uzh.extension.campuscourse.service.CampusCourseService;
-import org.olat.core.dispatcher.mapper.MapperService;
 import org.olat.core.gui.UserRequest;
-import org.olat.core.gui.components.velocity.VelocityContainer;
 import org.olat.core.gui.control.WindowControl;
 import org.olat.core.gui.control.navigation.SiteInstance;
-import org.olat.core.gui.translator.Translator;
 import org.olat.core.id.context.StateSite;
-import org.olat.core.util.Util;
-import org.olat.repository.RepositoryEntryMyView;
 import org.olat.repository.RepositoryManager;
-import org.olat.repository.RepositoryModule;
-import org.olat.repository.RepositoryService;
-import org.olat.repository.ui.list.RepositoryEntryListController;
-import org.olat.repository.ui.list.RepositoryEntryRow;
-import org.olat.repository.ui.list.RepositoryEntryRowFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.config.BeanDefinition;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Primary;
-import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
 
 /**
- * Initial date: 2016-06-29<br />
- * @author sev26 (UZH)
+ * @author Martin Schraner
  */
-@Configuration
-public class CampusCourseBeanFactory {
+@Component
+public class CampusOlatControllerFactory {
 
-	final static String RESOURCEABLE_TYPE_NAME = "CampusCourse";
-	final static String STUDENT_RESOURCEABLE_TYPE_NAME = "Student" + RESOURCEABLE_TYPE_NAME;
-	public final static String LECTURER_RESOURCEABLE_TYPE_NAME = "Lecturer"  + RESOURCEABLE_TYPE_NAME;
-	public final static String AUTHOR_LECTURER_RESOURCEABLE_TYPE_NAME = "AuthorLecturer"  + RESOURCEABLE_TYPE_NAME;
-	final static Long NOT_CREATED_CAMPUS_COURSE_KEY = 0L;
-	final static Long NOT_CREATED_CAMPUSKURS_RESOURCE_ID = 0L;
+	private final CampusCourseService campusCourseService;
+	private final RepositoryManager repositoryManager;
+	private final CampusCourseOlatHelper campusCourseOlatHelper;
 
 	@Autowired
-	private RepositoryModule repositoryModule;
-
-	@Autowired
-	private MapperService mapperService;
-
-	@Autowired
-	private CampusCourseService campusCourseService;
-
-	@Autowired
-	private RepositoryManager repositoryManager;
-
-	@Autowired
-	private CampusCourseOlatHelper campusCourseOlatHelper;
-
-	@Bean(name={"row_1"})
-	@Scope(BeanDefinition.SCOPE_PROTOTYPE)
-	@Primary
-	protected VelocityContainer createRow1(RepositoryEntryListController caller) {
-		VelocityContainer result = new VelocityContainer(null,
-				"vc_" + "row_1",
-				Util.getPackageVelocityRoot(CampusCourseRepositoryEntryRow.class) + "/row_1.html",
-				CampusCourseOlatHelper.getTranslator(caller.getLocale(),
-						RepositoryService.class),
-				caller
-		);
-		result.setDomReplacementWrapperRequired(false); // sets its own DOM id in velocity container
-		return result;
-	}
-
-	@Bean(name={"RepositoryEntryRowFactory"})
-	@Scope(BeanDefinition.SCOPE_PROTOTYPE)
-	@Primary
-	protected RepositoryEntryRowFactory createRepositoryEntryRowFactory(UserRequest userRequest) {
-		return new RepositoryEntryRowFactory(repositoryManager,
-				repositoryModule, mapperService, userRequest) {
-
-			Translator translator = CampusCourseOlatHelper
-					.getTranslator(userRequest.getLocale());
-
-			@Override
-			public RepositoryEntryRow create(RepositoryEntryMyView entry) {
-				if (entry.getOlatResource().getResourceableId() == NOT_CREATED_CAMPUSKURS_RESOURCE_ID)
-					return new CampusCourseRepositoryEntryRow(entry, translator);
-				else
-					return super.create(entry);
-			}
-		};
+	public CampusOlatControllerFactory(CampusCourseService campusCourseService, RepositoryManager repositoryManager, CampusCourseOlatHelper campusCourseOlatHelper) {
+		this.campusCourseService = campusCourseService;
+		this.repositoryManager = repositoryManager;
+		this.campusCourseOlatHelper = campusCourseOlatHelper;
 	}
 
 	public CampusCourseCreateDialogController createCampusCourseCreateDialogController(
@@ -106,7 +43,7 @@ public class CampusCourseBeanFactory {
 	}
 
 	public CampusCourseCreationChoiceController createCampusCourseCreationChoiceController(
-			CampusCourseCreationChoiceControllerListener listener,
+			CampusCourseCreationChoiceController.CampusCourseCreationChoiceControllerListener listener,
 			WindowControl windowControl,
 			UserRequest userRequest
 	) {

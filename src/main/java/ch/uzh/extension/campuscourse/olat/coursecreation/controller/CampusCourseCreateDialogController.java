@@ -1,6 +1,6 @@
 package ch.uzh.extension.campuscourse.olat.coursecreation.controller;
 
-import ch.uzh.extension.campuscourse.olat.CampusCourseBeanFactory;
+import ch.uzh.extension.campuscourse.olat.CampusOlatControllerFactory;
 import ch.uzh.extension.campuscourse.olat.coursecreation.controller.selection.CampusCourseDialogSelectionController;
 import org.olat.core.gui.UserRequest;
 import org.olat.core.gui.components.Component;
@@ -23,7 +23,7 @@ public class CampusCourseCreateDialogController extends BasicController implemen
 	private final VelocityContainer velocityContainer;
 
 	public CampusCourseCreateDialogController(Long sapCampusCourseId,
-											  CampusCourseBeanFactory campusCourseBeanFactory,
+											  CampusOlatControllerFactory campusOlatControllerFactory,
 											  WindowControl windowControl,
 											  UserRequest userRequest) {
 		super(userRequest, windowControl);
@@ -35,28 +35,28 @@ public class CampusCourseCreateDialogController extends BasicController implemen
 					switch (x) {
 						case 1:
 							velocityContainer.put(CampusCourseDialogSelectionController.class.getSimpleName(),
-									campusCourseBeanFactory
+									campusOlatControllerFactory
 											.createCreationCampusCourseSelectionTableController(
 													sapCampusCourseId, this, w, u)
 											.getInitialComponent());
 							break;
 						case 2:
 							velocityContainer.put(CampusCourseDialogSelectionController.class.getSimpleName(),
-									campusCourseBeanFactory
+									campusOlatControllerFactory
 											.createContinueCampusCourseSelectionTableController(
 													sapCampusCourseId, this, w, u)
 											.getInitialComponent());
 							break;
 						default:
 							velocityContainer.put(CampusCourseDialogSelectionController.class.getSimpleName(),
-									campusCourseBeanFactory
+									campusOlatControllerFactory
 											.createCampusCourseSubmitController(
 													sapCampusCourseId, this, w, u)
 											.getInitialComponent());
 					}
 				};
 
-		CampusCourseCreationChoiceController campusCourseCreationChoiceController = campusCourseBeanFactory
+		CampusCourseCreationChoiceController campusCourseCreationChoiceController = campusOlatControllerFactory
 				.createCampusCourseCreationChoiceController(listener,
 						windowControl, userRequest);
 		campusCourseCreationChoiceController.addControllerListener(this);
@@ -64,7 +64,7 @@ public class CampusCourseCreateDialogController extends BasicController implemen
 		velocityContainer.put(CampusCourseCreationChoiceController.class.getSimpleName(),
 				campusCourseCreationChoiceController.getInitialComponent());
 		velocityContainer.put(CampusCourseDialogSelectionController.class.getSimpleName(),
-				campusCourseBeanFactory.createCampusCourseSubmitController(
+				campusOlatControllerFactory.createCampusCourseSubmitController(
 						sapCampusCourseId, this, windowControl, userRequest).getInitialComponent());
 
 		putInitialPanel(velocityContainer);

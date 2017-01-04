@@ -1,8 +1,8 @@
 package ch.uzh.extension.campuscourse.olat;
 
+import ch.uzh.extension.campuscourse.model.CampusCourseTOForUI;
 import ch.uzh.extension.campuscourse.olat.coursecreation.controller.CampusCourseCreateDialogController;
 import ch.uzh.extension.campuscourse.olat.coursecreation.controller.CreateCampusCourseCompletedEventListener;
-import ch.uzh.extension.campuscourse.model.CampusCourseTOForUI;
 import org.olat.NewControllerFactory;
 import org.olat.core.gui.UserRequest;
 import org.olat.core.gui.control.ControllerEventListener;
@@ -20,7 +20,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.Locale;
 
-import static ch.uzh.extension.campuscourse.olat.CampusCourseBeanFactory.*;
+import static ch.uzh.extension.campuscourse.olat.CampusOlatConfig.*;
 
 @Component
 public class CampusCourseOlatHelper {
