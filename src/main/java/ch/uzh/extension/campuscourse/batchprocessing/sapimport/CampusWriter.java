@@ -5,7 +5,6 @@ import org.olat.core.commons.persistence.DB;
 import org.olat.core.logging.OLog;
 import org.olat.core.logging.Tracing;
 import org.springframework.batch.item.ItemWriter;
-import org.springframework.stereotype.Component;
 
 import java.util.List;
 
@@ -42,20 +41,10 @@ public class CampusWriter<T> implements ItemWriter<T> {
     private static final OLog LOG = Tracing.createLoggerFor(CampusWriter.class);
 
     private final DB dbInstance;
+    private final CampusDao<T> campuskursDao;
 
-    private CampusDao<T> campuskursDao;
-
-    public CampusWriter(DB dbInstance) {
+    CampusWriter(DB dbInstance, CampusDao<T> campuskursDao) {
         this.dbInstance = dbInstance;
-    }
-
-    /**
-     * Sets the CampusDao to be used to save or update the items in {@link #write(List)}.
-     * 
-     * @param campuskursDao
-     *            the CampusDao to set
-     */
-    public void setCampuskursDao(CampusDao<T> campuskursDao) {
         this.campuskursDao = campuskursDao;
     }
 
@@ -75,7 +64,7 @@ public class CampusWriter<T> implements ItemWriter<T> {
     @SuppressWarnings({ "unchecked", "rawtypes" })
     public void write(List<? extends T> items) throws Exception {
         try {
-            campuskursDao.saveOrUpdate((List) items);
+            campuskursDao.saveOrUpdate((List<T>) items);
             dbInstance.commitAndCloseSession();
         } catch (Throwable t) {
             dbInstance.rollbackAndCloseSession();

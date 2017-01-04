@@ -36,8 +36,8 @@
 	<bean id="sapImportJobDetail" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
 		<property name="targetObject" ref="sapImportJobLauncher" />
 		<property name="targetMethod" value="process" />
-		 <property name="concurrent" value="false"/>
-		  <property name="arguments">
+		<property name="concurrent" value="false"/>
+		<property name="arguments">
             <list>
                 <value>enabled</value>
                 <value>IMPORT PROCESS</value>

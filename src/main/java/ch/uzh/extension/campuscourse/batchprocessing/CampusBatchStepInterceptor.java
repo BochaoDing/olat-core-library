@@ -12,6 +12,7 @@ import org.olat.core.logging.Tracing;
 import org.springframework.batch.core.*;
 import org.springframework.batch.core.scope.context.ChunkContext;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -30,6 +31,7 @@ import java.util.List;
  * @author aabouc
  */
 @Component
+@Scope("step")
 public class CampusBatchStepInterceptor<T, S> implements StepExecutionListener, ItemWriteListener<S>, SkipListener<T, S>, ChunkListener {
 
 	private static final OLog LOG = Tracing.createLoggerFor(CampusBatchStepInterceptor.class);

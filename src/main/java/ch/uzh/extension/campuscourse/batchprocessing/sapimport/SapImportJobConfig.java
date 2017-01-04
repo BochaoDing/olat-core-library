@@ -53,9 +53,7 @@ public class SapImportJobConfig {
 	@Bean
 	@Scope("step")
 	public CampusWriter<Export> exportWriter() {
-		CampusWriter<Export> campusWriter = new CampusWriter<>(dbInstance);
-		campusWriter.setCampuskursDao(exportDao);
-		return campusWriter;
+		return new CampusWriter<>(dbInstance, exportDao);
 	}
 
 	@Bean
@@ -121,7 +119,7 @@ public class SapImportJobConfig {
 	@Bean
 	@Scope("step")
 	public FlatFileItemReader<Org> orgReader(@Value("#{jobParameters['orgResource']}") String pathToInputFile) {
-		int[] includedColumns = new int[]{0, 11, 13};
+		int[] includedColumns = new int[]{0, 10, 12};
 		String[] attributeNamesOfTargetClass = new String []{"id", "shortName", "name"};
 		return createFlatFileItemReader(pathToInputFile, includedColumns, attributeNamesOfTargetClass, Org.class);
 	}
@@ -129,9 +127,7 @@ public class SapImportJobConfig {
 	@Bean
 	@Scope("step")
 	public CampusWriter<Org> orgWriter() {
-		CampusWriter<Org> campusWriter = new CampusWriter<>(dbInstance);
-		campusWriter.setCampuskursDao(orgDao);
-		return campusWriter;
+		return new CampusWriter<>(dbInstance, orgDao);
 	}
 
 	private <T> FlatFileItemReader<T> createFlatFileItemReader(String pathToInputFile,
@@ -179,6 +175,5 @@ public class SapImportJobConfig {
 
 		return flatFileItemReader;
 	}
-
 
 }
