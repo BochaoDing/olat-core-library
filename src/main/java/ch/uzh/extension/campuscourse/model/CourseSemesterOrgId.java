@@ -43,6 +43,37 @@ public class CourseSemesterOrgId {
     private Long org9;
     private Date dateOfImport;
 
+    public CourseSemesterOrgId() {
+    }
+
+    public CourseSemesterOrgId(Long id, String lvKuerzel, String title, String lvNr, String eLearningSupported,
+                               String language, String category, Date startDate, Date endDate, String vvzLink,
+                               String semester, String exclude, Long org1, Long org2, Long org3, Long org4, Long org5,
+                               Long org6, Long org7, Long org8, Long org9, Date dateOfImport) {
+        this.id = id;
+        this.lvKuerzel = lvKuerzel;
+        this.title = title;
+        this.lvNr = lvNr;
+        this.eLearningSupported = eLearningSupported;
+        this.language = language;
+        this.category = category;
+        this.startDate = startDate;
+        this.endDate = endDate;
+        this.vvzLink = vvzLink;
+        this.semester = semester;
+        this.exclude = exclude;
+        this.org1 = org1;
+        this.org2 = org2;
+        this.org3 = org3;
+        this.org4 = org4;
+        this.org5 = org5;
+        this.org6 = org6;
+        this.org7 = org7;
+        this.org8 = org8;
+        this.org9 = org9;
+        this.dateOfImport = dateOfImport;
+    }
+
     public Long getId() {
         return id;
     }

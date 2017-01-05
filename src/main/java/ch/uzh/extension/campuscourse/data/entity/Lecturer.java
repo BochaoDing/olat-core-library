@@ -37,6 +37,13 @@ import java.util.Set;
         @NamedQuery(name = Lecturer.DELETE_BY_LECTURER_IDS, query = "delete from Lecturer l where l.personalNr in :lecturerIds")
 })
 public class Lecturer {
+
+    public static final String GET_LECTURER_BY_EMAIL = "getLecturerByEmail";
+    public static final String GET_ALL_LECTURERS_WITH_CREATED_OR_NOT_CREATED_CREATABLE_COURSES = "getAllLecturersWithCreatedOrNotCreatedCreatableCourses";
+    public static final String GET_ALL_NOT_MANUALLY_MAPPED_OR_TOO_OLD_ORPHANED_LECTURERS = "getAllNotManuallyMappedOrTooOldOrphanedLecturers";
+    public static final String GET_LECTURERS_BY_MAPPED_IDENTITY_KEY = "getLecturersByMappedIdentityKey";
+    public static final String DELETE_BY_LECTURER_IDS = "deleteLecturerByLecturerIds";
+
     @Id
     @Column(name = "ID")
     private Long personalNr;
@@ -75,17 +82,19 @@ public class Lecturer {
     @JoinColumn(name = "fk_mapped_identity")
     private Identity mappedIdentity;
 
-    public static final String GET_LECTURER_BY_EMAIL = "getLecturerByEmail";
-    public static final String GET_ALL_LECTURERS_WITH_CREATED_OR_NOT_CREATED_CREATABLE_COURSES = "getAllLecturersWithCreatedOrNotCreatedCreatableCourses";
-    public static final String GET_ALL_NOT_MANUALLY_MAPPED_OR_TOO_OLD_ORPHANED_LECTURERS = "getAllNotManuallyMappedOrTooOldOrphanedLecturers";
-    public static final String GET_LECTURERS_BY_MAPPED_IDENTITY_KEY = "getLecturersByMappedIdentityKey";
-    public static final String DELETE_BY_LECTURER_IDS = "deleteLecturerByLecturerIds";
-
     public Lecturer() {
     }
 
     public Lecturer(Long personalNr) {
         this.personalNr = personalNr;
+    }
+
+    public Lecturer(Long personalNr, String firstName, String lastName, String email, Date dateOfImport) {
+        this.personalNr = personalNr;
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.email = email;
+        this.dateOfImport = dateOfImport;
     }
 
     public Long getPersonalNr() {

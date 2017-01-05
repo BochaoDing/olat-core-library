@@ -41,6 +41,9 @@ import java.util.Date;
 })
 public class Delegation {
 
+    public static final String GET_BY_DELEGATOR = "getByDelegator";
+    public static final String GET_BY_DELEGATEE = "getByDelegatee";
+
     @Id
     @SuppressWarnings("JpaAttributeTypeInspection")
     @ManyToOne(targetEntity = IdentityImpl.class, optional = false)
@@ -56,9 +59,6 @@ public class Delegation {
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "creationdate", nullable = false)
     private Date creationDate;
-
-    public static final String GET_BY_DELEGATOR = "getByDelegator";
-    public static final String GET_BY_DELEGATEE = "getByDelegatee";
 
     public Delegation() {
     }

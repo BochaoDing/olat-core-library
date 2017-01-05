@@ -74,22 +74,22 @@ public class CampusOlatBeanFactory {
 	@Bean(name={"row_1"})
 	@Scope(BeanDefinition.SCOPE_PROTOTYPE)
 	@Primary
-	protected VelocityContainer createRow1(RepositoryEntryListController caller) {
-		VelocityContainer result = new VelocityContainer(null,
+	protected VelocityContainer row1(RepositoryEntryListController caller) {
+		VelocityContainer velocityContainer = new VelocityContainer(null,
 				"vc_" + "row_1",
 				Util.getPackageVelocityRoot(CampusCourseRepositoryEntryRow.class) + "/row_1.html",
 				CampusCourseOlatHelper.getTranslator(caller.getLocale(),
 						RepositoryService.class),
 				caller
 		);
-		result.setDomReplacementWrapperRequired(false); // sets its own DOM id in velocity container
-		return result;
+		velocityContainer.setDomReplacementWrapperRequired(false); // sets its own DOM id in velocity container
+		return velocityContainer;
 	}
 
 	@Bean(name={"RepositoryEntryRowFactory"})
 	@Scope(BeanDefinition.SCOPE_PROTOTYPE)
 	@Primary
-	protected RepositoryEntryRowFactory createRepositoryEntryRowFactory(UserRequest userRequest) {
+	protected RepositoryEntryRowFactory repositoryEntryRowFactory(UserRequest userRequest) {
 		return new RepositoryEntryRowFactory(repositoryManager,
 				repositoryModule, mapperService, userRequest) {
 

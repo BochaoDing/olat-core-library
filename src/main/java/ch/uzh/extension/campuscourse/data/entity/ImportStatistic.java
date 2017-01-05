@@ -24,6 +24,29 @@ import java.util.Date;
 })
 public class ImportStatistic {
 
+    public static final String GET_LAST_COMPLETED_IMPORT_STATISTIC = "getLastCompletedImportStatistic";
+    public static final String GET_IMPORT_STATISTICS_OF_TODAY = "getImportStatisticOfToday";
+
+    public ImportStatistic() {
+    }
+
+    public ImportStatistic(long stepId, String stepName, String status, Date startTime, Date endTime, int readCount,
+                           int writeCount, int readSkipCount, int writeSkipCount, int processSkipCount, int commitCount,
+                           int rollbackCount) {
+        this.stepId = stepId;
+        this.stepName = stepName;
+        this.status = status;
+        this.startTime = startTime;
+        this.endTime = endTime;
+        this.readCount = readCount;
+        this.writeCount = writeCount;
+        this.readSkipCount = readSkipCount;
+        this.writeSkipCount = writeSkipCount;
+        this.processSkipCount = processSkipCount;
+        this.commitCount = commitCount;
+        this.rollbackCount = rollbackCount;
+    }
+
     @Id
     @GeneratedValue(generator = "system-uuid")
     @GenericGenerator(name = "system-uuid", strategy = "hilo")
@@ -37,6 +60,14 @@ public class ImportStatistic {
 
     @Column(name = "status", nullable = false)
     private String status;
+
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(name = "start_time")
+    private Date startTime;
+
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(name = "end_time")
+    private Date endTime;
 
     @Column(name = "read_count", nullable = false)
     private int readCount;
@@ -58,17 +89,6 @@ public class ImportStatistic {
 
     @Column(name = "rollback_count")
     private int rollbackCount;
-
-    @Temporal(TemporalType.TIMESTAMP)
-    @Column(name = "start_time")
-    private Date startTime;
-
-    @Temporal(TemporalType.TIMESTAMP)
-    @Column(name = "end_time")
-    private Date endTime;
-
-    public static final String GET_LAST_COMPLETED_IMPORT_STATISTIC = "getLastCompletedImportStatistic";
-    public static final String GET_IMPORT_STATISTICS_OF_TODAY = "getImportStatisticOfToday";
 
     public Long getId() {
         return id;
@@ -100,6 +120,22 @@ public class ImportStatistic {
 
     public void setStatus(String status) {
         this.status = status;
+    }
+
+    public Date getStartTime() {
+        return startTime;
+    }
+
+    public void setStartTime(Date startTime) {
+        this.startTime = startTime;
+    }
+
+    public Date getEndTime() {
+        return endTime;
+    }
+
+    public void setEndTime(Date endTime) {
+        this.endTime = endTime;
     }
 
     public int getReadCount() {
@@ -158,36 +194,19 @@ public class ImportStatistic {
         this.rollbackCount = rollbackCount;
     }
 
-    public Date getStartTime() {
-        return startTime;
-    }
-
-    public void setStartTime(Date startTime) {
-        this.startTime = startTime;
-    }
-
-    public Date getEndTime() {
-        return endTime;
-    }
-
-    public void setEndTime(Date endTime) {
-        this.endTime = endTime;
-    }
-
     @Override
     public String toString() {
         ToStringBuilder builder = new ToStringBuilder(this);
         builder.append("id", getId());
         builder.append("stepId", getStepId());
         builder.append("stepName", getStepName());
+        builder.append("startTime", getStartTime());
+        builder.append("endTime", getEndTime());
         builder.append("readCount", getReadCount());
         builder.append("writeCount", getWriteCount());
         builder.append("readSkipCount", getReadSkipCount());
         builder.append("writeSkipCount", getWriteSkipCount());
         builder.append("processkipCount", getProcessSkipCount());
-        builder.append("startTime", getStartTime());
-        builder.append("endTime", getEndTime());
-
         return builder.toString();
     }
 

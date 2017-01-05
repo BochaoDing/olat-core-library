@@ -24,6 +24,21 @@ import java.util.Set;
 @NamedQueries({ @NamedQuery(name = Org.GET_IDS_OF_ALL_ENABLED_ORGS, query = "select id from Org"),
         @NamedQuery(name = Org.GET_ALL_ORPHANED_ORGS, query = "select o.id from Org o where o.id not in (select o1.id from Course c join c.orgs o1)")})
 public class Org {
+
+    public static final String GET_IDS_OF_ALL_ENABLED_ORGS = "getIdsOfAllEnabledOrgs";
+    public static final String GET_ALL_ORPHANED_ORGS = "getAllOrphanedOrgs";
+
+    public Org() {
+    }
+
+    public Org(Long id, String shortName, String name, boolean enabled, Date dateOfImport) {
+        this.id = id;
+        this.shortName = shortName;
+        this.name = name;
+        this.enabled = enabled;
+        this.dateOfImport = dateOfImport;
+    }
+
     @Id
     private Long id;
 
@@ -42,9 +57,6 @@ public class Org {
 
     @ManyToMany(mappedBy = "orgs")
     private Set<Course> courses = new HashSet<>();
-
-    public static final String GET_IDS_OF_ALL_ENABLED_ORGS = "getIdsOfAllEnabledOrgs";
-    public static final String GET_ALL_ORPHANED_ORGS = "getAllOrphanedOrgs";
 
     public Long getId() {
         return id;

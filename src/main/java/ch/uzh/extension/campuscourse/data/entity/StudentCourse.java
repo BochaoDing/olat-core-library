@@ -19,6 +19,12 @@ import java.util.Date;
 })
 public class StudentCourse {
 
+    public static final String GET_ALL_NOT_UPDATED_SC_BOOKING_OF_CURRENT_SEMESTER = "getAllNotUpdatedSCBookingOfCurrentSemester";
+    public static final String DELETE_BY_STUDENT_IDS = "deleteStudentCourseByStudentIds";
+    public static final String DELETE_BY_COURSE_IDS = "deleteStudentCourseByCourseIds";
+    public static final String DELETE_BY_STUDENT_ID_COURSE_ID = "deleteByStudentIdCourseId";
+    public static final String DELETE_ALL_SC_BOOKING_TOO_FAR_IN_THE_PAST = "deleteAllSCBookingTooFarInThePast";
+
     @Id
     @ManyToOne(optional = false)
     @JoinColumn(name = "fk_student")
@@ -41,12 +47,6 @@ public class StudentCourse {
         this.course = course;
         this.dateOfImport = dateOfImport;
     }
-
-    public static final String GET_ALL_NOT_UPDATED_SC_BOOKING_OF_CURRENT_SEMESTER = "getAllNotUpdatedSCBookingOfCurrentSemester";
-    public static final String DELETE_BY_STUDENT_IDS = "deleteStudentCourseByStudentIds";
-    public static final String DELETE_BY_COURSE_IDS = "deleteStudentCourseByCourseIds";
-    public static final String DELETE_BY_STUDENT_ID_COURSE_ID = "deleteByStudentIdCourseId";
-    public static final String DELETE_ALL_SC_BOOKING_TOO_FAR_IN_THE_PAST = "deleteAllSCBookingTooFarInThePast";
 
     public Student getStudent() {
         return student;

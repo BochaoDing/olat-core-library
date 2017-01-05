@@ -15,6 +15,17 @@ public class EventCourseId {
     private Date dateOfImport;
     private Long courseId;
 
+    public EventCourseId() {
+    }
+
+    public EventCourseId(Date date, String start, String end, Date dateOfImport, Long courseId) {
+        this.date = date;
+        this.start = start;
+        this.end = end;
+        this.dateOfImport = dateOfImport;
+        this.courseId = courseId;
+    }
+
     public Date getDate() {
         return date;
     }

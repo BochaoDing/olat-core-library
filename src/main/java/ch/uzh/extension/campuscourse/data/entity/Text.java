@@ -2,8 +2,6 @@ package ch.uzh.extension.campuscourse.data.entity;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.hibernate.annotations.GenericGenerator;
-import org.springframework.context.annotation.Scope;
-import org.springframework.stereotype.Repository;
 
 import javax.persistence.*;
 import java.util.Date;
@@ -27,6 +25,18 @@ import java.util.Date;
         @NamedQuery(name = Text.DELETE_TEXTS_BY_COURSE_IDS, query = "delete from Text t where t.course.id in :courseIds")
 })
 public class Text {
+
+    public static final String CONTENTS = "Veranstaltungsinhalt";
+    public static final String INFOS = "Hinweise";
+    public static final String MATERIALS = "Unterrichtsmaterialien";
+    public static final String BREAK_TAG = "<br>";
+    public static final String GET_IDS_OF_ALL_TEXTS = "getIdsOfAllTexts";
+    public static final String GET_TEXT_IDS_BY_COURSE_ID = "getTextIdsByCourseId";
+    public static final String GET_TEXT_IDS_BY_COURSE_IDS = "getTextIdsByCourseIds";
+    public static final String GET_TEXTS_BY_COURSE_ID_AND_TYPE = "getTextsByCourseIdAndType";
+    public static final String GET_TEXTS_BY_COURSE_ID ="getTextsByCourseId";
+    public static final String DELETE_ALL_TEXTS = "deleteAllTexts";
+    public static final String DELETE_TEXTS_BY_COURSE_IDS = "deleteTextsByCourseIds";
 
     @Id   
     @GeneratedValue(generator = "system-uuid")
@@ -59,19 +69,6 @@ public class Text {
         this.line = line;
         this.dateOfImport = dateOfImport;
     }
-
-    public static final String CONTENTS = "Veranstaltungsinhalt";
-    public static final String INFOS = "Hinweise";
-    public static final String MATERIALS = "Unterrichtsmaterialien";
-    public static final String BREAK_TAG = "<br>";
-
-    public static final String GET_IDS_OF_ALL_TEXTS = "getIdsOfAllTexts";
-    public static final String GET_TEXT_IDS_BY_COURSE_ID = "getTextIdsByCourseId";
-    public static final String GET_TEXT_IDS_BY_COURSE_IDS = "getTextIdsByCourseIds";
-    public static final String GET_TEXTS_BY_COURSE_ID_AND_TYPE = "getTextsByCourseIdAndType";
-    public static final String GET_TEXTS_BY_COURSE_ID ="getTextsByCourseId";
-    public static final String DELETE_ALL_TEXTS = "deleteAllTexts";
-    public static final String DELETE_TEXTS_BY_COURSE_IDS = "deleteTextsByCourseIds";
 
     public Long getId() {
         return id;

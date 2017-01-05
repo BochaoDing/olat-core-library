@@ -43,6 +43,15 @@ import java.util.Set;
         @NamedQuery(name = Student.DELETE_BY_STUDENT_IDS, query = "delete from Student s where s.id in :studentIds")
 })
 public class Student {
+
+    public static final String GET_ALL_STUDENTS_WITH_CREATED_OR_NOT_CREATED_CREATABLE_COURSES = "getAllStudentsWithCreatedOrNotCreatedCreatableCourses";
+    public static final String GET_ALL_NOT_MANUALLY_MAPPED_OR_TOO_OLD_ORPHANED_STUDENTS = "getAllNotManuallyMappedOrTooOldOrphanedStudents";
+    public static final String GET_STUDENTS_BY_EMAIL = "getStudentsWithEmail";
+    public static final String GET_STUDENTS_WITH_REGISTRATION_NUMBER = "getStudentsWithRegistrationNr";
+    public static final String GET_STUDENTS_BY_MAPPED_IDENTITY_KEY = "getStudentsByMappedIdentityKey";
+    public static final String GET_NUMBER_OF_STUDENTS_OF_SPECIFIC_COURSE = "getNumberOfStudentsOfSpecificCourse";
+    public static final String GET_NUMBER_OF_STUDENTS_WITH_BOOKING_FOR_COURSE_AND_PARENT_COURSE = "getStudentsWithBookingForCourseAndParentCourse";
+    public static final String DELETE_BY_STUDENT_IDS = "deleteStudentByStudentIds";
 	
     @Id    
     private Long id;
@@ -78,20 +87,20 @@ public class Student {
     @JoinColumn(name = "fk_mapped_identity")
     private Identity mappedIdentity;
 
-    public static final String GET_ALL_STUDENTS_WITH_CREATED_OR_NOT_CREATED_CREATABLE_COURSES = "getAllStudentsWithCreatedOrNotCreatedCreatableCourses";
-    public static final String GET_ALL_NOT_MANUALLY_MAPPED_OR_TOO_OLD_ORPHANED_STUDENTS = "getAllNotManuallyMappedOrTooOldOrphanedStudents";
-    public static final String GET_STUDENTS_BY_EMAIL = "getStudentsWithEmail";
-    public static final String GET_STUDENTS_WITH_REGISTRATION_NUMBER = "getStudentsWithRegistrationNr";
-    public static final String GET_STUDENTS_BY_MAPPED_IDENTITY_KEY = "getStudentsByMappedIdentityKey";
-    public static final String GET_NUMBER_OF_STUDENTS_OF_SPECIFIC_COURSE = "getNumberOfStudentsOfSpecificCourse";
-    public static final String GET_NUMBER_OF_STUDENTS_WITH_BOOKING_FOR_COURSE_AND_PARENT_COURSE = "getStudentsWithBookingForCourseAndParentCourse";
-    public static final String DELETE_BY_STUDENT_IDS = "deleteStudentByStudentIds";
-
     public Student() {
     }
 
     public Student(Long id) {
         this.id = id;
+    }
+
+    public Student(Long id, String registrationNr, String firstName, String lastName, String email, Date dateOfImport) {
+        this.id = id;
+        this.registrationNr = registrationNr;
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.email = email;
+        this.dateOfImport = dateOfImport;
     }
 
     public Long getId() {

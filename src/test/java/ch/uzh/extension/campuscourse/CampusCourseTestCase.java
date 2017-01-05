@@ -9,9 +9,7 @@ import org.springframework.test.context.ContextConfiguration;
  * @author Martin Schraner
  */
 @ContextConfiguration(loader = MockServletContextWebContextLoader.class, locations = {
-        "classpath:org/olat/core/commons/persistence/_spring/testDatabaseCorecontext.xml",
-		"classpath:ch/uzh/extension/campuscourse/data/_spring/mockDataContext.xml"
-})
+        "classpath:org/olat/core/commons/persistence/_spring/testDatabaseCorecontext.xml"})
 public abstract class CampusCourseTestCase extends OlatTestCase {
 
     @Override

@@ -25,6 +25,10 @@ import static ch.uzh.extension.campuscourse.data.entity.Semester.GET_SEMESTER_BY
         })
 public class Semester implements Comparable<Semester>  {
 
+    public static final String GET_ALL_SEMESTERS = "getAllSemesters";
+    public static final String GET_SEMESTER_BY_SEMESTER_NAME_AND_YEAR = "getSemesterBySemesterNameAndYear";
+    public static final String GET_CURRENT_SEMESTER = "getCurrentSemester";
+
     @Id
     @GeneratedValue(generator = "system-uuid")
     @GenericGenerator(name = "system-uuid", strategy = "hilo")
@@ -48,10 +52,6 @@ public class Semester implements Comparable<Semester>  {
         this.year = year;
         this.currentSemester = currentSemester;
     }
-
-    public static final String GET_ALL_SEMESTERS = "getAllSemesters";
-    public static final String GET_SEMESTER_BY_SEMESTER_NAME_AND_YEAR = "getSemesterBySemesterNameAndYear";
-    public static final String GET_CURRENT_SEMESTER = "getCurrentSemester";
 
     public Long getId() {
         return id;

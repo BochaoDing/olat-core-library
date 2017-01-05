@@ -1,14 +1,13 @@
 package ch.uzh.extension.campuscourse.data.dao;
 
 import ch.uzh.extension.campuscourse.CampusCourseTestCase;
-import ch.uzh.extension.campuscourse.data.MockDataGenerator;
+import ch.uzh.extension.campuscourse.CampusCourseTestDataGenerator;
 import ch.uzh.extension.campuscourse.data.entity.ImportStatistic;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import javax.inject.Provider;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
@@ -41,13 +40,13 @@ public class ImportStatisticDaoTest extends CampusCourseTestCase {
     private ImportStatisticDao importStatisticDao;
 
     @Autowired
-    private Provider<MockDataGenerator> mockDataGeneratorProvider;
+    private CampusCourseTestDataGenerator campusCourseTestDataGenerator;
 
     private List<ImportStatistic> importStatistics;
 
     @Before
     public void setup() {
-        importStatistics = mockDataGeneratorProvider.get().getImportStatistics();
+        importStatistics = campusCourseTestDataGenerator.createImportStatistics();
     }
 
     @Test

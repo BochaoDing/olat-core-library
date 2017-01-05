@@ -1,22 +1,21 @@
 package ch.uzh.extension.campuscourse.data.dao;
 
+import ch.uzh.extension.campuscourse.CampusCourseTestCase;
+import ch.uzh.extension.campuscourse.CampusCourseTestDataGenerator;
 import ch.uzh.extension.campuscourse.common.CampusCourseConfiguration;
 import ch.uzh.extension.campuscourse.common.CampusCourseException;
-import ch.uzh.extension.campuscourse.CampusCourseTestCase;
-import ch.uzh.extension.campuscourse.model.CourseSemesterOrgId;
-import ch.uzh.extension.campuscourse.model.LecturerIdCourseId;
-import ch.uzh.extension.campuscourse.model.LecturerIdCourseIdDateOfImport;
-import ch.uzh.extension.campuscourse.data.MockDataGenerator;
-import ch.uzh.extension.campuscourse.util.DateUtil;
 import ch.uzh.extension.campuscourse.data.entity.Course;
 import ch.uzh.extension.campuscourse.data.entity.Lecturer;
 import ch.uzh.extension.campuscourse.data.entity.LecturerCourse;
+import ch.uzh.extension.campuscourse.model.CourseSemesterOrgId;
+import ch.uzh.extension.campuscourse.model.LecturerIdCourseId;
+import ch.uzh.extension.campuscourse.model.LecturerIdCourseIdDateOfImport;
+import ch.uzh.extension.campuscourse.util.DateUtil;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import javax.inject.Provider;
 import javax.persistence.EntityNotFoundException;
 import java.util.Date;
 import java.util.LinkedList;
@@ -51,17 +50,17 @@ public class LecturerCourseDaoTest extends CampusCourseTestCase {
     private LecturerCourseDao lecturerCourseDao;
 
     @Autowired
-    private Provider<MockDataGenerator> mockDataGeneratorProvider;
+    private CampusCourseTestDataGenerator campusCourseTestDataGenerator;
 
     @Before
     public void setup() throws CampusCourseException {
         // Insert some lecturers
-        List<Lecturer> lecturers = mockDataGeneratorProvider.get().getLecturers();
+        List<Lecturer> lecturers = campusCourseTestDataGenerator.createLecturers();
         lecturerDao.save(lecturers);
         dbInstance.flush();
 
         // Insert some courses
-        List<CourseSemesterOrgId> courseSemesterOrgIds = mockDataGeneratorProvider.get().getCourseSemesterOrgIds();
+        List<CourseSemesterOrgId> courseSemesterOrgIds = campusCourseTestDataGenerator.createCourseSemesterOrgIds();
         courseDao.save(courseSemesterOrgIds);
         dbInstance.flush();
 
@@ -384,7 +383,7 @@ public class LecturerCourseDaoTest extends CampusCourseTestCase {
     }
 
     private void insertLecturerIdCourseIds() {
-        List<LecturerIdCourseIdDateOfImport> lecturerIdCourseIdDateOfImports = mockDataGeneratorProvider.get().getLecturerIdCourseIdDateOfImports();
+        List<LecturerIdCourseIdDateOfImport> lecturerIdCourseIdDateOfImports = campusCourseTestDataGenerator.createLecturerIdCourseIdDateOfImports();
         lecturerCourseDao.save(lecturerIdCourseIdDateOfImports);
         dbInstance.flush();
     }

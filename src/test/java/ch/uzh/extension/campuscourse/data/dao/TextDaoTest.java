@@ -1,8 +1,8 @@
 package ch.uzh.extension.campuscourse.data.dao;
 
-import ch.uzh.extension.campuscourse.common.CampusCourseException;
 import ch.uzh.extension.campuscourse.CampusCourseTestCase;
-import ch.uzh.extension.campuscourse.data.MockDataGenerator;
+import ch.uzh.extension.campuscourse.CampusCourseTestDataGenerator;
+import ch.uzh.extension.campuscourse.common.CampusCourseException;
 import ch.uzh.extension.campuscourse.data.entity.Course;
 import ch.uzh.extension.campuscourse.model.CourseSemesterOrgId;
 import ch.uzh.extension.campuscourse.model.TextCourseId;
@@ -12,7 +12,6 @@ import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import javax.inject.Provider;
 import javax.persistence.EntityNotFoundException;
 import java.util.ArrayList;
 import java.util.Date;
@@ -37,12 +36,12 @@ public class TextDaoTest extends CampusCourseTestCase {
  	private CourseDao courseDao;
 
 	@Autowired
-    private Provider<MockDataGenerator> mockDataGeneratorProvider;
+    private CampusCourseTestDataGenerator campusCourseTestDataGenerator;
 
     @Before
 	public void setup() throws CampusCourseException {
         // Insert some courses
-        List<CourseSemesterOrgId> courseSemesterOrgIds = mockDataGeneratorProvider.get().getCourseSemesterOrgIds();
+        List<CourseSemesterOrgId> courseSemesterOrgIds = campusCourseTestDataGenerator.createCourseSemesterOrgIds();
         courseDao.save(courseSemesterOrgIds);
         dbInstance.flush();
 	}
@@ -67,7 +66,7 @@ public class TextDaoTest extends CampusCourseTestCase {
         assertTrue(textDao.getTextsByCourseId(100L).isEmpty());
 
         // Add a text
-        TextCourseId textCourseId = mockDataGeneratorProvider.get().getTextCourseIds().get(0);
+        TextCourseId textCourseId = campusCourseTestDataGenerator.createTextCourseIds().get(0);
         textDao.addTextToCourse(textCourseId);
 
         // Check before flush
@@ -281,7 +280,7 @@ public class TextDaoTest extends CampusCourseTestCase {
     }
 
     private void addTextsToCourses() {
-        List<TextCourseId> textCourseIds = mockDataGeneratorProvider.get().getTextCourseIds();
+        List<TextCourseId> textCourseIds = campusCourseTestDataGenerator.createTextCourseIds();
         textDao.addTextsToCourse(textCourseIds);
         dbInstance.flush();
     }

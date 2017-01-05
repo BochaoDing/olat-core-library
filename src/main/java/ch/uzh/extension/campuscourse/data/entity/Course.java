@@ -77,6 +77,24 @@ import java.util.*;
 })
 public class Course {
 
+    public static final String GET_IDS_OF_ALL_CREATED_SYNCHRONIZABLE_COURSES_OF_CURRENT_SEMESTER = "getIdsOfAllCreatedSynchronizableCoursesOfCurrentSemester";
+    public static final String GET_REPOSITORY_ENTRY_KEYS_OF_ALL_CREATED_NOT_CONTINUED_COURSES_OF_SPECIFIC_SEMESTERS = "getRepositoryEntryKeysOfAllCreatedNotContinuedCoursesOfSpecificSemesters";
+    public static final String GET_IDS_OF_ALL_NOT_CREATED_CREATABLE_COURSES_OF_CURRENT_SEMESTER = "getIdsOfAllNotCreatedCreatableCoursesOfCurrentSemester";
+    public static final String GET_ALL_CREATED_COURSES_OF_CURRENT_SEMESTER = "getAllCreatedCoursesOfCurrentSemester";
+    public static final String GET_CREATED_COURSES_OF_CURRENT_SEMESTER_BY_LECTURER_ID = "getCreatedCoursesOfCurrentSemesterByLecturerId";
+    public static final String GET_NOT_CREATED_CREATABLE_COURSES_OF_CURRENT_SEMESTER_BY_LECTURER_ID = "getNotCreatedCreatableCoursesOfCurrentSemesterByLecturerId";
+    public static final String GET_CREATED_COURSES_OF_CURRENT_SEMESTER_BY_STUDENT_ID = "getCreatedCoursesOfCurrentSemesterByStudentId";
+    public static final String GET_CREATED_COURSES_OF_CURRENT_SEMESTER_BY_STUDENT_ID_BOOKED_BY_STUDENT_ONLY_AS_PARENT_COURSE = "getCreatedCoursesOfCurrentSemesterByStudentIdBookedByStudentOnlyAsParentCourse";
+    public static final String GET_NOT_CREATED_CREATABLE_COURSES_OF_CURRENT_SEMESTER_BY_STUDENT_ID = "getNotCreatedCreatableCoursesOfCurrentSemesterByStudentId";
+    public static final String GET_ALL_NOT_CREATED_ORPHANED_COURSES = "getAllNotCreatedOrphanedCourses";
+    public static final String GET_COURSE_IDS_BY_REPOSITORY_ENTRY_KEY = "getCourseIdsByRepositoryEntryKey";
+    public static final String GET_CREATED_AND_NOT_CREATED_CREATABLE_COURSES_OF_CURRENT_SEMESTER_BY_LECTURER_ID = "getCreatedAndNotCreatedCreatableCoursesOfCurrentSemesterByLecturerId";
+    public static final String GET_CREATED_AND_NOT_CREATED_CREATABLE_COURSES_OF_CURRENT_SEMESTER_BY_STUDENT_ID = "getCreatedAndNotCreatedCreatableCoursesOfCurrentSemesterByStudentId";
+    public static final String GET_CREATED_AND_NOT_CREATED_CREATABLE_COURSES_OF_CURRENT_SEMESTER_BY_STUDENT_ID_BOOKED_BY_STUDENT_ONLY_AS_PARENT_COURSE = "getCreatedAndNotCreatedCreatableCoursesOfCurrentSemesterByStudentIdBookedByStudentOnlyAsParentCourse";
+    public static final String GET_COURSES_BY_REPOSITORY_ENTRY_KEY = "getCoursesByRepositoryEntryKey";
+    public static final String GET_COURSES_BY_CAMPUS_GROUP_A_KEY = "getCoursesByCampusGroupAKey";
+    public static final String GET_COURSES_BY_CAMPUS_GROUP_B_KEY = "getCoursesByCampusGroupBKey";
+    public static final String GET_LATEST_COURSE_BY_REPOSITORY_ENTRY_KEY = "getLatestCourseByRepositoryEntryKey";
     private static final String WHITESPACE = " ";
 
     @Id
@@ -195,25 +213,6 @@ public class Course {
         this.dateOfImport = dateOfImport;
         this.semester = semester;
     }
-
-    public static final String GET_IDS_OF_ALL_CREATED_SYNCHRONIZABLE_COURSES_OF_CURRENT_SEMESTER = "getIdsOfAllCreatedSynchronizableCoursesOfCurrentSemester";
-    public static final String GET_REPOSITORY_ENTRY_KEYS_OF_ALL_CREATED_NOT_CONTINUED_COURSES_OF_SPECIFIC_SEMESTERS = "getRepositoryEntryKeysOfAllCreatedNotContinuedCoursesOfSpecificSemesters";
-    public static final String GET_IDS_OF_ALL_NOT_CREATED_CREATABLE_COURSES_OF_CURRENT_SEMESTER = "getIdsOfAllNotCreatedCreatableCoursesOfCurrentSemester";
-    public static final String GET_ALL_CREATED_COURSES_OF_CURRENT_SEMESTER = "getAllCreatedCoursesOfCurrentSemester";
-    public static final String GET_CREATED_COURSES_OF_CURRENT_SEMESTER_BY_LECTURER_ID = "getCreatedCoursesOfCurrentSemesterByLecturerId";
-    public static final String GET_NOT_CREATED_CREATABLE_COURSES_OF_CURRENT_SEMESTER_BY_LECTURER_ID = "getNotCreatedCreatableCoursesOfCurrentSemesterByLecturerId";
-    public static final String GET_CREATED_COURSES_OF_CURRENT_SEMESTER_BY_STUDENT_ID = "getCreatedCoursesOfCurrentSemesterByStudentId";
-    public static final String GET_CREATED_COURSES_OF_CURRENT_SEMESTER_BY_STUDENT_ID_BOOKED_BY_STUDENT_ONLY_AS_PARENT_COURSE = "getCreatedCoursesOfCurrentSemesterByStudentIdBookedByStudentOnlyAsParentCourse";
-    public static final String GET_NOT_CREATED_CREATABLE_COURSES_OF_CURRENT_SEMESTER_BY_STUDENT_ID = "getNotCreatedCreatableCoursesOfCurrentSemesterByStudentId";
-    public static final String GET_ALL_NOT_CREATED_ORPHANED_COURSES = "getAllNotCreatedOrphanedCourses";
-    public static final String GET_COURSE_IDS_BY_REPOSITORY_ENTRY_KEY = "getCourseIdsByRepositoryEntryKey";
-    public static final String GET_CREATED_AND_NOT_CREATED_CREATABLE_COURSES_OF_CURRENT_SEMESTER_BY_LECTURER_ID = "getCreatedAndNotCreatedCreatableCoursesOfCurrentSemesterByLecturerId";
-    public static final String GET_CREATED_AND_NOT_CREATED_CREATABLE_COURSES_OF_CURRENT_SEMESTER_BY_STUDENT_ID = "getCreatedAndNotCreatedCreatableCoursesOfCurrentSemesterByStudentId";
-    public static final String GET_CREATED_AND_NOT_CREATED_CREATABLE_COURSES_OF_CURRENT_SEMESTER_BY_STUDENT_ID_BOOKED_BY_STUDENT_ONLY_AS_PARENT_COURSE = "getCreatedAndNotCreatedCreatableCoursesOfCurrentSemesterByStudentIdBookedByStudentOnlyAsParentCourse";
-    public static final String GET_COURSES_BY_REPOSITORY_ENTRY_KEY = "getCoursesByRepositoryEntryKey";
-    public static final String GET_COURSES_BY_CAMPUS_GROUP_A_KEY = "getCoursesByCampusGroupAKey";
-    public static final String GET_COURSES_BY_CAMPUS_GROUP_B_KEY = "getCoursesByCampusGroupBKey";
-    public static final String GET_LATEST_COURSE_BY_REPOSITORY_ENTRY_KEY = "getLatestCourseByRepositoryEntryKey";
 
     public Long getId() {
         return id;

@@ -2,8 +2,6 @@ package ch.uzh.extension.campuscourse.data.entity;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.hibernate.annotations.GenericGenerator;
-import org.springframework.context.annotation.Scope;
-import org.springframework.stereotype.Repository;
 
 import javax.persistence.*;
 import java.util.Date;
@@ -24,6 +22,14 @@ import java.util.Date;
         @NamedQuery(name = Event.DELETE_EVENTS_BY_COURSE_IDS, query = "delete from Event e where e.course.id in :courseIds")
 })
 public class Event {
+
+    public static final String GET_IDS_OF_ALL_EVENTS = "getIdsOfAllEvents";
+    public static final String GET_EVENT_IDS_BY_COURSE_ID = "getEventIdsByCourseId";
+    public static final String GET_EVENT_IDS_BY_COURSE_IDS = "getEventIdsByCourseIds";
+    public static final String GET_EVENTS_BY_COURSE_ID = "getEventsByCourseId";
+    public static final String DELETE_ALL_EVENTS = "deleteAllEvents";
+    public static final String DELETE_EVENTS_BY_COURSE_IDS = "deleteEventsByCourseIds";
+
     @Id
     @GeneratedValue(generator = "system-uuid")
     @GenericGenerator(name = "system-uuid", strategy = "hilo")
@@ -55,13 +61,6 @@ public class Event {
         this.end = end;
         this.dateOfImport = dateOfImport;
     }
-
-    public static final String GET_IDS_OF_ALL_EVENTS = "getIdsOfAllEvents";
-    public static final String GET_EVENT_IDS_BY_COURSE_ID = "getEventIdsByCourseId";
-    public static final String GET_EVENT_IDS_BY_COURSE_IDS = "getEventIdsByCourseIds";
-    public static final String GET_EVENTS_BY_COURSE_ID = "getEventsByCourseId";
-    public static final String DELETE_ALL_EVENTS = "deleteAllEvents";
-    public static final String DELETE_EVENTS_BY_COURSE_IDS = "deleteEventsByCourseIds";
 
     public Long getId() {
         return id;

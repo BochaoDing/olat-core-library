@@ -1,11 +1,11 @@
 package ch.uzh.extension.campuscourse.model;
 
-import ch.uzh.extension.campuscourse.common.CampusCourseException;
 import ch.uzh.extension.campuscourse.CampusCourseTestCase;
-import ch.uzh.extension.campuscourse.data.MockDataGenerator;
+import ch.uzh.extension.campuscourse.CampusCourseTestDataGenerator;
+import ch.uzh.extension.campuscourse.common.CampusCourseException;
 import ch.uzh.extension.campuscourse.data.dao.*;
-import ch.uzh.extension.campuscourse.service.dao.DataConverter;
 import ch.uzh.extension.campuscourse.data.entity.*;
+import ch.uzh.extension.campuscourse.service.dao.DataConverter;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -16,7 +16,6 @@ import org.olat.user.UserManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import javax.inject.Provider;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
@@ -52,7 +51,7 @@ public class DataConverterTest extends CampusCourseTestCase {
     private StudentCourseDao studentCourseDao;
 
     @Autowired
-    private Provider<MockDataGenerator> mockDataGeneratorProvider;
+    private CampusCourseTestDataGenerator campusCourseTestDataGenerator;
 
     @Autowired
     private UserManager userManager;
@@ -216,32 +215,32 @@ public class DataConverterTest extends CampusCourseTestCase {
 
     private void insertTestData() throws CampusCourseException {
         // Insert some orgs
-        List<Org> orgs = mockDataGeneratorProvider.get().getOrgs();
+        List<Org> orgs = campusCourseTestDataGenerator.createOrgs();
         orgDao.save(orgs);
         dbInstance.flush();
 
         // Insert some courseOrgIds
-        List<CourseSemesterOrgId> courseSemesterOrgIds = mockDataGeneratorProvider.get().getCourseSemesterOrgIds();
+        List<CourseSemesterOrgId> courseSemesterOrgIds = campusCourseTestDataGenerator.createCourseSemesterOrgIds();
         courseDao.save(courseSemesterOrgIds);
         dbInstance.flush();
 
         // Insert some lecturers
-        List<Lecturer> lecturers = mockDataGeneratorProvider.get().getLecturers();
+        List<Lecturer> lecturers = campusCourseTestDataGenerator.createLecturers();
         lecturerDao.save(lecturers);
         dbInstance.flush();
 
         // Add lecturers to courseOrgIds
-        List<LecturerIdCourseIdDateOfImport> lecturerIdCourseIdDateOfImports = mockDataGeneratorProvider.get().getLecturerIdCourseIdDateOfImports();
+        List<LecturerIdCourseIdDateOfImport> lecturerIdCourseIdDateOfImports = campusCourseTestDataGenerator.createLecturerIdCourseIdDateOfImports();
         lecturerCourseDao.save(lecturerIdCourseIdDateOfImports);
         dbInstance.flush();
 
         // Insert some students
-        List<Student> students = mockDataGeneratorProvider.get().getStudents();
+        List<Student> students = campusCourseTestDataGenerator.createStudents();
         studentDao.save(students);
         dbInstance.flush();
 
         // Add students to courseOrgIds
-        List<StudentIdCourseIdDateOfImport> studentIdCourseIdDateOfImports = mockDataGeneratorProvider.get().getStudentIdCourseIdDateOfImports();
+        List<StudentIdCourseIdDateOfImport> studentIdCourseIdDateOfImports = campusCourseTestDataGenerator.createStudentIdCourseIdDateOfImports();
         studentCourseDao.save(studentIdCourseIdDateOfImports);
         dbInstance.flush();
     }

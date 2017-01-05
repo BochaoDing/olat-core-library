@@ -1,8 +1,8 @@
 package ch.uzh.extension.campuscourse.data.dao;
 
+import ch.uzh.extension.campuscourse.CampusCourseTestDataGenerator;
 import ch.uzh.extension.campuscourse.common.CampusCourseException;
 import ch.uzh.extension.campuscourse.CampusCourseTestCase;
-import ch.uzh.extension.campuscourse.data.MockDataGenerator;
 import ch.uzh.extension.campuscourse.data.entity.Course;
 import ch.uzh.extension.campuscourse.model.CourseSemesterOrgId;
 import ch.uzh.extension.campuscourse.data.entity.Org;
@@ -10,7 +10,6 @@ import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import javax.inject.Provider;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -30,7 +29,7 @@ public class OrgDaoTest extends CampusCourseTestCase {
     private CourseDao courseDao;
 
     @Autowired
-    private Provider<MockDataGenerator> mockDataGeneratorProvider;
+    private CampusCourseTestDataGenerator campusCourseTestDataGenerator;
 
     @Test
     public void getOrgById() throws CampusCourseException {
@@ -85,12 +84,12 @@ public class OrgDaoTest extends CampusCourseTestCase {
     
     private void insertTestData() throws CampusCourseException {
         // Insert some orgs
-        List<Org> orgs = mockDataGeneratorProvider.get().getOrgs();
+        List<Org> orgs = campusCourseTestDataGenerator.createOrgs();
         orgDao.save(orgs);
         dbInstance.flush();
 
         // Insert some courses
-        List<CourseSemesterOrgId> courseSemesterOrgIds = mockDataGeneratorProvider.get().getCourseSemesterOrgIds();
+        List<CourseSemesterOrgId> courseSemesterOrgIds = campusCourseTestDataGenerator.createCourseSemesterOrgIds();
         courseDao.save(courseSemesterOrgIds);
         dbInstance.flush();
     }

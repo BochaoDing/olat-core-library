@@ -19,6 +19,12 @@ import java.util.Date;
 })
 public class LecturerCourse {
 
+    public static final String GET_ALL_NOT_UPDATED_LC_BOOKING_OF_CURRENT_SEMESTER = "getAllNotUpdatedLCBookingOfCurrentSemester";
+    public static final String DELETE_BY_LECTURER_IDS = "deleteLecturerCourseByLecturerIds";
+    public static final String DELETE_BY_COURSE_IDS = "deleteLecturerCourseByCourseIds";
+    public static final String DELETE_BY_LECTURER_ID_COURSE_ID = "deleteLecturerCourseByLecturerIdCourseId";
+    public static final String DELETE_ALL_LC_BOOKING_TOO_FAR_IN_THE_PAST = "deleteAllLCBookingTooFarInThePast";
+
     @Id
     @ManyToOne(optional = false)
     @JoinColumn(name = "fk_lecturer")
@@ -41,12 +47,6 @@ public class LecturerCourse {
         this.course = course;
         this.dateOfImport = dateOfImport;
     }
-
-    public static final String GET_ALL_NOT_UPDATED_LC_BOOKING_OF_CURRENT_SEMESTER = "getAllNotUpdatedLCBookingOfCurrentSemester";
-    public static final String DELETE_BY_LECTURER_IDS = "deleteLecturerCourseByLecturerIds";
-    public static final String DELETE_BY_COURSE_IDS = "deleteLecturerCourseByCourseIds";
-    public static final String DELETE_BY_LECTURER_ID_COURSE_ID = "deleteLecturerCourseByLecturerIdCourseId";
-    public static final String DELETE_ALL_LC_BOOKING_TOO_FAR_IN_THE_PAST = "deleteAllLCBookingTooFarInThePast";
 
     public Lecturer getLecturer() {
         return lecturer;
