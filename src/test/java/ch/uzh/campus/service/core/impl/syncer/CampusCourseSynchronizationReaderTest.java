@@ -1,12 +1,14 @@
 package ch.uzh.campus.service.core.impl.syncer;
 
-import ch.uzh.campus.service.data.CampusCourseTO;
 import ch.uzh.campus.data.DaoManager;
+import ch.uzh.campus.service.data.CampusCourseTO;
 import org.junit.Before;
 import org.junit.Test;
 import org.olat.core.commons.persistence.DB;
 
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.GregorianCalendar;
 import java.util.List;
 
 import static org.junit.Assert.assertNotNull;
@@ -84,7 +86,12 @@ public class CampusCourseSynchronizationReaderTest {
         List<Long> CreatedSapCourcesIds = new ArrayList<>();
         CreatedSapCourcesIds.add(100L);
         CreatedSapCourcesIds.add(200L);
-        when(daoManagerMock.getSapIdsOfAllCreatedOlatCampusCourses()).thenReturn(CreatedSapCourcesIds);
+        Calendar startTimeOfMostRecentCourseImportAsCalendar = new GregorianCalendar(2099, Calendar.OCTOBER, 11);
+        startTimeOfMostRecentCourseImportAsCalendar.set(Calendar.HOUR_OF_DAY, 10);
+        startTimeOfMostRecentCourseImportAsCalendar.set(Calendar.MINUTE, 13);
+        startTimeOfMostRecentCourseImportAsCalendar.set(Calendar.SECOND, 0);
+		when(daoManagerMock.getStartTimeOfMostRecentCompletedCourseImport()).thenReturn(startTimeOfMostRecentCourseImportAsCalendar.getTime());
+        when(daoManagerMock.getSapIdsOfAllCreatedSynchronizableCoursesOfCurrentSemesterAndMostRecentImport(startTimeOfMostRecentCourseImportAsCalendar.getTime())).thenReturn(CreatedSapCourcesIds);
 
         CampusCourseTO campusCourseTOMock1 = mock(CampusCourseTO.class);
         CampusCourseTO campusCourseTOMock2 = mock(CampusCourseTO.class);

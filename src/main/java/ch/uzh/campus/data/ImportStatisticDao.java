@@ -49,4 +49,14 @@ public class ImportStatisticDao implements CampusDao<ImportStatistic> {
                 .setParameter("midnight", midnight)
                 .getResultList();
     }
+
+    public Date getStartTimeOfMostRecentCompletedCourseImport() {
+        try {
+            return dbInstance.getCurrentEntityManager()
+					.createNamedQuery(ImportStatistic.GET_START_TIME_OF_MOST_RECENT_COMPLETED_COURSE_IMPORT, Date.class)
+					.getSingleResult();
+        } catch (Exception e) {
+            return null;
+        }
+    }
 }

@@ -360,9 +360,14 @@ public class CourseDao {
         }
     }
     
-    List<Long> getIdsOfAllCreatedSynchronizableCoursesOfCurrentSemester() {
+    List<Long> getIdsOfAllCreatedSynchronizableCoursesOfCurrentSemesterAndMostRecentImport(Date startTimeOfMostRecentCourseImport) {
+    	// Subtract one second to avoid rounding problems
+		Calendar startTimeOfMostRecentCourseImportMinusOneSecond = Calendar.getInstance();
+		startTimeOfMostRecentCourseImportMinusOneSecond.setTime(startTimeOfMostRecentCourseImport);
+		startTimeOfMostRecentCourseImportMinusOneSecond.add(Calendar.SECOND, -1);
         return dbInstance.getCurrentEntityManager()
-                .createNamedQuery(Course.GET_IDS_OF_ALL_CREATED_SYNCHRONIZABLE_COURSES_OF_CURRENT_SEMESTER, Long.class)
+                .createNamedQuery(Course.GET_IDS_OF_ALL_CREATED_SYNCHRONIZABLE_COURSES_OF_CURRENT_SEMESTER_AND_MOST_RECENT_IMPORT, Long.class)
+                .setParameter("startTimeOfMostRecentCourseImport", startTimeOfMostRecentCourseImportMinusOneSecond.getTime())
                 .getResultList();
     }
 

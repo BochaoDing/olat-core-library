@@ -412,8 +412,8 @@ public class DaoManager {
         courseDao.saveParentCourseId(courseId, parentCourseId);
     }
 
-    public List<Long> getSapIdsOfAllCreatedOlatCampusCourses() {
-        return courseDao.getIdsOfAllCreatedSynchronizableCoursesOfCurrentSemester();
+    public List<Long> getSapIdsOfAllCreatedSynchronizableCoursesOfCurrentSemesterAndMostRecentImport(Date startTimeOfMostRecentCourseImport) {
+        return courseDao.getIdsOfAllCreatedSynchronizableCoursesOfCurrentSemesterAndMostRecentImport(startTimeOfMostRecentCourseImport);
     }
 
     public List<Long> getRepositoryEntryKeysOfAllCreatedNotContinuedCoursesOfPreviousSemesters() {
@@ -486,5 +486,9 @@ public class DaoManager {
 
     public boolean checkImportedData() {
         return (statisticDao.getLastCompletedImportedStatistic().size() == campusCourseConfiguration.getMustCompletedImportedFiles());
+    }
+
+    public Date getStartTimeOfMostRecentCompletedCourseImport() {
+        return statisticDao.getStartTimeOfMostRecentCompletedCourseImport();
     }
 }

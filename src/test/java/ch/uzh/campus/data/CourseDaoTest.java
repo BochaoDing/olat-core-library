@@ -644,16 +644,27 @@ public class CourseDaoTest extends CampusCourseTestCase {
     }
 
     @Test
-    public void testGetIdsOfAllCreatedSynchronizableCoursesOfCurrentSemester() throws CampusCourseException {
+    public void testGetIdsOfAllCreatedSynchronizableCoursesOfCurrentSemesterAndMostRecentImport() throws CampusCourseException {
         insertTestData();
-        assertEquals(2, courseDao.getIdsOfAllCreatedSynchronizableCoursesOfCurrentSemester().size());
+        Calendar startTimeOfMostRecentCourseImportAsCalendar = new GregorianCalendar(2099, Calendar.OCTOBER, 11);
+        startTimeOfMostRecentCourseImportAsCalendar.set(Calendar.HOUR_OF_DAY, 10);
+		startTimeOfMostRecentCourseImportAsCalendar.set(Calendar.MINUTE, 13);
+		startTimeOfMostRecentCourseImportAsCalendar.set(Calendar.SECOND, 0);
+        assertEquals(2, courseDao.getIdsOfAllCreatedSynchronizableCoursesOfCurrentSemesterAndMostRecentImport(startTimeOfMostRecentCourseImportAsCalendar.getTime()).size());
 
         // Remove repository entry from course 100
         Course course = courseDao.getCourseById(100L);
         course.setRepositoryEntry(null);
         dbInstance.flush();
+        assertEquals(1, courseDao.getIdsOfAllCreatedSynchronizableCoursesOfCurrentSemesterAndMostRecentImport(startTimeOfMostRecentCourseImportAsCalendar.getTime()).size());
 
-        assertEquals(1, courseDao.getIdsOfAllCreatedSynchronizableCoursesOfCurrentSemester().size());
+        // Add 1 second to start time of import -> should still be found
+		startTimeOfMostRecentCourseImportAsCalendar.add(Calendar.SECOND, 1);
+		assertEquals(1, courseDao.getIdsOfAllCreatedSynchronizableCoursesOfCurrentSemesterAndMostRecentImport(startTimeOfMostRecentCourseImportAsCalendar.getTime()).size());
+
+		// Add another second -> should not be found any more
+		startTimeOfMostRecentCourseImportAsCalendar.add(Calendar.SECOND, 1);
+		assertTrue(courseDao.getIdsOfAllCreatedSynchronizableCoursesOfCurrentSemesterAndMostRecentImport(startTimeOfMostRecentCourseImportAsCalendar.getTime()).isEmpty());
     }
 
     @Test

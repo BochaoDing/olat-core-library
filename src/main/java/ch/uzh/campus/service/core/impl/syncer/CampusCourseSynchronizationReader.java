@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -55,7 +56,10 @@ public class CampusCourseSynchronizationReader implements ItemReader<CampusCours
     @PostConstruct
     public void init() {
         if (daoManager.checkImportedData()) {
-            sapCourseIds = daoManager.getSapIdsOfAllCreatedOlatCampusCourses();
+            Date startTimeOfMostRecentCourseImport = daoManager.getStartTimeOfMostRecentCompletedCourseImport();
+            if (startTimeOfMostRecentCourseImport != null) {
+				sapCourseIds = daoManager.getSapIdsOfAllCreatedSynchronizableCoursesOfCurrentSemesterAndMostRecentImport(startTimeOfMostRecentCourseImport);
+			}
         }
         dbInstance.closeSession();
     }
