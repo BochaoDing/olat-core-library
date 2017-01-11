@@ -20,12 +20,14 @@ import java.util.Date;
         @NamedQuery(name = ImportStatistic.GET_LAST_COMPLETED_IMPORT_STATISTIC, query = "select s from ImportStatistic s where s.stepName like 'import_%' and s.status='COMPLETED'"
         + " and s.startTime >= (select max(s2.startTime) from ImportStatistic s2 where s2.stepName='import_controlFile')"),
         @NamedQuery(name = ImportStatistic.GET_IMPORT_STATISTICS_OF_TODAY, query = "select s from ImportStatistic s where s.stepName like 'import_%' and s.status='COMPLETED'"
-        + " and s.startTime >= :midnight")
+        + " and s.startTime >= :midnight"),
+	    @NamedQuery(name = ImportStatistic.GET_START_TIME_OF_MOST_RECENT_COMPLETED_COURSE_IMPORT, query = "select max(s.startTime) from ImportStatistic s where s.stepName='import_courses' and s.status='COMPLETED'")
 })
 public class ImportStatistic {
 
     public static final String GET_LAST_COMPLETED_IMPORT_STATISTIC = "getLastCompletedImportStatistic";
     public static final String GET_IMPORT_STATISTICS_OF_TODAY = "getImportStatisticOfToday";
+    public static final String GET_START_TIME_OF_MOST_RECENT_COMPLETED_COURSE_IMPORT = "getStartTimeOfMostRecentCompletedCourseImport";
 
     public ImportStatistic() {
     }

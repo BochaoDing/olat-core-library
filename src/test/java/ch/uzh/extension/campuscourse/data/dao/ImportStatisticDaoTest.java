@@ -8,6 +8,8 @@ import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.Calendar;
+import java.util.GregorianCalendar;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
@@ -65,6 +67,18 @@ public class ImportStatisticDaoTest extends CampusCourseTestCase {
 
        assertEquals(1, importStatisticDao.getLastCompletedImportedStatistic().size());
        assertEquals(20L, importStatisticDao.getLastCompletedImportedStatistic().get(0).getStepId());
+    }
+
+    @Test
+    public void testGetStartTimeOfMostRecentCompletedCourseImport() {
+        importStatisticDao.save(importStatistics.get(3));
+        dbInstance.flush();
+
+        Calendar startTimeOfMostRecentCourseImportAsCalendar = new GregorianCalendar(2099, Calendar.OCTOBER, 11);
+        startTimeOfMostRecentCourseImportAsCalendar.set(Calendar.HOUR_OF_DAY, 10);
+        startTimeOfMostRecentCourseImportAsCalendar.set(Calendar.MINUTE, 13);
+        startTimeOfMostRecentCourseImportAsCalendar.set(Calendar.SECOND, 0);
+        assertEquals(startTimeOfMostRecentCourseImportAsCalendar.getTime(), importStatisticDao.getStartTimeOfMostRecentCompletedCourseImport());
     }
 
 }

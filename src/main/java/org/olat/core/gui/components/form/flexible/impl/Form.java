@@ -340,10 +340,14 @@ public class Form extends LogDelegator {
 					requestMultipartFileNames.put(name, fileName);
 					requestMultipartFileMimeTypes.put(name, contentType);
 				} else {
-					String value = IOUtils.toString(part.getInputStream());
+					String value = IOUtils.toString(part.getInputStream(), "UTF-8");
 					addRequestParameter(name, value);
 				}
-				part.delete();
+				/*
+				 * The Jetty servlet container "delete()" method really
+				 * deletes the uploaded data.
+				 */
+				//part.delete();
 			}
 		} catch (IOException | ServletException e) {
 			log.error("", e);

@@ -221,7 +221,7 @@ public class LecturerCourseDaoTest extends CampusCourseTestCase {
     }
 
     @Test
-    public void testGetAllNotUpdatedLCBookingOfCurrentSemester() {
+    public void testGetAllNotUpdatedLCBookingOfCurrentImportProcess() {
         Lecturer lecturer = lecturerDao.getLecturerById(1100L);
         Course course1CurrentSemester = courseDao.getCourseById(100L);
         Course course2CurrentSemester = courseDao.getCourseById(200L);
@@ -250,7 +250,7 @@ public class LecturerCourseDaoTest extends CampusCourseTestCase {
         assertNotNull(lecturerCourseDao.getLecturerCourseById(1100L, 200L));
         assertNotNull(lecturerCourseDao.getLecturerCourseById(1100L, 400L));
 
-        List<LecturerIdCourseId> lecturerIdCourseIds = lecturerCourseDao.getAllNotUpdatedLCBookingOfCurrentSemester(referenceDateOfImport);
+        List<LecturerIdCourseId> lecturerIdCourseIds = lecturerCourseDao.getAllNotUpdatedLCBookingOfCurrentImportProcess(referenceDateOfImport, course1CurrentSemester.getSemester());
 
         dbInstance.flush();
 

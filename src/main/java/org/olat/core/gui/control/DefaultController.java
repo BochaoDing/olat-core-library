@@ -32,6 +32,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.checkerframework.checker.initialization.qual.UnderInitialization;
 import org.olat.core.CoreSpringFactory;
 import org.olat.core.gui.UserRequest;
 import org.olat.core.gui.components.Component;
@@ -349,7 +350,7 @@ public abstract class DefaultController implements Controller, ControllerEventLi
 	 * @param loggingResourceable the loggingResourceable to be set on this Controller's 
 	 * IUserActivityLogger
 	 */
-	public void addLoggingResourceable(ILoggingResourceable loggingResourceable) {
+	public void addLoggingResourceable(@UnderInitialization(DefaultController.class) DefaultController this, ILoggingResourceable loggingResourceable) {
 		IUserActivityLogger logger = getUserActivityLogger();
 		if (logger==null) {
 			// logger is never null - guaranteed. 

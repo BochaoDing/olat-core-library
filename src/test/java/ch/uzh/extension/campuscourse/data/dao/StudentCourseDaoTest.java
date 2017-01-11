@@ -229,7 +229,7 @@ public class StudentCourseDaoTest extends CampusCourseTestCase {
     }
 
     @Test
-    public void testGetAllNotUpdatedSCBookingOfCurrentSemester() {
+    public void testGetAllNotUpdatedSCBookingOfCurrentImportProcess() {
         Student student = studentDao.getStudentById(2100L);
         Course course1CurrentSemester = courseDao.getCourseById(100L);
         Course course2CurrentSemester = courseDao.getCourseById(200L);
@@ -258,7 +258,7 @@ public class StudentCourseDaoTest extends CampusCourseTestCase {
         assertNotNull(studentCourseDao.getStudentCourseById(2100L, 200L));
         assertNotNull(studentCourseDao.getStudentCourseById(2100L, 400L));
 
-        List<StudentIdCourseId> studentIdCourseIds = studentCourseDao.getAllNotUpdatedSCBookingOfCurrentSemester(referenceDateOfImport);
+        List<StudentIdCourseId> studentIdCourseIds = studentCourseDao.getAllNotUpdatedSCBookingOfCurrentImportProcess(referenceDateOfImport, course1CurrentSemester.getSemester());
 
         dbInstance.flush();
 

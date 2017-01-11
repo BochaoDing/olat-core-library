@@ -1,0 +1,13 @@
+@charset "UTF-8";
+
+/* Add client fonts */
+@import "fonts/fonts";
+
+/* Use client configuration to override defaults */
+@import "olatplus_config";
+
+/* Add all default config and apply styles from light theme */
+@import "light/content";
+
+/* Override with client customizations */
+@import "olatplus_content"; 

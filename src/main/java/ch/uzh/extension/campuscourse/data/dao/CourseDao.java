@@ -31,12 +31,14 @@ public class CourseDao {
 
 	private final DB dbInstance;
     private final SemesterDao semesterDao;
+    private final ImportStatisticDao importStatisticDao;
 
     @Autowired
-    public CourseDao(DB dbInstance, SemesterDao semesterDao) {
+    public CourseDao(DB dbInstance, SemesterDao semesterDao, ImportStatisticDao importStatisticDao) {
         this.dbInstance = dbInstance;
         this.semesterDao = semesterDao;
-    }
+		this.importStatisticDao = importStatisticDao;
+	}
 
     public void save(Course course) {
         dbInstance.saveObject(course);
@@ -428,6 +430,45 @@ public class CourseDao {
                 .createNamedQuery(Course.GET_CREATED_AND_NOT_CREATED_CREATABLE_COURSES_OF_CURRENT_SEMESTER_BY_STUDENT_ID_BOOKED_BY_STUDENT_ONLY_AS_PARENT_COURSE, Course.class)
                 .setParameter("studentId", studentId)
                 .getResultList();
+    }
+
+    public Semester getSemesterOfMostRecentCourseImport() {
+
+    	Date startTimeOfMostRecentCourseImport = importStatisticDao.getStartTimeOfMostRecentCompletedCourseImport();
+    	if (startTimeOfMostRecentCourseImport == null) {
+    	    return null;
+        }
+
+		// Subtract one second to avoid rounding problems
+		Calendar startTimeOfMostRecentCourseImportMinusOneSecond = Calendar.getInstance();
+		startTimeOfMostRecentCourseImportMinusOneSecond.setTime(startTimeOfMostRecentCourseImport);
+		startTimeOfMostRecentCourseImportMinusOneSecond.add(Calendar.SECOND, -1);
+
+		List<Long> semesterIdsAsList = dbInstance.getCurrentEntityManager()
+				.createNamedQuery(Course.GET_SEMESTER_IDS_OF_MOST_RECENT_COURSE_IMPORT, Long.class)
+				.setParameter("startTimeOfMostRecentCourseImport", startTimeOfMostRecentCourseImportMinusOneSecond.getTime())
+				.getResultList();
+
+		// Check if we have duplicates
+		Set<Long> semesterIdsAsSet = new HashSet<>(semesterIdsAsList);
+		if (semesterIdsAsSet.size() == 1) {
+			// No duplicates
+			return semesterDao.getSemesterById(semesterIdsAsList.get(0));
+		} else {
+			// Duplicates (should not occur)
+			if (semesterIdsAsSet.size() > 1) {
+				StringBuilder msg = new StringBuilder();
+				msg.append("Current import process contains courses from multiple semesters (");
+				for (Long semesterId : semesterIdsAsSet) {
+					Semester semester = semesterDao.getSemesterById(semesterId);
+					msg.append(semester.getSemesterNameYear()).append(", ");
+				}
+				msg.setLength(msg.length() - 2);
+				msg.append(")!");
+				LOG.warn(msg.toString());
+			}
+			return null;
+		}
     }
 
     private void deleteCourseBidirectionally(Course course, EntityManager em) {

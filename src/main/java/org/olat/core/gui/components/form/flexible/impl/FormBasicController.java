@@ -30,6 +30,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
+import org.checkerframework.checker.initialization.qual.UnderInitialization;
 import org.olat.core.gui.UserRequest;
 import org.olat.core.gui.components.Component;
 import org.olat.core.gui.components.form.flexible.FormItem;
@@ -457,7 +458,7 @@ public abstract class FormBasicController extends BasicController implements IFo
 	 * 
 	 * @param i18nKey
 	 */
-	protected void setFormTitle(String i18nKey) {
+	protected void setFormTitle(@UnderInitialization(FormBasicController.class) FormBasicController this, String i18nKey) {
 		if (i18nKey == null) {
 			flc.contextRemove("off_title");
 		} else {

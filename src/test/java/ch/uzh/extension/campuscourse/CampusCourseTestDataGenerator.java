@@ -15,7 +15,14 @@ import java.util.*;
 @Component
 public class CampusCourseTestDataGenerator {
 
-	private static final Date DATE_OF_IMPORT = new GregorianCalendar(2014, Calendar.OCTOBER, 10).getTime();
+	private static final Date DATE_OF_IMPORT;
+
+	static {
+		Calendar dateOfImportAsCalendar = new GregorianCalendar(2099, Calendar.OCTOBER, 11);
+		dateOfImportAsCalendar.set(Calendar.HOUR_OF_DAY, 10);
+		dateOfImportAsCalendar.set(Calendar.MINUTE, 13);
+		DATE_OF_IMPORT = dateOfImportAsCalendar.getTime();
+	}
 
 	public List<Student> createStudents() {
 		List<Student> students = new ArrayList<>();
@@ -140,7 +147,7 @@ public class CampusCourseTestDataGenerator {
 				null,
 				null,
 				null,
-				DATE_OF_IMPORT));
+				new GregorianCalendar(2099, Calendar.APRIL, 11).getTime()));
 
 		courseSemesterOrgIds.add(new CourseSemesterOrgId(
 				500L,
@@ -164,7 +171,7 @@ public class CampusCourseTestDataGenerator {
 				null,
 				null,
 				null,
-				DATE_OF_IMPORT));
+				new GregorianCalendar(2098, Calendar.OCTOBER, 11).getTime()));
 
 		courseSemesterOrgIds.add(new CourseSemesterOrgId(
 				600L,
@@ -188,7 +195,7 @@ public class CampusCourseTestDataGenerator {
 				null,
 				null,
 				null,
-				DATE_OF_IMPORT));
+				new GregorianCalendar(2098, Calendar.APRIL, 11).getTime()));
 
 		courseSemesterOrgIds.add(new CourseSemesterOrgId(
 				700L,
@@ -330,6 +337,13 @@ public class CampusCourseTestDataGenerator {
 		endTime3.set(Calendar.HOUR_OF_DAY, 10);
 		endTime3.set(Calendar.MINUTE, 12);
 		importStatistics.add(new ImportStatistic(30L, "import_controlFile", "FAILED", startTime3.getTime(), endTime3.getTime(), 8, 7, 0, 1, 0, 0, 0));
+		Calendar startTime4 = new GregorianCalendar(2099, Calendar.OCTOBER, 11);
+		startTime4.set(Calendar.HOUR_OF_DAY, 10);
+		startTime4.set(Calendar.MINUTE, 13);
+		Calendar endTime4 = new GregorianCalendar(2099, Calendar.OCTOBER, 11);
+		endTime4.set(Calendar.HOUR_OF_DAY, 10);
+		endTime4.set(Calendar.MINUTE, 15);
+		importStatistics.add(new ImportStatistic(40L, "import_courses", "COMPLETED", startTime4.getTime(), endTime4.getTime(), 8, 7, 0, 1, 0, 0, 0));
 		return importStatistics;
 	}
 

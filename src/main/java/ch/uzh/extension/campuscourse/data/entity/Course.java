@@ -73,7 +73,8 @@ import java.util.*;
         @NamedQuery(name = Course.GET_COURSES_BY_REPOSITORY_ENTRY_KEY, query = "select c from Course c where c.repositoryEntry.key = :repositoryEntryKey"),
         @NamedQuery(name = Course.GET_COURSES_BY_CAMPUS_GROUP_A_KEY, query = "select c from Course c where c.campusGroupA.key = :campusGroupKey"),
         @NamedQuery(name = Course.GET_COURSES_BY_CAMPUS_GROUP_B_KEY, query = "select c from Course c where c.campusGroupB.key = :campusGroupKey"),
-        @NamedQuery(name = Course.GET_LATEST_COURSE_BY_REPOSITORY_ENTRY_KEY, query = "select c from Course c where c.repositoryEntry.key = :repositoryEntryKey and c.endDate = (select max(c1.endDate) from Course c1 where c1.repositoryEntry.key = :repositoryEntryKey)")
+        @NamedQuery(name = Course.GET_LATEST_COURSE_BY_REPOSITORY_ENTRY_KEY, query = "select c from Course c where c.repositoryEntry.key = :repositoryEntryKey and c.endDate = (select max(c1.endDate) from Course c1 where c1.repositoryEntry.key = :repositoryEntryKey)"),
+		@NamedQuery(name = Course.GET_SEMESTER_IDS_OF_MOST_RECENT_COURSE_IMPORT, query = "select c.semester.id from Course c where c.dateOfImport >= :startTimeOfMostRecentCourseImport")
 })
 public class Course {
 
@@ -95,6 +96,7 @@ public class Course {
     public static final String GET_COURSES_BY_CAMPUS_GROUP_A_KEY = "getCoursesByCampusGroupAKey";
     public static final String GET_COURSES_BY_CAMPUS_GROUP_B_KEY = "getCoursesByCampusGroupBKey";
     public static final String GET_LATEST_COURSE_BY_REPOSITORY_ENTRY_KEY = "getLatestCourseByRepositoryEntryKey";
+    public static final String GET_SEMESTER_IDS_OF_MOST_RECENT_COURSE_IMPORT = "getSemesterIdsOfMostRecentCourseImport";
     private static final String WHITESPACE = " ";
 
     @Id

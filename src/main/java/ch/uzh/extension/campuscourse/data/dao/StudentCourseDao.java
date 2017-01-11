@@ -2,13 +2,10 @@ package ch.uzh.extension.campuscourse.data.dao;
 
 
 import ch.uzh.extension.campuscourse.common.CampusCourseConfiguration;
+import ch.uzh.extension.campuscourse.data.entity.*;
 import ch.uzh.extension.campuscourse.model.StudentIdCourseId;
 import ch.uzh.extension.campuscourse.model.StudentIdCourseIdDateOfImport;
 import ch.uzh.extension.campuscourse.util.DateUtil;
-import ch.uzh.extension.campuscourse.data.entity.Course;
-import ch.uzh.extension.campuscourse.data.entity.Student;
-import ch.uzh.extension.campuscourse.data.entity.StudentCourse;
-import ch.uzh.extension.campuscourse.data.entity.StudentCourseId;
 import org.olat.core.commons.persistence.DB;
 import org.olat.core.logging.OLog;
 import org.olat.core.logging.Tracing;
@@ -121,11 +118,12 @@ public class StudentCourseDao {
         return dbInstance.getCurrentEntityManager().find(StudentCourse.class, new StudentCourseId(studentId, courseId));
     }
 
-    public List<StudentIdCourseId> getAllNotUpdatedSCBookingOfCurrentSemester(Date date) {
+    public List<StudentIdCourseId> getAllNotUpdatedSCBookingOfCurrentImportProcess(Date date, Semester semesterOfCurrentImportProcess) {
         // Subtract one second since modifiedDate (used in query) is rounded to seconds
         return dbInstance.getCurrentEntityManager()
-                .createNamedQuery(StudentCourse.GET_ALL_NOT_UPDATED_SC_BOOKING_OF_CURRENT_SEMESTER, StudentIdCourseId.class)
+                .createNamedQuery(StudentCourse.GET_ALL_NOT_UPDATED_SC_BOOKING_OF_CURRENT_IMPORT_PROCESS, StudentIdCourseId.class)
                 .setParameter("lastDateOfImport", DateUtil.addSecondsToDate(date, -1))
+                .setParameter("semesterIdOfCurrentImportProcess", semesterOfCurrentImportProcess.getId())
                 .getResultList();
     }
 

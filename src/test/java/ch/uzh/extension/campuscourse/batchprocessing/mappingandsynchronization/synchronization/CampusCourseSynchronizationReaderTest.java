@@ -35,7 +35,7 @@ import static org.mockito.Mockito.when;
  * <p>
  *
  * Initial Date: 08.11.2012 <br>
- * 
+ *
  * @author aabouc
  */
 public class CampusCourseSynchronizationReaderTest {

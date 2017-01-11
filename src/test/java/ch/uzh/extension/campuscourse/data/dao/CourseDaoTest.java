@@ -60,6 +60,9 @@ public class CourseDaoTest extends CampusCourseTestCase {
     @Autowired
     private BusinessGroupDAO businessGroupDao;
 
+	@Autowired
+	private ImportStatisticDao importStatisticDao;
+
     @Autowired
     private RepositoryService repositoryService;
 
@@ -77,7 +80,7 @@ public class CourseDaoTest extends CampusCourseTestCase {
     @Before
     public void before() {
         campusCourseConfiguration.setMaxYearsToKeepCkData(1);
-        courseDao = new CourseDao(dbInstance, semesterDao);
+        courseDao = new CourseDao(dbInstance, semesterDao, importStatisticDao);
     }
 
     @Test
@@ -921,6 +924,15 @@ public class CourseDaoTest extends CampusCourseTestCase {
         assertTrue(courseDao.getCreatedAndNotCreatedCreatableCoursesOfCurrentSemesterByStudentIdBookedByStudentOnlyAsParentCourse(student2.getId()).isEmpty());
     }
 
+	@Test
+	public void testGetSemesterOfMostRecentCourseImport() throws CampusCourseException {
+		insertTestData();
+		Semester semester = courseDao.getSemesterOfMostRecentCourseImport();
+		assertNotNull(semester);
+		assertEquals(SemesterName.HERBSTSEMESTER, semester.getSemesterName());
+		assertEquals(2099, semester.getYear().intValue());
+	}
+
     private void insertTestData() throws CampusCourseException {
         // Insert some orgs
         List<Org> orgs = campusCourseTestDataGenerator.createOrgs();
@@ -961,6 +973,11 @@ public class CourseDaoTest extends CampusCourseTestCase {
         List<EventCourseId> eventCourseIds = campusCourseTestDataGenerator.createEventCourseIds();
         eventDao.addEventsToCourse(eventCourseIds);
         dbInstance.flush();
+
+        // Add import statistic
+		List<ImportStatistic> importStatistics = campusCourseTestDataGenerator.createImportStatistics();
+		importStatisticDao.save(importStatistics);
+		dbInstance.flush();
 
         // Set current semester
         Course course = courseDao.getCourseById(100L);

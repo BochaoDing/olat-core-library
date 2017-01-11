@@ -1,5 +1,6 @@
 package ch.uzh.extension.campuscourse.batchprocessing.sapimport;
 
+import ch.uzh.extension.campuscourse.data.entity.Semester;
 import ch.uzh.extension.campuscourse.service.dao.DaoManager;
 import ch.uzh.extension.campuscourse.model.LecturerIdCourseId;
 import ch.uzh.extension.campuscourse.model.StudentIdCourseId;
@@ -48,9 +49,15 @@ public class SapImportJobInterceptor implements JobExecutionListener {
 			return;
 		}
 
+		Semester semesterOfCurrentImportProcess = daoManager.getSemesterOfMostRecentCourseImport();
+		if (semesterOfCurrentImportProcess == null) {
+			LOG.warn("Current semester of import process could not be determined. Not updated data cannot be removed. Synchronization may not work properly!");
+			return;
+		}
+
 		int lecturerCoursesToBeRemoved = daoManager.deleteAllLCBookingTooFarInThePast(jobExecution.getStartTime());
 		dbInstance.intermediateCommit();
-		List<LecturerIdCourseId> lecturerIdCourseIdsToBeRemoved = daoManager.getAllNotUpdatedLCBookingOfCurrentSemester(jobExecution.getStartTime());
+		List<LecturerIdCourseId> lecturerIdCourseIdsToBeRemoved = daoManager.getAllNotUpdatedLCBookingOfCurrentImportProcess(jobExecution.getStartTime(), semesterOfCurrentImportProcess);
 		lecturerCoursesToBeRemoved += lecturerIdCourseIdsToBeRemoved.size();
 		LOG.info("LECTURER_COURSES TO BE REMOVED ["  + lecturerCoursesToBeRemoved + "]");
 		if (!lecturerIdCourseIdsToBeRemoved.isEmpty()) {
@@ -60,7 +67,7 @@ public class SapImportJobInterceptor implements JobExecutionListener {
 
 		int studentCoursesToBeRemoved = daoManager.deleteAllSCBookingTooFarInThePast(jobExecution.getStartTime());
 		dbInstance.intermediateCommit();
-		List<StudentIdCourseId> studentIdCourseIdsToBeRemoved = daoManager.getAllNotUpdatedSCBookingOfCurrentSemester(jobExecution.getStartTime());
+		List<StudentIdCourseId> studentIdCourseIdsToBeRemoved = daoManager.getAllNotUpdatedSCBookingOfCurrentImportProcess(jobExecution.getStartTime(), semesterOfCurrentImportProcess);
 		studentCoursesToBeRemoved += studentIdCourseIdsToBeRemoved.size();
 		LOG.info("STUDENT_COURSES TO BE REMOVED [" + studentCoursesToBeRemoved + "]");
 		if (!studentIdCourseIdsToBeRemoved.isEmpty()) {
