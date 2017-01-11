@@ -170,8 +170,8 @@ public class DaoManager {
         studentDao.delete(student);
     }
 
-    public List<LecturerIdCourseId> getAllNotUpdatedLCBookingOfCurrentSemester(Date date) {
-        return lecturerCourseDao.getAllNotUpdatedLCBookingOfCurrentSemester(date);
+    public List<LecturerIdCourseId> getAllNotUpdatedLCBookingOfCurrentImportProcess(Date date, Semester semesterOfCurrentImportProcess) {
+        return lecturerCourseDao.getAllNotUpdatedLCBookingOfCurrentImportProcess(date, semesterOfCurrentImportProcess);
     }
 
     public int deleteLCBookingByLecturerIdCourseIds(List<LecturerIdCourseId> lecturerIdCourseIds) {
@@ -182,8 +182,8 @@ public class DaoManager {
         return lecturerCourseDao.deleteAllLCBookingTooFarInThePastAsBulkDelete(date);
     }
 
-    public List<StudentIdCourseId> getAllNotUpdatedSCBookingOfCurrentSemester(Date date) {
-        return studentCourseDao.getAllNotUpdatedSCBookingOfCurrentSemester(date);
+    public List<StudentIdCourseId> getAllNotUpdatedSCBookingOfCurrentImportProcess(Date date, Semester semesterOfCurrentImportProcess) {
+        return studentCourseDao.getAllNotUpdatedSCBookingOfCurrentImportProcess(date, semesterOfCurrentImportProcess);
     }
 
     public int deleteSCBookingByStudentIdCourseIds(List<StudentIdCourseId> studentIdCourseIds) {
@@ -412,8 +412,8 @@ public class DaoManager {
         courseDao.saveParentCourseId(courseId, parentCourseId);
     }
 
-    public List<Long> getSapIdsOfAllCreatedSynchronizableCoursesOfCurrentSemesterAndMostRecentImport(Date startTimeOfMostRecentCourseImport) {
-        return courseDao.getIdsOfAllCreatedSynchronizableCoursesOfCurrentSemesterAndMostRecentImport(startTimeOfMostRecentCourseImport);
+    public List<Long> getSapIdsOfAllCreatedOlatCampusCourses() {
+        return courseDao.getIdsOfAllCreatedSynchronizableCoursesOfCurrentSemester();
     }
 
     public List<Long> getRepositoryEntryKeysOfAllCreatedNotContinuedCoursesOfPreviousSemesters() {
@@ -488,7 +488,7 @@ public class DaoManager {
         return (statisticDao.getLastCompletedImportedStatistic().size() == campusCourseConfiguration.getMustCompletedImportedFiles());
     }
 
-    public Date getStartTimeOfMostRecentCompletedCourseImport() {
-        return statisticDao.getStartTimeOfMostRecentCompletedCourseImport();
+    public Semester getSemesterOfMostRecentCourseImport() {
+        return courseDao.getSemesterOfMostRecentCourseImport();
     }
 }

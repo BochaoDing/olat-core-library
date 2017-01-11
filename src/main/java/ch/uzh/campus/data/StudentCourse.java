@@ -10,8 +10,8 @@ import java.util.Date;
 @Table(name="ck_student_course")
 @IdClass(StudentCourseId.class)
 @NamedQueries({
-        @NamedQuery(name = StudentCourse.GET_ALL_NOT_UPDATED_SC_BOOKING_OF_CURRENT_SEMESTER, query = "select new ch.uzh.campus.data.StudentIdCourseId(sc.student.id, sc.course.id) from StudentCourse sc " +
-                "where sc.dateOfImport < :lastDateOfImport and sc.course.semester.currentSemester = true"),
+        @NamedQuery(name = StudentCourse.GET_ALL_NOT_UPDATED_SC_BOOKING_OF_CURRENT_IMPORT_PROCESS, query = "select new ch.uzh.campus.data.StudentIdCourseId(sc.student.id, sc.course.id) from StudentCourse sc " +
+                "where sc.dateOfImport < :lastDateOfImport and sc.course.semester.id = :semesterIdOfCurrentImportProcess"),
         @NamedQuery(name = StudentCourse.DELETE_BY_STUDENT_IDS, query = "delete from StudentCourse sc where sc.student.id in :studentIds"),
         @NamedQuery(name = StudentCourse.DELETE_BY_COURSE_IDS, query = "delete from StudentCourse sc where sc.course.id in :courseIds"),
         @NamedQuery(name = StudentCourse.DELETE_BY_STUDENT_ID_COURSE_ID, query = "delete from StudentCourse sc where sc.student.id = :studentId and sc.course.id = :courseId"),
@@ -42,7 +42,7 @@ public class StudentCourse {
         this.dateOfImport = dateOfImport;
     }
 
-    static final String GET_ALL_NOT_UPDATED_SC_BOOKING_OF_CURRENT_SEMESTER = "getAllNotUpdatedSCBookingOfCurrentSemester";
+    static final String GET_ALL_NOT_UPDATED_SC_BOOKING_OF_CURRENT_IMPORT_PROCESS = "getAllNotUpdatedSCBookingOfCurrentImportProcess";
     static final String DELETE_BY_STUDENT_IDS = "deleteStudentCourseByStudentIds";
     static final String DELETE_BY_COURSE_IDS = "deleteStudentCourseByCourseIds";
     static final String DELETE_BY_STUDENT_ID_COURSE_ID = "deleteByStudentIdCourseId";

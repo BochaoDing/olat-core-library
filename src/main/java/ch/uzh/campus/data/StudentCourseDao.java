@@ -115,11 +115,12 @@ public class StudentCourseDao {
         return dbInstance.getCurrentEntityManager().find(StudentCourse.class, new StudentCourseId(studentId, courseId));
     }
 
-    List<StudentIdCourseId> getAllNotUpdatedSCBookingOfCurrentSemester(Date date) {
+    List<StudentIdCourseId> getAllNotUpdatedSCBookingOfCurrentImportProcess(Date date, Semester semesterOfCurrentImportProcess) {
         // Subtract one second since modifiedDate (used in query) is rounded to seconds
         return dbInstance.getCurrentEntityManager()
-                .createNamedQuery(StudentCourse.GET_ALL_NOT_UPDATED_SC_BOOKING_OF_CURRENT_SEMESTER, StudentIdCourseId.class)
+                .createNamedQuery(StudentCourse.GET_ALL_NOT_UPDATED_SC_BOOKING_OF_CURRENT_IMPORT_PROCESS, StudentIdCourseId.class)
                 .setParameter("lastDateOfImport", DateUtil.addSecondsToDate(date, -1))
+                .setParameter("semesterIdOfCurrentImportProcess", semesterOfCurrentImportProcess.getId())
                 .getResultList();
     }
 

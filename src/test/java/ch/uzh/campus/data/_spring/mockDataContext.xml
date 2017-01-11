@@ -90,7 +90,7 @@
         <property name="org8" value="9800"/>
         <property name="org9" value="9900"/>
     </bean>
-    <bean id="course_4" class="ch.uzh.campus.data.CourseSemesterOrgId" p:id="400" p:title="PreviousSemester" p:lvKuerzel="ABCD400" p:lvNr="lvNr4" p:category="Seminar" p:language="EN" p:vvzLink="link" p:startDate="10.04.2099 00:00" p:endDate="10.07.2099 00:00" p:semester="Frühjahrssemester 2099" p:exclude="" p:dateOfImport="11.10.2099 10:13" scope="prototype">
+    <bean id="course_4" class="ch.uzh.campus.data.CourseSemesterOrgId" p:id="400" p:title="PreviousSemester" p:lvKuerzel="ABCD400" p:lvNr="lvNr4" p:category="Seminar" p:language="EN" p:vvzLink="link" p:startDate="10.04.2099 00:00" p:endDate="10.07.2099 00:00" p:semester="Frühjahrssemester 2099" p:exclude="" p:dateOfImport="11.04.2099 10:13" scope="prototype">
         <property name="org1" value="9700"/>
         <property name="org2"><null/></property>
         <property name="org3"><null/></property>
@@ -101,7 +101,7 @@
         <property name="org8"><null/></property>
         <property name="org9"><null/></property>
     </bean>
-    <bean id="course_5" class="ch.uzh.campus.data.CourseSemesterOrgId" p:id="500" p:title="OldSemester" p:lvKuerzel="ABCD500" p:lvNr="lvNr5" p:category="Seminar" p:language="EN" p:vvzLink="link" p:startDate="10.10.2098 00:00" p:endDate="10.02.2099 00:00" p:semester="Herbstsemester 2098" p:exclude="" p:dateOfImport="11.10.2099 10:13" scope="prototype">
+    <bean id="course_5" class="ch.uzh.campus.data.CourseSemesterOrgId" p:id="500" p:title="OldSemester" p:lvKuerzel="ABCD500" p:lvNr="lvNr5" p:category="Seminar" p:language="EN" p:vvzLink="link" p:startDate="10.10.2098 00:00" p:endDate="10.02.2099 00:00" p:semester="Herbstsemester 2098" p:exclude="" p:dateOfImport="11.10.2098 10:13" scope="prototype">
         <property name="org1" value="9700"/>
         <property name="org2"><null/></property>
         <property name="org3"><null/></property>
@@ -112,7 +112,7 @@
         <property name="org8"><null/></property>
         <property name="org9"><null/></property>
     </bean>
-    <bean id="course_6" class="ch.uzh.campus.data.CourseSemesterOrgId" p:id="600" p:title="OldSemester" p:lvKuerzel="ABCD600" p:lvNr="lvNr6" p:category="Seminar" p:language="EN" p:vvzLink="link" p:startDate="10.04.2098 00:00" p:endDate="10.07.2098 00:00" p:semester="Frühjahrssemester 2098" p:exclude="" p:dateOfImport="11.10.2099 10:13" scope="prototype">
+    <bean id="course_6" class="ch.uzh.campus.data.CourseSemesterOrgId" p:id="600" p:title="OldSemester" p:lvKuerzel="ABCD600" p:lvNr="lvNr6" p:category="Seminar" p:language="EN" p:vvzLink="link" p:startDate="10.04.2098 00:00" p:endDate="10.07.2098 00:00" p:semester="Frühjahrssemester 2098" p:exclude="" p:dateOfImport="11.04.2098 10:13" scope="prototype">
         <property name="org1" value="9800"/>
         <property name="org2"><null/></property>
         <property name="org3"><null/></property>

@@ -59,6 +59,9 @@ public class CourseDaoTest extends CampusCourseTestCase {
     @Autowired
     private BusinessGroupDAO businessGroupDao;
 
+	@Autowired
+	private ImportStatisticDao importStatisticDao;
+
     @Autowired
     private RepositoryService repositoryService;
 
@@ -76,7 +79,7 @@ public class CourseDaoTest extends CampusCourseTestCase {
     @Before
     public void before() {
         campusCourseConfiguration.setMaxYearsToKeepCkData(1);
-        courseDao = new CourseDao(dbInstance, semesterDao);
+        courseDao = new CourseDao(dbInstance, semesterDao, importStatisticDao);
     }
 
     @Test
@@ -644,27 +647,16 @@ public class CourseDaoTest extends CampusCourseTestCase {
     }
 
     @Test
-    public void testGetIdsOfAllCreatedSynchronizableCoursesOfCurrentSemesterAndMostRecentImport() throws CampusCourseException {
+    public void testGetIdsOfAllCreatedSynchronizableCoursesOfCurrentSemester() throws CampusCourseException {
         insertTestData();
-        Calendar startTimeOfMostRecentCourseImportAsCalendar = new GregorianCalendar(2099, Calendar.OCTOBER, 11);
-        startTimeOfMostRecentCourseImportAsCalendar.set(Calendar.HOUR_OF_DAY, 10);
-		startTimeOfMostRecentCourseImportAsCalendar.set(Calendar.MINUTE, 13);
-		startTimeOfMostRecentCourseImportAsCalendar.set(Calendar.SECOND, 0);
-        assertEquals(2, courseDao.getIdsOfAllCreatedSynchronizableCoursesOfCurrentSemesterAndMostRecentImport(startTimeOfMostRecentCourseImportAsCalendar.getTime()).size());
+        assertEquals(2, courseDao.getIdsOfAllCreatedSynchronizableCoursesOfCurrentSemester().size());
 
         // Remove repository entry from course 100
         Course course = courseDao.getCourseById(100L);
         course.setRepositoryEntry(null);
         dbInstance.flush();
-        assertEquals(1, courseDao.getIdsOfAllCreatedSynchronizableCoursesOfCurrentSemesterAndMostRecentImport(startTimeOfMostRecentCourseImportAsCalendar.getTime()).size());
 
-        // Add 1 second to start time of import -> should still be found
-		startTimeOfMostRecentCourseImportAsCalendar.add(Calendar.SECOND, 1);
-		assertEquals(1, courseDao.getIdsOfAllCreatedSynchronizableCoursesOfCurrentSemesterAndMostRecentImport(startTimeOfMostRecentCourseImportAsCalendar.getTime()).size());
-
-		// Add another second -> should not be found any more
-		startTimeOfMostRecentCourseImportAsCalendar.add(Calendar.SECOND, 1);
-		assertTrue(courseDao.getIdsOfAllCreatedSynchronizableCoursesOfCurrentSemesterAndMostRecentImport(startTimeOfMostRecentCourseImportAsCalendar.getTime()).isEmpty());
+        assertEquals(1, courseDao.getIdsOfAllCreatedSynchronizableCoursesOfCurrentSemester().size());
     }
 
     @Test
@@ -931,6 +923,15 @@ public class CourseDaoTest extends CampusCourseTestCase {
         assertTrue(courseDao.getCreatedAndNotCreatedCreatableCoursesOfCurrentSemesterByStudentIdBookedByStudentOnlyAsParentCourse(student2.getId()).isEmpty());
     }
 
+	@Test
+	public void testGetSemesterOfMostRecentCourseImport() throws CampusCourseException {
+		insertTestData();
+		Semester semester = courseDao.getSemesterOfMostRecentCourseImport();
+		assertNotNull(semester);
+		assertEquals(SemesterName.HERBSTSEMESTER, semester.getSemesterName());
+		assertEquals(2099, semester.getYear().intValue());
+	}
+
     private void insertTestData() throws CampusCourseException {
         // Insert some orgs
         List<Org> orgs = mockDataGeneratorProvider.get().getOrgs();
@@ -971,6 +972,11 @@ public class CourseDaoTest extends CampusCourseTestCase {
         List<EventCourseId> eventCourseIds = mockDataGeneratorProvider.get().getEventCourseIds();
         eventDao.addEventsToCourse(eventCourseIds);
         dbInstance.flush();
+
+        // Add import statistic
+		List<ImportStatistic> importStatistics = mockDataGeneratorProvider.get().getImportStatistics();
+		importStatisticDao.save(importStatistics);
+		dbInstance.flush();
 
         // Set current semester
         Course course = courseDao.getCourseById(100L);
