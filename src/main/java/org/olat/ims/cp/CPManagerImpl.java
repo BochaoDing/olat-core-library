@@ -410,15 +410,15 @@ public class CPManagerImpl extends CPManager {
 			try {
 				InputStream inputStream = url.openConnection().getInputStream();
 				FileUtils.saveToDir(inputStream, root, "imscp.zip");
+				return true;
 			} catch (IOException e) {
 				logError("cp template was not copied. Source:  " + url + " Target: " + root.getAbsolutePath(), null);
 			}
 		} catch (MalformedURLException e) {
 			logError("Bad url syntax when copying cp template. url: " + path + " Ores:" + ores.getResourceableId(), null);
-			return false;
 		}
 
-		return true;
+		return false;
 	}
 
 }
