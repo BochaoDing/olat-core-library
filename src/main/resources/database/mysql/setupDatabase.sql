@@ -2333,20 +2333,31 @@ create table if not exists ck_course_org (
   primary key (fk_course, fk_org)
 )engine InnoDB;
 
-create table if not exists ck_import_statistic (
+create table if not exists ck_batch_job_statistic (
     id bigint not null,
-    step_id int,
+    type varchar(30) not null,
     step_name varchar(255) not null,
     status varchar(255) not null,
-    start_time datetime,
-    end_time datetime,
-    read_count bigint not null,
-    write_count bigint not null,
-    read_skip_count bigint,
-    write_skip_count bigint,
-    process_skip_count bigint,
-    commit_count bigint,
-    rollback_count bigint,
+    start_time datetime not null,
+    end_time datetime not null,
+    read_count int not null,
+    write_count int not null,
+    read_skip_count int not null,
+    write_skip_count int not null,
+    process_skip_count int not null,
+    commit_count int not null,
+    rollback_count int not null,
+    already_mapped int,
+    new_mapping_by_email int,
+    new_mapping_by_matriculation_number int,
+    new_mapping_by_personal_number int,
+    new_mapping_by_additional_personal_number int,
+    could_be_mapped_manually int,
+    could_not_map int,
+    added_coaches int,
+    removed_coaches int,
+    added_participants int,
+    removed_participants int,
     primary key (id)
 )engine InnoDB;
 
@@ -2395,9 +2406,9 @@ alter table ck_course_org add unique (fk_course, fk_org);
 alter table ck_delegation add unique (fk_delegator_identity, fk_delegatee_identity);
 
 create index ck_xx_parent_course_id_idx on ck_course (fk_parent_course);
-create index ck_xx_step_name_idx on ck_import_statistic(step_name);
-create index ck_xx_start_time_idx on ck_import_statistic(start_time);
-create index ck_xx_end_time_idx on ck_import_statistic(end_time);
+create index ck_xx_step_name_idx on ck_batch_job_statistic(step_name);
+create index ck_xx_start_time_idx on ck_batch_job_statistic(start_time);
+create index ck_xx_end_time_idx on ck_batch_job_statistic(end_time);
 
 create or replace view ck_not_mapped_students as 
 select * from ck_student s where s.id in

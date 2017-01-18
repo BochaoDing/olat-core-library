@@ -18,7 +18,7 @@
 	</bean>
 	
 	<!-- ======================================================================================= -->
-	<!-- ==============JOB STARTER FOR SAP IMPORT PROCESS================== -->
+	<!-- ==============JOB STARTER FOR SAP IMPORT================== -->
 	<!-- ======================================================================================= -->
 	<bean id="cronSapImportJobTrigger" class="org.springframework.scheduling.quartz.CronTriggerBean">
 		<property name="jobDetail" ref="sapImportJobDetail" />
@@ -101,7 +101,7 @@
 	</bean>
 	
     <!-- ======================================================================================= -->
-	<!-- ==============JOB STARTER FOR USER MAPPING AND SYNCHRONIZATION PROCESS================= -->
+	<!-- ==============JOB STARTER FOR USER MAPPING AND CAMPUS COURSE SYNCHRONIZATION================= -->
 	<!-- ======================================================================================= -->
 	<bean id="cronUserMappingAndSynchronizationJobTrigger" class="org.springframework.scheduling.quartz.CronTriggerBean">
 		<property name="jobDetail" ref="userMappingAndSynchronizationJobDetail" />

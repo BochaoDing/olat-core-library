@@ -67,7 +67,7 @@ public class StudentMapperTest {
 
         UserMappingResult result = studentMapperTestObject.tryToMap(studentMock);
 
-        assertEquals("Mapping should be found for the matriculation number", UserMappingResult.NEW_MAPPING_BY_MATRICULATION_NR, result);
+        assertEquals("Mapping should be found for the matriculation number", UserMappingResult.NEW_MAPPING_BY_MATRICULATION_NUMBER, result);
     }
 
     @Test

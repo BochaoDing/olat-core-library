@@ -2,7 +2,6 @@ package ch.uzh.extension.campuscourse.service.synchronization;
 
 import ch.uzh.extension.campuscourse.common.CampusCourseConfiguration;
 import ch.uzh.extension.campuscourse.common.CampusCourseException;
-import ch.uzh.extension.campuscourse.service.synchronization.statistic.SynchronizedGroupStatistic;
 import ch.uzh.extension.campuscourse.model.CampusCourseTO;
 import org.olat.basesecurity.GroupRoles;
 import org.olat.core.id.Identity;
@@ -60,7 +59,7 @@ public class CampusCourseSynchronizer {
         this.repositoryService = repositoryService;
     }
 
-    public SynchronizedGroupStatistic synchronizeOlatCampusCourse(CampusCourseTO campusCourseTO) throws CampusCourseException {
+    public CampusCourseSynchronizationResult synchronizeOlatCampusCourse(CampusCourseTO campusCourseTO) throws CampusCourseException {
 
         // Synchronize olat campus course repository entry
         if (campusCourseConfiguration.isSynchronizeDisplaynameAndDescriptionEnabled()) {
@@ -73,10 +72,10 @@ public class CampusCourseSynchronizer {
 
         // Synchronize campus groups
         List<Identity> courseOwners = repositoryService.getMembers(campusCourseTO.getRepositoryEntry(), GroupRoles.owner.name());
-        SynchronizedGroupStatistic groupStatistic = campusGroupsSynchronizer.synchronizeCampusGroups(
+        CampusCourseSynchronizationResult campusCourseSynchronizationResult = campusGroupsSynchronizer.synchronizeCampusGroups(
                 campusCourseTO.getCampusGroups(), campusCourseTO, courseOwners.get(0));
-        LOG.debug("synchronizeOlatCampusCourse statistic=" + groupStatistic);
+        LOG.debug("synchronizeOlatCampusCourse statistic=" + campusCourseSynchronizationResult);
 
-        return groupStatistic;
+        return campusCourseSynchronizationResult;
     }
 }

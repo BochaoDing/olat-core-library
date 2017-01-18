@@ -1,6 +1,9 @@
 package ch.uzh.extension.campuscourse.batchprocessing.mappingandsynchronization.usermapping;
 
+import ch.uzh.extension.campuscourse.batchprocessing.CampusBatchStepName;
+import ch.uzh.extension.campuscourse.data.dao.BatchJobAndUserMappingStatisticDao;
 import ch.uzh.extension.campuscourse.data.entity.Lecturer;
+import ch.uzh.extension.campuscourse.data.entity.BatchJobAndUserMappingStatistic;
 import ch.uzh.extension.campuscourse.service.usermapping.LecturerMapper;
 import ch.uzh.extension.campuscourse.service.usermapping.UserMappingResult;
 import org.olat.core.commons.persistence.DB;
@@ -12,6 +15,7 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PreDestroy;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -46,28 +50,36 @@ public class LecturerMappingWriter implements ItemWriter<Lecturer> {
 
     private final DB dbInstance;
     private final LecturerMapper lecturerMapper;
-    private final UserMappingStatistic userMappingStatistic;
+    private final BatchJobAndUserMappingStatisticDao batchJobAndUserMappingStatisticDao;
+	private final UserMappingStatistic userMappingStatistic = new UserMappingStatistic();
 
     @Autowired
-    public LecturerMappingWriter(DB dbInstance, LecturerMapper lecturerMapper, UserMappingStatistic userMappingStatistic) {
+    public LecturerMappingWriter(DB dbInstance, LecturerMapper lecturerMapper, BatchJobAndUserMappingStatisticDao batchJobAndUserMappingStatisticDao) {
         this.dbInstance = dbInstance;
         this.lecturerMapper = lecturerMapper;
-        this.userMappingStatistic = userMappingStatistic;
+        this.batchJobAndUserMappingStatisticDao = batchJobAndUserMappingStatisticDao;
     }
 
     @PreDestroy
     public void destroy() {
-        LOG.info("MappingStatistic(Lecturers)=" + userMappingStatistic);
+        LOG.info("Lecturer mapping statistic: " + userMappingStatistic);
+        // Update batch job and user mapping statistic database entry
+		BatchJobAndUserMappingStatistic batchJobAndUserMappingStatistic = batchJobAndUserMappingStatisticDao.getLastCreatedUserMappingStatisticForCampusBatchStepName(CampusBatchStepName.LECTURER_MAPPING);
+		batchJobAndUserMappingStatistic.setUserMappingStatistic(userMappingStatistic);
+		dbInstance.commitAndCloseSession();
     }
 
     @Override
     public void write(List<? extends Lecturer> lecturers) throws Exception {
         try {
+            List<UserMappingResult> userMappingResults = new ArrayList<>();
             for (Lecturer lecturer : lecturers) {
                 UserMappingResult userMappingResult = lecturerMapper.tryToMap(lecturer);
-                userMappingStatistic.addMappingResult(userMappingResult);
+                userMappingResults.add(userMappingResult);
             }
             dbInstance.commitAndCloseSession();
+            // Update user mapping statistic AFTER commit
+			userMappingStatistic.addUserMappingResults(userMappingResults);
         } catch (Throwable t) {
             dbInstance.rollbackAndCloseSession();
             // In the case of an exception, Spring Batch calls this method several times:
@@ -77,7 +89,8 @@ public class LecturerMappingWriter implements ItemWriter<Lecturer> {
             if (lecturers.size() == 1) {
                 LOG.error(t.getMessage());
             } else {
-                LOG.debug(t.getMessage());
+				String msg = "Error when trying to map lecturer with personal number " + lecturers.get(0).getPersonalNr() + ": " + t.getMessage();
+				LOG.debug(msg);
             }
             throw t;
         }

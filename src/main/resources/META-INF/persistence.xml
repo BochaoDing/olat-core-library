@@ -179,7 +179,10 @@
 		<class>ch.uzh.extension.campuscourse.data.entity.Export</class>
 		<class>ch.uzh.extension.campuscourse.data.entity.Delegation</class>
 		<class>ch.uzh.extension.campuscourse.data.entity.SkipItem</class>
-		<class>ch.uzh.extension.campuscourse.data.entity.ImportStatistic</class>
+		<class>ch.uzh.extension.campuscourse.data.entity.BatchJobStatistic</class>
+		<class>ch.uzh.extension.campuscourse.data.entity.BatchJobAndSapImportStatistic</class>
+		<class>ch.uzh.extension.campuscourse.data.entity.BatchJobAndUserMappingStatistic</class>
+		<class>ch.uzh.extension.campuscourse.data.entity.BatchJobAndCampusCourseSynchronizationStatistic</class>
 
 		<properties>
 			<property name="hibernate.generate_statistics" value="true"/>

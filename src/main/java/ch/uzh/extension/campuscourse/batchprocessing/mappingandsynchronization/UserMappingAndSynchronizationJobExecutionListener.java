@@ -1,7 +1,7 @@
 package ch.uzh.extension.campuscourse.batchprocessing.mappingandsynchronization;
 
-import ch.uzh.extension.campuscourse.data.entity.ImportStatistic;
-import ch.uzh.extension.campuscourse.data.dao.ImportStatisticDao;
+import ch.uzh.extension.campuscourse.data.dao.BatchJobAndSapImportStatisticDao;
+import ch.uzh.extension.campuscourse.data.entity.BatchJobAndSapImportStatistic;
 import org.olat.core.commons.persistence.DB;
 import org.olat.core.logging.OLog;
 import org.olat.core.logging.Tracing;
@@ -37,17 +37,17 @@ import java.util.List;
  * @author aabouc
  */
 @Component
-public class UserMappingAndSynchronizationJobInterceptor implements JobExecutionListener {
+public class UserMappingAndSynchronizationJobExecutionListener implements JobExecutionListener {
 
-    private static final OLog LOG = Tracing.createLoggerFor(UserMappingAndSynchronizationJobInterceptor.class);
+    private static final OLog LOG = Tracing.createLoggerFor(UserMappingAndSynchronizationJobExecutionListener.class);
 
     private final DB dbInstance;
-    private final ImportStatisticDao importStatisticDao;
+    private final BatchJobAndSapImportStatisticDao batchJobAndSapImportStatisticDao;
 
     @Autowired
-    public UserMappingAndSynchronizationJobInterceptor(DB dbInstance, ImportStatisticDao importStatisticDao) {
+    public UserMappingAndSynchronizationJobExecutionListener(DB dbInstance, BatchJobAndSapImportStatisticDao batchJobAndSapImportStatisticDao) {
         this.dbInstance = dbInstance;
-        this.importStatisticDao = importStatisticDao;
+        this.batchJobAndSapImportStatisticDao = batchJobAndSapImportStatisticDao;
     }
 
     @Override
@@ -59,8 +59,8 @@ public class UserMappingAndSynchronizationJobInterceptor implements JobExecution
     public void beforeJob(JobExecution jobExecution) {
         LOG.info("beforeJob " + jobExecution.getJobInstance().getJobName());
         // Check if "importJob" has ran today
-        List<ImportStatistic> importStatsOfToday = importStatisticDao.getImportStatisticOfToday();
-        if (importStatsOfToday.size() == 0) {
+        List<BatchJobAndSapImportStatistic> batchJobAndSapImportStatisticOfToday = batchJobAndSapImportStatisticDao.getSapImportStatisticOfToday();
+        if (batchJobAndSapImportStatisticOfToday.size() == 0) {
             LOG.warn("Import procedure did not run today! Mapping does not make so much sense!");
         }
         dbInstance.closeSession();

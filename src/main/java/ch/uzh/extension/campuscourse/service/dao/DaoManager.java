@@ -53,24 +53,24 @@ public class DaoManager {
     private final TextDao textDao;
     private final EventDao eventDao;
     private final OrgDao orgDao;
-	private final ImportStatisticDao statisticDao;
+	private final BatchJobAndSapImportStatisticDao statisticDao;
 	private final DataConverter dataConverter;
 	private final CampusCourseConfiguration campusCourseConfiguration;
 
     @Autowired
 	public DaoManager(CourseDao courseDao,
-                      SemesterDao semesterDao,
-                      StudentDao studentDao,
-                      LecturerCourseDao lecturerCourseDao,
-                      StudentCourseDao studentCourseDao,
-                      LecturerDao lecturerDao,
-                      DelegationDao delegationDao,
-                      TextDao textDao,
-                      EventDao eventDao,
-                      OrgDao orgDao,
-                      ImportStatisticDao statisticDao,
-                      DataConverter dataConverter,
-                      CampusCourseConfiguration campusCourseConfiguration) {
+					  SemesterDao semesterDao,
+					  StudentDao studentDao,
+					  LecturerCourseDao lecturerCourseDao,
+					  StudentCourseDao studentCourseDao,
+					  LecturerDao lecturerDao,
+					  DelegationDao delegationDao,
+					  TextDao textDao,
+					  EventDao eventDao,
+					  OrgDao orgDao,
+					  BatchJobAndSapImportStatisticDao statisticDao,
+					  DataConverter dataConverter,
+					  CampusCourseConfiguration campusCourseConfiguration) {
 		this.courseDao = courseDao;
         this.semesterDao = semesterDao;
 		this.studentDao = studentDao;
@@ -490,7 +490,7 @@ public class DaoManager {
     }
 
     public boolean checkImportedData() {
-        return (statisticDao.getLastCompletedImportedStatistic().size() == campusCourseConfiguration.getMustCompletedImportedFiles());
+        return (statisticDao.getLastCompletedSapImportStatistic().size() == campusCourseConfiguration.getMustCompletedImportedFiles());
     }
 
     public Semester getSemesterOfMostRecentCourseImport() {

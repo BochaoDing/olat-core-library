@@ -1,6 +1,8 @@
 package ch.uzh.extension.campuscourse.batchprocessing.mappingandsynchronization.usermapping;
 
+import ch.uzh.extension.campuscourse.data.dao.BatchJobAndUserMappingStatisticDao;
 import ch.uzh.extension.campuscourse.data.entity.Student;
+import ch.uzh.extension.campuscourse.data.entity.BatchJobAndUserMappingStatistic;
 import ch.uzh.extension.campuscourse.service.usermapping.UserMappingResult;
 import ch.uzh.extension.campuscourse.service.usermapping.StudentMapper;
 import org.junit.Before;
@@ -11,6 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -44,8 +47,6 @@ public class StudentMappingWriterTest {
 
     @Before
     public void setup() {
-        // Mock for StudentMapper
-        StudentMapper studentMapperMock = mock(StudentMapper.class);
 
         // Mock for Student
         Student studentMock1 = mock(Student.class);
@@ -53,29 +54,35 @@ public class StudentMappingWriterTest {
         twoStudentsList.add(studentMock1);
         twoStudentsList.add(studentMock2);
 
+        // Mock for StudentMapper
+        StudentMapper studentMapperMock = mock(StudentMapper.class);
         when(studentMapperMock.tryToMap(studentMock1)).thenReturn(UserMappingResult.NEW_MAPPING_BY_EMAIL);
-        when(studentMapperMock.tryToMap(studentMock2)).thenReturn(UserMappingResult.NEW_MAPPING_BY_MATRICULATION_NR);
+        when(studentMapperMock.tryToMap(studentMock2)).thenReturn(UserMappingResult.NEW_MAPPING_BY_MATRICULATION_NUMBER);
+
+		// Mock for UserMappingStatisticDao
+		BatchJobAndUserMappingStatisticDao batchJobAndUserMappingStatisticDaoMock = mock(BatchJobAndUserMappingStatisticDao.class);
+		when(batchJobAndUserMappingStatisticDaoMock.getLastCreatedUserMappingStatisticForCampusBatchStepName(any())).thenReturn(new BatchJobAndUserMappingStatistic());
 
         // Mock for DBImpl
         DB dBImplMock = mock(DB.class);
 
-        studentMappingWriterTestObject = new StudentMappingWriter(dBImplMock, studentMapperMock, new UserMappingStatistic());
+        studentMappingWriterTestObject = new StudentMappingWriter(dBImplMock, studentMapperMock, batchJobAndUserMappingStatisticDaoMock);
     }
 
     @Test
     public void write_emptyStudentsList() throws Exception {
         studentMappingWriterTestObject.write(new ArrayList<>());
         assertEquals(
-                studentMappingWriterTestObject.getUserMappingStatistic().toString(),
-                "MappedByEmail=0 , MappedByMatriculationNumber=0 , MappedByPersonalNumber=0 , MappedByAdditionalPersonalNumber=0 , couldNotMappedBecauseNotRegistered=0 , couldBeMappedManually=0");
+				"already mapped: 0, new mapping by email: 0, new mapping by matriculation number: 0, new mapping by personal number: 0, new mapping by additional personal number: 0, could be mapped manually: 0, could not map: 0",
+                studentMappingWriterTestObject.getUserMappingStatistic().toString());
     }
 
     @Test
     public void write_twoStudentsList() throws Exception {
         studentMappingWriterTestObject.write(twoStudentsList);
         assertEquals(
-                studentMappingWriterTestObject.getUserMappingStatistic().toString(),
-                "MappedByEmail=1 , MappedByMatriculationNumber=1 , MappedByPersonalNumber=0 , MappedByAdditionalPersonalNumber=0 , couldNotMappedBecauseNotRegistered=0 , couldBeMappedManually=0");
+				"already mapped: 0, new mapping by email: 1, new mapping by matriculation number: 1, new mapping by personal number: 0, new mapping by additional personal number: 0, could be mapped manually: 0, could not map: 0",
+                studentMappingWriterTestObject.getUserMappingStatistic().toString());
     }
 
 }

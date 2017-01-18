@@ -20,15 +20,15 @@ import java.util.List;
  * @author sev26 (UZH)
  */
 @Component
-public class SapImportJobInterceptor implements JobExecutionListener {
+public class SapImportJobExecutionListener implements JobExecutionListener {
 
-	private static final OLog LOG = Tracing.createLoggerFor(SapImportJobInterceptor.class);
+	private static final OLog LOG = Tracing.createLoggerFor(SapImportJobExecutionListener.class);
 
     private final DB dbInstance;
 	private final DaoManager daoManager;
 
 	@Autowired
-	public SapImportJobInterceptor(DB dbInstance, DaoManager daoManager) {
+	public SapImportJobExecutionListener(DB dbInstance, DaoManager daoManager) {
 		this.dbInstance = dbInstance;
 		this.daoManager = daoManager;
 	}
@@ -45,6 +45,7 @@ public class SapImportJobInterceptor implements JobExecutionListener {
 	}
 
 	private void removeNotUpdatedData(JobExecution jobExecution) {
+
 		if (jobExecution.getStatus() != BatchStatus.COMPLETED) {
 			return;
 		}

@@ -3,8 +3,6 @@ package ch.uzh.extension.campuscourse.service.synchronization;
 import ch.uzh.extension.campuscourse.common.CampusCourseConfiguration;
 import ch.uzh.extension.campuscourse.common.CampusCourseException;
 import ch.uzh.extension.campuscourse.service.dao.DaoManager;
-import ch.uzh.extension.campuscourse.service.synchronization.statistic.SynchronizedGroupStatistic;
-import ch.uzh.extension.campuscourse.service.synchronization.statistic.SynchronizedSecurityGroupStatistic;
 import ch.uzh.extension.campuscourse.model.CampusGroups;
 import ch.uzh.extension.campuscourse.model.CampusCourseTO;
 import org.junit.Before;
@@ -80,9 +78,9 @@ public class CampusCourseSynchronizerTest {
         // Prepare a test campusCourseSynchronizer
         // CampusGroupsSynchronizerMock
         Identity creatorMock = mock(Identity.class);
-        SynchronizedGroupStatistic groupStatistic = new SynchronizedGroupStatistic(title, null, new SynchronizedSecurityGroupStatistic(5, 10));
+        CampusCourseSynchronizationResult campusCourseSynchronizationResult = new CampusCourseSynchronizationResult(title, 1, 0, 7, 3);
         CampusGroupsSynchronizer campusGroupsSynchronizerMock = mock(CampusGroupsSynchronizer.class);
-        when(campusGroupsSynchronizerMock.synchronizeCampusGroups(refEq(campusCourseTO.getCampusGroups()), refEq(campusCourseTO), refEq(creatorMock))).thenReturn(groupStatistic);
+        when(campusGroupsSynchronizerMock.synchronizeCampusGroups(refEq(campusCourseTO.getCampusGroups()), refEq(campusCourseTO), refEq(creatorMock))).thenReturn(campusCourseSynchronizationResult);
 
         // OlatCampusCourseAttributeSynchronizerMock
         CampusCourseRepositoryEntrySynchronizer campusCourseRepositoryEntrySynchronizerMock = mock(CampusCourseRepositoryEntrySynchronizer.class);
@@ -102,13 +100,15 @@ public class CampusCourseSynchronizerTest {
     }
 
     @Test
-    public void synchronizeCourse() throws CampusCourseException {
+    public void testSynchronizeOlatCampusCourse() throws CampusCourseException {
         DaoManager daoManagerMock = mock(DaoManager.class);
         when(daoManagerMock.loadCampusCourseTO(EXISTING_SAP_COURSE_ID)).thenReturn(campusCourseTO);
 
-        SynchronizedGroupStatistic statistic = campusCourseSynchronizerTestObject.synchronizeOlatCampusCourse(campusCourseTO);
-        assertNotNull(statistic);
-        assertEquals(5, statistic.getParticipantGroupStatistic().getAddedStatistic());
-        assertEquals(10, statistic.getParticipantGroupStatistic().getRemovedStatistic());
+        CampusCourseSynchronizationResult campusCourseSynchronizationResult = campusCourseSynchronizerTestObject.synchronizeOlatCampusCourse(campusCourseTO);
+        assertNotNull(campusCourseSynchronizationResult);
+        assertEquals(1, campusCourseSynchronizationResult.getAddedCoaches());
+        assertEquals(0, campusCourseSynchronizationResult.getRemovedCoaches());
+        assertEquals(7, campusCourseSynchronizationResult.getAddedParticipants());
+        assertEquals(3, campusCourseSynchronizationResult.getRemovedParticipants());
     }
 }

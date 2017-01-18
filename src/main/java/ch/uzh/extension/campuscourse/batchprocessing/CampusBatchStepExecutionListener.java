@@ -1,9 +1,8 @@
 package ch.uzh.extension.campuscourse.batchprocessing;
 
 import ch.uzh.extension.campuscourse.common.CampusCourseConfiguration;
-import ch.uzh.extension.campuscourse.data.dao.ImportStatisticDao;
 import ch.uzh.extension.campuscourse.data.dao.SkipItemDao;
-import ch.uzh.extension.campuscourse.data.entity.ImportStatistic;
+import ch.uzh.extension.campuscourse.data.entity.BatchJobStatistic;
 import ch.uzh.extension.campuscourse.data.entity.SkipItem;
 import ch.uzh.extension.campuscourse.service.dao.DaoManager;
 import org.olat.core.commons.persistence.DB;
@@ -32,25 +31,22 @@ import java.util.List;
  */
 @Component
 @Scope("step")
-public class CampusBatchStepInterceptor<T, S> implements StepExecutionListener, ItemWriteListener<S>, SkipListener<T, S>, ChunkListener {
+public abstract class CampusBatchStepExecutionListener<T, S> implements StepExecutionListener, ItemWriteListener<S>, SkipListener<T, S>, ChunkListener {
 
-	private static final OLog LOG = Tracing.createLoggerFor(CampusBatchStepInterceptor.class);
+	private static final OLog LOG = Tracing.createLoggerFor(CampusBatchStepExecutionListener.class);
 
-    private final DB dbInstance;
-	private final ImportStatisticDao importStatisticDao;
+    protected final DB dbInstance;
 	private final SkipItemDao skipItemDao;
-	private final DaoManager daoManager;
-    private final CampusCourseConfiguration campusCourseConfiguration;
+	protected final DaoManager daoManager;
+    protected final CampusCourseConfiguration campusCourseConfiguration;
 
-	private StepExecution stepExecution;
-    private int chunkCount;
-    private long chunkStartTime;
+    protected CampusBatchStepName campusBatchStepName;
+    private Long batchJobStatisticId;
+    private StepExecution stepExecution;
 
     @Autowired
-	public CampusBatchStepInterceptor(DB dbInstance, ImportStatisticDao importStatisticDao, SkipItemDao skipItemDao,
-									  DaoManager daoManager, CampusCourseConfiguration campusCourseConfiguration) {
+	public CampusBatchStepExecutionListener(DB dbInstance, SkipItemDao skipItemDao, DaoManager daoManager, CampusCourseConfiguration campusCourseConfiguration) {
 		this.dbInstance = dbInstance;
-		this.importStatisticDao = importStatisticDao;
 		this.skipItemDao = skipItemDao;
 		this.daoManager = daoManager;
         this.campusCourseConfiguration = campusCourseConfiguration;
@@ -59,61 +55,54 @@ public class CampusBatchStepInterceptor<T, S> implements StepExecutionListener, 
     /**
      * Processes some cleanups depending on the appropriate step.
      * 
-     * @param se
+     * @param stepExecution
      *            the StepExecution
      */
     @Override
-    public void beforeStep(StepExecution se) {
-        try {
-            LOG.info(se.toString());
+    public void beforeStep(StepExecution stepExecution) {
+        LOG.info(stepExecution.toString());
 
-			this.stepExecution = se;
-            // Chunk count and duration is being logged for sync step since this may be slow and potentially break timeout
-            if (CampusBatchStepName.SYNCHRONISATION.name().equalsIgnoreCase(se.getStepName())) {
-                chunkCount = 0;
-            }
-            // Before importing Texts, delete all old ones
-            if (CampusBatchStepName.IMPORT_TEXTS.name().equalsIgnoreCase(se.getStepName())) {
-                daoManager.deleteAllTexts();
-            }
-            // DISABLED FOR NOW
-            // if (CampusImportStep.IMPORT_EVENTS.name().equalsIgnoreCase(se.getStepName())) {
-            // daoManager.deleteAllEvents();
-            // }
+        this.stepExecution = stepExecution;
 
-            dbInstance.commitAndCloseSession();
-        } catch (Throwable t) {
-            dbInstance.rollbackAndCloseSession();
-            throw t;
-        }
+		campusBatchStepName = CampusBatchStepName.findByName(stepExecution.getStepName());
+        if (campusBatchStepName == null) {
+        	String errMsg = "'" + stepExecution.getStepName() + "' is not a valid Campus Batch step name!";
+        	throw new RuntimeException(errMsg);
+		}
+
+		// Create new batch job statistic
+		try {
+			BatchJobStatistic batchJobStatistic = createAndPersistBatchJobStatistic(stepExecution);
+			dbInstance.commitAndCloseSession();
+			batchJobStatisticId = batchJobStatistic.getId();
+		} catch (Throwable t) {
+			dbInstance.rollbackAndCloseSession();
+			throw t;
+		}
     }
 
-    /**
+	protected abstract BatchJobStatistic createAndPersistBatchJobStatistic(StepExecution stepExecution);
+
+	/**
      * Generates an appropriate statistic of the processed, <br>
      * delegates the cleanup and the metric notification.
      * 
-     * @param se
+     * @param stepExecution
      *            the StepExecution
      */
     @Override
-    public ExitStatus afterStep(StepExecution se) {
-        try {
-            LOG.info(se.toString());
-            importStatisticDao.saveOrUpdate(createImportStatistic(se));
-			dbInstance.commitAndCloseSession();
-            if (CampusBatchStepName.IMPORT_CONTROLFILE.name().equalsIgnoreCase(se.getStepName())) {
-                if (se.getWriteCount() != campusCourseConfiguration.getMustCompletedImportedFiles()) {
-                    return ExitStatus.FAILED;
-                }
-            }
-            return null;
-        } catch (Throwable t) {
-            dbInstance.rollbackAndCloseSession();
-            throw t;
-        }
+    public ExitStatus afterStep(StepExecution stepExecution) {
+        LOG.info(stepExecution.toString());
+
+		// Update batch job statistic
+		BatchJobStatistic batchJobStatistic = dbInstance.getCurrentEntityManager().find(BatchJobStatistic.class, batchJobStatisticId);
+		batchJobStatistic.setBatchJobStatistic(campusBatchStepName, stepExecution);
+		dbInstance.commitAndCloseSession();
+
+		return null;
     }
 
-    /**
+	/**
      * @param items
      *            the list of items to be written in the database.
      */
@@ -202,29 +191,6 @@ public class CampusBatchStepInterceptor<T, S> implements StepExecutionListener, 
     }
 
     /**
-     * Generates the statistic based on the StepExecution.
-     * 
-     * @param se
-     *            the StepExecution
-     */
-    private ImportStatistic createImportStatistic(StepExecution se) {
-        ImportStatistic statistic = new ImportStatistic();
-        statistic.setStepId(se.getId());
-        statistic.setStepName(se.getStepName());
-        statistic.setStatus(se.getStatus().toString());
-        statistic.setReadCount(se.getReadCount());
-        statistic.setReadSkipCount(se.getReadSkipCount());
-        statistic.setWriteCount(se.getWriteCount());
-        statistic.setWriteSkipCount(se.getWriteSkipCount());
-        statistic.setProcessSkipCount(se.getProcessSkipCount());
-        statistic.setCommitCount(se.getCommitCount());
-        statistic.setRollbackCount(se.getRollbackCount());
-        statistic.setStartTime(se.getStartTime());
-        statistic.setEndTime(se.getLastUpdated());
-        return statistic;
-    }
-
-    /**
      * Creates a SkipItem based on the given parameters.
      * 
      * @param type
@@ -250,41 +216,13 @@ public class CampusBatchStepInterceptor<T, S> implements StepExecutionListener, 
 
     @Override
     public void beforeChunk(ChunkContext chunkContext) {
-		/*
-		 * Chunk count and duration is being logged for sync step since this
-		 * may be slow and potentially break timeout.
-		 */
-        if (CampusBatchStepName.SYNCHRONISATION.name().equalsIgnoreCase(stepExecution.getStepName())) {
-            chunkStartTime = System.currentTimeMillis();
-        }
     }
 
     @Override
     public void afterChunk(ChunkContext chunkContext) {
-		/*
-		 * Chunk count and duration is being logged for sync step since this
-		 * may be slow and potentially break timeout.
-		 */
-        int timeout = campusCourseConfiguration.getConnectionPoolTimeout(); // milliseconds!
-        if (timeout > 0 && CampusBatchStepName.SYNCHRONISATION.name().equalsIgnoreCase(stepExecution.getStepName())) {
-            chunkCount++;
-            long chunkProcessingDuration = System.currentTimeMillis() - chunkStartTime;
-            if (chunkProcessingDuration > timeout * 0.9) {
-                LOG.warn("Chunk no "
-                        + chunkCount
-                        + " for campus synchronisation took "
-                        + chunkProcessingDuration
-                        + " ms which is more than 90% of configured database connection pool timeout of "
-                        + timeout
-                        + " sec. Please consider to take action in order to avoid a timeout (increase unreturned connection timeout or decrease chunk size).");
-            } else {
-                LOG.debug("Chunk no " + chunkCount + " for campus synchronisation took " + chunkProcessingDuration + " ms (timeout is " + timeout + " s).");
-            }
-        }
     }
 
     @Override
     public void afterChunkError(ChunkContext chunkContext) {
-
     }
 }

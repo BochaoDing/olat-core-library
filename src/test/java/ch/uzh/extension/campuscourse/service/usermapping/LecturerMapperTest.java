@@ -74,7 +74,7 @@ public class LecturerMapperTest {
 
         UserMappingResult result = lecturerMapperTestObject.tryToMap(lecturerMock);
 
-        assertEquals("Mapping should be found for the personal number", UserMappingResult.NEW_MAPPING_BY_PERSONAL_NR, result);
+        assertEquals("Mapping should be found for the personal number", UserMappingResult.NEW_MAPPING_BY_PERSONAL_NUMBER, result);
     }
 
     @Test
@@ -97,7 +97,7 @@ public class LecturerMapperTest {
 
         UserMappingResult result = lecturerMapperTestObject.tryToMap(lecturerMock);
 
-        assertEquals("Mapping should be done manually", UserMappingResult.NEW_MAPPING_BY_ADDITIONAL_PERSONAL_NR, result);
+        assertEquals("Mapping should be done manually", UserMappingResult.NEW_MAPPING_BY_ADDITIONAL_PERSONAL_NUMBER, result);
     }
 
     @Test

@@ -52,8 +52,8 @@ public class SapImportJobBeanFactory {
 
 	@Bean
 	@Scope("step")
-	public CampusWriter<Export> exportWriter() {
-		return new CampusWriter<>(dbInstance, exportDao);
+	public SapImportWriter<Export> exportWriter() {
+		return new SapImportWriter<>(dbInstance, exportDao);
 	}
 
 	@Bean
@@ -126,8 +126,8 @@ public class SapImportJobBeanFactory {
 
 	@Bean
 	@Scope("step")
-	public CampusWriter<Org> orgWriter() {
-		return new CampusWriter<>(dbInstance, orgDao);
+	public SapImportWriter<Org> orgWriter() {
+		return new SapImportWriter<>(dbInstance, orgDao);
 	}
 
 	private <T> FlatFileItemReader<T> createFlatFileItemReader(String pathToInputFile,

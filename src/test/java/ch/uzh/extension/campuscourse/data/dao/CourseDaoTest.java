@@ -61,7 +61,7 @@ public class CourseDaoTest extends CampusCourseTestCase {
     private BusinessGroupDAO businessGroupDao;
 
 	@Autowired
-	private ImportStatisticDao importStatisticDao;
+	private BatchJobAndSapImportStatisticDao batchJobAndSapImportStatisticDao;
 
     @Autowired
     private RepositoryService repositoryService;
@@ -80,7 +80,7 @@ public class CourseDaoTest extends CampusCourseTestCase {
     @Before
     public void before() {
         campusCourseConfiguration.setMaxYearsToKeepCkData(1);
-        courseDao = new CourseDao(dbInstance, semesterDao, importStatisticDao);
+        courseDao = new CourseDao(dbInstance, semesterDao, batchJobAndSapImportStatisticDao);
     }
 
     @Test
@@ -453,23 +453,6 @@ public class CourseDaoTest extends CampusCourseTestCase {
 
         Course updatedCourse = courseDao.getCourseById(course.getId());
         assertEquals(campusGroupB, updatedCourse.getCampusGroupB());
-    }
-
-    @Test
-    public void testDisableSynchronization() throws CampusCourseException {
-        insertTestData();
-        Course course = courseDao.getCourseById(100L);
-        assertTrue(course.isSynchronizable());
-
-        courseDao.disableSynchronization(100L);
-
-        assertFalse(course.isSynchronizable());
-
-        dbInstance.flush();
-        dbInstance.clear();
-
-        Course updatedCourse = courseDao.getCourseById(100L);
-        assertFalse(updatedCourse.isSynchronizable());
     }
 
     @Test
@@ -975,8 +958,8 @@ public class CourseDaoTest extends CampusCourseTestCase {
         dbInstance.flush();
 
         // Add import statistic
-		List<ImportStatistic> importStatistics = campusCourseTestDataGenerator.createImportStatistics();
-		importStatisticDao.save(importStatistics);
+		List<BatchJobAndSapImportStatistic> importStatistics = campusCourseTestDataGenerator.createBatchJobAndSapImportStatistics();
+		batchJobAndSapImportStatisticDao.save(importStatistics);
 		dbInstance.flush();
 
         // Set current semester

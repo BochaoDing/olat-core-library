@@ -1,23 +1,3 @@
-/**
- * OLAT - Online Learning and Training<br>
- * http://www.olat.org
- * <p>
- * Licensed under the Apache License, Version 2.0 (the "License"); <br>
- * you may not use this file except in compliance with the License.<br>
- * You may obtain a copy of the License at
- * <p>
- * http://www.apache.org/licenses/LICENSE-2.0
- * <p>
- * Unless required by applicable law or agreed to in writing,<br>
- * software distributed under the License is distributed on an "AS IS" BASIS, <br>
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. <br>
- * See the License for the specific language governing permissions and <br>
- * limitations under the License.
- * <p>
- * Copyright (c) since 2004 at Multimedia- & E-Learning Services (MELS),<br>
- * University of Zurich, Switzerland.
- * <p>
- */
 package ch.uzh.extension.campuscourse.batchprocessing;
 
 /**
@@ -28,52 +8,77 @@ package ch.uzh.extension.campuscourse.batchprocessing;
  * @author aabouc
  */
 public enum CampusBatchStepName {
+
     /**
      * This step describes the import of the control file which gathers all the exported csv files.
      */
-    IMPORT_CONTROLFILE,
+    IMPORT_CONTROL_FILE("importControlFile"),
     /**
      * This step describes the import of the data of SAP courses (LV).
      */
-    IMPORT_COURSES,
+    IMPORT_COURSES("importCourses"),
     /**
      * This step describes the import of the Students data.
      */
-    IMPORT_STUDENTS,
+    IMPORT_STUDENTS("importStudents"),
     /**
      * This step describes the import of the lecturers data.
      */
-    IMPORT_LECTURERS,
+    IMPORT_LECTURERS("importLecturers"),
     /**
      * This step describes the import of the contents, materials, etc of the courses data
      */
-    IMPORT_TEXTS,
+    IMPORT_TEXTS("importTexts"),
     /**
      * This step describes the import of the events (Termine) data
      */
-    IMPORT_EVENTS,
+    IMPORT_EVENTS("importEvents"),
+	/**
+	 * This step describes the import of the organizations data
+	 */
+	IMPORT_ORGS("importOrgs"),
     /**
      * This step describes the import of the relationships data (lecturers - courses)
      */
-    IMPORT_LECTURERS_COURSES,
-    /**
-     * This step describes the import of the organizations data
-     */
-    IMPORT_ORGS,
+    IMPORT_LECTURER_COURSES("importLecturerCourses"),
     /**
      * This step describes the import of the relationships data (students - courses)
      */
-    IMPORT_STUDENTS_COURSES,
+    IMPORT_STUDENT_COURSES("importStudentCourses"),
     /**
      * This step describes the synchronization of courses and participants.
      */
-    SYNCHRONISATION,
+    CAMPUS_COURSE_SYNCHRONIZATION("campusCourseSynchronization"),
     /**
      * 
      */
-    STUDENT_MAPPING,
+    STUDENT_MAPPING("studentMapping"),
     /**
      * 
      */
-    LECTURER_MAPPING
+    LECTURER_MAPPING("lecturerMapping");
+
+	private String name;
+
+	CampusBatchStepName(String name) {
+		this.name = name;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	@Override
+	public String toString() {
+		return name;
+	}
+
+	public static CampusBatchStepName findByName(String name) {
+		for (CampusBatchStepName campusBatchStepName : values()) {
+			if (campusBatchStepName.toString().equals(name)) {
+				return campusBatchStepName;
+			}
+		}
+		return null;
+	}
 }

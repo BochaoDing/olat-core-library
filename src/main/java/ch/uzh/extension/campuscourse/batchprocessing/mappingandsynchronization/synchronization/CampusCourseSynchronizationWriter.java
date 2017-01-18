@@ -1,9 +1,10 @@
 package ch.uzh.extension.campuscourse.batchprocessing.mappingandsynchronization.synchronization;
 
-import ch.uzh.extension.campuscourse.service.synchronization.CampusCourseSynchronizer;
+import ch.uzh.extension.campuscourse.data.dao.BatchJobAndCampusCourseSynchronizationStatisticDao;
+import ch.uzh.extension.campuscourse.data.entity.BatchJobAndCampusCourseSynchronizationStatistic;
 import ch.uzh.extension.campuscourse.model.CampusCourseTO;
-import ch.uzh.extension.campuscourse.service.synchronization.statistic.OverallSynchronizeStatistic;
-import ch.uzh.extension.campuscourse.service.synchronization.statistic.SynchronizedGroupStatistic;
+import ch.uzh.extension.campuscourse.service.synchronization.CampusCourseSynchronizationResult;
+import ch.uzh.extension.campuscourse.service.synchronization.CampusCourseSynchronizer;
 import org.olat.core.commons.persistence.DB;
 import org.olat.core.logging.OLog;
 import org.olat.core.logging.Tracing;
@@ -13,6 +14,7 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PreDestroy;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -51,18 +53,24 @@ public class CampusCourseSynchronizationWriter implements ItemWriter<CampusCours
 
     private final CampusCourseSynchronizer campusCourseSynchronizer;
     private final DB dbInstance;
-    private final OverallSynchronizeStatistic overallSynchronizeStatistic;
+    private final BatchJobAndCampusCourseSynchronizationStatisticDao batchJobAndCampusCourseSynchronizationStatisticDao;
+
+    private final CampusCourseSynchronizationStatistic campusCourseSynchronizationStatistic = new CampusCourseSynchronizationStatistic();
 
     @Autowired
-    public CampusCourseSynchronizationWriter(CampusCourseSynchronizer campusCourseSynchronizer, DB dbInstance, OverallSynchronizeStatistic synchronizeStatistic) {
+    public CampusCourseSynchronizationWriter(CampusCourseSynchronizer campusCourseSynchronizer, DB dbInstance, BatchJobAndCampusCourseSynchronizationStatisticDao batchJobAndCampusCourseSynchronizationStatisticDao) {
         this.campusCourseSynchronizer = campusCourseSynchronizer;
         this.dbInstance = dbInstance;
-		this.overallSynchronizeStatistic = synchronizeStatistic;
+		this.batchJobAndCampusCourseSynchronizationStatisticDao = batchJobAndCampusCourseSynchronizationStatisticDao;
 	}
 
     @PreDestroy
     public void destroy() {
-        LOG.info("synchronizeAllSapCourses overallSynchronizeStatistic=" + overallSynchronizeStatistic.calculateOverallStatistic());
+        LOG.info("Campus course synchronization statistic: " + campusCourseSynchronizationStatistic.toString());
+		// Update batch job and campus course synchronization statistic database entry
+		BatchJobAndCampusCourseSynchronizationStatistic batchJobAndCampusCourseSynchronizationStatistic = batchJobAndCampusCourseSynchronizationStatisticDao.getLastCreatedBatchJobAndCampusCourseSynchronizationStatistic();
+		batchJobAndCampusCourseSynchronizationStatistic.setCampusCourseSynchronizationStatistic(campusCourseSynchronizationStatistic);
+		dbInstance.commitAndCloseSession();
     }
 
     /**
@@ -70,29 +78,32 @@ public class CampusCourseSynchronizationWriter implements ItemWriter<CampusCours
      *
      */
     public void write(List<? extends CampusCourseTO> campusCourseTOs) throws Exception {
-        for (CampusCourseTO campusCourseTO : campusCourseTOs) {
-            try {
-                SynchronizedGroupStatistic courseSynchronizeStatistic = campusCourseSynchronizer.synchronizeOlatCampusCourse(campusCourseTO);
-                overallSynchronizeStatistic.add(courseSynchronizeStatistic);
-                dbInstance.commitAndCloseSession();
-            } catch (Throwable t) {
-                dbInstance.rollbackAndCloseSession();
-                // In the case of an exception, Spring Batch calls this method several times:
-                // First for the sapCourses according to commit-interval in campusBatchJobContext.xml, and then (after rollbacking)
-                // for each entry of the original sapCourses separately enabling commits containing only one entry.
-                // To avoid duplicated warnings we only log a warning in the latter case.
-                String msg = "Could not synchronize campus course '" + campusCourseTO.getTitleToBeDisplayed() + "': " + t.getMessage();
-                if (campusCourseTOs.size() == 1) {
-                    LOG.error(msg);
-                } else {
-                    LOG.debug(msg);
-                }
-                throw t;
+        try {
+            List<CampusCourseSynchronizationResult> campusCourseSynchronizationResults = new ArrayList<>();
+            for (CampusCourseTO campusCourseTO : campusCourseTOs) {
+                CampusCourseSynchronizationResult campusCourseSynchronizationResult = campusCourseSynchronizer.synchronizeOlatCampusCourse(campusCourseTO);
+                campusCourseSynchronizationResults.add(campusCourseSynchronizationResult);
             }
+            dbInstance.commitAndCloseSession();
+            // Update campus course synchronization statistic AFTER commit
+			campusCourseSynchronizationStatistic.addCampusCourseSynchronizationResults(campusCourseSynchronizationResults);
+        } catch (Throwable t) {
+            dbInstance.rollbackAndCloseSession();
+            // In the case of an exception, Spring Batch calls this method several times:
+            // First for the sapCourses according to commit-interval in campusBatchJobContext.xml, and then (after rollbacking)
+            // for each entry of the original sapCourses separately enabling commits containing only one entry.
+            // To avoid duplicated warnings we only log a warning in the latter case.
+            if (campusCourseTOs.size() == 1) {
+                LOG.error(t.getMessage());
+            } else {
+                String msg = "Could not synchronize campus course '" + campusCourseTOs.get(0).getTitleToBeDisplayed() + "': " + t.getMessage();
+                LOG.debug(msg);
+            }
+            throw t;
         }
     }
 
-	OverallSynchronizeStatistic getOverallSynchronizeStatistic() {
-		return overallSynchronizeStatistic;
+	CampusCourseSynchronizationStatistic getCampusCourseSynchronizationStatistic() {
+		return campusCourseSynchronizationStatistic;
 	}
 }

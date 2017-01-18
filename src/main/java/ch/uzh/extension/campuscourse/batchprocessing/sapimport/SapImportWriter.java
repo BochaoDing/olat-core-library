@@ -36,14 +36,14 @@ import java.util.List;
  * 
  * @author aabouc
  */
-public class CampusWriter<T> implements ItemWriter<T> {
+public class SapImportWriter<T> implements ItemWriter<T> {
 
-    private static final OLog LOG = Tracing.createLoggerFor(CampusWriter.class);
+    private static final OLog LOG = Tracing.createLoggerFor(SapImportWriter.class);
 
     private final DB dbInstance;
     private final CampusDao<T> campuskursDao;
 
-    CampusWriter(DB dbInstance, CampusDao<T> campuskursDao) {
+    SapImportWriter(DB dbInstance, CampusDao<T> campuskursDao) {
         this.dbInstance = dbInstance;
         this.campuskursDao = campuskursDao;
     }

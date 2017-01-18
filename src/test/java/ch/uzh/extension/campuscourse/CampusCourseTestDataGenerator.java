@@ -1,10 +1,9 @@
 package ch.uzh.extension.campuscourse;
 
-import ch.uzh.extension.campuscourse.data.entity.ImportStatistic;
-import ch.uzh.extension.campuscourse.data.entity.Lecturer;
-import ch.uzh.extension.campuscourse.data.entity.Org;
-import ch.uzh.extension.campuscourse.data.entity.Student;
+import ch.uzh.extension.campuscourse.batchprocessing.CampusBatchStepName;
+import ch.uzh.extension.campuscourse.data.entity.*;
 import ch.uzh.extension.campuscourse.model.*;
+import org.springframework.batch.core.BatchStatus;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
@@ -314,37 +313,102 @@ public class CampusCourseTestDataGenerator {
 		return orgs;
 	}
 
-	public List<ImportStatistic> createImportStatistics() {
-		List<ImportStatistic> importStatistics = new ArrayList<>();
+	public List<BatchJobAndSapImportStatistic> createBatchJobAndSapImportStatistics() {
+		List<BatchJobAndSapImportStatistic> batchJobAndSapImportStatistics = new ArrayList<>();
+
 		Calendar startTime1 = new GregorianCalendar(2099, Calendar.OCTOBER, 10);
 		startTime1.set(Calendar.HOUR_OF_DAY, 10);
 		startTime1.set(Calendar.MINUTE, 10);
 		Calendar endTime1 = new GregorianCalendar(2099, Calendar.OCTOBER, 10);
 		endTime1.set(Calendar.HOUR_OF_DAY, 10);
 		endTime1.set(Calendar.MINUTE, 12);
-		importStatistics.add(new ImportStatistic(10L, "import_controlFile", "COMPLETED", startTime1.getTime(), endTime1.getTime(), 8, 8, 0, 0, 0, 0, 0));
+		batchJobAndSapImportStatistics.add(new BatchJobAndSapImportStatistic(CampusBatchStepName.IMPORT_CONTROL_FILE, BatchStatus.COMPLETED, startTime1.getTime(), endTime1.getTime(), 8, 8, 0, 0, 0, 0, 0));
+
 		Calendar startTime2 = new GregorianCalendar(2099, Calendar.OCTOBER, 11);
 		startTime2.set(Calendar.HOUR_OF_DAY, 10);
 		startTime2.set(Calendar.MINUTE, 10);
 		Calendar endTime2 = new GregorianCalendar(2099, Calendar.OCTOBER, 11);
 		endTime2.set(Calendar.HOUR_OF_DAY, 10);
 		endTime2.set(Calendar.MINUTE, 12);
-		importStatistics.add(new ImportStatistic(20L, "import_controlFile", "COMPLETED", startTime2.getTime(), endTime2.getTime(), 8, 8, 0, 0, 0, 0, 0));
-		Calendar startTime3 = new GregorianCalendar(2099, Calendar.OCTOBER, 12);
+		batchJobAndSapImportStatistics.add(new BatchJobAndSapImportStatistic(CampusBatchStepName.IMPORT_CONTROL_FILE, BatchStatus.COMPLETED, startTime2.getTime(), endTime2.getTime(), 8, 8, 0, 0, 0, 0, 0));
+
+		Calendar startTime3 = new GregorianCalendar(2099, Calendar.OCTOBER, 11);
+		startTime3.set(Calendar.HOUR_OF_DAY, 10);
+		startTime3.set(Calendar.MINUTE, 13);
+		Calendar endTime3 = new GregorianCalendar(2099, Calendar.OCTOBER, 11);
+		endTime3.set(Calendar.HOUR_OF_DAY, 10);
+		endTime3.set(Calendar.MINUTE, 15);
+		batchJobAndSapImportStatistics.add(new BatchJobAndSapImportStatistic(CampusBatchStepName.IMPORT_COURSES, BatchStatus.COMPLETED, startTime3.getTime(), endTime3.getTime(), 8, 7, 0, 1, 0, 0, 0));
+
+		Calendar startTime4 = new GregorianCalendar(2099, Calendar.OCTOBER, 12);
+		startTime4.set(Calendar.HOUR_OF_DAY, 10);
+		startTime4.set(Calendar.MINUTE, 10);
+		Calendar endTime4 = new GregorianCalendar(2099, Calendar.OCTOBER, 12);
+		endTime4.set(Calendar.HOUR_OF_DAY, 10);
+		endTime4.set(Calendar.MINUTE, 12);
+		batchJobAndSapImportStatistics.add(new BatchJobAndSapImportStatistic(CampusBatchStepName.IMPORT_CONTROL_FILE, BatchStatus.FAILED, startTime4.getTime(), endTime4.getTime(), 8, 7, 0, 1, 0, 0, 0));
+
+		return batchJobAndSapImportStatistics;
+	}
+
+	public List<BatchJobAndUserMappingStatistic> createBatchJobAndUserMappingStatistics() {
+		List<BatchJobAndUserMappingStatistic> batchJobAndUserMappingStatistics = new ArrayList<>();
+
+		Calendar startTime1 = new GregorianCalendar(2099, Calendar.NOVEMBER, 10);
+		startTime1.set(Calendar.HOUR_OF_DAY, 10);
+		startTime1.set(Calendar.MINUTE, 10);
+		Calendar endTime1 = new GregorianCalendar(2099, Calendar.NOVEMBER, 10);
+		endTime1.set(Calendar.HOUR_OF_DAY, 10);
+		endTime1.set(Calendar.MINUTE, 12);
+		batchJobAndUserMappingStatistics.add(new BatchJobAndUserMappingStatistic(CampusBatchStepName.LECTURER_MAPPING, BatchStatus.COMPLETED, startTime1.getTime(), endTime1.getTime(), 30, 30, 0, 0, 0, 0, 0, 15, 2, 0, 3, 1, 3, 6));
+
+		Calendar startTime2 = new GregorianCalendar(2099, Calendar.NOVEMBER, 10);
+		startTime2.set(Calendar.HOUR_OF_DAY, 10);
+		startTime2.set(Calendar.MINUTE, 11);
+		Calendar endTime2 = new GregorianCalendar(2099, Calendar.NOVEMBER, 10);
+		endTime2.set(Calendar.HOUR_OF_DAY, 10);
+		endTime2.set(Calendar.MINUTE, 13);
+		batchJobAndUserMappingStatistics.add(new BatchJobAndUserMappingStatistic(CampusBatchStepName.STUDENT_MAPPING, BatchStatus.COMPLETED, startTime2.getTime(), endTime2.getTime(), 30, 30, 0, 0, 0, 0, 0, 15, 2, 0, 3, 1, 3, 6));
+
+		Calendar startTime3 = new GregorianCalendar(2099, Calendar.NOVEMBER, 11);
 		startTime3.set(Calendar.HOUR_OF_DAY, 10);
 		startTime3.set(Calendar.MINUTE, 10);
-		Calendar endTime3 = new GregorianCalendar(2099, Calendar.OCTOBER, 12);
+		Calendar endTime3 = new GregorianCalendar(2099, Calendar.NOVEMBER, 11);
 		endTime3.set(Calendar.HOUR_OF_DAY, 10);
 		endTime3.set(Calendar.MINUTE, 12);
-		importStatistics.add(new ImportStatistic(30L, "import_controlFile", "FAILED", startTime3.getTime(), endTime3.getTime(), 8, 7, 0, 1, 0, 0, 0));
-		Calendar startTime4 = new GregorianCalendar(2099, Calendar.OCTOBER, 11);
+		batchJobAndUserMappingStatistics.add(new BatchJobAndUserMappingStatistic(CampusBatchStepName.LECTURER_MAPPING, BatchStatus.UNKNOWN, startTime3.getTime(), endTime3.getTime(), 30, 30, 0, 0, 0, 0, 0, 15, 2, 0, 3, 1, 3, 6));
+
+		Calendar startTime4 = new GregorianCalendar(2099, Calendar.NOVEMBER, 11);
 		startTime4.set(Calendar.HOUR_OF_DAY, 10);
-		startTime4.set(Calendar.MINUTE, 13);
-		Calendar endTime4 = new GregorianCalendar(2099, Calendar.OCTOBER, 11);
+		startTime4.set(Calendar.MINUTE, 11);
+		Calendar endTime4 = new GregorianCalendar(2099, Calendar.NOVEMBER, 11);
 		endTime4.set(Calendar.HOUR_OF_DAY, 10);
-		endTime4.set(Calendar.MINUTE, 15);
-		importStatistics.add(new ImportStatistic(40L, "import_courses", "COMPLETED", startTime4.getTime(), endTime4.getTime(), 8, 7, 0, 1, 0, 0, 0));
-		return importStatistics;
+		endTime4.set(Calendar.MINUTE, 13);
+		batchJobAndUserMappingStatistics.add(new BatchJobAndUserMappingStatistic(CampusBatchStepName.STUDENT_MAPPING, BatchStatus.UNKNOWN, startTime4.getTime(), endTime4.getTime(), 30, 30, 0, 0, 0, 0, 0, 15, 2, 0, 3, 1, 3, 6));
+
+		return batchJobAndUserMappingStatistics;
+	}
+
+	public List<BatchJobAndCampusCourseSynchronizationStatistic> createBatchJobAndCampusCourseSynchronizationStatistics() {
+		List<BatchJobAndCampusCourseSynchronizationStatistic> batchJobAndCampusCourseSynchronizationStatistics = new ArrayList<>();
+
+		Calendar startTime1 = new GregorianCalendar(2099, Calendar.DECEMBER, 10);
+		startTime1.set(Calendar.HOUR_OF_DAY, 10);
+		startTime1.set(Calendar.MINUTE, 10);
+		Calendar endTime1 = new GregorianCalendar(2099, Calendar.DECEMBER, 10);
+		endTime1.set(Calendar.HOUR_OF_DAY, 10);
+		endTime1.set(Calendar.MINUTE, 12);
+		batchJobAndCampusCourseSynchronizationStatistics.add(new BatchJobAndCampusCourseSynchronizationStatistic(CampusBatchStepName.CAMPUS_COURSE_SYNCHRONIZATION, BatchStatus.COMPLETED, startTime1.getTime(), endTime1.getTime(), 30, 30, 0, 0, 0, 0, 0, 5, 0, 53, 23));
+
+		Calendar startTime2 = new GregorianCalendar(2099, Calendar.DECEMBER, 11);
+		startTime2.set(Calendar.HOUR_OF_DAY, 10);
+		startTime2.set(Calendar.MINUTE, 10);
+		Calendar endTime2 = new GregorianCalendar(2099, Calendar.DECEMBER, 11);
+		endTime2.set(Calendar.HOUR_OF_DAY, 10);
+		endTime2.set(Calendar.MINUTE, 12);
+		batchJobAndCampusCourseSynchronizationStatistics.add(new BatchJobAndCampusCourseSynchronizationStatistic(CampusBatchStepName.CAMPUS_COURSE_SYNCHRONIZATION, BatchStatus.UNKNOWN, startTime2.getTime(), endTime2.getTime(), 30, 30, 0, 0, 0, 0, 0, 5, 0, 53, 23));
+
+		return batchJobAndCampusCourseSynchronizationStatistics;
 	}
 
 }
