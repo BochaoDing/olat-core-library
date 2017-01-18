@@ -717,6 +717,10 @@ public class FileUtils {
 		}		
 	}
 
+	public static void saveToDir(InputStream inputStream, File directory, String newFileName) {
+		save(inputStream, new File(directory, newFileName));
+	}
+
 	public static String load(Resource source, String encoding) {
     		try {
     			return load(source.getInputStream(), encoding);
