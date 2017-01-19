@@ -499,6 +499,14 @@
 						</includes>
 						<filtering>false</filtering>
 					</resource>
+					<resource>
+						<directory>src/main/java/org/olat/ims/cp/_resources</directory>
+						<targetPath>${basedir}/target/classes/META-INF/resources/org/olat/ims/cp/_resources</targetPath>
+						<includes>
+							<include>**/*</include>
+						</includes>
+						<filtering>false</filtering>
+					</resource>
 				</resources>
 				<plugins>
 					<plugin>
