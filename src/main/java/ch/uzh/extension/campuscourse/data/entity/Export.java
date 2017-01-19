@@ -22,6 +22,8 @@ import java.util.Date;
 @Scope("prototype")
 public class Export {
 
+    public static final int SAP_IMPORT_FILES_TO_BE_PROCESSED = 7;
+
     @Id
     @GeneratedValue(generator = "system-uuid")
     @GenericGenerator(name = "system-uuid", strategy = "hilo")

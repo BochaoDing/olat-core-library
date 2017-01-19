@@ -87,8 +87,8 @@ public class CampusCourseConfiguration {
     @Value("${campus.entities.sublistMaxSize}")
     private int entitiesSublistMaxSize;
 
-    @Value("${campus.import.mustCompletedImportedFiles}")
-    private int mustCompletedImportedFiles;
+    @Value("${campus.import.numberOfSapImportFiles}")
+    private int numberOfSapImportFiles;
 
     @Value("${db.hibernate.hikari.leakDetectionThreshold}")
     private int connectionPoolTimeout;
@@ -219,8 +219,8 @@ public class CampusCourseConfiguration {
         return entitiesSublistMaxSize;
     }
 
-    public int getMustCompletedImportedFiles() {
-        return mustCompletedImportedFiles;
+    public int getNumberOfSapImportFiles() {
+        return numberOfSapImportFiles;
     }
 
     public int getConnectionPoolTimeout() {

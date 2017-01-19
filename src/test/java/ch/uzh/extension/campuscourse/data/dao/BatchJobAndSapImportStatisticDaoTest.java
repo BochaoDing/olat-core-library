@@ -11,10 +11,12 @@ import org.springframework.batch.core.BatchStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.GregorianCalendar;
+import java.util.List;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 /**
  * @author Martin Schraner
@@ -34,37 +36,14 @@ public class BatchJobAndSapImportStatisticDaoTest extends CampusCourseTestCase {
     }
 
     @Test
-    public void testGetLastCompletedSapImportStatistic() {
-       	List<BatchJobAndSapImportStatistic> lastCompletedBatchJobAndSapImportStatistic = batchJobAndSapImportStatisticDao.getLastCompletedSapImportStatistic();
-       	assertEquals(2, lastCompletedBatchJobAndSapImportStatistic.size());
-
-		// Check step name
-       	List<CampusBatchStepName> stepNamesOfLastCompletedSapImportStatistic = new ArrayList<>();
-       	for (BatchJobAndSapImportStatistic batchJobAndSapImportStatistic : lastCompletedBatchJobAndSapImportStatistic) {
-       		stepNamesOfLastCompletedSapImportStatistic.add(batchJobAndSapImportStatistic.getCampusBatchStepName());
-	   	}
-	   	assertTrue(stepNamesOfLastCompletedSapImportStatistic.contains(CampusBatchStepName.IMPORT_CONTROL_FILE));
-		assertTrue(stepNamesOfLastCompletedSapImportStatistic.contains(CampusBatchStepName.IMPORT_COURSES));
-
-		// Check start time
-		List<Date> startTimesOfLastCompletedSapImportStatistic = new ArrayList<>();
-		for (BatchJobAndSapImportStatistic batchJobAndSapImportStatistic : lastCompletedBatchJobAndSapImportStatistic) {
-			startTimesOfLastCompletedSapImportStatistic.add(batchJobAndSapImportStatistic.getStartTime());
-		}
-		Calendar startTime1 = new GregorianCalendar(2099, Calendar.OCTOBER, 11);
-		startTime1.set(Calendar.HOUR_OF_DAY, 10);
-		startTime1.set(Calendar.MINUTE, 10);
-		Calendar startTime2 = new GregorianCalendar(2099, Calendar.OCTOBER, 11);
-		startTime2.set(Calendar.HOUR_OF_DAY, 10);
-		startTime2.set(Calendar.MINUTE, 13);
-	   	assertTrue(startTimesOfLastCompletedSapImportStatistic.contains(startTime1.getTime()));
-		assertTrue(startTimesOfLastCompletedSapImportStatistic.contains(startTime2.getTime()));
+    public void testGetNumberOfSuccessfullyProcessedImportFilesOfLastSapImport() {
+       	assertEquals(1, batchJobAndSapImportStatisticDao.getNumberOfSuccessfullyProcessedImportFilesOfLastSapImport());
     }
 
     @Test
-	public void testGetSapImportStatisticOfToday() {
+	public void testGetNumberOfSuccessfullyProcessedImportFilesOfSapImportOfToday() {
 
-		int sizeBeforeInsert = batchJobAndSapImportStatisticDao.getSapImportStatisticOfToday().size();
+		int sizeBeforeInsert = batchJobAndSapImportStatisticDao.getNumberOfSuccessfullyProcessedImportFilesOfSapImportOfToday();
 
 		// Create and insert import statistic of today
 		List<BatchJobAndSapImportStatistic> batchJobAndSapImportStatisticsOfToday = new ArrayList<>();
@@ -85,27 +64,18 @@ public class BatchJobAndSapImportStatisticDaoTest extends CampusCourseTestCase {
 		endTime2.set(Calendar.MINUTE, 15);
 		batchJobAndSapImportStatisticsOfToday.add(new BatchJobAndSapImportStatistic(CampusBatchStepName.IMPORT_STUDENTS, BatchStatus.COMPLETED, startTime2.getTime(), endTime2.getTime(), 8, 7, 0, 1, 0, 0, 0));
 
+		Calendar startTime3 = new GregorianCalendar();
+		startTime2.set(Calendar.HOUR_OF_DAY, 4);
+		startTime2.set(Calendar.MINUTE, 15);
+		Calendar endTime3 = new GregorianCalendar();
+		endTime2.set(Calendar.HOUR_OF_DAY, 4);
+		endTime2.set(Calendar.MINUTE, 18);
+		batchJobAndSapImportStatisticsOfToday.add(new BatchJobAndSapImportStatistic(CampusBatchStepName.IMPORT_STUDENT_COURSES, BatchStatus.COMPLETED, startTime3.getTime(), endTime3.getTime(), 8, 7, 0, 1, 0, 0, 0));
+
 		batchJobAndSapImportStatisticDao.save(batchJobAndSapImportStatisticsOfToday);
 		dbInstance.flush();
 
-		List<BatchJobAndSapImportStatistic> batchJobAndSapImportStatisticOfToday = batchJobAndSapImportStatisticDao.getSapImportStatisticOfToday();
-       	assertEquals(sizeBeforeInsert + 2, batchJobAndSapImportStatisticOfToday.size());
-
-       	// Check step id
-		List<CampusBatchStepName> stepNamesOfSapImportStatisticOfToday = new ArrayList<>();
-		for (BatchJobAndSapImportStatistic batchJobAndSapImportStatistic : batchJobAndSapImportStatisticOfToday) {
-			stepNamesOfSapImportStatisticOfToday.add(batchJobAndSapImportStatistic.getCampusBatchStepName());
-		}
-		assertTrue(stepNamesOfSapImportStatisticOfToday.contains(CampusBatchStepName.IMPORT_CONTROL_FILE));
-		assertTrue(stepNamesOfSapImportStatisticOfToday.contains(CampusBatchStepName.IMPORT_STUDENTS));
-
-		// Check start time
-		List<Date> startTimesOfSapImportStatisticOfToday = new ArrayList<>();
-		for (BatchJobAndSapImportStatistic batchJobAndSapImportStatistic : batchJobAndSapImportStatisticOfToday) {
-			startTimesOfSapImportStatisticOfToday.add(batchJobAndSapImportStatistic.getStartTime());
-		}
-		assertTrue(startTimesOfSapImportStatisticOfToday.contains(startTime1.getTime()));
-		assertTrue(startTimesOfSapImportStatisticOfToday.contains(startTime2.getTime()));
+       	assertEquals(sizeBeforeInsert + 2, batchJobAndSapImportStatisticDao.getNumberOfSuccessfullyProcessedImportFilesOfSapImportOfToday());
 	}
 
     @Test

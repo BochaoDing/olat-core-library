@@ -12,8 +12,8 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
-import static ch.uzh.extension.campuscourse.data.entity.BatchJobAndSapImportStatistic.GET_SAP_IMPORT_STATISTICS_OF_TODAY;
-import static ch.uzh.extension.campuscourse.data.entity.BatchJobAndSapImportStatistic.GET_LAST_COMPLETED_SAP_IMPORT_STATISTIC;
+import static ch.uzh.extension.campuscourse.data.entity.BatchJobAndSapImportStatistic.GET_NUMBER_OF_SUCCESSFULLY_PROCESSED_IMPORT_FILES_OF_SAP_IMPORT_OF_TODAY;
+import static ch.uzh.extension.campuscourse.data.entity.BatchJobAndSapImportStatistic.GET_NUMBER_OF_SUCCESSFULLY_PROCESSED_IMPORT_FILES_OF_LAST_SAP_IMPORT;
 
 @Repository
 public class BatchJobAndSapImportStatisticDao {
@@ -33,28 +33,29 @@ public class BatchJobAndSapImportStatisticDao {
         batchJobAndSapImportStatistics.forEach(this::save);
     }
 
-    public List<BatchJobAndSapImportStatistic> getLastCompletedSapImportStatistic() {
-        return dbInstance.getCurrentEntityManager()
-                .createNamedQuery(GET_LAST_COMPLETED_SAP_IMPORT_STATISTIC, BatchJobAndSapImportStatistic.class)
+    public int getNumberOfSuccessfullyProcessedImportFilesOfLastSapImport() {
+        return (int) (long) dbInstance.getCurrentEntityManager()
+                .createNamedQuery(GET_NUMBER_OF_SUCCESSFULLY_PROCESSED_IMPORT_FILES_OF_LAST_SAP_IMPORT, Long.class)
                 .setParameter("status", BatchStatus.COMPLETED)
-                .setParameter("campusBatchStepName", CampusBatchStepName.IMPORT_CONTROL_FILE)
-                .getResultList();
+                .setParameter("importControlFile", CampusBatchStepName.IMPORT_CONTROL_FILE)
+                .getSingleResult();
     }
 
-    public List<BatchJobAndSapImportStatistic> getSapImportStatisticOfToday() {
+    public int getNumberOfSuccessfullyProcessedImportFilesOfSapImportOfToday() {
         Date midnight = DateUtils.truncate(new Date(), Calendar.DATE);
-        return dbInstance.getCurrentEntityManager()
-                .createNamedQuery(GET_SAP_IMPORT_STATISTICS_OF_TODAY, BatchJobAndSapImportStatistic.class)
+        return (int) (long) dbInstance.getCurrentEntityManager()
+                .createNamedQuery(GET_NUMBER_OF_SUCCESSFULLY_PROCESSED_IMPORT_FILES_OF_SAP_IMPORT_OF_TODAY, Long.class)
                 .setParameter("status", BatchStatus.COMPLETED)
+                .setParameter("importControlFile", CampusBatchStepName.IMPORT_CONTROL_FILE)
                 .setParameter("midnight", midnight)
-                .getResultList();
+                .getSingleResult();
     }
 
     Date getStartTimeOfMostRecentCompletedCourseImport() {
         try {
             return dbInstance.getCurrentEntityManager()
                     .createNamedQuery(BatchJobAndSapImportStatistic.GET_START_TIME_OF_MOST_RECENT_COMPLETED_COURSE_IMPORT, Date.class)
-					.setParameter("campusBatchStepName", CampusBatchStepName.IMPORT_COURSES)
+					.setParameter("importCourses", CampusBatchStepName.IMPORT_COURSES)
 					.setParameter("status", BatchStatus.COMPLETED)
                     .getSingleResult();
         } catch (Exception e) {

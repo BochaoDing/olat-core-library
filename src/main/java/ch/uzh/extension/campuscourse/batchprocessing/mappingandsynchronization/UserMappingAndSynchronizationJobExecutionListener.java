@@ -1,7 +1,6 @@
 package ch.uzh.extension.campuscourse.batchprocessing.mappingandsynchronization;
 
 import ch.uzh.extension.campuscourse.data.dao.BatchJobAndSapImportStatisticDao;
-import ch.uzh.extension.campuscourse.data.entity.BatchJobAndSapImportStatistic;
 import org.olat.core.commons.persistence.DB;
 import org.olat.core.logging.OLog;
 import org.olat.core.logging.Tracing;
@@ -9,8 +8,6 @@ import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.JobExecutionListener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
-import java.util.List;
 
 /**
  * OLAT - Online Learning and Training<br>
@@ -58,10 +55,9 @@ public class UserMappingAndSynchronizationJobExecutionListener implements JobExe
     @Override
     public void beforeJob(JobExecution jobExecution) {
         LOG.info("beforeJob " + jobExecution.getJobInstance().getJobName());
-        // Check if "importJob" has ran today
-        List<BatchJobAndSapImportStatistic> batchJobAndSapImportStatisticOfToday = batchJobAndSapImportStatisticDao.getSapImportStatisticOfToday();
-        if (batchJobAndSapImportStatisticOfToday.size() == 0) {
-            LOG.warn("Import procedure did not run today! Mapping does not make so much sense!");
+        // Check if sap import has ran today
+        if (batchJobAndSapImportStatisticDao.getNumberOfSuccessfullyProcessedImportFilesOfSapImportOfToday() == 0) {
+            LOG.warn("Sap import has not run today!");
         }
         dbInstance.closeSession();
     }

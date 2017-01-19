@@ -2406,9 +2406,10 @@ alter table ck_course_org add unique (fk_course, fk_org);
 alter table ck_delegation add unique (fk_delegator_identity, fk_delegatee_identity);
 
 create index ck_xx_parent_course_id_idx on ck_course (fk_parent_course);
+create index ck_xx_type_idx on ck_batch_job_statistic(type);
 create index ck_xx_step_name_idx on ck_batch_job_statistic(step_name);
+create index ck_xx_status_idx on ck_batch_job_statistic(status);
 create index ck_xx_start_time_idx on ck_batch_job_statistic(start_time);
-create index ck_xx_end_time_idx on ck_batch_job_statistic(end_time);
 
 create or replace view ck_not_mapped_students as 
 select * from ck_student s where s.id in

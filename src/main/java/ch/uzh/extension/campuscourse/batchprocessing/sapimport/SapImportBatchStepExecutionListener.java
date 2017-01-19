@@ -70,7 +70,7 @@ public class SapImportBatchStepExecutionListener extends CampusBatchStepExecutio
 	public ExitStatus afterStep(StepExecution stepExecution) {
 		super.afterStep(stepExecution);
 		if (campusBatchStepName == CampusBatchStepName.IMPORT_CONTROL_FILE) {
-			if (stepExecution.getWriteCount() != campusCourseConfiguration.getMustCompletedImportedFiles()) {
+			if (stepExecution.getWriteCount() != campusCourseConfiguration.getNumberOfSapImportFiles()) {
 				return ExitStatus.FAILED;
 			}
 		}

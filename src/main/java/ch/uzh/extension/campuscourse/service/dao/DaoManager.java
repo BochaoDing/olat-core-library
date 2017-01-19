@@ -19,6 +19,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import static ch.uzh.extension.campuscourse.data.entity.Export.SAP_IMPORT_FILES_TO_BE_PROCESSED;
+
 /**
  * OLAT - Online Learning and Training<br>
  * http://www.olat.org
@@ -489,8 +491,8 @@ public class DaoManager {
         delegationDao.deleteDelegationById(delegator.getKey(), delegatee.getKey());
     }
 
-    public boolean checkImportedData() {
-        return (statisticDao.getLastCompletedSapImportStatistic().size() == campusCourseConfiguration.getMustCompletedImportedFiles());
+    public boolean wasLastSapImportSuccessful() {
+        return statisticDao.getNumberOfSuccessfullyProcessedImportFilesOfLastSapImport() == SAP_IMPORT_FILES_TO_BE_PROCESSED;
     }
 
     public Semester getSemesterOfMostRecentCourseImport() {
