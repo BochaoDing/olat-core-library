@@ -10,10 +10,6 @@ package ch.uzh.extension.campuscourse.batchprocessing;
 public enum CampusBatchStepName {
 
     /**
-     * This step describes the import of the control file which gathers all the exported csv files.
-     */
-    IMPORT_CONTROL_FILE("importControlFile"),
-    /**
      * This step describes the import of the data of SAP courses (LV).
      */
     IMPORT_COURSES("importCourses"),
@@ -46,15 +42,15 @@ public enum CampusBatchStepName {
      */
     IMPORT_STUDENT_COURSES("importStudentCourses"),
     /**
-     * This step describes the synchronization of courses and participants.
+     * This step describes the synchronization of courses and participants
      */
     CAMPUS_COURSE_SYNCHRONIZATION("campusCourseSynchronization"),
     /**
-     * 
+     * This step describes the user mapping of the students imported by SAP
      */
     STUDENT_MAPPING("studentMapping"),
     /**
-     * 
+     * This step describes the user mapping of the lecturers imported by SAP
      */
     LECTURER_MAPPING("lecturerMapping");
 

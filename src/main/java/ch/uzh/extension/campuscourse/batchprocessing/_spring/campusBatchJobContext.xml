@@ -15,14 +15,6 @@
             <batch:listener ref="sapImportJobExecutionListener" />
 		</batch:listeners>
 
-		<batch:step id="importControlFile" parent="sapImportStep" >
-			<batch:tasklet>
-				<batch:chunk reader="exportReader" processor="exportProcessor"  writer="exportWriter" skip-limit="8" retry-limit="5"/>
-			</batch:tasklet>
-			<batch:next on="COMPLETED" to="importOrgs"/>
-			<batch:fail on="FAILED" exit-code="EARLY TERMINATION"/>
-		</batch:step>
-
 		<batch:step id="importOrgs" parent="sapImportStep">
 			<batch:tasklet>
 				<batch:chunk reader="orgReader" processor="orgProcessor" writer="orgWriter" commit-interval="20" skip-limit="100" retry-limit="5"/>

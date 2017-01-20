@@ -56,8 +56,8 @@ public class UserMappingAndSynchronizationJobExecutionListener implements JobExe
     public void beforeJob(JobExecution jobExecution) {
         LOG.info("beforeJob " + jobExecution.getJobInstance().getJobName());
         // Check if sap import has ran today
-        if (batchJobAndSapImportStatisticDao.getNumberOfSuccessfullyProcessedImportFilesOfSapImportOfToday() == 0) {
-            LOG.warn("Sap import has not run today!");
+        if (batchJobAndSapImportStatisticDao.getNumberOfCompletedBatchStepsOfSapImportOfToday() == 0) {
+            LOG.warn("Sap import job has not run today!");
         }
         dbInstance.closeSession();
     }

@@ -1,15 +1,10 @@
 package ch.uzh.extension.campuscourse.service.dao;
 
 import ch.uzh.extension.campuscourse.common.CampusCourseConfiguration;
-import ch.uzh.extension.campuscourse.model.LecturerIdCourseId;
-import ch.uzh.extension.campuscourse.model.StudentIdCourseId;
-import ch.uzh.extension.campuscourse.model.SapUserType;
-import ch.uzh.extension.campuscourse.model.CampusCourseTO;
-import ch.uzh.extension.campuscourse.model.CampusCourseTOForUI;
-import ch.uzh.extension.campuscourse.model.CampusGroups;
-import ch.uzh.extension.campuscourse.util.ListUtil;
 import ch.uzh.extension.campuscourse.data.dao.*;
 import ch.uzh.extension.campuscourse.data.entity.*;
+import ch.uzh.extension.campuscourse.model.*;
+import ch.uzh.extension.campuscourse.util.ListUtil;
 import org.olat.core.id.Identity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
@@ -18,8 +13,6 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-
-import static ch.uzh.extension.campuscourse.data.entity.Export.SAP_IMPORT_FILES_TO_BE_PROCESSED;
 
 /**
  * OLAT - Online Learning and Training<br>
@@ -492,7 +485,7 @@ public class DaoManager {
     }
 
     public boolean wasLastSapImportSuccessful() {
-        return statisticDao.getNumberOfSuccessfullyProcessedImportFilesOfLastSapImport() == SAP_IMPORT_FILES_TO_BE_PROCESSED;
+        return statisticDao.getNumberOfCompletedBatchStepsOfLastSapImport() == campusCourseConfiguration.getNumberOfBatchStepsOfSapImportProcess();
     }
 
     public Semester getSemesterOfMostRecentCourseImport() {

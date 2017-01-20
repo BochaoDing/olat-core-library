@@ -36,14 +36,14 @@ public class BatchJobAndSapImportStatisticDaoTest extends CampusCourseTestCase {
     }
 
     @Test
-    public void testGetNumberOfSuccessfullyProcessedImportFilesOfLastSapImport() {
-       	assertEquals(1, batchJobAndSapImportStatisticDao.getNumberOfSuccessfullyProcessedImportFilesOfLastSapImport());
+    public void testGetNumberOfCompletedBatchStepsOfLastSapImport() {
+       	assertEquals(2, batchJobAndSapImportStatisticDao.getNumberOfCompletedBatchStepsOfLastSapImport());
     }
 
     @Test
-	public void testGetNumberOfSuccessfullyProcessedImportFilesOfSapImportOfToday() {
+	public void testGetNumberOfCompletedBatchStepsOfSapImportOfToday() {
 
-		int sizeBeforeInsert = batchJobAndSapImportStatisticDao.getNumberOfSuccessfullyProcessedImportFilesOfSapImportOfToday();
+		int sizeBeforeInsert = batchJobAndSapImportStatisticDao.getNumberOfCompletedBatchStepsOfSapImportOfToday();
 
 		// Create and insert import statistic of today
 		List<BatchJobAndSapImportStatistic> batchJobAndSapImportStatisticsOfToday = new ArrayList<>();
@@ -54,7 +54,10 @@ public class BatchJobAndSapImportStatisticDaoTest extends CampusCourseTestCase {
 		Calendar endTime1 = new GregorianCalendar();
 		endTime1.set(Calendar.HOUR_OF_DAY, 4);
 		endTime1.set(Calendar.MINUTE, 12);
-		batchJobAndSapImportStatisticsOfToday.add(new BatchJobAndSapImportStatistic(CampusBatchStepName.IMPORT_CONTROL_FILE, BatchStatus.COMPLETED, startTime1.getTime(), endTime1.getTime(), 8, 8, 0, 0, 0, 0, 0));
+		Calendar dateOfSync1 = new GregorianCalendar();
+		dateOfSync1.set(Calendar.HOUR_OF_DAY, 4);
+		dateOfSync1.set(Calendar.MINUTE, 30);
+		batchJobAndSapImportStatisticsOfToday.add(new BatchJobAndSapImportStatistic(CampusBatchStepName.IMPORT_ORGS, BatchStatus.COMPLETED, startTime1.getTime(), endTime1.getTime(), 8, 8, 0, 0, 0, 0, 0, dateOfSync1, false));
 
 		Calendar startTime2 = new GregorianCalendar();
 		startTime2.set(Calendar.HOUR_OF_DAY, 4);
@@ -62,7 +65,10 @@ public class BatchJobAndSapImportStatisticDaoTest extends CampusCourseTestCase {
 		Calendar endTime2 = new GregorianCalendar();
 		endTime2.set(Calendar.HOUR_OF_DAY, 4);
 		endTime2.set(Calendar.MINUTE, 15);
-		batchJobAndSapImportStatisticsOfToday.add(new BatchJobAndSapImportStatistic(CampusBatchStepName.IMPORT_STUDENTS, BatchStatus.COMPLETED, startTime2.getTime(), endTime2.getTime(), 8, 7, 0, 1, 0, 0, 0));
+		Calendar dateOfSync2 = new GregorianCalendar();
+		dateOfSync2.set(Calendar.HOUR_OF_DAY, 4);
+		dateOfSync2.set(Calendar.MINUTE, 30);
+		batchJobAndSapImportStatisticsOfToday.add(new BatchJobAndSapImportStatistic(CampusBatchStepName.IMPORT_STUDENTS, BatchStatus.COMPLETED, startTime2.getTime(), endTime2.getTime(), 8, 7, 0, 1, 0, 0, 0, dateOfSync2, false));
 
 		Calendar startTime3 = new GregorianCalendar();
 		startTime2.set(Calendar.HOUR_OF_DAY, 4);
@@ -70,12 +76,15 @@ public class BatchJobAndSapImportStatisticDaoTest extends CampusCourseTestCase {
 		Calendar endTime3 = new GregorianCalendar();
 		endTime2.set(Calendar.HOUR_OF_DAY, 4);
 		endTime2.set(Calendar.MINUTE, 18);
-		batchJobAndSapImportStatisticsOfToday.add(new BatchJobAndSapImportStatistic(CampusBatchStepName.IMPORT_STUDENT_COURSES, BatchStatus.COMPLETED, startTime3.getTime(), endTime3.getTime(), 8, 7, 0, 1, 0, 0, 0));
+		Calendar dateOfSync3 = new GregorianCalendar();
+		dateOfSync3.set(Calendar.HOUR_OF_DAY, 4);
+		dateOfSync3.set(Calendar.MINUTE, 30);
+		batchJobAndSapImportStatisticsOfToday.add(new BatchJobAndSapImportStatistic(CampusBatchStepName.IMPORT_STUDENT_COURSES, BatchStatus.COMPLETED, startTime3.getTime(), endTime3.getTime(), 8, 7, 0, 1, 0, 0, 0, dateOfSync3, false));
 
 		batchJobAndSapImportStatisticDao.save(batchJobAndSapImportStatisticsOfToday);
 		dbInstance.flush();
 
-       	assertEquals(sizeBeforeInsert + 2, batchJobAndSapImportStatisticDao.getNumberOfSuccessfullyProcessedImportFilesOfSapImportOfToday());
+       	assertEquals(sizeBeforeInsert + 3, batchJobAndSapImportStatisticDao.getNumberOfCompletedBatchStepsOfSapImportOfToday());
 	}
 
     @Test

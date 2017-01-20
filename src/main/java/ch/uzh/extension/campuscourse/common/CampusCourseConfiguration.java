@@ -11,6 +11,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import java.util.HashSet;
+import java.util.Set;
+
 /**
  * Simple campus-course configuration with Spring properties (olat.local.properties).
  * 
@@ -81,23 +84,62 @@ public class CampusCourseConfiguration {
     @Value("${campus.template.defaultLanguage}")
     private String defaultTemplateLanguage;
 
+    @Value("${campus.import.process.sap.resources}")
+    private String sapImportPath;
+
+	@Value("${campus.import.process.sap.controlFile.filename}")
+    private String sapImportControlFileFilename;
+
+	@Value("${campus.import.process.sap.orgs.filenameWithoutSuffix}")
+	private String sapImportOrgsFilenameWithoutSuffix;
+
+	@Value("${campus.import.process.sap.courses.filenameWithoutSuffix}")
+	private String sapImportCoursesFilenameWithoutSuffix;
+
+	@Value("${campus.import.process.sap.students.filenameWithoutSuffix}")
+	private String sapImportStudentsFilenameWithoutSuffix;
+
+	@Value("${campus.import.process.sap.lecturers.filenameWithoutSuffix}")
+	private String sapImportLecturersFilenameWithoutSuffix;
+
+	@Value("${campus.import.process.sap.studentCourses.filenameWithoutSuffix}")
+	private String sapImportStudentCoursesFilenameWithoutSuffix;
+
+	@Value("${campus.import.process.sap.lecturerCourses.filenameWithoutSuffix}")
+	private String sapImportLecturerCoursesFilenameWithoutSuffix;
+
+	@Value("${campus.import.process.sap.texts.filenameWithoutSuffix}")
+	private String sapImportTextsFilenameWithoutSuffix;
+
+	@Value("${campus.import.process.sap.events.filenameWithoutSuffix}")
+	private String sapImportEventsFilenameWithoutSuffix;
+
     @Value("${campus.import.process.sap.files.suffix}")
-    private String sapFilesSuffix;
+    private String sapImportFilesSuffix;
 
     @Value("${campus.entities.sublistMaxSize}")
     private int entitiesSublistMaxSize;
 
-    @Value("${campus.import.numberOfSapImportFiles}")
-    private int numberOfSapImportFiles;
-
     @Value("${db.hibernate.hikari.leakDetectionThreshold}")
     private int connectionPoolTimeout;
 
-    // @Value("${campus.start.autumn.semester}")
-    // private String startDateAutumnSemester;
-    //
-    // @Value("${campus.start.spring.semester}")
-    // private String startDateSpringSemester;
+	public Set<String> getSapFilesToBeImported() {
+		Set<String> requiredSapImportFiles = new HashSet<>();
+		requiredSapImportFiles.add(sapImportOrgsFilenameWithoutSuffix + sapImportFilesSuffix);
+		requiredSapImportFiles.add(sapImportCoursesFilenameWithoutSuffix + sapImportFilesSuffix);
+		requiredSapImportFiles.add(sapImportStudentsFilenameWithoutSuffix + sapImportFilesSuffix);
+		requiredSapImportFiles.add(sapImportLecturersFilenameWithoutSuffix + sapImportFilesSuffix);
+		requiredSapImportFiles.add(sapImportStudentCoursesFilenameWithoutSuffix + sapImportFilesSuffix);
+		requiredSapImportFiles.add(sapImportLecturerCoursesFilenameWithoutSuffix + sapImportFilesSuffix);
+		requiredSapImportFiles.add(sapImportTextsFilenameWithoutSuffix + sapImportFilesSuffix);
+		// DISABLED FOR NOW
+//		requiredSapImportFiles.add(sapImportEventsFilenameWithoutSuffix + sapImportFilesSuffix);
+		return requiredSapImportFiles;
+	}
+
+	public int getNumberOfBatchStepsOfSapImportProcess() {
+		return getSapFilesToBeImported().size();
+	}
 
     public String getSupportedTemplateLanguage(String language) {
         if (StringUtils.isBlank(language) || !StringUtils.contains(getSupportedTemplateLanguages(), language)) {
@@ -211,16 +253,52 @@ public class CampusCourseConfiguration {
         return defaultTemplateLanguage;
     }
 
-    public String getSapFilesSuffix() {
-        return sapFilesSuffix;
+	public String getSapImportPath() {
+		return sapImportPath;
+	}
+
+	public String getSapImportControlFileFilename() {
+		return sapImportControlFileFilename;
+	}
+
+	public String getSapImportOrgsFilenameWithoutSuffix() {
+		return sapImportOrgsFilenameWithoutSuffix;
+	}
+
+	public String getSapImportCoursesFilenameWithoutSuffix() {
+		return sapImportCoursesFilenameWithoutSuffix;
+	}
+
+	public String getSapImportStudentsFilenameWithoutSuffix() {
+		return sapImportStudentsFilenameWithoutSuffix;
+	}
+
+	public String getSapImportLecturersFilenameWithoutSuffix() {
+		return sapImportLecturersFilenameWithoutSuffix;
+	}
+
+	public String getSapImportStudentCoursesFilenameWithoutSuffix() {
+		return sapImportStudentCoursesFilenameWithoutSuffix;
+	}
+
+	public String getSapImportLecturerCoursesFilenameWithoutSuffix() {
+		return sapImportLecturerCoursesFilenameWithoutSuffix;
+	}
+
+	public String getSapImportTextsFilenameWithoutSuffix() {
+		return sapImportTextsFilenameWithoutSuffix;
+	}
+
+	public String getSapImportEventsFilenameWithoutSuffix() {
+		return sapImportEventsFilenameWithoutSuffix;
+	}
+
+	public String getSapImportFilesSuffix() {
+        return sapImportFilesSuffix;
     }
 
-    public int getEntitiesSublistMaxSize() {
+	public int getEntitiesSublistMaxSize() {
         return entitiesSublistMaxSize;
-    }
-
-    public int getNumberOfSapImportFiles() {
-        return numberOfSapImportFiles;
     }
 
     public int getConnectionPoolTimeout() {

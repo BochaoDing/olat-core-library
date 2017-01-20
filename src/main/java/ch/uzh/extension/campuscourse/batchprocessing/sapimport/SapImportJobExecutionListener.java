@@ -1,5 +1,6 @@
 package ch.uzh.extension.campuscourse.batchprocessing.sapimport;
 
+import ch.uzh.extension.campuscourse.common.CampusCourseConfiguration;
 import ch.uzh.extension.campuscourse.data.entity.Semester;
 import ch.uzh.extension.campuscourse.service.dao.DaoManager;
 import ch.uzh.extension.campuscourse.model.LecturerIdCourseId;
@@ -26,16 +27,24 @@ public class SapImportJobExecutionListener implements JobExecutionListener {
 
     private final DB dbInstance;
 	private final DaoManager daoManager;
+	private final CampusCourseConfiguration campusCourseConfiguration;
+	private final SapImportControlFileReader sapImportControlFileReader;
 
 	@Autowired
-	public SapImportJobExecutionListener(DB dbInstance, DaoManager daoManager) {
+	public SapImportJobExecutionListener(DB dbInstance, DaoManager daoManager, CampusCourseConfiguration campusCourseConfiguration, SapImportControlFileReader sapImportControlFileReader) {
 		this.dbInstance = dbInstance;
 		this.daoManager = daoManager;
+		this.campusCourseConfiguration = campusCourseConfiguration;
+		this.sapImportControlFileReader = sapImportControlFileReader;
 	}
 
 	@Override
 	public void beforeJob(JobExecution jobExecution) {
 		LOG.info("beforeJob " + jobExecution.getJobInstance().getJobName());
+		if (!sapImportControlFileReader.getFilenamesOfImportableSapImportFilesWithCorrectSuffixNotOlderThanOneDay().containsAll(campusCourseConfiguration.getSapFilesToBeImported())) {
+			LOG.error("SOME SAP IMPORT FILES ARE MISSING OR OLDER THAN ONE DAY. THE SAP IMPORT BATCH PROCESS WILL NOT BE EXECUTED!");
+			jobExecution.stop();
+		}
 	}
 
 	@Override
@@ -52,7 +61,7 @@ public class SapImportJobExecutionListener implements JobExecutionListener {
 
 		Semester semesterOfCurrentImportProcess = daoManager.getSemesterOfMostRecentCourseImport();
 		if (semesterOfCurrentImportProcess == null) {
-			LOG.warn("Current semester of import process could not be determined. Not updated data cannot be removed. Synchronization may not work properly!");
+			LOG.error("Current semester of import process could not be determined. Not updated data cannot be removed. Synchronization may not work properly!");
 			return;
 		}
 

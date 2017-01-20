@@ -1,9 +1,7 @@
 package ch.uzh.extension.campuscourse.batchprocessing.sapimport;
 
 import ch.uzh.extension.campuscourse.batchprocessing.BatchJobBlankLineRecordSeparatorPolicy;
-import ch.uzh.extension.campuscourse.data.dao.ExportDao;
 import ch.uzh.extension.campuscourse.data.dao.OrgDao;
-import ch.uzh.extension.campuscourse.data.entity.Export;
 import ch.uzh.extension.campuscourse.data.entity.Lecturer;
 import ch.uzh.extension.campuscourse.data.entity.Org;
 import ch.uzh.extension.campuscourse.data.entity.Student;
@@ -37,24 +35,6 @@ public class SapImportJobBeanFactory {
 
 	@Autowired
 	private OrgDao orgDao;
-
-	@Autowired
-	private ExportDao exportDao;
-
-	@Bean
-	@Scope("step")
-	public FlatFileItemReader<Export> exportReader(@Value("#{jobParameters['exportResource']}") String pathToInputFile) {
-		int[] includedColumns = new int[]{0, 1};
-		String[] attributeNamesOfTargetClass = new String []{"fileName", "exportDate"};
-		String dateFormat = "yyyy-MM-dd hh:mm:ss";
-		return createFlatFileItemReader(pathToInputFile, includedColumns, attributeNamesOfTargetClass, dateFormat, Export.class);
-	}
-
-	@Bean
-	@Scope("step")
-	public SapImportWriter<Export> exportWriter() {
-		return new SapImportWriter<>(dbInstance, exportDao);
-	}
 
 	@Bean
 	@Scope("step")

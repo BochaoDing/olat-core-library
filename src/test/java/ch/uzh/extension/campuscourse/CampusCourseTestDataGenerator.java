@@ -322,7 +322,10 @@ public class CampusCourseTestDataGenerator {
 		Calendar endTime1 = new GregorianCalendar(2099, Calendar.OCTOBER, 10);
 		endTime1.set(Calendar.HOUR_OF_DAY, 10);
 		endTime1.set(Calendar.MINUTE, 12);
-		batchJobAndSapImportStatistics.add(new BatchJobAndSapImportStatistic(CampusBatchStepName.IMPORT_CONTROL_FILE, BatchStatus.COMPLETED, startTime1.getTime(), endTime1.getTime(), 8, 8, 0, 0, 0, 0, 0));
+		Calendar dateOfSync1 = new GregorianCalendar(2099, Calendar.OCTOBER, 10);
+		dateOfSync1.set(Calendar.HOUR_OF_DAY, 4);
+		dateOfSync1.set(Calendar.MINUTE, 30);
+		batchJobAndSapImportStatistics.add(new BatchJobAndSapImportStatistic(CampusBatchStepName.IMPORT_ORGS, BatchStatus.COMPLETED, startTime1.getTime(), endTime1.getTime(), 8, 8, 0, 0, 0, 0, 0, dateOfSync1, false));
 
 		Calendar startTime2 = new GregorianCalendar(2099, Calendar.OCTOBER, 11);
 		startTime2.set(Calendar.HOUR_OF_DAY, 10);
@@ -330,7 +333,10 @@ public class CampusCourseTestDataGenerator {
 		Calendar endTime2 = new GregorianCalendar(2099, Calendar.OCTOBER, 11);
 		endTime2.set(Calendar.HOUR_OF_DAY, 10);
 		endTime2.set(Calendar.MINUTE, 12);
-		batchJobAndSapImportStatistics.add(new BatchJobAndSapImportStatistic(CampusBatchStepName.IMPORT_CONTROL_FILE, BatchStatus.COMPLETED, startTime2.getTime(), endTime2.getTime(), 8, 8, 0, 0, 0, 0, 0));
+		Calendar dateOfSync2 = new GregorianCalendar(2099, Calendar.OCTOBER, 11);
+		dateOfSync2.set(Calendar.HOUR_OF_DAY, 4);
+		dateOfSync2.set(Calendar.MINUTE, 30);
+		batchJobAndSapImportStatistics.add(new BatchJobAndSapImportStatistic(CampusBatchStepName.IMPORT_ORGS, BatchStatus.COMPLETED, startTime2.getTime(), endTime2.getTime(), 8, 8, 0, 0, 0, 0, 0, dateOfSync2, false));
 
 		Calendar startTime3 = new GregorianCalendar(2099, Calendar.OCTOBER, 11);
 		startTime3.set(Calendar.HOUR_OF_DAY, 10);
@@ -338,7 +344,10 @@ public class CampusCourseTestDataGenerator {
 		Calendar endTime3 = new GregorianCalendar(2099, Calendar.OCTOBER, 11);
 		endTime3.set(Calendar.HOUR_OF_DAY, 10);
 		endTime3.set(Calendar.MINUTE, 15);
-		batchJobAndSapImportStatistics.add(new BatchJobAndSapImportStatistic(CampusBatchStepName.IMPORT_COURSES, BatchStatus.COMPLETED, startTime3.getTime(), endTime3.getTime(), 8, 7, 0, 1, 0, 0, 0));
+		Calendar dateOfSync3 = new GregorianCalendar(2099, Calendar.OCTOBER, 11);
+		dateOfSync3.set(Calendar.HOUR_OF_DAY, 4);
+		dateOfSync3.set(Calendar.MINUTE, 30);
+		batchJobAndSapImportStatistics.add(new BatchJobAndSapImportStatistic(CampusBatchStepName.IMPORT_COURSES, BatchStatus.COMPLETED, startTime3.getTime(), endTime3.getTime(), 8, 7, 0, 1, 0, 0, 0, dateOfSync3, false));
 
 		Calendar startTime4 = new GregorianCalendar(2099, Calendar.OCTOBER, 12);
 		startTime4.set(Calendar.HOUR_OF_DAY, 10);
@@ -346,7 +355,10 @@ public class CampusCourseTestDataGenerator {
 		Calendar endTime4 = new GregorianCalendar(2099, Calendar.OCTOBER, 12);
 		endTime4.set(Calendar.HOUR_OF_DAY, 10);
 		endTime4.set(Calendar.MINUTE, 12);
-		batchJobAndSapImportStatistics.add(new BatchJobAndSapImportStatistic(CampusBatchStepName.IMPORT_CONTROL_FILE, BatchStatus.FAILED, startTime4.getTime(), endTime4.getTime(), 8, 7, 0, 1, 0, 0, 0));
+		Calendar dateOfSync4 = new GregorianCalendar(2099, Calendar.OCTOBER, 12);
+		dateOfSync4.set(Calendar.HOUR_OF_DAY, 4);
+		dateOfSync4.set(Calendar.MINUTE, 30);
+		batchJobAndSapImportStatistics.add(new BatchJobAndSapImportStatistic(CampusBatchStepName.IMPORT_ORGS, BatchStatus.FAILED, startTime4.getTime(), endTime4.getTime(), 8, 7, 0, 1, 0, 0, 0, dateOfSync4, false));
 
 		return batchJobAndSapImportStatistics;
 	}

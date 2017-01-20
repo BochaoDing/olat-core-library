@@ -2220,14 +2220,6 @@ create index log_ggptarget_resid_idx on o_loggingtable(greatgrandparentresid);
 create index log_creationdate_idx on o_loggingtable(creationdate);
 
 -- Tables for campus course
-create table if not exists ck_export (
-	id bigint not null,
-	file_name varchar(255) not null,
-	timestamp datetime not null,
-	export_date datetime not null,
-	primary key (id)
-)engine InnoDB;
-
 create table if not exists ck_semester (
   id bigint not null,
   name varchar(255) not null,
@@ -2347,6 +2339,8 @@ create table if not exists ck_batch_job_statistic (
     process_skip_count int not null,
     commit_count int not null,
     rollback_count int not null,
+    date_of_sync datetime,
+    next boolean,
     already_mapped int,
     new_mapping_by_email int,
     new_mapping_by_matriculation_number int,
