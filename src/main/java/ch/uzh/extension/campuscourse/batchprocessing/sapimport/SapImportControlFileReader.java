@@ -8,7 +8,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.text.ParseException;
@@ -39,66 +38,54 @@ public class SapImportControlFileReader {
 					return determineDateOfSync(line);
 				}
 			}
-		} catch (Exception e) {
+		} catch (IOException | ParseException e) {
 			LOG.error(e.getMessage());
 		}
 		return null;
 	}
 
-	Set<String> getFilenamesOfImportableSapImportFilesWithCorrectSuffixNotOlderThanOneDay() {
+	Set<String> getFilenamesOfImportableSapImportFilesWithCorrectSuffixNotOlderThanOneDay() throws IOException, ParseException {
 		Set<String> filenamesOfImportableSapImportFilesWithCorrectSuffixNotOlderThanOneDay = new HashSet<>();
-		try {
-			List<String[]> lines = readSapImportControlFileIntoListOfStringArrays();
-			for (String[] line : lines) {
-				String filename = determineFilename(line);
+		List<String[]> lines = readSapImportControlFileIntoListOfStringArrays();
+		for (String[] line : lines) {
+			String filename = determineFilename(line);
 
-				// Check suffix
-				if (!filename.contains(campusCourseConfiguration.getSapImportFilesSuffix())) {
-					continue;
-				}
-
-				// Check date of sync
-				Calendar dateOfSync = determineDateOfSync(line);
-				if (DateUtil.isMoreThanOneDayBefore(dateOfSync.getTime())) {
-					LOG.warn("The date of sync of the sap import file " + filename + " is older than one day: " + dateOfSync.getTime());
-					continue;
-				}
-
-				filenamesOfImportableSapImportFilesWithCorrectSuffixNotOlderThanOneDay.add(filename);
+			// Check suffix
+			if (!filename.contains(campusCourseConfiguration.getSapImportFilesSuffix())) {
+				continue;
 			}
-		} catch (Exception e) {
-			LOG.error(e.getMessage());
+
+			// Check date of sync
+			Calendar dateOfSync = determineDateOfSync(line);
+			if (DateUtil.isMoreThanOneDayBefore(dateOfSync.getTime())) {
+				LOG.warn("The date of sync of the sap import file " + filename + " is older than one day: " + dateOfSync.getTime());
+				continue;
+			}
+
+			filenamesOfImportableSapImportFilesWithCorrectSuffixNotOlderThanOneDay.add(filename);
 		}
 		return filenamesOfImportableSapImportFilesWithCorrectSuffixNotOlderThanOneDay;
 	}
 
-	List<String> getAllFilenamesWithDateOfSync() {
+	List<String> getAllFilenamesWithDateOfSync() throws IOException, ParseException {
 		List<String> filenamesWithDateOfSync = new ArrayList<>();
-		try {
-			List<String[]> lines = readSapImportControlFileIntoListOfStringArrays();
-			for (String[] line : lines) {
-				filenamesWithDateOfSync.add(determineFilename(line) + "\t(date of sync: " + determineDateOfSync(line).getTime().toString() + ")");
-			}
-		} catch (Exception e) {
-			LOG.error(e.getMessage());
+		List<String[]> lines = readSapImportControlFileIntoListOfStringArrays();
+		for (String[] line : lines) {
+			filenamesWithDateOfSync.add(determineFilename(line) + "\t(date of sync: " + determineDateOfSync(line).getTime().toString() + ")");
 		}
 		return filenamesWithDateOfSync;
 	}
 
 	private List<String[]> readSapImportControlFileIntoListOfStringArrays() throws IOException {
-
 		List<String[]> listOfLinesAsStringArray = new ArrayList<>();
-		String sapImportControlFileName = campusCourseConfiguration.getSapImportPath() + File.separator + campusCourseConfiguration.getSapImportControlFileFilename();
-		BufferedReader br = new BufferedReader(new FileReader(sapImportControlFileName));
+		BufferedReader br = new BufferedReader(new FileReader(campusCourseConfiguration.getSapImportControlFilenameWithPath()));
 		String line;
 		boolean isHeader = true;
-
 		while ((line = br.readLine()) != null) {
 			if (isHeader) {
 				isHeader = false;
 				continue;
 			}
-
 			String[] lineAsStringArray = line.split(CSV_SEPARATOR);
 			listOfLinesAsStringArray.add(lineAsStringArray);
 		}

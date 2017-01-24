@@ -2,9 +2,9 @@ package ch.uzh.extension.campuscourse.batchprocessing.sapimport;
 
 import ch.uzh.extension.campuscourse.common.CampusCourseConfiguration;
 import ch.uzh.extension.campuscourse.data.entity.Semester;
-import ch.uzh.extension.campuscourse.service.dao.DaoManager;
 import ch.uzh.extension.campuscourse.model.LecturerIdCourseId;
 import ch.uzh.extension.campuscourse.model.StudentIdCourseId;
+import ch.uzh.extension.campuscourse.service.dao.DaoManager;
 import org.olat.core.commons.persistence.DB;
 import org.olat.core.logging.OLog;
 import org.olat.core.logging.Tracing;
@@ -14,6 +14,8 @@ import org.springframework.batch.core.JobExecutionListener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.io.IOException;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -44,31 +46,43 @@ public class SapImportJobExecutionListener implements JobExecutionListener {
 	@Override
 	public void beforeJob(JobExecution jobExecution) {
 		LOG.info("beforeJob " + jobExecution.getJobInstance().getJobName());
-		Set<String> importableSapFiles = sapImportControlFileReader.getFilenamesOfImportableSapImportFilesWithCorrectSuffixNotOlderThanOneDay();
-		if (!importableSapFiles.containsAll(campusCourseConfiguration.getSapFilesToBeImported())) {
-			logMissingImportFiles();
-			jobExecution.stop();
-		}
-	}
-
-	private void logMissingImportFiles() {
-		LOG.error("SOME SAP IMPORT FILES ARE MISSING OR OLDER THAN ONE DAY. THE SAP IMPORT BATCH PROCESS WILL NOT BE EXECUTED!");
-		LOG.info("Available import files:");
-		for (String filename : sapImportControlFileReader.getAllFilenamesWithDateOfSync()) {
-			LOG.info("   " + filename);
-		}
-		LOG.info("Required import files (not older than one day):");
-		List<String> requiredFilenames = new ArrayList<>(campusCourseConfiguration.getSapFilesToBeImported());
-		Collections.sort(requiredFilenames);
-		for (String filename : requiredFilenames) {
-			LOG.info("   " + filename);
-		}
+		checkAvailabilityOfRequiredSapImportFilesAndStopBatchJobIfRequired(jobExecution);
 	}
 
 	@Override
 	public void afterJob(JobExecution jobExecution) {
 		LOG.info("afterJob " + jobExecution.getJobInstance().getJobName());
 		removeNotUpdatedData(jobExecution);
+	}
+
+	private void checkAvailabilityOfRequiredSapImportFilesAndStopBatchJobIfRequired(JobExecution jobExecution) {
+		try {
+			Set<String> importableSapFiles = sapImportControlFileReader.getFilenamesOfImportableSapImportFilesWithCorrectSuffixNotOlderThanOneDay();
+			if (!importableSapFiles.containsAll(campusCourseConfiguration.getSapFilesToBeImported())) {
+				LOG.error("Some required SAP import files are missing or older than one day!");
+				LOG.info("Available import files according to SAP import control file '" +
+						campusCourseConfiguration.getSapImportControlFilenameWithPath() + "':");
+				for (String filename : sapImportControlFileReader.getAllFilenamesWithDateOfSync()) {
+					LOG.info("   " + filename);
+				}
+				LOG.info("Required import files (not older than one day):");
+				List<String> requiredFilenames = new ArrayList<>(campusCourseConfiguration.getSapFilesToBeImported());
+				Collections.sort(requiredFilenames);
+				for (String filename : requiredFilenames) {
+					LOG.info("   " + filename);
+				}
+				stopBatchJobExecution(jobExecution);
+			}
+		} catch (IOException | ParseException e) {
+			LOG.error("Error when trying to read SAP import control file '" +
+					campusCourseConfiguration.getSapImportControlFilenameWithPath() + "': " + e.getMessage());
+			stopBatchJobExecution(jobExecution);
+		}
+	}
+
+	private void stopBatchJobExecution(JobExecution jobExecution) {
+		LOG.error("The SAP import batch process will not be executed!");
+		jobExecution.stop();
 	}
 
 	private void removeNotUpdatedData(JobExecution jobExecution) {

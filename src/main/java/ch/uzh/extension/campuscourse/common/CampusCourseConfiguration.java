@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import java.io.File;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -253,12 +254,8 @@ public class CampusCourseConfiguration {
         return defaultTemplateLanguage;
     }
 
-	public String getSapImportPath() {
-		return sapImportPath;
-	}
-
-	public String getSapImportControlFileFilename() {
-		return sapImportControlFileFilename;
+	public String getSapImportControlFilenameWithPath() {
+		return sapImportPath + File.separator + sapImportControlFileFilename;
 	}
 
 	public String getSapImportOrgsFilenameWithoutSuffix() {
