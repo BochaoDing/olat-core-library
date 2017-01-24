@@ -177,7 +177,7 @@
 		<class>ch.uzh.extension.campuscourse.data.entity.LecturerCourse</class>
 		<class>ch.uzh.extension.campuscourse.data.entity.Event</class>
 		<class>ch.uzh.extension.campuscourse.data.entity.Delegation</class>
-		<class>ch.uzh.extension.campuscourse.data.entity.SkipItem</class>
+		<class>ch.uzh.extension.campuscourse.data.entity.BatchJobSkippedItem</class>
 		<class>ch.uzh.extension.campuscourse.data.entity.BatchJobStatistic</class>
 		<class>ch.uzh.extension.campuscourse.data.entity.BatchJobAndSapImportStatistic</class>
 		<class>ch.uzh.extension.campuscourse.data.entity.BatchJobAndUserMappingStatistic</class>

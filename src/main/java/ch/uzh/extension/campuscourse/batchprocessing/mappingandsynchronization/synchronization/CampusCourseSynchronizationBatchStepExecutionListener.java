@@ -3,7 +3,7 @@ package ch.uzh.extension.campuscourse.batchprocessing.mappingandsynchronization.
 import ch.uzh.extension.campuscourse.batchprocessing.CampusBatchStepExecutionListener;
 import ch.uzh.extension.campuscourse.common.CampusCourseConfiguration;
 import ch.uzh.extension.campuscourse.data.dao.BatchJobAndCampusCourseSynchronizationStatisticDao;
-import ch.uzh.extension.campuscourse.data.dao.SkipItemDao;
+import ch.uzh.extension.campuscourse.data.dao.BatchJobSkippedItemDao;
 import ch.uzh.extension.campuscourse.data.entity.BatchJobAndCampusCourseSynchronizationStatistic;
 import ch.uzh.extension.campuscourse.data.entity.BatchJobStatistic;
 import ch.uzh.extension.campuscourse.service.dao.DaoManager;
@@ -33,11 +33,11 @@ public class CampusCourseSynchronizationBatchStepExecutionListener extends Campu
 	@Autowired
 	public CampusCourseSynchronizationBatchStepExecutionListener(
 			DB dbInstance,
-			SkipItemDao skipItemDao,
+			BatchJobSkippedItemDao batchJobSkippedItemDao,
 			DaoManager daoManager,
 			CampusCourseConfiguration campusCourseConfiguration,
 			BatchJobAndCampusCourseSynchronizationStatisticDao batchJobAndCampusCourseSynchronizationStatisticDao) {
-		super(dbInstance, skipItemDao, daoManager, campusCourseConfiguration);
+		super(dbInstance, batchJobSkippedItemDao, daoManager, campusCourseConfiguration);
 		this.batchJobAndCampusCourseSynchronizationStatisticDao = batchJobAndCampusCourseSynchronizationStatisticDao;
 	}
 

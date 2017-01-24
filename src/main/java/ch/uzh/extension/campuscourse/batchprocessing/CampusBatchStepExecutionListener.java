@@ -1,9 +1,9 @@
 package ch.uzh.extension.campuscourse.batchprocessing;
 
 import ch.uzh.extension.campuscourse.common.CampusCourseConfiguration;
-import ch.uzh.extension.campuscourse.data.dao.SkipItemDao;
+import ch.uzh.extension.campuscourse.data.dao.BatchJobSkippedItemDao;
+import ch.uzh.extension.campuscourse.data.entity.BatchJobSkippedItem;
 import ch.uzh.extension.campuscourse.data.entity.BatchJobStatistic;
-import ch.uzh.extension.campuscourse.data.entity.SkipItem;
 import ch.uzh.extension.campuscourse.service.dao.DaoManager;
 import org.olat.core.commons.persistence.DB;
 import org.olat.core.logging.OLog;
@@ -36,7 +36,7 @@ public abstract class CampusBatchStepExecutionListener<T, S> implements StepExec
 	private static final OLog LOG = Tracing.createLoggerFor(CampusBatchStepExecutionListener.class);
 
     protected final DB dbInstance;
-	private final SkipItemDao skipItemDao;
+	private final BatchJobSkippedItemDao batchJobSkippedItemDao;
 	protected final DaoManager daoManager;
     protected final CampusCourseConfiguration campusCourseConfiguration;
 
@@ -45,9 +45,9 @@ public abstract class CampusBatchStepExecutionListener<T, S> implements StepExec
     private StepExecution stepExecution;
 
     @Autowired
-	public CampusBatchStepExecutionListener(DB dbInstance, SkipItemDao skipItemDao, DaoManager daoManager, CampusCourseConfiguration campusCourseConfiguration) {
+	public CampusBatchStepExecutionListener(DB dbInstance, BatchJobSkippedItemDao batchJobSkippedItemDao, DaoManager daoManager, CampusCourseConfiguration campusCourseConfiguration) {
 		this.dbInstance = dbInstance;
-		this.skipItemDao = skipItemDao;
+		this.batchJobSkippedItemDao = batchJobSkippedItemDao;
 		this.daoManager = daoManager;
         this.campusCourseConfiguration = campusCourseConfiguration;
 	}
@@ -137,37 +137,41 @@ public abstract class CampusBatchStepExecutionListener<T, S> implements StepExec
      * 
      * @param item
      *            the failed item
-     * @param ex
+     * @param throwable
      *            the cause of failure
      */
     @Override
-    public void onSkipInProcess(T item, Throwable ex) {
-        try {
-            LOG.debug("onSkipInProcess: " + item);
-            skipItemDao.save(createSkipItem("PROCESS", item.toString(), ex.getMessage()));
-            dbInstance.commitAndCloseSession();
-        } catch (Throwable t) {
-            dbInstance.rollbackAndCloseSession();
-            throw t;
-        }
+    public void onSkipInProcess(T item, Throwable throwable) {
+		LOG.debug("onSkipInProcess: " + item);
+		BatchJobSkippedItem batchJobSkippedItem = new BatchJobSkippedItem(
+				stepExecution.getJobExecution().getJobInstance().getJobName(),
+				campusBatchStepName,
+				BatchJobSkippedItem.TypeOfBatchProcess.PROCESS,
+				stepExecution.getStartTime(),
+				item.toString(),
+				throwable.getMessage());
+		batchJobSkippedItemDao.save(batchJobSkippedItem);
+		dbInstance.commitAndCloseSession();
     }
 
     /**
      * Writes the caused failure while reading in the database.
      * 
-     * @param ex
+     * @param throwable
      *            the cause of failure
      */
     @Override
-    public void onSkipInRead(Throwable ex) {
-        try {
-            LOG.debug("onSkipInRead: ");
-            skipItemDao.save(createSkipItem("READ", null, ex.getMessage()));
-            dbInstance.commitAndCloseSession();
-        } catch (Throwable t) {
-            dbInstance.rollbackAndCloseSession();
-            throw t;
-        }
+    public void onSkipInRead(Throwable throwable) {
+		LOG.debug("onSkipInRead: ");
+		BatchJobSkippedItem batchJobSkippedItem = new BatchJobSkippedItem(
+				stepExecution.getJobExecution().getJobInstance().getJobName(),
+				campusBatchStepName,
+				BatchJobSkippedItem.TypeOfBatchProcess.READ,
+				stepExecution.getStartTime(),
+				null,
+				throwable.getMessage());
+		batchJobSkippedItemDao.save(batchJobSkippedItem);
+		dbInstance.commitAndCloseSession();
     }
 
     /**
@@ -175,43 +179,21 @@ public abstract class CampusBatchStepExecutionListener<T, S> implements StepExec
      * 
      * @param item
      *            the failed item
-     * @param ex
+     * @param throwable
      *            the cause of failure
      */
     @Override
-    public void onSkipInWrite(S item, Throwable ex) {
-        try {
-            LOG.debug("onSkipInWrite: " + item);
-            skipItemDao.save(createSkipItem("WRITE", item.toString(), ex.getMessage()));
-            dbInstance.commitAndCloseSession();
-        } catch (Throwable t) {
-            dbInstance.rollbackAndCloseSession();
-            throw t;
-        }
-    }
-
-    /**
-     * Creates a SkipItem based on the given parameters.
-     * 
-     * @param type
-     *            the kind of subprocess (READ, PROCESS, WRITE)
-     * @param item
-     *            the name of the item be skipped
-     * @param msg
-     *            the description of the caused failure
-     * 
-     */
-    private SkipItem createSkipItem(String type, String item, String msg) {
-        SkipItem skipItem = new SkipItem();
-        skipItem.setType(type);
-        skipItem.setItem(item);
-        skipItem.setMsg(msg);
-        skipItem.setJobExecutionId(stepExecution.getJobExecutionId());
-        skipItem.setJobName(stepExecution.getJobExecution().getJobInstance().getJobName());
-        skipItem.setStepExecutionId(stepExecution.getId());
-        skipItem.setStepName(stepExecution.getStepName());
-        skipItem.setStepStartTime(stepExecution.getStartTime());
-        return skipItem;
+    public void onSkipInWrite(S item, Throwable throwable) {
+		LOG.debug("onSkipInWrite: " + item);
+		BatchJobSkippedItem batchJobSkippedItem = new BatchJobSkippedItem(
+				stepExecution.getJobExecution().getJobInstance().getJobName(),
+				campusBatchStepName,
+				BatchJobSkippedItem.TypeOfBatchProcess.WRITE,
+				stepExecution.getStartTime(),
+				item.toString(),
+				throwable.getMessage());
+		batchJobSkippedItemDao.save(batchJobSkippedItem);
+		dbInstance.commitAndCloseSession();
     }
 
     @Override

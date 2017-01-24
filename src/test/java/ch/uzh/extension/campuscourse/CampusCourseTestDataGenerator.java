@@ -423,4 +423,11 @@ public class CampusCourseTestDataGenerator {
 		return batchJobAndCampusCourseSynchronizationStatistics;
 	}
 
+	public List<BatchJobSkippedItem> createBatchJobSkippedItems() {
+		List<BatchJobSkippedItem> batchJobSkippedItems = new ArrayList<>();
+		batchJobSkippedItems.add(new BatchJobSkippedItem("sapImport", CampusBatchStepName.IMPORT_ORGS, BatchJobSkippedItem.TypeOfBatchProcess.READ, new GregorianCalendar().getTime(), "Item", "Error occurred"));
+		batchJobSkippedItems.add(new BatchJobSkippedItem("sapImport", CampusBatchStepName.IMPORT_ORGS, BatchJobSkippedItem.TypeOfBatchProcess.WRITE, new GregorianCalendar().getTime(), null, null));
+		return batchJobSkippedItems;
+	}
+
 }

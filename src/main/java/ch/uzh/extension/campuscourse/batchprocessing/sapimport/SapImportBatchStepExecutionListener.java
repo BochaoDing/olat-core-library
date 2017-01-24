@@ -4,7 +4,7 @@ import ch.uzh.extension.campuscourse.batchprocessing.CampusBatchStepExecutionLis
 import ch.uzh.extension.campuscourse.batchprocessing.CampusBatchStepName;
 import ch.uzh.extension.campuscourse.common.CampusCourseConfiguration;
 import ch.uzh.extension.campuscourse.data.dao.BatchJobAndSapImportStatisticDao;
-import ch.uzh.extension.campuscourse.data.dao.SkipItemDao;
+import ch.uzh.extension.campuscourse.data.dao.BatchJobSkippedItemDao;
 import ch.uzh.extension.campuscourse.data.entity.BatchJobAndSapImportStatistic;
 import ch.uzh.extension.campuscourse.data.entity.BatchJobStatistic;
 import ch.uzh.extension.campuscourse.service.dao.DaoManager;
@@ -29,12 +29,12 @@ public class SapImportBatchStepExecutionListener extends CampusBatchStepExecutio
 	@Autowired
 	public SapImportBatchStepExecutionListener(
 			DB dbInstance,
-			SkipItemDao skipItemDao,
+			BatchJobSkippedItemDao batchJobSkippedItemDao,
 			DaoManager daoManager,
 			CampusCourseConfiguration campusCourseConfiguration,
 			SapImportControlFileReader sapImportControlFileReader,
 			BatchJobAndSapImportStatisticDao batchJobAndSapImportStatisticDao) {
-		super(dbInstance, skipItemDao, daoManager, campusCourseConfiguration);
+		super(dbInstance, batchJobSkippedItemDao, daoManager, campusCourseConfiguration);
 		this.sapImportControlFileReader = sapImportControlFileReader;
 		this.batchJobAndSapImportStatisticDao = batchJobAndSapImportStatisticDao;
 	}
