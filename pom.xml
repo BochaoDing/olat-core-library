@@ -503,7 +503,7 @@
 						<directory>src/main/java/org/olat/ims/cp/_resources</directory>
 						<targetPath>${basedir}/target/classes/META-INF/resources/org/olat/ims/cp/_resources</targetPath>
 						<includes>
-							<include>**/*</include>
+							<include>imscp.zip</include>
 						</includes>
 						<filtering>false</filtering>
 					</resource>
@@ -1198,6 +1198,7 @@
 					<exclude>**/*.pdf</exclude>
 					<exclude>**/*.graffle</exclude>
 					<exclude>**/doc-files/**</exclude>
+					<exclude>org/olat/ims/cp/_resources/imscp.zip</exclude>
 				</excludes>
 			</resource>
 			<resource>
