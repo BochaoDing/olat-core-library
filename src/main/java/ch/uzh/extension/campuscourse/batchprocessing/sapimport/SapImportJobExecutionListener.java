@@ -14,7 +14,10 @@ import org.springframework.batch.core.JobExecutionListener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Initial date: 2016-07-05<br />
@@ -41,9 +44,24 @@ public class SapImportJobExecutionListener implements JobExecutionListener {
 	@Override
 	public void beforeJob(JobExecution jobExecution) {
 		LOG.info("beforeJob " + jobExecution.getJobInstance().getJobName());
-		if (!sapImportControlFileReader.getFilenamesOfImportableSapImportFilesWithCorrectSuffixNotOlderThanOneDay().containsAll(campusCourseConfiguration.getSapFilesToBeImported())) {
-			LOG.error("SOME SAP IMPORT FILES ARE MISSING OR OLDER THAN ONE DAY. THE SAP IMPORT BATCH PROCESS WILL NOT BE EXECUTED!");
+		Set<String> importableSapFiles = sapImportControlFileReader.getFilenamesOfImportableSapImportFilesWithCorrectSuffixNotOlderThanOneDay();
+		if (!importableSapFiles.containsAll(campusCourseConfiguration.getSapFilesToBeImported())) {
+			logMissingImportFiles();
 			jobExecution.stop();
+		}
+	}
+
+	private void logMissingImportFiles() {
+		LOG.error("SOME SAP IMPORT FILES ARE MISSING OR OLDER THAN ONE DAY. THE SAP IMPORT BATCH PROCESS WILL NOT BE EXECUTED!");
+		LOG.info("Available import files:");
+		for (String filename : sapImportControlFileReader.getAllFilenamesWithDateOfSync()) {
+			LOG.info("   " + filename);
+		}
+		LOG.info("Required import files (not older than one day):");
+		List<String> requiredFilenames = new ArrayList<>(campusCourseConfiguration.getSapFilesToBeImported());
+		Collections.sort(requiredFilenames);
+		for (String filename : requiredFilenames) {
+			LOG.info("   " + filename);
 		}
 	}
 

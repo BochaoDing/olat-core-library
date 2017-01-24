@@ -72,6 +72,19 @@ public class SapImportControlFileReader {
 		return filenamesOfImportableSapImportFilesWithCorrectSuffixNotOlderThanOneDay;
 	}
 
+	List<String> getAllFilenamesWithDateOfSync() {
+		List<String> filenamesWithDateOfSync = new ArrayList<>();
+		try {
+			List<String[]> lines = readSapImportControlFileIntoListOfStringArrays();
+			for (String[] line : lines) {
+				filenamesWithDateOfSync.add(determineFilename(line) + "\t(date of sync: " + determineDateOfSync(line).getTime().toString() + ")");
+			}
+		} catch (Exception e) {
+			LOG.error(e.getMessage());
+		}
+		return filenamesWithDateOfSync;
+	}
+
 	private List<String[]> readSapImportControlFileIntoListOfStringArrays() throws IOException {
 
 		List<String[]> listOfLinesAsStringArray = new ArrayList<>();
