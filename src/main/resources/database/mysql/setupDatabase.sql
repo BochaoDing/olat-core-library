@@ -2355,17 +2355,15 @@ create table if not exists ck_batch_job_statistic (
     primary key (id)
 )engine InnoDB;
 
-create table if not exists ck_skip_item (
+create table if not exists ck_batch_job_skipped_item (
     id bigint not null,
-    job_execution_id INT,
-    job_name VARCHAR(100),
-    step_execution_id INT,
-    step_name VARCHAR(100),
-    step_start_time datetime,
-    type VARCHAR(100),
+    job_name VARCHAR(100) not null,
+    step_name VARCHAR(100) not null,
+    type VARCHAR(20) not null,
+    step_start_time datetime not null,
     item VARCHAR(2000),
-    msg VARCHAR(2000),
-     primary key (id)
+    error_message VARCHAR(2000),
+    primary key (id)
 )engine InnoDB;
 
 create table if not exists ck_delegation (
