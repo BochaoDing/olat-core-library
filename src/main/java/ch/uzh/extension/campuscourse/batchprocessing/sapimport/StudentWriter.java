@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -45,7 +46,7 @@ public class StudentWriter implements ItemWriter<Student> {
     private final StudentDao studentDao;
     private final DB dbInstance;
 
-    private Set<Long> successfullyProcessedIds = new HashSet<>();
+    private Set<Long> successfullyProcessedIds = Collections.synchronizedSet(new HashSet<>());
 
     @Autowired
     public StudentWriter(StudentDao studentDao, DB dbInstance) {
