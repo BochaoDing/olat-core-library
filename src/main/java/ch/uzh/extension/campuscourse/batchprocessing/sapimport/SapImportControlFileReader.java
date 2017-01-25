@@ -92,11 +92,11 @@ public class SapImportControlFileReader {
 		return listOfLinesAsStringArray;
 	}
 
-	private String determineFilename(String[] line) {
+	private static String determineFilename(String[] line) {
 		return line[0];
 	}
 
-	private Calendar determineDateOfSync(String[] line) throws ParseException {
+	private static Calendar determineDateOfSync(String[] line) throws ParseException {
 		Calendar dateOfSync = Calendar.getInstance();
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
 		dateOfSync.setTime(sdf.parse(line[1]));

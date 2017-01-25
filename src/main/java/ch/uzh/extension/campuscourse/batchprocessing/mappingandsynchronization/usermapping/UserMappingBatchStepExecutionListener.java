@@ -1,6 +1,6 @@
 package ch.uzh.extension.campuscourse.batchprocessing.mappingandsynchronization.usermapping;
 
-import ch.uzh.extension.campuscourse.batchprocessing.CampusBatchStepExecutionListener;
+import ch.uzh.extension.campuscourse.batchprocessing.AbstractCampusBatchStepExecutionListener;
 import ch.uzh.extension.campuscourse.common.CampusCourseConfiguration;
 import ch.uzh.extension.campuscourse.data.dao.BatchJobSkippedItemDao;
 import ch.uzh.extension.campuscourse.data.dao.BatchJobAndUserMappingStatisticDao;
@@ -18,7 +18,7 @@ import org.springframework.stereotype.Component;
  */
 @Component
 @Scope("step")
-public class UserMappingBatchStepExecutionListener extends CampusBatchStepExecutionListener {
+public class UserMappingBatchStepExecutionListener extends AbstractCampusBatchStepExecutionListener {
 
 	private final BatchJobAndUserMappingStatisticDao batchJobAndUserMappingStatisticDao;
 

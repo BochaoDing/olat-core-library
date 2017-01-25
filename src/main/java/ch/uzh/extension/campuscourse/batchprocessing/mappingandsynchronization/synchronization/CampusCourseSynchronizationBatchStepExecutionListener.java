@@ -1,6 +1,6 @@
 package ch.uzh.extension.campuscourse.batchprocessing.mappingandsynchronization.synchronization;
 
-import ch.uzh.extension.campuscourse.batchprocessing.CampusBatchStepExecutionListener;
+import ch.uzh.extension.campuscourse.batchprocessing.AbstractCampusBatchStepExecutionListener;
 import ch.uzh.extension.campuscourse.common.CampusCourseConfiguration;
 import ch.uzh.extension.campuscourse.data.dao.BatchJobAndCampusCourseSynchronizationStatisticDao;
 import ch.uzh.extension.campuscourse.data.dao.BatchJobSkippedItemDao;
@@ -21,7 +21,7 @@ import org.springframework.stereotype.Component;
  */
 @Component
 @Scope("step")
-public class CampusCourseSynchronizationBatchStepExecutionListener extends CampusBatchStepExecutionListener {
+public class CampusCourseSynchronizationBatchStepExecutionListener extends AbstractCampusBatchStepExecutionListener {
 
 	private static final OLog LOG = Tracing.createLoggerFor(CampusCourseSynchronizationBatchStepExecutionListener.class);
 

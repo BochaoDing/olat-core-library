@@ -31,9 +31,9 @@ import java.util.List;
  */
 @Component
 @Scope("step")
-public abstract class CampusBatchStepExecutionListener<T, S> implements StepExecutionListener, ItemWriteListener<S>, SkipListener<T, S>, ChunkListener {
+public abstract class AbstractCampusBatchStepExecutionListener<T, S> implements StepExecutionListener, ItemWriteListener<S>, SkipListener<T, S>, ChunkListener {
 
-	private static final OLog LOG = Tracing.createLoggerFor(CampusBatchStepExecutionListener.class);
+	private static final OLog LOG = Tracing.createLoggerFor(AbstractCampusBatchStepExecutionListener.class);
 
     protected final DB dbInstance;
 	private final BatchJobSkippedItemDao batchJobSkippedItemDao;
@@ -45,7 +45,7 @@ public abstract class CampusBatchStepExecutionListener<T, S> implements StepExec
     private StepExecution stepExecution;
 
     @Autowired
-	public CampusBatchStepExecutionListener(DB dbInstance, BatchJobSkippedItemDao batchJobSkippedItemDao, DaoManager daoManager, CampusCourseConfiguration campusCourseConfiguration) {
+	public AbstractCampusBatchStepExecutionListener(DB dbInstance, BatchJobSkippedItemDao batchJobSkippedItemDao, DaoManager daoManager, CampusCourseConfiguration campusCourseConfiguration) {
 		this.dbInstance = dbInstance;
 		this.batchJobSkippedItemDao = batchJobSkippedItemDao;
 		this.daoManager = daoManager;

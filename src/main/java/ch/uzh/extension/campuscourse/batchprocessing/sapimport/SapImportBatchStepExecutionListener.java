@@ -1,6 +1,6 @@
 package ch.uzh.extension.campuscourse.batchprocessing.sapimport;
 
-import ch.uzh.extension.campuscourse.batchprocessing.CampusBatchStepExecutionListener;
+import ch.uzh.extension.campuscourse.batchprocessing.AbstractCampusBatchStepExecutionListener;
 import ch.uzh.extension.campuscourse.batchprocessing.CampusBatchStepName;
 import ch.uzh.extension.campuscourse.common.CampusCourseConfiguration;
 import ch.uzh.extension.campuscourse.data.dao.BatchJobAndSapImportStatisticDao;
@@ -21,7 +21,7 @@ import java.util.Calendar;
  */
 @Component
 @Scope("step")
-public class SapImportBatchStepExecutionListener extends CampusBatchStepExecutionListener {
+public class SapImportBatchStepExecutionListener extends AbstractCampusBatchStepExecutionListener {
 
 	private final SapImportControlFileReader sapImportControlFileReader;
 	private final BatchJobAndSapImportStatisticDao batchJobAndSapImportStatisticDao;
