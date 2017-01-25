@@ -110,14 +110,14 @@ public class SapImportJobBeanFactory {
 		return new SapImportWriter<>(dbInstance, orgDao);
 	}
 
-	private <T> FlatFileItemReader<T> createFlatFileItemReader(String pathToInputFile,
+	private static <T> FlatFileItemReader<T> createFlatFileItemReader(String pathToInputFile,
 															   int[] includedColumns,
 															   String[] attributeNamesOfTargetClass,
 															   Class<T> targetClass) {
 		return createFlatFileItemReader(pathToInputFile, includedColumns, attributeNamesOfTargetClass, null, targetClass);
 	}
 
-	private <T> FlatFileItemReader<T> createFlatFileItemReader(String pathToInputFile,
+	private static <T> FlatFileItemReader<T> createFlatFileItemReader(String pathToInputFile,
 															   int[] includedColumns,
 															   String[] attributeNamesOfTargetClass,
 															   String dateFormat,
