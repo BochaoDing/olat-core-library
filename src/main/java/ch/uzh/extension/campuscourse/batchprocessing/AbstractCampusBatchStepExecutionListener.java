@@ -9,7 +9,6 @@ import org.olat.core.commons.persistence.DB;
 import org.olat.core.logging.OLog;
 import org.olat.core.logging.Tracing;
 import org.springframework.batch.core.*;
-import org.springframework.batch.core.scope.context.ChunkContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
@@ -197,14 +196,10 @@ public abstract class AbstractCampusBatchStepExecutionListener<T, S> implements 
     }
 
     @Override
-    public void beforeChunk(ChunkContext chunkContext) {
+    public void beforeChunk() {
     }
 
     @Override
-    public void afterChunk(ChunkContext chunkContext) {
-    }
-
-    @Override
-    public void afterChunkError(ChunkContext chunkContext) {
+    public void afterChunk() {
     }
 }
