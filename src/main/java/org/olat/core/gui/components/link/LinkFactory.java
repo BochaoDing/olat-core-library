@@ -71,7 +71,7 @@ public class LinkFactory {
 	 * @param listener
 	 * @return the link component
 	 */
-	public static Link createLinkBack(VelocityContainer vc, ComponentEventListener listener){
+	public static Link createLinkBack(VelocityContainer vc, @UnderInitialization ComponentEventListener listener){
 		Link backLink = new Link("backLink", "back", "back", Link.LINK_BACK, vc, listener);
 		backLink.setAccessKey("b");
 		backLink.setIconLeftCSS("o_icon o_icon_back");
