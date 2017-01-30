@@ -24,14 +24,9 @@ public class CourseCleanupJob extends QuartzJobBean {
         File cleanupBaseDirectory = rootFolder.getBasefile();
         if (cleanupBaseDirectory.exists()) {
             try {
-                FileUtils.deleteDirsAndFiles(cleanupBaseDirectory.toPath());
+                FileUtils.deleteDirsAndFiles(cleanupBaseDirectory, true, false);
             } catch (Exception e) {
-                log.error("Failed to delete olatdata/cleanup folder");
-            }
-        }
-        if (!cleanupBaseDirectory.exists()) {
-            if (!cleanupBaseDirectory.mkdir()) {
-                log.error("Failed to create olatdata/cleanup folder");
+                log.error("Failed to empty olatdata/cleanup folder");
             }
         }
     }
