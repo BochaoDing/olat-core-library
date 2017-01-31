@@ -80,7 +80,7 @@
     	<property name="startDelay" value="30000" />
 	</bean>
 	
-	<bean id="acReservationCleanupJobDetail" class="org.springframework.scheduling.quartz.JobDetailBean">
+	<bean id="acReservationCleanupJobDetail" class="org.springframework.scheduling.quartz.JobDetailBean" depends-on="coreSpringFactory">
 		<property name="jobClass" value="org.olat.resource.accesscontrol.manager.ReservationsJob" />
 	</bean>
 	

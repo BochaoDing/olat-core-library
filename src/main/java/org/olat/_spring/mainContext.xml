@@ -55,5 +55,5 @@
 	
 	<import resource="classpath:/org/olat/user/_spring/userContext.xml"/>
 	
-	<import resource="classpath:/ch/uzh/campus/_spring/campusContext.xml"/>
+	<import resource="classpath:/ch/uzh/extension/campuscourse/_spring/campusContext.xml"/>
 </beans>

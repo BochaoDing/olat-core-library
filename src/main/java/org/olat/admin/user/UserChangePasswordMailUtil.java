@@ -1,6 +1,5 @@
 package org.olat.admin.user;
 
-import ch.uzh.campus.mapper.UserMappingDeletion;
 import org.olat.basesecurity.Authentication;
 import org.olat.basesecurity.BaseSecurityManager;
 import org.olat.basesecurity.BaseSecurityModule;
