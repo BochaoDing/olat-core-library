@@ -17,43 +17,64 @@
  * frentix GmbH, http://www.frentix.com
  * <p>
  */
-package org.olat.core.util.openxml;
-
-import java.io.File;
+package org.olat.core.util.openxml.workbookstyle;
 
 /**
  * 
- * Initial date: 04.09.2013<br>
+ * Initial date: 21.04.2016<br>
  * @author srosse, stephane.rosse@frentix.com, http://www.frentix.com
  *
  */
-public class DocReference {
+public class Border extends IndexedObject {
 	
-	private final String id;
-	private final String filename;
-	private final File file;
-	private final OpenXMLSize emuSize;
-	
-	public DocReference(String id, String filename, OpenXMLSize emuSize, File file) {
-		this.id = id;
-		this.file = file;
-		this.emuSize = emuSize;
-		this.filename = filename;
+	private String right;
+	private String left;
+	private String top;
+	private String bottom;
+
+	public Border(int index) {
+		super(index);
 	}
 	
-	public String getId() {
-		return id;
-	}
-	
-	public String getFilename() {
-		return filename;
+	public Border(int index, String right, String left, String top, String bottom) {
+		super(index);
+		this.right = right;
+		this.left = left;
+		this.top = top;
+		this.bottom = bottom;
 	}
 
-	public File getFile() {
-		return file;
+	public String getRight() {
+		return right;
 	}
 
-	public OpenXMLSize getEmuSize() {
-		return emuSize;
+	public void setRight(String right) {
+		this.right = right;
 	}
+
+	public String getLeft() {
+		return left;
+	}
+
+	public void setLeft(String left) {
+		this.left = left;
+	}
+
+	public String getTop() {
+		return top;
+	}
+
+	public void setTop(String top) {
+		this.top = top;
+	}
+
+	public String getBottom() {
+		return bottom;
+	}
+
+	public void setBottom(String bottom) {
+		this.bottom = bottom;
+	}
+	
+	
 }

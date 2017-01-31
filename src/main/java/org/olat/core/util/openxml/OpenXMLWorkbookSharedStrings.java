@@ -19,41 +19,44 @@
  */
 package org.olat.core.util.openxml;
 
-import java.io.File;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 /**
  * 
- * Initial date: 04.09.2013<br>
+ * Initial date: 25.04.2016<br>
  * @author srosse, stephane.rosse@frentix.com, http://www.frentix.com
  *
  */
-public class DocReference {
+public class OpenXMLWorkbookSharedStrings implements Iterable<String> {
+
+	private final List<String> sharedStrings = new ArrayList<>();
 	
-	private final String id;
-	private final String filename;
-	private final File file;
-	private final OpenXMLSize emuSize;
-	
-	public DocReference(String id, String filename, OpenXMLSize emuSize, File file) {
-		this.id = id;
-		this.file = file;
-		this.emuSize = emuSize;
-		this.filename = filename;
+	public OpenXMLWorkbookSharedStrings() {
+		sharedStrings.add("OpenOLAT");//prevent empty list
 	}
 	
-	public String getId() {
-		return id;
-	}
-	
-	public String getFilename() {
-		return filename;
+	/**
+	 * Add a shared string and return the index.
+	 * @param string
+	 * @return
+	 */
+	public int add(String string) {
+		int index = sharedStrings.indexOf(string);
+		if(index < 0) {
+			sharedStrings.add(string);
+			index = sharedStrings.size() - 1;
+		}
+		return index;
 	}
 
-	public File getFile() {
-		return file;
+	@Override
+	public Iterator<String> iterator() {
+		return sharedStrings.iterator();
 	}
-
-	public OpenXMLSize getEmuSize() {
-		return emuSize;
+	
+	public int size() {
+		return sharedStrings.size();
 	}
 }

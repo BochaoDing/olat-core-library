@@ -17,43 +17,23 @@
  * frentix GmbH, http://www.frentix.com
  * <p>
  */
-package org.olat.core.util.openxml;
-
-import java.io.File;
+package org.olat.core.util.openxml.workbookstyle;
 
 /**
  * 
- * Initial date: 04.09.2013<br>
+ * Initial date: 22.04.2016<br>
  * @author srosse, stephane.rosse@frentix.com, http://www.frentix.com
  *
  */
-public class DocReference {
+abstract class IndexedObject {
 	
-	private final String id;
-	private final String filename;
-	private final File file;
-	private final OpenXMLSize emuSize;
+	private final int index;
 	
-	public DocReference(String id, String filename, OpenXMLSize emuSize, File file) {
-		this.id = id;
-		this.file = file;
-		this.emuSize = emuSize;
-		this.filename = filename;
+	public IndexedObject(int index) {
+		this.index = index;
 	}
 	
-	public String getId() {
-		return id;
-	}
-	
-	public String getFilename() {
-		return filename;
-	}
-
-	public File getFile() {
-		return file;
-	}
-
-	public OpenXMLSize getEmuSize() {
-		return emuSize;
+	public int getIndex() {
+		return index;
 	}
 }

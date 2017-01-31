@@ -17,43 +17,40 @@
  * frentix GmbH, http://www.frentix.com
  * <p>
  */
-package org.olat.core.util.openxml;
-
-import java.io.File;
+package org.olat.core.util.openxml.workbookstyle;
 
 /**
  * 
- * Initial date: 04.09.2013<br>
+ * Initial date: 21.04.2016<br>
  * @author srosse, stephane.rosse@frentix.com, http://www.frentix.com
  *
  */
-public class DocReference {
+public class Fill extends IndexedObject {
 	
-	private final String id;
-	private final String filename;
-	private final File file;
-	private final OpenXMLSize emuSize;
+	private final String patternType;
+	private final String fgColorRgb;
+	private final String bgColorIndexed;
 	
-	public DocReference(String id, String filename, OpenXMLSize emuSize, File file) {
-		this.id = id;
-		this.file = file;
-		this.emuSize = emuSize;
-		this.filename = filename;
+	public Fill(int index, String patternType) {
+		this(index, patternType, null, null);
 	}
 	
-	public String getId() {
-		return id;
-	}
-	
-	public String getFilename() {
-		return filename;
+	public Fill(int index, String patternType, String fgColorRgb, String bgColorIndexed) {
+		super(index);
+		this.patternType = patternType;
+		this.fgColorRgb = fgColorRgb;
+		this.bgColorIndexed = bgColorIndexed;
 	}
 
-	public File getFile() {
-		return file;
+	public String getPatternType() {
+		return patternType;
 	}
 
-	public OpenXMLSize getEmuSize() {
-		return emuSize;
+	public String getFgColorRgb() {
+		return fgColorRgb;
+	}
+
+	public String getBgColorIndexed() {
+		return bgColorIndexed;
 	}
 }
