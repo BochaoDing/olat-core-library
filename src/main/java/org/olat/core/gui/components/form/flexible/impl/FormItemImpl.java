@@ -259,7 +259,7 @@ public abstract class FormItemImpl implements FormItem, InlineElement {
 		return translateLabel() ? translate(labelKey, labelParams) : labelKey;
 	}
 
-	public void setLabel(String label, String[] params) {
+	public void setLabel(@UnderInitialization(FormItemImpl.class) FormItemImpl this, String label, String[] params) {
 		setLabel(label, params,  true); 
 	}
 	
@@ -482,7 +482,7 @@ public abstract class FormItemImpl implements FormItem, InlineElement {
 		return hasExample;
 	}
 	
-	public void showLabel(boolean show){
+	public void showLabel(@UnderInitialization(FormItemImpl.class) FormItemImpl this, boolean show){
 		if(show) {
 			labelPanel.setContent(labelC);
 		}else{
