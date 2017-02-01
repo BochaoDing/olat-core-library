@@ -472,8 +472,7 @@ public class HTMLToOpenXMLHandler extends DefaultHandler {
 		} else if("tr".equals(tag)) {
 			closeCurrentTableRow();
 		} else if("ul".equals(tag) || "ol".equals(tag)) {
-			closeParagraph();
-			currentListParagraph = null;
+			//do nothing
 		} else if("li".equals(tag)) {
 			//do nothing
 		} else if("blockquote".equals(tag)) {
