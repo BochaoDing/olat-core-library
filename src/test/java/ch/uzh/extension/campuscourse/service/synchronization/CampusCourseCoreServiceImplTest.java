@@ -14,10 +14,6 @@ import ch.uzh.extension.campuscourse.service.coursecreation.CampusGroupsCreator;
 import ch.uzh.extension.campuscourse.service.coursecreation.OlatCampusCourseCreator;
 import ch.uzh.extension.campuscourse.service.dao.DaoManager;
 import ch.uzh.extension.campuscourse.service.dao.DataConverter;
-import ch.uzh.extension.campuscourse.service.synchronization.CampusCourseDefaultCoOwners;
-import ch.uzh.extension.campuscourse.service.synchronization.CampusCourseRepositoryEntryDescriptionBuilder;
-import ch.uzh.extension.campuscourse.service.synchronization.CampusCourseRepositoryEntrySynchronizer;
-import ch.uzh.extension.campuscourse.service.synchronization.CampusGroupsSynchronizer;
 import ch.uzh.extension.campuscourse.model.CampusCourseTO;
 import ch.uzh.extension.campuscourse.data.dao.*;
 import org.junit.After;
@@ -56,7 +52,7 @@ import static org.mockito.Mockito.when;
 
 /**
  * Initial Date: 04.06.2012 <br>
- * 
+ *
  * @author cg
  * @author Martin Schraner
  */
@@ -96,7 +92,7 @@ public class CampusCourseCoreServiceImplTest extends CampusCourseTestCase {
     private OrgDao orgDao;
 
     @Autowired
-    private ImportStatisticDao importStatisticDao;
+    private BatchJobAndSapImportStatisticDao batchJobAndSapImportStatisticDao;
 
     @Autowired
     private BusinessGroupService businessGroupService;
@@ -112,7 +108,7 @@ public class CampusCourseCoreServiceImplTest extends CampusCourseTestCase {
 
     @Autowired
     private BGAreaManager bgAreaManager;
-    
+
     @Autowired
     private DB dbInstance;
 
@@ -203,7 +199,7 @@ public class CampusCourseCoreServiceImplTest extends CampusCourseTestCase {
                 textDaoMock,
                 eventDao,
                 orgDao,
-                importStatisticDao,
+				batchJobAndSapImportStatisticDao,
                 dataConverterMock,
                 campusCourseConfiguration);
 

@@ -80,7 +80,7 @@ public class CampusCourseSynchronizationReaderTest {
 
     @Test
     public void read_twoCoursesList() throws Exception {
-        when(daoManagerMock.checkImportedData()).thenReturn(true);
+        when(daoManagerMock.wasLastSapImportSuccessful()).thenReturn(true);
         List<Long> CreatedSapCourcesIds = new ArrayList<>();
         CreatedSapCourcesIds.add(100L);
         CreatedSapCourcesIds.add(200L);

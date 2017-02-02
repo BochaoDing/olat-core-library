@@ -53,7 +53,7 @@ public class StudentMapper {
         Identity mappedIdentity = userMapper.tryToMapByMatriculationNumber(student.getRegistrationNr());
         if (mappedIdentity != null) {
             studentDao.addMapping(student.getId(), mappedIdentity);
-            return UserMappingResult.NEW_MAPPING_BY_MATRICULATION_NR;
+            return UserMappingResult.NEW_MAPPING_BY_MATRICULATION_NUMBER;
         }
 
         // Second try to map by email

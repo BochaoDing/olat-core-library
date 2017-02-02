@@ -4,6 +4,8 @@ import ch.uzh.extension.campuscourse.model.CampusCourseTO;
 import ch.uzh.extension.campuscourse.service.dao.DaoManager;
 import ch.uzh.extension.campuscourse.util.ListUtil;
 import org.olat.core.commons.persistence.DB;
+import org.olat.core.logging.OLog;
+import org.olat.core.logging.Tracing;
 import org.springframework.batch.item.ItemReader;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
@@ -46,6 +48,8 @@ import java.util.List;
 @Scope("step")
 public class CampusCourseSynchronizationReader implements ItemReader<CampusCourseTO> {
 
+	private static final OLog LOG = Tracing.createLoggerFor(CampusCourseSynchronizationReader.class);
+
     private DaoManager daoManager;
     private DB dbInstance;
     private List<Long> sapCourseIds = Collections.emptyList();
@@ -58,8 +62,10 @@ public class CampusCourseSynchronizationReader implements ItemReader<CampusCours
 
     @PostConstruct
     public void init() {
-        if (daoManager.checkImportedData()) {
+        if (daoManager.wasLastSapImportSuccessful()) {
             sapCourseIds = daoManager.getSapIdsOfAllCreatedOlatCampusCourses();
+        } else {
+            LOG.warn("No Campus Course synchronization will be performed, since last sap import was not successful!");
         }
         dbInstance.closeSession();
     }

@@ -1,11 +1,11 @@
 package ch.uzh.extension.campuscourse.batchprocessing.mappingandsynchronization.synchronization;
 
 import ch.uzh.extension.campuscourse.common.CampusCourseException;
+import ch.uzh.extension.campuscourse.data.dao.BatchJobAndCampusCourseSynchronizationStatisticDao;
+import ch.uzh.extension.campuscourse.data.entity.BatchJobAndCampusCourseSynchronizationStatistic;
 import ch.uzh.extension.campuscourse.model.CampusCourseTO;
+import ch.uzh.extension.campuscourse.service.synchronization.CampusCourseSynchronizationResult;
 import ch.uzh.extension.campuscourse.service.synchronization.CampusCourseSynchronizer;
-import ch.uzh.extension.campuscourse.service.synchronization.statistic.OverallSynchronizeStatistic;
-import ch.uzh.extension.campuscourse.service.synchronization.statistic.SynchronizedGroupStatistic;
-import ch.uzh.extension.campuscourse.service.synchronization.statistic.SynchronizedSecurityGroupStatistic;
 import org.junit.Before;
 import org.junit.Test;
 import org.olat.core.commons.persistence.DB;
@@ -43,41 +43,46 @@ import static org.mockito.Mockito.when;
  * @author aabouc
  */
 public class CampusCourseSynchronizationWriterTest {
+
     private CampusCourseSynchronizationWriter campusCourseSynchronizationWriterTestObject;
     private List<CampusCourseTO> twoCoursesList = new ArrayList<>();
 
     @Before
     public void setup() throws CampusCourseException {
+
+		// Mock for CampusCourseTOs
+		CampusCourseTO campusCourseTOMock1 = mock(CampusCourseTO.class);
+		CampusCourseTO campusCourseTOMock2 = mock(CampusCourseTO.class);
+		twoCoursesList.add(campusCourseTOMock1);
+		twoCoursesList.add(campusCourseTOMock2);
+
         // Mock for CourseSynchronizer
         CampusCourseSynchronizer campusCourseSynchronizerMock = mock(CampusCourseSynchronizer.class);
+		when(campusCourseSynchronizerMock.synchronizeOlatCampusCourse(campusCourseTOMock1)).thenReturn(new CampusCourseSynchronizationResult("course1", 2, 1, 12, 4));
+		when(campusCourseSynchronizerMock.synchronizeOlatCampusCourse(campusCourseTOMock2)).thenReturn(new CampusCourseSynchronizationResult("course2", 1, 0, 7, 2));
+
+		// Mock for UserMappingStatisticDao
+		BatchJobAndCampusCourseSynchronizationStatisticDao batchJobAndCampusCourseSynchronizationStatisticDao = mock(BatchJobAndCampusCourseSynchronizationStatisticDao.class);
+		when(batchJobAndCampusCourseSynchronizationStatisticDao.getLastCreatedBatchJobAndCampusCourseSynchronizationStatistic()).thenReturn(new BatchJobAndCampusCourseSynchronizationStatistic());
+
         // Mock for DBImpl
         DB campusCourseDBImplMock = mock(DB.class);
+
         // Test object
-        campusCourseSynchronizationWriterTestObject = new CampusCourseSynchronizationWriter(campusCourseSynchronizerMock, campusCourseDBImplMock, new OverallSynchronizeStatistic());
-        // Test SynchronizedGroupStatistic
-        SynchronizedGroupStatistic synchronizedGroupStatisticforCourse1 = new SynchronizedGroupStatistic("course1", null, new SynchronizedSecurityGroupStatistic(15, 0));
-        SynchronizedGroupStatistic synchronizedGroupStatisticforCourse2 = new SynchronizedGroupStatistic("course2", null, new SynchronizedSecurityGroupStatistic(0, 9));
-
-        CampusCourseTO campusCourseTOMock1 = mock(CampusCourseTO.class);
-        CampusCourseTO campusCourseTOMock2 = mock(CampusCourseTO.class);
-        twoCoursesList.add(campusCourseTOMock1);
-        twoCoursesList.add(campusCourseTOMock2);
-
-        when(campusCourseSynchronizerMock.synchronizeOlatCampusCourse(campusCourseTOMock1)).thenReturn(synchronizedGroupStatisticforCourse1);
-        when(campusCourseSynchronizerMock.synchronizeOlatCampusCourse(campusCourseTOMock2)).thenReturn(synchronizedGroupStatisticforCourse2);
+        campusCourseSynchronizationWriterTestObject = new CampusCourseSynchronizationWriter(campusCourseSynchronizerMock, campusCourseDBImplMock, batchJobAndCampusCourseSynchronizationStatisticDao);
     }
 
     @Test
     public void write_emptyCoursesList() throws Exception {
         campusCourseSynchronizationWriterTestObject.write(Collections.emptyList());
-        assertEquals("overallAddedCoaches=0 , overallRemovedCoaches=0 ; overallAddedParticipants=0 , overallRemovedParticipants=0",
-                campusCourseSynchronizationWriterTestObject.getOverallSynchronizeStatistic().calculateOverallStatistic());
+        assertEquals("added coaches: 0, removed coaches: 0, added participants: 0, removed participants: 0",
+                campusCourseSynchronizationWriterTestObject.getCampusCourseSynchronizationStatistic().toString());
     }
 
     @Test
     public void write_twoCoursesList() throws Exception {
         campusCourseSynchronizationWriterTestObject.write(twoCoursesList);
-        assertEquals("overallAddedCoaches=0 , overallRemovedCoaches=0 ; overallAddedParticipants=15 , overallRemovedParticipants=9",
-                campusCourseSynchronizationWriterTestObject.getOverallSynchronizeStatistic().calculateOverallStatistic());
+        assertEquals("added coaches: 3, removed coaches: 1, added participants: 19, removed participants: 6",
+                campusCourseSynchronizationWriterTestObject.getCampusCourseSynchronizationStatistic().toString());
     }
 }

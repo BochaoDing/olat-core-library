@@ -1,15 +1,10 @@
 package ch.uzh.extension.campuscourse.service.dao;
 
 import ch.uzh.extension.campuscourse.common.CampusCourseConfiguration;
-import ch.uzh.extension.campuscourse.model.LecturerIdCourseId;
-import ch.uzh.extension.campuscourse.model.StudentIdCourseId;
-import ch.uzh.extension.campuscourse.model.SapUserType;
-import ch.uzh.extension.campuscourse.model.CampusCourseTO;
-import ch.uzh.extension.campuscourse.model.CampusCourseTOForUI;
-import ch.uzh.extension.campuscourse.model.CampusGroups;
-import ch.uzh.extension.campuscourse.util.ListUtil;
 import ch.uzh.extension.campuscourse.data.dao.*;
 import ch.uzh.extension.campuscourse.data.entity.*;
+import ch.uzh.extension.campuscourse.model.*;
+import ch.uzh.extension.campuscourse.util.ListUtil;
 import org.olat.core.id.Identity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
@@ -53,24 +48,24 @@ public class DaoManager {
     private final TextDao textDao;
     private final EventDao eventDao;
     private final OrgDao orgDao;
-	private final ImportStatisticDao statisticDao;
+	private final BatchJobAndSapImportStatisticDao statisticDao;
 	private final DataConverter dataConverter;
 	private final CampusCourseConfiguration campusCourseConfiguration;
 
     @Autowired
 	public DaoManager(CourseDao courseDao,
-                      SemesterDao semesterDao,
-                      StudentDao studentDao,
-                      LecturerCourseDao lecturerCourseDao,
-                      StudentCourseDao studentCourseDao,
-                      LecturerDao lecturerDao,
-                      DelegationDao delegationDao,
-                      TextDao textDao,
-                      EventDao eventDao,
-                      OrgDao orgDao,
-                      ImportStatisticDao statisticDao,
-                      DataConverter dataConverter,
-                      CampusCourseConfiguration campusCourseConfiguration) {
+					  SemesterDao semesterDao,
+					  StudentDao studentDao,
+					  LecturerCourseDao lecturerCourseDao,
+					  StudentCourseDao studentCourseDao,
+					  LecturerDao lecturerDao,
+					  DelegationDao delegationDao,
+					  TextDao textDao,
+					  EventDao eventDao,
+					  OrgDao orgDao,
+					  BatchJobAndSapImportStatisticDao statisticDao,
+					  DataConverter dataConverter,
+					  CampusCourseConfiguration campusCourseConfiguration) {
 		this.courseDao = courseDao;
         this.semesterDao = semesterDao;
 		this.studentDao = studentDao;
@@ -489,8 +484,8 @@ public class DaoManager {
         delegationDao.deleteDelegationById(delegator.getKey(), delegatee.getKey());
     }
 
-    public boolean checkImportedData() {
-        return (statisticDao.getLastCompletedImportedStatistic().size() == campusCourseConfiguration.getMustCompletedImportedFiles());
+    public boolean wasLastSapImportSuccessful() {
+        return statisticDao.getNumberOfCompletedBatchStepsOfLastSapImport() == campusCourseConfiguration.getNumberOfBatchStepsOfSapImportProcess();
     }
 
     public Semester getSemesterOfMostRecentCourseImport() {

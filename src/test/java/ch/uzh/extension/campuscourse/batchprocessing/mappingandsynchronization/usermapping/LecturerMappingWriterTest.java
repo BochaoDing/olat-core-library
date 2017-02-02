@@ -1,6 +1,8 @@
 package ch.uzh.extension.campuscourse.batchprocessing.mappingandsynchronization.usermapping;
 
+import ch.uzh.extension.campuscourse.data.dao.BatchJobAndUserMappingStatisticDao;
 import ch.uzh.extension.campuscourse.data.entity.Lecturer;
+import ch.uzh.extension.campuscourse.data.entity.BatchJobAndUserMappingStatistic;
 import ch.uzh.extension.campuscourse.service.usermapping.LecturerMapper;
 import ch.uzh.extension.campuscourse.service.usermapping.UserMappingResult;
 import org.junit.Before;
@@ -11,6 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -39,13 +42,12 @@ import static org.mockito.Mockito.when;
  * @author aabouc
  */
 public class LecturerMappingWriterTest {
+
     private LecturerMappingWriter lecturerMappingWriterTestObject;
     private List<Lecturer> twoLecturersList = new ArrayList<>();
 
     @Before
     public void setup() {
-        // Mock for LecturerMapper
-        LecturerMapper lecturerMapperMock = mock(LecturerMapper.class);
 
         // Mock for Lecturer
         Lecturer lecturerMock1 = mock(Lecturer.class);
@@ -53,29 +55,35 @@ public class LecturerMappingWriterTest {
         twoLecturersList.add(lecturerMock1);
         twoLecturersList.add(lecturerMock2);
 
+		// Mock for LecturerMapper
+		LecturerMapper lecturerMapperMock = mock(LecturerMapper.class);
         when(lecturerMapperMock.tryToMap(lecturerMock1)).thenReturn(UserMappingResult.NEW_MAPPING_BY_EMAIL);
-        when(lecturerMapperMock.tryToMap(lecturerMock2)).thenReturn(UserMappingResult.NEW_MAPPING_BY_PERSONAL_NR);
+        when(lecturerMapperMock.tryToMap(lecturerMock2)).thenReturn(UserMappingResult.NEW_MAPPING_BY_PERSONAL_NUMBER);
 
-        // Mock for DBImpl
+        // Mock for UserMappingStatisticDao
+		BatchJobAndUserMappingStatisticDao batchJobAndUserMappingStatisticDaoMock = mock(BatchJobAndUserMappingStatisticDao.class);
+		when(batchJobAndUserMappingStatisticDaoMock.getLastCreatedUserMappingStatisticForCampusBatchStepName(any())).thenReturn(new BatchJobAndUserMappingStatistic());
+
+		// Mock for DBImpl
         DB dBImplMock = mock(DB.class);
 
-        lecturerMappingWriterTestObject = new LecturerMappingWriter(dBImplMock, lecturerMapperMock, new UserMappingStatistic());
+        lecturerMappingWriterTestObject = new LecturerMappingWriter(dBImplMock, lecturerMapperMock, batchJobAndUserMappingStatisticDaoMock);
     }
 
     @Test
     public void write_emptyLecturersList() throws Exception {
         lecturerMappingWriterTestObject.write(new ArrayList<>());
         assertEquals(
-                lecturerMappingWriterTestObject.getUserMappingStatistic().toString(),
-                "MappedByEmail=0 , MappedByMatriculationNumber=0 , MappedByPersonalNumber=0 , MappedByAdditionalPersonalNumber=0 , couldNotMappedBecauseNotRegistered=0 , couldBeMappedManually=0");
+				"already mapped: 0, new mapping by email: 0, new mapping by matriculation number: 0, new mapping by personal number: 0, new mapping by additional personal number: 0, could be mapped manually: 0, could not map: 0",
+				lecturerMappingWriterTestObject.getUserMappingStatistic().toString());
     }
 
     @Test
     public void write_twoLecturersList() throws Exception {
         lecturerMappingWriterTestObject.write(twoLecturersList);
         assertEquals(
-                lecturerMappingWriterTestObject.getUserMappingStatistic().toString(),
-                "MappedByEmail=1 , MappedByMatriculationNumber=0 , MappedByPersonalNumber=1 , MappedByAdditionalPersonalNumber=0 , couldNotMappedBecauseNotRegistered=0 , couldBeMappedManually=0");
+				"already mapped: 0, new mapping by email: 1, new mapping by matriculation number: 0, new mapping by personal number: 1, new mapping by additional personal number: 0, could be mapped manually: 0, could not map: 0",
+				lecturerMappingWriterTestObject.getUserMappingStatistic().toString());
     }
 
 }

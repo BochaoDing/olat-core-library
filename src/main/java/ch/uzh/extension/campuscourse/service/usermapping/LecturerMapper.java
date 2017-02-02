@@ -71,7 +71,7 @@ public class LecturerMapper {
         if (mappedIdentity != null) {
             lecturerDao.addMapping(lecturer.getPersonalNr(), mappedIdentity);
             addAuthorRoleToMappedLecturer(mappedIdentity);
-            return UserMappingResult.NEW_MAPPING_BY_PERSONAL_NR;
+            return UserMappingResult.NEW_MAPPING_BY_PERSONAL_NUMBER;
         }
 
         // Second try to map by email
@@ -90,7 +90,7 @@ public class LecturerMapper {
                 if (mappedIdentity != null) {
                     lecturerDao.addMapping(lecturer.getPersonalNr(), mappedIdentity);
                     addAuthorRoleToMappedLecturer(mappedIdentity);
-                    return UserMappingResult.NEW_MAPPING_BY_ADDITIONAL_PERSONAL_NR;
+                    return UserMappingResult.NEW_MAPPING_BY_ADDITIONAL_PERSONAL_NUMBER;
                 }
             }
         }

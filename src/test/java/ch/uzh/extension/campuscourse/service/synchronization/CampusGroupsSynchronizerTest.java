@@ -5,7 +5,6 @@ import ch.uzh.extension.campuscourse.common.CampusCourseException;
 import ch.uzh.extension.campuscourse.CampusCourseJunitTestHelper;
 import ch.uzh.extension.campuscourse.CampusCourseTestCase;
 import ch.uzh.extension.campuscourse.data.dao.CourseDao;
-import ch.uzh.extension.campuscourse.service.synchronization.statistic.SynchronizedGroupStatistic;
 import ch.uzh.extension.campuscourse.model.CampusGroups;
 import ch.uzh.extension.campuscourse.model.CampusCourseTO;
 import org.junit.After;
@@ -125,7 +124,7 @@ public class CampusGroupsSynchronizerTest extends CampusCourseTestCase {
     @Test
     public void testSynchronizeCampusGroups_AddLectures_CheckAddedStatisticAndMembers() throws CampusCourseException {
 
-        SynchronizedGroupStatistic statistic = campusGroupsSynchronizer.synchronizeCampusGroups(
+        CampusCourseSynchronizationResult campusCourseSynchronizationResult = campusGroupsSynchronizer.synchronizeCampusGroups(
 				campusGroups,
 				new CampusCourseTO("CampusCourseTitle", null, lecturers,
                         delegatees, Collections.emptySet(), false, null, null,
@@ -153,12 +152,12 @@ public class CampusGroupsSynchronizerTest extends CampusCourseTestCase {
         assertTrue(groupCoaches.contains(forthLecturerIdentity));
         assertEquals("Wrong number of participants", 0, groupParticipants.size());
 
-        // 3. Check statistic
+        // 3. Check campusCourseSynchronizationResult
         // firstLecturerIdentity is already in group (as owner of the course) and is not added a second time
-        assertEquals("Wrong number of added identity in statistic", 3, statistic.getCoachGroupStatistic().getAddedStatistic());
-        assertEquals("Wrong number of removed identity in statistic", 0, statistic.getCoachGroupStatistic().getRemovedStatistic());
-        assertEquals("Wrong number of added identity in statistic", 0, statistic.getParticipantGroupStatistic().getAddedStatistic());
-        assertEquals("Wrong number of removed identity in statistic", 0, statistic.getParticipantGroupStatistic().getRemovedStatistic());
+        assertEquals("Wrong number of added coaches in campusCourseSynchronizationResult", 3, campusCourseSynchronizationResult.getAddedCoaches());
+        assertEquals("Wrong number of removed coaches in campusCourseSynchronizationResult", 0, campusCourseSynchronizationResult.getRemovedCoaches());
+        assertEquals("Wrong number of added participants in campusCourseSynchronizationResult", 0, campusCourseSynchronizationResult.getAddedParticipants());
+        assertEquals("Wrong number of removed participants in campusCourseSynchronizationResult", 0, campusCourseSynchronizationResult.getRemovedParticipants());
     }
 
     /**
@@ -168,7 +167,7 @@ public class CampusGroupsSynchronizerTest extends CampusCourseTestCase {
     @Test
     public void testSynchronizeCampusGroups_AddParticipants_CheckAddedStatisticAndMembers() throws CampusCourseException {
 
-        SynchronizedGroupStatistic statistic = campusGroupsSynchronizer.synchronizeCampusGroups(
+        CampusCourseSynchronizationResult campusCourseSynchronizationResult = campusGroupsSynchronizer.synchronizeCampusGroups(
                 campusGroups,
 				new CampusCourseTO("CampusCourseTitle", null, Collections.emptySet(),
 						Collections.emptySet(), participants, false, null, null,
@@ -192,12 +191,11 @@ public class CampusGroupsSynchronizerTest extends CampusCourseTestCase {
         assertTrue(groupCoaches.contains(firstLecturerIdentity));
         assertEquals("Wrong number of participants", 0, groupParticipants.size());
 
-        // 3. Check statistic
-        assertEquals("Wrong number of added identity in statistic", 0, statistic.getCoachGroupStatistic().getAddedStatistic());
-        assertEquals("Wrong number of removed identity in statistic", 0, statistic.getCoachGroupStatistic().getRemovedStatistic());
-
-        assertEquals("Wrong number of added identity in statistic", 3, statistic.getParticipantGroupStatistic().getAddedStatistic());
-        assertEquals("Wrong number of removed identity in statistic", 0, statistic.getParticipantGroupStatistic().getRemovedStatistic());
+        // 3. Check campusCourseSynchronizationResult
+        assertEquals("Wrong number of added coaches in campusCourseSynchronizationResult", 0, campusCourseSynchronizationResult.getAddedCoaches());
+        assertEquals("Wrong number of removed coaches in campusCourseSynchronizationResult", 0, campusCourseSynchronizationResult.getRemovedCoaches());
+        assertEquals("Wrong number of added participants in campusCourseSynchronizationResult", 3, campusCourseSynchronizationResult.getAddedParticipants());
+        assertEquals("Wrong number of removed participants in campusCourseSynchronizationResult", 0, campusCourseSynchronizationResult.getRemovedParticipants());
     }
 
     /**
@@ -225,7 +223,7 @@ public class CampusGroupsSynchronizerTest extends CampusCourseTestCase {
         lecturers.remove(secondLecturerIdentity);
         lecturers.add(thirdLecturerIdentity);
 
-        SynchronizedGroupStatistic statistic = campusGroupsSynchronizer.synchronizeCampusGroups(
+        CampusCourseSynchronizationResult campusCourseSynchronizationResult = campusGroupsSynchronizer.synchronizeCampusGroups(
                 campusGroups,
 				new CampusCourseTO("CampusCourseTitle", null, lecturers,
 						Collections.emptySet(), Collections.emptySet(), false, null, null,
@@ -241,11 +239,11 @@ public class CampusGroupsSynchronizerTest extends CampusCourseTestCase {
         assertTrue("Missing identity (" + thirdLecturerIdentity + ") as coach of course-group", groupCoaches.contains(thirdLecturerIdentity));
         assertTrue("Missing identity (" + secondLecturerIdentity + ") as coach of course-group", groupCoaches.contains(secondLecturerIdentity));
 
-        // 2. Check statistic
-        assertEquals("Wrong number of added identity in statistic", 1, statistic.getCoachGroupStatistic().getAddedStatistic());
-        assertEquals("Wrong number of removed identity in statistic", 0, statistic.getCoachGroupStatistic().getRemovedStatistic());
-        assertEquals("Wrong number of added identity in statistic", 0, statistic.getParticipantGroupStatistic().getAddedStatistic());
-        assertEquals("Wrong number of removed identity in statistic", 0, statistic.getParticipantGroupStatistic().getRemovedStatistic());
+        // 2. Check campusCourseSynchronizationResult
+        assertEquals("Wrong number of added coaches in campusCourseSynchronizationResult", 1, campusCourseSynchronizationResult.getAddedCoaches());
+        assertEquals("Wrong number of removed coaches in campusCourseSynchronizationResult", 0, campusCourseSynchronizationResult.getRemovedCoaches());
+        assertEquals("Wrong number of added participants in campusCourseSynchronizationResult", 0, campusCourseSynchronizationResult.getAddedParticipants());
+        assertEquals("Wrong number of removed participants in campusCourseSynchronizationResult", 0, campusCourseSynchronizationResult.getRemovedParticipants());
     }
 
     /**
@@ -273,7 +271,7 @@ public class CampusGroupsSynchronizerTest extends CampusCourseTestCase {
         participants.remove(secondParticipantIdentity);
         participants.add(thirdParticipantIdentity);
 
-        SynchronizedGroupStatistic statistic = campusGroupsSynchronizer.synchronizeCampusGroups(
+        CampusCourseSynchronizationResult campusCourseSynchronizationResult = campusGroupsSynchronizer.synchronizeCampusGroups(
                 campusGroups,
 				new CampusCourseTO("CampusCourseTitle", null, Collections.emptySet(),
 						Collections.emptySet(), participants, false, null, null,
@@ -290,10 +288,10 @@ public class CampusGroupsSynchronizerTest extends CampusCourseTestCase {
         assertTrue("Missing identity (" + thirdParticipantIdentity + ")in participant-group of course-group", groupParticipants.contains(thirdParticipantIdentity));
         assertFalse("Identity (" + secondParticipantIdentity + ")is no longer member of participant-group of course-group", groupParticipants.contains(secondParticipantIdentity));
 
-        // 2. Check statistic
-        assertEquals("Wrong number of added identity in statistic", 0, statistic.getCoachGroupStatistic().getAddedStatistic());
-        assertEquals("Wrong number of removed identity in statistic", 0, statistic.getCoachGroupStatistic().getRemovedStatistic());
-        assertEquals("Wrong number of added identity in statistic", 1, statistic.getParticipantGroupStatistic().getAddedStatistic());
-        assertEquals("Wrong number of removed identity in statistic", 1, statistic.getParticipantGroupStatistic().getRemovedStatistic());
+        // 2. Check campusCourseSynchronizationResult
+        assertEquals("Wrong number of added coaches in campusCourseSynchronizationResult", 0, campusCourseSynchronizationResult.getAddedCoaches());
+        assertEquals("Wrong number of removed coaches in campusCourseSynchronizationResult", 0, campusCourseSynchronizationResult.getRemovedCoaches());
+        assertEquals("Wrong number of added participants in campusCourseSynchronizationResult", 1, campusCourseSynchronizationResult.getAddedParticipants());
+        assertEquals("Wrong number of removed participants in campusCourseSynchronizationResult", 1, campusCourseSynchronizationResult.getRemovedParticipants());
     }
 }

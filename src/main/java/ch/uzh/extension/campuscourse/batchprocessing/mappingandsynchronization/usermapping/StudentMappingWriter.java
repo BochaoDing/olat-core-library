@@ -1,5 +1,8 @@
 package ch.uzh.extension.campuscourse.batchprocessing.mappingandsynchronization.usermapping;
 
+import ch.uzh.extension.campuscourse.batchprocessing.CampusBatchStepName;
+import ch.uzh.extension.campuscourse.data.dao.BatchJobAndUserMappingStatisticDao;
+import ch.uzh.extension.campuscourse.data.entity.BatchJobAndUserMappingStatistic;
 import ch.uzh.extension.campuscourse.data.entity.Student;
 import ch.uzh.extension.campuscourse.service.usermapping.StudentMapper;
 import ch.uzh.extension.campuscourse.service.usermapping.UserMappingResult;
@@ -12,6 +15,7 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PreDestroy;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -48,28 +52,36 @@ public class StudentMappingWriter implements ItemWriter<Student> {
 
     private final DB dbInstance;
     private final StudentMapper studentMapper;
-    private final UserMappingStatistic userMappingStatistic;
+    private final BatchJobAndUserMappingStatisticDao batchJobAndUserMappingStatisticDao;
+	private final UserMappingStatistic userMappingStatistic = new UserMappingStatistic();
 
     @Autowired
-    public StudentMappingWriter(DB dbInstance, StudentMapper studentMapper, UserMappingStatistic userMappingStatistic) {
+    public StudentMappingWriter(DB dbInstance, StudentMapper studentMapper, BatchJobAndUserMappingStatisticDao batchJobAndUserMappingStatisticDao) {
         this.dbInstance = dbInstance;
         this.studentMapper = studentMapper;
-        this.userMappingStatistic = userMappingStatistic;
-    }
+		this.batchJobAndUserMappingStatisticDao = batchJobAndUserMappingStatisticDao;
+	}
 
     @PreDestroy
     public void destroy() {
-        LOG.info("MappingStatistic(Students)=" + userMappingStatistic);
+        LOG.info("Student mapping statistic: " + userMappingStatistic);
+		// Update batch job and user mapping statistic database entry
+		BatchJobAndUserMappingStatistic batchJobAndUserMappingStatistic = batchJobAndUserMappingStatisticDao.getLastCreatedUserMappingStatisticForCampusBatchStepName(CampusBatchStepName.STUDENT_MAPPING);
+		batchJobAndUserMappingStatistic.setUserMappingStatistic(userMappingStatistic);
+		dbInstance.commitAndCloseSession();
     }
 
     @Override
     public void write(List<? extends Student> students) throws Exception {
         try {
+        	List<UserMappingResult> userMappingResults = new ArrayList<>();
             for (Student student : students) {
                 UserMappingResult userMappingResult = studentMapper.tryToMap(student);
-                userMappingStatistic.addMappingResult(userMappingResult);
+				userMappingResults.add(userMappingResult);
             }
             dbInstance.commitAndCloseSession();
+			// Update user mapping statistic AFTER commit
+            userMappingStatistic.addUserMappingResults(userMappingResults);
         } catch (Throwable t) {
             dbInstance.rollbackAndCloseSession();
             // In the case of an exception, Spring Batch calls this method several times:
@@ -79,7 +91,8 @@ public class StudentMappingWriter implements ItemWriter<Student> {
             if (students.size() == 1) {
                 LOG.error(t.getMessage());
             } else {
-                LOG.debug(t.getMessage());
+            	String msg = "Error when trying to map student with sap id " + students.get(0).getId() + ": " + t.getMessage();
+                LOG.debug(msg);
             }
             throw t;
         }

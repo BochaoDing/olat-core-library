@@ -31,13 +31,13 @@ public class CourseDao {
 
 	private final DB dbInstance;
     private final SemesterDao semesterDao;
-    private final ImportStatisticDao importStatisticDao;
+    private final BatchJobAndSapImportStatisticDao batchJobAndSapImportStatisticDao;
 
     @Autowired
-    public CourseDao(DB dbInstance, SemesterDao semesterDao, ImportStatisticDao importStatisticDao) {
+    public CourseDao(DB dbInstance, SemesterDao semesterDao, BatchJobAndSapImportStatisticDao batchJobAndSapImportStatisticDao) {
         this.dbInstance = dbInstance;
         this.semesterDao = semesterDao;
-		this.importStatisticDao = importStatisticDao;
+		this.batchJobAndSapImportStatisticDao = batchJobAndSapImportStatisticDao;
 	}
 
     public void save(Course course) {
@@ -279,16 +279,6 @@ public class CourseDao {
         course.setCampusGroupB(campusGroupB);
     }
 
-    public void disableSynchronization(Long courseId) {
-        Course course = getCourseById(courseId);
-        if (course == null) {
-            String warningMessage = "No course found with id " + courseId + ". Cannot disable mappingandsynchronization;";
-            LOG.warn(warningMessage);
-            return;
-        }
-        course.setSynchronizable(false);
-    }
-
     public void resetRepositoryEntryAndParentCourse(Long repositoryEntryKey) {
         List<Course> courses = dbInstance.getCurrentEntityManager()
                 .createNamedQuery(Course.GET_COURSES_BY_REPOSITORY_ENTRY_KEY, Course.class)
@@ -370,7 +360,7 @@ public class CourseDao {
                 .getResultList();
     }
 
-    public List<Long> getRepositoryEntryKeysOfAllCreatedNotContinuedCoursesOfSpecificSemesters(List<Long> semesterIds) {
+    List<Long> getRepositoryEntryKeysOfAllCreatedNotContinuedCoursesOfSpecificSemesters(List<Long> semesterIds) {
         return dbInstance.getCurrentEntityManager()
                 .createNamedQuery(Course.GET_REPOSITORY_ENTRY_KEYS_OF_ALL_CREATED_NOT_CONTINUED_COURSES_OF_SPECIFIC_SEMESTERS, Long.class)
                 .setParameter("semesterIds", semesterIds)
@@ -434,7 +424,7 @@ public class CourseDao {
 
     public Semester getSemesterOfMostRecentCourseImport() {
 
-    	Date startTimeOfMostRecentCourseImport = importStatisticDao.getStartTimeOfMostRecentCompletedCourseImport();
+    	Date startTimeOfMostRecentCourseImport = batchJobAndSapImportStatisticDao.getStartTimeOfMostRecentCompletedCourseImport();
     	if (startTimeOfMostRecentCourseImport == null) {
     	    return null;
         }

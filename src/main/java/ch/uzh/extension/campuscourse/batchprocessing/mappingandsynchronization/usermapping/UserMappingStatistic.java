@@ -1,73 +1,83 @@
-/**
- * OLAT - Online Learning and Training<br>
- * http://www.olat.org
- * <p>
- * Licensed under the Apache License, Version 2.0 (the "License"); <br>
- * you may not use this file except in compliance with the License.<br>
- * You may obtain a copy of the License at
- * <p>
- * http://www.apache.org/licenses/LICENSE-2.0
- * <p>
- * Unless required by applicable law or agreed to in writing,<br>
- * software distributed under the License is distributed on an "AS IS" BASIS, <br>
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. <br>
- * See the License for the specific language governing permissions and <br>
- * limitations under the License.
- * <p>
- * Copyright (c) since 2004 at Multimedia- & E-Learning Services (MELS),<br>
- * University of Zurich, Switzerland.
- * <p>
- */
 package ch.uzh.extension.campuscourse.batchprocessing.mappingandsynchronization.usermapping;
 
 import ch.uzh.extension.campuscourse.service.usermapping.UserMappingResult;
-import org.springframework.context.annotation.Scope;
-import org.springframework.stereotype.Repository;
+
+import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * Initial Date: 28.06.2012 <br>
- * 
- * @author cg
+ * @author Martin Schraner
  */
-@Repository
-@Scope("prototype")
 public class UserMappingStatistic {
 
-    private int newMappingByEmailCounter;
-    private int newMappingByMatriculationNrCounter;
-    private int newMappingByPersonalNrCounter;
-    private int couldNotMapCounter;
-    private int couldBeMappedManuallyCounter;
-    private int newMappingByAdditionalPersonalNrCounter;
+	// Atomic integers for thread safety
+	private final AtomicInteger alreadyMapped = new AtomicInteger();
+	private final AtomicInteger newMappingByEmail = new AtomicInteger();
+	private final AtomicInteger newMappingByMatriculationNumber = new AtomicInteger();
+	private final AtomicInteger newMappingByPersonalNumber = new AtomicInteger();
+	private final AtomicInteger newMappingByAdditionalPersonalNumber = new AtomicInteger();
+	private final AtomicInteger couldBeMappedManually = new AtomicInteger();
+	private final AtomicInteger couldNotMap = new AtomicInteger();
 
-    void addMappingResult(UserMappingResult userMappingResult) {
-        if (userMappingResult.equals(UserMappingResult.NEW_MAPPING_BY_EMAIL)) {
-            newMappingByEmailCounter++;
-        } else if (userMappingResult.equals(UserMappingResult.NEW_MAPPING_BY_MATRICULATION_NR)) {
-            newMappingByMatriculationNrCounter++;
-        } else if (userMappingResult.equals(UserMappingResult.NEW_MAPPING_BY_PERSONAL_NR)) {
-            newMappingByPersonalNrCounter++;
-        } else if (userMappingResult.equals(UserMappingResult.COULD_NOT_MAP)) {
-            couldNotMapCounter++;
-        } else if (userMappingResult.equals(UserMappingResult.COULD_BE_MAPPED_MANUALLY)) {
-            couldBeMappedManuallyCounter++;
-        } else if (userMappingResult.equals(UserMappingResult.NEW_MAPPING_BY_ADDITIONAL_PERSONAL_NR)) {
-            newMappingByAdditionalPersonalNrCounter++;
-        }
-    }
+	void addUserMappingResults(List<UserMappingResult> userMappingResults) {
+		updateCounterOfMappingType(userMappingResults, UserMappingResult.ALREADY_MAPPED, alreadyMapped);
+		updateCounterOfMappingType(userMappingResults, UserMappingResult.NEW_MAPPING_BY_EMAIL, newMappingByEmail);
+		updateCounterOfMappingType(userMappingResults, UserMappingResult.NEW_MAPPING_BY_MATRICULATION_NUMBER, newMappingByMatriculationNumber);
+		updateCounterOfMappingType(userMappingResults, UserMappingResult.NEW_MAPPING_BY_PERSONAL_NUMBER, newMappingByPersonalNumber);
+		updateCounterOfMappingType(userMappingResults, UserMappingResult.NEW_MAPPING_BY_ADDITIONAL_PERSONAL_NUMBER, newMappingByAdditionalPersonalNumber);
+		updateCounterOfMappingType(userMappingResults, UserMappingResult.COULD_BE_MAPPED_MANUALLY, couldBeMappedManually);
+		updateCounterOfMappingType(userMappingResults, UserMappingResult.COULD_NOT_MAP, couldNotMap);
+	}
 
-    public String toString() {
-        return "MappedByEmail="
-                + newMappingByEmailCounter
-                + " , MappedByMatriculationNumber="
-                + newMappingByMatriculationNrCounter
-                + " , MappedByPersonalNumber="
-                + newMappingByPersonalNrCounter
-                + " , MappedByAdditionalPersonalNumber="
-                + newMappingByAdditionalPersonalNrCounter
-                + " , couldNotMappedBecauseNotRegistered="
-                + couldNotMapCounter
-                + " , couldBeMappedManually="
-                + couldBeMappedManuallyCounter;
-    }
+	private void updateCounterOfMappingType(List<UserMappingResult> userMappingResults, UserMappingResult mappingTypeToBeUpdated, AtomicInteger counterToBeUpdated) {
+		int numberToBeAdded = 0;
+		for (UserMappingResult userMappingResult : userMappingResults) {
+			if (userMappingResult == mappingTypeToBeUpdated) {
+				numberToBeAdded++;
+			}
+		}
+		if (numberToBeAdded != 0) {
+			// Thread safe update
+			counterToBeUpdated.getAndAdd(numberToBeAdded);
+		}
+	}
+
+	@Override
+	public String toString() {
+		return "already mapped: " + alreadyMapped.get() +
+				", new mapping by email: " + newMappingByEmail.get() +
+				", new mapping by matriculation number: " + newMappingByMatriculationNumber.get() +
+				", new mapping by personal number: " + newMappingByPersonalNumber.get() +
+				", new mapping by additional personal number: " + newMappingByAdditionalPersonalNumber.get() +
+				", could be mapped manually: " + couldBeMappedManually.get() +
+				", could not map: " + couldNotMap.get();
+	}
+
+	public AtomicInteger getAlreadyMapped() {
+		return alreadyMapped;
+	}
+
+	public AtomicInteger getNewMappingByEmail() {
+		return newMappingByEmail;
+	}
+
+	public AtomicInteger getNewMappingByMatriculationNumber() {
+		return newMappingByMatriculationNumber;
+	}
+
+	public AtomicInteger getNewMappingByPersonalNumber() {
+		return newMappingByPersonalNumber;
+	}
+
+	public AtomicInteger getNewMappingByAdditionalPersonalNumber() {
+		return newMappingByAdditionalPersonalNumber;
+	}
+
+	public AtomicInteger getCouldBeMappedManually() {
+		return couldBeMappedManually;
+	}
+
+	public AtomicInteger getCouldNotMap() {
+		return couldNotMap;
+	}
 }

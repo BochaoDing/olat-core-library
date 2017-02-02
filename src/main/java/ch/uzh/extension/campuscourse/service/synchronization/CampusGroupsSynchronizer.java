@@ -1,8 +1,6 @@
 package ch.uzh.extension.campuscourse.service.synchronization;
 
 import ch.uzh.extension.campuscourse.common.CampusCourseException;
-import ch.uzh.extension.campuscourse.service.synchronization.statistic.SynchronizedGroupStatistic;
-import ch.uzh.extension.campuscourse.service.synchronization.statistic.SynchronizedSecurityGroupStatistic;
 import ch.uzh.extension.campuscourse.model.CampusGroups;
 import ch.uzh.extension.campuscourse.model.CampusCourseTO;
 import org.olat.basesecurity.GroupRoles;
@@ -58,9 +56,9 @@ public class CampusGroupsSynchronizer {
    /**
     * Synchronize group coaches and participants of campus group A and the group coaches of campus group B.
     */
-    public SynchronizedGroupStatistic synchronizeCampusGroups(CampusGroups campusGroups,
-															  CampusCourseTO campusCourseTO,
-															  Identity creator) throws CampusCourseException {
+    public CampusCourseSynchronizationResult synchronizeCampusGroups(CampusGroups campusGroups,
+                                                                     CampusCourseTO campusCourseTO,
+                                                                     Identity creator) throws CampusCourseException {
 
         if (campusGroups.getCampusGroupA() == null) {
             throw new CampusCourseException("Campus course groups A does not exist");
@@ -70,52 +68,76 @@ public class CampusGroupsSynchronizer {
         }
 
         // Synchronize group coaches and participants of campus group A
-        SynchronizedSecurityGroupStatistic coachGroupStatistic = synchronizeGroupCoaches(creator, campusGroups.getCampusGroupA(), campusCourseTO.getLecturersOfCourse(), campusCourseTO.getDelegateesOfCourse());
-        SynchronizedSecurityGroupStatistic participantGroupStatistic = synchronizeGroupParticipants(creator, campusGroups.getCampusGroupA(), campusCourseTO.getParticipantsOfCourse());
+        GroupSynchronizationResult groupCoachesSynchronizationResult = synchronizeGroupCoaches(creator, campusGroups.getCampusGroupA(), campusCourseTO.getLecturersOfCourse(), campusCourseTO.getDelegateesOfCourse());
+        GroupSynchronizationResult groupParticipantsSynchronizationResult = synchronizeGroupParticipants(creator, campusGroups.getCampusGroupA(), campusCourseTO.getParticipantsOfCourse());
 
         // Synchronize group coaches of campus group B
         synchronizeGroupCoaches(creator, campusGroups.getCampusGroupB(), campusCourseTO.getLecturersOfCourse(), campusCourseTO.getDelegateesOfCourse());
         
-        return new SynchronizedGroupStatistic(campusCourseTO.getTitleToBeDisplayed(), coachGroupStatistic, participantGroupStatistic);
+        return new CampusCourseSynchronizationResult(
+                campusCourseTO.getTitleToBeDisplayed(),
+                groupCoachesSynchronizationResult.getAddedMembers(),
+                groupCoachesSynchronizationResult.getRemovedMembers(),
+                groupParticipantsSynchronizationResult.getAddedMembers(),
+                groupParticipantsSynchronizationResult.getRemovedMembers());
     }
     
-    private SynchronizedSecurityGroupStatistic synchronizeGroupCoaches(Identity courseOwner, BusinessGroup businessGroup, Set<Identity> lecturers, Set<Identity> delegatees) {
+    private GroupSynchronizationResult synchronizeGroupCoaches(Identity courseOwner, BusinessGroup businessGroup, Set<Identity> lecturers, Set<Identity> delegatees) {
         Set<Identity> lecturersAndDelegatees = new HashSet<>(lecturers);
         lecturersAndDelegatees.addAll(delegatees);
         // addChoaches() would be the better name, since businessGroupService.addOwners() adds the role of a coach
         // (coach == owner for business groups)
     	BusinessGroupAddResponse businessGroupAddResponse = businessGroupService.addOwners(courseOwner, null, new ArrayList<>(lecturersAndDelegatees), businessGroup, null);
-    	return new SynchronizedSecurityGroupStatistic(businessGroupAddResponse.getAddedIdentities().size(), 0);
+    	return new GroupSynchronizationResult(businessGroupAddResponse.getAddedIdentities().size(), 0);
     }
     
-    private SynchronizedSecurityGroupStatistic synchronizeGroupParticipants(Identity courseOwner, BusinessGroup businessGroup, Set<Identity> participants) {
-    	int removedIdentityCounter = removeNonParticipantsFromBusinessGroup(courseOwner, businessGroup, participants);
-        int addedIdentityCounter = addNewParticipantsToBusinessGroup(courseOwner, businessGroup, participants);
-        return new SynchronizedSecurityGroupStatistic(addedIdentityCounter, removedIdentityCounter);
+    private GroupSynchronizationResult synchronizeGroupParticipants(Identity courseOwner, BusinessGroup businessGroup, Set<Identity> participants) {
+    	int removedParticipants = removeNonParticipantsFromBusinessGroup(courseOwner, businessGroup, participants);
+        int addedParticipants = addNewParticipantsToBusinessGroup(courseOwner, businessGroup, participants);
+        return new GroupSynchronizationResult(addedParticipants, removedParticipants);
     }
 
     private int removeNonParticipantsFromBusinessGroup(Identity courseOwner, BusinessGroup businessGroup, Set<Identity> allNewParticipants) {
-        int removedIdentityCounter = 0;        
+        int removedParticipants = 0;
         List<Identity> previousMembers = businessGroupService.getMembers(businessGroup, GroupRoles.participant.name());
         List<Identity> removableParticipants = new ArrayList<>();
-        for (Identity previousParticipant : previousMembers) {
+        for (Identity previousMember : previousMembers) {
             // Check if previous member is still in new member-list
-            if (!allNewParticipants.contains(previousParticipant)) {
-                LOG.debug("Course-Group Synchronisation: Remove identity =" + previousParticipant + " from group =" + businessGroup);
-                removableParticipants.add(previousParticipant);
-                removedIdentityCounter++;
+            if (!allNewParticipants.contains(previousMember)) {
+                LOG.debug("Campus course ynchronization: Remove participant '" + previousMember + "' from group =" + businessGroup);
+                removableParticipants.add(previousMember);
+                removedParticipants++;
             }
         }
         if (removableParticipants.size() > 0) {
             businessGroupService.removeParticipants(courseOwner, removableParticipants, businessGroup, null);
         }
-        return removedIdentityCounter;
+        return removedParticipants;
     }
     
     private int addNewParticipantsToBusinessGroup(Identity courseOwner, BusinessGroup businessGroup, Set<Identity> allNewMembers) {
         BusinessGroupAddResponse businessGroupAddResponse = businessGroupService.addParticipants(courseOwner, null, new ArrayList<>(allNewMembers), businessGroup, null);
-        int addedIdentityCounter = businessGroupAddResponse.getAddedIdentities().size();
-        LOG.debug("added identities: " + addedIdentityCounter);
-        return addedIdentityCounter;
+        int addedParticipants = businessGroupAddResponse.getAddedIdentities().size();
+        LOG.debug("added participants: " + addedParticipants);
+        return addedParticipants;
     }
+
+    private class GroupSynchronizationResult {
+
+    	private final int addedMembers;
+		private final int removedMembers;
+
+    	private GroupSynchronizationResult(int addedMembers, int removedMembers) {
+			this.addedMembers = addedMembers;
+			this.removedMembers = removedMembers;
+		}
+
+		private int getAddedMembers() {
+			return addedMembers;
+		}
+
+		private int getRemovedMembers() {
+			return removedMembers;
+		}
+	}
 }

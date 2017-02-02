@@ -12,18 +12,10 @@
 	<!-- ======================================================================================= -->
 	<batch:job id="sapImportJob" >
 		<batch:listeners>
-            <batch:listener ref="sapImportJobInterceptor" />
+            <batch:listener ref="sapImportJobExecutionListener" />
 		</batch:listeners>
 
-		<batch:step id="import_controlFile" parent="campusStep" >
-			<batch:tasklet>
-				<batch:chunk reader="exportReader" processor="exportProcessor"  writer="exportWriter" skip-limit="8" retry-limit="5"/>
-			</batch:tasklet>
-			<batch:next on="COMPLETED" to="import_orgs"/>
-			<batch:fail on="FAILED" exit-code="EARLY TERMINATION"/>
-		</batch:step>
-
-		<batch:step id="import_orgs" parent="campusStep">
+		<batch:step id="importOrgs" parent="sapImportStep">
 			<batch:tasklet>
 				<batch:chunk reader="orgReader" processor="orgProcessor" writer="orgWriter" commit-interval="20" skip-limit="100" retry-limit="5"/>
 			</batch:tasklet>
@@ -35,21 +27,21 @@
 			<batch:next on="COMPLETED" to="importBooking" />
 			<batch:fail on="FAILED" exit-code="EARLY TERMINATION"/>
 			<batch:flow>
-				<batch:step id="import_students" parent="campusStep">
+				<batch:step id="importStudents" parent="sapImportStep">
 					<batch:tasklet>
 						<batch:chunk reader="studentReader" processor="studentProcessor" writer="studentWriter" commit-interval="20" skip-limit="1000" retry-limit="5"/>
 					</batch:tasklet>
 				</batch:step>
 			</batch:flow>
 			<batch:flow>
-				<batch:step id="import_lecturers" parent="campusStep">
+				<batch:step id="importLecturers" parent="sapImportStep">
 					<batch:tasklet>
 						<batch:chunk reader="lecturerReader" processor="lecturerProcessor" writer="lecturerWriter" commit-interval="20" skip-limit="500" retry-limit="5"/>
 					</batch:tasklet>
 				</batch:step>
 			</batch:flow>
 			<batch:flow>
-				<batch:step id="import_courses" parent="campusStep">
+				<batch:step id="importCourses" parent="sapImportStep">
 					<batch:tasklet>
 						<batch:chunk reader="courseReader" processor="courseProcessor" writer="courseWriter" commit-interval="20" skip-limit="100" retry-limit="5"/>
 					</batch:tasklet>
@@ -59,21 +51,21 @@
 
 		<batch:split id="importBooking" task-executor="splitTaskExecutor">
 			<batch:flow>
-				<batch:step id="import_students_Courses" parent="campusStep">
+				<batch:step id="importStudentCourses" parent="sapImportStep">
 					<batch:tasklet>
 						<batch:chunk reader="studentCourseReader" processor="studentCourseProcessor" writer="studentCourseWriter" commit-interval="20" skip-limit="1000" retry-limit="5"/>
 					</batch:tasklet>
 				</batch:step>
 			</batch:flow>
 			<batch:flow>
-				<batch:step id="import_lecturers_Courses" parent="campusStep">
+				<batch:step id="importLecturerCourses" parent="sapImportStep">
 					<batch:tasklet>
 						<batch:chunk reader="lecturerCourseReader" processor="lecturerCourseProcessor" writer="lecturerCourseWriter" commit-interval="20" skip-limit="500" retry-limit="5"/>
 					</batch:tasklet>
 				</batch:step>
 			</batch:flow>
 			<batch:flow>
-				<batch:step id="import_texts" parent="campusStep">
+				<batch:step id="importTexts" parent="sapImportStep">
 					<batch:tasklet>
 						<batch:chunk reader="textReader" processor="textProcessor" writer="textWriter" skip-limit="100000" commit-interval="20" retry-limit="5"/>
 					</batch:tasklet>
@@ -82,7 +74,7 @@
 			<!-- DISABLED FOR NOW -->
 			<!--
 			<batch:flow>
-				<batch:step id="import_events" parent="campusStep">
+				<batch:step id="import_events" parent="sapImportStep">
 					<batch:tasklet>
 						<batch:chunk reader="eventReader" processor="eventProcessor" writer="eventWriter" commit-interval="50" skip-limit="100000" retry-limit="5">
 						</batch:chunk>
@@ -94,24 +86,24 @@
 	</batch:job>
 
     <!-- ======================================================================================= -->
-    <!-- ==============USER MAPPING AND SYNCHRONIZATION JOB================== -->
+    <!-- ==============USER MAPPING AND CAMPUS COURSE SYNCHRONIZATION JOB================== -->
     <!-- ======================================================================================= -->
     <batch:job id="userMappingAndSynchronizationJob">
         <batch:listeners>
-            <batch:listener ref="userMappingAndSynchronizationJobInterceptor" />
+            <batch:listener ref="userMappingAndSynchronizationJobExecutionListener" />
         </batch:listeners>
 
         <batch:split id="userMapping" task-executor="splitTaskExecutor">
-            <batch:next on="COMPLETED" to="campusCourseSynchronisation" />
+            <batch:next on="COMPLETED" to="campusCourseSynchronization" />
             <batch:flow>
-                <batch:step id="studentMapping" parent="campusStep">
+                <batch:step id="studentMapping" parent="userMappingStep">
                     <batch:tasklet task-executor="taskletTaskExecutor">
                         <batch:chunk reader="studentMappingReader"  writer="studentMappingWriter" commit-interval="20" skip-limit="10" retry-limit="5"/>
                     </batch:tasklet>
                 </batch:step>
             </batch:flow>
             <batch:flow>
-                <batch:step id="lecturerMapping" parent="campusStep">
+                <batch:step id="lecturerMapping" parent="userMappingStep">
                     <batch:tasklet task-executor="taskletTaskExecutor">
                         <batch:chunk reader="lecturerMappingReader"  writer="lecturerMappingWriter" commit-interval="20" skip-limit="10" retry-limit="5"/>
                     </batch:tasklet>
@@ -119,7 +111,7 @@
             </batch:flow>
         </batch:split>
 
-        <batch:step id="campusCourseSynchronisation" parent="campusStep">
+        <batch:step id="campusCourseSynchronization" parent="campusCourseSynchronzationStep">
             <batch:tasklet task-executor="synchronizationTaskletTaskExecutor">
                 <batch:chunk reader="campusCourseSynchronizationReader"  writer="campusCourseSynchronizationWriter" commit-interval="20" skip-limit="50" retry-limit="5"/>
             </batch:tasklet>
@@ -128,7 +120,25 @@
 
 	<!-- ======================================================================================= -->
 	<!-- ==============STEP ================== -->
-	<!-- ======================================================================================= --> 
+	<!-- ======================================================================================= -->
+	<batch:step id="sapImportStep" parent="campusStep">
+		<batch:listeners>
+			<batch:listener ref="sapImportBatchStepExecutionListener" />
+		</batch:listeners>
+	</batch:step>
+
+	<batch:step id="userMappingStep" parent="campusStep">
+		<batch:listeners>
+			<batch:listener ref="userMappingBatchStepExecutionListener" />
+		</batch:listeners>
+	</batch:step>
+
+	<batch:step id="campusCourseSynchronzationStep" parent="campusStep">
+		<batch:listeners>
+			<batch:listener ref="campusCourseSynchronizationBatchStepExecutionListener" />
+		</batch:listeners>
+	</batch:step>
+
 	<batch:step id="campusStep" abstract="true">
 		<batch:tasklet>
 			<batch:chunk commit-interval="500">
@@ -150,10 +160,18 @@
 				</batch:skippable-exception-classes>
 			</batch:chunk>
 		</batch:tasklet>
-
-		<batch:listeners>
-			<batch:listener ref="campusBatchStepInterceptor" />
-		</batch:listeners>
 	</batch:step>
+
+	<!-- ======================================================================================= -->
+	<!-- ==============Task Executors================== -->
+	<!-- ======================================================================================= -->
+	<bean id="transactionManager" class="org.springframework.orm.jpa.JpaTransactionManager">
+		<property name="entityManagerFactory" ref="entityManagerFactory"/>
+	</bean>
+
+	<bean id="entityManagerFactory" class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean">
+		<property name="persistenceUnitName" value="default"/>
+		<property name="dataSource" ref="${db.vendor}_${db.source}_DataSource"/>
+	</bean>
 
 </beans>
