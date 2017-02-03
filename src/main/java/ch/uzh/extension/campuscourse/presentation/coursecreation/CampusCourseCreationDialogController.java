@@ -1,7 +1,7 @@
-package ch.uzh.extension.campuscourse.presentation.coursecreation.controller;
+package ch.uzh.extension.campuscourse.presentation.coursecreation;
 
-import ch.uzh.extension.campuscourse.presentation.CampusOlatControllerFactory;
-import ch.uzh.extension.campuscourse.presentation.coursecreation.controller.selection.CampusCourseDialogSelectionController;
+import ch.uzh.extension.campuscourse.presentation.CampusCourseControllerFactory;
+import ch.uzh.extension.campuscourse.presentation.coursecreation.selection.CampusCourseDialogSelectionController;
 import org.olat.core.gui.UserRequest;
 import org.olat.core.gui.components.Component;
 import org.olat.core.gui.components.velocity.VelocityContainer;
@@ -16,47 +16,47 @@ import java.util.ArrayList;
  * Initial date: 2016-08-09<br />
  * @author sev26 (UZH)
  */
-public class CampusCourseCreateDialogController extends BasicController implements CreateCampusCourseCompletedEventListener {
+public class CampusCourseCreationDialogController extends BasicController implements CreateCampusCourseCompletedEventListener {
 
 	private ArrayList<CreateCampusCourseCompletedEventListener> createCampusCourseCompletedEventListeners =
 			new ArrayList<>(1);
 	private final VelocityContainer velocityContainer;
 
-	public CampusCourseCreateDialogController(Long sapCampusCourseId,
-											  CampusOlatControllerFactory campusOlatControllerFactory,
-											  WindowControl windowControl,
-											  UserRequest userRequest) {
+	public CampusCourseCreationDialogController(Long sapCampusCourseId,
+												CampusCourseControllerFactory campusCourseControllerFactory,
+												WindowControl windowControl,
+												UserRequest userRequest) {
 		super(userRequest, windowControl);
 
-		velocityContainer = createVelocityContainer(CampusCourseCreateDialogController.class.getSimpleName());
+		velocityContainer = createVelocityContainer(CampusCourseCreationDialogController.class.getSimpleName());
 
 		CampusCourseCreationChoiceController.CampusCourseCreationChoiceControllerListener listener =
 				(x, w, u) -> {
 					switch (x) {
 						case 1:
 							velocityContainer.put(CampusCourseDialogSelectionController.class.getSimpleName(),
-									campusOlatControllerFactory
+									campusCourseControllerFactory
 											.createCreationCampusCourseSelectionTableController(
 													sapCampusCourseId, this, w, u)
 											.getInitialComponent());
 							break;
 						case 2:
 							velocityContainer.put(CampusCourseDialogSelectionController.class.getSimpleName(),
-									campusOlatControllerFactory
+									campusCourseControllerFactory
 											.createContinueCampusCourseSelectionTableController(
 													sapCampusCourseId, this, w, u)
 											.getInitialComponent());
 							break;
 						default:
 							velocityContainer.put(CampusCourseDialogSelectionController.class.getSimpleName(),
-									campusOlatControllerFactory
+									campusCourseControllerFactory
 											.createCampusCourseSubmitController(
 													sapCampusCourseId, this, w, u)
 											.getInitialComponent());
 					}
 				};
 
-		CampusCourseCreationChoiceController campusCourseCreationChoiceController = campusOlatControllerFactory
+		CampusCourseCreationChoiceController campusCourseCreationChoiceController = campusCourseControllerFactory
 				.createCampusCourseCreationChoiceController(listener,
 						windowControl, userRequest);
 		campusCourseCreationChoiceController.addControllerListener(this);
@@ -64,7 +64,7 @@ public class CampusCourseCreateDialogController extends BasicController implemen
 		velocityContainer.put(CampusCourseCreationChoiceController.class.getSimpleName(),
 				campusCourseCreationChoiceController.getInitialComponent());
 		velocityContainer.put(CampusCourseDialogSelectionController.class.getSimpleName(),
-				campusOlatControllerFactory.createCampusCourseSubmitController(
+				campusCourseControllerFactory.createCampusCourseSubmitController(
 						sapCampusCourseId, this, windowControl, userRequest).getInitialComponent());
 
 		putInitialPanel(velocityContainer);

@@ -1,4 +1,4 @@
-package ch.uzh.extension.campuscourse.presentation.list.query;
+package ch.uzh.extension.campuscourse.presentation.mycourses.query;
 
 import ch.uzh.extension.campuscourse.service.CampusCourseService;
 import ch.uzh.extension.campuscourse.model.CampusCourseTOForUI;

@@ -1,8 +1,8 @@
 package ch.uzh.extension.campuscourse.presentation;
 
 import ch.uzh.extension.campuscourse.model.CampusCourseTOForUI;
-import ch.uzh.extension.campuscourse.presentation.coursecreation.controller.CampusCourseCreateDialogController;
-import ch.uzh.extension.campuscourse.presentation.coursecreation.controller.CreateCampusCourseCompletedEventListener;
+import ch.uzh.extension.campuscourse.presentation.coursecreation.CampusCourseCreationDialogController;
+import ch.uzh.extension.campuscourse.presentation.coursecreation.CreateCampusCourseCompletedEventListener;
 import org.olat.NewControllerFactory;
 import org.olat.core.gui.UserRequest;
 import org.olat.core.gui.control.ControllerEventListener;
@@ -20,13 +20,13 @@ import org.springframework.stereotype.Component;
 
 import java.util.Locale;
 
-import static ch.uzh.extension.campuscourse.presentation.CampusOlatConfig.*;
+import static ch.uzh.extension.campuscourse.common.CampusCourseConfiguration.*;
 
 @Component
-public class CampusCourseOlatHelper {
+public class CampusCoursePresentationHelper {
 
 	private static final OLog LOG = Tracing.createLoggerFor(
-			CampusCourseOlatHelper.class);
+			CampusCoursePresentationHelper.class);
 
 
 	public void openCourseInNewTab(RepositoryEntry repositoryEntry,
@@ -48,12 +48,12 @@ public class CampusCourseOlatHelper {
 	}
 
 	public static Translator getTranslator(Locale locale) {
-		return Util.createPackageTranslator(CampusCourseOlatHelper.class,
+		return Util.createPackageTranslator(CampusCoursePresentationHelper.class,
 				locale);
 	}
 
 	public static Translator getTranslator(Locale locale, Class<?> fallbackTranslatorClazz) {
-		return Util.createPackageTranslator(CampusCourseOlatHelper.class,
+		return Util.createPackageTranslator(CampusCoursePresentationHelper.class,
 				locale, Util.createPackageTranslator(fallbackTranslatorClazz, locale));
 	}
 
@@ -99,10 +99,10 @@ public class CampusCourseOlatHelper {
 		return result;
 	}
 
-	public void showDialog(String titleKey, CampusCourseCreateDialogController controller,
+	public void showDialog(String titleKey, CampusCourseCreationDialogController controller,
 								   Locale locale, WindowControl windowControl,
 								   ControllerEventListener parent) {
-		Translator translator = CampusCourseOlatHelper.getTranslator(locale);
+		Translator translator = CampusCoursePresentationHelper.getTranslator(locale);
 		CloseableModalController cmc = new CloseableModalController(
 				windowControl, translator.translate("close"), controller.getInitialComponent(), true,
 				translator.translate(titleKey));
@@ -114,7 +114,7 @@ public class CampusCourseOlatHelper {
 			@Override
 			public void onSuccess(UserRequest userRequest, RepositoryEntry repositoryEntry) {
 				cmc.deactivate();
-				CampusCourseOlatHelper.this.openCourseInNewTab(repositoryEntry, windowControl, userRequest);
+				CampusCoursePresentationHelper.this.openCourseInNewTab(repositoryEntry, windowControl, userRequest);
 			}
 
 			@Override
@@ -125,7 +125,7 @@ public class CampusCourseOlatHelper {
 			@Override
 			public void onError(UserRequest ureq, Exception e) {
 				LOG.error(e.getMessage());
-				CampusCourseOlatHelper.showErrorCreatingCampusCourse(windowControl);
+				CampusCoursePresentationHelper.showErrorCreatingCampusCourse(windowControl);
 				cmc.deactivate();
 			}
 		});

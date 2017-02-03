@@ -1,5 +1,6 @@
 package ch.uzh.extension.campuscourse.presentation;
 
+import ch.uzh.extension.campuscourse.common.CampusCourseConfiguration;
 import org.olat.core.util.event.MultiUserEvent;
 
 /**
@@ -9,6 +10,6 @@ import org.olat.core.util.event.MultiUserEvent;
 class CampusCourseChangeEvent extends MultiUserEvent {
 
 	CampusCourseChangeEvent() {
-		super(CampusOlatConfig.RESOURCEABLE_TYPE_NAME);
+		super(CampusCourseConfiguration.RESOURCEABLE_TYPE_NAME);
 	}
 }

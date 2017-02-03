@@ -1,6 +1,5 @@
-package ch.uzh.extension.campuscourse.presentation.common.controller;
+package ch.uzh.extension.campuscourse.presentation;
 
-import ch.uzh.extension.campuscourse.presentation.CampusCourseOlatHelper;
 import org.olat.core.gui.UserRequest;
 import org.olat.core.gui.components.table.DefaultColumnDescriptor;
 import org.olat.core.gui.components.table.TableController;
@@ -26,7 +25,7 @@ public class CampusCourseTableController<T> extends TableController  implements 
 									   WindowControl windowControl,
 									   UserRequest userRequest) {
 		super(tableConfig, userRequest, windowControl,
-				CampusCourseOlatHelper.getTranslator(userRequest.getLocale()),
+				CampusCoursePresentationHelper.getTranslator(userRequest.getLocale()),
 				true);
 
 		addColumnDescriptor(new DefaultColumnDescriptor(

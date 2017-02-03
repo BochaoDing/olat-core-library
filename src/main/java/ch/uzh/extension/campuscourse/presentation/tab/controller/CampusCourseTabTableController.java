@@ -1,10 +1,10 @@
 package ch.uzh.extension.campuscourse.presentation.tab.controller;
 
 import ch.uzh.extension.campuscourse.model.CampusCourseTOForUI;
-import ch.uzh.extension.campuscourse.presentation.CampusCourseOlatHelper;
-import ch.uzh.extension.campuscourse.presentation.CampusOlatControllerFactory;
-import ch.uzh.extension.campuscourse.presentation.common.controller.CampusCourseTableController;
-import ch.uzh.extension.campuscourse.presentation.coursecreation.controller.CampusCourseCreateDialogController;
+import ch.uzh.extension.campuscourse.presentation.CampusCoursePresentationHelper;
+import ch.uzh.extension.campuscourse.presentation.CampusCourseControllerFactory;
+import ch.uzh.extension.campuscourse.presentation.CampusCourseTableController;
+import ch.uzh.extension.campuscourse.presentation.coursecreation.CampusCourseCreationDialogController;
 import ch.uzh.extension.campuscourse.presentation.tab.CampusCourseTab;
 import ch.uzh.extension.campuscourse.service.CampusCourseService;
 import org.olat.core.gui.UserRequest;
@@ -52,8 +52,8 @@ public class CampusCourseTabTableController extends CampusCourseTableController<
 	}
 
 	private final CampusCourseService campusCourseService;
-	private final CampusCourseOlatHelper campusCourseOlatHelper;
-	private final CampusOlatControllerFactory campusOlatControllerFactory;
+	private final CampusCoursePresentationHelper campusCoursePresentationHelper;
+	private final CampusCourseControllerFactory campusCourseControllerFactory;
 	private final NavElement navElement;
 	private final boolean isAuthor;
 	private GenericEventListener campusCourseTabTableControllerListener;
@@ -61,8 +61,8 @@ public class CampusCourseTabTableController extends CampusCourseTableController<
 	private Resourceable courseModule;
 
 	public CampusCourseTabTableController(CampusCourseService campusCourseService,
-										  CampusCourseOlatHelper campusCourseOlatHelper,
-										  CampusOlatControllerFactory campusOlatControllerFactory,
+										  CampusCoursePresentationHelper campusCoursePresentationHelper,
+										  CampusCourseControllerFactory campusCourseControllerFactory,
 										  StateSite stateSite,
 										  WindowControl windowControl,
 										  UserRequest userRequest) {
@@ -75,8 +75,8 @@ public class CampusCourseTabTableController extends CampusCourseTableController<
 				"tab.table.action.course",getLocale(), isAuthor));
 
 		this.campusCourseService = campusCourseService;
-		this.campusCourseOlatHelper = campusCourseOlatHelper;
-		this.campusOlatControllerFactory = campusOlatControllerFactory;
+		this.campusCoursePresentationHelper = campusCoursePresentationHelper;
+		this.campusCourseControllerFactory = campusCourseControllerFactory;
 		this.userSession = userRequest.getUserSession();
 		campusCourseTabTableControllerListener = new CampusCourseTabTableControllerListener();
 		courseModule = new Resourceable("CourseModule", null);
@@ -95,7 +95,7 @@ public class CampusCourseTabTableController extends CampusCourseTableController<
 			userSession.getSingleUserEventCenter()
 					.registerFor(campusCourseTabTableControllerListener, userRequest.getIdentity(), courseModule);
 
-			Translator translator = CampusCourseOlatHelper.getTranslator(
+			Translator translator = CampusCoursePresentationHelper.getTranslator(
 					getLocale());
 			NavElement tmp = new DefaultNavElement(translator
 					.translate("topnav.campuscourses"), translator
@@ -134,14 +134,14 @@ public class CampusCourseTabTableController extends CampusCourseTableController<
 		if ("r".equals(event.getCommand())) {
 			CampusCourseTOForUI campusCourseTOForUI = getSelectedEntry(event);
 
-			CampusCourseCreateDialogController controller = campusOlatControllerFactory
+			CampusCourseCreationDialogController controller = campusCourseControllerFactory
 					.createCampusCourseCreateDialogController(
 							campusCourseTOForUI.getSapCourseId(),
 							getWindowControl(),
 							userRequest);
 			controller.addControllerListener(this);
 
-			campusCourseOlatHelper.showDialog("campus.course.creation.title",
+			campusCoursePresentationHelper.showDialog("campus.course.creation.title",
 					controller, userRequest.getLocale(), getWindowControl(), this);
 		}
 	}

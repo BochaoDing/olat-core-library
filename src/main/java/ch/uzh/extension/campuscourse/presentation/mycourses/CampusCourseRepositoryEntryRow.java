@@ -1,6 +1,6 @@
-package ch.uzh.extension.campuscourse.presentation.list;
+package ch.uzh.extension.campuscourse.presentation.mycourses;
 
-import ch.uzh.extension.campuscourse.presentation.CampusOlatConfig;
+import ch.uzh.extension.campuscourse.common.CampusCourseConfiguration;
 import org.olat.core.gui.components.form.flexible.FormItem;
 import org.olat.core.gui.components.form.flexible.FormUIFactory;
 import org.olat.core.gui.components.form.flexible.elements.FormLink;
@@ -21,7 +21,7 @@ public class CampusCourseRepositoryEntryRow extends RepositoryEntryRow {
 										  Translator translator) {
 		super(entry);
 
-        if (CampusOlatConfig.AUTHOR_LECTURER_RESOURCEABLE_TYPE_NAME.equals(entry
+        if (CampusCourseConfiguration.AUTHOR_LECTURER_RESOURCEABLE_TYPE_NAME.equals(entry
 				.getOlatResource().getResourceableTypeName())) {
 			/*
 			 * Link name must be unique!
@@ -33,7 +33,7 @@ public class CampusCourseRepositoryEntryRow extends RepositoryEntryRow {
 			tmp.setCustomEnabledLinkCSS("o_create btn-block");
 			tmp.setIconRightCSS("o_icon o_icon_create");
 			formItem = tmp;
-		} else if (CampusOlatConfig.LECTURER_RESOURCEABLE_TYPE_NAME.equals(entry
+		} else if (CampusCourseConfiguration.LECTURER_RESOURCEABLE_TYPE_NAME.equals(entry
 				.getOlatResource().getResourceableTypeName())) {
 			/*
 			 * TODO sev26

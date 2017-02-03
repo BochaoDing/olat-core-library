@@ -1,7 +1,6 @@
-package ch.uzh.extension.campuscourse.presentation.common.controller;
+package ch.uzh.extension.campuscourse.presentation;
 
-import ch.uzh.extension.campuscourse.presentation.CampusCourseOlatHelper;
-import ch.uzh.extension.campuscourse.presentation.coursecreation.controller.CreateCampusCourseCompletedEventListener;
+import ch.uzh.extension.campuscourse.presentation.coursecreation.CreateCampusCourseCompletedEventListener;
 import ch.uzh.extension.campuscourse.service.CampusCourseService;
 import org.olat.core.gui.UserRequest;
 import org.olat.core.gui.components.Component;
@@ -46,7 +45,7 @@ public class CampusCourseSelectionController<T> extends BasicController {
 										   WindowControl windowControl,
 										   UserRequest userRequest) {
 		super(userRequest, windowControl,
-				CampusCourseOlatHelper.getTranslator(userRequest.getLocale()));
+				CampusCoursePresentationHelper.getTranslator(userRequest.getLocale()));
 
 		this.sapCampusCourseId = sapCampusCourseId;
 		this.campusCourseService = campusCourseService;

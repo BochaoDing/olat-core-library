@@ -1,6 +1,6 @@
-package ch.uzh.extension.campuscourse.presentation.coursecreation.controller;
+package ch.uzh.extension.campuscourse.presentation.coursecreation;
 
-import ch.uzh.extension.campuscourse.presentation.CampusCourseOlatHelper;
+import ch.uzh.extension.campuscourse.presentation.CampusCoursePresentationHelper;
 import org.olat.core.gui.UserRequest;
 import org.olat.core.gui.components.form.flexible.FormItem;
 import org.olat.core.gui.components.form.flexible.FormItemContainer;
@@ -32,7 +32,6 @@ public class CampusCourseCreationChoiceController extends FormBasicController {
 	private static final String[] campusCourseCreationOptions =
 			new String[campusCourseCreationKeys.length];
 
-	private final Translator translator;
 	private final SingleSelection campusCourseCreationRadioButtons;
 	private final CampusCourseCreationChoiceControllerListener listener;
 
@@ -42,7 +41,7 @@ public class CampusCourseCreationChoiceController extends FormBasicController {
 		super(userRequest, windowControl, FormBasicController.LAYOUT_VERTICAL);
 
 		this.listener = listener;
-		this.translator = CampusCourseOlatHelper.getTranslator(userRequest.getLocale());
+		Translator translator = CampusCoursePresentationHelper.getTranslator(userRequest.getLocale());
 
 		initForm(userRequest);
 

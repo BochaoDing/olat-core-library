@@ -1,6 +1,6 @@
-package ch.uzh.extension.campuscourse.presentation.coursecreation.controller.table;
+package ch.uzh.extension.campuscourse.presentation.coursecreation.table;
 
-import ch.uzh.extension.campuscourse.presentation.common.controller.CampusCourseTableController;
+import ch.uzh.extension.campuscourse.presentation.CampusCourseTableController;
 import org.olat.core.gui.UserRequest;
 import org.olat.core.gui.components.table.DefaultColumnDescriptor;
 import org.olat.core.gui.components.table.TableGuiConfiguration;

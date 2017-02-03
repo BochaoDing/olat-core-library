@@ -1,11 +1,10 @@
 package ch.uzh.extension.campuscourse.presentation;
 
+import ch.uzh.extension.campuscourse.common.CampusCourseConfiguration;
 import org.olat.core.id.Persistable;
 import org.olat.resource.OLATResource;
 
 import java.util.Date;
-
-import static ch.uzh.extension.campuscourse.presentation.CampusOlatConfig.NOT_CREATED_CAMPUS_COURSE_RESOURCE_ID;
 
 /**
  * Initial date: 2016-08-05<br />
@@ -35,7 +34,7 @@ final class CampusCourseOlatResource implements OLATResource {
 
 	@Override
 	public Long getResourceableId() {
-		return NOT_CREATED_CAMPUS_COURSE_RESOURCE_ID;
+		return CampusCourseConfiguration.NOT_CREATED_CAMPUS_COURSE_RESOURCE_ID;
 	}
 
 	@Override

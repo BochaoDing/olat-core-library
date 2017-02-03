@@ -1,6 +1,6 @@
-package ch.uzh.extension.campuscourse.presentation.coursecreation.controller.selection;
+package ch.uzh.extension.campuscourse.presentation.coursecreation.selection;
 
-import ch.uzh.extension.campuscourse.presentation.coursecreation.controller.CreateCampusCourseCompletedEventListener;
+import ch.uzh.extension.campuscourse.presentation.coursecreation.CreateCampusCourseCompletedEventListener;
 import ch.uzh.extension.campuscourse.service.CampusCourseService;
 import org.olat.core.gui.UserRequest;
 import org.olat.core.gui.control.Controller;

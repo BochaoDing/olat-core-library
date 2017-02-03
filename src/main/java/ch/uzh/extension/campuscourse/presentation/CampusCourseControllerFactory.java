@@ -1,11 +1,11 @@
 package ch.uzh.extension.campuscourse.presentation;
 
-import ch.uzh.extension.campuscourse.presentation.coursecreation.controller.CampusCourseCreateDialogController;
-import ch.uzh.extension.campuscourse.presentation.coursecreation.controller.CampusCourseCreationChoiceController;
-import ch.uzh.extension.campuscourse.presentation.coursecreation.controller.CreateCampusCourseCompletedEventListener;
-import ch.uzh.extension.campuscourse.presentation.coursecreation.controller.selection.CampusCourseSubmitController;
-import ch.uzh.extension.campuscourse.presentation.coursecreation.controller.selection.ContinueCampusCourseSelectionController;
-import ch.uzh.extension.campuscourse.presentation.coursecreation.controller.selection.CreationCampusCourseSelectionController;
+import ch.uzh.extension.campuscourse.presentation.coursecreation.CampusCourseCreationDialogController;
+import ch.uzh.extension.campuscourse.presentation.coursecreation.CampusCourseCreationChoiceController;
+import ch.uzh.extension.campuscourse.presentation.coursecreation.CreateCampusCourseCompletedEventListener;
+import ch.uzh.extension.campuscourse.presentation.coursecreation.selection.CampusCourseSubmitController;
+import ch.uzh.extension.campuscourse.presentation.coursecreation.selection.ContinueCampusCourseSelectionController;
+import ch.uzh.extension.campuscourse.presentation.coursecreation.selection.CreationCampusCourseSelectionController;
 import ch.uzh.extension.campuscourse.presentation.tab.controller.CampusCourseTabTableController;
 import ch.uzh.extension.campuscourse.service.CampusCourseService;
 import org.olat.core.gui.UserRequest;
@@ -20,25 +20,25 @@ import org.springframework.stereotype.Component;
  * @author Martin Schraner
  */
 @Component
-public class CampusOlatControllerFactory {
+public class CampusCourseControllerFactory {
 
 	private final CampusCourseService campusCourseService;
 	private final RepositoryManager repositoryManager;
-	private final CampusCourseOlatHelper campusCourseOlatHelper;
+	private final CampusCoursePresentationHelper campusCoursePresentationHelper;
 
 	@Autowired
-	public CampusOlatControllerFactory(CampusCourseService campusCourseService, RepositoryManager repositoryManager, CampusCourseOlatHelper campusCourseOlatHelper) {
+	public CampusCourseControllerFactory(CampusCourseService campusCourseService, RepositoryManager repositoryManager, CampusCoursePresentationHelper campusCoursePresentationHelper) {
 		this.campusCourseService = campusCourseService;
 		this.repositoryManager = repositoryManager;
-		this.campusCourseOlatHelper = campusCourseOlatHelper;
+		this.campusCoursePresentationHelper = campusCoursePresentationHelper;
 	}
 
-	public CampusCourseCreateDialogController createCampusCourseCreateDialogController(
+	public CampusCourseCreationDialogController createCampusCourseCreateDialogController(
 			Long sapCampusCourseId,
 			WindowControl windowControl,
 			UserRequest userRequest
 	) {
-		return new CampusCourseCreateDialogController(sapCampusCourseId,
+		return new CampusCourseCreationDialogController(sapCampusCourseId,
 				this, windowControl, userRequest);
 	}
 
@@ -57,7 +57,7 @@ public class CampusOlatControllerFactory {
 			WindowControl windowControl, UserRequest userRequest
 	) {
 		return new CampusCourseSubmitController(sapCampusCourseId,
-				campusCourseService, campusCourseOlatHelper, listener,
+				campusCourseService, campusCoursePresentationHelper, listener,
 				windowControl, userRequest);
 	}
 
@@ -97,7 +97,7 @@ public class CampusOlatControllerFactory {
 	) {
 		return new CampusCourseTabTableController(
 				campusCourseService,
-				campusCourseOlatHelper,
+				campusCoursePresentationHelper,
 				this,
 				new StateSite(parent),
 				windowControl,

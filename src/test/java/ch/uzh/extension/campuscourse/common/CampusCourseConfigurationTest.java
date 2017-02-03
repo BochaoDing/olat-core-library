@@ -29,7 +29,7 @@ public class CampusCourseConfigurationTest extends CampusCourseTestCase {
     public void getTemplateCourseOlatResourceKey_DefaultValue() {
         // Delete property entry (if exists)
         Long oldValue = campusCourseConfiguration.getTemplateRepositoryEntryId(defaultTemplateLanguage);
-        campusCourseConfiguration.deleteTemplateRepositoryEntryIdPropertyIfExists(null);
+        campusCourseConfiguration.deleteTemplateRepositoryEntryIdPropertyIfExists();
 
         Long configValue = campusCourseConfiguration.getTemplateRepositoryEntryId(null);
         assertEquals("Wrong default value, config-value is different to value in olat.properties", defaultValue, configValue.toString());

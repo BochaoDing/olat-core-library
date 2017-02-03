@@ -1,4 +1,4 @@
-package ch.uzh.extension.campuscourse.presentation.coursecreation.controller;
+package ch.uzh.extension.campuscourse.presentation.coursecreation;
 
 import org.olat.core.gui.UserRequest;
 import org.olat.repository.RepositoryEntry;

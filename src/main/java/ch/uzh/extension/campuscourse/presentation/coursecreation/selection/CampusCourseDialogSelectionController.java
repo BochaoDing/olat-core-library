@@ -1,9 +1,9 @@
-package ch.uzh.extension.campuscourse.presentation.coursecreation.controller.selection;
+package ch.uzh.extension.campuscourse.presentation.coursecreation.selection;
 
-import ch.uzh.extension.campuscourse.presentation.common.controller.CampusCourseSelectionController;
-import ch.uzh.extension.campuscourse.presentation.common.controller.CampusCourseTableController;
-import ch.uzh.extension.campuscourse.presentation.coursecreation.controller.CreateCampusCourseCompletedEventListener;
-import ch.uzh.extension.campuscourse.presentation.coursecreation.controller.table.CampusCourseDialogTableController;
+import ch.uzh.extension.campuscourse.presentation.CampusCourseSelectionController;
+import ch.uzh.extension.campuscourse.presentation.CampusCourseTableController;
+import ch.uzh.extension.campuscourse.presentation.coursecreation.CreateCampusCourseCompletedEventListener;
+import ch.uzh.extension.campuscourse.presentation.coursecreation.table.CampusCourseDialogTableController;
 import ch.uzh.extension.campuscourse.service.CampusCourseService;
 import org.olat.core.gui.UserRequest;
 import org.olat.core.gui.control.WindowControl;

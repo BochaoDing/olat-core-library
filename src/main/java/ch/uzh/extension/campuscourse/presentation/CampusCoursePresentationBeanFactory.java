@@ -1,6 +1,6 @@
 package ch.uzh.extension.campuscourse.presentation;
 
-import ch.uzh.extension.campuscourse.presentation.list.CampusCourseRepositoryEntryRow;
+import ch.uzh.extension.campuscourse.presentation.mycourses.CampusCourseRepositoryEntryRow;
 import ch.uzh.extension.campuscourse.presentation.tab.CampusCourseTabDefinition;
 import org.olat.core.dispatcher.mapper.MapperService;
 import org.olat.core.extensions.action.GenericActionExtension;
@@ -25,15 +25,16 @@ import org.springframework.context.annotation.Scope;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
-import static ch.uzh.extension.campuscourse.presentation.CampusOlatConfig.NOT_CREATED_CAMPUS_COURSE_RESOURCE_ID;
+import static ch.uzh.extension.campuscourse.common.CampusCourseConfiguration.NOT_CREATED_CAMPUS_COURSE_RESOURCE_ID;
 
 /**
  * Initial date: 2016-06-29<br />
  * @author sev26 (UZH)
  */
 @Configuration
-public class CampusOlatBeanFactory {
+public class CampusCoursePresentationBeanFactory {
 
 	@Autowired
 	private RepositoryModule repositoryModule;
@@ -55,7 +56,7 @@ public class CampusOlatBeanFactory {
 	public GenericActionExtension genericActionExtension() {
 
 		AutoCreator autoCreator = new AutoCreator();
-		autoCreator.setClassName("ch.uzh.extension.campuscourse.olat.admin.CampusAdminController");
+		autoCreator.setClassName("ch.uzh.extension.campuscourse.presentation.admin.CampusAdminController");
 
 		List<String> extensionPoints = new ArrayList<>();
 		extensionPoints.add("org.olat.admin.SystemAdminMainController");
@@ -65,7 +66,7 @@ public class CampusOlatBeanFactory {
 		genericActionExtension.setNavigationKey("ck");
 		genericActionExtension.setI18nActionKey("menu.campus");
 		genericActionExtension.setI18nDescriptionKey("menu.campus");
-		genericActionExtension.setTranslationPackage("ch.uzh.extension.campuscourse.olat.admin");
+		genericActionExtension.setTranslationPackage("ch.uzh.extension.campuscourse.presentation.admin");
 		genericActionExtension.setExtensionPoints(extensionPoints);
 		genericActionExtension.setParentTreeNodeIdentifier("modulesParent");
 		return genericActionExtension;
@@ -78,7 +79,7 @@ public class CampusOlatBeanFactory {
 		VelocityContainer velocityContainer = new VelocityContainer(null,
 				"vc_" + "row_1",
 				Util.getPackageVelocityRoot(CampusCourseRepositoryEntryRow.class) + "/row_1.html",
-				CampusCourseOlatHelper.getTranslator(caller.getLocale(),
+				CampusCoursePresentationHelper.getTranslator(caller.getLocale(),
 						RepositoryService.class),
 				caller
 		);
@@ -93,12 +94,12 @@ public class CampusOlatBeanFactory {
 		return new RepositoryEntryRowFactory(repositoryManager,
 				repositoryModule, mapperService, userRequest) {
 
-			Translator translator = CampusCourseOlatHelper
+			Translator translator = CampusCoursePresentationHelper
 					.getTranslator(userRequest.getLocale());
 
 			@Override
 			public RepositoryEntryRow create(RepositoryEntryMyView entry) {
-				if (entry.getOlatResource().getResourceableId() == NOT_CREATED_CAMPUS_COURSE_RESOURCE_ID)
+				if (Objects.equals(entry.getOlatResource().getResourceableId(), NOT_CREATED_CAMPUS_COURSE_RESOURCE_ID))
 					return new CampusCourseRepositoryEntryRow(entry, translator);
 				else
 					return super.create(entry);

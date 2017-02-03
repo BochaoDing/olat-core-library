@@ -1,6 +1,6 @@
 package ch.uzh.extension.campuscourse.presentation.tab;
 
-import ch.uzh.extension.campuscourse.presentation.CampusOlatControllerFactory;
+import ch.uzh.extension.campuscourse.presentation.CampusCourseControllerFactory;
 import ch.uzh.extension.campuscourse.presentation.tab.controller.CampusCourseTabTableController;
 import org.olat.core.gui.UserRequest;
 import org.olat.core.gui.control.Controller;
@@ -16,18 +16,18 @@ import org.olat.core.gui.control.navigation.SiteDefinition;
  */
 public class CampusCourseTab extends AbstractSiteInstance {
 
-	private final CampusOlatControllerFactory campusOlatControllerFactory;
+	private final CampusCourseControllerFactory campusCourseControllerFactory;
 
 	private CampusCourseTabTableController campusCourseTabTableController;
 
 	CampusCourseTab(SiteDefinition siteDefinition,
-					CampusOlatControllerFactory campusOlatControllerFactory,
+					CampusCourseControllerFactory campusCourseControllerFactory,
 					WindowControl windowControl, UserRequest userRequest) {
 		super(siteDefinition);
 
-		this.campusOlatControllerFactory = campusOlatControllerFactory;
+		this.campusCourseControllerFactory = campusCourseControllerFactory;
 
-		campusCourseTabTableController = campusOlatControllerFactory
+		campusCourseTabTableController = campusCourseControllerFactory
 				.createCampusCourseTabController(this, windowControl,
 						userRequest);
 	}
@@ -41,7 +41,7 @@ public class CampusCourseTab extends AbstractSiteInstance {
 	protected Controller createController(UserRequest userRequest,
 										  WindowControl windowControl,
 										  SiteConfiguration siteConfiguration) {
-		return campusCourseTabTableController = campusOlatControllerFactory
+		return campusCourseTabTableController = campusCourseControllerFactory
 				.createCampusCourseTabController(this, windowControl,
 						userRequest);
 	}

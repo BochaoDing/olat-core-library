@@ -1,8 +1,8 @@
-package ch.uzh.extension.campuscourse.presentation.list;
+package ch.uzh.extension.campuscourse.presentation.mycourses;
 
-import ch.uzh.extension.campuscourse.presentation.CampusCourseOlatHelper;
-import ch.uzh.extension.campuscourse.presentation.CampusOlatControllerFactory;
-import ch.uzh.extension.campuscourse.presentation.coursecreation.controller.CampusCourseCreateDialogController;
+import ch.uzh.extension.campuscourse.presentation.CampusCoursePresentationHelper;
+import ch.uzh.extension.campuscourse.presentation.CampusCourseControllerFactory;
+import ch.uzh.extension.campuscourse.presentation.coursecreation.CampusCourseCreationDialogController;
 import org.olat.core.gui.UserRequest;
 import org.olat.core.gui.components.form.flexible.FormItem;
 import org.olat.core.gui.components.form.flexible.elements.FormLink;
@@ -21,16 +21,16 @@ import org.springframework.stereotype.Component;
 @Component
 public class CampusCourseRepositoryEntryListControllerFormInnerEventListener extends RepositoryEntryListControllerFormInnerEventListener {
 
-	private final CampusOlatControllerFactory campusOlatControllerFactory;
-	private final CampusCourseOlatHelper campusCourseOlatHelper;
+	private final CampusCourseControllerFactory campusCourseControllerFactory;
+	private final CampusCoursePresentationHelper campusCoursePresentationHelper;
 
 	@Autowired
 	public CampusCourseRepositoryEntryListControllerFormInnerEventListener(
-			CampusOlatControllerFactory campusOlatControllerFactory,
-			CampusCourseOlatHelper campusCourseOlatHelper
+			CampusCourseControllerFactory campusCourseControllerFactory,
+			CampusCoursePresentationHelper campusCoursePresentationHelper
 	) {
-		this.campusOlatControllerFactory = campusOlatControllerFactory;
-		this.campusCourseOlatHelper = campusCourseOlatHelper;
+		this.campusCourseControllerFactory = campusCourseControllerFactory;
+		this.campusCoursePresentationHelper = campusCoursePresentationHelper;
 	}
 
 	@Override
@@ -41,11 +41,11 @@ public class CampusCourseRepositoryEntryListControllerFormInnerEventListener ext
 			if ("createCampusCourse".equals(formLink.getCmd())) {
 				RepositoryEntryRow row = (RepositoryEntryRow) formLink.getUserObject();
 
-				CampusCourseCreateDialogController controller = campusOlatControllerFactory
+				CampusCourseCreationDialogController controller = campusCourseControllerFactory
 						.createCampusCourseCreateDialogController(row.getKey(),
 								windowControl, userRequest);
 				controller.addControllerListener(parent);
-				campusCourseOlatHelper.showDialog("campus.course.creation.title",
+				campusCoursePresentationHelper.showDialog("campus.course.creation.title",
 						controller, userRequest.getLocale(), windowControl, parent);
 			}
 		}

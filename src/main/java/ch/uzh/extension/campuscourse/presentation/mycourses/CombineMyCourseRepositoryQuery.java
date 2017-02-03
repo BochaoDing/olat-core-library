@@ -1,6 +1,6 @@
-package ch.uzh.extension.campuscourse.presentation.list;
+package ch.uzh.extension.campuscourse.presentation.mycourses;
 
-import ch.uzh.extension.campuscourse.presentation.list.query.CampusCourseMyCourseRepositoryQuery;
+import ch.uzh.extension.campuscourse.presentation.mycourses.query.CampusCourseMyCourseRepositoryQuery;
 import org.olat.repository.RepositoryEntryMyView;
 import org.olat.repository.manager.RepositoryEntryMyCourseQueries;
 import org.olat.repository.manager.coursequery.MyCourseRepositoryQuery;

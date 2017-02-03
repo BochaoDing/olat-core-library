@@ -1,7 +1,7 @@
-package ch.uzh.extension.campuscourse.presentation.coursecreation.controller.selection;
+package ch.uzh.extension.campuscourse.presentation.coursecreation.selection;
 
-import ch.uzh.extension.campuscourse.presentation.CampusCourseOlatHelper;
-import ch.uzh.extension.campuscourse.presentation.coursecreation.controller.CreateCampusCourseCompletedEventListener;
+import ch.uzh.extension.campuscourse.presentation.CampusCoursePresentationHelper;
+import ch.uzh.extension.campuscourse.presentation.coursecreation.CreateCampusCourseCompletedEventListener;
 import ch.uzh.extension.campuscourse.service.CampusCourseService;
 import org.olat.core.gui.UserRequest;
 import org.olat.core.gui.components.Component;
@@ -24,7 +24,7 @@ public class CampusCourseSubmitController extends BasicController {
 
 	private final Long sapCampusCourseId;
 	private final CampusCourseService campusCourseService;
-	private final CampusCourseOlatHelper campusCourseOlatHelper;
+	private final CampusCoursePresentationHelper campusCoursePresentationHelper;
 	private final CreateCampusCourseCompletedEventListener listener;
 
 	private final Link createButton;
@@ -32,16 +32,16 @@ public class CampusCourseSubmitController extends BasicController {
 
 	public CampusCourseSubmitController(Long sapCampusCourseId,
 										CampusCourseService campusCourseService,
-										CampusCourseOlatHelper campusCourseOlatHelper,
-			                            CreateCampusCourseCompletedEventListener listener,
+										CampusCoursePresentationHelper campusCoursePresentationHelper,
+										CreateCampusCourseCompletedEventListener listener,
 										WindowControl windowControl,
 										UserRequest userRequest) {
-		super(userRequest, windowControl, CampusCourseOlatHelper
+		super(userRequest, windowControl, CampusCoursePresentationHelper
 				.getTranslator(userRequest.getLocale()));
 
 		this.sapCampusCourseId = sapCampusCourseId;
 		this.campusCourseService = campusCourseService;
-		this.campusCourseOlatHelper = campusCourseOlatHelper;
+		this.campusCoursePresentationHelper = campusCoursePresentationHelper;
 		this.listener = listener;
 
 		VelocityContainer velocityContainer = createVelocityContainer(
@@ -65,7 +65,7 @@ public class CampusCourseSubmitController extends BasicController {
 								userRequest.getIdentity());
 
 				listener.onCancel(userRequest);
-				campusCourseOlatHelper.openCourseInNewTab(createdRepositoryEntry, getWindowControl(), userRequest);
+				campusCoursePresentationHelper.openCourseInNewTab(createdRepositoryEntry, getWindowControl(), userRequest);
 			} catch (Exception e) {
 				listener.onError(userRequest, e);
 			}

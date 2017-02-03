@@ -1,6 +1,6 @@
 package ch.uzh.extension.campuscourse.presentation.tab.controller;
 
-import ch.uzh.extension.campuscourse.presentation.CampusCourseOlatHelper;
+import ch.uzh.extension.campuscourse.presentation.CampusCoursePresentationHelper;
 import ch.uzh.extension.campuscourse.model.CampusCourseTOForUI;
 import org.olat.core.gui.components.table.DefaultTableDataModel;
 import org.olat.core.gui.translator.Translator;
@@ -42,7 +42,7 @@ class CampusCourseTableDataModel extends DefaultTableDataModel<CampusCourseTOFor
 			CampusCourseTOForUI campusCourseTOForUI = objects.get(row);
 			return campusCourseTOForUI.getTitle();
 		} else {
-			Translator translator = CampusCourseOlatHelper
+			Translator translator = CampusCoursePresentationHelper
 					.getTranslator(locale);
 			return this.isAuthor ?
 					translator.translate("list.course.create")

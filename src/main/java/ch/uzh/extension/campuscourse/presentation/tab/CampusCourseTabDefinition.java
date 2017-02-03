@@ -1,6 +1,6 @@
 package ch.uzh.extension.campuscourse.presentation.tab;
 
-import ch.uzh.extension.campuscourse.presentation.CampusOlatControllerFactory;
+import ch.uzh.extension.campuscourse.presentation.CampusCourseControllerFactory;
 import org.olat.core.gui.UserRequest;
 import org.olat.core.gui.control.WindowControl;
 import org.olat.core.gui.control.navigation.AbstractSiteDefinition;
@@ -16,7 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 public class CampusCourseTabDefinition extends AbstractSiteDefinition implements SiteDefinition {
 
 	@Autowired
-	private CampusOlatControllerFactory campusCoursecampusOlatControllerFactory;
+	private CampusCourseControllerFactory campusCoursecampusCourseControllerFactory;
 
 	@Override
 	public SiteInstance createSite(UserRequest userRequest,
@@ -25,7 +25,7 @@ public class CampusCourseTabDefinition extends AbstractSiteDefinition implements
 		/*
 		 * Not created by a factory because this class acts like a factory.
 		 */
-		return new CampusCourseTab(this, campusCoursecampusOlatControllerFactory,
+		return new CampusCourseTab(this, campusCoursecampusCourseControllerFactory,
 				windowControl, userRequest);
 	}
 }

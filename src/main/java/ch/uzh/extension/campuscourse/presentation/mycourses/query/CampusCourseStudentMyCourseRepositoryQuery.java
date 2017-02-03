@@ -1,6 +1,6 @@
-package ch.uzh.extension.campuscourse.presentation.list.query;
+package ch.uzh.extension.campuscourse.presentation.mycourses.query;
 
-import ch.uzh.extension.campuscourse.presentation.CampusCourseOlatHelper;
+import ch.uzh.extension.campuscourse.presentation.CampusCoursePresentationHelper;
 import ch.uzh.extension.campuscourse.service.CampusCourseService;
 import ch.uzh.extension.campuscourse.model.CampusCourseTOForUI;
 import org.olat.core.id.Roles;
@@ -43,6 +43,6 @@ public class CampusCourseStudentMyCourseRepositoryQuery extends CampusCourseMyCo
 
 	@Override
 	protected RepositoryEntry getRepositoryEntry(CampusCourseTOForUI campusCourseTOForUI, Roles roles) {
-		return CampusCourseOlatHelper.getStudentRepositoryEntry(campusCourseTOForUI);
+		return CampusCoursePresentationHelper.getStudentRepositoryEntry(campusCourseTOForUI);
 	}
 }
