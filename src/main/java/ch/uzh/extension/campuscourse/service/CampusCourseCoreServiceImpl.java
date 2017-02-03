@@ -5,7 +5,6 @@ import ch.uzh.extension.campuscourse.common.CampusCourseException;
 import ch.uzh.extension.campuscourse.data.entity.Course;
 import ch.uzh.extension.campuscourse.service.dao.DaoManager;
 import ch.uzh.extension.campuscourse.model.SapUserType;
-import ch.uzh.extension.campuscourse.presentation.admin.CampusCourseEvent;
 import ch.uzh.extension.campuscourse.service.coursecreation.CampusCoursePublisher;
 import ch.uzh.extension.campuscourse.service.coursecreation.CampusGroupsCreator;
 import ch.uzh.extension.campuscourse.service.coursecreation.OlatCampusCourseCreator;
@@ -212,9 +211,6 @@ public class CampusCourseCoreServiceImpl implements CampusCourseCoreService {
             daoManager.saveCampusGroupB(campusCourseTO.getSapCourseId(), campusGroups.getCampusGroupB().getKey());
             dbInstance.intermediateCommit();
 
-            // Notify possible listeners about CREATED event
-            sendCampusCourseEvent(CampusCourseEvent.CREATED);
-
             return createdRepositoryEntry;
 
         } catch (Exception e1) {
@@ -287,9 +283,6 @@ public class CampusCourseCoreServiceImpl implements CampusCourseCoreService {
 
         dbInstance.intermediateCommit();
 
-        // Notify possible listeners about CONTINUED event
-        sendCampusCourseEvent(CampusCourseEvent.CONTINUED);
-
         return childCampusCourseTO.getRepositoryEntry();
     }
 
@@ -302,9 +295,6 @@ public class CampusCourseCoreServiceImpl implements CampusCourseCoreService {
     public void resetRepositoryEntryAndParentCourse(RepositoryEntry repositoryEntry) {
         LOG.debug("resetRepositoryEntryAndParentCourse for repositoryentry_id =" + repositoryEntry.getKey());
         daoManager.resetRepositoryEntryAndParentCourse(repositoryEntry.getKey());
-
-        // Notify possible listeners about DELETED event
-        sendCampusCourseEvent(CampusCourseEvent.DELETED);
     }
 
     @Override
@@ -363,11 +353,5 @@ public class CampusCourseCoreServiceImpl implements CampusCourseCoreService {
     public void deleteDelegation(Identity delegator, Identity delegatee) {
         daoManager.deleteDelegation(delegator, delegatee);
         dbInstance.intermediateCommit();
-    }
-
-    private void sendCampusCourseEvent(int event) {
-        CoordinatorManager.getInstance().getCoordinator().getEventBus().fireEventToListenersOf(
-                new CampusCourseEvent(event), OresHelper.lookupType(RepositoryEntry.class)
-        );
     }
 }
