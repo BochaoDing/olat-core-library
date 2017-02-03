@@ -25,7 +25,7 @@
 
 package org.olat.admin.user;
 
-import ch.uzh.extension.campuscourse.olat.admin.DelegationController;
+import ch.uzh.extension.campuscourse.presentation.admin.DelegationController;
 import org.olat.admin.user.course.CourseOverviewController;
 import org.olat.basesecurity.*;
 import org.olat.core.commons.modules.bc.FolderConfig;

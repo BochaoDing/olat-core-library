@@ -5,7 +5,7 @@ import ch.uzh.extension.campuscourse.common.CampusCourseException;
 import ch.uzh.extension.campuscourse.data.entity.Course;
 import ch.uzh.extension.campuscourse.service.dao.DaoManager;
 import ch.uzh.extension.campuscourse.model.SapUserType;
-import ch.uzh.extension.campuscourse.olat.admin.CampusCourseEvent;
+import ch.uzh.extension.campuscourse.presentation.admin.CampusCourseEvent;
 import ch.uzh.extension.campuscourse.service.coursecreation.CampusCoursePublisher;
 import ch.uzh.extension.campuscourse.service.coursecreation.CampusGroupsCreator;
 import ch.uzh.extension.campuscourse.service.coursecreation.OlatCampusCourseCreator;
