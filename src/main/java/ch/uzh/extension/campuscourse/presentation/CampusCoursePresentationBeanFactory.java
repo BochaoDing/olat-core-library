@@ -1,13 +1,18 @@
 package ch.uzh.extension.campuscourse.presentation;
 
+import ch.uzh.extension.campuscourse.presentation.admin.DelegationController;
 import ch.uzh.extension.campuscourse.presentation.mycourses.CampusCourseRepositoryEntryRow;
 import ch.uzh.extension.campuscourse.presentation.tab.CampusCourseTabDefinition;
+import org.olat.admin.user.UserAdminControllerAdditionalTabs;
 import org.olat.core.dispatcher.mapper.MapperService;
 import org.olat.core.extensions.action.GenericActionExtension;
 import org.olat.core.gui.UserRequest;
+import org.olat.core.gui.components.tabbedpane.Tab;
 import org.olat.core.gui.components.velocity.VelocityContainer;
+import org.olat.core.gui.control.WindowControl;
 import org.olat.core.gui.control.creator.AutoCreator;
 import org.olat.core.gui.translator.Translator;
+import org.olat.core.id.Identity;
 import org.olat.core.util.Util;
 import org.olat.repository.RepositoryEntryMyView;
 import org.olat.repository.RepositoryManager;
@@ -105,5 +110,16 @@ public class CampusCoursePresentationBeanFactory {
 					return super.create(entry);
 			}
 		};
+	}
+
+	@Bean(name={"userAdminControllerAdditionalTabs"})
+	@Scope(BeanDefinition.SCOPE_PROTOTYPE)
+	@Primary
+	public UserAdminControllerAdditionalTabs userAdminControllerAdditionalTabs(UserRequest userRequest, WindowControl windowControl, Identity identity) {
+		List<Tab> tabs = new ArrayList<>();
+		DelegationController delegationController = new DelegationController(userRequest, windowControl, identity);
+		Translator translator = CampusCoursePresentationHelper.getTranslator(userRequest.getLocale(), DelegationController.class);
+		tabs.add(new Tab(translator.translate("edit.delegation"), delegationController.getInitialComponent(), 101));
+		return new UserAdminControllerAdditionalTabs(tabs);
 	}
 }
