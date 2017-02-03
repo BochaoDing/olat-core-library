@@ -286,7 +286,7 @@ public class FlexiTableElementImpl extends FormItemImpl implements FlexiTableEle
 	}
 
 	@Override
-	public void setAndLoadPersistedPreferences(UserRequest ureq, String id) {
+	public void setAndLoadPersistedPreferences(@UnderInitialization(FlexiTableElementImpl.class) FlexiTableElementImpl this, UserRequest ureq, String id) {
 		persistentId = id;
 		loadCustomSettings(ureq);
 	}
@@ -1452,7 +1452,7 @@ public class FlexiTableElementImpl extends FormItemImpl implements FlexiTableEle
 	}
 
 	@Override
-	public void setEmtpyTableMessageKey(String i18key) {
+	public void setEmtpyTableMessageKey(@UnderInitialization(FlexiTableElementImpl.class) FlexiTableElementImpl this, String i18key) {
 		this.emptyTableMessageKey  = i18key;
 	}
 	@Override

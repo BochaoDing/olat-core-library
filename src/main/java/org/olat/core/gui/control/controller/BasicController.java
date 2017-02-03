@@ -30,6 +30,7 @@ import java.util.List;
 import java.util.Locale;
 
 import org.checkerframework.checker.initialization.qual.UnderInitialization;
+import org.checkerframework.checker.initialization.qual.UnknownInitialization;
 import org.olat.core.CoreSpringFactory;
 import org.olat.core.dispatcher.mapper.Mapper;
 import org.olat.core.dispatcher.mapper.MapperService;
@@ -528,7 +529,7 @@ public abstract class BasicController extends DefaultController {
 	 *            controller)
 	 * @param arg
 	 */
-	protected void showError(String key, String arg) {
+	protected void showError(@UnknownInitialization(BasicController.class) BasicController this, String key, String arg) {
 		getWindowControl().setError(
 				getTranslator().translate(key, new String[] { arg }));
 	}

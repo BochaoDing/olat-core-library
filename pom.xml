@@ -310,7 +310,7 @@
 				<dependency>
 					<groupId>org.glassfish.jersey.core</groupId>
 					<artifactId>jersey-server</artifactId>
-					<version>2.24</version>
+					<version>2.25</version>
 					<exclusions>
 						<exclusion>
 							<groupId>org.springframework</groupId>
@@ -345,7 +345,7 @@
 				<dependency>
 					<groupId>org.glassfish.jersey.containers</groupId>
 					<artifactId>jersey-container-servlet</artifactId>
-					<version>2.24</version>
+					<version>2.25</version>
 				</dependency>
 
 				<dependency>
@@ -496,6 +496,14 @@
 						<targetPath>${basedir}/target/classes/META-INF/resources</targetPath>
 						<includes>
 							<include>**/*</include>
+						</includes>
+						<filtering>false</filtering>
+					</resource>
+					<resource>
+						<directory>src/main/java/org/olat/ims/cp/_resources</directory>
+						<targetPath>${basedir}/target/classes/META-INF/resources/org/olat/ims/cp/_resources</targetPath>
+						<includes>
+							<include>imscp.zip</include>
 						</includes>
 						<filtering>false</filtering>
 					</resource>
@@ -1190,6 +1198,7 @@
 					<exclude>**/*.pdf</exclude>
 					<exclude>**/*.graffle</exclude>
 					<exclude>**/doc-files/**</exclude>
+					<exclude>org/olat/ims/cp/_resources/imscp.zip</exclude>
 				</excludes>
 			</resource>
 			<resource>
@@ -1993,12 +2002,12 @@
 		<dependency>
 			<groupId>org.apache.httpcomponents</groupId>
 			<artifactId>httpcore</artifactId>
-			<version>4.3.3</version>
+			<version>4.4.5</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.httpcomponents</groupId>
 			<artifactId>httpclient</artifactId>
-			<version>4.3.3</version>
+			<version>4.5.2</version>
 			<exclusions>
 				<exclusion>
 					<groupId>commons-logging</groupId>
@@ -2009,7 +2018,7 @@
 		<dependency>
 			<groupId>org.apache.httpcomponents</groupId>
 			<artifactId>httpmime</artifactId>
-			<version>4.3.3</version>
+			<version>4.5.2</version>
 		</dependency>
         <dependency>
             <!-- Used by iCal4j (the upcoming version 2.0 uses the Commons Lang version 3) -->
@@ -2270,8 +2279,8 @@
 		</dependency>
 		<dependency>
 			<groupId>org.checkerframework</groupId>
-			<artifactId>checker</artifactId>
-			<version>2.1.6</version>
+			<artifactId>checker-qual</artifactId>
+			<version>2.1.7</version>
 		</dependency>
 
 		<dependency>

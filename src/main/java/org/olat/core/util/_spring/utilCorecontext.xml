@@ -7,7 +7,7 @@
   http://www.springframework.org/schema/beans/spring-beans.xsd 
   http://www.springframework.org/schema/context 
   http://www.springframework.org/schema/context/spring-context.xsd">
-  
+
 	<context:component-scan base-package="org.olat.core.util.session" />
 
 	<bean id="codeHelper" class="org.olat.core.util.CodeHelper" >
@@ -148,6 +148,8 @@
 	</bean>
 	
 	<!-- Cache -->
+	<bean class="org.olat.core.util.cache.infinispan.InfinispanBeanFactory" />
+
 	<bean id="infinispanCacheManager" class="org.olat.core.util.cache.infinispan.InfinispanCacheManager" destroy-method="stop">
 		<property name="configuration" value="infinispan-config.xml"/>
 		<property name="jndiName" value="${infinispan.jndi}"/>
