@@ -1,8 +1,9 @@
 package ch.uzh.extension.campuscourse.service;
 
 import ch.uzh.extension.campuscourse.data.entity.Course;
-import ch.uzh.extension.campuscourse.model.SapUserType;
 import ch.uzh.extension.campuscourse.model.CampusCourseTOForUI;
+import ch.uzh.extension.campuscourse.model.IdentityDate;
+import ch.uzh.extension.campuscourse.model.SapUserType;
 import org.olat.core.id.Identity;
 import org.olat.repository.RepositoryEntry;
 
@@ -58,7 +59,9 @@ public interface CampusCourseService {
 
     List<Long> getRepositoryEntryKeysOfAllCreatedNotContinuedCoursesOfPreviousSemesters();
 
-    List getDelegatees(Identity delegator);
+    List<IdentityDate> getDelegateesAndCreationDateByDelegator(Identity delegator);
+
+	List<IdentityDate> getDelegatorsAndCreationDateByDelegatee(Identity delegatee);
 
     void deleteDelegation(Identity delegator, Identity delegatee);
 }

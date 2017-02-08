@@ -3,22 +3,21 @@ package ch.uzh.extension.campuscourse.service;
 import ch.uzh.extension.campuscourse.common.CampusCourseConfiguration;
 import ch.uzh.extension.campuscourse.common.CampusCourseException;
 import ch.uzh.extension.campuscourse.data.entity.Course;
-import ch.uzh.extension.campuscourse.service.dao.DaoManager;
+import ch.uzh.extension.campuscourse.model.CampusCourseTO;
+import ch.uzh.extension.campuscourse.model.CampusGroups;
+import ch.uzh.extension.campuscourse.model.IdentityDate;
 import ch.uzh.extension.campuscourse.model.SapUserType;
 import ch.uzh.extension.campuscourse.service.coursecreation.CampusCoursePublisher;
 import ch.uzh.extension.campuscourse.service.coursecreation.CampusGroupsCreator;
 import ch.uzh.extension.campuscourse.service.coursecreation.OlatCampusCourseCreator;
-import ch.uzh.extension.campuscourse.model.CampusGroups;
+import ch.uzh.extension.campuscourse.service.dao.DaoManager;
 import ch.uzh.extension.campuscourse.service.synchronization.CampusCourseDefaultCoOwners;
 import ch.uzh.extension.campuscourse.service.synchronization.CampusCourseRepositoryEntrySynchronizer;
 import ch.uzh.extension.campuscourse.service.synchronization.CampusGroupsSynchronizer;
-import ch.uzh.extension.campuscourse.model.CampusCourseTO;
 import org.olat.core.commons.persistence.DB;
 import org.olat.core.id.Identity;
 import org.olat.core.logging.OLog;
 import org.olat.core.logging.Tracing;
-import org.olat.core.util.coordinate.CoordinatorManager;
-import org.olat.core.util.resource.OresHelper;
 import org.olat.course.CourseFactory;
 import org.olat.course.ICourse;
 import org.olat.course.tree.PublishTreeModel;
@@ -346,8 +345,13 @@ public class CampusCourseCoreServiceImpl implements CampusCourseCoreService {
     }
 
     @Override
-    public List getDelegatees(Identity delegator) {
-        return daoManager.getDelegatees(delegator);
+    public List<IdentityDate> getDelegateesAndCreationDateByDelegator(Identity delegator) {
+        return daoManager.getDelegateesAndCreationDateByDelegator(delegator);
+    }
+
+    @Override
+    public List<IdentityDate> getDelegatorsAndCreationDateByDelegatee(Identity delegatee) {
+        return daoManager.getDelegatorsAndCreationDateByDelegatee(delegatee);
     }
 
     public void deleteDelegation(Identity delegator, Identity delegatee) {
