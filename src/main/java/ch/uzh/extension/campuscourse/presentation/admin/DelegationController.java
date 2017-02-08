@@ -1,5 +1,6 @@
 package ch.uzh.extension.campuscourse.presentation.admin;
 
+import ch.uzh.extension.campuscourse.model.IdentityDate;
 import ch.uzh.extension.campuscourse.service.CampusCourseService;
 import ch.uzh.extension.campuscourse.service.CampusCourseServiceImpl;
 import org.olat.admin.securitygroup.gui.GroupMemberView;
@@ -30,9 +31,7 @@ import org.olat.user.UserInfoMainController;
 import org.olat.user.UserManager;
 import org.olat.user.propertyhandlers.UserPropertyHandler;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 /**
  * OLAT - Online Learning and Training<br>
@@ -57,263 +56,293 @@ import java.util.List;
  * Initial Date: 02.05.2013 <br>
  * 
  * @author aabouc
+ * @author Martin Schraner
  */
 public class DelegationController extends BasicController {
 
-    private VelocityContainer myContent;
-    private Link addUserButton;
+	private final Identity userIdentity;
+	private final CampusCourseService campusService;
+	private final UserManager userManager;
+    private final Link addUserButton;
+	private final VelocityContainer myContent;
+	private final IdentitiesOfGroupTableDataModel delegateesTableDataModel;
+	private final IdentitiesOfGroupTableDataModel delegatorsTableDataModel;
+    private final TableController delegateesTableController;
+	private final TableController delegatorsTableController;
 
-    protected TableController tableCtr;
-    private Translator myTrans;
-
-    private CloseableModalController cmc;
-    private UserSearchController usc;
-
-    private List<Identity> toAdd, toRemove;
-
-    private CampusCourseService campusService;
-    private UserManager userManager;
-
-    private Identity delegator;
-
-    private IdentitiesOfGroupTableDataModel identitiesTableModel;
-
+    private CloseableModalController closeableModalController;
+    private UserSearchController userSearchController;
+    private List<Identity> usersToBeAdded, usersToBeRemoved;
     private DialogBoxController confirmDelete;
 
-    protected static final String usageIdentifyer = IdentitiesOfGroupTableDataModel.class.getCanonicalName();
-    protected boolean isAdministrativeUser;
+    private static final String USAGE_IDENTIFIER = IdentitiesOfGroupTableDataModel.class.getCanonicalName();
+    private static final String COMMAND_REMOVE_USER = "removesubjectofgroup";
+    private static final String COMMAND_VISIT_CARD = "show.vcard";
+    private static final String COMMAND_SELECT_USER = "select.user";
 
-    protected static final String COMMAND_REMOVEUSER = "removesubjectofgroup";
-    protected static final String COMMAND_VCARD = "show.vcard";
-    protected static final String COMMAND_SELECTUSER = "select.user";
+    public DelegationController(UserRequest ureq, WindowControl wControl, Identity userIdentity) {
 
-    public DelegationController(final UserRequest ureq, final WindowControl wControl, final Identity delegator) {
-        super(ureq, wControl);
+    	super(ureq, wControl);
 
-        campusService = (CampusCourseServiceImpl) CoreSpringFactory
-				.getBean(CampusCourseServiceImpl.class);
+		this.userIdentity = userIdentity;
+
+        campusService = (CampusCourseServiceImpl) CoreSpringFactory.getBean(CampusCourseServiceImpl.class);
         userManager = UserManager.getInstance();
-        this.delegator = delegator;
-
         myContent = createVelocityContainer("delegation");
-        addUserButton = LinkFactory.createButtonSmall("delegation.add.user", myContent, this);
 
-        myTrans = userManager.getUserPropertiesConfig().getTranslator(getTranslator());
-        final TableGuiConfiguration tableConfig = new TableGuiConfiguration();
-        tableConfig.setPreferencesOffered(true, "DelegationTableGuiPrefs");
-        tableCtr = new TableController(tableConfig, ureq, getWindowControl(), myTrans);
+		Translator translator = userManager.getUserPropertiesConfig().getTranslator(getTranslator());
+		TableGuiConfiguration tableGuiConfiguration = new TableGuiConfiguration();
+		tableGuiConfiguration.setPreferencesOffered(true, "DelegationTableGuiPrefs");
+		List<UserPropertyHandler> userPropertyHandlers = userManager.getUserPropertyHandlersFor(USAGE_IDENTIFIER, false);
 
-        listenTo(tableCtr);
+		// Add "add user" button
+		addUserButton = LinkFactory.createButtonSmall("delegation.add.user", myContent, this);
 
-        initGroupTable(tableCtr, ureq, true, false);
-        final List<UserPropertyHandler> userPropertyHandlers = userManager.getUserPropertyHandlersFor(usageIdentifyer, isAdministrativeUser);
-        final List combo = campusService.getDelegatees(this.delegator);
+		// Add delegators table
+		List<IdentityDate> delegateesAndCreationDate = campusService.getDelegateesAndCreationDateByDelegator(userIdentity);
+		delegateesTableDataModel = createTableDataModel(ureq, delegateesAndCreationDate, userPropertyHandlers);
+		delegateesTableController = createTable(ureq, delegateesTableDataModel, translator, tableGuiConfiguration,
+				userPropertyHandlers, true, "delegateestable");
 
-        List<GroupMemberView> views = new ArrayList<GroupMemberView>(combo.size());
-        for (Object identityObject:combo) {
-            Object[] IdentityInfo = (Object[]) identityObject;
-            Identity identity = (Identity) IdentityInfo[0];
-            Date addedAt = (Date) IdentityInfo[1];
-            String onlineStatus = null;
-            GroupMemberView member = new GroupMemberView(identity, addedAt, onlineStatus);
-            views.add(member);
-        }
-
-        identitiesTableModel = new DelegationIdentitiesOfGroupTableDataModel(views, ureq.getLocale(), userPropertyHandlers, true);
-        tableCtr.setTableDataModel(identitiesTableModel);
-        myContent.put("subjecttable", tableCtr.getInitialComponent());
+		// Add delegatees table
+		List<IdentityDate> delegatorsAndCreationDate = campusService.getDelegatorsAndCreationDateByDelegatee(userIdentity);
+		delegatorsTableDataModel = createTableDataModel(ureq, delegatorsAndCreationDate, userPropertyHandlers);
+		delegatorsTableController = createTable(ureq, delegatorsTableDataModel, translator, tableGuiConfiguration,
+				userPropertyHandlers, false, "delegatorstable");
 
         putInitialPanel(myContent);
-
     }
 
-    protected void initGroupTable(final TableController tableCtr, final UserRequest ureq, final boolean enableTablePreferences, final boolean enableUserSelection) {
-        final List<UserPropertyHandler> userPropertyHandlers = userManager.getUserPropertyHandlersFor(usageIdentifyer, isAdministrativeUser);
-        // first the login name
-        final DefaultColumnDescriptor cd0 = new DefaultColumnDescriptor("table.user.login", 0, COMMAND_VCARD, ureq.getLocale());
-        cd0.setIsPopUpWindowAction(true, "height=700, width=900, location=no, menubar=no, resizable=yes, status=no, scrollbars=yes, toolbar=no");
-        tableCtr.addColumnDescriptor(cd0);
-        int visibleColId = 0;
-        // followed by the users fields
-        for (int i = 0; i < userPropertyHandlers.size(); i++) {
-            final UserPropertyHandler userPropertyHandler = userPropertyHandlers.get(i);
-            final boolean visible = userManager.isMandatoryUserProperty(usageIdentifyer, userPropertyHandler);
-            tableCtr.addColumnDescriptor(visible, userPropertyHandler.getColumnDescriptor(i + 1, null, ureq.getLocale()));
-            if (visible) {
-                visibleColId++;
-            }
-        }
+	private IdentitiesOfGroupTableDataModel createTableDataModel(UserRequest ureq,
+																 List<IdentityDate> identitiesAndCreationDate,
+																 List<UserPropertyHandler> userPropertyHandlers) {
 
-        // in the end
-        if (enableTablePreferences) {
-            tableCtr.addColumnDescriptor(true, new DefaultColumnDescriptor("table.subject.addeddate", userPropertyHandlers.size() + 1, null, ureq.getLocale()));
-            tableCtr.setSortColumn(++visibleColId, true);
-        }
-        if (enableUserSelection) {
-            tableCtr.addColumnDescriptor(new StaticColumnDescriptor(COMMAND_SELECTUSER, "table.subject.action", myTrans.translate("action.general")));
-        }
+		List<GroupMemberView> tableView = new ArrayList<>(identitiesAndCreationDate.size());
+		for (IdentityDate delegateeAndCreationDate : identitiesAndCreationDate) {
+			Identity identity = delegateeAndCreationDate.getIdentity();
+			Date addedAt = delegateeAndCreationDate.getDate();
+			GroupMemberView groupMemberView = new GroupMemberView(identity, addedAt, null);
+			tableView.add(groupMemberView);
+		}
 
-        tableCtr.addMultiSelectAction("action.remove", COMMAND_REMOVEUSER);
-        tableCtr.setMultiSelect(true);
+		return new DelegationsTableDataModel(tableView, ureq.getLocale(), userPropertyHandlers, true);
+	}
 
-    }
+	private TableController createTable(UserRequest ureq,
+										IdentitiesOfGroupTableDataModel tableDataModel,
+										Translator translator,
+										TableGuiConfiguration tableGuiConfiguration,
+										List<UserPropertyHandler> userPropertyHandlers,
+										boolean removeUserEnabled,
+										String tableIdentifierForVelocityContainer) {
 
-    @Override
+    	TableController tableController = new TableController(tableGuiConfiguration, ureq, getWindowControl(), translator);
+
+    	// Add columns
+		// First the login name ...
+		DefaultColumnDescriptor defaultColumnDescriptor = new DefaultColumnDescriptor("table.user.login", 0, COMMAND_VISIT_CARD, ureq.getLocale());
+		defaultColumnDescriptor.setIsPopUpWindowAction(true, "height=700, width=900, location=no, menubar=no, resizable=yes, status=no, scrollbars=yes, toolbar=no");
+		tableController.addColumnDescriptor(defaultColumnDescriptor);
+		int visibleColId = 0;
+		// ... followed by the users fields ...
+		for (int i = 0; i < userPropertyHandlers.size(); i++) {
+			UserPropertyHandler userPropertyHandler = userPropertyHandlers.get(i);
+			boolean visible = userManager.isMandatoryUserProperty(USAGE_IDENTIFIER, userPropertyHandler);
+			tableController.addColumnDescriptor(visible, userPropertyHandler.getColumnDescriptor(i + 1, null, ureq.getLocale()));
+			if (visible) {
+				visibleColId++;
+			}
+		}
+		// ... followed by added at
+		tableController.addColumnDescriptor(true, new DefaultColumnDescriptor("table.subject.addeddate", userPropertyHandlers.size() + 1, null, ureq.getLocale()));
+		tableController.setSortColumn(++visibleColId, true);
+		if (removeUserEnabled) {
+			tableController.addMultiSelectAction("action.remove", COMMAND_REMOVE_USER);
+			tableController.setMultiSelect(true);
+		}
+
+		// Set the table data model
+		tableController.setTableDataModel(tableDataModel);
+
+		// Add listener
+		listenTo(tableController);
+
+		// Add to velocity container
+		myContent.put(tableIdentifierForVelocityContainer, tableController.getInitialComponent());
+
+		return tableController;
+	}
+
+	@Override
     protected void event(UserRequest ureq, Component source, Event event) {
         if (source == addUserButton) {
-            usc = new UserSearchController(ureq, getWindowControl(), true, true, false);
-            listenTo(usc);
+            userSearchController = new UserSearchController(ureq, getWindowControl(), true, true, false);
+            listenTo(userSearchController);
 
-            final Component usersearchview = usc.getInitialComponent();
-            removeAsListenerAndDispose(cmc);
+            Component usersearchview = userSearchController.getInitialComponent();
+            removeAsListenerAndDispose(closeableModalController);
 
-            cmc = new CloseableModalController(getWindowControl(), translate("close"), usersearchview, true, translate("delegation.add.searchuser"));
-            listenTo(cmc);
+            closeableModalController = new CloseableModalController(getWindowControl(), translate("close"), usersearchview, true, translate("delegation.add.searchuser"));
+            listenTo(closeableModalController);
 
-            cmc.activate();
+            closeableModalController.activate();
         }
     }
 
     @Override
-    protected void event(final UserRequest ureq, final Controller sourceController, final Event event) {
-        if (sourceController == tableCtr) {
+    protected void event(UserRequest ureq, Controller sourceController, Event event) {
+        if (sourceController == delegateesTableController || sourceController == delegatorsTableController) {
             if (event.getCommand().equals(Table.COMMANDLINK_ROWACTION_CLICKED)) {
                 // Single row selects
-                final TableEvent te = (TableEvent) event;
-                final String actionid = te.getActionId();
-                if (actionid.equals(COMMAND_VCARD)) {
-                    // get identitiy and open new visiting card controller in new window
-                    final int rowid = te.getRowId();
-                    final Identity identity = identitiesTableModel.getObject(rowid).getIdentity();
-                    final ControllerCreator userInfoMainControllerCreator = new ControllerCreator() {
-                        @Override
-                        public Controller createController(final UserRequest lureq, final WindowControl lwControl) {
-                            return new UserInfoMainController(lureq, lwControl, identity, false, false);
-                        }
-                    };
-                    // wrap the content controller into a full header layout
-                    final ControllerCreator layoutCtrlr = BaseFullWebappPopupLayoutFactory.createAuthMinimalPopupLayout(ureq, userInfoMainControllerCreator);
-                    // open in new browser window
-                    final PopupBrowserWindow pbw = getWindowControl().getWindowBackOffice().getWindowManager().createNewPopupBrowserWindowFor(ureq, layoutCtrlr);
+                TableEvent te = (TableEvent) event;
+                String actionid = te.getActionId();
+                if (actionid.equals(COMMAND_VISIT_CARD)) {
+                    // Get identity and open new visiting card controller in new window
+                    int rowid = te.getRowId();
+					Identity identity;
+                    if (sourceController == delegateesTableController) {
+                    	identity = delegateesTableDataModel.getObject(rowid).getIdentity();
+					} else {
+						identity = delegatorsTableDataModel.getObject(rowid).getIdentity();
+					}
+                    ControllerCreator userInfoMainControllerCreator = (userRequest, windowControl) -> new UserInfoMainController(userRequest, windowControl, identity, false, false);
+                    // Wrap the content controller into a full header layout
+                    ControllerCreator layoutCtrlr = BaseFullWebappPopupLayoutFactory.createAuthMinimalPopupLayout(ureq, userInfoMainControllerCreator);
+                    // Open in new browser window
+                    PopupBrowserWindow pbw = getWindowControl().getWindowBackOffice().getWindowManager().createNewPopupBrowserWindowFor(ureq, layoutCtrlr);
                     pbw.open(ureq);
-                    //
-                } else if (actionid.equals(COMMAND_SELECTUSER)) {
-                    final int rowid = te.getRowId();
-                    final Identity identity = identitiesTableModel.getObject(rowid).getIdentity();
+
+                } else if (sourceController == delegateesTableController && actionid.equals(COMMAND_SELECT_USER)) {
+                    int rowid = te.getRowId();
+					Identity identity = delegateesTableDataModel.getObject(rowid).getIdentity();
                     fireEvent(ureq, new SingleIdentityChosenEvent(identity));
                 }
 
-            } else if (event.getCommand().equals(Table.COMMAND_MULTISELECT)) {
-                final TableMultiSelectEvent tmse = (TableMultiSelectEvent) event;
-                if (tmse.getAction().equals(COMMAND_REMOVEUSER)) {
+            } else if (sourceController == delegateesTableController && event.getCommand().equals(Table.COMMAND_MULTISELECT)) {
+                TableMultiSelectEvent tmse = (TableMultiSelectEvent) event;
+                if (tmse.getAction().equals(COMMAND_REMOVE_USER)) {
                     if (tmse.getSelection().isEmpty()) {
-                        // empty selection
+                        // Empty selection
                         myContent.setDirty(true);
                         showWarning("msg.selectionempty");
                         return;
                     }
-                    toRemove = identitiesTableModel.getIdentities(tmse.getSelection());
+                    usersToBeRemoved = delegateesTableDataModel.getIdentities(tmse.getSelection());
                     doBuildConfirmDeleteDialog(ureq);
-
                 }
             }
 
-        } else if (sourceController == usc) {
+        } else if (sourceController == userSearchController) {
             if (event == Event.CANCELLED_EVENT) {
-                cmc.deactivate();
+                closeableModalController.deactivate();
             } else {
                 if (event instanceof SingleIdentityChosenEvent) {
-                    final SingleIdentityChosenEvent singleEvent = (SingleIdentityChosenEvent) event;
-                    final Identity choosenIdentity = singleEvent.getChosenIdentity();
+                    SingleIdentityChosenEvent singleEvent = (SingleIdentityChosenEvent) event;
+                    Identity choosenIdentity = singleEvent.getChosenIdentity();
                     if (choosenIdentity == null) {
                         return;
                     }
-                    toAdd = new ArrayList<Identity>();
-                    toAdd.add(choosenIdentity);
+                    usersToBeAdded = new ArrayList<>();
+                    usersToBeAdded.add(choosenIdentity);
                 } else if (event instanceof MultiIdentityChosenEvent) {
-                    final MultiIdentityChosenEvent multiEvent = (MultiIdentityChosenEvent) event;
-                    toAdd = multiEvent.getChosenIdentities();
-                    if (toAdd.isEmpty()) {
+                    MultiIdentityChosenEvent multiEvent = (MultiIdentityChosenEvent) event;
+                    usersToBeAdded = multiEvent.getChosenIdentities();
+                    if (usersToBeAdded.isEmpty()) {
                         showError("msg.selectionempty");
                         return;
                     }
                 }
 
-                if (toAdd.size() == 1) {
-                    // check if already in delegation [makes only sense for a single choosen identity]
-                    if (campusService.existsDelegation(delegator, toAdd.get(0))) {
-                        getWindowControl().setInfo(translate("delegation.msg.delegateealreadyindelegation", new String[] { toAdd.get(0).getName() }));
+                if (usersToBeAdded.size() == 1) {
+                    // Check if already in delegation [makes only sense for a single chosen identity]
+                    if (campusService.existsDelegation(userIdentity, usersToBeAdded.get(0))) {
+                        getWindowControl().setInfo(translate("delegation.msg.delegateealreadyindelegation", new String[] { usersToBeAdded.get(0).getName() }));
                         return;
                     }
-                } else if (toAdd.size() > 1) {
-                    // check if already in group
+                    // Check if delegatee to be added is identical with user himself
+					if (Objects.equals(userIdentity.getKey(), usersToBeAdded.get(0).getKey())) {
+						getWindowControl().setInfo(translate("delegation.msg.usercannotbedelegateeofhimself", new String[] {}));
+                    	return;
+					}
+                } else if (usersToBeAdded.size() > 1) {
+                    // Check if already in group
                     boolean someAlreadyInGroup = false;
-                    final List<Identity> alreadyInGroup = new ArrayList<Identity>();
-                    for (int i = 0; i < toAdd.size(); i++) {
-                        if (campusService.existsDelegation(delegator, toAdd.get(i))) {
-                            tableCtr.setMultiSelectSelectedAt(i, false);
-                            alreadyInGroup.add(toAdd.get(i));
+                    List<Identity> alreadyInGroup = new ArrayList<>();
+                    for (int i = 0; i < usersToBeAdded.size(); i++) {
+                        if (campusService.existsDelegation(userIdentity, usersToBeAdded.get(i))) {
+                            delegateesTableController.setMultiSelectSelectedAt(i, false);
+                            alreadyInGroup.add(usersToBeAdded.get(i));
                             someAlreadyInGroup = true;
                         }
                     }
                     if (someAlreadyInGroup) {
-                        String names = "";
-                        for (final Identity ident : alreadyInGroup) {
-                            names += " " + ident.getName();
-                            toAdd.remove(ident);
+                        StringBuilder names = new StringBuilder();
+                        for (Identity ident : alreadyInGroup) {
+                            names.append(ident.getName()).append(", ");
+                            usersToBeAdded.remove(ident);
                         }
-                        getWindowControl().setInfo(translate("delegation.msg.delegateesalreadyindelegation", names));
+                        names.setLength(names.length() - 2);
+                        getWindowControl().setInfo(translate("delegation.msg.delegateesalreadyindelegation", new String[] {names.toString()}));
                     }
-                    if (toAdd.isEmpty()) {
-                        return;
+					// Check if delegatee to be added is identical with user himself
+					Iterator<Identity> usersToBeAddedIterator = usersToBeAdded.iterator();
+                    while (usersToBeAddedIterator.hasNext()) {
+                    	if (Objects.equals(usersToBeAddedIterator.next().getKey(), userIdentity.getKey())) {
+							getWindowControl().setInfo(translate("delegation.msg.usercannotbedelegateeofhimself", new String[] {}));
+							usersToBeAddedIterator.remove();
+							break;
+						}
+					}
+                    if (usersToBeAdded.isEmpty()) {
+                    	return;
                     }
                 }
 
-                cmc.deactivate();
-                if (toAdd != null && !toAdd.isEmpty()) {
-                    for (Identity identity : toAdd) {
-                        campusService.createDelegation(this.delegator, identity);
+                closeableModalController.deactivate();
+                if (usersToBeAdded != null && !usersToBeAdded.isEmpty()) {
+                    for (Identity identity : usersToBeAdded) {
+                        campusService.createDelegation(this.userIdentity, identity);
                     }
-                    identitiesTableModel.add(identitiesToGroupMemberViews(toAdd));
-                    tableCtr.modelChanged();
+                    delegateesTableDataModel.add(identitiesToGroupMemberViews(usersToBeAdded));
+                    delegateesTableController.modelChanged();
                 }
             }
 
         } else if (sourceController == confirmDelete) {
             if (DialogBoxUIFactory.isYesEvent(event)) {
-                for (Identity delegatee : toRemove) {
-                    campusService.deleteDelegation(delegator, delegatee);
+                for (Identity delegatee : usersToBeRemoved) {
+                    campusService.deleteDelegation(userIdentity, delegatee);
                 }
-                identitiesTableModel.remove(toRemove);
-                tableCtr.modelChanged();
+                delegateesTableDataModel.remove(usersToBeRemoved);
+                delegateesTableController.modelChanged();
             }
         }
     }
 
     @Override
-    protected void doDispose() {
-        // TODO Auto-generated method stub
-
-    }
+    protected void doDispose() {}
 
     private List<GroupMemberView> identitiesToGroupMemberViews(List<Identity> identities) {
-        List<GroupMemberView> groupMemberViews = new ArrayList<GroupMemberView>();
+        List<GroupMemberView> groupMemberViews = new ArrayList<>();
         for (Identity identity : identities) {
             groupMemberViews.add(new GroupMemberView(identity, new Date(), null));
         }
         return groupMemberViews;
     }
 
-    private void doBuildConfirmDeleteDialog(final UserRequest ureq) {
+    private void doBuildConfirmDeleteDialog(UserRequest ureq) {
         if (confirmDelete != null) {
             confirmDelete.dispose();
         }
-        final StringBuilder names = new StringBuilder();
-        for (final Identity identity : toRemove) {
-            names.append(identity.getName()).append(" ");
+        StringBuilder names = new StringBuilder();
+        for (Identity identity : usersToBeRemoved) {
+            names.append(identity.getName()).append(", ");
         }
-        // trusted text, no need to escape, identity names are safe
-        confirmDelete = activateYesNoDialog(ureq, null, translate("delegation.remove.text", names.toString().trim()), confirmDelete);
+        // Remove last ", "
+        names.setLength(names.length() - 2);
+        // Trusted text, no need to escape, identity names are safe
+		String translationKey = (usersToBeRemoved.size() == 1 ? "delegation.remove.delegatee" : "delegation.remove.delegatees");
+        confirmDelete = activateYesNoDialog(ureq, null, translate(translationKey, names.toString()), confirmDelete);
     }
 
 }

@@ -10,31 +10,31 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
-public class DelegationIdentitiesOfGroupTableDataModel extends IdentitiesOfGroupTableDataModel {
+public class DelegationsTableDataModel extends IdentitiesOfGroupTableDataModel {
 
-    public DelegationIdentitiesOfGroupTableDataModel(List<GroupMemberView> combo, Locale locale, List<UserPropertyHandler> userPropertyHandlers, boolean isAdministrativeUser) {
+    DelegationsTableDataModel(List<GroupMemberView> combo, Locale locale, List<UserPropertyHandler> userPropertyHandlers, boolean isAdministrativeUser) {
         super(combo, locale, userPropertyHandlers, isAdministrativeUser);
     }
 
     @Override
-    public final Object getValueAt(final int row, final int col) {
+    public final Object getValueAt(int row, int col) {
 
-        GroupMemberView co = getObject(row);
-        final Identity identity = co.getIdentity();
-        final List<UserPropertyHandler> userPropertyHandlers = getUserPropertyHandlers();
+        GroupMemberView groupMemberView = getObject(row);
+        Identity identity = groupMemberView.getIdentity();
+        List<UserPropertyHandler> userPropertyHandlers = getUserPropertyHandlers();
 
-        final Date addedTo = co.getAddedAt();
-        final User user = identity.getUser();
+        Date addedAt = groupMemberView.getAddedAt();
+        User user = identity.getUser();
 
         if (col == 0) {
             return identity.getName();
         } else if (col > 0 && col < userPropertyHandlers.size() + 1) {
             // get user property for this column
-            final UserPropertyHandler userPropertyHandler = userPropertyHandlers.get(col - 1);
-            final String value = userPropertyHandler.getUserProperty(user, getLocale());
+            UserPropertyHandler userPropertyHandler = userPropertyHandlers.get(col - 1);
+            String value = userPropertyHandler.getUserProperty(user, getLocale());
             return (value == null ? "n/a" : value);
         } else if (col == userPropertyHandlers.size() + 1) {
-            return addedTo;
+            return addedAt;
         } else {
             return "error";
         }

@@ -1,9 +1,10 @@
 package ch.uzh.extension.campuscourse.service;
 
 import ch.uzh.extension.campuscourse.data.entity.Course;
-import ch.uzh.extension.campuscourse.service.dao.DaoManager;
-import ch.uzh.extension.campuscourse.model.SapUserType;
 import ch.uzh.extension.campuscourse.model.CampusCourseTOForUI;
+import ch.uzh.extension.campuscourse.model.IdentityDate;
+import ch.uzh.extension.campuscourse.model.SapUserType;
+import ch.uzh.extension.campuscourse.service.dao.DaoManager;
 import edu.emory.mathcs.backport.java.util.Collections;
 import org.olat.core.id.Identity;
 import org.olat.repository.RepositoryEntry;
@@ -135,8 +136,13 @@ public class CampusCourseServiceImpl implements CampusCourseService {
 	}
 
 	@Override
-	public List getDelegatees(Identity delegator) {
-		return campusCourseCoreService.getDelegatees(delegator);
+	public List<IdentityDate> getDelegateesAndCreationDateByDelegator(Identity delegator) {
+		return campusCourseCoreService.getDelegateesAndCreationDateByDelegator(delegator);
+	}
+
+	@Override
+	public List<IdentityDate> getDelegatorsAndCreationDateByDelegatee(Identity delegatee) {
+		return campusCourseCoreService.getDelegatorsAndCreationDateByDelegatee(delegatee);
 	}
 
 	@Override
