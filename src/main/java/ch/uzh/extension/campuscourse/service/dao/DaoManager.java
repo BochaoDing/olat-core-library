@@ -476,8 +476,12 @@ public class DaoManager {
         return (course.getParentCourse() == null || studentDao.hasMoreThan50PercentOfStudentsOfSpecificCourseBothABookingOfCourseAndParentCourse(course));
     }
 
-    public List getDelegatees(Identity delegator) {
-        return dataConverter.getDelegatees(delegator);
+    public List<IdentityDate> getDelegateesAndCreationDateByDelegator(Identity delegator) {
+        return dataConverter.getDelegateesAndCreationDateByDelegator(delegator);
+    }
+
+    public List<IdentityDate> getDelegatorsAndCreationDateByDelegatee(Identity delegatee) {
+        return dataConverter.getDelegatorsAndCreationDateByDelegatee(delegatee);
     }
 
     public void deleteDelegation(Identity delegator, Identity delegatee) {

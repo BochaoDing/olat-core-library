@@ -23,6 +23,13 @@ import java.util.Set;
 @Component
 public class CampusCourseConfiguration {
 
+	public final static String RESOURCEABLE_TYPE_NAME = "CampusCourse";
+	public final static String STUDENT_RESOURCEABLE_TYPE_NAME = "Student" + RESOURCEABLE_TYPE_NAME;
+	public final static String LECTURER_RESOURCEABLE_TYPE_NAME = "Lecturer"  + RESOURCEABLE_TYPE_NAME;
+	public final static String AUTHOR_LECTURER_RESOURCEABLE_TYPE_NAME = "AuthorLecturer"  + RESOURCEABLE_TYPE_NAME;
+	public final static Long NOT_CREATED_CAMPUS_COURSE_KEY = 0L;
+	public final static Long NOT_CREATED_CAMPUS_COURSE_RESOURCE_ID = 0L;
+
     private static final Identity NO_IDENTITY = null;
     private static final BusinessGroup NO_GROUP = null;
     private static final OLATResourceable NO_RESOURCEABLE = null;
@@ -142,6 +149,10 @@ public class CampusCourseConfiguration {
 		return getSapFilesToBeImported().size();
 	}
 
+	private String getSupportedTemplateLanguage() {
+		return getSupportedTemplateLanguage("");
+	}
+
     public String getSupportedTemplateLanguage(String language) {
         if (StringUtils.isBlank(language) || !StringUtils.contains(getSupportedTemplateLanguages(), language)) {
             language = getDefaultTemplateLanguage();
@@ -190,8 +201,8 @@ public class CampusCourseConfiguration {
         }
     }
 
-    void deleteTemplateRepositoryEntryIdPropertyIfExists(String language) {
-        language = getSupportedTemplateLanguage(language);
+    void deleteTemplateRepositoryEntryIdPropertyIfExists() {
+		String language = getSupportedTemplateLanguage();
         Property property = findCampusProperty(language.concat(TEMPLATE_COURSE_REPOSITORY_ENTRY_ID_PROPERTY_KEY));
         if (property != null) {
             propertyManager.deleteProperty(property);

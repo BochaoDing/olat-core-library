@@ -4,6 +4,7 @@ import ch.uzh.extension.campuscourse.data.dao.DelegationDao;
 import ch.uzh.extension.campuscourse.data.entity.Delegation;
 import ch.uzh.extension.campuscourse.data.entity.LecturerCourse;
 import ch.uzh.extension.campuscourse.data.entity.StudentCourse;
+import ch.uzh.extension.campuscourse.model.IdentityDate;
 import org.olat.core.id.Identity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -82,14 +83,25 @@ public class DataConverter {
         return identitiesOfDelegatees;
     }
 
-    public List<Object[]> getDelegatees(Identity delegator) {
-        List<Object[]> identitiesOfDelegatees = new ArrayList<>();
+    public List<IdentityDate> getDelegateesAndCreationDateByDelegator(Identity delegator) {
+        List<IdentityDate> delegateesAndCreationDate = new ArrayList<>();
         List<Delegation> delegations = delegationDao.getDelegationsByDelegator(delegator.getKey());
         for (Delegation delegation : delegations) {
             if (!delegation.getDelegatee().getStatus().equals(Identity.STATUS_DELETED)) {
-                identitiesOfDelegatees.add(new Object[] { delegation.getDelegatee(), delegation.getCreationDate() });
+                delegateesAndCreationDate.add(new IdentityDate(delegation.getDelegatee(), delegation.getCreationDate()));
             }
         }
-        return identitiesOfDelegatees;
+        return delegateesAndCreationDate;
+    }
+
+    public List<IdentityDate> getDelegatorsAndCreationDateByDelegatee(Identity delegatee) {
+        List<IdentityDate> delegatorsAndCreationDate = new ArrayList<>();
+        List<Delegation> delegations = delegationDao.getDelegationsByDelegatee(delegatee.getKey());
+        for (Delegation delegation : delegations) {
+            if (!delegation.getDelegator().getStatus().equals(Identity.STATUS_DELETED)) {
+                delegatorsAndCreationDate.add(new IdentityDate(delegation.getDelegator(), delegation.getCreationDate()));
+            }
+        }
+        return delegatorsAndCreationDate;
     }
 }
