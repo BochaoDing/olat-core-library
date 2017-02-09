@@ -125,7 +125,7 @@ public class LecturerDao {
     /**
      * Deletes also according entries of the join table ck_lecturer_course.
      */
-    public void deleteByLecturerIds(List<Long> lecturerIds) {
+	void deleteByLecturerIds(List<Long> lecturerIds) {
         int count = 0;
         EntityManager em = dbInstance.getCurrentEntityManager();
         for (Long lecturerId : lecturerIds) {
@@ -145,6 +145,9 @@ public class LecturerDao {
      * Does not update persistence context!
      */
     public int deleteByLecturerIdsAsBulkDelete(List<Long> lecturerIds) {
+        if (lecturerIds.isEmpty()) {
+            return 0;
+        }
         return dbInstance.getCurrentEntityManager()
                 .createNamedQuery(Lecturer.DELETE_BY_LECTURER_IDS)
                 .setParameter("lecturerIds", lecturerIds)

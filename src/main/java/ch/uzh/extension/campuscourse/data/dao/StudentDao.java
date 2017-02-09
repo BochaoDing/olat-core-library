@@ -127,14 +127,14 @@ public class StudentDao {
                 .getResultList();
     }
 
-    public int getNumberOfStudentsOfSpecificCourse(Long courseId) {
+    int getNumberOfStudentsOfSpecificCourse(Long courseId) {
         return  (int) (long) dbInstance.getCurrentEntityManager()
                 .createNamedQuery(Student.GET_NUMBER_OF_STUDENTS_OF_SPECIFIC_COURSE)
                 .setParameter("courseId", courseId)
                 .getSingleResult();
     }
 
-    public int getNumberOfStudentsWithBookingForCourseAndParentCourse(Long courseId) {
+    int getNumberOfStudentsWithBookingForCourseAndParentCourse(Long courseId) {
         return (int) (long) dbInstance.getCurrentEntityManager()
                 .createNamedQuery(Student.GET_NUMBER_OF_STUDENTS_WITH_BOOKING_FOR_COURSE_AND_PARENT_COURSE)
                 .setParameter("courseId", courseId)
@@ -159,7 +159,7 @@ public class StudentDao {
     /**
      * Deletes also according entries of the join table ck_student_course.
      */
-    public void deleteByStudentIds(List<Long> studentIds) {
+    void deleteByStudentIds(List<Long> studentIds) {
         int count = 0;
         EntityManager em = dbInstance.getCurrentEntityManager();
         for (Long studentId : studentIds) {
@@ -179,6 +179,9 @@ public class StudentDao {
      * Does not update persistence context!
      */
     public int deleteByStudentIdsAsBulkDelete(List<Long> studentIds) {
+        if (studentIds.isEmpty()) {
+            return 0;
+        }
         return dbInstance.getCurrentEntityManager()
                 .createNamedQuery(Student.DELETE_BY_STUDENT_IDS)
                 .setParameter("studentIds", studentIds)

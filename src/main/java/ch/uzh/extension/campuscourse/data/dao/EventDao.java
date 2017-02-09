@@ -48,18 +48,18 @@ public class EventDao {
         addEventToCourse(event, eventCourseId.getCourseId());
     }
 
-    public void addEventsToCourse(List<EventCourseId> eventCourseIds) {
+    void addEventsToCourse(List<EventCourseId> eventCourseIds) {
         eventCourseIds.forEach(this::addEventToCourse);
     }
 
-    public List<Event> getEventsByCourseId(Long id) {
+    List<Event> getEventsByCourseId(Long id) {
         return dbInstance.getCurrentEntityManager()
                 .createNamedQuery(Event.GET_EVENTS_BY_COURSE_ID, Event.class)
                 .setParameter("courseId", id)
                 .getResultList();
     }
 
-    public int deleteAllEvents() {
+    int deleteAllEvents() {
         List<Long> idsOfEventsToBeDeleted = dbInstance.getCurrentEntityManager()
                 .createNamedQuery(Event.GET_IDS_OF_ALL_EVENTS, Long.class)
                 .getResultList();
@@ -85,7 +85,10 @@ public class EventDao {
         return idsOfEventsToBeDeleted.size();
     }
 
-    public int deleteEventsByCourseIds(List<Long> courseIds) {
+    int deleteEventsByCourseIds(List<Long> courseIds) {
+		if (courseIds.isEmpty()) {
+			return 0;
+		}
         List<Long> idsOfEventsToBeDeleted = dbInstance.getCurrentEntityManager()
                 .createNamedQuery(Event.GET_EVENT_IDS_BY_COURSE_IDS, Long.class)
                 .setParameter("courseIds", courseIds)
@@ -97,7 +100,10 @@ public class EventDao {
     /**
      * Bulk delete for efficient deletion of a big number of entries. Does not update persistence context!
      */
-    public int deleteEventsByCourseIdsAsBulkDelete(List<Long> courseIds) {
+	int deleteEventsByCourseIdsAsBulkDelete(List<Long> courseIds) {
+		if (courseIds.isEmpty()) {
+			return 0;
+		}
         return dbInstance.getCurrentEntityManager()
                 .createNamedQuery(Event.DELETE_EVENTS_BY_COURSE_IDS)
                 .setParameter("courseIds", courseIds)

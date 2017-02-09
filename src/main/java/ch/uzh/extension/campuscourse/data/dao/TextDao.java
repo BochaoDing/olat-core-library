@@ -48,7 +48,7 @@ public class TextDao {
         addTextToCourse(text, textCourseId.getCourseId());
     }
 
-    public void addTextsToCourse(List<TextCourseId> textCourseIds) {
+    void addTextsToCourse(List<TextCourseId> textCourseIds) {
         textCourseIds.forEach(this::addTextToCourse);
     }
 
@@ -91,7 +91,7 @@ public class TextDao {
         return content.toString();
     }
 
-    public int deleteAllTexts() {
+    int deleteAllTexts() {
         List<Long> idsOfTextsToBeDeleted = dbInstance.getCurrentEntityManager()
                 .createNamedQuery(Text.GET_IDS_OF_ALL_TEXTS, Long.class)
                 .getResultList();
@@ -117,7 +117,10 @@ public class TextDao {
         return idsOfTextsToBeDeleted.size();
     }
 
-    public int deleteTextsByCourseIds(List<Long> courseIds) {
+    int deleteTextsByCourseIds(List<Long> courseIds) {
+    	if (courseIds.isEmpty()) {
+    		return 0;
+		}
         List<Long> idsOfTextsToBeDeleted = dbInstance.getCurrentEntityManager()
                 .createNamedQuery(Text.GET_TEXT_IDS_BY_COURSE_IDS, Long.class)
                 .setParameter("courseIds", courseIds)
@@ -129,7 +132,10 @@ public class TextDao {
     /**
      * Bulk delete for efficient deletion of a big number of entries. Does not update persistence context!
      */
-    public int deleteTextsByCourseIdsAsBulkDelete(List<Long> courseIds) {
+	int deleteTextsByCourseIdsAsBulkDelete(List<Long> courseIds) {
+        if (courseIds.isEmpty()) {
+        	return 0;
+		}
         return dbInstance.getCurrentEntityManager()
                 .createNamedQuery(Text.DELETE_TEXTS_BY_COURSE_IDS)
                 .setParameter("courseIds", courseIds)

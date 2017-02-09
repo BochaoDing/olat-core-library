@@ -178,8 +178,8 @@ public class DaoManager {
         return lecturerCourseDao.deleteByLecturerIdCourseIdsAsBulkDelete(lecturerIdCourseIds);
     }
 
-    public int deleteAllLCBookingTooFarInThePast(Date date) {
-        return lecturerCourseDao.deleteAllLCBookingTooFarInThePastAsBulkDelete(date);
+    public int deleteAllLCBookingOfNotContinuedCoursesTooFarInThePast(Date date) {
+        return lecturerCourseDao.deleteAllLCBookingOfNotContinuedCoursesTooFarInThePastAsBulkDelete(date);
     }
 
     public List<StudentIdCourseId> getAllNotUpdatedSCBookingOfCurrentImportProcess(Date date, Semester semesterOfCurrentImportProcess) {
@@ -190,8 +190,8 @@ public class DaoManager {
         return studentCourseDao.deleteByStudentIdCourseIdsAsBulkDelete(studentIdCourseIds);
     }
 
-    public int deleteAllSCBookingTooFarInThePast(Date date) {
-        return studentCourseDao.deleteAllSCBookingTooFarInThePastAsBulkDelete(date);
+    public int deleteAllSCBookingOfNotContinuedCoursesTooFarInThePast(Date date) {
+        return studentCourseDao.deleteAllSCBookingOfNotContinuedCoursesTooFarInThePastAsBulkDelete(date);
     }
 
     public void deleteLecturersAndBookingsByLecturerIds(List<Long> lecturerIds) {

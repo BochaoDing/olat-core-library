@@ -15,7 +15,8 @@ import java.util.Date;
         @NamedQuery(name = StudentCourse.DELETE_BY_STUDENT_IDS, query = "delete from StudentCourse sc where sc.student.id in :studentIds"),
         @NamedQuery(name = StudentCourse.DELETE_BY_COURSE_IDS, query = "delete from StudentCourse sc where sc.course.id in :courseIds"),
         @NamedQuery(name = StudentCourse.DELETE_BY_STUDENT_ID_COURSE_ID, query = "delete from StudentCourse sc where sc.student.id = :studentId and sc.course.id = :courseId"),
-        @NamedQuery(name = StudentCourse.DELETE_ALL_SC_BOOKING_TOO_FAR_IN_THE_PAST, query = "delete from StudentCourse sc where sc.dateOfImport < :nYearsInThePast")
+        @NamedQuery(name = StudentCourse.DELETE_ALL_SC_BOOKING_TOO_FAR_IN_THE_PAST, query = "delete from StudentCourse sc where sc.dateOfImport < :nYearsInThePast"),
+        @NamedQuery(name = StudentCourse.DELETE_ALL_SC_BOOKING_TOO_FAR_IN_THE_PAST_EXCEPT_FOR_COURSES_TO_BE_EXCLUDED, query = "delete from StudentCourse sc where sc.dateOfImport < :nYearsInThePast and sc.course.id not in :courseIdsToBeExcluded")
 })
 public class StudentCourse {
 
@@ -24,6 +25,7 @@ public class StudentCourse {
     public static final String DELETE_BY_COURSE_IDS = "deleteStudentCourseByCourseIds";
     public static final String DELETE_BY_STUDENT_ID_COURSE_ID = "deleteByStudentIdCourseId";
     public static final String DELETE_ALL_SC_BOOKING_TOO_FAR_IN_THE_PAST = "deleteAllSCBookingTooFarInThePast";
+    public static final String DELETE_ALL_SC_BOOKING_TOO_FAR_IN_THE_PAST_EXCEPT_FOR_COURSES_TO_BE_EXCLUDED = "deleteAllSCBookingTooFarInThePastExceptForCoursesToBeExcluded";
 
     @Id
     @ManyToOne(optional = false)

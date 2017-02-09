@@ -6,6 +6,7 @@ import ch.uzh.extension.campuscourse.common.CampusCourseConfiguration;
 import ch.uzh.extension.campuscourse.common.CampusCourseException;
 import ch.uzh.extension.campuscourse.data.entity.*;
 import ch.uzh.extension.campuscourse.model.*;
+import ch.uzh.extension.campuscourse.util.DateUtil;
 import org.junit.Before;
 import org.junit.Test;
 import org.olat.group.BusinessGroup;
@@ -80,7 +81,7 @@ public class CourseDaoTest extends CampusCourseTestCase {
     @Before
     public void before() {
         campusCourseConfiguration.setMaxYearsToKeepCkData(1);
-        courseDao = new CourseDao(dbInstance, semesterDao, batchJobAndSapImportStatisticDao);
+        courseDao = new CourseDao(campusCourseConfiguration, dbInstance, semesterDao, batchJobAndSapImportStatisticDao);
     }
 
     @Test
@@ -605,6 +606,9 @@ public class CourseDaoTest extends CampusCourseTestCase {
 
         repositoryEntryKeysOfAllCreatedNotContinuedCoursesOfSpecificSemesters = courseDao.getRepositoryEntryKeysOfAllCreatedNotContinuedCoursesOfSpecificSemesters(semesterIds);
         assertTrue(repositoryEntryKeysOfAllCreatedNotContinuedCoursesOfSpecificSemesters.contains(repositoryEntry.getKey()));
+
+        // Test with empty list
+		assertTrue(courseDao.getRepositoryEntryKeysOfAllCreatedNotContinuedCoursesOfSpecificSemesters(new ArrayList<>()).isEmpty());
     }
 
     @Test
@@ -905,6 +909,40 @@ public class CourseDaoTest extends CampusCourseTestCase {
 
         // Course 4 should not be found, since it has a disabled org
         assertTrue(courseDao.getCreatedAndNotCreatedCreatableCoursesOfCurrentSemesterByStudentIdBookedByStudentOnlyAsParentCourse(student2.getId()).isEmpty());
+    }
+
+    @Test
+    public void testGetIdsOfContinuedCoursesTooFarInThePast() throws CampusCourseException {
+        insertTestData();
+
+		Course course1 = courseDao.getCourseById(100L);
+		Course course2 = courseDao.getCourseById(200L);
+		Course course3 = courseDao.getCourseById(300L);
+		Course course4 = courseDao.getCourseById(400L);
+		Course course5 = courseDao.getCourseById(500L);
+
+		// Make course 200 to be the parent course of 100
+		// and course 400 to be the parent course of 300 and
+		courseDao.saveParentCourseId(100L, 200L);
+		courseDao.saveParentCourseId(300L, 400L);
+
+		// Reference date of import far in the past such that we do not have problems with courses from OLAT live
+		Date referenceDateOfImport = new GregorianCalendar(1800, Calendar.JANUARY, 1).getTime();
+
+		// Courses 100, 200 and 300 should have a date of import not too far in the past;
+		// courses 400 and 500 should have a date of import too far in the past
+		course1.setDateOfImport(DateUtil.addYearsToDate(referenceDateOfImport, -campusCourseConfiguration.getMaxYearsToKeepCkData() + 1));
+		course2.setDateOfImport(DateUtil.addYearsToDate(referenceDateOfImport, -campusCourseConfiguration.getMaxYearsToKeepCkData() + 1));
+		course3.setDateOfImport(DateUtil.addYearsToDate(referenceDateOfImport, -campusCourseConfiguration.getMaxYearsToKeepCkData() + 1));
+		course4.setDateOfImport(DateUtil.addYearsToDate(referenceDateOfImport, -campusCourseConfiguration.getMaxYearsToKeepCkData() - 1));
+		course5.setDateOfImport(DateUtil.addYearsToDate(referenceDateOfImport, -campusCourseConfiguration.getMaxYearsToKeepCkData() - 1));
+
+		dbInstance.flush();
+
+		List<Long> courseIds = courseDao.getIdsOfContinuedCoursesTooFarInThePast(referenceDateOfImport);
+
+		assertEquals(1, courseIds.size());
+		assertTrue(courseIds.contains(course4.getId()));
     }
 
 	@Test

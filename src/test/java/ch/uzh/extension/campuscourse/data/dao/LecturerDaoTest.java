@@ -21,6 +21,7 @@ import org.olat.user.UserManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
@@ -323,6 +324,9 @@ public class LecturerDaoTest extends CampusCourseTestCase {
         assertNull(lecturerDao.getLecturerById(2200L));
         assertNull(lecturerCourseDao.getLecturerCourseById(2100L, 200L));
         assertNull(lecturerCourseDao.getLecturerCourseById(2200L, 200L));
+
+        // Test with empty list
+		assertEquals(0, lecturerDao.deleteByLecturerIdsAsBulkDelete(new ArrayList<>()));
     }
 
     @Test

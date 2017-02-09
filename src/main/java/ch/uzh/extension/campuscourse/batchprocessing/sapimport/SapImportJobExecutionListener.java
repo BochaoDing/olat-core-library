@@ -97,7 +97,7 @@ public class SapImportJobExecutionListener implements JobExecutionListener {
 			return;
 		}
 
-		int lecturerCoursesToBeRemoved = daoManager.deleteAllLCBookingTooFarInThePast(jobExecution.getStartTime());
+		int lecturerCoursesToBeRemoved = daoManager.deleteAllLCBookingOfNotContinuedCoursesTooFarInThePast(jobExecution.getStartTime());
 		dbInstance.intermediateCommit();
 		List<LecturerIdCourseId> lecturerIdCourseIdsToBeRemoved = daoManager.getAllNotUpdatedLCBookingOfCurrentImportProcess(jobExecution.getStartTime(), semesterOfCurrentImportProcess);
 		lecturerCoursesToBeRemoved += lecturerIdCourseIdsToBeRemoved.size();
@@ -107,7 +107,7 @@ public class SapImportJobExecutionListener implements JobExecutionListener {
 			dbInstance.intermediateCommit();
 		}
 
-		int studentCoursesToBeRemoved = daoManager.deleteAllSCBookingTooFarInThePast(jobExecution.getStartTime());
+		int studentCoursesToBeRemoved = daoManager.deleteAllSCBookingOfNotContinuedCoursesTooFarInThePast(jobExecution.getStartTime());
 		dbInstance.intermediateCommit();
 		List<StudentIdCourseId> studentIdCourseIdsToBeRemoved = daoManager.getAllNotUpdatedSCBookingOfCurrentImportProcess(jobExecution.getStartTime(), semesterOfCurrentImportProcess);
 		studentCoursesToBeRemoved += studentIdCourseIdsToBeRemoved.size();

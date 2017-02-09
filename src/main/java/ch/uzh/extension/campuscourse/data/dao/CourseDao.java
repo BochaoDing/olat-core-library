@@ -1,9 +1,11 @@
 package ch.uzh.extension.campuscourse.data.dao;
 
+import ch.uzh.extension.campuscourse.common.CampusCourseConfiguration;
 import ch.uzh.extension.campuscourse.common.CampusCourseException;
 import ch.uzh.extension.campuscourse.data.entity.*;
 import ch.uzh.extension.campuscourse.model.CourseSemesterOrgId;
 import ch.uzh.extension.campuscourse.model.CampusGroups;
+import ch.uzh.extension.campuscourse.util.DateUtil;
 import org.olat.core.commons.persistence.DB;
 import org.olat.core.logging.OLog;
 import org.olat.core.logging.Tracing;
@@ -29,13 +31,15 @@ public class CourseDao {
 
     private static final OLog LOG = Tracing.createLoggerFor(CourseDao.class);
 
+	private final CampusCourseConfiguration campusCourseConfiguration;
 	private final DB dbInstance;
     private final SemesterDao semesterDao;
     private final BatchJobAndSapImportStatisticDao batchJobAndSapImportStatisticDao;
 
     @Autowired
-    public CourseDao(DB dbInstance, SemesterDao semesterDao, BatchJobAndSapImportStatisticDao batchJobAndSapImportStatisticDao) {
-        this.dbInstance = dbInstance;
+    public CourseDao(CampusCourseConfiguration campusCourseConfiguration, DB dbInstance, SemesterDao semesterDao, BatchJobAndSapImportStatisticDao batchJobAndSapImportStatisticDao) {
+		this.campusCourseConfiguration = campusCourseConfiguration;
+		this.dbInstance = dbInstance;
         this.semesterDao = semesterDao;
 		this.batchJobAndSapImportStatisticDao = batchJobAndSapImportStatisticDao;
 	}
@@ -361,6 +365,9 @@ public class CourseDao {
     }
 
     List<Long> getRepositoryEntryKeysOfAllCreatedNotContinuedCoursesOfSpecificSemesters(List<Long> semesterIds) {
+    	if (semesterIds.isEmpty()) {
+    		return new ArrayList<>();
+		}
         return dbInstance.getCurrentEntityManager()
                 .createNamedQuery(Course.GET_REPOSITORY_ENTRY_KEYS_OF_ALL_CREATED_NOT_CONTINUED_COURSES_OF_SPECIFIC_SEMESTERS, Long.class)
                 .setParameter("semesterIds", semesterIds)
@@ -419,6 +426,13 @@ public class CourseDao {
         return dbInstance.getCurrentEntityManager()
                 .createNamedQuery(Course.GET_CREATED_AND_NOT_CREATED_CREATABLE_COURSES_OF_CURRENT_SEMESTER_BY_STUDENT_ID_BOOKED_BY_STUDENT_ONLY_AS_PARENT_COURSE, Course.class)
                 .setParameter("studentId", studentId)
+                .getResultList();
+    }
+
+    List<Long> getIdsOfContinuedCoursesTooFarInThePast(Date date) {
+        return dbInstance.getCurrentEntityManager()
+                .createNamedQuery(Course.GET_IDS_OF_CONTINUED_COURSES_TOO_FAR_IN_THE_PAST, Long.class)
+                .setParameter("nYearsInThePast", DateUtil.addYearsToDate(date, -campusCourseConfiguration.getMaxYearsToKeepCkData()))
                 .getResultList();
     }
 

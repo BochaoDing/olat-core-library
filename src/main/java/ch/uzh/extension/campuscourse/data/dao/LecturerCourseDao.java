@@ -26,11 +26,13 @@ public class LecturerCourseDao {
 
     private final CampusCourseConfiguration campusCourseConfiguration;
     private final DB dbInstance;
+	private final CourseDao courseDao;
 
     @Autowired
-    public LecturerCourseDao(CampusCourseConfiguration campusCourseConfiguration, DB dbInstance) {
+    public LecturerCourseDao(CampusCourseConfiguration campusCourseConfiguration, DB dbInstance, CourseDao courseDao) {
         this.campusCourseConfiguration = campusCourseConfiguration;
-        this.dbInstance = dbInstance;
+		this.dbInstance = dbInstance;
+		this.courseDao = courseDao;
     }
 
     public void save(LecturerCourse lecturerCourse) {
@@ -113,7 +115,7 @@ public class LecturerCourseDao {
 		throw new EntityNotFoundException(warningMessage);
 	}
 
-    public LecturerCourse getLecturerCourseById(Long lecturerId, Long courseId) {
+    LecturerCourse getLecturerCourseById(Long lecturerId, Long courseId) {
         return dbInstance.getCurrentEntityManager().find(LecturerCourse.class, new LecturerCourseId(lecturerId, courseId));
     }
 
@@ -133,17 +135,30 @@ public class LecturerCourseDao {
     /**
      * Bulk delete for efficient deletion of a big number of entries. Does not update persistence context!
      */
-    public int deleteAllLCBookingTooFarInThePastAsBulkDelete(Date date) {
-        return dbInstance.getCurrentEntityManager()
-                .createNamedQuery(LecturerCourse.DELETE_ALL_LC_BOOKING_TOO_FAR_IN_THE_PAST)
-                .setParameter("nYearsInThePast", DateUtil.addYearsToDate(date, -campusCourseConfiguration.getMaxYearsToKeepCkData()))
-                .executeUpdate();
+    public int deleteAllLCBookingOfNotContinuedCoursesTooFarInThePastAsBulkDelete(Date date) {
+    	List<Long> courseIdsToBeExcluded = courseDao.getIdsOfContinuedCoursesTooFarInThePast(date);
+    	if (courseIdsToBeExcluded.isEmpty()) {
+    		// JPA would crash if courseIdsToBeExcluded was empty, so we have to use a query without courseIdsToBeExcluded
+			return dbInstance.getCurrentEntityManager()
+					.createNamedQuery(LecturerCourse.DELETE_ALL_LC_BOOKING_TOO_FAR_IN_THE_PAST)
+					.setParameter("nYearsInThePast", DateUtil.addYearsToDate(date, -campusCourseConfiguration.getMaxYearsToKeepCkData()))
+					.executeUpdate();
+		} else {
+			return dbInstance.getCurrentEntityManager()
+					.createNamedQuery(LecturerCourse.DELETE_ALL_LC_BOOKING_TOO_FAR_IN_THE_PAST_EXCEPT_FOR_COURSES_TO_BE_EXCLUDED)
+					.setParameter("nYearsInThePast", DateUtil.addYearsToDate(date, -campusCourseConfiguration.getMaxYearsToKeepCkData()))
+					.setParameter("courseIdsToBeExcluded", courseIdsToBeExcluded)
+					.executeUpdate();
+		}
     }
 
     /**
      * Bulk delete for efficient deletion of a big number of entries. Does not update persistence context!
      */
     public int deleteByLecturerIdsAsBulkDelete(List<Long> lecturerIds) {
+    	if (lecturerIds.isEmpty()) {
+    		return 0;
+		}
         return dbInstance.getCurrentEntityManager()
                 .createNamedQuery(LecturerCourse.DELETE_BY_LECTURER_IDS)
                 .setParameter("lecturerIds", lecturerIds)
@@ -153,7 +168,10 @@ public class LecturerCourseDao {
     /**
      * Bulk delete for efficient deletion of a big number of entries. Does not update persistence context!
      */
-    public int deleteByCourseIdsAsBulkDelete(List<Long> courseIds) {
+	int deleteByCourseIdsAsBulkDelete(List<Long> courseIds) {
+		if (courseIds.isEmpty()) {
+			return 0;
+		}
         return dbInstance.getCurrentEntityManager()
                 .createNamedQuery(LecturerCourse.DELETE_BY_COURSE_IDS)
                 .setParameter("courseIds", courseIds)

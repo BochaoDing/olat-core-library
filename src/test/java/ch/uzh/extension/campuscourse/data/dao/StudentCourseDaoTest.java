@@ -4,9 +4,7 @@ import ch.uzh.extension.campuscourse.CampusCourseTestCase;
 import ch.uzh.extension.campuscourse.CampusCourseTestDataGenerator;
 import ch.uzh.extension.campuscourse.common.CampusCourseConfiguration;
 import ch.uzh.extension.campuscourse.common.CampusCourseException;
-import ch.uzh.extension.campuscourse.data.entity.Course;
-import ch.uzh.extension.campuscourse.data.entity.Student;
-import ch.uzh.extension.campuscourse.data.entity.StudentCourse;
+import ch.uzh.extension.campuscourse.data.entity.*;
 import ch.uzh.extension.campuscourse.model.CourseSemesterOrgId;
 import ch.uzh.extension.campuscourse.model.StudentIdCourseId;
 import ch.uzh.extension.campuscourse.model.StudentIdCourseIdDateOfImport;
@@ -17,9 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.persistence.EntityNotFoundException;
-import java.util.Date;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 import static org.junit.Assert.*;
 
@@ -298,36 +294,72 @@ public class StudentCourseDaoTest extends CampusCourseTestCase {
     }
 
     @Test
-    public void testDeleteAllSCBookingTooFarInThePastAsBulkDelete() {
-        Student student = studentDao.getStudentById(2100L);
-        Course course1 = courseDao.getCourseById(100L);
-        Course course2 = courseDao.getCourseById(200L);
-        assertNull(studentCourseDao.getStudentCourseById(2100L, 100L));
-        assertNull(studentCourseDao.getStudentCourseById(2100L, 200L));
+    public void testDeleteAllSCBookingOfNotContinuedCoursesTooFarInThePastAsBulkDelete() {
+		Student student = studentDao.getStudentById(2100L);
+		Course course1 = courseDao.getCourseById(100L);
+		Course course2 = courseDao.getCourseById(200L);
+		Course course3 = courseDao.getCourseById(300L);
+		Course course4 = courseDao.getCourseById(400L);
+		assertNull(studentCourseDao.getStudentCourseById(2100L, 100L));
+		assertNull(studentCourseDao.getStudentCourseById(2100L, 200L));
+		assertNull(studentCourseDao.getStudentCourseById(2100L, 300L));
+		assertNull(studentCourseDao.getStudentCourseById(2100L, 400L));
 
-        Date referenceDateOfImport = new Date();
+		// Make course 400 to be the parent course of 300
+		// -> course 3 has a parent course, course 4 has a child course
+		courseDao.saveParentCourseId(300L, 400L);
 
-        // Insert student to course with date too far in the past (-> should be deleted)
-        StudentCourse studentCourse1 = new StudentCourse(student, course1, DateUtil.addYearsToDate(referenceDateOfImport, -campusCourseConfiguration.getMaxYearsToKeepCkData() - 1));
-        studentCourseDao.saveOrUpdate(studentCourse1);
+		Date referenceDateOfImport = new GregorianCalendar(1800, Calendar.JANUARY, 1).getTime();
 
-        // Insert student to course with date not too far in the past (-> should not be deleted)
-        StudentCourse studentCourse2 = new StudentCourse(student, course2, DateUtil.addYearsToDate(referenceDateOfImport, -campusCourseConfiguration.getMaxYearsToKeepCkData() + 1));
-        studentCourseDao.saveOrUpdate(studentCourse2);
+		// Insert student to course with date too far in the past (-> should be deleted)
+		course1.setDateOfImport(DateUtil.addYearsToDate(referenceDateOfImport, -campusCourseConfiguration.getMaxYearsToKeepCkData() - 1));
+		StudentCourse studentCourse1 = new StudentCourse(student, course1, DateUtil.addYearsToDate(referenceDateOfImport, -campusCourseConfiguration.getMaxYearsToKeepCkData() - 1));
+		studentCourseDao.saveOrUpdate(studentCourse1);
 
-        dbInstance.flush();
+		// Insert student to course with date not too far in the past (-> should not be deleted)
+		course2.setDateOfImport(DateUtil.addYearsToDate(referenceDateOfImport, -campusCourseConfiguration.getMaxYearsToKeepCkData() + 1));
+		StudentCourse studentCourse2 = new StudentCourse(student, course2, DateUtil.addYearsToDate(referenceDateOfImport, -campusCourseConfiguration.getMaxYearsToKeepCkData() + 1));
+		studentCourseDao.saveOrUpdate(studentCourse2);
 
-        assertNotNull(studentCourseDao.getStudentCourseById(2100L, 100L));
-        assertNotNull(studentCourseDao.getStudentCourseById(2100L, 200L));
+		// Insert student to course with date too far in the past (-> should be deleted)
+		course3.setDateOfImport(DateUtil.addYearsToDate(referenceDateOfImport, -campusCourseConfiguration.getMaxYearsToKeepCkData() - 1));
+		StudentCourse studentCourse3 = new StudentCourse(student, course3, DateUtil.addYearsToDate(referenceDateOfImport, -campusCourseConfiguration.getMaxYearsToKeepCkData() - 1));
+		studentCourseDao.saveOrUpdate(studentCourse3);
 
-        studentCourseDao.deleteAllSCBookingTooFarInThePastAsBulkDelete(new Date());
+		// Insert student to course with date too far in the past (-> should not be deleted, because course has a child course)
+		course4.setDateOfImport(DateUtil.addYearsToDate(referenceDateOfImport, -campusCourseConfiguration.getMaxYearsToKeepCkData() - 1));
+		StudentCourse studentCourse4 = new StudentCourse(student, course4, DateUtil.addYearsToDate(referenceDateOfImport, -campusCourseConfiguration.getMaxYearsToKeepCkData() - 1));
+		studentCourseDao.saveOrUpdate(studentCourse4);
 
-        dbInstance.flush();
-        dbInstance.clear();
+		dbInstance.flush();
 
-        assertNull(studentCourseDao.getStudentCourseById(2100L, 100L));
-        assertNotNull(studentCourseDao.getStudentCourseById(2100L, 200L));
-    }
+		assertNotNull(studentCourseDao.getStudentCourseById(2100L, 100L));
+		assertNotNull(studentCourseDao.getStudentCourseById(2100L, 200L));
+		assertNotNull(studentCourseDao.getStudentCourseById(2100L, 300L));
+		assertNotNull(studentCourseDao.getStudentCourseById(2100L, 400L));
+
+		studentCourseDao.deleteAllSCBookingOfNotContinuedCoursesTooFarInThePastAsBulkDelete(referenceDateOfImport);
+
+		dbInstance.flush();
+		dbInstance.clear();
+
+		assertNull(studentCourseDao.getStudentCourseById(2100L, 100L));
+		assertNotNull(studentCourseDao.getStudentCourseById(2100L, 200L));
+		assertNull(studentCourseDao.getStudentCourseById(2100L, 300L));
+		assertNotNull(studentCourseDao.getStudentCourseById(2100L, 400L));
+
+		// Remove parent course of course 3 (-> course 4 doesn't have a child course any more and should also be deleted)
+		course3 = courseDao.getCourseById(300L);
+		course3.removeParentCourse();
+		dbInstance.flush();
+
+		studentCourseDao.deleteAllSCBookingOfNotContinuedCoursesTooFarInThePastAsBulkDelete(referenceDateOfImport);
+
+		dbInstance.flush();
+		dbInstance.clear();
+
+		assertNull(studentCourseDao.getStudentCourseById(1100L, 400L));
+	}
 
     @Test
     public void testDeleteByStudentIdsAsBulkDelete() {
@@ -347,6 +379,9 @@ public class StudentCourseDaoTest extends CampusCourseTestCase {
 
         assertNull(studentCourseDao.getStudentCourseById(2100L, 100L));
         assertNull(studentCourseDao.getStudentCourseById(2200L, 100L));
+
+        // Test with empty list
+		assertEquals(0, studentCourseDao.deleteByStudentIdsAsBulkDelete(new ArrayList<>()));
     }
 
     @Test
@@ -367,6 +402,9 @@ public class StudentCourseDaoTest extends CampusCourseTestCase {
 
         assertNull(studentCourseDao.getStudentCourseById(2100L, 100L));
         assertNull(studentCourseDao.getStudentCourseById(2100L, 200L));
+
+		// Test with empty list
+		assertEquals(0, studentCourseDao.deleteByCourseIdsAsBulkDelete(new ArrayList<>()));
     }
 
     @Test
@@ -388,6 +426,9 @@ public class StudentCourseDaoTest extends CampusCourseTestCase {
         assertEquals(2, numberOfDeletedEntities);
         assertNull(studentCourseDao.getStudentCourseById(2100L, 100L));
         assertNull(studentCourseDao.getStudentCourseById(2100L, 200L));
+
+		// Test with empty list
+		assertEquals(0, studentCourseDao.deleteByStudentIdCourseIdsAsBulkDelete(new ArrayList<>()));
     }
 
     private void insertStudentIdCourseIds() {

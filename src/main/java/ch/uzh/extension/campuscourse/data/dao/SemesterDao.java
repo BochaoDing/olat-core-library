@@ -33,11 +33,11 @@ public class SemesterDao {
         dbInstance.saveObject(semester);
     }
 
-    public Semester getSemesterById(Long id) {
+    Semester getSemesterById(Long id) {
         return dbInstance.findObject(Semester.class, id);
     }
 
-    public Semester getSemesterBySemesterNameAndYear(SemesterName semesterName, Integer year) {
+    Semester getSemesterBySemesterNameAndYear(SemesterName semesterName, Integer year) {
         List<Semester> semesters = dbInstance.getCurrentEntityManager()
                 .createNamedQuery(Semester.GET_SEMESTER_BY_SEMESTER_NAME_AND_YEAR, Semester.class)
                 .setParameter("semesterName", semesterName)
@@ -60,7 +60,7 @@ public class SemesterDao {
         return semesters;
     }
 
-    public List<Long> getPreviousSemestersNotTooFarInThePastInDescendingOrder() {
+    List<Long> getPreviousSemestersNotTooFarInThePastInDescendingOrder() {
         List<Semester> semesters = dbInstance.getCurrentEntityManager()
                 .createNamedQuery(Semester.GET_ALL_SEMESTERS, Semester.class)
                 .getResultList();
@@ -104,7 +104,7 @@ public class SemesterDao {
         semester.setCurrentSemester(true);
     }
 
-    public void unsetCurrentSemester() {
+    void unsetCurrentSemester() {
         List<Semester> semestersFound = dbInstance.getCurrentEntityManager()
                 .createNamedQuery(Semester.GET_CURRENT_SEMESTER, Semester.class)
                 .getResultList();

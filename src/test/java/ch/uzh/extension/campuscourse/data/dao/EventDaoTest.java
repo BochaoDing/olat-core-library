@@ -219,6 +219,9 @@ public class EventDaoTest extends CampusCourseTestCase {
         assertEquals(0, eventDao.getEventsByCourseId(200L).size());
         course = courseDao.getCourseById(100L);
         assertEquals(0, course.getEvents().size());
+
+		// Test with empty list
+		assertEquals(0, eventDao.deleteEventsByCourseIds(new ArrayList<>()));
     }
 
     @Test
@@ -238,6 +241,9 @@ public class EventDaoTest extends CampusCourseTestCase {
 
         assertEquals(0, eventDao.getEventsByCourseId(100L).size());
         assertEquals(0, eventDao.getEventsByCourseId(200L).size());
+
+		// Test with empty list
+		assertEquals(0, eventDao.deleteEventsByCourseIdsAsBulkDelete(new ArrayList<>()));
     }
 
     private void addEventsToCourses() {
