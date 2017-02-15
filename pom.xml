@@ -177,7 +177,7 @@
 									<force>true</force>
 									<encoding>UTF-8</encoding>
 									<nocompress>false</nocompress>
-									<outputDirectory>${basedir}/src/main/webapp/static/movie</outputDirectory>
+									<outputDirectory>${basedir}/target/classes/META-INF/resources/static/movie</outputDirectory>
 									<sourceDirectory>${basedir}/src/main/webapp/static/movie</sourceDirectory>
 									<excludeResources>true</excludeResources>
 									<excludes>
@@ -219,35 +219,35 @@
 											</includes>
 										</aggregation>
 										<aggregation>
-											<output>${basedir}/src/main/webapp/static/js/tinymce4/tinymce/plugins/olatmatheditor/plugin.min.js</output>
+											<output>${basedir}/target/classes/META-INF/resources/static/js/tinymce4/tinymce/plugins/olatmatheditor/plugin.min.js</output>
 											<removeIncluded>false</removeIncluded>
 											<includes>
 												<include>${basedir}/target/jquery/tinymce4/tinymce/plugins/olatmatheditor/plugin.min.js</include>
 											</includes>
 										</aggregation>
 										<aggregation>
-											<output>${basedir}/src/main/webapp/static/js/tinymce4/tinymce/plugins/olatmovieviewer/plugin.min.js</output>
+											<output>${basedir}/target/classes/META-INF/resources/static/js/tinymce4/tinymce/plugins/olatmovieviewer/plugin.min.js</output>
 											<removeIncluded>false</removeIncluded>
 											<includes>
 												<include>${basedir}/target/jquery/tinymce4/tinymce/plugins/olatmovieviewer/plugin.min.js</include>
 											</includes>
 										</aggregation>
 										<aggregation>
-											<output>${basedir}/src/main/webapp/static/js/tinymce4/tinymce/plugins/olatsmileys/plugin.min.js</output>
+											<output>${basedir}/target/classes/META-INF/resources/static/js/tinymce4/tinymce/plugins/olatsmileys/plugin.min.js</output>
 											<removeIncluded>false</removeIncluded>
 											<includes>
 												<include>${basedir}/target/jquery/tinymce4/tinymce/plugins/olatsmileys/plugin.min.js</include>
 											</includes>
 										</aggregation>
 										<aggregation>
-											<output>${basedir}/src/main/webapp/static/js/tinymce4/tinymce/plugins/quotespliter/plugin.min.js</output>
+											<output>${basedir}/target/classes/META-INF/resources/static/js/tinymce4/tinymce/plugins/quotespliter/plugin.min.js</output>
 											<removeIncluded>false</removeIncluded>
 											<includes>
 												<include>${basedir}/target/jquery/tinymce4/tinymce/plugins/quotespliter/plugin.min.js</include>
 											</includes>
 										</aggregation>
 										<aggregation>
-											<output>${basedir}/src/main/webapp/static/js/jquery/openolat/jquery.statistics.chart.min.js</output>
+											<output>${basedir}/target/classes/META-INF/resources/static/js/jquery/openolat/jquery.statistics.chart.min.js</output>
 											<removeIncluded>false</removeIncluded>
 											<includes>
 												<include>${basedir}/target/jquery/jquery/openolat/jquery.statistics.chart.min.js</include>
@@ -272,7 +272,7 @@
 									<excludeResources>true</excludeResources>
 									<aggregations>
 										<aggregation>
-											<output>${basedir}/src/main/webapp/static/js/js.plugins.min.css</output>
+											<output>${basedir}/target/classes/META-INF/resources/static/js/js.plugins.min.css</output>
 											<removeIncluded>false</removeIncluded>
 											<includes>
 												<include>${basedir}/target/jquery/jquery/tagsinput/bootstrap-tagsinput.min.css</include>
