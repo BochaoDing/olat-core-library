@@ -2,13 +2,11 @@ package ch.uzh.extension.campuscourse.presentation.admin;
 
 import ch.uzh.extension.campuscourse.model.IdentityDate;
 import ch.uzh.extension.campuscourse.service.CampusCourseService;
-import ch.uzh.extension.campuscourse.service.CampusCourseServiceImpl;
 import org.olat.admin.securitygroup.gui.GroupMemberView;
 import org.olat.admin.securitygroup.gui.IdentitiesOfGroupTableDataModel;
 import org.olat.admin.user.UserSearchController;
 import org.olat.basesecurity.events.MultiIdentityChosenEvent;
 import org.olat.basesecurity.events.SingleIdentityChosenEvent;
-import org.olat.core.CoreSpringFactory;
 import org.olat.core.commons.fullWebApp.popup.BaseFullWebappPopupLayoutFactory;
 import org.olat.core.gui.UserRequest;
 import org.olat.core.gui.components.Component;
@@ -61,7 +59,7 @@ import java.util.*;
 public class DelegationController extends BasicController {
 
 	private final Identity userIdentity;
-	private final CampusCourseService campusService;
+	private final CampusCourseService campusCourseService;
 	private final UserManager userManager;
     private final Link addUserButton;
 	private final VelocityContainer myContent;
@@ -80,13 +78,13 @@ public class DelegationController extends BasicController {
     private static final String COMMAND_VISIT_CARD = "show.vcard";
     private static final String COMMAND_SELECT_USER = "select.user";
 
-    public DelegationController(UserRequest ureq, WindowControl wControl, Identity userIdentity) {
+    public DelegationController(CampusCourseService campusCourseService, UserRequest ureq, WindowControl wControl, Identity userIdentity) {
 
     	super(ureq, wControl);
 
+    	this.campusCourseService = campusCourseService;
 		this.userIdentity = userIdentity;
 
-        campusService = (CampusCourseServiceImpl) CoreSpringFactory.getBean(CampusCourseServiceImpl.class);
         userManager = UserManager.getInstance();
         myContent = createVelocityContainer("delegation");
 
@@ -99,13 +97,13 @@ public class DelegationController extends BasicController {
 		addUserButton = LinkFactory.createButtonSmall("delegation.add.user", myContent, this);
 
 		// Add delegators table
-		List<IdentityDate> delegateesAndCreationDate = campusService.getDelegateesAndCreationDateByDelegator(userIdentity);
+		List<IdentityDate> delegateesAndCreationDate = campusCourseService.getDelegateesAndCreationDateByDelegator(userIdentity);
 		delegateesTableDataModel = createTableDataModel(ureq, delegateesAndCreationDate, userPropertyHandlers);
 		delegateesTableController = createTable(ureq, delegateesTableDataModel, translator, tableGuiConfiguration,
 				userPropertyHandlers, true, "delegateestable");
 
 		// Add delegatees table
-		List<IdentityDate> delegatorsAndCreationDate = campusService.getDelegatorsAndCreationDateByDelegatee(userIdentity);
+		List<IdentityDate> delegatorsAndCreationDate = campusCourseService.getDelegatorsAndCreationDateByDelegatee(userIdentity);
 		delegatorsTableDataModel = createTableDataModel(ureq, delegatorsAndCreationDate, userPropertyHandlers);
 		delegatorsTableController = createTable(ureq, delegatorsTableDataModel, translator, tableGuiConfiguration,
 				userPropertyHandlers, false, "delegatorstable");
@@ -255,7 +253,7 @@ public class DelegationController extends BasicController {
 
                 if (usersToBeAdded.size() == 1) {
                     // Check if already in delegation [makes only sense for a single chosen identity]
-                    if (campusService.existsDelegation(userIdentity, usersToBeAdded.get(0))) {
+                    if (campusCourseService.existsDelegation(userIdentity, usersToBeAdded.get(0))) {
                         getWindowControl().setInfo(translate("delegation.msg.delegateealreadyindelegation", new String[] { usersToBeAdded.get(0).getName() }));
                         return;
                     }
@@ -269,7 +267,7 @@ public class DelegationController extends BasicController {
                     boolean someAlreadyInGroup = false;
                     List<Identity> alreadyInGroup = new ArrayList<>();
                     for (int i = 0; i < usersToBeAdded.size(); i++) {
-                        if (campusService.existsDelegation(userIdentity, usersToBeAdded.get(i))) {
+                        if (campusCourseService.existsDelegation(userIdentity, usersToBeAdded.get(i))) {
                             delegateesTableController.setMultiSelectSelectedAt(i, false);
                             alreadyInGroup.add(usersToBeAdded.get(i));
                             someAlreadyInGroup = true;
@@ -301,7 +299,7 @@ public class DelegationController extends BasicController {
                 closeableModalController.deactivate();
                 if (usersToBeAdded != null && !usersToBeAdded.isEmpty()) {
                     for (Identity identity : usersToBeAdded) {
-                        campusService.createDelegation(this.userIdentity, identity);
+                        campusCourseService.createDelegation(this.userIdentity, identity);
                     }
                     delegateesTableDataModel.add(identitiesToGroupMemberViews(usersToBeAdded));
                     delegateesTableController.modelChanged();
@@ -311,7 +309,7 @@ public class DelegationController extends BasicController {
         } else if (sourceController == confirmDelete) {
             if (DialogBoxUIFactory.isYesEvent(event)) {
                 for (Identity delegatee : usersToBeRemoved) {
-                    campusService.deleteDelegation(userIdentity, delegatee);
+                    campusCourseService.deleteDelegation(userIdentity, delegatee);
                 }
                 delegateesTableDataModel.remove(usersToBeRemoved);
                 delegateesTableController.modelChanged();

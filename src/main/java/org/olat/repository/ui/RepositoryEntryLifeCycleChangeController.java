@@ -19,9 +19,6 @@
  */
 package org.olat.repository.ui;
 
-import java.util.Collections;
-import java.util.List;
-
 import org.olat.core.gui.UserRequest;
 import org.olat.core.gui.components.Component;
 import org.olat.core.gui.components.link.Link;
@@ -35,8 +32,8 @@ import org.olat.core.gui.control.generic.closablewrapper.CloseableModalControlle
 import org.olat.core.gui.control.generic.wizard.Step;
 import org.olat.core.gui.control.generic.wizard.StepRunnerCallback;
 import org.olat.core.gui.control.generic.wizard.StepsMainRunController;
+import org.olat.core.gui.translator.Translator;
 import org.olat.core.logging.OLATSecurityException;
-import org.olat.core.util.Util;
 import org.olat.repository.RepositoryEntry;
 import org.olat.repository.RepositoryEntryManagedFlag;
 import org.olat.repository.RepositoryManager;
@@ -48,7 +45,9 @@ import org.olat.repository.model.RepositoryEntrySecurity;
 import org.olat.repository.ui.author.ConfirmDeleteController;
 import org.olat.repository.ui.author.wizard.CloseResourceCallback;
 import org.olat.repository.ui.author.wizard.Close_1_ExplanationStep;
-import org.springframework.beans.factory.annotation.Autowired;
+
+import java.util.Collections;
+import java.util.List;
 
 /**
  * Offers a way to change the repo entry life cycle / status: close and delete a
@@ -61,29 +60,36 @@ import org.springframework.beans.factory.annotation.Autowired;
  */
 public class RepositoryEntryLifeCycleChangeController extends BasicController{
 	
-	public static final Event closedEvent = new Event("closed");
-	public static final Event deletedEvent = new Event("deleted");
-	
-	private Link closeLink, deleteLink;
-	private VelocityContainer lifeCycleVC;
+	static final Event closedEvent = new Event("closed");
+	static final Event deletedEvent = new Event("deleted");
 
-	private RepositoryEntry re;
+	protected final RepositoryService repositoryService;
+
+	private Link closeLink;
+	private Link deleteLink;
+	protected VelocityContainer lifeCycleVC;
+
+	protected RepositoryEntry re;
 	private final RepositoryEntrySecurity reSecurity;
 	
 	private StepsMainRunController closeCtrl;
 	private ConfirmDeleteController confirmDeleteCtrl;
 	private CloseableModalController cmc;
 
-	@Autowired
-	private RepositoryService repositoryService;
-	@Autowired
-	private RepositoryManager repositoryManager;
-	
-	protected RepositoryEntryLifeCycleChangeController(UserRequest ureq, WindowControl wControl, RepositoryEntry re, RepositoryEntrySecurity reSecurity, RepositoryHandler handler) {
+	public RepositoryEntryLifeCycleChangeController(RepositoryService repositoryService,
+													RepositoryManager repositoryManager,
+													UserRequest ureq,
+													WindowControl wControl,
+													RepositoryEntry re,
+													RepositoryEntrySecurity reSecurity,
+													RepositoryHandler handler,
+													Translator translator) {
 		super(ureq, wControl);
-		setTranslator(Util.createPackageTranslator(RepositoryService.class, getLocale(), getTranslator()));
+		this.repositoryService = repositoryService;
 		this.re = re;
-		this.reSecurity = reSecurity;		
+		this.reSecurity = reSecurity;
+
+		setTranslator(translator);
 		
 		lifeCycleVC = createVelocityContainer("lifecycle_change");
 		putInitialPanel(lifeCycleVC);

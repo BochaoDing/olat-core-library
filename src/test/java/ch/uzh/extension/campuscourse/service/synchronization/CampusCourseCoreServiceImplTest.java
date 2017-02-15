@@ -1,12 +1,14 @@
 package ch.uzh.extension.campuscourse.service.synchronization;
 
-import ch.uzh.extension.campuscourse.common.CampusCourseConfiguration;
-import ch.uzh.extension.campuscourse.common.CampusCourseException;
 import ch.uzh.extension.campuscourse.CampusCourseJunitTestHelper;
 import ch.uzh.extension.campuscourse.CampusCourseTestCase;
-import ch.uzh.extension.campuscourse.model.SemesterName;
+import ch.uzh.extension.campuscourse.common.CampusCourseConfiguration;
+import ch.uzh.extension.campuscourse.common.CampusCourseException;
+import ch.uzh.extension.campuscourse.data.dao.*;
 import ch.uzh.extension.campuscourse.data.entity.Course;
 import ch.uzh.extension.campuscourse.data.entity.Semester;
+import ch.uzh.extension.campuscourse.model.CampusCourseTO;
+import ch.uzh.extension.campuscourse.model.SemesterName;
 import ch.uzh.extension.campuscourse.service.CampusCourseCoreService;
 import ch.uzh.extension.campuscourse.service.CampusCourseCoreServiceImpl;
 import ch.uzh.extension.campuscourse.service.coursecreation.CampusCoursePublisher;
@@ -14,8 +16,6 @@ import ch.uzh.extension.campuscourse.service.coursecreation.CampusGroupsCreator;
 import ch.uzh.extension.campuscourse.service.coursecreation.OlatCampusCourseCreator;
 import ch.uzh.extension.campuscourse.service.dao.DaoManager;
 import ch.uzh.extension.campuscourse.service.dao.DataConverter;
-import ch.uzh.extension.campuscourse.model.CampusCourseTO;
-import ch.uzh.extension.campuscourse.data.dao.*;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;

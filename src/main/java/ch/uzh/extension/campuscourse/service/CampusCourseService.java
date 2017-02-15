@@ -53,6 +53,12 @@ public interface CampusCourseService {
 
 	Course getLatestCourseByRepositoryEntry(RepositoryEntry repositoryEntry) throws Exception;
 
+	boolean isContinuedCourse(RepositoryEntry repositoryEntry);
+
+	void undoCourseContinuation(RepositoryEntry repositoryEntry, Identity creator);
+
+	List<String> getTitlesOfCourseAndParentCoursesOfContinuedCourseInAscendingOrder(RepositoryEntry repositoryEntry);
+
     void createDelegation(Identity delegator, Identity delegatee);
 
     boolean existsDelegation(Identity delegator, Identity delegatee);

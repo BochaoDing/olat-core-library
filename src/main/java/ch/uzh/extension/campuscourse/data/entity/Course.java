@@ -70,6 +70,7 @@ import java.util.*;
                 "and c.semester.currentSemester = true"),
         @NamedQuery(name = Course.GET_ALL_NOT_CREATED_ORPHANED_COURSES, query = "select c.id from Course c where c.repositoryEntry is null and c.id not in (select lc.course.id from LecturerCourse lc) and c.id not in (select sc.course.id from StudentCourse sc)"),
         @NamedQuery(name = Course.GET_COURSE_IDS_BY_REPOSITORY_ENTRY_KEY, query = "select c.id from Course c where c.repositoryEntry.key = :repositoryEntryKey"),
+		@NamedQuery(name = Course.GET_LAST_CHILD_OF_CONTINUED_COURSE_BY_REPOSITORY_ENTRY_KEY, query = "select c from Course c left join fetch c.parentCourse where c.repositoryEntry.key = :repositoryEntryKey and c.parentCourse is not null and c.id not in (select c2.parentCourse.id from Course c2 where c2.parentCourse is not null)"),
         @NamedQuery(name = Course.GET_COURSES_BY_REPOSITORY_ENTRY_KEY, query = "select c from Course c where c.repositoryEntry.key = :repositoryEntryKey"),
         @NamedQuery(name = Course.GET_COURSES_BY_CAMPUS_GROUP_A_KEY, query = "select c from Course c where c.campusGroupA.key = :campusGroupKey"),
         @NamedQuery(name = Course.GET_COURSES_BY_CAMPUS_GROUP_B_KEY, query = "select c from Course c where c.campusGroupB.key = :campusGroupKey"),
@@ -94,6 +95,7 @@ public class Course {
     public static final String GET_CREATED_AND_NOT_CREATED_CREATABLE_COURSES_OF_CURRENT_SEMESTER_BY_STUDENT_ID = "getCreatedAndNotCreatedCreatableCoursesOfCurrentSemesterByStudentId";
     public static final String GET_CREATED_AND_NOT_CREATED_CREATABLE_COURSES_OF_CURRENT_SEMESTER_BY_STUDENT_ID_BOOKED_BY_STUDENT_ONLY_AS_PARENT_COURSE = "getCreatedAndNotCreatedCreatableCoursesOfCurrentSemesterByStudentIdBookedByStudentOnlyAsParentCourse";
     public static final String GET_COURSES_BY_REPOSITORY_ENTRY_KEY = "getCoursesByRepositoryEntryKey";
+	public static final String GET_LAST_CHILD_OF_CONTINUED_COURSE_BY_REPOSITORY_ENTRY_KEY = "getLastChildOfContinuedCourseByRepositoryEntryKey";
     public static final String GET_COURSES_BY_CAMPUS_GROUP_A_KEY = "getCoursesByCampusGroupAKey";
     public static final String GET_COURSES_BY_CAMPUS_GROUP_B_KEY = "getCoursesByCampusGroupBKey";
     public static final String GET_LATEST_COURSE_BY_REPOSITORY_ENTRY_KEY = "getLatestCourseByRepositoryEntryKey";

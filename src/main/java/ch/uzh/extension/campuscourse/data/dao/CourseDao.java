@@ -3,8 +3,8 @@ package ch.uzh.extension.campuscourse.data.dao;
 import ch.uzh.extension.campuscourse.common.CampusCourseConfiguration;
 import ch.uzh.extension.campuscourse.common.CampusCourseException;
 import ch.uzh.extension.campuscourse.data.entity.*;
-import ch.uzh.extension.campuscourse.model.CourseSemesterOrgId;
 import ch.uzh.extension.campuscourse.model.CampusGroups;
+import ch.uzh.extension.campuscourse.model.CourseSemesterOrgId;
 import ch.uzh.extension.campuscourse.util.DateUtil;
 import org.olat.core.commons.persistence.DB;
 import org.olat.core.logging.OLog;
@@ -16,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import javax.persistence.EntityManager;
+import javax.persistence.NoResultException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -315,6 +316,14 @@ public class CourseDao {
         }
     }
 
+    public void resetChildCourse(Long childCourseId) {
+    	Course childCourse = getCourseById(childCourseId);
+    	childCourse.removeParentCourse();
+    	childCourse.setRepositoryEntry(null);
+    	childCourse.setCampusGroupA(null);
+    	childCourse.setCampusGroupB(null);
+	}
+
     public void saveParentCourseId(Long courseId, Long parentCourseId) {
         Course course = getCourseById(courseId);
         Course parentCourse = getCourseById(parentCourseId);
@@ -407,6 +416,17 @@ public class CourseDao {
                 .getResultList();
         return !courseIds.isEmpty();
     }
+
+    public Course getLastChildOfContinuedCourseByRepositoryEntryKey(Long repositoryEntryKey) {
+		try {
+			return dbInstance.getCurrentEntityManager()
+					.createNamedQuery(Course.GET_LAST_CHILD_OF_CONTINUED_COURSE_BY_REPOSITORY_ENTRY_KEY, Course.class)
+					.setParameter("repositoryEntryKey", repositoryEntryKey)
+					.getSingleResult();
+		} catch (NoResultException e) {
+			return null;
+		}
+	}
 
     public List<Course> getCreatedAndNotCreatedCreatableCoursesOfCurrentSemesterByLecturerId(Long lecturerId) {
         return dbInstance.getCurrentEntityManager()

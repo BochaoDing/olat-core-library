@@ -9,10 +9,7 @@ import org.olat.core.id.Identity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * OLAT - Online Learning and Training<br>
@@ -475,6 +472,22 @@ public class DaoManager {
         //     the secretariat seems not have (manually) copied all the (permitted) students of the parent course yet.
         return (course.getParentCourse() == null || studentDao.hasMoreThan50PercentOfStudentsOfSpecificCourseBothABookingOfCourseAndParentCourse(course));
     }
+
+    public Course getLastChildOfContinuedCourseByRepositoryEntryKey(Long repositoryEntryKey) {
+        return courseDao.getLastChildOfContinuedCourseByRepositoryEntryKey(repositoryEntryKey);
+    }
+
+    public List<String> getTitlesOfCourseAndParentCoursesOfContinuedCourseInAscendingOrderByRepositoryEntryKey(Long repositoryEntryKey) {
+    	Course childCourse = getLastChildOfContinuedCourseByRepositoryEntryKey(repositoryEntryKey);
+    	if (childCourse == null) {
+    		return new ArrayList<>();
+		}
+    	return childCourse.getTitlesOfCourseAndParentCoursesInAscendingOrder();
+	}
+
+    public void resetChildCourse(Long childCourseId) {
+    	courseDao.resetChildCourse(childCourseId);
+	}
 
     public List<IdentityDate> getDelegateesAndCreationDateByDelegator(Identity delegator) {
         return dataConverter.getDelegateesAndCreationDateByDelegator(delegator);

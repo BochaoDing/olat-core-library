@@ -3,6 +3,8 @@ package ch.uzh.extension.campuscourse.presentation;
 import ch.uzh.extension.campuscourse.presentation.admin.DelegationController;
 import ch.uzh.extension.campuscourse.presentation.mycourses.CampusCourseRepositoryEntryRow;
 import ch.uzh.extension.campuscourse.presentation.tab.CampusCourseTabDefinition;
+import ch.uzh.extension.campuscourse.presentation.undocoursecontinuation.ContinuedCampusCourseRepositoryEntryLifeCycleChangeController;
+import ch.uzh.extension.campuscourse.service.CampusCourseService;
 import org.olat.admin.user.UserAdminControllerAdditionalTabs;
 import org.olat.core.dispatcher.mapper.MapperService;
 import org.olat.core.extensions.action.GenericActionExtension;
@@ -14,10 +16,11 @@ import org.olat.core.gui.control.creator.AutoCreator;
 import org.olat.core.gui.translator.Translator;
 import org.olat.core.id.Identity;
 import org.olat.core.util.Util;
-import org.olat.repository.RepositoryEntryMyView;
-import org.olat.repository.RepositoryManager;
-import org.olat.repository.RepositoryModule;
-import org.olat.repository.RepositoryService;
+import org.olat.repository.*;
+import org.olat.repository.handlers.RepositoryHandler;
+import org.olat.repository.model.RepositoryEntrySecurity;
+import org.olat.repository.ui.RepositoryEntryLifeCycleChangeController;
+import org.olat.repository.ui.RepositoryEntryLifeCycleChangeControllerFactory;
 import org.olat.repository.ui.list.RepositoryEntryListController;
 import org.olat.repository.ui.list.RepositoryEntryRow;
 import org.olat.repository.ui.list.RepositoryEntryRowFactory;
@@ -45,10 +48,16 @@ public class CampusCoursePresentationBeanFactory {
 	private RepositoryModule repositoryModule;
 
 	@Autowired
+	private RepositoryService repositoryService;
+
+	@Autowired
 	private MapperService mapperService;
 
 	@Autowired
 	private RepositoryManager repositoryManager;
+
+	@Autowired
+	private CampusCourseService campusCourseService;
 
 	@Bean
 	public CampusCourseTabDefinition campusCourseTabDefinition() {
@@ -84,23 +93,20 @@ public class CampusCoursePresentationBeanFactory {
 		VelocityContainer velocityContainer = new VelocityContainer(null,
 				"vc_" + "row_1",
 				Util.getPackageVelocityRoot(CampusCourseRepositoryEntryRow.class) + "/row_1.html",
-				CampusCoursePresentationHelper.getTranslator(caller.getLocale(),
-						RepositoryService.class),
+				CampusCoursePresentationHelper.getTranslator(caller.getLocale(), RepositoryService.class),
 				caller
 		);
 		velocityContainer.setDomReplacementWrapperRequired(false); // sets its own DOM id in velocity container
 		return velocityContainer;
 	}
 
-	@Bean(name={"RepositoryEntryRowFactory"})
+	@Bean(name={"repositoryEntryRowFactory"})
 	@Scope(BeanDefinition.SCOPE_PROTOTYPE)
 	@Primary
 	protected RepositoryEntryRowFactory repositoryEntryRowFactory(UserRequest userRequest) {
-		return new RepositoryEntryRowFactory(repositoryManager,
-				repositoryModule, mapperService, userRequest) {
+		return new RepositoryEntryRowFactory(repositoryManager, repositoryModule, mapperService, userRequest) {
 
-			Translator translator = CampusCoursePresentationHelper
-					.getTranslator(userRequest.getLocale());
+			Translator translator = CampusCoursePresentationHelper.getTranslator(userRequest.getLocale());
 
 			@Override
 			public RepositoryEntryRow create(RepositoryEntryMyView entry) {
@@ -112,14 +118,50 @@ public class CampusCoursePresentationBeanFactory {
 		};
 	}
 
+	@Bean(name={"repositoryEntryLifeCycleChangeControllerFactory"})
+	@Scope(BeanDefinition.SCOPE_PROTOTYPE)
+	@Primary
+	protected RepositoryEntryLifeCycleChangeControllerFactory repositoryEntryLifeCycleChangeControllerFactory(UserRequest userRequest,
+																											  WindowControl windowControl,
+																											  RepositoryEntrySecurity repositoryEntrySecurity,
+																											  RepositoryHandler repositoryHandler) {
+		return new RepositoryEntryLifeCycleChangeControllerFactory(repositoryService, repositoryManager, userRequest, windowControl, repositoryEntrySecurity, repositoryHandler) {
+
+			@Override
+			public RepositoryEntryLifeCycleChangeController create(RepositoryEntry repositoryEntry) {
+				if (campusCourseService.isContinuedCourse(repositoryEntry)) {
+					return new ContinuedCampusCourseRepositoryEntryLifeCycleChangeController(repositoryService,
+							repositoryManager,
+							campusCourseService,
+							userRequest,
+							windowControl,
+							repositoryEntry,
+							repositoryEntrySecurity,
+							repositoryHandler,
+							CampusCoursePresentationHelper.getTranslator(userRequest.getLocale(), RepositoryService.class));
+				} else {
+					return super.create(repositoryEntry);
+				}
+			}
+
+		};
+	}
+
 	@Bean(name={"userAdminControllerAdditionalTabs"})
 	@Scope(BeanDefinition.SCOPE_PROTOTYPE)
 	@Primary
-	public UserAdminControllerAdditionalTabs userAdminControllerAdditionalTabs(UserRequest userRequest, WindowControl windowControl, Identity identity) {
+	public UserAdminControllerAdditionalTabs userAdminControllerAdditionalTabs(UserRequest userRequest,
+																			   WindowControl windowControl,
+																			   Identity identity) {
 		List<Tab> tabs = new ArrayList<>();
-		DelegationController delegationController = new DelegationController(userRequest, windowControl, identity);
+		DelegationController delegationController = new DelegationController(campusCourseService,
+				userRequest,
+				windowControl,
+				identity);
 		Translator translator = CampusCoursePresentationHelper.getTranslator(userRequest.getLocale(), DelegationController.class);
-		tabs.add(new Tab(translator.translate("edit.delegation"), delegationController.getInitialComponent(), 101));
+		tabs.add(new Tab(translator.translate("edit.delegation"),
+				delegationController.getInitialComponent(),
+				101));
 		return new UserAdminControllerAdditionalTabs(tabs);
 	}
 }

@@ -37,6 +37,12 @@ public interface CampusCourseCoreService {
 
     Set<Course> getCreatedCourses(Identity identity, SapUserType userType, String searchString);
 
+    boolean isContinuedCourse(RepositoryEntry repositoryEntry);
+
+	void undoCourseContinuation(RepositoryEntry repositoryEntry, Identity creator);
+
+	List<String> getTitlesOfCourseAndParentCoursesOfContinuedCourseInAscendingOrder(RepositoryEntry repositoryEntry);
+
     void createDelegation(Identity delegator, Identity delegatee);
 
     boolean existsDelegation(Identity delegator, Identity delegatee);

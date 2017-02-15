@@ -715,6 +715,50 @@ public class CourseDaoTest extends CampusCourseTestCase {
         assertTrue(courseDao.existCoursesForRepositoryEntry(repositoryEntry.getKey()));
     }
 
+	@Test
+	public void testGetLastChildOfContinuedCourseByRepositoryEntryKey() throws CampusCourseException {
+		insertTestData();
+
+		Course course1 = courseDao.getCourseById(100L);
+		Course course2 = courseDao.getCourseById(200L);
+		Course course3 = courseDao.getCourseById(300L);
+		assertNotNull(course1);
+		assertNotNull(course2);
+		assertNotNull(course3);
+
+		// Make course 2 to be the child of course 1 and course 3 to be the child of course 2
+		courseDao.saveParentCourseId(course2.getId(), course1.getId());
+		courseDao.saveParentCourseId(course3.getId(), course2.getId());
+
+		// Create repository entry and make all courses pointing to that repository entry
+		RepositoryEntry repositoryEntry1 = repositoryService.create("Rei Ayanami", "-", "Repository entry 1 CourseDaoLastChildTest", "", null);
+		courseDao.saveRepositoryEntry(course1.getId(), repositoryEntry1.getKey());
+		courseDao.saveRepositoryEntry(course2.getId(), repositoryEntry1.getKey());
+		courseDao.saveRepositoryEntry(course3.getId(), repositoryEntry1.getKey());
+
+		dbInstance.flush();
+
+		Course lastChild = courseDao.getLastChildOfContinuedCourseByRepositoryEntryKey(repositoryEntry1.getKey());
+		assertNotNull(lastChild);
+		assertEquals(course3.getId(), lastChild.getId());
+
+		dbInstance.clear();
+
+		// Check fetch join of parent course
+		assertNotNull(lastChild.getParentCourse());
+		assertEquals(course2.getId(), lastChild.getParentCourse().getId());
+		assertNotNull(lastChild.getParentCourse().getTitle());
+
+		// Ditto for a not continued course
+		Course course4 = courseDao.getCourseById(400L);
+		assertNotNull(course4);
+
+		RepositoryEntry repositoryEntry2 = repositoryService.create("Rei Ayanami", "-", "Repository entry 2 CourseDaoLastChildTest", "", null);
+		courseDao.saveRepositoryEntry(course4.getId(), repositoryEntry2.getKey());
+
+		assertNull(courseDao.getLastChildOfContinuedCourseByRepositoryEntryKey(repositoryEntry2.getKey()));
+	}
+
     @Test
     public void testGetCreatedCoursesOfCurrentSemesterByStudentId() throws CampusCourseException {
         insertTestData();

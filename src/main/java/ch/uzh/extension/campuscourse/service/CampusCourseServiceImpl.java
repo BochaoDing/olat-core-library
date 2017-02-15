@@ -136,6 +136,21 @@ public class CampusCourseServiceImpl implements CampusCourseService {
 	}
 
 	@Override
+	public boolean isContinuedCourse(RepositoryEntry repositoryEntry) {
+		return campusCourseCoreService.isContinuedCourse(repositoryEntry);
+	}
+
+	@Override
+	public void undoCourseContinuation(RepositoryEntry repositoryEntry, Identity creator) {
+		campusCourseCoreService.undoCourseContinuation(repositoryEntry, creator);
+	}
+
+	@Override
+	public List<String> getTitlesOfCourseAndParentCoursesOfContinuedCourseInAscendingOrder(RepositoryEntry repositoryEntry) {
+		return campusCourseCoreService.getTitlesOfCourseAndParentCoursesOfContinuedCourseInAscendingOrder(repositoryEntry);
+	}
+
+	@Override
 	public List<IdentityDate> getDelegateesAndCreationDateByDelegator(Identity delegator) {
 		return campusCourseCoreService.getDelegateesAndCreationDateByDelegator(delegator);
 	}
