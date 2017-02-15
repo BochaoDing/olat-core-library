@@ -235,10 +235,7 @@ public class ListRenderer {
 			sb.append("<a id='o_sel_doc_").append(pos).append("'");
 		
 			if (isContainer) { // for directories... normal module URIs
-				// needs encoding, not done in buildHrefAndOnclick!
-				//FIXME: SR: refactor encode: move to ubu.buildHrefAndOnclick
-				String pathAndNameEncoded = ubu.encodeUrl(pathAndName);
-				ubu.buildHrefAndOnclick(sb, pathAndNameEncoded, iframePostEnabled, false, true);
+				ubu.buildHrefAndOnclick(sb, pathAndName, iframePostEnabled, false, true);
 			} else { // for files, add PARAM_SERV command
 				sb.append(" href=\"");
 				ubu.buildURI(sb, new String[] { PARAM_SERV }, new String[] { "x" }, pathAndName, AJAXFlags.MODE_NORMAL);

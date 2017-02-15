@@ -140,26 +140,26 @@
 									<force>true</force>
 									<encoding>UTF-8</encoding>
 									<nocompress>false</nocompress>
-									<outputDirectory>${basedir}/target/bootstrap</outputDirectory>
+									<outputDirectory>${basedir}/target/compressbootstrap</outputDirectory>
 									<sourceDirectory>${basedir}/src/main/webapp/static/bootstrap</sourceDirectory>
 									<excludeResources>true</excludeResources>
 									<aggregations>
 										<aggregation>
-											<output>${basedir}/target/bootstrap/bootstrap-openolat.min.js</output>
+											<output>${basedir}/target/compressbootstrap/bootstrap-openolat.min.js</output>
 											<removeIncluded>false</removeIncluded>
 											<includes>
-												<!-- <include>${basedir}/target/bootstrap/javascripts/bootstrap/affix.min.js</include> -->
-												<include>${basedir}/target/bootstrap/javascripts/bootstrap/alert.min.js</include>
-												<include>${basedir}/target/bootstrap/javascripts/bootstrap/button.min.js</include>
-												<!-- <include>${basedir}/target/bootstrap/javascripts/bootstrap/carousel.min.js</include> -->
-												<include>${basedir}/target/bootstrap/javascripts/bootstrap/collapse.min.js</include>
-												<include>${basedir}/target/bootstrap/javascripts/bootstrap/dropdown.min.js</include>
-												<include>${basedir}/target/bootstrap/javascripts/bootstrap/tab.min.js</include>
-												<include>${basedir}/target/bootstrap/javascripts/bootstrap/transition.min.js</include>
-												<!-- <include>${basedir}/target/bootstrap/javascripts/bootstrap/scrollspy.min.js</include>  -->
-												<include>${basedir}/target/bootstrap/javascripts/bootstrap/modal.min.js</include>
-												<include>${basedir}/target/bootstrap/javascripts/bootstrap/tooltip.min.js</include>
-												<include>${basedir}/target/bootstrap/javascripts/bootstrap/popover.min.js</include>
+												<!-- <include>${basedir}/target/compressbootstrap/javascripts/bootstrap/affix.min.js</include> -->
+												<include>${basedir}/target/compressbootstrap/javascripts/bootstrap/alert.min.js</include>
+												<include>${basedir}/target/compressbootstrap/javascripts/bootstrap/button.min.js</include>
+												<!-- <include>${basedir}/target/compressbootstrap/javascripts/bootstrap/carousel.min.js</include> -->
+												<include>${basedir}/target/compressbootstrap/javascripts/bootstrap/collapse.min.js</include>
+												<include>${basedir}/target/compressbootstrap/javascripts/bootstrap/dropdown.min.js</include>
+												<include>${basedir}/target/compressbootstrap/javascripts/bootstrap/tab.min.js</include>
+												<include>${basedir}/target/compressbootstrap/javascripts/bootstrap/transition.min.js</include>
+												<!-- <include>${basedir}/target/compressbootstrap/javascripts/bootstrap/scrollspy.min.js</include>  -->
+												<include>${basedir}/target/compressbootstrap/javascripts/bootstrap/modal.min.js</include>
+												<include>${basedir}/target/compressbootstrap/javascripts/bootstrap/tooltip.min.js</include>
+												<include>${basedir}/target/compressbootstrap/javascripts/bootstrap/popover.min.js</include>
 											</includes>
 										</aggregation>
 									</aggregations>
@@ -177,7 +177,7 @@
 									<force>true</force>
 									<encoding>UTF-8</encoding>
 									<nocompress>false</nocompress>
-									<outputDirectory>${basedir}/src/main/webapp/static/movie</outputDirectory>
+									<outputDirectory>${basedir}/target/classes/META-INF/resources/static/movie</outputDirectory>
 									<sourceDirectory>${basedir}/src/main/webapp/static/movie</sourceDirectory>
 									<excludeResources>true</excludeResources>
 									<excludes>
@@ -198,59 +198,59 @@
 									<force>true</force>
 									<encoding>UTF-8</encoding>
 									<nocompress>false</nocompress>
-									<outputDirectory>${basedir}/target/jquery</outputDirectory>
+									<outputDirectory>${basedir}/target/compressjs</outputDirectory>
 									<sourceDirectory>${basedir}/src/main/webapp/static/js</sourceDirectory>
 									<excludeResources>true</excludeResources>
 									<aggregations>
 										<aggregation>
-											<output>${basedir}/src/main/webapp/static/js/js.plugins.min.js</output>
+											<output>${basedir}/target/classes/META-INF/resources/static/js/js.plugins.min.js</output>
 											<removeIncluded>false</removeIncluded>
 											<includes>
-												<include>${basedir}/target/jquery/jquery/periodic/jquery.periodic.min.js</include>
-												<include>${basedir}/target/jquery/jshashtable-2.1_src.min.js</include>
-												<include>${basedir}/target/jquery/jquery/openolat/jquery.oolog.min.js</include>
-												<include>${basedir}/target/jquery/jquery/openolat/jquery.translator.min.js</include>
-												<include>${basedir}/target/jquery/jquery/openolat/jquery.navbar.min.js</include>
-												<include>${basedir}/target/jquery/jquery/openolat/jquery.bgcarrousel.min.js</include>
+												<include>${basedir}/target/compressjs/jquery/periodic/jquery.periodic.min.js</include>
+												<include>${basedir}/target/compressjs/jshashtable-2.1_src.min.js</include>
+												<include>${basedir}/target/compressjs/jquery/openolat/jquery.oolog.min.js</include>
+												<include>${basedir}/target/compressjs/jquery/openolat/jquery.translator.min.js</include>
+												<include>${basedir}/target/compressjs/jquery/openolat/jquery.navbar.min.js</include>
+												<include>${basedir}/target/compressjs/jquery/openolat/jquery.bgcarrousel.min.js</include>
 												<include>${basedir}/src/main/webapp/static/js/tinymce4/tinymce/jquery.tinymce.min.js</include>
-												<include>${basedir}/target/jquery/functions.min.js</include>
-												<include>${basedir}/target/jquery/jquery/transit/jquery.transit.min.js</include>
-												<include>${basedir}/target/bootstrap/bootstrap-openolat.min.js</include>
+												<include>${basedir}/target/compressjs/functions.min.js</include>
+												<include>${basedir}/target/compressjs/jquery/transit/jquery.transit.min.js</include>
+												<include>${basedir}/target/compressbootstrap/bootstrap-openolat.min.js</include>
 											</includes>
 										</aggregation>
 										<aggregation>
-											<output>${basedir}/src/main/webapp/static/js/tinymce4/tinymce/plugins/olatmatheditor/plugin.min.js</output>
+											<output>${basedir}/target/classes/META-INF/resources/static/js/tinymce4/tinymce/plugins/olatmatheditor/plugin.min.js</output>
 											<removeIncluded>false</removeIncluded>
 											<includes>
-												<include>${basedir}/target/jquery/tinymce4/tinymce/plugins/olatmatheditor/plugin.min.js</include>
+												<include>${basedir}/target/compressjs/tinymce4/tinymce/plugins/olatmatheditor/plugin.min.js</include>
 											</includes>
 										</aggregation>
 										<aggregation>
-											<output>${basedir}/src/main/webapp/static/js/tinymce4/tinymce/plugins/olatmovieviewer/plugin.min.js</output>
+											<output>${basedir}/target/classes/META-INF/resources/static/js/tinymce4/tinymce/plugins/olatmovieviewer/plugin.min.js</output>
 											<removeIncluded>false</removeIncluded>
 											<includes>
-												<include>${basedir}/target/jquery/tinymce4/tinymce/plugins/olatmovieviewer/plugin.min.js</include>
+												<include>${basedir}/target/compressjs/tinymce4/tinymce/plugins/olatmovieviewer/plugin.min.js</include>
 											</includes>
 										</aggregation>
 										<aggregation>
-											<output>${basedir}/src/main/webapp/static/js/tinymce4/tinymce/plugins/olatsmileys/plugin.min.js</output>
+											<output>${basedir}/target/classes/META-INF/resources/static/js/tinymce4/tinymce/plugins/olatsmileys/plugin.min.js</output>
 											<removeIncluded>false</removeIncluded>
 											<includes>
-												<include>${basedir}/target/jquery/tinymce4/tinymce/plugins/olatsmileys/plugin.min.js</include>
+												<include>${basedir}/target/compressjs/tinymce4/tinymce/plugins/olatsmileys/plugin.min.js</include>
 											</includes>
 										</aggregation>
 										<aggregation>
-											<output>${basedir}/src/main/webapp/static/js/tinymce4/tinymce/plugins/quotespliter/plugin.min.js</output>
+											<output>${basedir}/target/classes/META-INF/resources/static/js/tinymce4/tinymce/plugins/quotespliter/plugin.min.js</output>
 											<removeIncluded>false</removeIncluded>
 											<includes>
-												<include>${basedir}/target/jquery/tinymce4/tinymce/plugins/quotespliter/plugin.min.js</include>
+												<include>${basedir}/target/compressjs/tinymce4/tinymce/plugins/quotespliter/plugin.min.js</include>
 											</includes>
 										</aggregation>
 										<aggregation>
-											<output>${basedir}/src/main/webapp/static/js/jquery/openolat/jquery.statistics.chart.min.js</output>
+											<output>${basedir}/target/classes/META-INF/resources/static/js/jquery/openolat/jquery.statistics.chart.min.js</output>
 											<removeIncluded>false</removeIncluded>
 											<includes>
-												<include>${basedir}/target/jquery/jquery/openolat/jquery.statistics.chart.min.js</include>
+												<include>${basedir}/target/compressjs/jquery/openolat/jquery.statistics.chart.min.js</include>
 											</includes>
 										</aggregation>
 									</aggregations>
@@ -267,18 +267,18 @@
 									<force>true</force>
 									<encoding>UTF-8</encoding>
 									<nocompress>false</nocompress>
-									<outputDirectory>${basedir}/target/jquery</outputDirectory>
+									<outputDirectory>${basedir}/target/compresscss</outputDirectory>
 									<sourceDirectory>${basedir}/src/main/webapp/static/js</sourceDirectory>
 									<excludeResources>true</excludeResources>
 									<aggregations>
 										<aggregation>
-											<output>${basedir}/src/main/webapp/static/js/js.plugins.min.css</output>
+											<output>${basedir}/target/classes/META-INF/resources/static/js/js.plugins.min.css</output>
 											<removeIncluded>false</removeIncluded>
 											<includes>
-												<include>${basedir}/target/jquery/jquery/tagsinput/bootstrap-tagsinput.min.css</include>
-												<include>${basedir}/target/jquery/jquery/fullcalendar/fullcalendar.min.css</include>
-												<include>${basedir}/target/jquery/jquery/cropper/cropper.min.css</include>
-												<include>${basedir}/target/jquery/jquery/ui/jquery-ui-1.11.4.custom.min.css</include>
+												<include>${basedir}/target/compresscss/jquery/tagsinput/bootstrap-tagsinput.min.css</include>
+												<include>${basedir}/target/compresscss/jquery/fullcalendar/fullcalendar.min.css</include>
+												<include>${basedir}/target/compresscss/jquery/cropper/cropper.min.css</include>
+												<include>${basedir}/target/compresscss/jquery/ui/jquery-ui-1.11.4.custom.min.css</include>
 											</includes>
 										</aggregation>
 									</aggregations>
