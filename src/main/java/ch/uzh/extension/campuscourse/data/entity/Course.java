@@ -20,9 +20,8 @@ import java.util.*;
 @NamedQueries({
         @NamedQuery(name = Course.GET_ALL_CREATED_COURSES_OF_CURRENT_SEMESTER, query = "select c from Course c where " +
 				"(c.repositoryEntry is not null or c.parentCourse is not null) and c.semester.currentSemester = true"),
-        @NamedQuery(name = Course.GET_IDS_OF_ALL_CREATED_SYNCHRONIZABLE_COURSES_OF_CURRENT_SEMESTER, query = "select c.id from Course c where " +
+        @NamedQuery(name = Course.GET_IDS_OF_ALL_CREATED_COURSES_OF_CURRENT_SEMESTER, query = "select c.id from Course c where " +
 				"(c.repositoryEntry is not null or c.parentCourse is not null) " +
-				"and c.synchronizable = true " +
 				"and c.semester.currentSemester = true"),
         @NamedQuery(name = Course.GET_REPOSITORY_ENTRY_KEYS_OF_ALL_CREATED_NOT_CONTINUED_COURSES_OF_SPECIFIC_SEMESTERS, query = "select c.repositoryEntry.key from Course c where " +
                 "c.repositoryEntry is not null and c.parentCourse is null " +
@@ -103,7 +102,7 @@ import java.util.*;
 })
 public class Course {
 
-    public static final String GET_IDS_OF_ALL_CREATED_SYNCHRONIZABLE_COURSES_OF_CURRENT_SEMESTER = "getIdsOfAllCreatedSynchronizableCoursesOfCurrentSemester";
+    public static final String GET_IDS_OF_ALL_CREATED_COURSES_OF_CURRENT_SEMESTER = "getIdsOfAllCreatedCoursesOfCurrentSemester";
     public static final String GET_REPOSITORY_ENTRY_KEYS_OF_ALL_CREATED_NOT_CONTINUED_COURSES_OF_SPECIFIC_SEMESTERS = "getRepositoryEntryKeysOfAllCreatedNotContinuedCoursesOfSpecificSemesters";
 	public static final String GET_ALL_CREATED_CONTINUED_COURSES_WITHOUT_CHILD_OF_SPECIFIC_SEMESTERS = "getAllCreatedContinuedCoursesWithoutChildOfSpecificSemesters";
     public static final String GET_IDS_OF_ALL_NOT_CREATED_CREATABLE_COURSES_OF_CURRENT_SEMESTER = "getIdsOfAllNotCreatedCreatableCoursesOfCurrentSemester";
@@ -158,12 +157,6 @@ public class Course {
     @Column(name = "exclude", nullable = false)
     private boolean exclude = false;
 
-    // Disable import and synchronization
-    // Used in OLAT 7.x for a continued campus course (for the new course). May still be used in OLAT 10.x if the
-    // lecturer/student tables of the campus course from the former semester is not available any more
-    @Column(name = "synchronizable", nullable = false)
-    private boolean synchronizable = true;
-
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "date_of_import")
     private Date dateOfImport;
@@ -213,19 +206,18 @@ public class Course {
     public Course() {}
 
     public Course(Long id,
-                  String lvKuerzel,
-                  String title,
-                  String lvNr,
-                  boolean eLearningSupported,
-                  String language,
-                  String category,
-                  Date startDate,
-                  Date endDate,
-                  String vvzLink,
-                  boolean exclude,
-                  boolean synchronizable,
-                  Date dateOfImport,
-                  Semester semester) {
+				  String lvKuerzel,
+				  String title,
+				  String lvNr,
+				  boolean eLearningSupported,
+				  String language,
+				  String category,
+				  Date startDate,
+				  Date endDate,
+				  String vvzLink,
+				  boolean exclude,
+				  Date dateOfImport,
+				  Semester semester) {
         this.id = id;
         this.lvKuerzel = lvKuerzel;
         this.title = title;
@@ -237,7 +229,6 @@ public class Course {
         this.endDate = endDate;
         this.vvzLink = vvzLink;
         this.exclude = exclude;
-        this.synchronizable = synchronizable;
         this.dateOfImport = dateOfImport;
         this.semester = semester;
     }
@@ -328,14 +319,6 @@ public class Course {
 
     public void setExclude(boolean exclude) {
         this.exclude = exclude;
-    }
-
-    public boolean isSynchronizable() {
-        return synchronizable;
-    }
-
-    public void setSynchronizable(boolean synchronizable) {
-        this.synchronizable = synchronizable;
     }
 
     public Semester getSemester() {

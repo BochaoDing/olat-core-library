@@ -49,7 +49,7 @@ public class CampusCourseJunitTestHelper {
     public static Course createCourseForTest(Long id, Semester semester, SemesterDao semesterDao, CourseDao courseDao, DB dbInstance) {
         semesterDao.save(semester);
 
-        Course sapCampusCourse = new Course(id, "XXXXlvKuerzel", "title", "lvNr", false, "DE", "category", new Date(), new Date(), "vvzLink", false, true, new Date(), semester);
+        Course sapCampusCourse = new Course(id, "XXXXlvKuerzel", "title", "lvNr", false, "DE", "category", new Date(), new Date(), "vvzLink", false, new Date(), semester);
         courseDao.save(sapCampusCourse);
 
         dbInstance.flush();

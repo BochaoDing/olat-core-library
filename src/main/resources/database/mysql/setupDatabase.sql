@@ -2240,7 +2240,6 @@ create table if not exists ck_course (
 	end_date date not null,
 	vvz_link varchar(255) not null,
 	exclude boolean not null,
-	synchronizable boolean not null default 1,
   fk_semester bigint not null,
   fk_repositoryentry bigint,
   fk_campusgroup_a bigint,

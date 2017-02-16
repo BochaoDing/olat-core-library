@@ -403,7 +403,7 @@ public class CourseDao {
 
     public List<Long> getIdsOfAllCreatedSynchronizableCoursesOfCurrentSemester() {
         return dbInstance.getCurrentEntityManager()
-                .createNamedQuery(Course.GET_IDS_OF_ALL_CREATED_SYNCHRONIZABLE_COURSES_OF_CURRENT_SEMESTER, Long.class)
+                .createNamedQuery(Course.GET_IDS_OF_ALL_CREATED_COURSES_OF_CURRENT_SEMESTER, Long.class)
                 .getResultList();
     }
 
