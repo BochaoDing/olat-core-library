@@ -2,11 +2,7 @@ package ch.uzh.extension.campuscourse.service;
 
 import ch.uzh.extension.campuscourse.common.CampusCourseConfiguration;
 import ch.uzh.extension.campuscourse.common.CampusCourseException;
-import ch.uzh.extension.campuscourse.data.entity.Course;
-import ch.uzh.extension.campuscourse.model.CampusCourseTO;
-import ch.uzh.extension.campuscourse.model.CampusGroups;
-import ch.uzh.extension.campuscourse.model.IdentityDate;
-import ch.uzh.extension.campuscourse.model.SapUserType;
+import ch.uzh.extension.campuscourse.model.*;
 import ch.uzh.extension.campuscourse.service.coursecreation.CampusCoursePublisher;
 import ch.uzh.extension.campuscourse.service.coursecreation.CampusGroupsCreator;
 import ch.uzh.extension.campuscourse.service.coursecreation.OlatCampusCourseCreator;
@@ -242,20 +238,17 @@ public class CampusCourseCoreServiceImpl implements CampusCourseCoreService {
 		assert creator != null;
 
 		// Check first if sap campus courses exist
-		Course childCourse = daoManager.getCourseById(childSapCampusCourseId);
+		CampusCourseWithoutListsTO childCourse = daoManager.getCourseById(childSapCampusCourseId);
 		if (childCourse == null) {
 			throw new IllegalArgumentException("SAP course does not exists: " + childSapCampusCourseId);
 		}
-		Course parentCourse = daoManager.getCourseById(parentSapCampusCourseId);
+		CampusCourseWithoutListsTO parentCourse = daoManager.getCourseById(parentSapCampusCourseId);
 		if (parentCourse == null) {
 			throw new IllegalArgumentException("Parent SAP course does not exists: " + parentSapCampusCourseId);
 		}
 
-		// Add parent course, repository entry and campus groups of parent course to child course
+		// Add parent course to child course
 		daoManager.saveParentCourseId(childSapCampusCourseId, parentSapCampusCourseId);
-        daoManager.saveCampusCourseRepositoryEntry(childSapCampusCourseId, parentCourse.getRepositoryEntry().getKey());
-        daoManager.saveCampusGroupA(childSapCampusCourseId, parentCourse.getCampusGroupA().getKey());
-        daoManager.saveCampusGroupB(childSapCampusCourseId, parentCourse.getCampusGroupB().getKey());
         dbInstance.intermediateCommit();
 
         // childCampusCourseTO must be loaded AFTER setting the parent course id and the campus groups such that
@@ -272,15 +265,15 @@ public class CampusCourseCoreServiceImpl implements CampusCourseCoreService {
 
 	@Override
 	public void undoCourseContinuation(RepositoryEntry repositoryEntry, Identity creator) {
-		Course childCourse = daoManager.getLastChildOfContinuedCourseByRepositoryEntryKey(repositoryEntry.getKey());
+		CampusCourseWithoutListsTO childCourse = daoManager.getCourseOrLastChildOfContinuedCourseByRepositoryEntryKey(repositoryEntry.getKey());
 		if (childCourse == null) {
 			return;
 		}
 
-		CampusCourseTO parentCourseTO = daoManager.loadCampusCourseTO(childCourse.getParentCourse().getId());
+		CampusCourseTO parentCourseTO = daoManager.loadCampusCourseTO(childCourse.getParentSapCourseId());
 
 		// Reset child course
-		daoManager.resetChildCourse(childCourse.getId());
+		daoManager.resetChildCourse(childCourse.getSapCourseId());
 
 		// Update course run and editor models and perform synchronization
 		updateCourseRunAndEditorModelsAndPerformSynchronization(parentCourseTO, creator);
@@ -311,13 +304,13 @@ public class CampusCourseCoreServiceImpl implements CampusCourseCoreService {
 	}
 
     @Override
-    public Course getLatestCourseByRepositoryEntry(RepositoryEntry repositoryEntry) throws Exception {
-        return daoManager.getLatestCourseByRepositoryEntry(repositoryEntry.getKey());
+    public CampusCourseWithoutListsTO getCourseOrLastChildOfContinuedCourseByRepositoryEntryKey(RepositoryEntry repositoryEntry) {
+        return daoManager.getCourseOrLastChildOfContinuedCourseByRepositoryEntryKey(repositoryEntry.getKey());
     }
 
     @Override
     public void resetRepositoryEntryAndParentCourse(RepositoryEntry repositoryEntry) {
-        LOG.debug("resetRepositoryEntryAndParentCourse for repositoryentry_id =" + repositoryEntry.getKey());
+        LOG.debug("resetRepositoryEntryAndParentCourses for repository entry id =" + repositoryEntry.getKey());
         daoManager.resetRepositoryEntryAndParentCourse(repositoryEntry.getKey());
     }
 
@@ -339,23 +332,23 @@ public class CampusCourseCoreServiceImpl implements CampusCourseCoreService {
     }
 
 	@Override
-    public Set<Course> getNotCreatedCourses(Identity identity, SapUserType userType, String searchString) {
+    public Set<CampusCourseWithoutListsTO> getNotCreatedCourses(Identity identity, SapUserType userType, String searchString) {
         return daoManager.getNotCreatedCourses(identity, userType, searchString);
     }
 
     @Override
-    public Set<Course> getCreatedCourses(Identity identity, SapUserType userType, String searchString) {
+    public Set<CampusCourseWithoutListsTO> getCreatedCourses(Identity identity, SapUserType userType, String searchString) {
         return daoManager.getCreatedCourses(identity, userType, searchString);
     }
 
     @Override
     public boolean isContinuedCourse(RepositoryEntry repositoryEntry) {
-        return daoManager.getLastChildOfContinuedCourseByRepositoryEntryKey(repositoryEntry.getKey()) != null;
+        return daoManager.existsContinuedCourseForRepositoryEntry(repositoryEntry.getKey());
     }
 
 	@Override
-	public List<String> getTitlesOfCourseAndParentCoursesOfContinuedCourseInAscendingOrder(RepositoryEntry repositoryEntry) {
-		return daoManager.getTitlesOfCourseAndParentCoursesOfContinuedCourseInAscendingOrderByRepositoryEntryKey(repositoryEntry.getKey());
+	public List<String> getTitlesOfChildAndParentCoursesInAscendingOrder(RepositoryEntry repositoryEntry) {
+		return daoManager.getTitlesOfChildAndParentCoursesInAscendingOrderByRepositoryEntryKey(repositoryEntry.getKey());
 	}
 
 	@Override
@@ -375,7 +368,7 @@ public class CampusCourseCoreServiceImpl implements CampusCourseCoreService {
     }
 
     @Override
-    public List<Long> getRepositoryEntryKeysOfAllCreatedNotContinuedCoursesOfPreviousSemesters() {
+    public Set<Long> getRepositoryEntryKeysOfAllCreatedNotContinuedCoursesOfPreviousSemesters() {
         return daoManager.getRepositoryEntryKeysOfAllCreatedNotContinuedCoursesOfPreviousSemesters();
     }
 

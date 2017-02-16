@@ -27,7 +27,7 @@ import java.util.Set;
 @SuppressWarnings("JpaQlInspection")  // Required to suppress warnings in named query GET_STUDENTS_BY_MAPPED_IDENTITY_KEY
 @NamedQueries({
         @NamedQuery(name = Student.GET_ALL_STUDENTS_WITH_CREATED_OR_NOT_CREATED_CREATABLE_COURSES, query = "select distinct s from Student s join s.studentCourses sc where " +
-                "sc.course.repositoryEntry is not null or " +
+                "sc.course.repositoryEntry is not null or sc.course.parentCourse is not null or " +
                 "(sc.course.exclude = false " +
                 "and exists (select c1 from Course c1 join c1.orgs o where c1.id = sc.course.id and o.enabled = true))"),
         @NamedQuery(name = Student.GET_ALL_NOT_MANUALLY_MAPPED_OR_TOO_OLD_ORPHANED_STUDENTS, query = "select s.id from Student s where " +

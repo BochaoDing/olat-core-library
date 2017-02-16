@@ -1,6 +1,7 @@
 package ch.uzh.extension.campuscourse.presentation.coursecreation.selection;
 
-import ch.uzh.extension.campuscourse.data.entity.Course;
+import ch.uzh.extension.campuscourse.common.CampusCourseException;
+import ch.uzh.extension.campuscourse.model.CampusCourseWithoutListsTO;
 import ch.uzh.extension.campuscourse.presentation.coursecreation.CreateCampusCourseCompletedEventListener;
 import ch.uzh.extension.campuscourse.service.CampusCourseService;
 import org.olat.core.gui.UserRequest;
@@ -16,6 +17,7 @@ import org.olat.repository.RepositoryManager;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Initial date: 2016-07-13<br />
@@ -55,13 +57,13 @@ public class ContinueCampusCourseSelectionController extends CampusCourseDialogS
 				if (!campusCourseService.isIdentityLecturerOrDelegateeOfSapCourse(sapCampusCourseId, userRequest.getIdentity())) {
 					showError("popup.course.notContinued.becauseOfRemovedDelegation.text");
 				} else {
-					try {
-						Course parentCourse = campusCourseService.getLatestCourseByRepositoryEntry(repositoryEntry);
+					CampusCourseWithoutListsTO courseOrLastChildOfContinuedCourse = campusCourseService.getCourseOrLastChildOfContinuedCourseByRepositoryEntryKey(repositoryEntry);
+					if (courseOrLastChildOfContinuedCourse != null) {
 						RepositoryEntry repositoryEntry = campusCourseService.continueOlatCampusCourse(sapCampusCourseId,
-								parentCourse.getId(), userRequest.getIdentity());
+								courseOrLastChildOfContinuedCourse.getSapCourseId(), userRequest.getIdentity());
 						listener.onSuccess(userRequest, repositoryEntry);
-					} catch (Exception e) {
-						listener.onError(userRequest, e);
+					} else {
+						listener.onError(userRequest, new CampusCourseException("No course found with repository entry id " + repositoryEntry.getKey()));
 					}
 				}
 			}
@@ -81,7 +83,7 @@ public class ContinueCampusCourseSelectionController extends CampusCourseDialogS
 		List<RepositoryEntry> campusCourseEntries = new ArrayList<>();
 		List<RepositoryEntry> entries = repositoryManager.queryByOwner(userRequest.getIdentity(), "CourseModule");
 		if (!entries.isEmpty()) {
-			List<Long> repositoryEntryKeysOfAllCreatedNotContinuedCoursesOfPreviousSemesters = campusCourseService.getRepositoryEntryKeysOfAllCreatedNotContinuedCoursesOfPreviousSemesters();
+			Set<Long> repositoryEntryKeysOfAllCreatedNotContinuedCoursesOfPreviousSemesters = campusCourseService.getRepositoryEntryKeysOfAllCreatedNotContinuedCoursesOfPreviousSemesters();
 			for (RepositoryEntry entry : entries) {
 				Long repositoryEntryKey = entry.getKey();
 				if (repositoryEntryKeysOfAllCreatedNotContinuedCoursesOfPreviousSemesters.contains(repositoryEntryKey)) {

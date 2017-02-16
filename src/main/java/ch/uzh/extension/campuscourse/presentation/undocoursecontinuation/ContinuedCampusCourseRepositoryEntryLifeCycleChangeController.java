@@ -57,7 +57,7 @@ public class ContinuedCampusCourseRepositoryEntryLifeCycleChangeController exten
 	}
 
 	private void onUndoCourseContinuationConfirmed(UserRequest userRequest) {
-		String titleOfContinuedCourse = campusCourseService.getTitlesOfCourseAndParentCoursesOfContinuedCourseInAscendingOrder(re).get(1);
+		String titleOfContinuedCourse = campusCourseService.getTitlesOfChildAndParentCoursesInAscendingOrder(re).get(1);
 		campusCourseService.undoCourseContinuation(re, userRequest.getIdentity());
 		showInfo("info.undo.course.continuation.successful", new String[] {StringHelper.escapeHtml(titleOfContinuedCourse)});
 		if (!campusCourseService.isContinuedCourse(re)) {
@@ -82,8 +82,8 @@ public class ContinuedCampusCourseRepositoryEntryLifeCycleChangeController exten
 			super(userRequest, windowControl,
 					translator.translate("popup.undo.course.continuation.title"),
 					translator.translate("popup.undo.course.continuation.text", new String[] {
-							StringHelper.escapeHtml(campusCourseService.getTitlesOfCourseAndParentCoursesOfContinuedCourseInAscendingOrder(re).get(0)),
-							StringHelper.escapeHtml(campusCourseService.getTitlesOfCourseAndParentCoursesOfContinuedCourseInAscendingOrder(re).get(1))}),
+							StringHelper.escapeHtml(campusCourseService.getTitlesOfChildAndParentCoursesInAscendingOrder(re).get(0)),
+							StringHelper.escapeHtml(campusCourseService.getTitlesOfChildAndParentCoursesInAscendingOrder(re).get(1))}),
 					createButtonLabelsOfConfirmUndoDialogBoxController(translator));
 		}
 

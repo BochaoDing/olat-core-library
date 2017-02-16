@@ -8,6 +8,7 @@ import ch.uzh.extension.campuscourse.data.dao.*;
 import ch.uzh.extension.campuscourse.data.entity.Course;
 import ch.uzh.extension.campuscourse.data.entity.Semester;
 import ch.uzh.extension.campuscourse.model.CampusCourseTO;
+import ch.uzh.extension.campuscourse.model.CampusGroups;
 import ch.uzh.extension.campuscourse.model.SemesterName;
 import ch.uzh.extension.campuscourse.service.CampusCourseCoreService;
 import ch.uzh.extension.campuscourse.service.CampusCourseCoreServiceImpl;
@@ -292,6 +293,7 @@ public class CampusCourseCoreServiceImplTest extends CampusCourseTestCase {
         RepositoryEntry createdRepositoryEntry = createOlatCampusCourseFromStandardTemplate();
         assertNotNull(course.getRepositoryEntry());
         assertEquals(createdRepositoryEntry, course.getRepositoryEntry());
+		assertEquals(createdRepositoryEntry, course.getRepositoryEntryOfCourseOrOfFirstParentOfContinuedCourse());
     }
 
     @Test
@@ -368,12 +370,14 @@ public class CampusCourseCoreServiceImplTest extends CampusCourseTestCase {
 
     @Test
     public void testContinueOlatCampusCourse_checkChildCourseRepositoryEntry() throws Exception {
-        RepositoryEntry repositoryEntry = createOlatCampusCourseFromStandardTemplate();
+        RepositoryEntry repositoryEntryReturned = createOlatCampusCourseFromStandardTemplate();
         continueOlatCampusCourse();
 
-        assertNotNull(childCourse.getRepositoryEntry());
-        assertEquals(course.getRepositoryEntry(), childCourse.getRepositoryEntry());
-        assertEquals(repositoryEntry, childCourse.getRepositoryEntry());
+        assertNull(childCourse.getRepositoryEntry());
+        RepositoryEntry repositoryEntry = childCourse.getRepositoryEntryOfCourseOrOfFirstParentOfContinuedCourse();
+        assertNotNull(repositoryEntry);
+        assertEquals(course.getRepositoryEntryOfCourseOrOfFirstParentOfContinuedCourse(), repositoryEntry);
+        assertEquals(repositoryEntryReturned, repositoryEntry);
     }
 
     @Test
@@ -433,11 +437,16 @@ public class CampusCourseCoreServiceImplTest extends CampusCourseTestCase {
         createOlatCampusCourseFromStandardTemplate();
         continueOlatCampusCourse();
 
-        BusinessGroup campusGroupA = childCourse.getCampusGroupA();
-        BusinessGroup campusGroupB = childCourse.getCampusGroupB();
-        assertNotNull(campusGroupA);
+        assertNull(childCourse.getCampusGroupA());
+		assertNull(childCourse.getCampusGroupB());
+
+		assertNotNull(childCourse.getParentCourse());
+		CampusGroups campusGroups = childCourse.getCampusGroupsOfCourseOrOfFirstParentOfContinuedCourse();
+		BusinessGroup campusGroupA = campusGroups.getCampusGroupA();
+		BusinessGroup campusGroupB = campusGroups.getCampusGroupB();
+		assertNotNull(campusGroupA);
+		assertNotNull(campusGroupB);
         assertEquals(course.getCampusGroupA(), campusGroupA);
-        assertNotNull(campusGroupB);
         assertEquals(course.getCampusGroupB(), campusGroupB);
 
         // Check synchronization

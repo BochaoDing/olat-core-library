@@ -52,28 +52,28 @@ public class CampusCourseSynchronizationReaderTest {
 
     @Test
     public void destroy_nullCoursesList() {
-        when(daoManagerMock.getAllCreatedSapCources()).thenReturn(null);
+        when(daoManagerMock.getAllCreatedSapCourses()).thenReturn(null);
         campusCourseSynchronizationReaderTestObject.init();
         campusCourseSynchronizationReaderTestObject.destroy();
     }
 
     @Test
     public void destroy_emptyCoursesList() {
-        when(daoManagerMock.getAllCreatedSapCources()).thenReturn(new ArrayList<>());
+        when(daoManagerMock.getAllCreatedSapCourses()).thenReturn(new ArrayList<>());
         campusCourseSynchronizationReaderTestObject.init();
         campusCourseSynchronizationReaderTestObject.destroy();
     }
 
     @Test
     public void read_nullCoursesList() throws Exception {
-        when(daoManagerMock.getAllCreatedSapCources()).thenReturn(null);
+        when(daoManagerMock.getAllCreatedSapCourses()).thenReturn(null);
         campusCourseSynchronizationReaderTestObject.init();
         assertNull(campusCourseSynchronizationReaderTestObject.read());
     }
 
     @Test
     public void read_emptyCoursesList() throws Exception {
-        when(daoManagerMock.getAllCreatedSapCources()).thenReturn(new ArrayList<>());
+        when(daoManagerMock.getAllCreatedSapCourses()).thenReturn(new ArrayList<>());
         campusCourseSynchronizationReaderTestObject.init();
         assertNull(campusCourseSynchronizationReaderTestObject.read());
     }

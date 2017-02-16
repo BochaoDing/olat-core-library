@@ -78,24 +78,6 @@ public class DaoManager {
 		this.campusCourseConfiguration = campusCourseConfiguration;
     }
 
-    public void saveCourses(List<Course> courses) {
-        for (Course course : courses) {
-            courseDao.save(course);
-        }
-    }
-
-    public void saveOrgs(List<Org> orgs) {
-        orgDao.save(orgs);
-    }
-
-    public void saveStudents(List<Student> students) {
-        studentDao.save(students);
-    }
-
-    public void saveLecturers(List<Lecturer> lecturers) {
-        lecturerDao.save(lecturers);
-    }
-
     public void saveDelegation(Identity delegator, Identity delegatee) {
         delegationDao.save(delegator.getKey(), delegatee.getKey());
     }
@@ -108,13 +90,9 @@ public class DaoManager {
         return courseDao.existCoursesForRepositoryEntry(repositoryEntryKey);
     }
 
-    public void deleteCourse(Course course) {
-        courseDao.delete(course);
-    }
-
-    public void deleteCourseById(Long courseId) {
-        courseDao.deleteByCourseId(courseId);
-    }
+	public boolean existsContinuedCourseForRepositoryEntry(Long repositoryEntryKey) {
+    	return courseDao.existsContinuedCourseForRepositoryEntry(repositoryEntryKey);
+	}
 
     public void deleteCoursesAndBookingsByCourseIds(List<Long> courseIds) {
         List<List<Long>> listSplit = ListUtil.split(courseIds, campusCourseConfiguration.getEntitiesSublistMaxSize());
@@ -129,8 +107,9 @@ public class DaoManager {
         return courseDao.getAllNotCreatedOrphanedCourses();
     }
 
-    public Course getCourseById(Long id) {
-        return courseDao.getCourseById(id);
+    public CampusCourseWithoutListsTO getCourseById(Long id) {
+        Course course = courseDao.getCourseById(id);
+        return createCampusCourseWithoutListsTOWithoutReload(course);
     }
 
     public int deleteAllTexts() {
@@ -161,10 +140,6 @@ public class DaoManager {
                 studentDao.deleteByStudentIdsAsBulkDelete(subList);
             }
         }
-    }
-
-    public void deleteStudent(Student student) {
-        studentDao.delete(student);
     }
 
     public List<LecturerIdCourseId> getAllNotUpdatedLCBookingOfCurrentImportProcess(Date date, Semester semesterOfCurrentImportProcess) {
@@ -257,15 +232,15 @@ public class DaoManager {
         orgDao.deleteByOrgIds(orgIds);
     }
 
-    public List<Student> getStudentsByMappedIdentityKey(Long identityKey) {
+    private List<Student> getStudentsByMappedIdentityKey(Long identityKey) {
         return studentDao.getStudentsByMappedIdentityKey(identityKey);
     }
 
-    public List<Lecturer> getLecturersByMappedIdentityKey(Long identityKey) {
+    private List<Lecturer> getLecturersByMappedIdentityKey(Long identityKey) {
         return lecturerDao.getLecturersByMappedIdentityKey(identityKey);
     }
 
-    public List<Text> getTextByCourseId(Long id) {
+    public List<Text> getTextsByCourseId(Long id) {
         return textDao.getTextsByCourseId(id);
     }
 
@@ -281,7 +256,7 @@ public class DaoManager {
         return textDao.getMaterialsByCourseId(id);
     }
 
-    public List<Course> getCreatedAndNotCreatedCreatableCoursesByStudentId(Long studentId) {
+    public List<CampusCourseWithoutListsTO> getCreatedAndNotCreatedCreatableCoursesByStudentId(Long studentId) {
 
         List<Course> coursesOfStudent = courseDao.getCreatedAndNotCreatedCreatableCoursesOfCurrentSemesterByStudentId(studentId);
 
@@ -294,12 +269,13 @@ public class DaoManager {
             }
         }
 
-        return coursesBookedOnlyAsParentCourse;
+        return createListOfCampusCourseWithoutListsTOWithoutReload(coursesOfStudent);
     }
 
-    public List<Course> getCreatedCoursesByStudentId(Long studentId, String searchString) {
+    private List<CampusCourseWithoutListsTO> getCreatedCoursesByStudentId(Long studentId, String searchString) {
 
         List<Course> coursesOfStudent = courseDao.getCreatedCoursesOfCurrentSemesterByStudentId(studentId, searchString);
+        List<CampusCourseWithoutListsTO> campusCourseWithoutListsTOs = createListOfCampusCourseWithoutListsTOWithoutReload(coursesOfStudent);
 
         // We also have to look for courses the student booked as parent course
         List<Course> coursesBookedOnlyAsParentCourse = courseDao.getCreatedCoursesOfCurrentSemesterByStudentIdBookedByStudentOnlyAsParentCourse(studentId, searchString);
@@ -310,27 +286,31 @@ public class DaoManager {
             }
         }
 
-        return coursesBookedOnlyAsParentCourse;
+        return createListOfCampusCourseWithoutListsTOWithoutReload(coursesOfStudent);
     }
 
-    public List<Course> getNotCreatedCoursesByStudentId(Long id, String searchString) {
-        return courseDao.getNotCreatedCreatableCoursesOfCurrentSemesterByStudentId(id, searchString);
+    private List<CampusCourseWithoutListsTO> getNotCreatedCoursesByStudentId(Long id, String searchString) {
+        List<Course> courses = courseDao.getNotCreatedCreatableCoursesOfCurrentSemesterByStudentId(id, searchString);
+        return createListOfCampusCourseWithoutListsTOWithoutReload(courses);
     }
 
-    public List<Course> getCreatedAndNotCreatedCreatableCoursesByLecturerId(Long id) {
-        return courseDao.getCreatedAndNotCreatedCreatableCoursesOfCurrentSemesterByLecturerId(id);
+    public List<CampusCourseWithoutListsTO> getCreatedAndNotCreatedCreatableCoursesByLecturerId(Long id) {
+		List<Course> courses = courseDao.getCreatedAndNotCreatedCreatableCoursesOfCurrentSemesterByLecturerId(id);
+		return createListOfCampusCourseWithoutListsTOWithoutReload(courses);
     }
 
-    public List<Course> getCreatedCoursesByLecturerId(Long id, String searchString) {
-        return courseDao.getCreatedCoursesOfCurrentSemesterByLecturerId(id, searchString);
+    private List<CampusCourseWithoutListsTO> getCreatedCoursesByLecturerId(Long id, String searchString) {
+		List<Course> courses = courseDao.getCreatedCoursesOfCurrentSemesterByLecturerId(id, searchString);
+		return createListOfCampusCourseWithoutListsTOWithoutReload(courses);
     }
 
-    public List<Course> getNotCreatedCoursesByLecturerId(Long id, String searchString) {
-        return courseDao.getNotCreatedCreatableCoursesOfCurrentSemesterByLecturerId(id, searchString);
+    private List<CampusCourseWithoutListsTO> getNotCreatedCoursesByLecturerId(Long id, String searchString) {
+		List<Course> courses = courseDao.getNotCreatedCreatableCoursesOfCurrentSemesterByLecturerId(id, searchString);
+		return createListOfCampusCourseWithoutListsTOWithoutReload(courses);
     }
 
-    public Set<Course> getNotCreatedCourses(Identity identity, SapUserType userType, String searchString) {
-        Set<Course> courses = new HashSet<>();
+    public Set<CampusCourseWithoutListsTO> getNotCreatedCourses(Identity identity, SapUserType userType, String searchString) {
+        Set<CampusCourseWithoutListsTO> courses = new HashSet<>();
         courses.addAll(getCourses(identity, userType, false, searchString));// false --- > notCreatedCourses
         // THE CASE OF LECTURER, ADD THE APPROPRIATE DELEGATES
         if (userType.equals(SapUserType.LECTURER)) {
@@ -342,8 +322,8 @@ public class DaoManager {
         return courses;
     }
 
-    public Set<Course> getCreatedCourses(Identity identity, SapUserType userType, String searchString) {
-        Set<Course> courses = new HashSet<>();
+    public Set<CampusCourseWithoutListsTO> getCreatedCourses(Identity identity, SapUserType userType, String searchString) {
+        Set<CampusCourseWithoutListsTO> courses = new HashSet<>();
         courses.addAll(getCourses(identity, userType, true, searchString));// true --- > CreatedCourses
         // THE CASE OF LECTURER, ADD THE APPROPRIATE DELEGATES
         if (userType.equals(SapUserType.LECTURER)) {
@@ -355,8 +335,8 @@ public class DaoManager {
         return courses;
     }
 
-    public Set<Course> getCourses(Identity identity, SapUserType userType, boolean created, String searchString) {
-        Set <Course> courses = new HashSet<>();
+    public Set<CampusCourseWithoutListsTO> getCourses(Identity identity, SapUserType userType, boolean created, String searchString) {
+        Set <CampusCourseWithoutListsTO> courses = new HashSet<>();
         if (userType.equals(SapUserType.LECTURER)) {
             for (Lecturer lecturer : getLecturersByMappedIdentityKey(identity.getKey())) {
                 if (created) {
@@ -365,7 +345,7 @@ public class DaoManager {
                     courses.addAll(getNotCreatedCoursesByLecturerId(lecturer.getPersonalNr(), searchString));
                 }
             }
-        } else {
+        } else if (userType.equals(SapUserType.STUDENT)){
             for (Student student : getStudentsByMappedIdentityKey(identity.getKey())) {
                 if (created) {
                     courses.addAll(getCreatedCoursesByStudentId(student.getId(), searchString));
@@ -389,16 +369,12 @@ public class DaoManager {
         courseDao.saveCampusGroupB(courseId, campusGroupBKey);
     }
 
-    public Course getLatestCourseByRepositoryEntry(Long repositoryEntryKey) throws Exception {
-        return courseDao.getLatestCourseByRepositoryEntry(repositoryEntryKey);
-    }
-
     public Set<CampusGroups> getCampusGroupsByRepositoryEntry(Long repositoryEntryKey) {
         return courseDao.getCampusGroupsByRepositoryEntry(repositoryEntryKey);
     }
 
     public void resetRepositoryEntryAndParentCourse(Long repositoryEntryKey) {
-        courseDao.resetRepositoryEntryAndParentCourse(repositoryEntryKey);
+        courseDao.resetRepositoryEntryAndParentCourses(repositoryEntryKey);
     }
 
     public void resetCampusGroup(Long campusGroupKey) {
@@ -413,7 +389,7 @@ public class DaoManager {
         return courseDao.getIdsOfAllCreatedSynchronizableCoursesOfCurrentSemester();
     }
 
-    public List<Long> getRepositoryEntryKeysOfAllCreatedNotContinuedCoursesOfPreviousSemesters() {
+    public Set<Long> getRepositoryEntryKeysOfAllCreatedNotContinuedCoursesOfPreviousSemesters() {
         return courseDao.getRepositoryEntryKeysOfAllCreatedNotContinuedCoursesOfPreviousSemestersNotTooFarInThePast();
     }
 
@@ -425,12 +401,13 @@ public class DaoManager {
         return orgDao.getIdsOfAllEnabledOrgs();
     }
 
-    public List<Course> getAllCreatedSapCources() {
-        return courseDao.getAllCreatedCoursesOfCurrentSemester();
+    public List<CampusCourseWithoutListsTO> getAllCreatedSapCourses() {
+        List<Course> courses = courseDao.getAllCreatedCoursesOfCurrentSemester();
+    	return createListOfCampusCourseWithoutListsTOWithoutReload(courses);
     }
 
     public CampusCourseTO loadCampusCourseTO(long courseId) {
-        Course course = getCourseById(courseId);
+        Course course = courseDao.getCourseById(courseId);
 		if (course == null) {
 			return null;
 		}
@@ -452,19 +429,36 @@ public class DaoManager {
                 course.isContinuedCourse(),
                 course.getTitlesOfCourseAndParentCoursesInAscendingOrder(),
                 textDao.getContentsByCourseId(course.getId()),
-                course.getRepositoryEntry(),
-                new CampusGroups(course.getCampusGroupA(), course.getCampusGroupB()),
+                course.getRepositoryEntryOfCourseOrOfFirstParentOfContinuedCourse(),
+                course.getCampusGroupsOfCourseOrOfFirstParentOfContinuedCourse(),
                 course.getId(),
                 course.getLanguage(),
                 course.getVvzLink());
     }
 
     public CampusCourseTOForUI loadCampusCourseTOForUI(long courseId) {
-        Course course = getCourseById(courseId);
-        return new CampusCourseTOForUI(course.getTitleToBeDisplayed(), courseId);
+        Course course = courseDao.getCourseById(courseId);
+		return new CampusCourseTOForUI(course.getTitleToBeDisplayed(), courseId);
     }
 
-    private boolean areStudentCourseBookingsForCurrentSemesterUpToDate(Course course) {
+    private CampusCourseWithoutListsTO createCampusCourseWithoutListsTOWithoutReload(Course course) {
+		if (course == null) {
+			return null;
+		}
+		// Without reload, i.e. course must still be in persistence context
+		Long parentSapCourseId = (course.getParentCourse() == null ? null : course.getParentCourse().getId());
+		return new CampusCourseWithoutListsTO(course.getId(), parentSapCourseId, course.getRepositoryEntryOfCourseOrOfFirstParentOfContinuedCourse());
+	}
+
+	private List<CampusCourseWithoutListsTO> createListOfCampusCourseWithoutListsTOWithoutReload(List<Course> courses) {
+    	List<CampusCourseWithoutListsTO> listOfCampusCourseWithoutListTO = new ArrayList<>();
+    	for (Course course : courses) {
+    		listOfCampusCourseWithoutListTO.add(createCampusCourseWithoutListsTOWithoutReload(course));
+		}
+		return listOfCampusCourseWithoutListTO;
+	}
+
+	private boolean areStudentCourseBookingsForCurrentSemesterUpToDate(Course course) {
         // i)  If we have no parent course (i.e. it is not a continued course) we assume that the student course booking
         //     is always up-to-date.
         // ii) If we have a parent course (i.e. it is a continued course) we require that at least 50% of the bookings
@@ -473,12 +467,13 @@ public class DaoManager {
         return (course.getParentCourse() == null || studentDao.hasMoreThan50PercentOfStudentsOfSpecificCourseBothABookingOfCourseAndParentCourse(course));
     }
 
-    public Course getLastChildOfContinuedCourseByRepositoryEntryKey(Long repositoryEntryKey) {
-        return courseDao.getLastChildOfContinuedCourseByRepositoryEntryKey(repositoryEntryKey);
+    public CampusCourseWithoutListsTO getCourseOrLastChildOfContinuedCourseByRepositoryEntryKey(Long repositoryEntryKey) {
+        Course course = courseDao.getCourseOrLastChildOfContinuedCourseByRepositoryEntryKey(repositoryEntryKey);
+		return createCampusCourseWithoutListsTOWithoutReload(course);
     }
 
-    public List<String> getTitlesOfCourseAndParentCoursesOfContinuedCourseInAscendingOrderByRepositoryEntryKey(Long repositoryEntryKey) {
-    	Course childCourse = getLastChildOfContinuedCourseByRepositoryEntryKey(repositoryEntryKey);
+    public List<String> getTitlesOfChildAndParentCoursesInAscendingOrderByRepositoryEntryKey(Long repositoryEntryKey) {
+    	Course childCourse = courseDao.getCourseOrLastChildOfContinuedCourseByRepositoryEntryKey(repositoryEntryKey);
     	if (childCourse == null) {
     		return new ArrayList<>();
 		}

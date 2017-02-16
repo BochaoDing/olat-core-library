@@ -1,7 +1,7 @@
 package ch.uzh.extension.campuscourse.service;
 
-import ch.uzh.extension.campuscourse.data.entity.Course;
 import ch.uzh.extension.campuscourse.model.CampusCourseTOForUI;
+import ch.uzh.extension.campuscourse.model.CampusCourseWithoutListsTO;
 import ch.uzh.extension.campuscourse.model.IdentityDate;
 import ch.uzh.extension.campuscourse.model.SapUserType;
 import ch.uzh.extension.campuscourse.service.dao.DaoManager;
@@ -61,9 +61,9 @@ public class CampusCourseServiceImpl implements CampusCourseService {
 	public List<CampusCourseTOForUI> getCoursesOfStudent(Identity identity, String searchString) {
 		List<CampusCourseTOForUI> campusCourseTOForUIs = new ArrayList<>();
 		{
-			Set<Course> courses = campusCourseCoreService.getNotCreatedCourses(identity, STUDENT, searchString);
-			for (Course course : courses) {
-				CampusCourseTOForUI campusCourseTOForUI = daoManager.loadCampusCourseTOForUI(course.getId());
+			Set<CampusCourseWithoutListsTO> campusCourseWithoutListsTOs = campusCourseCoreService.getNotCreatedCourses(identity, STUDENT, searchString);
+			for (CampusCourseWithoutListsTO campusCourseWithoutListsTO : campusCourseWithoutListsTOs) {
+				CampusCourseTOForUI campusCourseTOForUI = daoManager.loadCampusCourseTOForUI(campusCourseWithoutListsTO.getSapCourseId());
 				campusCourseTOForUIs.add(campusCourseTOForUI);
 			}
 		}
@@ -74,13 +74,13 @@ public class CampusCourseServiceImpl implements CampusCourseService {
 			 * created, is listed only if the user cannot see the linked OLAT
 			 * course due to its permissions.
 			 */
-			Set<Course> courses = campusCourseCoreService.getCreatedCourses(identity, STUDENT, searchString);
-			for (Course course : courses) {
-				RepositoryEntry repositoryEntry = course.getRepositoryEntry();
+			Set<CampusCourseWithoutListsTO> campusCourseWithoutListsTOs = campusCourseCoreService.getCreatedCourses(identity, STUDENT, searchString);
+			for (CampusCourseWithoutListsTO campusCourseWithoutListsTO : campusCourseWithoutListsTOs) {
+				RepositoryEntry repositoryEntry = campusCourseWithoutListsTO.getRepositoryEntry();
 				if (repositoryEntry != null) {
 					int access = repositoryEntry.getAccess();
 					if (!repositoryEntry.isMembersOnly() && (access == ACC_OWNERS || access == ACC_OWNERS_AUTHORS)) {
-						CampusCourseTOForUI campusCourseTOForUI = daoManager.loadCampusCourseTOForUI(course.getId());
+						CampusCourseTOForUI campusCourseTOForUI = daoManager.loadCampusCourseTOForUI(campusCourseWithoutListsTO.getSapCourseId());
 						campusCourseTOForUIs.add(campusCourseTOForUI);
 					}
 				}
@@ -94,9 +94,9 @@ public class CampusCourseServiceImpl implements CampusCourseService {
 	@Override
 	public List<CampusCourseTOForUI> getCoursesWhichCouldBeCreated(Identity identity, String searchString) {
 		List<CampusCourseTOForUI> campusCourseTOForUIs = new ArrayList<>();
-		Set<Course> courses = campusCourseCoreService.getNotCreatedCourses(identity, LECTURER, searchString);
-		for (Course course : courses) {
-			CampusCourseTOForUI campusCourseTOForUI = daoManager.loadCampusCourseTOForUI(course.getId());
+		Set<CampusCourseWithoutListsTO> campusCourseWithoutListsTOs = campusCourseCoreService.getNotCreatedCourses(identity, LECTURER, searchString);
+		for (CampusCourseWithoutListsTO campusCourseWithoutListsTO : campusCourseWithoutListsTOs) {
+			CampusCourseTOForUI campusCourseTOForUI = daoManager.loadCampusCourseTOForUI(campusCourseWithoutListsTO.getSapCourseId());
 			campusCourseTOForUIs.add(campusCourseTOForUI);
 		}
 		Collections.sort(campusCourseTOForUIs);
@@ -106,9 +106,9 @@ public class CampusCourseServiceImpl implements CampusCourseService {
 	@Override
 	public List<CampusCourseTOForUI> getCoursesWhichCouldBeOpened(Identity identity, SapUserType userType, String searchString) {
 		List<CampusCourseTOForUI> campusCourseTOForUIs = new ArrayList<>();
-		Set<Course> courses = campusCourseCoreService.getCreatedCourses(identity, userType, searchString);
-		for (Course course : courses) {
-			CampusCourseTOForUI campusCourseTOForUI = daoManager.loadCampusCourseTOForUI(course.getId());
+		Set<CampusCourseWithoutListsTO> campusCourseWithoutListsTOs = campusCourseCoreService.getCreatedCourses(identity, userType, searchString);
+		for (CampusCourseWithoutListsTO campusCourseWithoutListsTO : campusCourseWithoutListsTOs) {
+			CampusCourseTOForUI campusCourseTOForUI = daoManager.loadCampusCourseTOForUI(campusCourseWithoutListsTO.getSapCourseId());
 			campusCourseTOForUIs.add(campusCourseTOForUI);
 		}
 		Collections.sort(campusCourseTOForUIs);
@@ -116,8 +116,8 @@ public class CampusCourseServiceImpl implements CampusCourseService {
 	}
 
 	@Override
-	public Course getLatestCourseByRepositoryEntry(RepositoryEntry repositoryEntry) throws Exception {
-		return campusCourseCoreService.getLatestCourseByRepositoryEntry(repositoryEntry);
+	public CampusCourseWithoutListsTO getCourseOrLastChildOfContinuedCourseByRepositoryEntryKey(RepositoryEntry repositoryEntry) {
+		return campusCourseCoreService.getCourseOrLastChildOfContinuedCourseByRepositoryEntryKey(repositoryEntry);
 	}
 
 	@Override
@@ -131,7 +131,7 @@ public class CampusCourseServiceImpl implements CampusCourseService {
 	}
 
 	@Override
-	public List<Long> getRepositoryEntryKeysOfAllCreatedNotContinuedCoursesOfPreviousSemesters() {
+	public Set<Long> getRepositoryEntryKeysOfAllCreatedNotContinuedCoursesOfPreviousSemesters() {
 		return campusCourseCoreService.getRepositoryEntryKeysOfAllCreatedNotContinuedCoursesOfPreviousSemesters();
 	}
 
@@ -146,8 +146,8 @@ public class CampusCourseServiceImpl implements CampusCourseService {
 	}
 
 	@Override
-	public List<String> getTitlesOfCourseAndParentCoursesOfContinuedCourseInAscendingOrder(RepositoryEntry repositoryEntry) {
-		return campusCourseCoreService.getTitlesOfCourseAndParentCoursesOfContinuedCourseInAscendingOrder(repositoryEntry);
+	public List<String> getTitlesOfChildAndParentCoursesInAscendingOrder(RepositoryEntry repositoryEntry) {
+		return campusCourseCoreService.getTitlesOfChildAndParentCoursesInAscendingOrder(repositoryEntry);
 	}
 
 	@Override
