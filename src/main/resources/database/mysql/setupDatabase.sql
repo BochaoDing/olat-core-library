@@ -2372,7 +2372,6 @@ create table if not exists ck_delegation (
 	 primary key (fk_delegator_identity, fk_delegatee_identity)
 )engine InnoDB;
 
-alter table ck_semester add constraint ck_semester_f01 unique (name, year);
 alter table ck_course add constraint ck_course_f01 foreign key (fk_parent_course) references ck_course (id);
 alter table ck_course add constraint ck_course_f03 foreign key (fk_semester) references ck_semester (id);
 alter table ck_course add constraint ck_course_f04 foreign key (fk_campusgroup_a) references o_gp_business (group_id);
@@ -2391,9 +2390,12 @@ alter table ck_text add constraint ck_text_f01 foreign key (fk_course) reference
 alter table ck_delegation add constraint ck_delegation_f01 foreign key (fk_delegator_identity) references o_bs_identity(id);
 alter table ck_delegation add constraint ck_delegation_f02 foreign key (fk_delegatee_identity) references o_bs_identity(id);
 
+alter table ck_course add unique (fk_parent_course);
+alter table ck_course add unique (fk_repositoryentry);
 alter table ck_student_course add unique (fk_student, fk_course);
 alter table ck_lecturer_course add unique (fk_lecturer, fk_course);
 alter table ck_course_org add unique (fk_course, fk_org);
+alter table ck_semester add unique (name, year);
 alter table ck_delegation add unique (fk_delegator_identity, fk_delegatee_identity);
 
 create index ck_xx_parent_course_id_idx on ck_course (fk_parent_course);
