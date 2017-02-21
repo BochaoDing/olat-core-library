@@ -12,17 +12,17 @@ public class EventCourseId {
     private Date date;
     private String start;
     private String end;
-    private Date dateOfImport;
+    private Date dateOfLatestImport;
     private Long courseId;
 
     public EventCourseId() {
     }
 
-    public EventCourseId(Date date, String start, String end, Date dateOfImport, Long courseId) {
+    public EventCourseId(Date date, String start, String end, Date dateOfLatestImport, Long courseId) {
         this.date = date;
         this.start = start;
         this.end = end;
-        this.dateOfImport = dateOfImport;
+        this.dateOfLatestImport = dateOfLatestImport;
         this.courseId = courseId;
     }
 
@@ -50,12 +50,12 @@ public class EventCourseId {
         this.end = end;
     }
 
-    public Date getDateOfImport() {
-        return dateOfImport;
+    public Date getDateOfLatestImport() {
+        return dateOfLatestImport;
     }
 
-    public void setDateOfImport(Date dateOfImport) {
-        this.dateOfImport = dateOfImport;
+    public void setDateOfLatestImport(Date dateOfLatestImport) {
+        this.dateOfLatestImport = dateOfLatestImport;
     }
 
     public Long getCourseId() {

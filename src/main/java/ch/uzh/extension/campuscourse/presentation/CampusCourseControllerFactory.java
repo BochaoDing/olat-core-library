@@ -1,7 +1,7 @@
 package ch.uzh.extension.campuscourse.presentation;
 
-import ch.uzh.extension.campuscourse.presentation.coursecreation.CampusCourseCreationDialogController;
 import ch.uzh.extension.campuscourse.presentation.coursecreation.CampusCourseCreationChoiceController;
+import ch.uzh.extension.campuscourse.presentation.coursecreation.CampusCourseCreationDialogController;
 import ch.uzh.extension.campuscourse.presentation.coursecreation.CreateCampusCourseCompletedEventListener;
 import ch.uzh.extension.campuscourse.presentation.coursecreation.selection.CampusCourseSubmitController;
 import ch.uzh.extension.campuscourse.presentation.coursecreation.selection.ContinueCampusCourseSelectionController;

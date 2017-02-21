@@ -12,17 +12,17 @@ public class TextCourseId {
     private String type;
     private int lineSeq;
     private String line;
-    private Date dateOfImport;
+    private Date dateOfLatestImport;
     private Long courseId;
 
     public TextCourseId() {
     }
 
-    public TextCourseId(String type, int lineSeq, String line, Date dateOfImport, Long courseId) {
+    public TextCourseId(String type, int lineSeq, String line, Date dateOfLatestImport, Long courseId) {
         this.type = type;
         this.lineSeq = lineSeq;
         this.line = line;
-        this.dateOfImport = dateOfImport;
+        this.dateOfLatestImport = dateOfLatestImport;
         this.courseId = courseId;
     }
 
@@ -50,12 +50,12 @@ public class TextCourseId {
         this.line = line;
     }
 
-    public Date getDateOfImport() {
-        return dateOfImport;
+    public Date getDateOfLatestImport() {
+        return dateOfLatestImport;
     }
 
-    public void setDateOfImport(Date dateOfImport) {
-        this.dateOfImport = dateOfImport;
+    public void setDateOfLatestImport(Date dateOfLatestImport) {
+        this.dateOfLatestImport = dateOfLatestImport;
     }
 
     public Long getCourseId() {

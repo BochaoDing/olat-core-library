@@ -247,32 +247,32 @@ public class CampusCourseTestDataGenerator {
 		return courseSemesterOrgIds;
 	}
 
-	public List<StudentIdCourseIdDateOfImport> createStudentIdCourseIdDateOfImports() {
-		List<StudentIdCourseIdDateOfImport> studentIdCourseIds = new ArrayList<>();
-		studentIdCourseIds.add(new StudentIdCourseIdDateOfImport(2100L, 100L, DATE_OF_IMPORT));
-		studentIdCourseIds.add(new StudentIdCourseIdDateOfImport(2200L, 100L, DATE_OF_IMPORT));
-		studentIdCourseIds.add(new StudentIdCourseIdDateOfImport(2100L, 200L, DATE_OF_IMPORT));
-		studentIdCourseIds.add(new StudentIdCourseIdDateOfImport(2200L, 200L, DATE_OF_IMPORT));
-		studentIdCourseIds.add(new StudentIdCourseIdDateOfImport(2100L, 300L, DATE_OF_IMPORT));
-		studentIdCourseIds.add(new StudentIdCourseIdDateOfImport(2400L, 400L, DATE_OF_IMPORT));
-		studentIdCourseIds.add(new StudentIdCourseIdDateOfImport(2500L, 500L, DATE_OF_IMPORT));
-		studentIdCourseIds.add(new StudentIdCourseIdDateOfImport(2600L, 600L, DATE_OF_IMPORT));
-		studentIdCourseIds.add(new StudentIdCourseIdDateOfImport(2700L, 700L, DATE_OF_IMPORT));
-		studentIdCourseIds.add(new StudentIdCourseIdDateOfImport(2800L, 800L, DATE_OF_IMPORT));
+	public List<StudentIdCourseIdDateOfLatestImport> createStudentIdCourseIdDateOfImports() {
+		List<StudentIdCourseIdDateOfLatestImport> studentIdCourseIds = new ArrayList<>();
+		studentIdCourseIds.add(new StudentIdCourseIdDateOfLatestImport(2100L, 100L, DATE_OF_IMPORT));
+		studentIdCourseIds.add(new StudentIdCourseIdDateOfLatestImport(2200L, 100L, DATE_OF_IMPORT));
+		studentIdCourseIds.add(new StudentIdCourseIdDateOfLatestImport(2100L, 200L, DATE_OF_IMPORT));
+		studentIdCourseIds.add(new StudentIdCourseIdDateOfLatestImport(2200L, 200L, DATE_OF_IMPORT));
+		studentIdCourseIds.add(new StudentIdCourseIdDateOfLatestImport(2100L, 300L, DATE_OF_IMPORT));
+		studentIdCourseIds.add(new StudentIdCourseIdDateOfLatestImport(2400L, 400L, DATE_OF_IMPORT));
+		studentIdCourseIds.add(new StudentIdCourseIdDateOfLatestImport(2500L, 500L, DATE_OF_IMPORT));
+		studentIdCourseIds.add(new StudentIdCourseIdDateOfLatestImport(2600L, 600L, DATE_OF_IMPORT));
+		studentIdCourseIds.add(new StudentIdCourseIdDateOfLatestImport(2700L, 700L, DATE_OF_IMPORT));
+		studentIdCourseIds.add(new StudentIdCourseIdDateOfLatestImport(2800L, 800L, DATE_OF_IMPORT));
 		return studentIdCourseIds;
 	}
 
-	public List<LecturerIdCourseIdDateOfImport> createLecturerIdCourseIdDateOfImports() {
-		List<LecturerIdCourseIdDateOfImport> lecturerIdCourseIds = new ArrayList<>();
-		lecturerIdCourseIds.add(new LecturerIdCourseIdDateOfImport(1100L, 100L, DATE_OF_IMPORT));
-		lecturerIdCourseIds.add(new LecturerIdCourseIdDateOfImport(1100L, 200L, DATE_OF_IMPORT));
-		lecturerIdCourseIds.add(new LecturerIdCourseIdDateOfImport(1200L, 200L, DATE_OF_IMPORT));
-		lecturerIdCourseIds.add(new LecturerIdCourseIdDateOfImport(1300L, 300L, DATE_OF_IMPORT));
-		lecturerIdCourseIds.add(new LecturerIdCourseIdDateOfImport(1400L, 400L, DATE_OF_IMPORT));
-		lecturerIdCourseIds.add(new LecturerIdCourseIdDateOfImport(1500L, 500L, DATE_OF_IMPORT));
-		lecturerIdCourseIds.add(new LecturerIdCourseIdDateOfImport(1600L, 600L, DATE_OF_IMPORT));
-		lecturerIdCourseIds.add(new LecturerIdCourseIdDateOfImport(1800L, 700L, DATE_OF_IMPORT));
-		lecturerIdCourseIds.add(new LecturerIdCourseIdDateOfImport(1900L, 800L, DATE_OF_IMPORT));
+	public List<LecturerIdCourseIdDateOfLatestImport> createLecturerIdCourseIdDateOfImports() {
+		List<LecturerIdCourseIdDateOfLatestImport> lecturerIdCourseIds = new ArrayList<>();
+		lecturerIdCourseIds.add(new LecturerIdCourseIdDateOfLatestImport(1100L, 100L, DATE_OF_IMPORT));
+		lecturerIdCourseIds.add(new LecturerIdCourseIdDateOfLatestImport(1100L, 200L, DATE_OF_IMPORT));
+		lecturerIdCourseIds.add(new LecturerIdCourseIdDateOfLatestImport(1200L, 200L, DATE_OF_IMPORT));
+		lecturerIdCourseIds.add(new LecturerIdCourseIdDateOfLatestImport(1300L, 300L, DATE_OF_IMPORT));
+		lecturerIdCourseIds.add(new LecturerIdCourseIdDateOfLatestImport(1400L, 400L, DATE_OF_IMPORT));
+		lecturerIdCourseIds.add(new LecturerIdCourseIdDateOfLatestImport(1500L, 500L, DATE_OF_IMPORT));
+		lecturerIdCourseIds.add(new LecturerIdCourseIdDateOfLatestImport(1600L, 600L, DATE_OF_IMPORT));
+		lecturerIdCourseIds.add(new LecturerIdCourseIdDateOfLatestImport(1800L, 700L, DATE_OF_IMPORT));
+		lecturerIdCourseIds.add(new LecturerIdCourseIdDateOfLatestImport(1900L, 800L, DATE_OF_IMPORT));
 		return lecturerIdCourseIds;
 	}
 

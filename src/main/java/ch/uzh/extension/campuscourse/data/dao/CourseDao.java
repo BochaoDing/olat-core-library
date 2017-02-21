@@ -1,9 +1,11 @@
 package ch.uzh.extension.campuscourse.data.dao;
 
+import ch.uzh.extension.campuscourse.common.CampusCourseConfiguration;
 import ch.uzh.extension.campuscourse.common.CampusCourseException;
 import ch.uzh.extension.campuscourse.data.entity.*;
-import ch.uzh.extension.campuscourse.model.CourseSemesterOrgId;
 import ch.uzh.extension.campuscourse.model.CampusGroups;
+import ch.uzh.extension.campuscourse.model.CourseSemesterOrgId;
+import ch.uzh.extension.campuscourse.util.DateUtil;
 import org.olat.core.commons.persistence.DB;
 import org.olat.core.logging.OLog;
 import org.olat.core.logging.Tracing;
@@ -14,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import javax.persistence.EntityManager;
+import javax.persistence.NoResultException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -29,33 +32,39 @@ public class CourseDao {
 
     private static final OLog LOG = Tracing.createLoggerFor(CourseDao.class);
 
+	private final CampusCourseConfiguration campusCourseConfiguration;
 	private final DB dbInstance;
     private final SemesterDao semesterDao;
     private final BatchJobAndSapImportStatisticDao batchJobAndSapImportStatisticDao;
 
     @Autowired
-    public CourseDao(DB dbInstance, SemesterDao semesterDao, BatchJobAndSapImportStatisticDao batchJobAndSapImportStatisticDao) {
-        this.dbInstance = dbInstance;
+    public CourseDao(CampusCourseConfiguration campusCourseConfiguration, DB dbInstance, SemesterDao semesterDao, BatchJobAndSapImportStatisticDao batchJobAndSapImportStatisticDao) {
+		this.campusCourseConfiguration = campusCourseConfiguration;
+		this.dbInstance = dbInstance;
         this.semesterDao = semesterDao;
 		this.batchJobAndSapImportStatisticDao = batchJobAndSapImportStatisticDao;
 	}
 
     public void save(Course course) {
-        dbInstance.saveObject(course);
-    }
-
-    public void saveOrUpdate(Course course) {
-        dbInstance.getCurrentEntityManager().merge(course);
+		course.setDateOfFirstImport(course.getDateOfLatestImport());
+    	dbInstance.saveObject(course);
     }
 
     public void save(CourseSemesterOrgId courseSemesterOrgId) throws CampusCourseException {
         Course course = new Course();
-		courseSemesterOrgId.merge(course);
+		courseSemesterOrgId.mergeImportedAttributesInto(course);
+		course.setId(courseSemesterOrgId.getId());
         Semester semester = findOrCreateSemester(courseSemesterOrgId);
         course.setSemester(semester);
-        dbInstance.saveObject(course);
+        save(course);
         updateOrgsFromCourseOrgId(course, courseSemesterOrgId);
     }
+
+	public void save(List<CourseSemesterOrgId> courseSemesterOrgIds) throws CampusCourseException {
+		for (CourseSemesterOrgId courseSemesterOrgId : courseSemesterOrgIds) {
+			save(courseSemesterOrgId);
+		}
+	}
 
     public void saveOrUpdate(CourseSemesterOrgId courseSemesterOrgId) throws CampusCourseException {
 		/*
@@ -63,18 +72,12 @@ public class CourseDao {
 		 * "olat_id" attribute values with "null".
 		 */
 		Course course = getCourseById(courseSemesterOrgId.getId());
-		if (course == null) {
+		if (course != null) {
+			courseSemesterOrgId.mergeImportedAttributesInto(course);
+			updateOrgsFromCourseOrgId(course, courseSemesterOrgId);
+		} else {
 			save(courseSemesterOrgId);
-            return;
 		}
-		courseSemesterOrgId.merge(course);
-		updateOrgsFromCourseOrgId(course, courseSemesterOrgId);
-    }
-
-    public void save(List<CourseSemesterOrgId> courseSemesterOrgIds) throws CampusCourseException {
-        for (CourseSemesterOrgId courseSemesterOrgId : courseSemesterOrgIds) {
-            save(courseSemesterOrgId);
-        }
     }
 
     private Semester findOrCreateSemester(CourseSemesterOrgId courseSemesterOrgId) throws CampusCourseException {
@@ -198,32 +201,49 @@ public class CourseDao {
                 .getResultList(); 
     }
 
-    public Course getLatestCourseByRepositoryEntry(Long repositoryEntryKey) throws Exception {
-        return dbInstance.getCurrentEntityManager()
-                .createNamedQuery(Course.GET_LATEST_COURSE_BY_REPOSITORY_ENTRY_KEY, Course.class)
-                .setParameter("repositoryEntryKey", repositoryEntryKey)
-                .getSingleResult();
-    }
-
 	private static String getWildcardLikeSearchString(String searchString) {
 		return searchString != null ? "%" + searchString + "%" : "%";
 	}
 
+	public Course getCourseOrLastChildOfContinuedCourseByRepositoryEntryKey(Long repositoryEntryKey) {
+		Course course;
+		try {
+			course = dbInstance.getCurrentEntityManager()
+					.createNamedQuery(Course.GET_COURSE_OR_FIRST_PARENT_OF_CONTINUED_COURSE_BY_REPOSITORY_ENTRY_KEY, Course.class)
+					.setParameter("repositoryEntryKey", repositoryEntryKey)
+					.getSingleResult();
+		} catch (NoResultException e) {
+			LOG.warn("No course found with repository entry id " + repositoryEntryKey + ".");
+			return null;
+		}
+
+		while (course.getChildCourse() != null) {
+			course = course.getChildCourse();
+		}
+
+		return course;
+	}
+
     public Set<CampusGroups> getCampusGroupsByRepositoryEntry(Long repositoryEntryKey) {
-        List<Course> courses = dbInstance.getCurrentEntityManager()
-                .createNamedQuery(Course.GET_COURSES_BY_REPOSITORY_ENTRY_KEY, Course.class)
+        Course course;
+        try {
+			course = dbInstance.getCurrentEntityManager()
+                .createNamedQuery(Course.GET_COURSE_OR_FIRST_PARENT_OF_CONTINUED_COURSE_BY_REPOSITORY_ENTRY_KEY, Course.class)
                 .setParameter("repositoryEntryKey", repositoryEntryKey)
-                .getResultList();
-        if (courses.isEmpty()) {
-            String warningMessage = "No courses found with repository entry id " + repositoryEntryKey + ".";
-            LOG.warn(warningMessage);
-        }
-        Set<CampusGroups> setOfCampusGroups = new HashSet<>();
-        for (Course course : courses) {
-            if (course.getCampusGroupA() != null || course.getCampusGroupB() != null) {
-                setOfCampusGroups.add(new CampusGroups(course.getCampusGroupA(), course.getCampusGroupB()));
-            }
-        }
+                .getSingleResult();
+		} catch (NoResultException e) {
+			LOG.warn("No course found with repository entry id " + repositoryEntryKey + ".");
+			return new HashSet<>();
+		}
+
+		Set<CampusGroups> setOfCampusGroups = new HashSet<>();
+		do {
+			if (course.getCampusGroupA() != null || course.getCampusGroupB() != null) {
+				setOfCampusGroups.add(new CampusGroups(course.getCampusGroupA(), course.getCampusGroupB()));
+			}
+			course = course.getChildCourse();
+		} while (course != null);
+
         return setOfCampusGroups;
     }
 
@@ -231,7 +251,7 @@ public class CourseDao {
         deleteCourseBidirectionally(course, dbInstance.getCurrentEntityManager());
     }
 
-    public void saveRepositoryEntry(Long courseId, Long repositoryEntryKey) {
+    public void saveRepositoryEntryAndDateOfOlatCourseCreation(Long courseId, Long repositoryEntryKey) {
         Course course = getCourseById(courseId);
         if (course == null) {
             String warningMessage = "No course found with id " + courseId + ". Cannot save repository entry with id " + repositoryEntryKey;
@@ -245,6 +265,7 @@ public class CourseDao {
             return;
         }
         course.setRepositoryEntry(repositoryEntry);
+        course.setDateOfOlatCourseCreation(new Date());
     }
 
     public void saveCampusGroupA(Long courseId, Long campusGroupAKey) {
@@ -279,39 +300,67 @@ public class CourseDao {
         course.setCampusGroupB(campusGroupB);
     }
 
-    public void resetRepositoryEntryAndParentCourse(Long repositoryEntryKey) {
-        List<Course> courses = dbInstance.getCurrentEntityManager()
-                .createNamedQuery(Course.GET_COURSES_BY_REPOSITORY_ENTRY_KEY, Course.class)
+    public void resetRepositoryEntryAndParentCoursesAndDateOfOlatCourseCreation(Long repositoryEntryKey) {
+		Course course;
+    	try {
+			course = dbInstance.getCurrentEntityManager()
+                .createNamedQuery(Course.GET_COURSE_OR_FIRST_PARENT_OF_CONTINUED_COURSE_BY_REPOSITORY_ENTRY_KEY, Course.class)
                 .setParameter("repositoryEntryKey", repositoryEntryKey)
-                .getResultList();
-        for (Course course : courses) {
-            course.setRepositoryEntry(null);
-            course.removeParentCourse();
-        }
+                .getSingleResult();
+		} catch (NoResultException e) {
+			// No such course, so we do not have to do anything
+			return;
+		}
+
+		do {
+    		course.setRepositoryEntry(null);
+			course.removeParentCourse();
+			course.setDateOfOlatCourseCreation(null);
+			course = course.getChildCourse();
+		} while (course != null);
     }
 
     public void resetCampusGroup(Long campusGroupKey) {
-
         // Look for courses with id of campus group A equals to campusGroupKey
-        List<Course> courses = dbInstance.getCurrentEntityManager()
-                .createNamedQuery(Course.GET_COURSES_BY_CAMPUS_GROUP_A_KEY, Course.class)
+		try {
+			Course course = dbInstance.getCurrentEntityManager()
+                .createNamedQuery(Course.GET_COURSE_OR_FIRST_PARENT_OF_CONTINUED_COURSE_BY_CAMPUS_GROUP_A_KEY, Course.class)
                 .setParameter("campusGroupKey", campusGroupKey)
-                .getResultList();
-        for (Course course : courses) {
-            course.setCampusGroupA(null);
-        }
+                .getSingleResult();
+			do {
+				course.setCampusGroupA(null);
+				course = course.getChildCourse();
+			} while (course != null);
+		} catch (NoResultException e) {
+			// No such course, so we do not have to do anything
+		}
 
-        // Look for courses with id of campus group B equals to campusGroupKey
-        courses = dbInstance.getCurrentEntityManager()
-                .createNamedQuery(Course.GET_COURSES_BY_CAMPUS_GROUP_B_KEY, Course.class)
-                .setParameter("campusGroupKey", campusGroupKey)
-                .getResultList();
-        for (Course course : courses) {
-            course.setCampusGroupB(null);
-        }
+		// Look for courses with id of campus group B equals to campusGroupKey
+		try {
+			Course course = dbInstance.getCurrentEntityManager()
+					.createNamedQuery(Course.GET_COURSE_OR_FIRST_PARENT_OF_CONTINUED_COURSE_BY_CAMPUS_GROUP_B_KEY, Course.class)
+					.setParameter("campusGroupKey", campusGroupKey)
+					.getSingleResult();
+			do {
+				course.setCampusGroupB(null);
+				course = course.getChildCourse();
+			} while (course != null);
+		} catch (NoResultException e) {
+			// No such course, so we do not have to do anything
+		}
     }
 
-    public void saveParentCourseId(Long courseId, Long parentCourseId) {
+    public void removeParentCourseAndResetDateOfOlatCourseCreation(Long childCourseId) {
+    	Course childCourse = getCourseById(childCourseId);
+    	if (childCourse == null) {
+    		LOG.warn("No course found with id " + childCourseId + ". Cannot remove parent course and reset date of olat course creation.");
+    		return;
+		}
+    	childCourse.removeParentCourse();
+    	childCourse.setDateOfOlatCourseCreation(null);
+	}
+
+    public void saveParentCourseIdAndDateOfOlatCourseCreation(Long courseId, Long parentCourseId) {
         Course course = getCourseById(courseId);
         Course parentCourse = getCourseById(parentCourseId);
         if (course == null) {
@@ -325,13 +374,14 @@ public class CourseDao {
             return;
         }
         course.setParentCourse(parentCourse);
+        course.setDateOfOlatCourseCreation(new Date());
     }
 
     /**
      * Deletes also according entries of the join tables ck_lecturer_course, ck_student_course and ck_course_org and of the related tables ck_text and ck_event.
      * We cannot use a bulk delete here, since deleting the join table ck_course_org is not possible.
      */
-    public void deleteByCourseId(Long courseId) {
+	void deleteByCourseId(Long courseId) {
         EntityManager em = dbInstance.getCurrentEntityManager();
         deleteCourseBidirectionally(dbInstance.getCurrentEntityManager().getReference(Course.class, courseId), em);
     }
@@ -356,23 +406,50 @@ public class CourseDao {
 
     public List<Long> getIdsOfAllCreatedSynchronizableCoursesOfCurrentSemester() {
         return dbInstance.getCurrentEntityManager()
-                .createNamedQuery(Course.GET_IDS_OF_ALL_CREATED_SYNCHRONIZABLE_COURSES_OF_CURRENT_SEMESTER, Long.class)
+                .createNamedQuery(Course.GET_IDS_OF_ALL_CREATED_COURSES_OF_CURRENT_SEMESTER, Long.class)
                 .getResultList();
     }
 
     List<Long> getRepositoryEntryKeysOfAllCreatedNotContinuedCoursesOfSpecificSemesters(List<Long> semesterIds) {
+    	if (semesterIds.isEmpty()) {
+    		return new ArrayList<>();
+		}
         return dbInstance.getCurrentEntityManager()
                 .createNamedQuery(Course.GET_REPOSITORY_ENTRY_KEYS_OF_ALL_CREATED_NOT_CONTINUED_COURSES_OF_SPECIFIC_SEMESTERS, Long.class)
                 .setParameter("semesterIds", semesterIds)
                 .getResultList();
     }
 
-    public List<Long> getRepositoryEntryKeysOfAllCreatedNotContinuedCoursesOfPreviousSemestersNotTooFarInThePast() {
+    Set<Long> getRepositoryEntryKeysOfAllCreatedContinuedCoursesWithoutChildOfSpecificSemesters(List<Long> semesterIds) {
+		if (semesterIds.isEmpty()) {
+			return new HashSet<>();
+		}
+		List<Course> courses = dbInstance.getCurrentEntityManager()
+				.createNamedQuery(Course.GET_ALL_CREATED_CONTINUED_COURSES_WITHOUT_CHILD_OF_SPECIFIC_SEMESTERS, Course.class)
+				.setParameter("semesterIds", semesterIds)
+				.getResultList();
+		Set<Long> repositoryEntryKeys = new HashSet<>();
+		for (Course course : courses) {
+			// Determine first parent (containing the repository entry)
+			while (course.getParentCourse() != null) {
+				course = course.getParentCourse();
+			}
+			if (course.getRepositoryEntry() != null) {
+				repositoryEntryKeys.add(course.getRepositoryEntry().getKey());
+			}
+		}
+		return repositoryEntryKeys;
+	}
+
+    public Set<Long> getRepositoryEntryKeysOfAllCreatedNotContinuedCoursesOfPreviousSemestersNotTooFarInThePast() {
         List<Long> previousSemestersNotTooFarInThePast = semesterDao.getPreviousSemestersNotTooFarInThePastInDescendingOrder();
         if (previousSemestersNotTooFarInThePast.isEmpty()) {
-            return new ArrayList<>();
+            return new HashSet<>();
         }
-        return getRepositoryEntryKeysOfAllCreatedNotContinuedCoursesOfSpecificSemesters(previousSemestersNotTooFarInThePast);
+		Set<Long> repositoryEntryKeys = new HashSet<>();
+        repositoryEntryKeys.addAll(getRepositoryEntryKeysOfAllCreatedNotContinuedCoursesOfSpecificSemesters(previousSemestersNotTooFarInThePast));
+        repositoryEntryKeys.addAll(getRepositoryEntryKeysOfAllCreatedContinuedCoursesWithoutChildOfSpecificSemesters(previousSemestersNotTooFarInThePast));
+        return repositoryEntryKeys;
     }
 
     public List<Long> getIdsOfAllNotCreatedCreatableCoursesOfCurrentSemester() {
@@ -394,12 +471,29 @@ public class CourseDao {
     }
 
     public boolean existCoursesForRepositoryEntry(Long repositoryEntryKey) {
-        List<Long> courseIds = dbInstance.getCurrentEntityManager()
-                .createNamedQuery(Course.GET_COURSE_IDS_BY_REPOSITORY_ENTRY_KEY, Long.class)
-                .setParameter("repositoryEntryKey", repositoryEntryKey)
-                .getResultList();
-        return !courseIds.isEmpty();
-    }
+		try {
+			dbInstance.getCurrentEntityManager()
+					.createNamedQuery(Course.GET_COURSE_ID_OR_ID_OF_FIRST_PARENT_OF_CONTINUED_COURSE_BY_REPOSITORY_ENTRY_KEY, Long.class)
+					.setParameter("repositoryEntryKey", repositoryEntryKey)
+					.getSingleResult();
+			return true;
+		} catch (NoResultException e) {
+			return false;
+		}
+	}
+
+	public boolean existsContinuedCourseForRepositoryEntry(Long repositoryEntryKey) {
+		try {
+			Course course = dbInstance.getCurrentEntityManager()
+					.createNamedQuery(Course.GET_COURSE_OR_FIRST_PARENT_OF_CONTINUED_COURSE_BY_REPOSITORY_ENTRY_KEY, Course.class)
+					.setParameter("repositoryEntryKey", repositoryEntryKey)
+					.getSingleResult();
+			return course.getChildCourse() != null;
+		} catch (NoResultException e) {
+			// Neither continued nor not continued course exists
+			return false;
+		}
+	}
 
     public List<Course> getCreatedAndNotCreatedCreatableCoursesOfCurrentSemesterByLecturerId(Long lecturerId) {
         return dbInstance.getCurrentEntityManager()
@@ -419,6 +513,13 @@ public class CourseDao {
         return dbInstance.getCurrentEntityManager()
                 .createNamedQuery(Course.GET_CREATED_AND_NOT_CREATED_CREATABLE_COURSES_OF_CURRENT_SEMESTER_BY_STUDENT_ID_BOOKED_BY_STUDENT_ONLY_AS_PARENT_COURSE, Course.class)
                 .setParameter("studentId", studentId)
+                .getResultList();
+    }
+
+    List<Long> getIdsOfContinuedCoursesTooFarInThePast(Date date) {
+        return dbInstance.getCurrentEntityManager()
+                .createNamedQuery(Course.GET_IDS_OF_CONTINUED_COURSES_TOO_FAR_IN_THE_PAST, Long.class)
+                .setParameter("nYearsInThePast", DateUtil.addYearsToDate(date, -campusCourseConfiguration.getMaxYearsToKeepCkData()))
                 .getResultList();
     }
 

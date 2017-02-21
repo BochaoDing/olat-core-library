@@ -37,8 +37,13 @@ public class LecturerDao {
     }
 
     public void save(Lecturer lecturer) {
+        lecturer.setDateOfFirstImport(lecturer.getDateOfLatestImport());
         dbInstance.saveObject(lecturer);
     }
+
+	public void save(List<Lecturer> lecturers) {
+		lecturers.forEach(this::save);
+	}
 
     public void saveOrUpdate(Lecturer lecturer) {
         /*
@@ -46,15 +51,11 @@ public class LecturerDao {
 		 * values of the mapping attributes with "null".
 		 */
         Lecturer lecturerFound = getLecturerById(lecturer.getPersonalNr());
-        if (lecturerFound == null) {
-            dbInstance.saveObject(lecturer);
-            return;
+        if (lecturerFound != null) {
+			lecturer.mergeImportedAttributesInto(lecturerFound);
+        } else {
+			save(lecturer);
         }
-        lecturer.mergeAllExceptMappingAttributes(lecturerFound);
-    }
-
-    public void save(List<Lecturer> lecturers) {
-        lecturers.forEach(this::save);
     }
 
     public void addMapping(Long lecturerId, Identity identity) {
@@ -125,7 +126,7 @@ public class LecturerDao {
     /**
      * Deletes also according entries of the join table ck_lecturer_course.
      */
-    public void deleteByLecturerIds(List<Long> lecturerIds) {
+	void deleteByLecturerIds(List<Long> lecturerIds) {
         int count = 0;
         EntityManager em = dbInstance.getCurrentEntityManager();
         for (Long lecturerId : lecturerIds) {
@@ -145,6 +146,9 @@ public class LecturerDao {
      * Does not update persistence context!
      */
     public int deleteByLecturerIdsAsBulkDelete(List<Long> lecturerIds) {
+        if (lecturerIds.isEmpty()) {
+            return 0;
+        }
         return dbInstance.getCurrentEntityManager()
                 .createNamedQuery(Lecturer.DELETE_BY_LECTURER_IDS)
                 .setParameter("lecturerIds", lecturerIds)

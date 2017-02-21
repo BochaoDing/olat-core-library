@@ -2240,13 +2240,14 @@ create table if not exists ck_course (
 	end_date date not null,
 	vvz_link varchar(255) not null,
 	exclude boolean not null,
-	synchronizable boolean not null default 1,
   fk_semester bigint not null,
   fk_repositoryentry bigint,
   fk_campusgroup_a bigint,
   fk_campusgroup_b bigint,
   fk_parent_course bigint,
-	date_of_import datetime not null,
+  date_of_olat_course_creation datetime,
+	date_of_first_import datetime not null,
+  date_of_latest_import datetime not null,
 	primary key (id)
 )engine InnoDB;
 
@@ -2256,17 +2257,19 @@ create table if not exists ck_lecturer (
 	last_name varchar(255) not null,
 	email varchar(255) not null,
 	additionalPersonalNrs varchar(255),
-	date_of_import datetime not null,
   fk_mapped_identity BIGINT,
   kind_of_mapping VARCHAR(6),
   date_of_mapping DATETIME,
+  date_of_first_import datetime not null,
+  date_of_latest_import datetime not null,
 	primary key (id)
 )engine InnoDB;
 
 create table if not exists ck_lecturer_course (
 	fk_lecturer bigint not null,
   fk_course bigint not null,
-	date_of_import datetime not null,
+  date_of_first_import datetime not null,
+  date_of_latest_import datetime not null,
 	primary key (fk_lecturer, fk_course)
 )engine InnoDB;
 
@@ -2276,17 +2279,19 @@ create table if not exists ck_student (
 	first_name varchar(255) not null,
 	last_name varchar(255) not null,
 	email varchar(255) not null,
-	date_of_import datetime not null,
   fk_mapped_identity BIGINT,
   kind_of_mapping VARCHAR(6),
   date_of_mapping DATETIME,
+  date_of_first_import datetime not null,
+  date_of_latest_import datetime not null,
 	primary key (id)
 )engine InnoDB;
 
 create table if not exists ck_student_course (
 	fk_student bigint not null,
   fk_course bigint not null,
-	date_of_import datetime not null,
+  date_of_first_import datetime not null,
+  date_of_latest_import datetime not null,
 	primary key (fk_student, fk_course)
 )engine InnoDB;
 
@@ -2296,7 +2301,7 @@ create table if not exists ck_event (
 	start time not null,
 	end time not null,
   fk_course bigint not null,
-	date_of_import datetime not null,
+  date_of_latest_import datetime not null,
 	primary key (id)
 )engine InnoDB;
 
@@ -2306,7 +2311,7 @@ create table if not exists ck_text (
 	line_seq bigint not null,
 	line varchar(255) not null,
   fk_course bigint not null,
-	date_of_import datetime not null,
+  date_of_latest_import datetime not null,
 	primary key (id)
 )engine InnoDB;
 
@@ -2315,7 +2320,8 @@ create table if not exists ck_org (
 	short_name varchar(50) not null,
 	name varchar(255) not null,
   enabled boolean not null,
-	date_of_import datetime not null,
+  date_of_first_import datetime not null,
+  date_of_latest_import datetime not null,
 	primary key (id)
 )engine InnoDB;
 
@@ -2373,7 +2379,6 @@ create table if not exists ck_delegation (
 	 primary key (fk_delegator_identity, fk_delegatee_identity)
 )engine InnoDB;
 
-alter table ck_semester add constraint ck_semester_f01 unique (name, year);
 alter table ck_course add constraint ck_course_f01 foreign key (fk_parent_course) references ck_course (id);
 alter table ck_course add constraint ck_course_f03 foreign key (fk_semester) references ck_semester (id);
 alter table ck_course add constraint ck_course_f04 foreign key (fk_campusgroup_a) references o_gp_business (group_id);
@@ -2392,9 +2397,12 @@ alter table ck_text add constraint ck_text_f01 foreign key (fk_course) reference
 alter table ck_delegation add constraint ck_delegation_f01 foreign key (fk_delegator_identity) references o_bs_identity(id);
 alter table ck_delegation add constraint ck_delegation_f02 foreign key (fk_delegatee_identity) references o_bs_identity(id);
 
+alter table ck_course add unique (fk_parent_course);
+alter table ck_course add unique (fk_repositoryentry);
 alter table ck_student_course add unique (fk_student, fk_course);
 alter table ck_lecturer_course add unique (fk_lecturer, fk_course);
 alter table ck_course_org add unique (fk_course, fk_org);
+alter table ck_semester add unique (name, year);
 alter table ck_delegation add unique (fk_delegator_identity, fk_delegatee_identity);
 
 create index ck_xx_parent_course_id_idx on ck_course (fk_parent_course);

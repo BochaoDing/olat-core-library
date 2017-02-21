@@ -41,7 +41,7 @@ public class CourseSemesterOrgId {
     private Long org7;
     private Long org8;
     private Long org9;
-    private Date dateOfImport;
+    private Date dateOfLatestImport;
 
     public CourseSemesterOrgId() {
     }
@@ -49,7 +49,7 @@ public class CourseSemesterOrgId {
     public CourseSemesterOrgId(Long id, String lvKuerzel, String title, String lvNr, String eLearningSupported,
                                String language, String category, Date startDate, Date endDate, String vvzLink,
                                String semester, String exclude, Long org1, Long org2, Long org3, Long org4, Long org5,
-                               Long org6, Long org7, Long org8, Long org9, Date dateOfImport) {
+                               Long org6, Long org7, Long org8, Long org9, Date dateOfLatestImport) {
         this.id = id;
         this.lvKuerzel = lvKuerzel;
         this.title = title;
@@ -71,7 +71,7 @@ public class CourseSemesterOrgId {
         this.org7 = org7;
         this.org8 = org8;
         this.org9 = org9;
-        this.dateOfImport = dateOfImport;
+		this.dateOfLatestImport = dateOfLatestImport;
     }
 
     public Long getId() {
@@ -242,12 +242,12 @@ public class CourseSemesterOrgId {
         this.org9 = org9;
     }
 
-    public Date getDateOfImport() {
-        return dateOfImport;
+	public Date getDateOfLatestImport() {
+        return dateOfLatestImport;
     }
 
-    public void setDateOfImport(Date dateOfImport) {
-        this.dateOfImport = dateOfImport;
+    public void setDateOfLatestImport(Date dateOfLatestImport) {
+        this.dateOfLatestImport = dateOfLatestImport;
     }
 
     public SemesterName getSemesterName() {
@@ -269,18 +269,18 @@ public class CourseSemesterOrgId {
         return yyyy;
     }
 
-	public void merge(Course course) {
-		course.setId(getId());
-		course.setLvKuerzel(getLvKuerzel());
-		course.setTitle(getTitle());
-		course.setLvNr(getLvNr());
-		course.setELearningSupported("X".equalsIgnoreCase(getELearningSupported()));
-		course.setLanguage(getLanguage());
-		course.setCategory(getCategory());
-		course.setStartDate(getStartDate());
-		course.setEndDate(getEndDate());
-		course.setVvzLink(getVvzLink());
-		course.setExclude("X".equalsIgnoreCase(getExclude()));
-		course.setDateOfImport(getDateOfImport());
+	public void mergeImportedAttributesInto(Course courseToBeUpdated) {
+		// all imported attributes, except id
+		courseToBeUpdated.setLvKuerzel(getLvKuerzel());
+		courseToBeUpdated.setTitle(getTitle());
+		courseToBeUpdated.setLvNr(getLvNr());
+		courseToBeUpdated.setELearningSupported("X".equalsIgnoreCase(getELearningSupported()));
+		courseToBeUpdated.setLanguage(getLanguage());
+		courseToBeUpdated.setCategory(getCategory());
+		courseToBeUpdated.setStartDate(getStartDate());
+		courseToBeUpdated.setEndDate(getEndDate());
+		courseToBeUpdated.setVvzLink(getVvzLink());
+		courseToBeUpdated.setExclude("X".equalsIgnoreCase(getExclude()));
+		courseToBeUpdated.setDateOfLatestImport(getDateOfLatestImport());
 	}
 }

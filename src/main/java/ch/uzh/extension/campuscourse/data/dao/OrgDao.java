@@ -22,20 +22,33 @@ public class OrgDao implements CampusDao<Org> {
 
     @Autowired
     public OrgDao(DB dbInstance) {
-        this.dbInstance = dbInstance;
+    	this.dbInstance = dbInstance;
     }
 
-    public void save(List<Org> orgs) {
-        orgs.forEach(dbInstance::saveObject);
-    }
+    public void save(Org org) {
+    	org.setDateOfFirstImport(org.getDateOfLatestImport());
+		dbInstance.saveObject(org);
+	}
+
+	public void save(List<Org> orgs) {
+		orgs.forEach(this::save);
+	}
+
+	public void saveOrUpdate(Org org) {
+		Org orgFound = getOrgById(org.getId());
+		if (orgFound != null) {
+			org.mergeImportedAttributesInto(orgFound);
+		} else {
+			save(org);
+		}
+	}
 
     @Override
     public void saveOrUpdate(List<Org> orgs) {
-        EntityManager em = dbInstance.getCurrentEntityManager();
-        orgs.forEach(em::merge);
+    	orgs.forEach(this::saveOrUpdate);
     }
 
-    public Org getOrgById(Long id) {
+    Org getOrgById(Long id) {
         return dbInstance.findObject(Org.class, id);
     }
 
@@ -55,7 +68,7 @@ public class OrgDao implements CampusDao<Org> {
      * Deletes also according entries of the join table ck_course_org.
      * We cannot use a bulk delete here, since deleting the join table is not possible.
      */
-    public void deleteByOrgId(Long orgId) {
+	void deleteByOrgId(Long orgId) {
         EntityManager em = dbInstance.getCurrentEntityManager();
         deleteOrgBidirectionally(em.getReference(Org.class, orgId), em);
     }

@@ -7,8 +7,7 @@ package ch.uzh.extension.campuscourse.model;
  */
 public final class CampusCourseTOForUI implements Comparable<CampusCourseTOForUI> {
 
-    private String title;
-    private boolean activated;
+    private final String title;
     private final Long sapCourseId;
 
     public CampusCourseTOForUI(String title, Long sapCourseId) {
@@ -20,26 +19,12 @@ public final class CampusCourseTOForUI implements Comparable<CampusCourseTOForUI
         return title;
     }
 
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
     public Long getSapCourseId() {
         return sapCourseId;
     }
 
-    public boolean isActivated() {
-        return activated;
-    }
-
-    public void setActivated(boolean activated) {
-        this.activated = activated;
-    }
-
     @Override
-    public int compareTo(CampusCourseTOForUI compareCampusCourseTOForUI) {
-        String compareTitle = compareCampusCourseTOForUI.getTitle();
-        // ASCENDING ORDER
-        return this.getTitle().compareTo(compareTitle);
+    public int compareTo(CampusCourseTOForUI otherCampusCourseTOForUI) {
+        return title.compareTo(otherCampusCourseTOForUI.title);
     }
 }

@@ -28,17 +28,6 @@ public class Org {
     public static final String GET_IDS_OF_ALL_ENABLED_ORGS = "getIdsOfAllEnabledOrgs";
     public static final String GET_ALL_ORPHANED_ORGS = "getAllOrphanedOrgs";
 
-    public Org() {
-    }
-
-    public Org(Long id, String shortName, String name, boolean enabled, Date dateOfImport) {
-        this.id = id;
-        this.shortName = shortName;
-        this.name = name;
-        this.enabled = enabled;
-        this.dateOfImport = dateOfImport;
-    }
-
     @Id
     private Long id;
 
@@ -51,9 +40,13 @@ public class Org {
     @Column(name = "enabled", nullable = false)
     private boolean enabled;
 
+	@Temporal(TemporalType.TIMESTAMP)
+	@Column(name = "date_of_first_import")
+	private Date dateOfFirstImport;
+
     @Temporal(TemporalType.TIMESTAMP)
-    @Column(name = "date_of_import")
-    private Date dateOfImport;
+    @Column(name = "date_of_latest_import")
+    private Date dateOfLatestImport;
 
     @ManyToMany(mappedBy = "orgs")
     private Set<Course> courses = new HashSet<>();
@@ -90,16 +83,35 @@ public class Org {
         this.enabled = enabled;
     }
 
-    public Date getDateOfImport() {
-        return dateOfImport;
+	public Date getDateOfFirstImport() {
+		return dateOfFirstImport;
+	}
+
+	public void setDateOfFirstImport(Date dateOfFirstImport) {
+		this.dateOfFirstImport = dateOfFirstImport;
+	}
+
+	public Date getDateOfLatestImport() {
+        return dateOfLatestImport;
     }
 
-    public void setDateOfImport(Date dateOfImport) {
-        this.dateOfImport = dateOfImport;
+    public void setDateOfLatestImport(Date dateOfImport) {
+        this.dateOfLatestImport = dateOfImport;
     }
 
     public Set<Course> getCourses() {
         return courses;
+    }
+
+    public Org() {
+    }
+
+    public Org(Long id, String shortName, String name, boolean enabled, Date dateOfLatestImport) {
+        this.id = id;
+        this.shortName = shortName;
+        this.name = name;
+        this.enabled = enabled;
+		this.dateOfLatestImport = dateOfLatestImport;
     }
 
     @Override
@@ -109,7 +121,6 @@ public class Org {
         builder.append("shortName", getShortName());
         builder.append("name", getName());
         builder.append("enabled", isEnabled());
-        builder.append("modifiedDate", getDateOfImport());
 
         return builder.toString();
     }
@@ -119,7 +130,6 @@ public class Org {
         HashCodeBuilder builder = new HashCodeBuilder(1239, 5475);
         builder.append(shortName);
         builder.append(name);
-        builder.append(dateOfImport);
 
         return builder.toHashCode();
     }
@@ -135,10 +145,17 @@ public class Org {
         EqualsBuilder builder = new EqualsBuilder();
         builder.append(this.shortName, theOther.shortName);
         builder.append(this.name, theOther.name);
-        builder.append(this.dateOfImport, theOther.dateOfImport);
 
         return builder.isEquals();
     }
+
+	public void mergeImportedAttributesInto(Org orgToBeUpdated) {
+		// all imported attributes, except id and date of first import
+		orgToBeUpdated.setShortName(getShortName());
+		orgToBeUpdated.setName(getName());
+		orgToBeUpdated.setEnabled(isEnabled());;
+		orgToBeUpdated.setDateOfLatestImport(getDateOfLatestImport());
+	}
 
 }
 

@@ -53,8 +53,8 @@ public class Text {
     private String line;
 
     @Temporal(TemporalType.TIMESTAMP)
-    @Column(name = "date_of_import", nullable = false)
-    private Date dateOfImport;
+    @Column(name = "date_of_latest_import", nullable = false)
+    private Date dateOfLatestImport;
 
     @ManyToOne
     @JoinColumn(name = "fk_course", nullable = false)
@@ -63,11 +63,11 @@ public class Text {
     public Text() {
     }
 
-    public Text(String type, int lineSeq, String line, Date dateOfImport) {
+    public Text(String type, int lineSeq, String line, Date dateOfLatestImport) {
         this.type = type;
         this.lineSeq = lineSeq;
         this.line = line;
-        this.dateOfImport = dateOfImport;
+        this.dateOfLatestImport = dateOfLatestImport;
     }
 
     public Long getId() {
@@ -102,12 +102,12 @@ public class Text {
         this.line = line;
     }
 
-    public Date getDateOfImport() {
-        return dateOfImport;
+    public Date getDateOfLatestImport() {
+        return dateOfLatestImport;
     }
 
-    public void setDateOfImport(Date modifiedDate) {
-        this.dateOfImport = modifiedDate;
+    public void setDateOfLatestImport(Date modifiedDate) {
+        this.dateOfLatestImport = modifiedDate;
     }
 
     public Course getCourse() {

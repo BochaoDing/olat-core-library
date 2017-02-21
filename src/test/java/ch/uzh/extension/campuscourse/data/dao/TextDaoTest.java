@@ -100,7 +100,7 @@ public class TextDaoTest extends CampusCourseTestCase {
         textCourseId.setType("Veranstaltungsinhalt");
         textCourseId.setLineSeq(1);
         textCourseId.setLine("- praktische Tätigkeiten im chemischen Labor");
-        textCourseId.setDateOfImport(new Date());
+        textCourseId.setDateOfLatestImport(new Date());
 
         try {
             textDao.addTextToCourse(textCourseId);
@@ -258,6 +258,9 @@ public class TextDaoTest extends CampusCourseTestCase {
         assertEquals(0, textDao.getTextsByCourseId(200L).size());
         course = courseDao.getCourseById(100L);
         assertEquals(0, course.getTexts().size());
+
+        // Test with empty list
+        assertEquals(0, textDao.deleteTextsByCourseIds(new ArrayList<>()));
     }
 
     @Test
@@ -277,6 +280,9 @@ public class TextDaoTest extends CampusCourseTestCase {
 
         assertEquals(0, textDao.getTextsByCourseId(100L).size());
         assertEquals(0, textDao.getTextsByCourseId(200L).size());
+
+		// Test with empty list
+		assertEquals(0, textDao.deleteTextsByCourseIdsAsBulkDelete(new ArrayList<>()));
     }
 
     private void addTextsToCourses() {

@@ -2,11 +2,7 @@ package ch.uzh.extension.campuscourse.service;
 
 import ch.uzh.extension.campuscourse.common.CampusCourseConfiguration;
 import ch.uzh.extension.campuscourse.common.CampusCourseException;
-import ch.uzh.extension.campuscourse.data.entity.Course;
-import ch.uzh.extension.campuscourse.model.CampusCourseTO;
-import ch.uzh.extension.campuscourse.model.CampusGroups;
-import ch.uzh.extension.campuscourse.model.IdentityDate;
-import ch.uzh.extension.campuscourse.model.SapUserType;
+import ch.uzh.extension.campuscourse.model.*;
 import ch.uzh.extension.campuscourse.service.coursecreation.CampusCoursePublisher;
 import ch.uzh.extension.campuscourse.service.coursecreation.CampusGroupsCreator;
 import ch.uzh.extension.campuscourse.service.coursecreation.OlatCampusCourseCreator;
@@ -79,17 +75,17 @@ public class CampusCourseCoreServiceImpl implements CampusCourseCoreService {
 
     @Autowired
     public CampusCourseCoreServiceImpl(DB dbInstance,
-                                       DaoManager daoManager,
-                                       RepositoryService repositoryService,
-                                       OlatCampusCourseCreator olatCampusCourseCreator,
-                                       CampusCoursePublisher campusCoursePublisher,
-                                       CampusGroupsCreator campusGroupsCreator,
-                                       CampusCourseConfiguration campusCourseConfiguration,
-                                       CampusGroupsSynchronizer campusGroupsSynchronizer,
-                                       CampusCourseRepositoryEntrySynchronizer campusCourseRepositoryEntrySynchronizer,
-                                       OLATResourceManager olatResourceManager,
-                                       BusinessGroupService businessGroupService,
-                                       CampusCourseDefaultCoOwners campusCourseDefaultCoOwners) {
+									   DaoManager daoManager,
+									   RepositoryService repositoryService,
+									   OlatCampusCourseCreator olatCampusCourseCreator,
+									   CampusCoursePublisher campusCoursePublisher,
+									   CampusGroupsCreator campusGroupsCreator,
+									   CampusCourseConfiguration campusCourseConfiguration,
+									   CampusGroupsSynchronizer campusGroupsSynchronizer,
+									   CampusCourseRepositoryEntrySynchronizer campusCourseRepositoryEntrySynchronizer,
+									   OLATResourceManager olatResourceManager,
+									   BusinessGroupService businessGroupService,
+									   CampusCourseDefaultCoOwners campusCourseDefaultCoOwners) {
         this.dbInstance = dbInstance;
         this.daoManager = daoManager;
         this.repositoryService = repositoryService;
@@ -102,7 +98,7 @@ public class CampusCourseCoreServiceImpl implements CampusCourseCoreService {
         this.olatResourceManager = olatResourceManager;
         this.businessGroupService = businessGroupService;
         this.campusCourseDefaultCoOwners = campusCourseDefaultCoOwners;
-    }
+	}
 
     @Override
     public boolean isIdentityLecturerOrDelegateeOfSapCourse(Long sapCampusCourseId, Identity identity) {
@@ -205,7 +201,7 @@ public class CampusCourseCoreServiceImpl implements CampusCourseCoreService {
             }
 
             // Add repository entry and campus groups to sap campus course
-            daoManager.saveCampusCourseRepositoryEntry(campusCourseTO.getSapCourseId(), createdRepositoryEntry.getKey());
+            daoManager.saveCampusCourseRepositoryEntryAndDateOfOlatCourseCreation(campusCourseTO.getSapCourseId(), createdRepositoryEntry.getKey());
             daoManager.saveCampusGroupA(campusCourseTO.getSapCourseId(), campusGroups.getCampusGroupA().getKey());
             daoManager.saveCampusGroupB(campusCourseTO.getSapCourseId(), campusGroups.getCampusGroupB().getKey());
             dbInstance.intermediateCommit();
@@ -242,58 +238,80 @@ public class CampusCourseCoreServiceImpl implements CampusCourseCoreService {
 		assert creator != null;
 
 		// Check first if sap campus courses exist
-		Course childCourse = daoManager.getCourseById(childSapCampusCourseId);
+		CampusCourseWithoutListsTO childCourse = daoManager.getCourseById(childSapCampusCourseId);
 		if (childCourse == null) {
 			throw new IllegalArgumentException("SAP course does not exists: " + childSapCampusCourseId);
 		}
-		Course parentCourse = daoManager.getCourseById(parentSapCampusCourseId);
+		CampusCourseWithoutListsTO parentCourse = daoManager.getCourseById(parentSapCampusCourseId);
 		if (parentCourse == null) {
 			throw new IllegalArgumentException("Parent SAP course does not exists: " + parentSapCampusCourseId);
 		}
 
-		// Add parent course, repository entry and campus groups of parent course to child course
-		daoManager.saveParentCourseId(childSapCampusCourseId, parentSapCampusCourseId);
-        daoManager.saveCampusCourseRepositoryEntry(childSapCampusCourseId, parentCourse.getRepositoryEntry().getKey());
-        daoManager.saveCampusGroupA(childSapCampusCourseId, parentCourse.getCampusGroupA().getKey());
-        daoManager.saveCampusGroupB(childSapCampusCourseId, parentCourse.getCampusGroupB().getKey());
+		// Add parent course to child course
+		daoManager.saveParentCourseIdAndDateOfOlatCourseCreation(childSapCampusCourseId, parentSapCampusCourseId);
         dbInstance.intermediateCommit();
 
         // childCampusCourseTO must be loaded AFTER setting the parent course id and the campus groups such that
         // childCampusCourseTO also contains the lecturers and students of the parent course and the campus groups
         CampusCourseTO childCampusCourseTO = daoManager.loadCampusCourseTO(childSapCampusCourseId);
 
-        // Update course run and editor models
-        olatCampusCourseCreator.updateCourseRunAndEditorModels(childCampusCourseTO.getRepositoryEntry(), childCampusCourseTO, false);
+		// Update course run and editor models and perform synchronization
+		updateCourseRunAndEditorModelsAndPerformSynchronization(childCampusCourseTO, creator);
 
-        // Synchronize olat campus course repository entry
-        campusCourseRepositoryEntrySynchronizer.synchronizeDisplaynameAndDescriptionAndInitialAuthor(childCampusCourseTO, creator);
-
-        // Add owner role to lecturers, delegatees and default co-owners
-        campusGroupsSynchronizer.addCourseOwnerRole(childCampusCourseTO.getRepositoryEntry(), childCampusCourseTO.getLecturersOfCourse());
-        campusGroupsSynchronizer.addCourseOwnerRole(childCampusCourseTO.getRepositoryEntry(), childCampusCourseTO.getDelegateesOfCourse());
-        campusGroupsSynchronizer.addCourseOwnerRole(childCampusCourseTO.getRepositoryEntry(), campusCourseDefaultCoOwners.getDefaultCoOwners());
-
-        // Synchronize campus groups
-        try {
-            campusGroupsSynchronizer.synchronizeCampusGroups(childCampusCourseTO.getCampusGroups(), childCampusCourseTO, creator);
-        } catch (CampusCourseException e) {
-            LOG.error(e.getMessage());
-        }
-
-        dbInstance.intermediateCommit();
+		dbInstance.intermediateCommit();
 
         return childCampusCourseTO.getRepositoryEntry();
     }
 
+	@Override
+	public void undoCourseContinuation(RepositoryEntry repositoryEntry, Identity creator) {
+		CampusCourseWithoutListsTO childCourse = daoManager.getCourseOrLastChildOfContinuedCourseByRepositoryEntryKey(repositoryEntry.getKey());
+		if (childCourse == null) {
+			return;
+		}
+
+		CampusCourseTO parentCourseTO = daoManager.loadCampusCourseTO(childCourse.getParentSapCourseId());
+
+		// Reset child course
+		daoManager.removeParentCourseAndResetDateOfOlatCourseCreation(childCourse.getSapCourseId());
+
+		// Update course run and editor models and perform synchronization
+		updateCourseRunAndEditorModelsAndPerformSynchronization(parentCourseTO, creator);
+
+		dbInstance.commitAndCloseSession();
+	}
+
+    private void updateCourseRunAndEditorModelsAndPerformSynchronization(CampusCourseTO campusCourseTO, Identity creator) {
+
+		// Update course run and editor models
+		olatCampusCourseCreator.updateCourseRunAndEditorModels(campusCourseTO.getRepositoryEntry(), campusCourseTO, false);
+
+		// Synchronize olat campus course repository entry
+		campusCourseRepositoryEntrySynchronizer.synchronizeDisplaynameAndDescriptionAndInitialAuthor(campusCourseTO, creator);
+
+		// Add owner role to lecturers, delegatees and default co-owners
+		campusGroupsSynchronizer.addCourseOwnerRole(campusCourseTO.getRepositoryEntry(), campusCourseTO.getLecturersOfCourse());
+		campusGroupsSynchronizer.addCourseOwnerRole(campusCourseTO.getRepositoryEntry(), campusCourseTO.getDelegateesOfCourse());
+		campusGroupsSynchronizer.addCourseOwnerRole(campusCourseTO.getRepositoryEntry(), campusCourseDefaultCoOwners.getDefaultCoOwners());
+
+		// Synchronize campus groups
+		try {
+			campusGroupsSynchronizer.synchronizeCampusGroups(campusCourseTO.getCampusGroups(), campusCourseTO, creator);
+		} catch (CampusCourseException e) {
+			// Is thrown in the case that campus groups do not exist. In that case, campus groups cannot be synchronized.
+			LOG.error(e.getMessage());
+		}
+	}
+
     @Override
-    public Course getLatestCourseByRepositoryEntry(RepositoryEntry repositoryEntry) throws Exception {
-        return daoManager.getLatestCourseByRepositoryEntry(repositoryEntry.getKey());
+    public CampusCourseWithoutListsTO getCourseOrLastChildOfContinuedCourseByRepositoryEntryKey(RepositoryEntry repositoryEntry) {
+        return daoManager.getCourseOrLastChildOfContinuedCourseByRepositoryEntryKey(repositoryEntry.getKey());
     }
 
     @Override
     public void resetRepositoryEntryAndParentCourse(RepositoryEntry repositoryEntry) {
-        LOG.debug("resetRepositoryEntryAndParentCourse for repositoryentry_id =" + repositoryEntry.getKey());
-        daoManager.resetRepositoryEntryAndParentCourse(repositoryEntry.getKey());
+        LOG.debug("resetRepositoryEntryAndParentCoursesAndDateOfOlatCourseCreation for repository entry id =" + repositoryEntry.getKey());
+        daoManager.resetRepositoryEntryAndParentCoursesAndDateOfOlatCourseCreation(repositoryEntry.getKey());
     }
 
     @Override
@@ -314,14 +332,24 @@ public class CampusCourseCoreServiceImpl implements CampusCourseCoreService {
     }
 
 	@Override
-    public Set<Course> getNotCreatedCourses(Identity identity, SapUserType userType, String searchString) {
+    public Set<CampusCourseWithoutListsTO> getNotCreatedCourses(Identity identity, SapUserType userType, String searchString) {
         return daoManager.getNotCreatedCourses(identity, userType, searchString);
     }
 
     @Override
-    public Set<Course> getCreatedCourses(Identity identity, SapUserType userType, String searchString) {
+    public Set<CampusCourseWithoutListsTO> getCreatedCourses(Identity identity, SapUserType userType, String searchString) {
         return daoManager.getCreatedCourses(identity, userType, searchString);
     }
+
+    @Override
+    public boolean isContinuedCourse(RepositoryEntry repositoryEntry) {
+        return daoManager.existsContinuedCourseForRepositoryEntry(repositoryEntry.getKey());
+    }
+
+	@Override
+	public List<String> getTitlesOfChildAndParentCoursesInAscendingOrder(RepositoryEntry repositoryEntry) {
+		return daoManager.getTitlesOfChildAndParentCoursesInAscendingOrderByRepositoryEntryKey(repositoryEntry.getKey());
+	}
 
 	@Override
     public void createDelegation(Identity delegator, Identity delegatee) {
@@ -340,7 +368,7 @@ public class CampusCourseCoreServiceImpl implements CampusCourseCoreService {
     }
 
     @Override
-    public List<Long> getRepositoryEntryKeysOfAllCreatedNotContinuedCoursesOfPreviousSemesters() {
+    public Set<Long> getRepositoryEntryKeysOfAllCreatedNotContinuedCoursesOfPreviousSemesters() {
         return daoManager.getRepositoryEntryKeysOfAllCreatedNotContinuedCoursesOfPreviousSemesters();
     }
 

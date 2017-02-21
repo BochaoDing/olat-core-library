@@ -9,7 +9,7 @@ import ch.uzh.extension.campuscourse.data.entity.Lecturer;
 import ch.uzh.extension.campuscourse.data.entity.LecturerCourse;
 import ch.uzh.extension.campuscourse.model.CourseSemesterOrgId;
 import ch.uzh.extension.campuscourse.model.LecturerIdCourseId;
-import ch.uzh.extension.campuscourse.model.LecturerIdCourseIdDateOfImport;
+import ch.uzh.extension.campuscourse.model.LecturerIdCourseIdDateOfLatestImport;
 import ch.uzh.extension.campuscourse.util.DateUtil;
 import org.junit.Before;
 import org.junit.Test;
@@ -17,9 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.persistence.EntityNotFoundException;
-import java.util.Date;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 import static org.junit.Assert.*;
 
@@ -100,9 +98,9 @@ public class LecturerCourseDaoTest extends CampusCourseTestCase {
 
     @Test
     public void testSaveLecturerCourse_NotExistingCourse() {
-        LecturerIdCourseIdDateOfImport lecturerIdCourseIdDateOfImport = new LecturerIdCourseIdDateOfImport(1100L, 999L, new Date());
+        LecturerIdCourseIdDateOfLatestImport lecturerIdCourseIdDateOfLatestImport = new LecturerIdCourseIdDateOfLatestImport(1100L, 999L, new Date());
         try {
-            lecturerCourseDao.save(lecturerIdCourseIdDateOfImport);
+            lecturerCourseDao.save(lecturerIdCourseIdDateOfLatestImport);
             fail("Expected exception has not occurred.");
         } catch(EntityNotFoundException e) {
             // All good, that's exactly what we expect
@@ -118,9 +116,9 @@ public class LecturerCourseDaoTest extends CampusCourseTestCase {
 
     @Test
     public void testSaveLecturerCourse_NotExistingLecturer() {
-        LecturerIdCourseIdDateOfImport lecturerIdCourseIdDateOfImport = new LecturerIdCourseIdDateOfImport(999L, 100L, new Date());
+        LecturerIdCourseIdDateOfLatestImport lecturerIdCourseIdDateOfLatestImport = new LecturerIdCourseIdDateOfLatestImport(999L, 100L, new Date());
         try {
-            lecturerCourseDao.save(lecturerIdCourseIdDateOfImport);
+            lecturerCourseDao.save(lecturerIdCourseIdDateOfLatestImport);
             fail("Expected exception has not occurred.");
         } catch(EntityNotFoundException e) {
             // All good, that's exactly what we expect
@@ -178,14 +176,14 @@ public class LecturerCourseDaoTest extends CampusCourseTestCase {
     }
 
     @Test
-    public void testSaveOrUpdateLecturerCourseWithoutBidirctionalUpdate() {
+    public void testSaveOrUpdateLecturerCourseWithoutBidirectionalUpdate() {
         Lecturer lecturer = lecturerDao.getLecturerById(1100L);
         Course course = courseDao.getCourseById(100L);
         assertNull(lecturerCourseDao.getLecturerCourseById(1100L, 100L));
 
         // Insert lecturer to course
-        LecturerCourse lecturerCourse = new LecturerCourse(lecturer, course, new Date());
-        lecturerCourseDao.saveOrUpdateWithoutBidirectionalUpdate(lecturerCourse);
+        LecturerIdCourseIdDateOfLatestImport lecturerIdCourseIdDateOfLatestImport = new LecturerIdCourseIdDateOfLatestImport(lecturer.getPersonalNr(), course.getId(), new Date());
+        lecturerCourseDao.saveOrUpdateWithoutBidirectionalUpdate(lecturerIdCourseIdDateOfLatestImport);
 
 		// Check before flush
 		assertTrue(lecturer.getLecturerCourses().isEmpty());
@@ -201,8 +199,8 @@ public class LecturerCourseDaoTest extends CampusCourseTestCase {
         assertNotNull(lecturerCourseDao.getLecturerCourseById(1100L, 100L));
 
         // Insert the same lecturer a second time to the same course
-        LecturerCourse lecturerCourse2 = new LecturerCourse(lecturer, course, new Date());
-        lecturerCourseDao.saveOrUpdateWithoutBidirectionalUpdate(lecturerCourse2);
+		LecturerIdCourseIdDateOfLatestImport lecturerIdCourseIdDateOfLatestImport2 = new LecturerIdCourseIdDateOfLatestImport(lecturer.getPersonalNr(), course.getId(), new Date());
+        lecturerCourseDao.saveOrUpdateWithoutBidirectionalUpdate(lecturerIdCourseIdDateOfLatestImport2);
 
         dbInstance.flush();
         dbInstance.clear();
@@ -233,15 +231,18 @@ public class LecturerCourseDaoTest extends CampusCourseTestCase {
         Date referenceDateOfImport = new Date();
 
         // Insert lecturer to course of current semester with date of import in the past (-> should be returned by method)
-        LecturerCourse lecturerCourse1 = new LecturerCourse(lecturer, course1CurrentSemester, DateUtil.addHoursToDate(referenceDateOfImport, -1));
+        Date dateOfImport1 = DateUtil.addHoursToDate(referenceDateOfImport, -1);
+        LecturerCourse lecturerCourse1 = new LecturerCourse(lecturer, course1CurrentSemester, dateOfImport1);
         lecturerCourseDao.saveOrUpdate(lecturerCourse1);
 
         // Insert lecturer to course of current semester with date of import in the future (-> should not be returned by method)
-        LecturerCourse lecturerCourse2 = new LecturerCourse(lecturer, course2CurrentSemester, DateUtil.addHoursToDate(referenceDateOfImport, 1));
+		Date dateOfImport2 = DateUtil.addHoursToDate(referenceDateOfImport, 1);
+        LecturerCourse lecturerCourse2 = new LecturerCourse(lecturer, course2CurrentSemester, dateOfImport2);
         lecturerCourseDao.saveOrUpdate(lecturerCourse2);
 
         // Insert lecturer to course from former semester with date of import in the past (-> should not be returned by method)
-        LecturerCourse lecturerCourse3 = new LecturerCourse(lecturer, course3FormerSemester, DateUtil.addHoursToDate(referenceDateOfImport, -1));
+		Date dateOfImport3 = DateUtil.addHoursToDate(referenceDateOfImport, -1);
+        LecturerCourse lecturerCourse3 = new LecturerCourse(lecturer, course3FormerSemester, dateOfImport3);
         lecturerCourseDao.saveOrUpdate(lecturerCourse3);
 
         dbInstance.flush();
@@ -290,35 +291,75 @@ public class LecturerCourseDaoTest extends CampusCourseTestCase {
     }
 
     @Test
-    public void testDeleteAllLCBookingTooFarInThePastAsBulkDelete() {
+    public void testDeleteAllLCBookingOfNotContinuedCoursesTooFarInThePastAsBulkDelete() {
         Lecturer lecturer = lecturerDao.getLecturerById(1100L);
         Course course1 = courseDao.getCourseById(100L);
         Course course2 = courseDao.getCourseById(200L);
+        Course course3 = courseDao.getCourseById(300L);
+        Course course4 = courseDao.getCourseById(400L);
         assertNull(lecturerCourseDao.getLecturerCourseById(1100L, 100L));
         assertNull(lecturerCourseDao.getLecturerCourseById(1100L, 200L));
+		assertNull(lecturerCourseDao.getLecturerCourseById(1100L, 300L));
+		assertNull(lecturerCourseDao.getLecturerCourseById(1100L, 400L));
 
-        Date referenceDateOfImport = new Date();
+		// Make course 400 to be the parent course of 300
+		// -> course 3 has a parent course, course 4 has a child course
+		courseDao.saveParentCourseIdAndDateOfOlatCourseCreation(300L, 400L);
+
+        Date referenceDateOfImport = new GregorianCalendar(1800, Calendar.JANUARY, 1).getTime();
 
         // Insert lecturer to course with date too far in the past (-> should be deleted)
-        LecturerCourse lecturerCourse1 = new LecturerCourse(lecturer, course1, DateUtil.addYearsToDate(referenceDateOfImport, -campusCourseConfiguration.getMaxYearsToKeepCkData() - 1));
+		Date dateOfImport1 = DateUtil.addYearsToDate(referenceDateOfImport, -campusCourseConfiguration.getMaxYearsToKeepCkData() - 1);
+		course1.setDateOfLatestImport(dateOfImport1);
+		LecturerCourse lecturerCourse1 = new LecturerCourse(lecturer, course1, dateOfImport1);
         lecturerCourseDao.saveOrUpdate(lecturerCourse1);
 
         // Insert lecturer to course with date not too far in the past (-> should not be deleted)
-        LecturerCourse lecturerCourse2 = new LecturerCourse(lecturer, course2, DateUtil.addYearsToDate(referenceDateOfImport, -campusCourseConfiguration.getMaxYearsToKeepCkData() + 1));
+		Date dateOfImport2 = DateUtil.addYearsToDate(referenceDateOfImport, -campusCourseConfiguration.getMaxYearsToKeepCkData() + 1);
+		course2.setDateOfLatestImport(dateOfImport2);
+        LecturerCourse lecturerCourse2 = new LecturerCourse(lecturer, course2, dateOfImport2);
         lecturerCourseDao.saveOrUpdate(lecturerCourse2);
+
+		// Insert lecturer to course with date too far in the past (-> should be deleted)
+		Date dateOfImport3 = DateUtil.addYearsToDate(referenceDateOfImport, -campusCourseConfiguration.getMaxYearsToKeepCkData() - 1);
+		course3.setDateOfLatestImport(dateOfImport3);
+		LecturerCourse lecturerCourse3 = new LecturerCourse(lecturer, course3, dateOfImport3);
+		lecturerCourseDao.saveOrUpdate(lecturerCourse3);
+
+		// Insert lecturer to course with date too far in the past (-> should not be deleted, because course has a child course)
+		Date dateOfImport4 = DateUtil.addYearsToDate(referenceDateOfImport, -campusCourseConfiguration.getMaxYearsToKeepCkData() - 1);
+		course4.setDateOfLatestImport(dateOfImport4);
+		LecturerCourse lecturerCourse4 = new LecturerCourse(lecturer, course4, dateOfImport4);
+		lecturerCourseDao.saveOrUpdate(lecturerCourse4);
 
         dbInstance.flush();
 
         assertNotNull(lecturerCourseDao.getLecturerCourseById(1100L, 100L));
         assertNotNull(lecturerCourseDao.getLecturerCourseById(1100L, 200L));
+		assertNotNull(lecturerCourseDao.getLecturerCourseById(1100L, 300L));
+		assertNotNull(lecturerCourseDao.getLecturerCourseById(1100L, 400L));
 
-        lecturerCourseDao.deleteAllLCBookingTooFarInThePastAsBulkDelete(new Date());
+        lecturerCourseDao.deleteAllLCBookingOfNotContinuedCoursesTooFarInThePastAsBulkDelete(referenceDateOfImport);
 
         dbInstance.flush();
         dbInstance.clear();
 
         assertNull(lecturerCourseDao.getLecturerCourseById(1100L, 100L));
         assertNotNull(lecturerCourseDao.getLecturerCourseById(1100L, 200L));
+		assertNull(lecturerCourseDao.getLecturerCourseById(1100L, 300L));
+		assertNotNull(lecturerCourseDao.getLecturerCourseById(1100L, 400L));
+
+		// Remove parent course of course 3 (-> course 4 doesn't have a child course any more and should also be deleted)
+		course3 = courseDao.getCourseById(300L);
+		course3.removeParentCourse();
+		dbInstance.flush();
+
+		lecturerCourseDao.deleteAllLCBookingOfNotContinuedCoursesTooFarInThePastAsBulkDelete(referenceDateOfImport);
+
+		dbInstance.flush();
+		dbInstance.clear();
+
+		assertNull(lecturerCourseDao.getLecturerCourseById(1100L, 400L));
     }
 
     @Test
@@ -339,6 +380,9 @@ public class LecturerCourseDaoTest extends CampusCourseTestCase {
 
         assertNull(lecturerCourseDao.getLecturerCourseById(1100L, 100L));
         assertNull(lecturerCourseDao.getLecturerCourseById(1200L, 200L));
+
+        // Test with empty list
+		assertEquals(0, lecturerCourseDao.deleteByLecturerIdsAsBulkDelete(new ArrayList<>()));
     }
 
     @Test
@@ -359,6 +403,9 @@ public class LecturerCourseDaoTest extends CampusCourseTestCase {
 
         assertNull(lecturerCourseDao.getLecturerCourseById(1100L, 100L));
         assertNull(lecturerCourseDao.getLecturerCourseById(1100L, 200L));
+
+		// Test with empty list
+		assertEquals(0, lecturerCourseDao.deleteByCourseIdsAsBulkDelete(new ArrayList<>()));
     }
 
     @Test
@@ -380,11 +427,14 @@ public class LecturerCourseDaoTest extends CampusCourseTestCase {
         assertEquals(2, numberOfDeletedEntities);
         assertNull(lecturerCourseDao.getLecturerCourseById(1100L, 100L));
         assertNull(lecturerCourseDao.getLecturerCourseById(1100L, 200L));
+
+		// Test with empty list
+		assertEquals(0, lecturerCourseDao.deleteByLecturerIdCourseIdsAsBulkDelete(new ArrayList<>()));
     }
 
     private void insertLecturerIdCourseIds() {
-        List<LecturerIdCourseIdDateOfImport> lecturerIdCourseIdDateOfImports = campusCourseTestDataGenerator.createLecturerIdCourseIdDateOfImports();
-        lecturerCourseDao.save(lecturerIdCourseIdDateOfImports);
+        List<LecturerIdCourseIdDateOfLatestImport> lecturerIdCourseIdDateOfLatestImports = campusCourseTestDataGenerator.createLecturerIdCourseIdDateOfImports();
+        lecturerCourseDao.save(lecturerIdCourseIdDateOfLatestImports);
         dbInstance.flush();
     }
 }

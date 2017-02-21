@@ -45,8 +45,8 @@ public class Event {
     private String end;
 
     @Temporal(TemporalType.TIMESTAMP)
-    @Column(name = "date_of_import", nullable = false)
-    private Date dateOfImport;
+    @Column(name = "date_of_latest_import", nullable = false)
+    private Date dateOfLatestImport;
 
     @ManyToOne
     @JoinColumn(name = "fk_course", nullable = false)
@@ -55,11 +55,11 @@ public class Event {
     public Event() {
     }
 
-    public Event(Date date, String start, String end, Date dateOfImport) {
+    public Event(Date date, String start, String end, Date dateOfLatestImport) {
         this.date = date;
         this.start = start;
         this.end = end;
-        this.dateOfImport = dateOfImport;
+        this.dateOfLatestImport = dateOfLatestImport;
     }
 
     public Long getId() {
@@ -94,12 +94,12 @@ public class Event {
         this.end = end;
     }
 
-    public Date getDateOfImport() {
-        return dateOfImport;
+    public Date getDateOfLatestImport() {
+        return dateOfLatestImport;
     }
 
-    public void setDateOfImport(Date dateOfImport) {
-        this.dateOfImport = dateOfImport;
+    public void setDateOfLatestImport(Date dateOfImport) {
+        this.dateOfLatestImport = dateOfImport;
     }
 
     public Course getCourse() {

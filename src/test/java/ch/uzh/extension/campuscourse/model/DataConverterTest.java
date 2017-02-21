@@ -257,8 +257,8 @@ public class DataConverterTest extends CampusCourseTestCase {
         dbInstance.flush();
 
         // Add lecturers to courseOrgIds
-        List<LecturerIdCourseIdDateOfImport> lecturerIdCourseIdDateOfImports = campusCourseTestDataGenerator.createLecturerIdCourseIdDateOfImports();
-        lecturerCourseDao.save(lecturerIdCourseIdDateOfImports);
+        List<LecturerIdCourseIdDateOfLatestImport> lecturerIdCourseIdDateOfLatestImports = campusCourseTestDataGenerator.createLecturerIdCourseIdDateOfImports();
+        lecturerCourseDao.save(lecturerIdCourseIdDateOfLatestImports);
         dbInstance.flush();
 
         // Insert some students
@@ -267,8 +267,8 @@ public class DataConverterTest extends CampusCourseTestCase {
         dbInstance.flush();
 
         // Add students to courseOrgIds
-        List<StudentIdCourseIdDateOfImport> studentIdCourseIdDateOfImports = campusCourseTestDataGenerator.createStudentIdCourseIdDateOfImports();
-        studentCourseDao.save(studentIdCourseIdDateOfImports);
+        List<StudentIdCourseIdDateOfLatestImport> studentIdCourseIdDateOfLatestImports = campusCourseTestDataGenerator.createStudentIdCourseIdDateOfImports();
+        studentCourseDao.save(studentIdCourseIdDateOfLatestImports);
         dbInstance.flush();
     }
 
