@@ -1,7 +1,7 @@
 package ch.uzh.extension.campuscourse.batchprocessing.sapimport;
 
 import ch.uzh.extension.campuscourse.data.dao.LecturerCourseDao;
-import ch.uzh.extension.campuscourse.model.LecturerIdCourseIdDateOfImport;
+import ch.uzh.extension.campuscourse.model.LecturerIdCourseIdDateOfLatestImport;
 import org.olat.core.commons.persistence.DB;
 import org.olat.core.logging.OLog;
 import org.olat.core.logging.Tracing;
@@ -36,7 +36,7 @@ import java.util.List;
  */
 @Component
 @Scope("step")
-public class LecturerCourseWriter implements ItemWriter<LecturerIdCourseIdDateOfImport> {
+public class LecturerCourseWriter implements ItemWriter<LecturerIdCourseIdDateOfLatestImport> {
 
     private static final OLog LOG = Tracing.createLoggerFor(LecturerCourseWriter.class);
 
@@ -50,10 +50,10 @@ public class LecturerCourseWriter implements ItemWriter<LecturerIdCourseIdDateOf
     }
 
     @Override
-    public void write(List<? extends LecturerIdCourseIdDateOfImport> lecturerIdCourseIdDateOfImportList) throws Exception {
+    public void write(List<? extends LecturerIdCourseIdDateOfLatestImport> lecturerIdCourseIdDateOfLatestImportList) throws Exception {
         try {
-            for (LecturerIdCourseIdDateOfImport lecturerIdCourseIdDateOfImport : lecturerIdCourseIdDateOfImportList) {
-                lecturerCourseDao.saveOrUpdateWithoutBidirectionalUpdate(lecturerIdCourseIdDateOfImport);
+            for (LecturerIdCourseIdDateOfLatestImport lecturerIdCourseIdDateOfLatestImport : lecturerIdCourseIdDateOfLatestImportList) {
+                lecturerCourseDao.saveOrUpdateWithoutBidirectionalUpdate(lecturerIdCourseIdDateOfLatestImport);
             }
             dbInstance.commitAndCloseSession();
         } catch (Throwable t) {
@@ -62,7 +62,7 @@ public class LecturerCourseWriter implements ItemWriter<LecturerIdCourseIdDateOf
             // First for the lecturerIdCourseIdDateOfImportList according to commit-interval in campusBatchJobContext.xml, and then (after rollbacking)
             // for each entry of the original lecturerIdCourseIdDateOfImportList separately enabling commits containing only one entry.
             // To avoid duplicated warnings we only log a warning in the latter case.
-            if (lecturerIdCourseIdDateOfImportList.size() == 1) {
+            if (lecturerIdCourseIdDateOfLatestImportList.size() == 1) {
                 LOG.warn(t.getMessage());
             } else {
                 LOG.debug(t.getMessage());

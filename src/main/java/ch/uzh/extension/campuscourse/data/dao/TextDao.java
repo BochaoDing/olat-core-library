@@ -44,7 +44,7 @@ public class TextDao {
     }
 
     public void addTextToCourse(TextCourseId textCourseId) {
-        Text text = new Text(textCourseId.getType(), textCourseId.getLineSeq(), textCourseId.getLine(), textCourseId.getDateOfImport());
+        Text text = new Text(textCourseId.getType(), textCourseId.getLineSeq(), textCourseId.getLine(), textCourseId.getDateOfLatestImport());
         addTextToCourse(text, textCourseId.getCourseId());
     }
 

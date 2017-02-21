@@ -100,7 +100,7 @@ public class TextDaoTest extends CampusCourseTestCase {
         textCourseId.setType("Veranstaltungsinhalt");
         textCourseId.setLineSeq(1);
         textCourseId.setLine("- praktische Tätigkeiten im chemischen Labor");
-        textCourseId.setDateOfImport(new Date());
+        textCourseId.setDateOfLatestImport(new Date());
 
         try {
             textDao.addTextToCourse(textCourseId);

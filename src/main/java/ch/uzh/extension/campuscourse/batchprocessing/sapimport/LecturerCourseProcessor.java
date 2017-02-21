@@ -1,7 +1,7 @@
 package ch.uzh.extension.campuscourse.batchprocessing.sapimport;
 
 import ch.uzh.extension.campuscourse.model.LecturerIdCourseId;
-import ch.uzh.extension.campuscourse.model.LecturerIdCourseIdDateOfImport;
+import ch.uzh.extension.campuscourse.model.LecturerIdCourseIdDateOfLatestImport;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
@@ -35,11 +35,11 @@ import java.util.Date;
  */
 @Component
 @Scope("step")
-public class LecturerCourseProcessor implements ItemProcessor<LecturerIdCourseId, LecturerIdCourseIdDateOfImport> {
+public class LecturerCourseProcessor implements ItemProcessor<LecturerIdCourseId, LecturerIdCourseIdDateOfLatestImport> {
 
     @Override
-    public LecturerIdCourseIdDateOfImport process(LecturerIdCourseId lecturerIdCourseId) {
-        return new LecturerIdCourseIdDateOfImport(lecturerIdCourseId.getLecturerId(), lecturerIdCourseId.getCourseId(), new Date());
+    public LecturerIdCourseIdDateOfLatestImport process(LecturerIdCourseId lecturerIdCourseId) {
+        return new LecturerIdCourseIdDateOfLatestImport(lecturerIdCourseId.getLecturerId(), lecturerIdCourseId.getCourseId(), new Date());
     }
 
 }

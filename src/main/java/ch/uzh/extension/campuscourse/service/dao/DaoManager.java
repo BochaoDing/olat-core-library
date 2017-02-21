@@ -357,8 +357,8 @@ public class DaoManager {
         return courses;
     }
 
-    public void saveCampusCourseRepositoryEntry(Long courseId, Long repositoryEntryKey) {
-        courseDao.saveRepositoryEntry(courseId, repositoryEntryKey);
+    public void saveCampusCourseRepositoryEntryAndDateOfOlatCourseCreation(Long courseId, Long repositoryEntryKey) {
+        courseDao.saveRepositoryEntryAndDateOfOlatCourseCreation(courseId, repositoryEntryKey);
     }
 
     public void saveCampusGroupA(Long courseId, Long campusGroupAKey) {
@@ -373,16 +373,16 @@ public class DaoManager {
         return courseDao.getCampusGroupsByRepositoryEntry(repositoryEntryKey);
     }
 
-    public void resetRepositoryEntryAndParentCourse(Long repositoryEntryKey) {
-        courseDao.resetRepositoryEntryAndParentCourses(repositoryEntryKey);
+    public void resetRepositoryEntryAndParentCoursesAndDateOfOlatCourseCreation(Long repositoryEntryKey) {
+        courseDao.resetRepositoryEntryAndParentCoursesAndDateOfOlatCourseCreation(repositoryEntryKey);
     }
 
     public void resetCampusGroup(Long campusGroupKey) {
         courseDao.resetCampusGroup(campusGroupKey);
     }
 
-    public void saveParentCourseId(Long courseId, Long parentCourseId) {
-        courseDao.saveParentCourseId(courseId, parentCourseId);
+    public void saveParentCourseIdAndDateOfOlatCourseCreation(Long courseId, Long parentCourseId) {
+        courseDao.saveParentCourseIdAndDateOfOlatCourseCreation(courseId, parentCourseId);
     }
 
     public List<Long> getSapIdsOfAllCreatedOlatCampusCourses() {
@@ -480,8 +480,8 @@ public class DaoManager {
     	return childCourse.getTitlesOfCourseAndParentCoursesInAscendingOrder();
 	}
 
-    public void resetChildCourse(Long childCourseId) {
-    	courseDao.resetChildCourse(childCourseId);
+    public void removeParentCourseAndResetDateOfOlatCourseCreation(Long childCourseId) {
+    	courseDao.removeParentCourseAndResetDateOfOlatCourseCreation(childCourseId);
 	}
 
     public List<IdentityDate> getDelegateesAndCreationDateByDelegator(Identity delegator) {

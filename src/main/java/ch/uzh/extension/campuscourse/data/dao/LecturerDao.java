@@ -37,8 +37,13 @@ public class LecturerDao {
     }
 
     public void save(Lecturer lecturer) {
+        lecturer.setDateOfFirstImport(lecturer.getDateOfLatestImport());
         dbInstance.saveObject(lecturer);
     }
+
+	public void save(List<Lecturer> lecturers) {
+		lecturers.forEach(this::save);
+	}
 
     public void saveOrUpdate(Lecturer lecturer) {
         /*
@@ -46,15 +51,11 @@ public class LecturerDao {
 		 * values of the mapping attributes with "null".
 		 */
         Lecturer lecturerFound = getLecturerById(lecturer.getPersonalNr());
-        if (lecturerFound == null) {
-            dbInstance.saveObject(lecturer);
-            return;
+        if (lecturerFound != null) {
+			lecturer.mergeImportedAttributesInto(lecturerFound);
+        } else {
+			save(lecturer);
         }
-        lecturer.mergeAllExceptMappingAttributes(lecturerFound);
-    }
-
-    public void save(List<Lecturer> lecturers) {
-        lecturers.forEach(this::save);
     }
 
     public void addMapping(Long lecturerId, Identity identity) {

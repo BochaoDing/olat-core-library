@@ -7,7 +7,7 @@ import ch.uzh.extension.campuscourse.common.CampusCourseException;
 import ch.uzh.extension.campuscourse.data.entity.*;
 import ch.uzh.extension.campuscourse.model.CourseSemesterOrgId;
 import ch.uzh.extension.campuscourse.model.StudentIdCourseId;
-import ch.uzh.extension.campuscourse.model.StudentIdCourseIdDateOfImport;
+import ch.uzh.extension.campuscourse.model.StudentIdCourseIdDateOfLatestImport;
 import ch.uzh.extension.campuscourse.util.DateUtil;
 import org.junit.Before;
 import org.junit.Test;
@@ -96,13 +96,13 @@ public class StudentCourseDaoTest extends CampusCourseTestCase {
 
     @Test
     public void testSaveStudentCourse_NotExistingCourse() {
-        StudentIdCourseIdDateOfImport studentIdCourseIdDateOfImport = new StudentIdCourseIdDateOfImport();
-        studentIdCourseIdDateOfImport.setStudentId(2100L);
-        studentIdCourseIdDateOfImport.setCourseId(999L);
-        studentIdCourseIdDateOfImport.setDateOfImport(new Date());
+        StudentIdCourseIdDateOfLatestImport studentIdCourseIdDateOfLatestImport = new StudentIdCourseIdDateOfLatestImport();
+        studentIdCourseIdDateOfLatestImport.setStudentId(2100L);
+        studentIdCourseIdDateOfLatestImport.setCourseId(999L);
+        studentIdCourseIdDateOfLatestImport.setDateOfLatestImport(new Date());
 
         try {
-            studentCourseDao.save(studentIdCourseIdDateOfImport);
+            studentCourseDao.save(studentIdCourseIdDateOfLatestImport);
             fail("Expected exception has not occurred.");
         } catch(EntityNotFoundException e) {
             // All good, that's exactly what we expect
@@ -118,13 +118,13 @@ public class StudentCourseDaoTest extends CampusCourseTestCase {
 
     @Test
     public void testSaveStudentCourse_NotExistingStudent() {
-        StudentIdCourseIdDateOfImport studentIdCourseIdDateOfImport = new StudentIdCourseIdDateOfImport();
-        studentIdCourseIdDateOfImport.setStudentId(999L);
-        studentIdCourseIdDateOfImport.setCourseId(100L);
-        studentIdCourseIdDateOfImport.setDateOfImport(new Date());
+        StudentIdCourseIdDateOfLatestImport studentIdCourseIdDateOfLatestImport = new StudentIdCourseIdDateOfLatestImport();
+        studentIdCourseIdDateOfLatestImport.setStudentId(999L);
+        studentIdCourseIdDateOfLatestImport.setCourseId(100L);
+        studentIdCourseIdDateOfLatestImport.setDateOfLatestImport(new Date());
 
         try {
-            studentCourseDao.save(studentIdCourseIdDateOfImport);
+            studentCourseDao.save(studentIdCourseIdDateOfLatestImport);
             fail("Expected exception has not occurred.");
         } catch(EntityNotFoundException e) {
             // All good, that's exactly what we expect
@@ -181,36 +181,36 @@ public class StudentCourseDaoTest extends CampusCourseTestCase {
         dbInstance.clear();
     }
 
-    @Test
-    public void testSaveOrUpdateStudentCourseWithoutBidirectionalUpdate() {
-        Student student = studentDao.getStudentById(2100L);
-        Course course = courseDao.getCourseById(100L);
-        assertNull(studentCourseDao.getStudentCourseById(2100L, 100L));
+	@Test
+	public void testSaveOrUpdateStudentCourseWithoutBidirectionalUpdate() {
+		Student student = studentDao.getStudentById(2100L);
+		Course course = courseDao.getCourseById(100L);
+		assertNull(studentCourseDao.getStudentCourseById(2100L, 100L));
 
-        // Insert student to course
-        StudentCourse studentCourse = new StudentCourse(student, course, new Date());
-        studentCourseDao.saveOrUpdateWithoutBidirectionalUpdate(studentCourse);
+		// Insert student to course
+		StudentIdCourseIdDateOfLatestImport studentIdCourseIdDateOfLatestImport = new StudentIdCourseIdDateOfLatestImport(student.getId(), course.getId(), new Date());
+		studentCourseDao.saveOrUpdateWithoutBidirectionalUpdate(studentIdCourseIdDateOfLatestImport);
 
 		// Check before flush
 		assertTrue(student.getStudentCourses().isEmpty());
 		assertTrue(course.getStudentCourses().isEmpty());
 
-        dbInstance.flush();
-        dbInstance.clear();
+		dbInstance.flush();
+		dbInstance.clear();
 
-        student = studentDao.getStudentById(2100L);
-        assertEquals(1, student.getStudentCourses().size());
-        course = courseDao.getCourseById(100L);
-        assertEquals(1, course.getStudentCourses().size());
-        assertNotNull(studentCourseDao.getStudentCourseById(2100L, 100L));
+		student = studentDao.getStudentById(2100L);
+		assertEquals(1, student.getStudentCourses().size());
+		course = courseDao.getCourseById(100L);
+		assertEquals(1, course.getStudentCourses().size());
+		assertNotNull(studentCourseDao.getStudentCourseById(2100L, 100L));
 
-        // Insert the same student a second time to the same course
-        StudentCourse studentCourse2 = new StudentCourse(student, course, new Date());
-        studentCourseDao.saveOrUpdateWithoutBidirectionalUpdate(studentCourse2);
+		// Insert the same student a second time to the same course
+		StudentIdCourseIdDateOfLatestImport studentIdCourseIdDateOfLatestImport2 = new StudentIdCourseIdDateOfLatestImport(student.getId(), course.getId(), new Date());
+		studentCourseDao.saveOrUpdateWithoutBidirectionalUpdate(studentIdCourseIdDateOfLatestImport2);
 
-        dbInstance.flush();
-        dbInstance.clear();
-    }
+		dbInstance.flush();
+		dbInstance.clear();
+	}
 
     @Test
     public void testGetStudentCourseById_Null() {
@@ -237,15 +237,18 @@ public class StudentCourseDaoTest extends CampusCourseTestCase {
         Date referenceDateOfImport = new Date();
 
         // Insert student to course of current semester with date of import in the past (-> should be returned by method)
-        StudentCourse studentCourse1 = new StudentCourse(student, course1CurrentSemester, DateUtil.addHoursToDate(referenceDateOfImport, -1));
+        Date dateOfImport1 = DateUtil.addHoursToDate(referenceDateOfImport, -1);
+        StudentCourse studentCourse1 = new StudentCourse(student, course1CurrentSemester, dateOfImport1);
         studentCourseDao.saveOrUpdate(studentCourse1);
 
         // Insert student to course of current semester with date of import in the future (-> should not be returned by method)
-        StudentCourse studentCourse2 = new StudentCourse(student, course2CurrentSemester, DateUtil.addHoursToDate(referenceDateOfImport, 1));
+		Date dateOfImport2 = DateUtil.addHoursToDate(referenceDateOfImport, 1);
+        StudentCourse studentCourse2 = new StudentCourse(student, course2CurrentSemester, dateOfImport2);
         studentCourseDao.saveOrUpdate(studentCourse2);
 
-        // Insert student to course from former semester with date of importin the past (-> should not be returned by method)
-        StudentCourse studentCourse3 = new StudentCourse(student, course3FormerSemester, DateUtil.addHoursToDate(referenceDateOfImport, -1));
+        // Insert student to course from former semester with date of import in the past (-> should not be returned by method)
+		Date dateOfImport3 = DateUtil.addHoursToDate(referenceDateOfImport, -1);
+        StudentCourse studentCourse3 = new StudentCourse(student, course3FormerSemester, dateOfImport3);
         studentCourseDao.saveOrUpdate(studentCourse3);
 
         dbInstance.flush();
@@ -307,28 +310,32 @@ public class StudentCourseDaoTest extends CampusCourseTestCase {
 
 		// Make course 400 to be the parent course of 300
 		// -> course 3 has a parent course, course 4 has a child course
-		courseDao.saveParentCourseId(300L, 400L);
+		courseDao.saveParentCourseIdAndDateOfOlatCourseCreation(300L, 400L);
 
 		Date referenceDateOfImport = new GregorianCalendar(1800, Calendar.JANUARY, 1).getTime();
 
 		// Insert student to course with date too far in the past (-> should be deleted)
-		course1.setDateOfImport(DateUtil.addYearsToDate(referenceDateOfImport, -campusCourseConfiguration.getMaxYearsToKeepCkData() - 1));
-		StudentCourse studentCourse1 = new StudentCourse(student, course1, DateUtil.addYearsToDate(referenceDateOfImport, -campusCourseConfiguration.getMaxYearsToKeepCkData() - 1));
+		Date dateOfImport1 = DateUtil.addYearsToDate(referenceDateOfImport, -campusCourseConfiguration.getMaxYearsToKeepCkData() - 1);
+		course1.setDateOfLatestImport(dateOfImport1);
+		StudentCourse studentCourse1 = new StudentCourse(student, course1, dateOfImport1);
 		studentCourseDao.saveOrUpdate(studentCourse1);
 
 		// Insert student to course with date not too far in the past (-> should not be deleted)
-		course2.setDateOfImport(DateUtil.addYearsToDate(referenceDateOfImport, -campusCourseConfiguration.getMaxYearsToKeepCkData() + 1));
-		StudentCourse studentCourse2 = new StudentCourse(student, course2, DateUtil.addYearsToDate(referenceDateOfImport, -campusCourseConfiguration.getMaxYearsToKeepCkData() + 1));
+		Date dateOfImport2 = DateUtil.addYearsToDate(referenceDateOfImport, -campusCourseConfiguration.getMaxYearsToKeepCkData() + 1);
+		course2.setDateOfLatestImport(dateOfImport2);
+		StudentCourse studentCourse2 = new StudentCourse(student, course2, dateOfImport2);
 		studentCourseDao.saveOrUpdate(studentCourse2);
 
 		// Insert student to course with date too far in the past (-> should be deleted)
-		course3.setDateOfImport(DateUtil.addYearsToDate(referenceDateOfImport, -campusCourseConfiguration.getMaxYearsToKeepCkData() - 1));
-		StudentCourse studentCourse3 = new StudentCourse(student, course3, DateUtil.addYearsToDate(referenceDateOfImport, -campusCourseConfiguration.getMaxYearsToKeepCkData() - 1));
+		Date dateOfImport3 = DateUtil.addYearsToDate(referenceDateOfImport, -campusCourseConfiguration.getMaxYearsToKeepCkData() - 1);
+		course3.setDateOfLatestImport(dateOfImport3);
+		StudentCourse studentCourse3 = new StudentCourse(student, course3, dateOfImport3);
 		studentCourseDao.saveOrUpdate(studentCourse3);
 
 		// Insert student to course with date too far in the past (-> should not be deleted, because course has a child course)
-		course4.setDateOfImport(DateUtil.addYearsToDate(referenceDateOfImport, -campusCourseConfiguration.getMaxYearsToKeepCkData() - 1));
-		StudentCourse studentCourse4 = new StudentCourse(student, course4, DateUtil.addYearsToDate(referenceDateOfImport, -campusCourseConfiguration.getMaxYearsToKeepCkData() - 1));
+		Date dateOfImport4 = DateUtil.addYearsToDate(referenceDateOfImport, -campusCourseConfiguration.getMaxYearsToKeepCkData() - 1);
+		course4.setDateOfLatestImport(dateOfImport4);
+		StudentCourse studentCourse4 = new StudentCourse(student, course4, dateOfImport4);
 		studentCourseDao.saveOrUpdate(studentCourse4);
 
 		dbInstance.flush();
@@ -432,8 +439,8 @@ public class StudentCourseDaoTest extends CampusCourseTestCase {
     }
 
     private void insertStudentIdCourseIds() {
-        List<StudentIdCourseIdDateOfImport> studentIdCourseIdDateOfImports = campusCourseTestDataGenerator.createStudentIdCourseIdDateOfImports();
-        studentCourseDao.save(studentIdCourseIdDateOfImports);
+        List<StudentIdCourseIdDateOfLatestImport> studentIdCourseIdDateOfLatestImports = campusCourseTestDataGenerator.createStudentIdCourseIdDateOfImports();
+        studentCourseDao.save(studentIdCourseIdDateOfLatestImports);
         dbInstance.flush();
     }
 

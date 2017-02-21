@@ -1,11 +1,11 @@
 package ch.uzh.extension.campuscourse.batchprocessing.sapimport;
 
-import java.util.Date;
-
-import ch.uzh.extension.campuscourse.data.entity.Event;
+import ch.uzh.extension.campuscourse.model.EventCourseId;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
+
+import java.util.Date;
 
 /**
  * OLAT - Online Learning and Training<br>
@@ -36,7 +36,7 @@ import org.springframework.stereotype.Component;
  */
 @Component
 @Scope("step")
-public class EventProcessor implements ItemProcessor<Event, Event> {
+public class EventProcessor implements ItemProcessor<EventCourseId, EventCourseId> {
 
     /**
      * Modifies the input event and returns it as output
@@ -45,8 +45,8 @@ public class EventProcessor implements ItemProcessor<Event, Event> {
      *            the Event to be processed
      */
     @Override
-    public Event process(Event event) throws Exception {
-        event.setDateOfImport(new Date());
+    public EventCourseId process(EventCourseId event) throws Exception {
+        event.setDateOfLatestImport(new Date());
         return event;
     }
 }

@@ -201,7 +201,7 @@ public class CampusCourseCoreServiceImpl implements CampusCourseCoreService {
             }
 
             // Add repository entry and campus groups to sap campus course
-            daoManager.saveCampusCourseRepositoryEntry(campusCourseTO.getSapCourseId(), createdRepositoryEntry.getKey());
+            daoManager.saveCampusCourseRepositoryEntryAndDateOfOlatCourseCreation(campusCourseTO.getSapCourseId(), createdRepositoryEntry.getKey());
             daoManager.saveCampusGroupA(campusCourseTO.getSapCourseId(), campusGroups.getCampusGroupA().getKey());
             daoManager.saveCampusGroupB(campusCourseTO.getSapCourseId(), campusGroups.getCampusGroupB().getKey());
             dbInstance.intermediateCommit();
@@ -248,7 +248,7 @@ public class CampusCourseCoreServiceImpl implements CampusCourseCoreService {
 		}
 
 		// Add parent course to child course
-		daoManager.saveParentCourseId(childSapCampusCourseId, parentSapCampusCourseId);
+		daoManager.saveParentCourseIdAndDateOfOlatCourseCreation(childSapCampusCourseId, parentSapCampusCourseId);
         dbInstance.intermediateCommit();
 
         // childCampusCourseTO must be loaded AFTER setting the parent course id and the campus groups such that
@@ -273,7 +273,7 @@ public class CampusCourseCoreServiceImpl implements CampusCourseCoreService {
 		CampusCourseTO parentCourseTO = daoManager.loadCampusCourseTO(childCourse.getParentSapCourseId());
 
 		// Reset child course
-		daoManager.resetChildCourse(childCourse.getSapCourseId());
+		daoManager.removeParentCourseAndResetDateOfOlatCourseCreation(childCourse.getSapCourseId());
 
 		// Update course run and editor models and perform synchronization
 		updateCourseRunAndEditorModelsAndPerformSynchronization(parentCourseTO, creator);
@@ -310,8 +310,8 @@ public class CampusCourseCoreServiceImpl implements CampusCourseCoreService {
 
     @Override
     public void resetRepositoryEntryAndParentCourse(RepositoryEntry repositoryEntry) {
-        LOG.debug("resetRepositoryEntryAndParentCourses for repository entry id =" + repositoryEntry.getKey());
-        daoManager.resetRepositoryEntryAndParentCourse(repositoryEntry.getKey());
+        LOG.debug("resetRepositoryEntryAndParentCoursesAndDateOfOlatCourseCreation for repository entry id =" + repositoryEntry.getKey());
+        daoManager.resetRepositoryEntryAndParentCoursesAndDateOfOlatCourseCreation(repositoryEntry.getKey());
     }
 
     @Override

@@ -31,7 +31,7 @@ import java.util.Set;
                 "(sc.course.exclude = false " +
                 "and exists (select c1 from Course c1 join c1.orgs o where c1.id = sc.course.id and o.enabled = true))"),
         @NamedQuery(name = Student.GET_ALL_NOT_MANUALLY_MAPPED_OR_TOO_OLD_ORPHANED_STUDENTS, query = "select s.id from Student s where " +
-                "(s.kindOfMapping is null or s.kindOfMapping <> 'MANUAL' or s.dateOfImport < :nYearsInThePast) " +
+                "(s.kindOfMapping is null or s.kindOfMapping <> 'MANUAL' or s.dateOfLatestImport < :nYearsInThePast) " +
                 "and s.id not in (select sc.student.id from StudentCourse sc)"),
         @NamedQuery(name = Student.GET_STUDENTS_BY_EMAIL, query = "select s from Student s where s.email = :email"),
         @NamedQuery(name = Student.GET_STUDENTS_WITH_REGISTRATION_NUMBER, query = "select s from Student s where s.registrationNr = :registrationNr"),
@@ -68,16 +68,20 @@ public class Student {
     @Column(name = "email", nullable = false)
     private String email;
 
-    @Temporal(TemporalType.TIMESTAMP)
-    @Column(name = "date_of_import", nullable = false)
-    private Date dateOfImport;
-
     @Column(name = "kind_of_mapping")
     private String kindOfMapping;
 
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "date_of_mapping")
     private Date dateOfMapping;
+
+	@Temporal(TemporalType.TIMESTAMP)
+	@Column(name = "date_of_first_import", nullable = false)
+	private Date dateOfFirstImport;
+
+	@Temporal(TemporalType.TIMESTAMP)
+	@Column(name = "date_of_latest_import", nullable = false)
+	private Date dateOfLatestImport;
 
     @OneToMany(mappedBy = "student")
     private Set<StudentCourse> studentCourses = new HashSet<>();
@@ -94,13 +98,13 @@ public class Student {
         this.id = id;
     }
 
-    public Student(Long id, String registrationNr, String firstName, String lastName, String email, Date dateOfImport) {
+    public Student(Long id, String registrationNr, String firstName, String lastName, String email, Date dateOfLatestImport) {
         this.id = id;
         this.registrationNr = registrationNr;
         this.firstName = firstName;
         this.lastName = lastName;
         this.email = email;
-        this.dateOfImport = dateOfImport;
+		this.dateOfLatestImport = dateOfLatestImport;
     }
 
     public Long getId() {
@@ -143,14 +147,6 @@ public class Student {
         this.registrationNr = registrationNr;
     }
 
-    public Date getDateOfImport() {
-        return dateOfImport;
-    }
-
-    public void setDateOfImport(Date modifiedDate) {
-        this.dateOfImport = modifiedDate;
-    }
-
     public String getKindOfMapping() {
         return kindOfMapping;
     }
@@ -166,6 +162,22 @@ public class Student {
     public void setDateOfMapping(Date dateOfMapping) {
         this.dateOfMapping = dateOfMapping;
     }
+
+	public Date getDateOfFirstImport() {
+		return dateOfFirstImport;
+	}
+
+	public void setDateOfFirstImport(Date dateOfFirstImport) {
+		this.dateOfFirstImport = dateOfFirstImport;
+	}
+
+	public Date getDateOfLatestImport() {
+		return dateOfLatestImport;
+	}
+
+	public void setDateOfLatestImport(Date modifiedDate) {
+		this.dateOfLatestImport = modifiedDate;
+	}
 
     public Identity getMappedIdentity() {
         return mappedIdentity;
@@ -214,18 +226,17 @@ public class Student {
         builder.append(this.firstName);
         builder.append(this.lastName);
         builder.append(this.email);
-        builder.append(this.dateOfImport);
 
         return builder.toHashCode();
     }
 
-    public void mergeAllExceptMappingAttributes(Student student) {
-        student.setId(getId());
-        student.setRegistrationNr(getRegistrationNr());
-        student.setFirstName(getFirstName());
-        student.setLastName(getLastName());
-        student.setEmail(getEmail());
-        student.setDateOfImport(getDateOfImport());
+    public void mergeImportedAttributesInto(Student studentToBeUpdated) {
+		// all imported attributes, except id and date of first import
+        studentToBeUpdated.setRegistrationNr(getRegistrationNr());
+        studentToBeUpdated.setFirstName(getFirstName());
+        studentToBeUpdated.setLastName(getLastName());
+        studentToBeUpdated.setEmail(getEmail());
+        studentToBeUpdated.setDateOfLatestImport(getDateOfLatestImport());
     }
 
 }

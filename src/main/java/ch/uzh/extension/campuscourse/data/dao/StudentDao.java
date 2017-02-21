@@ -39,8 +39,13 @@ public class StudentDao {
     }
 
     public void save(Student student) {
+        student.setDateOfFirstImport(student.getDateOfLatestImport());
         dbInstance.saveObject(student);
     }
+
+	public void save(List<Student> students) {
+		students.forEach(this::save);
+	}
 
     public void saveOrUpdate(Student student) {
         /*
@@ -48,15 +53,11 @@ public class StudentDao {
 		 * values of the mapping attributes with "null".
 		 */
         Student studentFound = getStudentById(student.getId());
-        if (studentFound == null) {
-            dbInstance.saveObject(student);
-            return;
+        if (studentFound != null) {
+			student.mergeImportedAttributesInto(studentFound);
+        } else {
+			save(student);
         }
-        student.mergeAllExceptMappingAttributes(studentFound);
-    }
-
-    public void save(List<Student> students) {
-        students.forEach(this::save);
     }
 
     public void addMapping(Long studentId, Identity identity) {

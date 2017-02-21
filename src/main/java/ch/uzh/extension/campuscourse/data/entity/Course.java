@@ -96,9 +96,9 @@ import java.util.*;
 				"c.campusGroupB.key = :campusGroupKey and c.parentCourse is null"),
 		@NamedQuery(name = Course.GET_IDS_OF_CONTINUED_COURSES_TOO_FAR_IN_THE_PAST, query = "select c.parentCourse.id from Course c where " +
 				"c.parentCourse is not null " +
-				"and c.parentCourse.dateOfImport < :nYearsInThePast"),
+				"and c.parentCourse.dateOfLatestImport < :nYearsInThePast"),
 		@NamedQuery(name = Course.GET_SEMESTER_IDS_OF_MOST_RECENT_COURSE_IMPORT, query = "select c.semester.id from Course c where " +
-				"c.dateOfImport >= :startTimeOfMostRecentCourseImport")
+				"c.dateOfLatestImport >= :startTimeOfMostRecentCourseImport")
 })
 public class Course {
 
@@ -136,7 +136,7 @@ public class Course {
     @Column(name = "lv_nr", nullable = false)
     private String lvNr;
 
-    @Column(name = "e_learning_supported")
+    @Column(name = "e_learning_supported", nullable = false)
     private boolean eLearningSupported;
 
     @Column(name = "language", nullable = false)
@@ -157,9 +157,17 @@ public class Course {
     @Column(name = "exclude", nullable = false)
     private boolean exclude = false;
 
+	@Temporal(TemporalType.TIMESTAMP)
+	@Column(name = "date_of_olat_course_creation")
+	private Date dateOfOlatCourseCreation;
+
+	@Temporal(TemporalType.TIMESTAMP)
+	@Column(name = "date_of_first_import", nullable = false)
+	private Date dateOfFirstImport;
+
     @Temporal(TemporalType.TIMESTAMP)
-    @Column(name = "date_of_import")
-    private Date dateOfImport;
+    @Column(name = "date_of_latest_import", nullable = false)
+    private Date dateOfLatestImport;
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "fk_semester")
@@ -216,7 +224,7 @@ public class Course {
 				  Date endDate,
 				  String vvzLink,
 				  boolean exclude,
-				  Date dateOfImport,
+				  Date dateOfLatestImport,
 				  Semester semester) {
         this.id = id;
         this.lvKuerzel = lvKuerzel;
@@ -229,7 +237,7 @@ public class Course {
         this.endDate = endDate;
         this.vvzLink = vvzLink;
         this.exclude = exclude;
-        this.dateOfImport = dateOfImport;
+		this.dateOfLatestImport = dateOfLatestImport;
         this.semester = semester;
     }
 
@@ -353,12 +361,28 @@ public class Course {
         this.campusGroupB = campusgroupB;
     }
 
-    public Date getDateOfImport() {
-        return dateOfImport;
+	public Date getDateOfOlatCourseCreation() {
+		return dateOfOlatCourseCreation;
+	}
+
+	public void setDateOfOlatCourseCreation(Date dateOfOlatCourseCreation) {
+		this.dateOfOlatCourseCreation = dateOfOlatCourseCreation;
+	}
+
+	public Date getDateOfFirstImport() {
+		return dateOfFirstImport;
+	}
+
+	public void setDateOfFirstImport(Date dateOfFirstImport) {
+		this.dateOfFirstImport = dateOfFirstImport;
+	}
+
+	public Date getDateOfLatestImport() {
+        return dateOfLatestImport;
     }
 
-    public void setDateOfImport(Date dateOfImport) {
-        this.dateOfImport = dateOfImport;
+    public void setDateOfLatestImport(Date dateOfImport) {
+        this.dateOfLatestImport = dateOfImport;
     }
 
     public Set<LecturerCourse> getLecturerCourses() {

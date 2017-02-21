@@ -296,67 +296,56 @@ public class CampusCourseCoreServiceImplTest extends CampusCourseTestCase {
 		assertEquals(createdRepositoryEntry, course.getRepositoryEntryOfCourseOrOfFirstParentOfContinuedCourse());
     }
 
+	@Test
+	public void testCreateOlatCampusCourseFromStandardTemplate_checkDateOfOlatCourseCreationNotNull() throws Exception {
+		createOlatCampusCourseFromStandardTemplate();
+		assertNotNull(course.getDateOfOlatCourseCreation());
+	}
+
     @Test
     public void testCreateOlatCampusCourseFromStandardTemplate_checkCampusGroups() throws Exception {
-        assertNull(course.getCampusGroupA());
-        assertNull(course.getCampusGroupB());
+		assertNull(course.getCampusGroupA());
+		assertNull(course.getCampusGroupB());
 
-        RepositoryEntry createdRepositoryEntry = createOlatCampusCourseFromStandardTemplate();
+		RepositoryEntry createdRepositoryEntry = createOlatCampusCourseFromStandardTemplate();
 
-        // Check if campus groups have been created
-        BusinessGroup campusGroupA = course.getCampusGroupA();
-        BusinessGroup campusGroupB = course.getCampusGroupB();
-        assertNotNull(campusGroupA);
-        assertNotNull(campusGroupB);
+		// Check if campus groups have been created
+		BusinessGroup campusGroupA = course.getCampusGroupA();
+		BusinessGroup campusGroupB = course.getCampusGroupB();
+		assertNotNull(campusGroupA);
+		assertNotNull(campusGroupB);
 
-        assertEquals("Wrong name for campus group A", CAMPUS_GROUP_A_DEFAULT_NAME, campusGroupA.getName());
-        assertEquals("Wrong name for campus group B", CAMPUS_GROUP_B_DEFAULT_NAME, campusGroupB.getName());
+		assertEquals("Wrong name for campus group A", CAMPUS_GROUP_A_DEFAULT_NAME, campusGroupA.getName());
+		assertEquals("Wrong name for campus group B", CAMPUS_GROUP_B_DEFAULT_NAME, campusGroupB.getName());
 
-        // Check first synchronization
-        List<Identity> coaches = businessGroupService.getMembers(campusGroupA, GroupRoles.coach.name());
-        assertEquals(2, coaches.size());
-        assertTrue("Missing identity (" + firstLecturerIdentity + ") in coach-group of course-group", coaches.contains(firstLecturerIdentity));
-        assertTrue("Missing identity (" + secondLecturerIdentity + ") in coach-group of course-group", coaches.contains(secondLecturerIdentity));
+		// Check first synchronization
+		List<Identity> coaches = businessGroupService.getMembers(campusGroupA, GroupRoles.coach.name());
+		assertEquals(2, coaches.size());
+		assertTrue("Missing identity (" + firstLecturerIdentity + ") in coach-group of course-group", coaches.contains(firstLecturerIdentity));
+		assertTrue("Missing identity (" + secondLecturerIdentity + ") in coach-group of course-group", coaches.contains(secondLecturerIdentity));
 
-        List<Identity> participants = businessGroupService.getMembers(campusGroupA, GroupRoles.participant.name());
-        assertEquals(2, participants.size());
-        assertTrue("Missing identity (" + firstParticipantIdentity + ") in participant-group of course-group", participants.contains(firstParticipantIdentity));
-        assertTrue("Missing identity (" + secondParticipantIdentity + ") in participant-group of course-group", participants.contains(secondParticipantIdentity));
+		List<Identity> participants = businessGroupService.getMembers(campusGroupA, GroupRoles.participant.name());
+		assertEquals(2, participants.size());
+		assertTrue("Missing identity (" + firstParticipantIdentity + ") in participant-group of course-group", participants.contains(firstParticipantIdentity));
+		assertTrue("Missing identity (" + secondParticipantIdentity + ") in participant-group of course-group", participants.contains(secondParticipantIdentity));
 
-        coaches = businessGroupService.getMembers(campusGroupB, GroupRoles.coach.name());
-        assertEquals(2, coaches.size());
-        assertTrue("Missing identity (" + firstLecturerIdentity + ") in coach-group of course-group", coaches.contains(firstLecturerIdentity));
-        assertTrue("Missing identity (" + secondLecturerIdentity + ") in coach-group of course-group", coaches.contains(secondLecturerIdentity));
+		coaches = businessGroupService.getMembers(campusGroupB, GroupRoles.coach.name());
+		assertEquals(2, coaches.size());
+		assertTrue("Missing identity (" + firstLecturerIdentity + ") in coach-group of course-group", coaches.contains(firstLecturerIdentity));
+		assertTrue("Missing identity (" + secondLecturerIdentity + ") in coach-group of course-group", coaches.contains(secondLecturerIdentity));
 
-        participants = businessGroupService.getMembers(campusGroupB, GroupRoles.participant.name());
-        assertTrue(participants.isEmpty());
+		participants = businessGroupService.getMembers(campusGroupB, GroupRoles.participant.name());
+		assertTrue(participants.isEmpty());
 
-        // Check campus learning area
-        BGArea campusLearningArea = bgAreaManager.findBGArea(CAMPUS_LEARNING_AREA_NAME, createdRepositoryEntry.getOlatResource());
-        assertNotNull(campusLearningArea);
+		// Check campus learning area
+		BGArea campusLearningArea = bgAreaManager.findBGArea(CAMPUS_LEARNING_AREA_NAME, createdRepositoryEntry.getOlatResource());
+		assertNotNull(campusLearningArea);
 
-        List<BusinessGroup> businessGroupsOfLearningArea = bgAreaManager.findBusinessGroupsOfArea(campusLearningArea);
-        List<Long> keysOfBusinessGroupsOfLearningArea = businessGroupsOfLearningArea.stream().map(BusinessGroupRef::getKey).collect(Collectors.toList());
-        assertTrue(keysOfBusinessGroupsOfLearningArea.contains(campusGroupA.getKey()));
-        assertTrue(keysOfBusinessGroupsOfLearningArea.contains(campusGroupB.getKey()));
-    }
-
-	@Test
-	public void testContinueCampusCourse_checkRepositoryEntryNotNullCourseNotNull() throws Exception {
-        createOlatCampusCourseFromStandardTemplate();
-        RepositoryEntry repositoryEntry = continueOlatCampusCourse();
-
-        assertNotNull("Missing repositoryEntry in CampusCourse return-object", repositoryEntry);
-        assertNotNull("Missing Course in CampusCourse return-object", CourseFactory.loadCourse(repositoryEntry));
-    }
-
-    @Test
-    public void testContinueCampusCourse_checkRepositoryEntryKeyIdenticalToParentOlatCourse() throws Exception {
-        RepositoryEntry parentCourseRepositoryEntry = createOlatCampusCourseFromStandardTemplate();
-        RepositoryEntry childCourseRepositoryEntry = continueOlatCampusCourse();
-
-        assertEquals(parentCourseRepositoryEntry.getKey(), childCourseRepositoryEntry.getKey());
-    }
+		List<BusinessGroup> businessGroupsOfLearningArea = bgAreaManager.findBusinessGroupsOfArea(campusLearningArea);
+		List<Long> keysOfBusinessGroupsOfLearningArea = businessGroupsOfLearningArea.stream().map(BusinessGroupRef::getKey).collect(Collectors.toList());
+		assertTrue(keysOfBusinessGroupsOfLearningArea.contains(campusGroupA.getKey()));
+		assertTrue(keysOfBusinessGroupsOfLearningArea.contains(campusGroupB.getKey()));
+	}
 
     @Test
     public void testContinueCampusCourse_checkParentCourse() throws Exception {
@@ -369,36 +358,39 @@ public class CampusCourseCoreServiceImplTest extends CampusCourseTestCase {
     }
 
     @Test
-    public void testContinueOlatCampusCourse_checkChildCourseRepositoryEntry() throws Exception {
-        RepositoryEntry repositoryEntryReturned = createOlatCampusCourseFromStandardTemplate();
+    public void testContinueOlatCampusCourse_checkChildCourseRepositoryEntryNull() throws Exception {
+		createOlatCampusCourseFromStandardTemplate();
         continueOlatCampusCourse();
-
         assertNull(childCourse.getRepositoryEntry());
-        RepositoryEntry repositoryEntry = childCourse.getRepositoryEntryOfCourseOrOfFirstParentOfContinuedCourse();
-        assertNotNull(repositoryEntry);
-        assertEquals(course.getRepositoryEntryOfCourseOrOfFirstParentOfContinuedCourse(), repositoryEntry);
-        assertEquals(repositoryEntryReturned, repositoryEntry);
     }
+
+	@Test
+	public void testContinueCampusCourse_checkRepositoryEntryReturnedIdenticalToParentOlatCourse() throws Exception {
+		RepositoryEntry parentCourseRepositoryEntry = createOlatCampusCourseFromStandardTemplate();
+		RepositoryEntry repositoryEntryReturned = continueOlatCampusCourse();
+
+		assertEquals(parentCourseRepositoryEntry.getKey(), repositoryEntryReturned.getKey());
+	}
 
     @Test
     public void testContinueOlatCampusCourse_checkRepositoryEntryAccess() throws Exception {
         createOlatCampusCourseFromStandardTemplate();
-        RepositoryEntry repositoryEntry = continueOlatCampusCourse();
+        RepositoryEntry repositoryEntryReturned = continueOlatCampusCourse();
 
-        assertAccess(repositoryEntry);
+        assertAccess(repositoryEntryReturned);
         // Ditto, but read from DB
-        assertAccess(loadRepositoryEntryFromDatabase(repositoryEntry));
+        assertAccess(loadRepositoryEntryFromDatabase(repositoryEntryReturned));
     }
 
     @Test
     public void testContinueOlatCampusCourse_checkRepositoryEntryDisplayname() throws Exception {
         createOlatCampusCourseFromStandardTemplate();
-        RepositoryEntry repositoryEntry = continueOlatCampusCourse();
+        RepositoryEntry repositoryEntryReturned = continueOlatCampusCourse();
 
         CampusCourseTO childCampusCourseTO = daoManagerMock.loadCampusCourseTO(childCourse.getId());
-        assertRepositoryEntryDisplaynameContinuedCampusCourse(childCampusCourseTO, repositoryEntry);
+        assertRepositoryEntryDisplaynameContinuedCampusCourse(childCampusCourseTO, repositoryEntryReturned);
         // Ditto, but read from DB
-        assertRepositoryEntryDisplaynameContinuedCampusCourse(childCampusCourseTO, loadRepositoryEntryFromDatabase(repositoryEntry));
+        assertRepositoryEntryDisplaynameContinuedCampusCourse(childCampusCourseTO, loadRepositoryEntryFromDatabase(repositoryEntryReturned));
     }
 
     private void assertRepositoryEntryDisplaynameContinuedCampusCourse(CampusCourseTO parentCampusCourseTO, RepositoryEntry repositoryEntry) {
@@ -408,29 +400,36 @@ public class CampusCourseCoreServiceImplTest extends CampusCourseTestCase {
     @Test
     public void testContinueOlatCampusCourse_checkRepositoryEntryDescription() throws Exception {
         createOlatCampusCourseFromStandardTemplate();
-        RepositoryEntry repositoryEntry = continueOlatCampusCourse();
+        RepositoryEntry repositoryEntryReturned = continueOlatCampusCourse();
 
         CampusCourseTO childCampusCourseTO = daoManagerMock.loadCampusCourseTO(childCourse.getId());
-        assertRepositoryEntryDescription(repositoryEntry, campusCourseRepositoryEntryDescriptionBuilder.createMultiSemesterTitle(childCampusCourseTO.getTitlesOfCourseAndParentCourses()));
-        assertRepositoryEntryDescription(repositoryEntry, firstLecturerIdentity.getUser().getProperty(UserConstants.FIRSTNAME, null));
-        assertRepositoryEntryDescription(repositoryEntry, thirdLecturerIdentity.getUser().getProperty(UserConstants.FIRSTNAME, null));
-        assertRepositoryEntryDescription(repositoryEntry, firstLecturerIdentity.getUser().getProperty(UserConstants.LASTNAME, null));
-        assertRepositoryEntryDescription(repositoryEntry, thirdLecturerIdentity.getUser().getProperty(UserConstants.LASTNAME, null));
-        assertRepositoryEntryDescription(repositoryEntry, TEST_EVENT_DESCRIPTION_TEXT);
+        assertRepositoryEntryDescription(repositoryEntryReturned, campusCourseRepositoryEntryDescriptionBuilder.createMultiSemesterTitle(childCampusCourseTO.getTitlesOfCourseAndParentCourses()));
+        assertRepositoryEntryDescription(repositoryEntryReturned, firstLecturerIdentity.getUser().getProperty(UserConstants.FIRSTNAME, null));
+        assertRepositoryEntryDescription(repositoryEntryReturned, thirdLecturerIdentity.getUser().getProperty(UserConstants.FIRSTNAME, null));
+        assertRepositoryEntryDescription(repositoryEntryReturned, firstLecturerIdentity.getUser().getProperty(UserConstants.LASTNAME, null));
+        assertRepositoryEntryDescription(repositoryEntryReturned, thirdLecturerIdentity.getUser().getProperty(UserConstants.LASTNAME, null));
+        assertRepositoryEntryDescription(repositoryEntryReturned, TEST_EVENT_DESCRIPTION_TEXT);
     }
 
     @Test
     public void testContinueOlatCampusCourse_checkCourseOwners() throws Exception {
         createOlatCampusCourseFromStandardTemplate();
-        RepositoryEntry repositoryEntry = continueOlatCampusCourse();
+        RepositoryEntry repositoryEntryReturned = continueOlatCampusCourse();
 
-        Group defaultGroup = repositoryService.getDefaultGroup(repositoryEntry);
+        Group defaultGroup = repositoryService.getDefaultGroup(repositoryEntryReturned);
         List<Identity> ownerIdentities = groupDAO.getMembers(defaultGroup, "owner");
 
         assertTrue("Missing identity (" + firstLecturerIdentity + ") in owner-group", ownerIdentities.contains(firstLecturerIdentity));
         assertTrue("Missing identity (" + secondLecturerIdentity + ") in owner-group", ownerIdentities.contains(secondLecturerIdentity));
         assertTrue("Missing identity (" + thirdLecturerIdentity + ") in owner-group", ownerIdentities.contains(thirdLecturerIdentity));
     }
+
+	@Test
+	public void testContinueOlatCampusCourse_checkDateOfOlatCourseCreationNotNull() throws Exception {
+		createOlatCampusCourseFromStandardTemplate();
+		continueOlatCampusCourse();
+		assertNotNull(childCourse.getDateOfOlatCourseCreation());
+	}
 
     @Test
     public void testContinueOlatCampusCourse_checkCampusGroups() throws Exception {

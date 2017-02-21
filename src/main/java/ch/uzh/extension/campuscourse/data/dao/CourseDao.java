@@ -46,21 +46,25 @@ public class CourseDao {
 	}
 
     public void save(Course course) {
-        dbInstance.saveObject(course);
-    }
-
-    public void saveOrUpdate(Course course) {
-        dbInstance.getCurrentEntityManager().merge(course);
+		course.setDateOfFirstImport(course.getDateOfLatestImport());
+    	dbInstance.saveObject(course);
     }
 
     public void save(CourseSemesterOrgId courseSemesterOrgId) throws CampusCourseException {
         Course course = new Course();
-		courseSemesterOrgId.merge(course);
+		courseSemesterOrgId.mergeImportedAttributesInto(course);
+		course.setId(courseSemesterOrgId.getId());
         Semester semester = findOrCreateSemester(courseSemesterOrgId);
         course.setSemester(semester);
-        dbInstance.saveObject(course);
+        save(course);
         updateOrgsFromCourseOrgId(course, courseSemesterOrgId);
     }
+
+	public void save(List<CourseSemesterOrgId> courseSemesterOrgIds) throws CampusCourseException {
+		for (CourseSemesterOrgId courseSemesterOrgId : courseSemesterOrgIds) {
+			save(courseSemesterOrgId);
+		}
+	}
 
     public void saveOrUpdate(CourseSemesterOrgId courseSemesterOrgId) throws CampusCourseException {
 		/*
@@ -68,18 +72,12 @@ public class CourseDao {
 		 * "olat_id" attribute values with "null".
 		 */
 		Course course = getCourseById(courseSemesterOrgId.getId());
-		if (course == null) {
+		if (course != null) {
+			courseSemesterOrgId.mergeImportedAttributesInto(course);
+			updateOrgsFromCourseOrgId(course, courseSemesterOrgId);
+		} else {
 			save(courseSemesterOrgId);
-            return;
 		}
-		courseSemesterOrgId.merge(course);
-		updateOrgsFromCourseOrgId(course, courseSemesterOrgId);
-    }
-
-    public void save(List<CourseSemesterOrgId> courseSemesterOrgIds) throws CampusCourseException {
-        for (CourseSemesterOrgId courseSemesterOrgId : courseSemesterOrgIds) {
-            save(courseSemesterOrgId);
-        }
     }
 
     private Semester findOrCreateSemester(CourseSemesterOrgId courseSemesterOrgId) throws CampusCourseException {
@@ -253,7 +251,7 @@ public class CourseDao {
         deleteCourseBidirectionally(course, dbInstance.getCurrentEntityManager());
     }
 
-    public void saveRepositoryEntry(Long courseId, Long repositoryEntryKey) {
+    public void saveRepositoryEntryAndDateOfOlatCourseCreation(Long courseId, Long repositoryEntryKey) {
         Course course = getCourseById(courseId);
         if (course == null) {
             String warningMessage = "No course found with id " + courseId + ". Cannot save repository entry with id " + repositoryEntryKey;
@@ -267,6 +265,7 @@ public class CourseDao {
             return;
         }
         course.setRepositoryEntry(repositoryEntry);
+        course.setDateOfOlatCourseCreation(new Date());
     }
 
     public void saveCampusGroupA(Long courseId, Long campusGroupAKey) {
@@ -301,7 +300,7 @@ public class CourseDao {
         course.setCampusGroupB(campusGroupB);
     }
 
-    public void resetRepositoryEntryAndParentCourses(Long repositoryEntryKey) {
+    public void resetRepositoryEntryAndParentCoursesAndDateOfOlatCourseCreation(Long repositoryEntryKey) {
 		Course course;
     	try {
 			course = dbInstance.getCurrentEntityManager()
@@ -316,6 +315,7 @@ public class CourseDao {
 		do {
     		course.setRepositoryEntry(null);
 			course.removeParentCourse();
+			course.setDateOfOlatCourseCreation(null);
 			course = course.getChildCourse();
 		} while (course != null);
     }
@@ -350,15 +350,17 @@ public class CourseDao {
 		}
     }
 
-    public void resetChildCourse(Long childCourseId) {
+    public void removeParentCourseAndResetDateOfOlatCourseCreation(Long childCourseId) {
     	Course childCourse = getCourseById(childCourseId);
+    	if (childCourse == null) {
+    		LOG.warn("No course found with id " + childCourseId + ". Cannot remove parent course and reset date of olat course creation.");
+    		return;
+		}
     	childCourse.removeParentCourse();
-    	childCourse.setRepositoryEntry(null);
-    	childCourse.setCampusGroupA(null);
-    	childCourse.setCampusGroupB(null);
+    	childCourse.setDateOfOlatCourseCreation(null);
 	}
 
-    public void saveParentCourseId(Long courseId, Long parentCourseId) {
+    public void saveParentCourseIdAndDateOfOlatCourseCreation(Long courseId, Long parentCourseId) {
         Course course = getCourseById(courseId);
         Course parentCourse = getCourseById(parentCourseId);
         if (course == null) {
@@ -372,13 +374,14 @@ public class CourseDao {
             return;
         }
         course.setParentCourse(parentCourse);
+        course.setDateOfOlatCourseCreation(new Date());
     }
 
     /**
      * Deletes also according entries of the join tables ck_lecturer_course, ck_student_course and ck_course_org and of the related tables ck_text and ck_event.
      * We cannot use a bulk delete here, since deleting the join table ck_course_org is not possible.
      */
-    public void deleteByCourseId(Long courseId) {
+	void deleteByCourseId(Long courseId) {
         EntityManager em = dbInstance.getCurrentEntityManager();
         deleteCourseBidirectionally(dbInstance.getCurrentEntityManager().getReference(Course.class, courseId), em);
     }

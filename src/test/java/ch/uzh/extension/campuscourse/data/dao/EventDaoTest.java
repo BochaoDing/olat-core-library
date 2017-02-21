@@ -99,7 +99,7 @@ public class EventDaoTest extends CampusCourseTestCase {
         eventCourseId.setDate(new Date());
         eventCourseId.setStart("10:00");
         eventCourseId.setEnd("13:00");
-        eventCourseId.setDateOfImport(new Date());
+        eventCourseId.setDateOfLatestImport(new Date());
 
         try {
             eventDao.addEventToCourse(eventCourseId);
