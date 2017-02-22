@@ -371,9 +371,8 @@ public class WebDAVDispatcherImpl
             return (result);
         }
 
-		// No, extract the desired path directly from the request!
-		String result = OlatUrlDecoder.getFullUri(request);
-		return Normalizer.normalize(result, Normalizer.Form.NFC);
+		String fullPathInfo = OlatUrlDecoder.getFullPathInfo(request);
+		return Normalizer.normalize(fullPathInfo, Normalizer.Form.NFC);
     }
 
 
