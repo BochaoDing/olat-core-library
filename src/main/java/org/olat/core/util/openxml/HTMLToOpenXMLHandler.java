@@ -19,7 +19,6 @@
  */
 package org.olat.core.util.openxml;
 
-import java.io.File;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -313,7 +312,7 @@ public class HTMLToOpenXMLHandler extends DefaultHandler {
 		}
 		return null;
 	}
-	
+
 	protected void setImage(String path) {
 		Element imgEl = factory.createImageEl(path);
 		if(imgEl != null) {
@@ -323,26 +322,7 @@ public class HTMLToOpenXMLHandler extends DefaultHandler {
 			paragrapheEl.appendChild(runEl);
 		}
 	}
-	
-	protected void setImage(File file) {
-		Element imgEl = factory.createImageEl(file);
-		if(imgEl != null) {
-			PredefinedStyle style = getCurrentPredefinedStyle();
-			Element runEl = factory.createRunEl(Collections.singletonList(imgEl), style);
-			Element paragrapheEl = getCurrentParagraph(false);
-			paragrapheEl.appendChild(runEl);
-		}
-	}
-	
-	protected void startGraphic(File backgroundImage, List<OpenXMLGraphic> elements) {
-		Element paragrapheEl = getCurrentParagraph(true);
-		Element graphicEl = factory.createGraphicEl(backgroundImage, elements);
-		Element runEl = factory.createRunEl();
-		runEl.appendChild(graphicEl);
-		paragrapheEl.appendChild(runEl);
-		closeParagraph();
-	}
-	
+
 	protected void startTable() {
 		closeParagraph();
 		currentTable = new Table();

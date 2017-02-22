@@ -19,11 +19,9 @@
  */
 package org.olat.core.commons.services.image;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URL;
 import java.util.Iterator;
 
 import javax.imageio.ImageIO;
@@ -47,14 +45,13 @@ public class ImageUtils {
 	private static final OLog log = Tracing.createLoggerFor(ImageUtils.class);
 	
 	
-	public static Size getImageSize(File image) {
-		InputStream in = null;
+	public static Size getImageSize(URL image) {
 		try {
-			String suffix = FileUtils.getFileSuffix(image.getName());
-			in = new FileInputStream(image);
+			String suffix = FileUtils.getFileSuffix(image.getFile());
+			InputStream in = image.openStream();
 			return getImageSize(suffix, in);
-		} catch (FileNotFoundException e) {
-			IOUtils.closeQuietly(in);
+		} catch (IOException e) {
+			e.printStackTrace();
 			return null;
 		}
 	}
