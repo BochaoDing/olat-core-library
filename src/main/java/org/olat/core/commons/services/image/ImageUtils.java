@@ -19,23 +19,19 @@
  */
 package org.olat.core.commons.services.image;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Iterator;
-
-import javax.imageio.ImageIO;
-import javax.imageio.ImageReader;
-import javax.imageio.stream.ImageInputStream;
-import javax.imageio.stream.MemoryCacheImageInputStream;
-
 import org.apache.poi.util.IOUtils;
 import org.olat.core.logging.OLog;
 import org.olat.core.logging.Tracing;
 import org.olat.core.util.FileUtils;
 
+import javax.imageio.ImageIO;
+import javax.imageio.ImageReader;
+import javax.imageio.stream.ImageInputStream;
+import javax.imageio.stream.MemoryCacheImageInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
+import java.util.Iterator;
 /**
  * 
  * Initial date: 04.09.2013<br>
@@ -47,14 +43,15 @@ public class ImageUtils {
 	private static final OLog log = Tracing.createLoggerFor(ImageUtils.class);
 	
 	
-	public static Size getImageSize(File image) {
+	public static Size getImageSize(URL image) {
 		InputStream in = null;
 		try {
-			String suffix = FileUtils.getFileSuffix(image.getName());
-			in = new FileInputStream(image);
+			String suffix = FileUtils.getFileSuffix(image.getFile());
+			in = image.openStream();
 			return getImageSize(suffix, in);
-		} catch (FileNotFoundException e) {
+		} catch (IOException e) {
 			IOUtils.closeQuietly(in);
+			e.printStackTrace();
 			return null;
 		}
 	}

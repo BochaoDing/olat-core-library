@@ -20,6 +20,7 @@
 package org.olat.modules.fo.archiver.formatters;
 
 import java.io.File;
+import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -181,7 +182,12 @@ public class ForumOpenXMLFormatter extends ForumFormatter {
 				if (lastDot > 0) {
 					String extension = filename.substring(lastDot + 1).toLowerCase();
 					if("jpeg".equals(extension) || "jpg".equals(extension) || "gif".equals(extension) || "png".equals(extension)) {
-						document.appendImage(file);
+						try {
+							document.appendImage(file.toURI().toURL());
+						} catch (MalformedURLException e) {
+							e.printStackTrace();
+						}
+
 						attach = false;
 					}
 				}
@@ -189,7 +195,11 @@ public class ForumOpenXMLFormatter extends ForumFormatter {
 				if(attach) {
 					StringBuilder attachSb = new StringBuilder(64);
 					String uniqueFilename = getUniqueFilename(file);
-					fileToAttachmentsMap.put(file, new DocReference("", uniqueFilename, null, file));
+					try {
+						fileToAttachmentsMap.put(file, new DocReference("", uniqueFilename, null, file.toURI().toURL()));
+					} catch (MalformedURLException e) {
+						e.printStackTrace();
+					}
 					attachSb.append(filename).append(": /attachments/").append(uniqueFilename);
 					document.appendText(attachSb.toString(), true);
 				}

@@ -19,30 +19,8 @@
  */
 package org.olat.core.util.openxml;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.StringReader;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.StringTokenizer;
-import java.util.UUID;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipInputStream;
-
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-
+import fmath.conversion.ConvertFromLatexToMathML;
+import fmath.conversion.ConvertFromMathMLToWord;
 import org.apache.commons.io.IOUtils;
 import org.cyberneko.html.parsers.SAXParser;
 import org.olat.core.commons.services.image.ImageUtils;
@@ -54,16 +32,18 @@ import org.olat.core.util.io.ShieldInputStream;
 import org.olat.core.util.vfs.LocalFileImpl;
 import org.olat.core.util.vfs.VFSContainer;
 import org.olat.core.util.vfs.VFSItem;
-import org.w3c.dom.DOMException;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
+import org.w3c.dom.*;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
-import fmath.conversion.ConvertFromLatexToMathML;
-import fmath.conversion.ConvertFromMathMLToWord;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import java.io.*;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.*;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
 /**
  * The page are A4 format, with 2.54cm margins on top, bottom, left and right.
@@ -89,7 +69,7 @@ public class OpenXMLDocument {
 	private int currentNumberingId = 0;
 	private String documentHeader;
 	private Set<String> imageFilenames = new HashSet<>();
-	private Map<File, DocReference> fileToImagesMap = new HashMap<File, DocReference>();
+	private Map<URL, DocReference> fileToImagesMap = new HashMap<>();
 	
 	private List<Node> cursorStack = new ArrayList<>();
 	private List<ListParagraph> numbering = new ArrayList<>();
@@ -650,15 +630,9 @@ public class OpenXMLDocument {
 	}
 	
 	public Node createCheckbox(boolean checked) {
-		try {
-			String name = checked ? "image1.png" : "image2.png";
-			URL imgUrl = OpenXMLDocument.class.getResource("_resources/" + name);
-			File imgFile = new File(imgUrl.toURI());
-			return createImageEl(imgFile);
-		} catch (URISyntaxException e) {
-			log.error("", e);
-			return null;
-		}
+		String name = checked ? "image1.png" : "image2.png";
+ 		URL imgUrl = OpenXMLDocument.class.getResource("_resources/" + name);
+		return createImageEl(imgUrl);
 	}
 	
 	public Element createBreakEl() {
@@ -963,8 +937,8 @@ public class OpenXMLDocument {
 		}
 		return mathEls;
 	}
-	
-	public void appendImage(File file) {
+
+	public void appendImage(URL file) {
 		Element imgEl = createImageEl(file);
 		if(imgEl != null) {
 			Element runEl = createRunEl(Collections.singletonList(imgEl));
@@ -980,7 +954,11 @@ public class OpenXMLDocument {
 		VFSItem media = mediaContainer.resolve(path);
 		if(media instanceof LocalFileImpl) {
 			LocalFileImpl file = (LocalFileImpl)media;
-			return createImageEl(file.getBasefile());
+			try {
+				return createImageEl(file.getBasefile().toURI().toURL());
+			} catch (MalformedURLException e) {
+				e.printStackTrace();
+			}
 		}
 		return null;
 	}
@@ -1042,7 +1020,7 @@ public class OpenXMLDocument {
  * @param image
  * @return
  */
-	public Element createImageEl(File image) {
+	public Element createImageEl(URL image) {
 		DocReference ref = registerImage(image);
 		String id = ref.getId();
 		OpenXMLSize emuSize = ref.getEmuSize();
@@ -1135,7 +1113,7 @@ public class OpenXMLDocument {
 		return drawingEl;
 	}
 	
-	private DocReference registerImage(File image) {
+	private DocReference registerImage(URL image) {
 		DocReference ref;
 		if(fileToImagesMap.containsKey(image)) {
 			ref = fileToImagesMap.get(image);
@@ -1255,7 +1233,7 @@ public class OpenXMLDocument {
 	</wp:anchor>
 </w:drawing>
 */
-	public Element createGraphicEl(File backgroundImage, List<OpenXMLGraphic> elements) {
+	public Element createGraphicEl(URL backgroundImage, List<OpenXMLGraphic> elements) {
 		DocReference backgroundImageRef = registerImage(backgroundImage);
 		OpenXMLSize emuSize = backgroundImageRef.getEmuSize();
 
@@ -1584,8 +1562,8 @@ public class OpenXMLDocument {
 		chExtEl.setAttribute("cy", cy);
 	}
 	
-	private String getUniqueFilename(File image) {
-		String filename = image.getName().toLowerCase();
+	private String getUniqueFilename(URL image) {
+		String filename = image.getFile();
 		int extensionIndex = filename.lastIndexOf('.');
 		if(extensionIndex > 0) {
 			String name = filename.substring(0, extensionIndex);
