@@ -19,8 +19,29 @@
  */
 package org.olat.core.util.openxml;
 
-import fmath.conversion.ConvertFromLatexToMathML;
-import fmath.conversion.ConvertFromMathMLToWord;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.StringReader;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.StringTokenizer;
+import java.util.UUID;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+
 import org.apache.commons.io.IOUtils;
 import org.cyberneko.html.parsers.SAXParser;
 import org.olat.core.commons.services.image.ImageUtils;
@@ -32,18 +53,16 @@ import org.olat.core.util.io.ShieldInputStream;
 import org.olat.core.util.vfs.LocalFileImpl;
 import org.olat.core.util.vfs.VFSContainer;
 import org.olat.core.util.vfs.VFSItem;
-import org.w3c.dom.*;
+import org.w3c.dom.DOMException;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import java.io.*;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.*;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipInputStream;
+import fmath.conversion.ConvertFromLatexToMathML;
+import fmath.conversion.ConvertFromMathMLToWord;
 
 /**
  * The page are A4 format, with 2.54cm margins on top, bottom, left and right.

@@ -19,19 +19,21 @@
  */
 package org.olat.core.commons.services.image;
 
-import org.apache.poi.util.IOUtils;
-import org.olat.core.logging.OLog;
-import org.olat.core.logging.Tracing;
-import org.olat.core.util.FileUtils;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
+import java.util.Iterator;
 
 import javax.imageio.ImageIO;
 import javax.imageio.ImageReader;
 import javax.imageio.stream.ImageInputStream;
 import javax.imageio.stream.MemoryCacheImageInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URL;
-import java.util.Iterator;
+
+import org.apache.poi.util.IOUtils;
+import org.olat.core.logging.OLog;
+import org.olat.core.logging.Tracing;
+import org.olat.core.util.FileUtils;
+
 /**
  * 
  * Initial date: 04.09.2013<br>
@@ -44,13 +46,11 @@ public class ImageUtils {
 	
 	
 	public static Size getImageSize(URL image) {
-		InputStream in = null;
 		try {
 			String suffix = FileUtils.getFileSuffix(image.getFile());
-			in = image.openStream();
+			InputStream in = image.openStream();
 			return getImageSize(suffix, in);
 		} catch (IOException e) {
-			IOUtils.closeQuietly(in);
 			e.printStackTrace();
 			return null;
 		}

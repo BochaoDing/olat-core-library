@@ -19,15 +19,24 @@
  */
 package org.olat.core.util.openxml;
 
+import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Deque;
+import java.util.List;
+
 import org.olat.core.util.StringHelper;
-import org.olat.core.util.openxml.OpenXMLDocument.*;
+import org.olat.core.util.openxml.OpenXMLDocument.Border;
+import org.olat.core.util.openxml.OpenXMLDocument.Indent;
+import org.olat.core.util.openxml.OpenXMLDocument.ListParagraph;
+import org.olat.core.util.openxml.OpenXMLDocument.PredefinedStyle;
+import org.olat.core.util.openxml.OpenXMLDocument.Spacing;
+import org.olat.core.util.openxml.OpenXMLDocument.Style;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
-
-import java.util.*;
 
 /**
  * Convert HTML code to OpenXML

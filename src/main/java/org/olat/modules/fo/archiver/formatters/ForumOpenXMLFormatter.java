@@ -185,7 +185,7 @@ public class ForumOpenXMLFormatter extends ForumFormatter {
 						try {
 							document.appendImage(file.toURI().toURL());
 						} catch (MalformedURLException e) {
-							e.printStackTrace();
+							assert false : e;
 						}
 
 						attach = false;
@@ -198,7 +198,7 @@ public class ForumOpenXMLFormatter extends ForumFormatter {
 					try {
 						fileToAttachmentsMap.put(file, new DocReference("", uniqueFilename, null, file.toURI().toURL()));
 					} catch (MalformedURLException e) {
-						e.printStackTrace();
+						assert false : e;
 					}
 					attachSb.append(filename).append(": /attachments/").append(uniqueFilename);
 					document.appendText(attachSb.toString(), true);
