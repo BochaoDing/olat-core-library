@@ -31,7 +31,7 @@ public class StudentIdCourseIdDateOfLatestImport extends StudentIdCourseId {
 	}
 
 	public void mergeImportedAttributesInto(StudentCourse studentCourseToBeUpdated) {
-		// all imported attributes, except date of first import
+		// all imported attributes, except ids
 		studentCourseToBeUpdated.setDateOfLatestImport(getDateOfLatestImport());
 	}
 }

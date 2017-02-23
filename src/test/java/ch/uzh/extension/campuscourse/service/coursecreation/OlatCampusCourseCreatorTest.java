@@ -68,7 +68,7 @@ public class OlatCampusCourseCreatorTest extends CampusCourseTestCase {
     }
 
     @Test
-    public void testCreateCampusCourseFromTemplate() {
+    public void testCloneAndUpdateRepositoryEntryFromTemplate() {
 
         // Create owner
         Identity ownerIdentity = CampusCourseJunitTestHelper.createTestUser(userManager, dbInstance, OWNER_NAME);
@@ -82,7 +82,7 @@ public class OlatCampusCourseCreatorTest extends CampusCourseTestCase {
         // Create template repository entry
         RepositoryEntry templateRepositoryEntry = JunitTestHelper.deployDemoCourse(ownerIdentity);
 
-        RepositoryEntry createdRepositoryEntry = olatCampusCourseCreatorTestObject.createOlatCampusCourseFromTemplate(templateRepositoryEntry, campusCourseTO, ownerIdentity, true);
+        RepositoryEntry createdRepositoryEntry = olatCampusCourseCreatorTestObject.cloneAndUpdateRepositoryEntryFromTemplate(templateRepositoryEntry, campusCourseTO, ownerIdentity, true);
 
         assertNotNull(createdRepositoryEntry);
 

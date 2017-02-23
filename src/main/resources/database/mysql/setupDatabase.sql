@@ -2306,13 +2306,19 @@ create table if not exists ck_event (
 )engine InnoDB;
 
 create table if not exists ck_text (
-	id bigint not null,
-	type varchar(255) not null,
-	line_seq bigint not null,
-	line varchar(255) not null,
   fk_course bigint not null,
+  fk_text_type int not null,
+  line_number int not null,
+	line varchar(255) not null,
+  date_of_first_import datetime not null,
   date_of_latest_import datetime not null,
-	primary key (id)
+	primary key (fk_course, fk_text_type, line_number)
+)engine InnoDB;
+
+create table if not exists ck_text_type (
+   id int not null,
+   name varchar(255) not null,
+   primary key (id)
 )engine InnoDB;
 
 create table if not exists ck_org (
@@ -2394,6 +2400,7 @@ alter table ck_course_org add constraint ck_course_org_f01 foreign key (fk_cours
 alter table ck_course_org add constraint ck_course_org_f02 foreign key (fk_org) references ck_org (id);
 alter table ck_event add constraint ck_event_f01 foreign key (fk_course) references ck_course (id);
 alter table ck_text add constraint ck_text_f01 foreign key (fk_course) references ck_course (id);
+alter table ck_text add constraint ck_text_f02 foreign key (fk_text_type) references ck_text_type (id);
 alter table ck_delegation add constraint ck_delegation_f01 foreign key (fk_delegator_identity) references o_bs_identity(id);
 alter table ck_delegation add constraint ck_delegation_f02 foreign key (fk_delegatee_identity) references o_bs_identity(id);
 
@@ -2402,6 +2409,7 @@ alter table ck_course add unique (fk_repositoryentry);
 alter table ck_student_course add unique (fk_student, fk_course);
 alter table ck_lecturer_course add unique (fk_lecturer, fk_course);
 alter table ck_course_org add unique (fk_course, fk_org);
+alter table ck_text add unique (fk_course, fk_text_type, line_number);
 alter table ck_semester add unique (name, year);
 alter table ck_delegation add unique (fk_delegator_identity, fk_delegatee_identity);
 

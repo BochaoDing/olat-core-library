@@ -278,14 +278,16 @@ public class CampusCourseTestDataGenerator {
 
 	public List<TextCourseId> createTextCourseIds() {
 		List<TextCourseId> textCourseIds = new ArrayList<>();
-		textCourseIds.add(new TextCourseId("Veranstaltungsinhalt", 1, "- praktische Tätigkeiten im chemischen Labor", DATE_OF_IMPORT, 100L));
-		textCourseIds.add(new TextCourseId("Veranstaltungsinhalt", 2, "- Herstellung von Lösungen unterschiedlicher Konzentration", DATE_OF_IMPORT, 100L));
-		textCourseIds.add(new TextCourseId("Unterrichtsmaterialien", 1, "Versuchsanleitungen,", DATE_OF_IMPORT, 100L));
-		textCourseIds.add(new TextCourseId("Unterrichtsmaterialien", 2, "download von homepage (s. link)", DATE_OF_IMPORT, 100L));
-		textCourseIds.add(new TextCourseId("Hinweise", 1, "Selbsttestfragen:", DATE_OF_IMPORT, 100L));
-		textCourseIds.add(new TextCourseId("Hinweise", 2, "Zugriff über www.vetpharm.uzh.ch/cyberpharm", DATE_OF_IMPORT, 100L));
-		textCourseIds.add(new TextCourseId("Veranstaltungsinhalt", 1, "- praktische Tätigkeiten im chemischen Labor2", DATE_OF_IMPORT, 200L));
-		textCourseIds.add(new TextCourseId("Veranstaltungsinhalt", 2, "- Herstellung von Lösungen unterschiedlicher Konzentration2", DATE_OF_IMPORT, 200L));
+		textCourseIds.add(new TextCourseId(100L, 999999991, "Veranstaltungsinhalt", 1, "- praktische Tätigkeiten im chemischen Labor", DATE_OF_IMPORT));
+		textCourseIds.add(new TextCourseId(100L, 999999991, "Veranstaltungsinhalt", 2, "- Herstellung von Lösungen unterschiedlicher Konzentration", DATE_OF_IMPORT));
+		textCourseIds.add(new TextCourseId(100L, 999999992, "Unterrichtsmaterialien", 1, "Versuchsanleitungen,", DATE_OF_IMPORT));
+		textCourseIds.add(new TextCourseId(100L, 999999992, "Unterrichtsmaterialien", 2, "download von homepage (s. link)", DATE_OF_IMPORT));
+		textCourseIds.add(new TextCourseId(100L, 999999993, "Hinweise", 1, "Selbsttestfragen:", DATE_OF_IMPORT));
+		textCourseIds.add(new TextCourseId(100L, 999999993, "Hinweise", 2, "Zugriff über www.vetpharm.uzh.ch/cyberpharm", DATE_OF_IMPORT));
+		textCourseIds.add(new TextCourseId(200L, 999999991, "Veranstaltungsinhalt", 1, "- praktische Tätigkeiten im chemischen Labor2", DATE_OF_IMPORT));
+		textCourseIds.add(new TextCourseId(200L, 999999991, "Veranstaltungsinhalt", 2, "- Herstellung von Lösungen unterschiedlicher Konzentration2", DATE_OF_IMPORT));
+		textCourseIds.add(new TextCourseId(300L, 999999991, "Veranstaltungsinhalt", 1, "- praktische Tätigkeiten im chemischen Labor3", DATE_OF_IMPORT));
+		textCourseIds.add(new TextCourseId(300L, 999999991, "Veranstaltungsinhalt", 2, "- Herstellung von Lösungen unterschiedlicher Konzentration3", DATE_OF_IMPORT));
 		return textCourseIds;
 	}
 

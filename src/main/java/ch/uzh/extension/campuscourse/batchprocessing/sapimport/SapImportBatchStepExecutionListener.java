@@ -40,30 +40,6 @@ public class SapImportBatchStepExecutionListener extends AbstractCampusBatchStep
 	}
 
 	@Override
-	public void beforeStep(StepExecution stepExecution) {
-		super.beforeStep(stepExecution);
-		if (campusBatchStepName == CampusBatchStepName.IMPORT_TEXTS) {
-			try {
-				daoManager.deleteAllTexts();
-				dbInstance.commitAndCloseSession();
-			} catch (Throwable t) {
-				dbInstance.commitAndCloseSession();
-				throw t;
-			}
-		}
-			// DISABLED FOR NOW
-//		else if (campusBatchStepName == CampusBatchStepName.IMPORT_EVENTS) {
-//			try {
-//				daoManager.deleteAllEvents();
-//				dbInstance.commitAndCloseSession();
-//			} catch (Throwable t) {
-//				dbInstance.commitAndCloseSession();
-//				throw t;
-//			}
-//		}
-	}
-
-	@Override
 	protected BatchJobStatistic createAndPersistBatchJobStatistic(StepExecution stepExecution) {
 		// Determine sap import filename
 		String sapImportFilenameWithoutSuffix = "";

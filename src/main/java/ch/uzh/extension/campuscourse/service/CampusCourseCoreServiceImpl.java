@@ -175,7 +175,7 @@ public class CampusCourseCoreServiceImpl implements CampusCourseCoreService {
 
         try {
             // Create olat course by copying the appropriate template (default or custom)
-            createdRepositoryEntry = olatCampusCourseCreator.createOlatCampusCourseFromTemplate(templateRepositoryEntry, campusCourseTO, creator, isStandardTemplateUsed);
+            createdRepositoryEntry = olatCampusCourseCreator.cloneAndUpdateRepositoryEntryFromTemplate(templateRepositoryEntry, campusCourseTO, creator, isStandardTemplateUsed);
 
             // Update the copied course run and editor models
             ICourse updatedCourseRunAndEditorModels = olatCampusCourseCreator.updateCourseRunAndEditorModels(createdRepositoryEntry, campusCourseTO, isStandardTemplateUsed);

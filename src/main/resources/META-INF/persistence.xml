@@ -169,6 +169,7 @@
 		<!-- campuskurs hibernate entities -->
 		<class>ch.uzh.extension.campuscourse.data.entity.Org</class>
 		<class>ch.uzh.extension.campuscourse.data.entity.Text</class>
+		<class>ch.uzh.extension.campuscourse.data.entity.TextType</class>
 		<class>ch.uzh.extension.campuscourse.data.entity.Course</class>
 		<class>ch.uzh.extension.campuscourse.data.entity.Semester</class>
 		<class>ch.uzh.extension.campuscourse.data.entity.Student</class>
