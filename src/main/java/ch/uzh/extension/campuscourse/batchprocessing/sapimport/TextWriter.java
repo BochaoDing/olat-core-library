@@ -55,7 +55,7 @@ public class TextWriter implements ItemWriter<TextCourseId> {
     public void write(List<? extends TextCourseId> textCourseIds) throws Exception {
         try {
             for (TextCourseId textCourseId : textCourseIds) {
-                textDao.addTextToCourse(textCourseId);
+                textDao.saveOrUpdate(textCourseId);
             }
             dbInstance.commitAndCloseSession();
         } catch (Throwable t) {

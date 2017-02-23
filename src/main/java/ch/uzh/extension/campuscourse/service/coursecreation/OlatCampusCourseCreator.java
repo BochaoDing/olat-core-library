@@ -45,7 +45,7 @@ public class OlatCampusCourseCreator {
         this.campusCourseRepositoryEntryDescriptionBuilder = campusCourseRepositoryEntryDescriptionBuilder;
     }
 
-    public RepositoryEntry createOlatCampusCourseFromTemplate(RepositoryEntry templateRepositoryEntry, CampusCourseTO campusCourseTO, Identity owner, boolean isStandardTemplateUsed) {
+    public RepositoryEntry cloneAndUpdateRepositoryEntryFromTemplate(RepositoryEntry templateRepositoryEntry, CampusCourseTO campusCourseTO, Identity owner, boolean isStandardTemplateUsed) {
 
         // 1. Copy repository entry and implicit the Course
         // NB: New displayname must be set when calling repositoryService.copy(). Otherwise copyCourse.getCourseTitle()

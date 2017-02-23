@@ -1086,7 +1086,7 @@ public class CourseDaoTest extends CampusCourseTestCase {
 
         // Add some texts
         List<TextCourseId> textCourseIds = campusCourseTestDataGenerator.createTextCourseIds();
-        textDao.addTextsToCourse(textCourseIds);
+        textDao.save(textCourseIds);
         dbInstance.flush();
 
         // Add some events

@@ -82,8 +82,8 @@ public class SapImportJobBeanFactory {
 	@Bean
 	@Scope("step")
 	public FlatFileItemReader<TextCourseId> textReader(@Value("#{jobParameters['textResource']}") String pathToInputFile) {
-		int[] includedColumns = new int[]{0, 2, 3, 4};
-		String[] attributeNamesOfTargetClass = new String []{"courseId", "type", "lineSeq", "line"};
+		int[] includedColumns = new int[]{0, 1, 2, 3, 4};
+		String[] attributeNamesOfTargetClass = new String []{"courseId", "textTypeId", "textTypeName", "lineNumber", "line"};
 		return createFlatFileItemReader(pathToInputFile, includedColumns, attributeNamesOfTargetClass, TextCourseId.class);
 	}
 
