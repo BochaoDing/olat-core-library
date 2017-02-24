@@ -2296,13 +2296,13 @@ create table if not exists ck_student_course (
 )engine InnoDB;
 
 create table if not exists ck_event (
-	id bigint not null,
+  fk_course bigint not null,
 	date date not null,
 	start time not null,
 	end time not null,
-  fk_course bigint not null,
+  date_of_first_import datetime not null,
   date_of_latest_import datetime not null,
-	primary key (id)
+	primary key (fk_course, date, start, end)
 )engine InnoDB;
 
 create table if not exists ck_text (
@@ -2409,6 +2409,7 @@ alter table ck_course add unique (fk_repositoryentry);
 alter table ck_student_course add unique (fk_student, fk_course);
 alter table ck_lecturer_course add unique (fk_lecturer, fk_course);
 alter table ck_course_org add unique (fk_course, fk_org);
+alter table ck_event add unique (fk_course, date, start, end);
 alter table ck_text add unique (fk_course, fk_text_type, line_number);
 alter table ck_semester add unique (name, year);
 alter table ck_delegation add unique (fk_delegator_identity, fk_delegatee_identity);

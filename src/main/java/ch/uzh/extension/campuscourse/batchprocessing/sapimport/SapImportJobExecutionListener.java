@@ -156,6 +156,17 @@ public class SapImportJobExecutionListener implements JobExecutionListener {
 			dbInstance.intermediateCommit();
 		}
 
+		// DISABLED FOR NOW
+//		int numberOfEventsToBeRemoved = daoManager.deleteAllEventsOfNotContinuedCoursesTooFarInThePast(jobExecution.getStartTime());
+//		dbInstance.intermediateCommit();
+//		List<CourseIdDateStartEnd> courseIdDateStartEndsToBeRemoved = daoManager.getAllNotUpdatedEventsOfCurrentImportProcess(jobExecution.getStartTime(), semesterOfCurrentImportProcess);
+//		numberOfEventsToBeRemoved += courseIdDateStartEndsToBeRemoved.size();
+//		LOG.info("EVENTS TO BE REMOVED ["  + numberOfEventsToBeRemoved + "]");
+//		if (!courseIdDateStartEndsToBeRemoved.isEmpty()) {
+//			daoManager.deleteEventsByCourseIdDateStartEnds(courseIdDateStartEndsToBeRemoved);
+//			dbInstance.intermediateCommit();
+//		}
+
 		dbInstance.closeSession();
 	}
 }

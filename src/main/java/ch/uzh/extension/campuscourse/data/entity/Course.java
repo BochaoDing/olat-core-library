@@ -145,9 +145,11 @@ public class Course {
     @Column(name = "category", nullable = false)
     private String category;
 
+	@Temporal(TemporalType.DATE)
     @Column(name = "start_date", nullable = false)
     private Date startDate;
 
+	@Temporal(TemporalType.DATE)
     @Column(name = "end_date", nullable = false)
     private Date endDate;
 

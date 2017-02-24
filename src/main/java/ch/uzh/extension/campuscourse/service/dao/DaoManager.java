@@ -112,10 +112,6 @@ public class DaoManager {
         return createCampusCourseWithoutListsTOWithoutReload(course);
     }
 
-    public int deleteAllEvents() {
-        return eventDao.deleteAllEventsAsBulkDelete();
-    }
-
     public List<Semester> getSemestersInAscendingOrder() {
         return semesterDao.getSemestersInAscendingOrder();
     }
@@ -196,10 +192,6 @@ public class DaoManager {
         return studentDao.getAllNotManuallyMappedOrTooOldOrphanedStudents(date);
     }
 
-    public void deleteEventsByCourseId(Long courseId) {
-        eventDao.deleteEventsByCourseId(courseId);
-    }
-
     public Lecturer getLecturerById(Long id) {
         return lecturerDao.getLecturerById(id);
     }
@@ -259,6 +251,22 @@ public class DaoManager {
     public String getTextMaterialsByCourseId(Long id) {
         return textDao.getMaterialsByCourseId(id);
     }
+
+	public List<CourseIdDateStartEnd> getAllNotUpdatedEventsOfCurrentImportProcess(Date date, Semester semesterOfCurrentImportProcess) {
+		return eventDao.getAllNotUpdatedEventsOfCurrentImportProcess(date, semesterOfCurrentImportProcess);
+	}
+
+	public int deleteEventsByCourseIdDateStartEnds(List<CourseIdDateStartEnd> courseIdDateStartEnds) {
+		return eventDao.deleteByCourseIdDateStartEndsAsBulkDelete(courseIdDateStartEnds);
+	}
+
+	public int deleteAllEventsOfNotContinuedCoursesTooFarInThePast(Date date) {
+		return eventDao.deleteAllEventsOfNotContinuedCoursesTooFarInThePastAsBulkDelete(date);
+	}
+
+	public List<Event> getEventsByCourseId(Long id) {
+		return eventDao.getEventsByCourseId(id);
+	}
 
     public List<CampusCourseWithoutListsTO> getCreatedAndNotCreatedCreatableCoursesByStudentId(Long studentId) {
 
