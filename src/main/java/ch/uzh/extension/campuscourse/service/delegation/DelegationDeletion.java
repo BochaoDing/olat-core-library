@@ -9,6 +9,7 @@ import org.olat.user.UserDataDeletable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.io.File;
 import java.util.Iterator;
 
 /**
@@ -49,7 +50,7 @@ public class DelegationDeletion implements UserDataDeletable {
 
     // This method will be called when a OLAT-user is deleted via deletion-manager
     @Override
-    public void deleteUserData(Identity identity, String newDeletedUserName) {
+    public void deleteUserData(Identity identity, String newDeletedUserName, File archivePath) {
         LOG.debug("deleteUserData start");
 
         Iterator<Delegation> iterator = delegationDao.getDelegationsByDelegator(identity.getKey()).iterator();

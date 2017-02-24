@@ -53,21 +53,15 @@ import org.olat.core.util.coordinate.CoordinatorManager;
 import org.olat.core.util.coordinate.LockResult;
 import org.olat.core.util.resource.OLATResourceableJustBeforeDeletedEvent;
 import org.olat.core.util.vfs.VFSContainer;
-import org.olat.core.util.vfs.VFSItem;
 import org.olat.core.util.vfs.VFSLeaf;
-import org.olat.core.util.vfs.VFSManager;
 import org.olat.core.util.vfs.VFSMediaResource;
-import org.olat.core.util.vfs.filters.VFSItemSuffixFilter;
 import org.olat.course.assessment.AssessmentMode;
 import org.olat.course.assessment.manager.UserCourseInformationsManager;
 import org.olat.fileresource.FileResourceManager;
 import org.olat.fileresource.types.ResourceEvaluation;
 import org.olat.fileresource.types.WikiResource;
-import org.olat.modules.wiki.Wiki;
-import org.olat.modules.wiki.WikiContainer;
 import org.olat.modules.wiki.WikiMainController;
 import org.olat.modules.wiki.WikiManager;
-import org.olat.modules.wiki.WikiPage;
 import org.olat.modules.wiki.WikiSecurityCallback;
 import org.olat.modules.wiki.WikiSecurityCallbackImpl;
 import org.olat.modules.wiki.WikiToZipUtils;
@@ -165,6 +159,11 @@ public class WikiHandler implements RepositoryHandler {
 	}
 	
 	@Override
+	public boolean supportsAssessmentDetails() {
+		return false;
+	}
+	
+	@Override
 	public VFSContainer getMediaContainer(RepositoryEntry repoEntry) {
 		return FileResourceManager.getInstance()
 				.getFileResourceMedia(repoEntry.getOlatResource());
@@ -224,6 +223,11 @@ public class WikiHandler implements RepositoryHandler {
 
 	@Override
 	public Controller createEditorController(RepositoryEntry re, UserRequest ureq, WindowControl wControl, TooledStackedPanel toolbar) {
+		return null;
+	}
+	
+	@Override
+	public Controller createAssessmentDetailsController(RepositoryEntry re, UserRequest ureq, WindowControl wControl, TooledStackedPanel toolbar, Identity assessedIdentity) {
 		return null;
 	}
 

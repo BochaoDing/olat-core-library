@@ -24,6 +24,7 @@ import org.olat.core.gui.UserRequest;
 import org.olat.core.gui.components.form.flexible.FormItem;
 import org.olat.core.gui.components.form.flexible.FormItemContainer;
 import org.olat.core.gui.components.form.flexible.elements.FormLink;
+import org.olat.core.gui.components.form.flexible.elements.StaticTextElement;
 import org.olat.core.gui.components.form.flexible.elements.TextElement;
 import org.olat.core.gui.components.form.flexible.impl.FormBasicController;
 import org.olat.core.gui.components.form.flexible.impl.FormEvent;
@@ -93,6 +94,10 @@ public class CreateRepositoryEntryController extends FormBasicController impleme
 		this.userObject = userObject;
 	}
 
+	public void setDisplayname(String displayname) {
+		displaynameEl.setValue(displayname);
+	}
+
 	@Override
 	protected void initForm(FormItemContainer formLayout, Controller listener, UserRequest ureq) {
 		String typeName;
@@ -104,7 +109,12 @@ public class CreateRepositoryEntryController extends FormBasicController impleme
 		uifactory.addStaticExampleText("cif.type", typeName, formLayout);
 
 		displaynameEl = uifactory.addTextElement("cif.displayname", "cif.displayname", 255, "", formLayout);
+		StaticTextElement typeEl = uifactory.addStaticTextElement("cif.type", typeName, formLayout);
+		typeEl.setElementCssClass("o_sel_author_type");
+
+		displaynameEl = uifactory.addTextElement("cif.displayname", "cif.displayname", 100, "", formLayout);
 		displaynameEl.setElementCssClass("o_sel_author_displayname");
+		displaynameEl.setFocus(true);
 		displaynameEl.setDisplaySize(30);
 		displaynameEl.setMandatory(true);
 		

@@ -50,7 +50,7 @@ public class CampusCoursePublisher {
         CourseEditorTreeModel cetm = course.getEditorTreeModel();
         PublishProcess pp = PublishProcess.getInstance(course, cetm, locale);
         pp.createPublishSetFor(getAllPublishNodeIds(course.getEditorTreeModel()));
-        pp.applyPublishSet(publisherIdentity, locale);
+        pp.applyPublishSet(publisherIdentity, locale, true);
         CourseFactory.closeCourseEditSession(course.getResourceableId(), true);
     }
 

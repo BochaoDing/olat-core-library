@@ -25,6 +25,24 @@
 
 package org.olat.core.commons.services.notifications.manager;
 
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
+
+import javax.persistence.EntityManager;
+import javax.persistence.LockModeType;
+import javax.persistence.TypedQuery;
+
 import org.hibernate.FlushMode;
 import org.olat.NewControllerFactory;
 import org.olat.basesecurity.BaseSecurity;
@@ -1169,7 +1187,7 @@ public class NotificationsManagerImpl extends NotificationsManager implements Us
 	 * Delete all subscribers for certain identity.
 	 * @param identity
 	 */
-	public void deleteUserData(Identity identity, String newDeletedUserName) {
+	public void deleteUserData(Identity identity, String newDeletedUserName, File archivePath) {
 		List<Subscriber> subscribers = getSubscribers(identity);
 		for (Iterator<Subscriber> iter = subscribers.iterator(); iter.hasNext();) {
 			deleteSubscriber( iter.next() );

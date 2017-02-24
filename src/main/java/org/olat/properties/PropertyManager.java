@@ -25,9 +25,18 @@
 
 package org.olat.properties;
 
+import java.io.File;
+import java.util.Collections;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
+
+import javax.persistence.Query;
+import javax.persistence.TypedQuery;
+
 import org.olat.basesecurity.IdentityRef;
-import org.olat.core.commons.persistence.DB;
 import org.olat.core.id.Identity;
+import org.olat.core.commons.persistence.DB;
 import org.olat.core.id.OLATResourceable;
 import org.olat.core.logging.AssertException;
 import org.olat.core.manager.BasicManager;
@@ -36,13 +45,6 @@ import org.olat.group.BusinessGroup;
 import org.olat.group.BusinessGroupRef;
 import org.olat.user.UserDataDeletable;
 import org.springframework.beans.factory.annotation.Autowired;
-
-import javax.persistence.Query;
-import javax.persistence.TypedQuery;
-import java.util.Collections;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
 
 /**
  * Initial Date:  Mar 10, 2004
@@ -676,7 +678,8 @@ public class PropertyManager extends BasicManager implements UserDataDeletable {
 	}
 	
 	/**
-	 *
+	 * 
+	 * @param resourceables
 	 * @param category
 	 * @param name
 	 * @return
@@ -724,10 +727,10 @@ public class PropertyManager extends BasicManager implements UserDataDeletable {
 
 	/**
 	 * Delete all properties of a certain identity.
-	 *
+	 * @see org.olat.user.UserDataDeletable#deleteUserData(org.olat.core.id.Identity)
 	 */
 	@Override
-	public void deleteUserData(Identity identity, String newDeletedUserName) {
+	public void deleteUserData(Identity identity, String newDeletedUserName, File archivePath) {
 		List<Property> userProperterties = listProperties(identity, null, null, null, null, null);
 		for (Iterator<Property> iter = userProperterties.iterator(); iter.hasNext(); ) {
 			deleteProperty( iter.next());

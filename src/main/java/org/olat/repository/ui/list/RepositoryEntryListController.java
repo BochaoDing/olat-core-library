@@ -40,7 +40,15 @@ import org.olat.core.gui.components.form.flexible.elements.FlexiTableSortOptions
 import org.olat.core.gui.components.form.flexible.elements.FormLink;
 import org.olat.core.gui.components.form.flexible.impl.FormBasicController;
 import org.olat.core.gui.components.form.flexible.impl.FormEvent;
-import org.olat.core.gui.components.form.flexible.impl.elements.table.*;
+import org.olat.core.gui.components.form.flexible.impl.elements.table.DateFlexiCellRenderer;
+import org.olat.core.gui.components.form.flexible.impl.elements.table.DefaultFlexiColumnModel;
+import org.olat.core.gui.components.form.flexible.impl.elements.table.FlexiColumnModel;
+import org.olat.core.gui.components.form.flexible.impl.elements.table.FlexiTableColumnModel;
+import org.olat.core.gui.components.form.flexible.impl.elements.table.FlexiTableComponentDelegate;
+import org.olat.core.gui.components.form.flexible.impl.elements.table.FlexiTableDataModelFactory;
+import org.olat.core.gui.components.form.flexible.impl.elements.table.FlexiTableRendererType;
+import org.olat.core.gui.components.form.flexible.impl.elements.table.FlexiTableSearchEvent;
+import org.olat.core.gui.components.form.flexible.impl.elements.table.SelectionEvent;
 import org.olat.core.gui.components.link.Link;
 import org.olat.core.gui.components.rating.RatingFormEvent;
 import org.olat.core.gui.components.rating.RatingWithAverageFormItem;
@@ -189,7 +197,7 @@ public class RepositoryEntryListController extends FormBasicController
 		/**
 		 * Initialize table column properties.
 		 */
-		FlexiTableColumnModel columnsModel = new FlexiTableColumnModelImpl();
+		FlexiTableColumnModel columnsModel = FlexiTableDataModelFactory.createFlexiTableColumnModel();
 		columnsModel.addFlexiColumnModel(new DefaultFlexiColumnModel(false, Cols.key.i18nKey(), Cols.key.ordinal(), true, OrderBy.key.name()));
 		if(!guestOnly) {
 			columnsModel.addFlexiColumnModel(new DefaultFlexiColumnModel(Cols.mark.i18nKey(), Cols.mark.ordinal(), true, OrderBy.favorit.name()));
@@ -252,7 +260,7 @@ public class RepositoryEntryListController extends FormBasicController
 	 */
 	private void initFilters(FlexiTableElement tableElement) {
 		List<FlexiTableFilter> filters = new ArrayList<>(16);
-		filters.add(new FlexiTableFilter(translate("filter.show.all"), Filter.showAll.name()));
+		filters.add(new FlexiTableFilter(translate("filter.show.all"), Filter.showAll.name(), true));
 		filters.add(FlexiTableFilter.SPACER);
 		filters.add(new FlexiTableFilter(translate("filter.current.courses"), Filter.currentCourses.name()));
 		filters.add(new FlexiTableFilter(translate("filter.upcoming.courses"), Filter.upcomingCourses.name()));
@@ -268,7 +276,7 @@ public class RepositoryEntryListController extends FormBasicController
 		filters.add(new FlexiTableFilter(translate("filter.passed"), Filter.passed.name()));
 		filters.add(new FlexiTableFilter(translate("filter.not.passed"), Filter.notPassed.name()));
 		filters.add(new FlexiTableFilter(translate("filter.without.passed.infos"), Filter.withoutPassedInfos.name()));
-		tableElement.setFilters(null, filters);
+		tableElement.setFilters(null, filters, false);
 	}
 
 		/**
@@ -372,7 +380,7 @@ public class RepositoryEntryListController extends FormBasicController
 						doOpenDetails(ureq, row);
 					}
 				}
-			} else if(event instanceof FlexiTableEvent) {
+			} else if(event instanceof FlexiTableSearchEvent) {
 				RepositoryEntryListState state = new RepositoryEntryListState();
 				state.setTableState(tableEl.getStateEntry());
 				addToHistory(ureq, state);
@@ -486,7 +494,7 @@ public class RepositoryEntryListController extends FormBasicController
 	}
 
 	@Override
-	protected void propagateDirtinessToContainer(FormItem fiSrc) {
+	protected void propagateDirtinessToContainer(FormItem fiSrc, FormEvent event) {
 		//do not update the 
 	}
 
