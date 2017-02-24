@@ -1091,7 +1091,7 @@ public class CourseDaoTest extends CampusCourseTestCase {
 
         // Add some events
         List<EventCourseId> eventCourseIds = campusCourseTestDataGenerator.createEventCourseIds();
-        eventDao.addEventsToCourse(eventCourseIds);
+        eventDao.save(eventCourseIds);
         dbInstance.flush();
 
         // Add import statistic

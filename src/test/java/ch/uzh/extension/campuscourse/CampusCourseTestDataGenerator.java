@@ -293,10 +293,12 @@ public class CampusCourseTestDataGenerator {
 
 	public List<EventCourseId> createEventCourseIds() {
 		List<EventCourseId> eventCourseIds = new ArrayList<>();
-		eventCourseIds.add(new EventCourseId(new GregorianCalendar(2014, Calendar.OCTOBER, 13).getTime(), "10:00:00",  "11:30:00", DATE_OF_IMPORT, 100L));
-		eventCourseIds.add(new EventCourseId(new GregorianCalendar(2014, Calendar.OCTOBER, 13).getTime(), "16:00:00",  "17:30:00", DATE_OF_IMPORT, 100L));
-		eventCourseIds.add(new EventCourseId(new GregorianCalendar(2014, Calendar.OCTOBER, 16).getTime(), "09:00:00",  "10:30:00", DATE_OF_IMPORT, 200L));
-		eventCourseIds.add(new EventCourseId(new GregorianCalendar(2014, Calendar.OCTOBER, 16).getTime(), "14:00:00",  "15:30:00", DATE_OF_IMPORT, 200L));
+		eventCourseIds.add(new EventCourseId(100L, new GregorianCalendar(2014, Calendar.OCTOBER, 13).getTime(), "10:00:00",  "11:30:00", DATE_OF_IMPORT));
+		eventCourseIds.add(new EventCourseId(100L, new GregorianCalendar(2014, Calendar.OCTOBER, 13).getTime(), "16:00:00",  "17:30:00", DATE_OF_IMPORT));
+		eventCourseIds.add(new EventCourseId(200L, new GregorianCalendar(2014, Calendar.OCTOBER, 16).getTime(), "09:00:00",  "10:30:00", DATE_OF_IMPORT));
+		eventCourseIds.add(new EventCourseId(200L, new GregorianCalendar(2014, Calendar.OCTOBER, 16).getTime(), "14:00:00",  "15:30:00", DATE_OF_IMPORT));
+		eventCourseIds.add(new EventCourseId(300L, new GregorianCalendar(2014, Calendar.OCTOBER, 19).getTime(), "19:00:00",  "20:30:00", DATE_OF_IMPORT));
+		eventCourseIds.add(new EventCourseId(300L, new GregorianCalendar(2014, Calendar.OCTOBER, 19).getTime(), "21:00:00",  "23:30:00", DATE_OF_IMPORT));
 		return eventCourseIds;
 	}
 

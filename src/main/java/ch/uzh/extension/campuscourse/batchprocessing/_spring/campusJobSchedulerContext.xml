@@ -87,14 +87,14 @@
 				</entry>
 				<!-- DISABLED FOR NOW -->
 				<!-- entry key="eventResource">
-					<bean class="org.springframework.batchprocessing.core.JobParameter">
-						<constructor-arg value="${campus.import.process.sap.resources}/${campus.import.process.events.filenameWithoutSuffix}${campus.import.process.sap.files.suffix}" />
+					<bean class="org.springframework.batch.core.JobParameter">
+						<constructor-arg value="${campus.import.process.sap.resources}/${campus.import.process.sap.events.filenameWithoutSuffix}${campus.import.process.sap.files.suffix}" />
 					</bean>
 				</entry-->
 			</map>
 		</constructor-arg>
 	</bean>
-	
+
     <!-- ======================================================================================= -->
 	<!-- ==============JOB STARTER FOR USER MAPPING AND CAMPUS COURSE SYNCHRONIZATION================= -->
 	<!-- ======================================================================================= -->

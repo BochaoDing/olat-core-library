@@ -53,6 +53,11 @@ public class TextDaoTest extends CampusCourseTestCase {
 
     @Test
     public void testSaveOrUpdate() {
+
+		Course course = courseDao.getCourseById(100L);
+		assertNotNull(course);
+		assertTrue(course.getTexts().isEmpty());
+
 		// Insert text
 		TextCourseId textCourseId = new TextCourseId(100L,
 				9999999,
@@ -66,7 +71,7 @@ public class TextDaoTest extends CampusCourseTestCase {
         textDao.saveOrUpdate(textCourseId);
 
         // Check before flush
-		Course course = courseDao.getCourseById(100L);
+		course = courseDao.getCourseById(100L);
         assertEquals(1, course.getTexts().size());
 
         dbInstance.flush();
@@ -101,7 +106,7 @@ public class TextDaoTest extends CampusCourseTestCase {
     }
 
     @Test
-    public void testSave_NotExistingCourse() {
+    public void testSaveOrUpdate_NotExistingCourse() {
         TextCourseId textCourseId = new TextCourseId(999L,
 				9999999,
 				"Veranstaltungsinhalt",
@@ -110,7 +115,7 @@ public class TextDaoTest extends CampusCourseTestCase {
 				new Date());
 
         try {
-            textDao.save(textCourseId);
+            textDao.saveOrUpdate(textCourseId);
             fail("Expected exception has not occurred.");
         } catch(EntityNotFoundException e) {
             // All good, that's exactly what we expect
@@ -124,23 +129,8 @@ public class TextDaoTest extends CampusCourseTestCase {
         assertTrue(textDao.getTextsByCourseId(999L).isEmpty());
     }
 
-    @Test
-    public void testSaveTexts() {
-        Course course = courseDao.getCourseById(100L);
-        assertNotNull(course);
-        assertEquals(0, course.getTexts().size());
-        assertTrue(textDao.getTextsByCourseId(100L).isEmpty());
-
-        insertTexts();
-        dbInstance.clear();
-
-        course = courseDao.getCourseById(100L);
-        assertEquals(6, course.getTexts().size());
-        assertEquals(6, textDao.getTextsByCourseId(100L).size());
-    }
-
 	@Test
-	public void testGetById() {
+	public void testGetTextById() {
 		// Insert text
 		TextCourseId textCourseId = new TextCourseId(100L,
 				9999999,
@@ -257,7 +247,6 @@ public class TextDaoTest extends CampusCourseTestCase {
 		CourseIdTextTypeIdLineNumber courseIdTextTypeIdLineNumberExpected = new CourseIdTextTypeIdLineNumber(textCourseId1.getCourseId(), textCourseId1.getTextTypeId(), textCourseId1.getLineNumber());
 		assertTrue(courseIdTextTypeIdLineNumbers.contains(courseIdTextTypeIdLineNumberExpected));
 	}
-
 
 	@Test
 	public void testDeleteStudentCourse() {
@@ -455,7 +444,6 @@ public class TextDaoTest extends CampusCourseTestCase {
 
 		assertNull(textDao.getTextById(textCourseId4.getCourseId(), textCourseId4.getTextTypeId(), textCourseId4.getLineNumber()));
 	}
-
 
 	private void insertTexts() {
         List<TextCourseId> textCourseIds = campusCourseTestDataGenerator.createTextCourseIds();
