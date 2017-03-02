@@ -74,6 +74,7 @@ public class AssessedIdentitiesTableDataModel extends DefaultTableDataModel<Asse
 	private static final String COL_INITIAL_LAUNCH = "initialLaunch";
 	private static final String COL_LAST_SCORE_DATE = "lastScoreDate";
 	private static final String COL_CERTIFICATE = "certificate";
+	private static final String COL_MATRICULATION_NR = "matriculationNr";
 
 	private List<String> colMapping;	
 	private List<String> userPropertyNameList;
@@ -106,7 +107,9 @@ public class AssessedIdentitiesTableDataModel extends DefaultTableDataModel<Asse
 		colMapping = new ArrayList<String>();
 		// store all configurable column positions in a lookup array
 		if(isAdministrativeUser) {
-			colMapping.add(colCount++, COL_NAME);	
+			colMapping.add(colCount++, COL_NAME);
+			// LMSUZH-217: Anzeige von Matrikelnummer...
+			colMapping.add(colCount++, COL_MATRICULATION_NR);
 		}
 		
 		Iterator <UserPropertyHandler> propHandlerIterator =  userPropertyHandlers.iterator();
@@ -221,6 +224,9 @@ public class AssessedIdentitiesTableDataModel extends DefaultTableDataModel<Asse
 				}
 			}
 			return null;
+		} else if (colName.equals(COL_MATRICULATION_NR)) {
+			// LMSUZH-217: Anzeige von Matrikelnummer...
+			return identity.getUser().getProperty("institutionalMatriculationNumber", getLocale());
 		} else {
 			return "error";
 		}
@@ -262,6 +268,8 @@ public class AssessedIdentitiesTableDataModel extends DefaultTableDataModel<Asse
 		
 		if(isAdministrativeUser) {
 			userListCtr.addColumnDescriptor(new DefaultColumnDescriptor("table.header.name", columnCount++, editCmd, getLocale()));
+			// LMSUZH-217: Anzeige von Matrikelnummer...
+			userListCtr.addColumnDescriptor(new DefaultColumnDescriptor("table.header.institutionalMatriculationNumber", columnCount++, editCmd, getLocale()));
 		}
 		
 		for (int i = 0; i < userPropertyHandlers.size(); i++) {
