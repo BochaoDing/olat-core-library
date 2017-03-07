@@ -2404,8 +2404,10 @@ alter table ck_text add constraint ck_text_f02 foreign key (fk_text_type) refere
 alter table ck_delegation add constraint ck_delegation_f01 foreign key (fk_delegator_identity) references o_bs_identity(id);
 alter table ck_delegation add constraint ck_delegation_f02 foreign key (fk_delegatee_identity) references o_bs_identity(id);
 
-alter table ck_course add unique (fk_parent_course);
 alter table ck_course add unique (fk_repositoryentry);
+alter table ck_course add unique (fk_campusgroup_a);
+alter table ck_course add unique (fk_campusgroup_b);
+alter table ck_course add unique (fk_parent_course);
 alter table ck_student_course add unique (fk_student, fk_course);
 alter table ck_lecturer_course add unique (fk_lecturer, fk_course);
 alter table ck_course_org add unique (fk_course, fk_org);
