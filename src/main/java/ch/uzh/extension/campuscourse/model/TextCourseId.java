@@ -1,5 +1,6 @@
 package ch.uzh.extension.campuscourse.model;
 
+import ch.uzh.extension.campuscourse.data.entity.Text;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Repository;
 
@@ -9,37 +10,56 @@ import java.util.Date;
 @Scope("prototype")
 public class TextCourseId {
 
-    private String type;
-    private int lineSeq;
+	private Long courseId;
+	private int textTypeId;
+    private String textTypeName;
+    private int lineNumber;
     private String line;
-    private Date dateOfImport;
-    private Long courseId;
+    private Date dateOfLatestImport;
+
 
     public TextCourseId() {
     }
 
-    public TextCourseId(String type, int lineSeq, String line, Date dateOfImport, Long courseId) {
-        this.type = type;
-        this.lineSeq = lineSeq;
+    public TextCourseId(Long courseId, int textTypeId, String textTypeName, int lineNumber, String line, Date dateOfLatestImport) {
+		this.courseId = courseId;
+		this.textTypeId = textTypeId;
+		this.textTypeName = textTypeName;
+        this.lineNumber = lineNumber;
         this.line = line;
-        this.dateOfImport = dateOfImport;
-        this.courseId = courseId;
+        this.dateOfLatestImport = dateOfLatestImport;
     }
 
-    public String getType() {
-        return type;
+	public Long getCourseId() {
+		return courseId;
+	}
+
+	public void setCourseId(Long courseId) {
+		this.courseId = courseId;
+	}
+
+	public int getTextTypeId() {
+		return textTypeId;
+	}
+
+	public void setTextTypeId(int textTypeId) {
+		this.textTypeId = textTypeId;
+	}
+
+	public String getTextTypeName() {
+		return textTypeName;
+	}
+
+	public void setTextTypeName(String textTypeName) {
+		this.textTypeName = textTypeName;
+	}
+
+	public int getLineNumber() {
+        return lineNumber;
     }
 
-    public void setType(String type) {
-        this.type = type;
-    }
-
-    public int getLineSeq() {
-        return lineSeq;
-    }
-
-    public void setLineSeq(int lineSeq) {
-        this.lineSeq = lineSeq;
+    public void setLineNumber(int lineNumber) {
+        this.lineNumber = lineNumber;
     }
 
     public String getLine() {
@@ -50,20 +70,18 @@ public class TextCourseId {
         this.line = line;
     }
 
-    public Date getDateOfImport() {
-        return dateOfImport;
+    public Date getDateOfLatestImport() {
+        return dateOfLatestImport;
     }
 
-    public void setDateOfImport(Date dateOfImport) {
-        this.dateOfImport = dateOfImport;
+    public void setDateOfLatestImport(Date dateOfLatestImport) {
+        this.dateOfLatestImport = dateOfLatestImport;
     }
 
-    public Long getCourseId() {
-        return courseId;
-    }
-
-    public void setCourseId(Long courseId) {
-        this.courseId = courseId;
-    }
+	public void mergeImportedAttributesInto(Text textToBeUpdated) {
+		// all imported attributes, except ids
+		textToBeUpdated.setLine(getLine());
+		textToBeUpdated.setDateOfLatestImport(getDateOfLatestImport());
+	}
 
 }

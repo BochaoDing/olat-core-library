@@ -11,11 +11,12 @@ import java.util.Date;
 @IdClass(StudentCourseId.class)
 @NamedQueries({
         @NamedQuery(name = StudentCourse.GET_ALL_NOT_UPDATED_SC_BOOKING_OF_CURRENT_IMPORT_PROCESS, query = "select new ch.uzh.extension.campuscourse.model.StudentIdCourseId(sc.student.id, sc.course.id) from StudentCourse sc " +
-                "where sc.dateOfImport < :lastDateOfImport and sc.course.semester.id = :semesterIdOfCurrentImportProcess"),
+                "where sc.dateOfLatestImport < :lastDateOfImport and sc.course.semester.id = :semesterIdOfCurrentImportProcess"),
         @NamedQuery(name = StudentCourse.DELETE_BY_STUDENT_IDS, query = "delete from StudentCourse sc where sc.student.id in :studentIds"),
         @NamedQuery(name = StudentCourse.DELETE_BY_COURSE_IDS, query = "delete from StudentCourse sc where sc.course.id in :courseIds"),
         @NamedQuery(name = StudentCourse.DELETE_BY_STUDENT_ID_COURSE_ID, query = "delete from StudentCourse sc where sc.student.id = :studentId and sc.course.id = :courseId"),
-        @NamedQuery(name = StudentCourse.DELETE_ALL_SC_BOOKING_TOO_FAR_IN_THE_PAST, query = "delete from StudentCourse sc where sc.dateOfImport < :nYearsInThePast")
+        @NamedQuery(name = StudentCourse.DELETE_ALL_SC_BOOKING_TOO_FAR_IN_THE_PAST, query = "delete from StudentCourse sc where sc.dateOfLatestImport < :nYearsInThePast"),
+        @NamedQuery(name = StudentCourse.DELETE_ALL_SC_BOOKING_TOO_FAR_IN_THE_PAST_EXCEPT_FOR_COURSES_TO_BE_EXCLUDED, query = "delete from StudentCourse sc where sc.dateOfLatestImport < :nYearsInThePast and sc.course.id not in :courseIdsToBeExcluded")
 })
 public class StudentCourse {
 
@@ -24,6 +25,7 @@ public class StudentCourse {
     public static final String DELETE_BY_COURSE_IDS = "deleteStudentCourseByCourseIds";
     public static final String DELETE_BY_STUDENT_ID_COURSE_ID = "deleteByStudentIdCourseId";
     public static final String DELETE_ALL_SC_BOOKING_TOO_FAR_IN_THE_PAST = "deleteAllSCBookingTooFarInThePast";
+    public static final String DELETE_ALL_SC_BOOKING_TOO_FAR_IN_THE_PAST_EXCEPT_FOR_COURSES_TO_BE_EXCLUDED = "deleteAllSCBookingTooFarInThePastExceptForCoursesToBeExcluded";
 
     @Id
     @ManyToOne(optional = false)
@@ -36,16 +38,20 @@ public class StudentCourse {
     private Course course;
 
     @Temporal(TemporalType.TIMESTAMP)
-    @Column(name = "date_of_import", nullable = false)
-    private Date dateOfImport;
+    @Column(name = "date_of_first_import", nullable = false)
+    private Date dateOfFirstImport;
+
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(name = "date_of_latest_import", nullable = false)
+    private Date dateOfLatestImport;
 
     public StudentCourse() {
     }
 
-    public StudentCourse(Student student, Course course, Date dateOfImport) {
+    public StudentCourse(Student student, Course course, Date dateOfLatestImport) {
         this.student = student;
         this.course = course;
-        this.dateOfImport = dateOfImport;
+		this.dateOfLatestImport = dateOfLatestImport;
     }
 
     public Student getStudent() {
@@ -64,12 +70,20 @@ public class StudentCourse {
         this.course = course;
     }
 
-    public Date getDateOfImport() {
-        return dateOfImport;
+	public Date getDateOfFirstImport() {
+		return dateOfFirstImport;
+	}
+
+	public void setDateOfFirstImport(Date dateOfFirstImport) {
+		this.dateOfFirstImport = dateOfFirstImport;
+	}
+
+	public Date getDateOfLatestImport() {
+        return dateOfLatestImport;
     }
 
-    public void setDateOfImport(Date dateOfImport) {
-        this.dateOfImport = dateOfImport;
+    public void setDateOfLatestImport(Date dateOfImport) {
+        this.dateOfLatestImport = dateOfImport;
     }
 
     @Override
@@ -89,5 +103,10 @@ public class StudentCourse {
         int result = student.hashCode();
         result = 31 * result + course.hashCode();
         return result;
+    }
+
+    public void mergeImportedAttributesInto(StudentCourse studentCourseToBeUpdated) {
+        // all imported attributes, except ids
+        studentCourseToBeUpdated.setDateOfLatestImport(getDateOfLatestImport());
     }
 }

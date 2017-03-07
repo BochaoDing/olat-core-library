@@ -9,7 +9,7 @@ import ch.uzh.extension.campuscourse.data.entity.Lecturer;
 import ch.uzh.extension.campuscourse.data.entity.Org;
 import ch.uzh.extension.campuscourse.model.CourseSemesterOrgId;
 import ch.uzh.extension.campuscourse.model.LecturerIdCourseId;
-import ch.uzh.extension.campuscourse.model.LecturerIdCourseIdDateOfImport;
+import ch.uzh.extension.campuscourse.model.LecturerIdCourseIdDateOfLatestImport;
 import ch.uzh.extension.campuscourse.util.DateUtil;
 import org.junit.Test;
 import org.olat.basesecurity.IdentityImpl;
@@ -21,6 +21,7 @@ import org.olat.user.UserManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
@@ -165,23 +166,23 @@ public class LecturerDaoTest extends CampusCourseTestCase {
 
         // Map lecturer auto and set time of import not too far in the past (-> should be selected)
         lecturer.setKindOfMapping("AUTO");
-        lecturer.setDateOfImport(DateUtil.addYearsToDate(referenceDateOfImport, -campusCourseConfiguration.getMaxYearsToKeepCkData() + 1));
+        lecturer.setDateOfLatestImport(DateUtil.addYearsToDate(referenceDateOfImport, -campusCourseConfiguration.getMaxYearsToKeepCkData() + 1));
         dbInstance.flush();
         assertEquals(numberOfLecturersFoundBeforeInsertingTestData + 1, lecturerDao.getAllNotManuallyMappedOrTooOldOrphanedLecturers(referenceDateOfImport).size());
 
         // Map lecturer auto and set time of import too far in the past (-> should be selected)
-        lecturer.setDateOfImport(DateUtil.addYearsToDate(referenceDateOfImport, -campusCourseConfiguration.getMaxYearsToKeepCkData() - 1));
+        lecturer.setDateOfLatestImport(DateUtil.addYearsToDate(referenceDateOfImport, -campusCourseConfiguration.getMaxYearsToKeepCkData() - 1));
         dbInstance.flush();
         assertEquals(numberOfLecturersFoundBeforeInsertingTestData + 1, lecturerDao.getAllNotManuallyMappedOrTooOldOrphanedLecturers(referenceDateOfImport).size());
 
         // Map lecturer manually and set time of import not too far in the past (-> should not be selected)
         lecturer.setKindOfMapping("MANUAL");
-        lecturer.setDateOfImport(DateUtil.addYearsToDate(referenceDateOfImport, -campusCourseConfiguration.getMaxYearsToKeepCkData() + 1));
+        lecturer.setDateOfLatestImport(DateUtil.addYearsToDate(referenceDateOfImport, -campusCourseConfiguration.getMaxYearsToKeepCkData() + 1));
         dbInstance.flush();
         assertEquals(numberOfLecturersFoundBeforeInsertingTestData, lecturerDao.getAllNotManuallyMappedOrTooOldOrphanedLecturers(referenceDateOfImport).size());
 
         // Map lecturer manually and set time of import too far in the past (-> should be selected)
-        lecturer.setDateOfImport(DateUtil.addYearsToDate(referenceDateOfImport, -campusCourseConfiguration.getMaxYearsToKeepCkData() - 1));
+        lecturer.setDateOfLatestImport(DateUtil.addYearsToDate(referenceDateOfImport, -campusCourseConfiguration.getMaxYearsToKeepCkData() - 1));
         dbInstance.flush();
         assertEquals(numberOfLecturersFoundBeforeInsertingTestData + 1, lecturerDao.getAllNotManuallyMappedOrTooOldOrphanedLecturers(referenceDateOfImport).size());
 
@@ -215,7 +216,7 @@ public class LecturerDaoTest extends CampusCourseTestCase {
 
         assertTrue(lecturerDao.getLecturersByMappedIdentityKey(identity.getKey()).isEmpty());
 
-        // Add mapping forlecturer 1
+        // Add mapping for lecturer 1
         lecturerDao.addMapping(lecturer1.getPersonalNr(), identity);
         dbInstance.flush();
 
@@ -323,6 +324,9 @@ public class LecturerDaoTest extends CampusCourseTestCase {
         assertNull(lecturerDao.getLecturerById(2200L));
         assertNull(lecturerCourseDao.getLecturerCourseById(2100L, 200L));
         assertNull(lecturerCourseDao.getLecturerCourseById(2200L, 200L));
+
+        // Test with empty list
+		assertEquals(0, lecturerDao.deleteByLecturerIdsAsBulkDelete(new ArrayList<>()));
     }
 
     @Test
@@ -357,8 +361,8 @@ public class LecturerDaoTest extends CampusCourseTestCase {
         dbInstance.flush();
 
         // Insert some lecturerIdCourseIds
-        List<LecturerIdCourseIdDateOfImport> lecturerIdCourseIdDateOfImports = campusCourseTestDataGenerator.createLecturerIdCourseIdDateOfImports();
-        lecturerCourseDao.save(lecturerIdCourseIdDateOfImports);
+        List<LecturerIdCourseIdDateOfLatestImport> lecturerIdCourseIdDateOfLatestImports = campusCourseTestDataGenerator.createLecturerIdCourseIdDateOfImports();
+        lecturerCourseDao.save(lecturerIdCourseIdDateOfLatestImports);
         dbInstance.flush();
 
         // Set current semester

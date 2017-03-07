@@ -1,5 +1,6 @@
 package ch.uzh.extension.campuscourse.data.entity;
 
+import ch.uzh.extension.campuscourse.model.CampusGroups;
 import org.olat.group.BusinessGroup;
 import org.olat.group.BusinessGroupImpl;
 import org.olat.repository.RepositoryEntry;
@@ -17,37 +18,50 @@ import java.util.*;
 @Entity
 @Table(name = "ck_course")
 @NamedQueries({
-        @NamedQuery(name = Course.GET_ALL_CREATED_COURSES_OF_CURRENT_SEMESTER, query = "select c from Course c where c.repositoryEntry is not null and c.semester.currentSemester = true"),
-        @NamedQuery(name = Course.GET_IDS_OF_ALL_CREATED_SYNCHRONIZABLE_COURSES_OF_CURRENT_SEMESTER, query = "select c.id from Course c where c.repositoryEntry is not null and c.synchronizable = true and c.semester.currentSemester = true"),
+        @NamedQuery(name = Course.GET_ALL_CREATED_COURSES_OF_CURRENT_SEMESTER, query = "select c from Course c where " +
+				"(c.repositoryEntry is not null or c.parentCourse is not null) and c.semester.currentSemester = true"),
+        @NamedQuery(name = Course.GET_IDS_OF_ALL_CREATED_COURSES_OF_CURRENT_SEMESTER, query = "select c.id from Course c where " +
+				"(c.repositoryEntry is not null or c.parentCourse is not null) " +
+				"and c.semester.currentSemester = true"),
         @NamedQuery(name = Course.GET_REPOSITORY_ENTRY_KEYS_OF_ALL_CREATED_NOT_CONTINUED_COURSES_OF_SPECIFIC_SEMESTERS, query = "select c.repositoryEntry.key from Course c where " +
-                "c.repositoryEntry is not null " +
+                "c.repositoryEntry is not null and c.parentCourse is null " +
                 "and c.semester.id in :semesterIds " +
                 "and not exists (select c2 from Course c2 where c2.parentCourse.id = c.id)"),
+		@NamedQuery(name = Course.GET_ALL_CREATED_CONTINUED_COURSES_WITHOUT_CHILD_OF_SPECIFIC_SEMESTERS, query = "select c from Course c left join c.parentCourse where " +
+				"c.parentCourse is not null and c.repositoryEntry is null " +
+				"and c.semester.id in :semesterIds " +
+				"and not exists (select c2 from Course c2 where c2.parentCourse.id = c.id)"),
         @NamedQuery(name = Course.GET_IDS_OF_ALL_NOT_CREATED_CREATABLE_COURSES_OF_CURRENT_SEMESTER, query = "select c.id from Course c where " +
-                "c.repositoryEntry is null " +
+                "c.repositoryEntry is null and c.parentCourse is null " +
                 "and c.exclude = false " +
                 "and exists (select c1 from Course c1 join c1.orgs o where c1.id = c.id and o.enabled = true) " +
                 "and c.semester.currentSemester = true"),
         @NamedQuery(name = Course.GET_CREATED_COURSES_OF_CURRENT_SEMESTER_BY_LECTURER_ID, query = "select c from Course c join c.lecturerCourses lc where " +
-                "c.repositoryEntry is not null and lc.lecturer.personalNr = :lecturerId " +
-                "and c.semester.currentSemester = true and c.title like :searchString"),
+                "(c.repositoryEntry is not null or c.parentCourse is not null) " +
+                "and lc.lecturer.personalNr = :lecturerId " +
+                "and c.semester.currentSemester = true " +
+				"and c.title like :searchString"),
         @NamedQuery(name = Course.GET_NOT_CREATED_CREATABLE_COURSES_OF_CURRENT_SEMESTER_BY_LECTURER_ID, query = "select c from Course c join c.lecturerCourses lc where " +
                 "lc.lecturer.personalNr = :lecturerId " +
-                "and c.repositoryEntry is null " +
+                "and c.repositoryEntry is null and c.parentCourse is null " +
                 "and c.exclude = false " +
                 "and exists (select c1 from Course c1 join c1.orgs o where c1.id = c.id and o.enabled = true) " +
                 "and c.semester.currentSemester = true " +
                 "and c.title like :searchString"),
         @NamedQuery(name = Course.GET_CREATED_COURSES_OF_CURRENT_SEMESTER_BY_STUDENT_ID, query = "select c from Course c join c.studentCourses sc where " +
-                "c.repositoryEntry is not null and sc.student.id = :studentId " +
+                "(c.repositoryEntry is not null or c.parentCourse is not null) " +
+				"and sc.student.id = :studentId " +
                 "and c.semester.currentSemester = true and c.title like :searchString"),
         @NamedQuery(name = Course.GET_CREATED_COURSES_OF_CURRENT_SEMESTER_BY_STUDENT_ID_BOOKED_BY_STUDENT_ONLY_AS_PARENT_COURSE, query = "select c from Course c join c.parentCourse.studentCourses scp where " +
-                "c.parentCourse is not null and c.repositoryEntry is not null and scp.student.id = :studentId " +
+                "c.parentCourse is not null " +
+				"and (c.repositoryEntry is not null or c.parentCourse is not null) " +
+				"and scp.student.id = :studentId " +
                 "and not exists (select c1 from Course c1 join c1.studentCourses sc1 where c1.id = c.id and sc1.student.id = :studentId) " +
-                "and c.semester.currentSemester = true and c.title like :searchString"),
+                "and c.semester.currentSemester = true " +
+				"and c.title like :searchString"),
         @NamedQuery(name = Course.GET_NOT_CREATED_CREATABLE_COURSES_OF_CURRENT_SEMESTER_BY_STUDENT_ID, query = "select c from Course c join c.studentCourses sc where " +
                 "sc.student.id = :studentId " +
-                "and c.repositoryEntry is null " +
+                "and c.repositoryEntry is null and c.parentCourse is null " +
                 "and c.exclude = false " +
                 "and exists (select c1 from Course c1 join c1.orgs o where c1.id = c.id and o.enabled = true) " +
                 "and c.semester.currentSemester = true " +
@@ -68,18 +82,29 @@ import java.util.*;
                 "and c.exclude = false " +
                 "and exists (select c1 from Course c1 join c1.orgs o where c1.id = c.id and o.enabled = true) " +
                 "and c.semester.currentSemester = true"),
-        @NamedQuery(name = Course.GET_ALL_NOT_CREATED_ORPHANED_COURSES, query = "select c.id from Course c where c.repositoryEntry is null and c.id not in (select lc.course.id from LecturerCourse lc) and c.id not in (select sc.course.id from StudentCourse sc)"),
-        @NamedQuery(name = Course.GET_COURSE_IDS_BY_REPOSITORY_ENTRY_KEY, query = "select c.id from Course c where c.repositoryEntry.key = :repositoryEntryKey"),
-        @NamedQuery(name = Course.GET_COURSES_BY_REPOSITORY_ENTRY_KEY, query = "select c from Course c where c.repositoryEntry.key = :repositoryEntryKey"),
-        @NamedQuery(name = Course.GET_COURSES_BY_CAMPUS_GROUP_A_KEY, query = "select c from Course c where c.campusGroupA.key = :campusGroupKey"),
-        @NamedQuery(name = Course.GET_COURSES_BY_CAMPUS_GROUP_B_KEY, query = "select c from Course c where c.campusGroupB.key = :campusGroupKey"),
-        @NamedQuery(name = Course.GET_LATEST_COURSE_BY_REPOSITORY_ENTRY_KEY, query = "select c from Course c where c.repositoryEntry.key = :repositoryEntryKey and c.endDate = (select max(c1.endDate) from Course c1 where c1.repositoryEntry.key = :repositoryEntryKey)"),
-		@NamedQuery(name = Course.GET_SEMESTER_IDS_OF_MOST_RECENT_COURSE_IMPORT, query = "select c.semester.id from Course c where c.dateOfImport >= :startTimeOfMostRecentCourseImport")
+        @NamedQuery(name = Course.GET_ALL_NOT_CREATED_ORPHANED_COURSES, query = "select c.id from Course c where " +
+				"c.repositoryEntry is null and c.parentCourse is null " +
+				"and c.id not in (select lc.course.id from LecturerCourse lc) " +
+				"and c.id not in (select sc.course.id from StudentCourse sc)"),
+        @NamedQuery(name = Course.GET_COURSE_ID_OR_ID_OF_FIRST_PARENT_OF_CONTINUED_COURSE_BY_REPOSITORY_ENTRY_KEY, query = "select c.id from Course c where " +
+				"c.repositoryEntry.key = :repositoryEntryKey and c.parentCourse is null"),
+        @NamedQuery(name = Course.GET_COURSE_OR_FIRST_PARENT_OF_CONTINUED_COURSE_BY_REPOSITORY_ENTRY_KEY, query = "select c from Course c left join c.childCourse where " +
+				"c.repositoryEntry.key = :repositoryEntryKey and c.parentCourse is null"),
+        @NamedQuery(name = Course.GET_COURSE_OR_FIRST_PARENT_OF_CONTINUED_COURSE_BY_CAMPUS_GROUP_A_KEY, query = "select c from Course c left join c.childCourse where " +
+				"c.campusGroupA.key = :campusGroupKey and c.parentCourse is null"),
+        @NamedQuery(name = Course.GET_COURSE_OR_FIRST_PARENT_OF_CONTINUED_COURSE_BY_CAMPUS_GROUP_B_KEY, query = "select c from Course c left join c.childCourse where " +
+				"c.campusGroupB.key = :campusGroupKey and c.parentCourse is null"),
+		@NamedQuery(name = Course.GET_IDS_OF_CONTINUED_COURSES_TOO_FAR_IN_THE_PAST, query = "select c.parentCourse.id from Course c where " +
+				"c.parentCourse is not null " +
+				"and c.parentCourse.dateOfLatestImport < :nYearsInThePast"),
+		@NamedQuery(name = Course.GET_SEMESTER_IDS_OF_MOST_RECENT_COURSE_IMPORT, query = "select c.semester.id from Course c where " +
+				"c.dateOfLatestImport >= :startTimeOfMostRecentCourseImport")
 })
 public class Course {
 
-    public static final String GET_IDS_OF_ALL_CREATED_SYNCHRONIZABLE_COURSES_OF_CURRENT_SEMESTER = "getIdsOfAllCreatedSynchronizableCoursesOfCurrentSemester";
+    public static final String GET_IDS_OF_ALL_CREATED_COURSES_OF_CURRENT_SEMESTER = "getIdsOfAllCreatedCoursesOfCurrentSemester";
     public static final String GET_REPOSITORY_ENTRY_KEYS_OF_ALL_CREATED_NOT_CONTINUED_COURSES_OF_SPECIFIC_SEMESTERS = "getRepositoryEntryKeysOfAllCreatedNotContinuedCoursesOfSpecificSemesters";
+	public static final String GET_ALL_CREATED_CONTINUED_COURSES_WITHOUT_CHILD_OF_SPECIFIC_SEMESTERS = "getAllCreatedContinuedCoursesWithoutChildOfSpecificSemesters";
     public static final String GET_IDS_OF_ALL_NOT_CREATED_CREATABLE_COURSES_OF_CURRENT_SEMESTER = "getIdsOfAllNotCreatedCreatableCoursesOfCurrentSemester";
     public static final String GET_ALL_CREATED_COURSES_OF_CURRENT_SEMESTER = "getAllCreatedCoursesOfCurrentSemester";
     public static final String GET_CREATED_COURSES_OF_CURRENT_SEMESTER_BY_LECTURER_ID = "getCreatedCoursesOfCurrentSemesterByLecturerId";
@@ -88,14 +113,14 @@ public class Course {
     public static final String GET_CREATED_COURSES_OF_CURRENT_SEMESTER_BY_STUDENT_ID_BOOKED_BY_STUDENT_ONLY_AS_PARENT_COURSE = "getCreatedCoursesOfCurrentSemesterByStudentIdBookedByStudentOnlyAsParentCourse";
     public static final String GET_NOT_CREATED_CREATABLE_COURSES_OF_CURRENT_SEMESTER_BY_STUDENT_ID = "getNotCreatedCreatableCoursesOfCurrentSemesterByStudentId";
     public static final String GET_ALL_NOT_CREATED_ORPHANED_COURSES = "getAllNotCreatedOrphanedCourses";
-    public static final String GET_COURSE_IDS_BY_REPOSITORY_ENTRY_KEY = "getCourseIdsByRepositoryEntryKey";
     public static final String GET_CREATED_AND_NOT_CREATED_CREATABLE_COURSES_OF_CURRENT_SEMESTER_BY_LECTURER_ID = "getCreatedAndNotCreatedCreatableCoursesOfCurrentSemesterByLecturerId";
     public static final String GET_CREATED_AND_NOT_CREATED_CREATABLE_COURSES_OF_CURRENT_SEMESTER_BY_STUDENT_ID = "getCreatedAndNotCreatedCreatableCoursesOfCurrentSemesterByStudentId";
     public static final String GET_CREATED_AND_NOT_CREATED_CREATABLE_COURSES_OF_CURRENT_SEMESTER_BY_STUDENT_ID_BOOKED_BY_STUDENT_ONLY_AS_PARENT_COURSE = "getCreatedAndNotCreatedCreatableCoursesOfCurrentSemesterByStudentIdBookedByStudentOnlyAsParentCourse";
-    public static final String GET_COURSES_BY_REPOSITORY_ENTRY_KEY = "getCoursesByRepositoryEntryKey";
-    public static final String GET_COURSES_BY_CAMPUS_GROUP_A_KEY = "getCoursesByCampusGroupAKey";
-    public static final String GET_COURSES_BY_CAMPUS_GROUP_B_KEY = "getCoursesByCampusGroupBKey";
-    public static final String GET_LATEST_COURSE_BY_REPOSITORY_ENTRY_KEY = "getLatestCourseByRepositoryEntryKey";
+	public static final String GET_COURSE_ID_OR_ID_OF_FIRST_PARENT_OF_CONTINUED_COURSE_BY_REPOSITORY_ENTRY_KEY = "getCourseIdOrIdOrFirstParentOfContinuedCourseByRepositoryEntryKey";
+    public static final String GET_COURSE_OR_FIRST_PARENT_OF_CONTINUED_COURSE_BY_REPOSITORY_ENTRY_KEY = "getCourseOrFirstParentOfContinuedCourseByRepositoryEntryKey";
+    public static final String GET_COURSE_OR_FIRST_PARENT_OF_CONTINUED_COURSE_BY_CAMPUS_GROUP_A_KEY = "getCourseOrFirstParentOfContinuedCourseByCampusGroupAKey";
+    public static final String GET_COURSE_OR_FIRST_PARENT_OF_CONTINUED_COURSE_BY_CAMPUS_GROUP_B_KEY = "getCourseOrFirstParentOfContinuedCourseByCampusGroupBKey";
+	public static final String GET_IDS_OF_CONTINUED_COURSES_TOO_FAR_IN_THE_PAST = "getIdsOfContinuedCoursesTooFarInThePast";
     public static final String GET_SEMESTER_IDS_OF_MOST_RECENT_COURSE_IMPORT = "getSemesterIdsOfMostRecentCourseImport";
     private static final String WHITESPACE = " ";
 
@@ -111,7 +136,7 @@ public class Course {
     @Column(name = "lv_nr", nullable = false)
     private String lvNr;
 
-    @Column(name = "e_learning_supported")
+    @Column(name = "e_learning_supported", nullable = false)
     private boolean eLearningSupported;
 
     @Column(name = "language", nullable = false)
@@ -120,9 +145,11 @@ public class Course {
     @Column(name = "category", nullable = false)
     private String category;
 
+	@Temporal(TemporalType.DATE)
     @Column(name = "start_date", nullable = false)
     private Date startDate;
 
+	@Temporal(TemporalType.DATE)
     @Column(name = "end_date", nullable = false)
     private Date endDate;
 
@@ -132,15 +159,17 @@ public class Course {
     @Column(name = "exclude", nullable = false)
     private boolean exclude = false;
 
-    // Disable import and synchronization
-    // Used in OLAT 7.x for a continued campus course (for the new course). May still be used in OLAT 10.x if the
-    // lecturer/student tables of the campus course from the former semester is not available any more
-    @Column(name = "synchronizable", nullable = false)
-    private boolean synchronizable = true;
+	@Temporal(TemporalType.TIMESTAMP)
+	@Column(name = "date_of_olat_course_creation")
+	private Date dateOfOlatCourseCreation;
+
+	@Temporal(TemporalType.TIMESTAMP)
+	@Column(name = "date_of_first_import", nullable = false)
+	private Date dateOfFirstImport;
 
     @Temporal(TemporalType.TIMESTAMP)
-    @Column(name = "date_of_import")
-    private Date dateOfImport;
+    @Column(name = "date_of_latest_import", nullable = false)
+    private Date dateOfLatestImport;
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "fk_semester")
@@ -187,19 +216,18 @@ public class Course {
     public Course() {}
 
     public Course(Long id,
-                  String lvKuerzel,
-                  String title,
-                  String lvNr,
-                  boolean eLearningSupported,
-                  String language,
-                  String category,
-                  Date startDate,
-                  Date endDate,
-                  String vvzLink,
-                  boolean exclude,
-                  boolean synchronizable,
-                  Date dateOfImport,
-                  Semester semester) {
+				  String lvKuerzel,
+				  String title,
+				  String lvNr,
+				  boolean eLearningSupported,
+				  String language,
+				  String category,
+				  Date startDate,
+				  Date endDate,
+				  String vvzLink,
+				  boolean exclude,
+				  Date dateOfLatestImport,
+				  Semester semester) {
         this.id = id;
         this.lvKuerzel = lvKuerzel;
         this.title = title;
@@ -211,8 +239,7 @@ public class Course {
         this.endDate = endDate;
         this.vvzLink = vvzLink;
         this.exclude = exclude;
-        this.synchronizable = synchronizable;
-        this.dateOfImport = dateOfImport;
+		this.dateOfLatestImport = dateOfLatestImport;
         this.semester = semester;
     }
 
@@ -304,14 +331,6 @@ public class Course {
         this.exclude = exclude;
     }
 
-    public boolean isSynchronizable() {
-        return synchronizable;
-    }
-
-    public void setSynchronizable(boolean synchronizable) {
-        this.synchronizable = synchronizable;
-    }
-
     public Semester getSemester() {
         return semester;
     }
@@ -344,12 +363,28 @@ public class Course {
         this.campusGroupB = campusgroupB;
     }
 
-    public Date getDateOfImport() {
-        return dateOfImport;
+	public Date getDateOfOlatCourseCreation() {
+		return dateOfOlatCourseCreation;
+	}
+
+	public void setDateOfOlatCourseCreation(Date dateOfOlatCourseCreation) {
+		this.dateOfOlatCourseCreation = dateOfOlatCourseCreation;
+	}
+
+	public Date getDateOfFirstImport() {
+		return dateOfFirstImport;
+	}
+
+	public void setDateOfFirstImport(Date dateOfFirstImport) {
+		this.dateOfFirstImport = dateOfFirstImport;
+	}
+
+	public Date getDateOfLatestImport() {
+        return dateOfLatestImport;
     }
 
-    public void setDateOfImport(Date dateOfImport) {
-        this.dateOfImport = dateOfImport;
+    public void setDateOfLatestImport(Date dateOfImport) {
+        this.dateOfLatestImport = dateOfImport;
     }
 
     public Set<LecturerCourse> getLecturerCourses() {
@@ -376,19 +411,6 @@ public class Course {
         return childCourse;
     }
 
-    public void setChildCourse(Course childCourse) {
-        this.childCourse = childCourse;
-        childCourse.parentCourse = this;
-    }
-
-    public void removeChildCourse() {
-        if (childCourse == null) {
-            return;
-        }
-        childCourse.parentCourse = null;
-        childCourse = null;
-    }
-
     public Course getParentCourse() {
         return parentCourse;
     }
@@ -411,7 +433,37 @@ public class Course {
         return getParentCourse() != null;
     }
 
-    /**
+	/*
+	 * Return the repository entry of the course (if it is not continued) or the repository entry of the first parent
+	 * (if it is continued, since a child course does have the repository entry information itself)
+	 *
+	 * @return repository entry
+	 */
+	@Transient
+	public RepositoryEntry getRepositoryEntryOfCourseOrOfFirstParentOfContinuedCourse() {
+    	Course courseIt = this;
+    	while (courseIt.getParentCourse() != null) {
+    		courseIt = courseIt.getParentCourse();
+		}
+		return courseIt.getRepositoryEntry();
+	}
+
+	/*
+	 * Return the campus groups of the course (if it is not continued) or the repository entry of the first parent
+	 * (if it is continued, since a child course does have the repository entry information itself)
+	 *
+	 * @return repository entry
+	 */
+	@Transient
+	public CampusGroups getCampusGroupsOfCourseOrOfFirstParentOfContinuedCourse() {
+		Course courseIt = this;
+		while (courseIt.getParentCourse() != null) {
+			courseIt = courseIt.getParentCourse();
+		}
+		return new CampusGroups(courseIt.getCampusGroupA(), courseIt.getCampusGroupB());
+	}
+
+    /*
      * Create title to be displayed in OLAT (used as repository entry displayname and in course editor model).
      *
      * E.g. 16FS <LV-Kuerzel starting at position 4> Course Title

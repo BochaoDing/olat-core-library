@@ -19,9 +19,6 @@
  */
 package org.olat.repository.ui;
 
-import java.util.Collections;
-import java.util.List;
-
 import org.olat.NewControllerFactory;
 import org.olat.commons.fileutil.FileSizeLimitExceededException;
 import org.olat.core.commons.services.mark.Mark;
@@ -62,24 +59,14 @@ import org.olat.course.CourseModule;
 import org.olat.course.assessment.AssessmentMode;
 import org.olat.course.assessment.AssessmentModeManager;
 import org.olat.course.assessment.model.TransientAssessmentMode;
-import org.olat.repository.RepositoryEntry;
-import org.olat.repository.RepositoryEntryManagedFlag;
-import org.olat.repository.RepositoryEntryRef;
-import org.olat.repository.RepositoryManager;
-import org.olat.repository.RepositoryModule;
-import org.olat.repository.RepositoryService;
+import org.olat.repository.*;
 import org.olat.repository.controllers.EntryChangedEvent;
 import org.olat.repository.controllers.EntryChangedEvent.Change;
 import org.olat.repository.handlers.EditionSupport;
 import org.olat.repository.handlers.RepositoryHandler;
 import org.olat.repository.handlers.RepositoryHandlerFactory;
 import org.olat.repository.model.RepositoryEntrySecurity;
-import org.olat.repository.ui.author.AuthoringEditAccessController;
-import org.olat.repository.ui.author.CatalogSettingsController;
-import org.olat.repository.ui.author.ConfirmDeleteController;
-import org.olat.repository.ui.author.CopyRepositoryEntryController;
-import org.olat.repository.ui.author.RepositoryEditDescriptionController;
-import org.olat.repository.ui.author.RepositoryMembersController;
+import org.olat.repository.ui.author.*;
 import org.olat.repository.ui.list.LeavingEvent;
 import org.olat.repository.ui.list.RepositoryEntryDetailsController;
 import org.olat.resource.OLATResource;
@@ -93,6 +80,10 @@ import org.olat.resource.accesscontrol.ui.OrdersAdminController;
 import org.olat.user.UserManager;
 import org.olat.util.logging.activity.LoggingResourceable;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
+
+import java.util.Collections;
+import java.util.List;
 
 /**
  * 
@@ -166,6 +157,8 @@ public class RepositoryEntryRuntimeController extends MainLayoutBasicController 
 	private RepositoryHandlerFactory handlerFactory;
 	@Autowired
 	private AssessmentModeManager assessmentModeMgr;
+	@Autowired
+	private ApplicationContext applicationContext;
 	
 	public RepositoryEntryRuntimeController(UserRequest ureq, WindowControl wControl, RepositoryEntry re,
 			RepositoryEntrySecurity reSecurity, RuntimeControllerCreator runtimeControllerCreator) {
@@ -957,7 +950,14 @@ public class RepositoryEntryRuntimeController extends MainLayoutBasicController 
 		}
 		if (lastCrumb == null || lastCrumb.getController() != lifeCycleChangeCtr) {
 			// only create and add to stack if not already there
-			lifeCycleChangeCtr = new RepositoryEntryLifeCycleChangeController(ureq, getWindowControl(), re, reSecurity, handler);
+			RepositoryEntryLifeCycleChangeControllerFactory repositoryEntryLifeCycleChangeControllerFactory =
+					(RepositoryEntryLifeCycleChangeControllerFactory) applicationContext.getBean(
+							"repositoryEntryLifeCycleChangeControllerFactory",
+							ureq,
+							getWindowControl(),
+							reSecurity,
+							handler);
+			lifeCycleChangeCtr = repositoryEntryLifeCycleChangeControllerFactory.create(re);
 			listenTo(lifeCycleChangeCtr);
 			currentToolCtr = lifeCycleChangeCtr;
 			toolbarPanel.pushController(translate("details.lifecycle.change"), lifeCycleChangeCtr);

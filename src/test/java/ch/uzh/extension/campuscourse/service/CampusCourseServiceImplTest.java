@@ -1,5 +1,6 @@
 package ch.uzh.extension.campuscourse.service;
 
+import ch.uzh.extension.campuscourse.model.CampusCourseWithoutListsTO;
 import ch.uzh.extension.campuscourse.model.SapUserType;
 import ch.uzh.extension.campuscourse.model.SemesterName;
 import ch.uzh.extension.campuscourse.service.dao.DaoManager;
@@ -26,8 +27,8 @@ import static org.mockito.Mockito.when;
 public class CampusCourseServiceImplTest {
 	
 	private CampusCourseServiceImpl campusCourseLearnServiceImplTestObject;
-    private Set<Course> coursesWithResourceableId = new HashSet<>();
-    private Set<Course> coursesWithoutResourceableId = new HashSet<>();
+    private Set<CampusCourseWithoutListsTO> coursesWithRepositoryEntry = new HashSet<>();
+    private Set<CampusCourseWithoutListsTO> coursesWithoutRepositoryEntry = new HashSet<>();
     private Identity identityMock;
 
     @Before
@@ -45,7 +46,7 @@ public class CampusCourseServiceImplTest {
         course1.setLvKuerzel("ABCD11");
         course1.setLvNr("111111");
         course1.setSemester(semester);
-        coursesWithoutResourceableId.add(course1);
+        coursesWithoutRepositoryEntry.add(new CampusCourseWithoutListsTO(course1.getId(), null, null));
         when(daoManagerMock.loadCampusCourseTOForUI(course1.getId())).thenReturn(new CampusCourseTOForUI(course1.getTitleToBeDisplayed(), course1.getId()));
 
         // Course which could be opened
@@ -56,7 +57,7 @@ public class CampusCourseServiceImplTest {
         course2.setLvNr("2222222");
         course2.setRepositoryEntry(repositoryEntryMock);
         course2.setSemester(semester);
-        coursesWithResourceableId.add(course2);
+        coursesWithRepositoryEntry.add(new CampusCourseWithoutListsTO(course2.getId(), null, repositoryEntryMock));
         when(daoManagerMock.loadCampusCourseTOForUI(course2.getId())).thenReturn(new CampusCourseTOForUI(course2.getTitleToBeDisplayed(), course2.getId()));
 
         // Course which could be created
@@ -66,25 +67,25 @@ public class CampusCourseServiceImplTest {
         course3.setLvKuerzel("ABC33");
         course3.setLvNr("333333");
         course3.setSemester(semester);
-        coursesWithoutResourceableId.add(course3);
+        coursesWithRepositoryEntry.add(new CampusCourseWithoutListsTO(course3.getId(), null, repositoryEntryMock));
         when(daoManagerMock.loadCampusCourseTOForUI(course3.getId())).thenReturn(new CampusCourseTOForUI(course3.getTitleToBeDisplayed(), course3.getId()));
 
         // Mock for Identity
         identityMock = mock(Identity.class);
 
         when(campusCourseCoreServiceMock.getNotCreatedCourses(identityMock, SapUserType.LECTURER, null))
-                .thenReturn(coursesWithoutResourceableId);
+                .thenReturn(coursesWithoutRepositoryEntry);
         when(campusCourseCoreServiceMock.getCreatedCourses(identityMock, SapUserType.LECTURER, null))
-                .thenReturn(coursesWithResourceableId);
+                .thenReturn(coursesWithRepositoryEntry);
     }
 
     @Test
     public void getCoursesWhichCouldBeOpened() {
-        assertTrue(campusCourseLearnServiceImplTestObject.getCoursesWhichCouldBeOpened(identityMock, SapUserType.LECTURER, null).size() == coursesWithResourceableId.size());
+        assertTrue(campusCourseLearnServiceImplTestObject.getCoursesWhichCouldBeOpened(identityMock, SapUserType.LECTURER, null).size() == coursesWithRepositoryEntry.size());
     }
 
     @Test
     public void getCoursesWhichCouldBeCreated() {
-        assertTrue(campusCourseLearnServiceImplTestObject.getCoursesWhichCouldBeCreated(identityMock, null).size() == coursesWithoutResourceableId.size());
+        assertTrue(campusCourseLearnServiceImplTestObject.getCoursesWhichCouldBeCreated(identityMock, null).size() == coursesWithoutRepositoryEntry.size());
     }
 }

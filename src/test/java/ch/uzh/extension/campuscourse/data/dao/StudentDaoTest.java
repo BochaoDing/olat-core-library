@@ -10,7 +10,7 @@ import ch.uzh.extension.campuscourse.data.entity.Student;
 import ch.uzh.extension.campuscourse.data.entity.StudentCourse;
 import ch.uzh.extension.campuscourse.model.CourseSemesterOrgId;
 import ch.uzh.extension.campuscourse.model.StudentIdCourseId;
-import ch.uzh.extension.campuscourse.model.StudentIdCourseIdDateOfImport;
+import ch.uzh.extension.campuscourse.model.StudentIdCourseIdDateOfLatestImport;
 import ch.uzh.extension.campuscourse.util.DateUtil;
 import org.junit.Test;
 import org.olat.basesecurity.IdentityImpl;
@@ -22,6 +22,7 @@ import org.olat.user.UserManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
@@ -180,23 +181,23 @@ public class StudentDaoTest extends CampusCourseTestCase {
 
         // Map student auto and set time of import not too far in the past (-> should be selected)
         student.setKindOfMapping("AUTO");
-        student.setDateOfImport(DateUtil.addYearsToDate(referenceDateOfImport, -campusCourseConfiguration.getMaxYearsToKeepCkData() + 1));
+        student.setDateOfLatestImport(DateUtil.addYearsToDate(referenceDateOfImport, -campusCourseConfiguration.getMaxYearsToKeepCkData() + 1));
         dbInstance.flush();
         assertEquals(numberOfStudentsFoundBeforeInsertingTestData + 1, studentDao.getAllNotManuallyMappedOrTooOldOrphanedStudents(referenceDateOfImport).size());
 
         // Map student auto and set time of import too far in the past (-> should be selected)
-        student.setDateOfImport(DateUtil.addYearsToDate(referenceDateOfImport, -campusCourseConfiguration.getMaxYearsToKeepCkData() - 1));
+        student.setDateOfLatestImport(DateUtil.addYearsToDate(referenceDateOfImport, -campusCourseConfiguration.getMaxYearsToKeepCkData() - 1));
         dbInstance.flush();
         assertEquals(numberOfStudentsFoundBeforeInsertingTestData + 1, studentDao.getAllNotManuallyMappedOrTooOldOrphanedStudents(referenceDateOfImport).size());
 
         // Map student manually and set time of import not too far in the past (-> should not be selected)
         student.setKindOfMapping("MANUAL");
-        student.setDateOfImport(DateUtil.addYearsToDate(referenceDateOfImport, -campusCourseConfiguration.getMaxYearsToKeepCkData() + 1));
+        student.setDateOfLatestImport(DateUtil.addYearsToDate(referenceDateOfImport, -campusCourseConfiguration.getMaxYearsToKeepCkData() + 1));
         dbInstance.flush();
         assertEquals(numberOfStudentsFoundBeforeInsertingTestData, studentDao.getAllNotManuallyMappedOrTooOldOrphanedStudents(referenceDateOfImport).size());
 
         // Map student manually and set time of import too far in the past (-> should be selected)
-        student.setDateOfImport(DateUtil.addYearsToDate(referenceDateOfImport, -campusCourseConfiguration.getMaxYearsToKeepCkData() - 1));
+        student.setDateOfLatestImport(DateUtil.addYearsToDate(referenceDateOfImport, -campusCourseConfiguration.getMaxYearsToKeepCkData() - 1));
         dbInstance.flush();
         assertEquals(numberOfStudentsFoundBeforeInsertingTestData + 1, studentDao.getAllNotManuallyMappedOrTooOldOrphanedStudents(referenceDateOfImport).size());
 
@@ -305,7 +306,7 @@ public class StudentDaoTest extends CampusCourseTestCase {
         assertEquals(0, studentDao.getNumberOfStudentsWithBookingForCourseAndParentCourse(course2.getId()));
 
         // Make course 1 to be the parent of course 2
-        courseDao.saveParentCourseId(course2.getId(), course1.getId());
+        courseDao.saveParentCourseIdAndDateOfOlatCourseCreation(course2.getId(), course1.getId());
         dbInstance.flush();
 
         assertEquals(2, studentDao.getNumberOfStudentsWithBookingForCourseAndParentCourse(course2.getId()));
@@ -314,7 +315,7 @@ public class StudentDaoTest extends CampusCourseTestCase {
         assertEquals(0, studentDao.getNumberOfStudentsWithBookingForCourseAndParentCourse(course3.getId()));
 
         // Make course 2 to be the parent of course 3
-        courseDao.saveParentCourseId(course3.getId(), course2.getId());
+        courseDao.saveParentCourseIdAndDateOfOlatCourseCreation(course3.getId(), course2.getId());
         dbInstance.flush();
 
         assertEquals(1, studentDao.getNumberOfStudentsWithBookingForCourseAndParentCourse(course3.getId()));
@@ -334,7 +335,7 @@ public class StudentDaoTest extends CampusCourseTestCase {
         Course course3 = courseDao.getCourseById(300L);
 
         // Make course 1 to be the parent of course 2
-        courseDao.saveParentCourseId(course2.getId(), course1.getId());
+        courseDao.saveParentCourseIdAndDateOfOlatCourseCreation(course2.getId(), course1.getId());
         dbInstance.flush();
 
         assertEquals(2, studentDao.getNumberOfStudentsWithBookingForCourseAndParentCourse(course2.getId()));
@@ -342,7 +343,8 @@ public class StudentDaoTest extends CampusCourseTestCase {
         assertTrue(studentDao.hasMoreThan50PercentOfStudentsOfSpecificCourseBothABookingOfCourseAndParentCourse(course2));
 
         // Make course 1 to be the parent of course 3
-        courseDao.saveParentCourseId(course3.getId(), course1.getId());
+        courseDao.removeParentCourseAndResetDateOfOlatCourseCreation(course2.getId());
+        courseDao.saveParentCourseIdAndDateOfOlatCourseCreation(course3.getId(), course1.getId());
         dbInstance.flush();
 
         assertEquals(1, studentDao.getNumberOfStudentsWithBookingForCourseAndParentCourse(course3.getId()));
@@ -435,6 +437,9 @@ public class StudentDaoTest extends CampusCourseTestCase {
         assertNull(studentDao.getStudentById(2200L));
         assertNull(studentCourseDao.getStudentCourseById(2100L, 100L));
         assertNull(studentCourseDao.getStudentCourseById(2200L, 100L));
+
+        // Test with empty list
+        assertEquals(0, studentDao.deleteByStudentIdsAsBulkDelete(new ArrayList<>()));
     }
 
     @Test
@@ -468,8 +473,8 @@ public class StudentDaoTest extends CampusCourseTestCase {
         dbInstance.flush();
 
         // Insert some studentIdCourseIds
-        List<StudentIdCourseIdDateOfImport> studentIdCourseIdDateOfImports = campusCourseTestDataGenerator.createStudentIdCourseIdDateOfImports();
-        studentCourseDao.save(studentIdCourseIdDateOfImports);
+        List<StudentIdCourseIdDateOfLatestImport> studentIdCourseIdDateOfLatestImports = campusCourseTestDataGenerator.createStudentIdCourseIdDateOfImports();
+        studentCourseDao.save(studentIdCourseIdDateOfLatestImports);
         dbInstance.flush();
 
         // Set current semester

@@ -50,7 +50,7 @@ public class CourseProcessor implements ItemProcessor<CourseSemesterOrgId, Cours
     @Override
     public CourseSemesterOrgId process(CourseSemesterOrgId courseSemesterOrgId) throws Exception {
 
-        courseSemesterOrgId.setDateOfImport(new Date());
+        courseSemesterOrgId.setDateOfLatestImport(new Date());
 
         if (courseSemesterOrgId.getTitle().contains(SEMICOLON_REPLACEMENT)) {
             courseSemesterOrgId.setTitle(StringUtils.replace(courseSemesterOrgId.getTitle(), SEMICOLON_REPLACEMENT, SEMICOLON));

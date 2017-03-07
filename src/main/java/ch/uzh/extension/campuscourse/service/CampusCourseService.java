@@ -1,12 +1,14 @@
 package ch.uzh.extension.campuscourse.service;
 
-import ch.uzh.extension.campuscourse.data.entity.Course;
-import ch.uzh.extension.campuscourse.model.SapUserType;
 import ch.uzh.extension.campuscourse.model.CampusCourseTOForUI;
+import ch.uzh.extension.campuscourse.model.CampusCourseWithoutListsTO;
+import ch.uzh.extension.campuscourse.model.IdentityDate;
+import ch.uzh.extension.campuscourse.model.SapUserType;
 import org.olat.core.id.Identity;
 import org.olat.repository.RepositoryEntry;
 
 import java.util.List;
+import java.util.Set;
 
 /**
  * This is called from presentation.
@@ -50,15 +52,23 @@ public interface CampusCourseService {
      */
     List<CampusCourseTOForUI> getCoursesWhichCouldBeOpened(Identity identity, SapUserType userType, String searchString);
 
-	Course getLatestCourseByRepositoryEntry(RepositoryEntry repositoryEntry) throws Exception;
+	CampusCourseWithoutListsTO getCourseOrLastChildOfContinuedCourseByRepositoryEntryKey(RepositoryEntry repositoryEntry);
+
+	boolean isContinuedCourse(RepositoryEntry repositoryEntry);
+
+	void undoCourseContinuation(RepositoryEntry repositoryEntry, Identity creator);
+
+	List<String> getTitlesOfChildAndParentCoursesInAscendingOrder(RepositoryEntry repositoryEntry);
 
     void createDelegation(Identity delegator, Identity delegatee);
 
     boolean existsDelegation(Identity delegator, Identity delegatee);
 
-    List<Long> getRepositoryEntryKeysOfAllCreatedNotContinuedCoursesOfPreviousSemesters();
+    Set<Long> getRepositoryEntryKeysOfAllCreatedNotContinuedCoursesOfPreviousSemesters();
 
-    List getDelegatees(Identity delegator);
+    List<IdentityDate> getDelegateesAndCreationDateByDelegator(Identity delegator);
+
+	List<IdentityDate> getDelegatorsAndCreationDateByDelegatee(Identity delegatee);
 
     void deleteDelegation(Identity delegator, Identity delegatee);
 }

@@ -247,54 +247,58 @@ public class CampusCourseTestDataGenerator {
 		return courseSemesterOrgIds;
 	}
 
-	public List<StudentIdCourseIdDateOfImport> createStudentIdCourseIdDateOfImports() {
-		List<StudentIdCourseIdDateOfImport> studentIdCourseIds = new ArrayList<>();
-		studentIdCourseIds.add(new StudentIdCourseIdDateOfImport(2100L, 100L, DATE_OF_IMPORT));
-		studentIdCourseIds.add(new StudentIdCourseIdDateOfImport(2200L, 100L, DATE_OF_IMPORT));
-		studentIdCourseIds.add(new StudentIdCourseIdDateOfImport(2100L, 200L, DATE_OF_IMPORT));
-		studentIdCourseIds.add(new StudentIdCourseIdDateOfImport(2200L, 200L, DATE_OF_IMPORT));
-		studentIdCourseIds.add(new StudentIdCourseIdDateOfImport(2100L, 300L, DATE_OF_IMPORT));
-		studentIdCourseIds.add(new StudentIdCourseIdDateOfImport(2400L, 400L, DATE_OF_IMPORT));
-		studentIdCourseIds.add(new StudentIdCourseIdDateOfImport(2500L, 500L, DATE_OF_IMPORT));
-		studentIdCourseIds.add(new StudentIdCourseIdDateOfImport(2600L, 600L, DATE_OF_IMPORT));
-		studentIdCourseIds.add(new StudentIdCourseIdDateOfImport(2700L, 700L, DATE_OF_IMPORT));
-		studentIdCourseIds.add(new StudentIdCourseIdDateOfImport(2800L, 800L, DATE_OF_IMPORT));
+	public List<StudentIdCourseIdDateOfLatestImport> createStudentIdCourseIdDateOfImports() {
+		List<StudentIdCourseIdDateOfLatestImport> studentIdCourseIds = new ArrayList<>();
+		studentIdCourseIds.add(new StudentIdCourseIdDateOfLatestImport(2100L, 100L, DATE_OF_IMPORT));
+		studentIdCourseIds.add(new StudentIdCourseIdDateOfLatestImport(2200L, 100L, DATE_OF_IMPORT));
+		studentIdCourseIds.add(new StudentIdCourseIdDateOfLatestImport(2100L, 200L, DATE_OF_IMPORT));
+		studentIdCourseIds.add(new StudentIdCourseIdDateOfLatestImport(2200L, 200L, DATE_OF_IMPORT));
+		studentIdCourseIds.add(new StudentIdCourseIdDateOfLatestImport(2100L, 300L, DATE_OF_IMPORT));
+		studentIdCourseIds.add(new StudentIdCourseIdDateOfLatestImport(2400L, 400L, DATE_OF_IMPORT));
+		studentIdCourseIds.add(new StudentIdCourseIdDateOfLatestImport(2500L, 500L, DATE_OF_IMPORT));
+		studentIdCourseIds.add(new StudentIdCourseIdDateOfLatestImport(2600L, 600L, DATE_OF_IMPORT));
+		studentIdCourseIds.add(new StudentIdCourseIdDateOfLatestImport(2700L, 700L, DATE_OF_IMPORT));
+		studentIdCourseIds.add(new StudentIdCourseIdDateOfLatestImport(2800L, 800L, DATE_OF_IMPORT));
 		return studentIdCourseIds;
 	}
 
-	public List<LecturerIdCourseIdDateOfImport> createLecturerIdCourseIdDateOfImports() {
-		List<LecturerIdCourseIdDateOfImport> lecturerIdCourseIds = new ArrayList<>();
-		lecturerIdCourseIds.add(new LecturerIdCourseIdDateOfImport(1100L, 100L, DATE_OF_IMPORT));
-		lecturerIdCourseIds.add(new LecturerIdCourseIdDateOfImport(1100L, 200L, DATE_OF_IMPORT));
-		lecturerIdCourseIds.add(new LecturerIdCourseIdDateOfImport(1200L, 200L, DATE_OF_IMPORT));
-		lecturerIdCourseIds.add(new LecturerIdCourseIdDateOfImport(1300L, 300L, DATE_OF_IMPORT));
-		lecturerIdCourseIds.add(new LecturerIdCourseIdDateOfImport(1400L, 400L, DATE_OF_IMPORT));
-		lecturerIdCourseIds.add(new LecturerIdCourseIdDateOfImport(1500L, 500L, DATE_OF_IMPORT));
-		lecturerIdCourseIds.add(new LecturerIdCourseIdDateOfImport(1600L, 600L, DATE_OF_IMPORT));
-		lecturerIdCourseIds.add(new LecturerIdCourseIdDateOfImport(1800L, 700L, DATE_OF_IMPORT));
-		lecturerIdCourseIds.add(new LecturerIdCourseIdDateOfImport(1900L, 800L, DATE_OF_IMPORT));
+	public List<LecturerIdCourseIdDateOfLatestImport> createLecturerIdCourseIdDateOfImports() {
+		List<LecturerIdCourseIdDateOfLatestImport> lecturerIdCourseIds = new ArrayList<>();
+		lecturerIdCourseIds.add(new LecturerIdCourseIdDateOfLatestImport(1100L, 100L, DATE_OF_IMPORT));
+		lecturerIdCourseIds.add(new LecturerIdCourseIdDateOfLatestImport(1100L, 200L, DATE_OF_IMPORT));
+		lecturerIdCourseIds.add(new LecturerIdCourseIdDateOfLatestImport(1200L, 200L, DATE_OF_IMPORT));
+		lecturerIdCourseIds.add(new LecturerIdCourseIdDateOfLatestImport(1300L, 300L, DATE_OF_IMPORT));
+		lecturerIdCourseIds.add(new LecturerIdCourseIdDateOfLatestImport(1400L, 400L, DATE_OF_IMPORT));
+		lecturerIdCourseIds.add(new LecturerIdCourseIdDateOfLatestImport(1500L, 500L, DATE_OF_IMPORT));
+		lecturerIdCourseIds.add(new LecturerIdCourseIdDateOfLatestImport(1600L, 600L, DATE_OF_IMPORT));
+		lecturerIdCourseIds.add(new LecturerIdCourseIdDateOfLatestImport(1800L, 700L, DATE_OF_IMPORT));
+		lecturerIdCourseIds.add(new LecturerIdCourseIdDateOfLatestImport(1900L, 800L, DATE_OF_IMPORT));
 		return lecturerIdCourseIds;
 	}
 
 	public List<TextCourseId> createTextCourseIds() {
 		List<TextCourseId> textCourseIds = new ArrayList<>();
-		textCourseIds.add(new TextCourseId("Veranstaltungsinhalt", 1, "- praktische Tätigkeiten im chemischen Labor", DATE_OF_IMPORT, 100L));
-		textCourseIds.add(new TextCourseId("Veranstaltungsinhalt", 2, "- Herstellung von Lösungen unterschiedlicher Konzentration", DATE_OF_IMPORT, 100L));
-		textCourseIds.add(new TextCourseId("Unterrichtsmaterialien", 1, "Versuchsanleitungen,", DATE_OF_IMPORT, 100L));
-		textCourseIds.add(new TextCourseId("Unterrichtsmaterialien", 2, "download von homepage (s. link)", DATE_OF_IMPORT, 100L));
-		textCourseIds.add(new TextCourseId("Hinweise", 1, "Selbsttestfragen:", DATE_OF_IMPORT, 100L));
-		textCourseIds.add(new TextCourseId("Hinweise", 2, "Zugriff über www.vetpharm.uzh.ch/cyberpharm", DATE_OF_IMPORT, 100L));
-		textCourseIds.add(new TextCourseId("Veranstaltungsinhalt", 1, "- praktische Tätigkeiten im chemischen Labor2", DATE_OF_IMPORT, 200L));
-		textCourseIds.add(new TextCourseId("Veranstaltungsinhalt", 2, "- Herstellung von Lösungen unterschiedlicher Konzentration2", DATE_OF_IMPORT, 200L));
+		textCourseIds.add(new TextCourseId(100L, 999999991, "Veranstaltungsinhalt", 1, "- praktische Tätigkeiten im chemischen Labor", DATE_OF_IMPORT));
+		textCourseIds.add(new TextCourseId(100L, 999999991, "Veranstaltungsinhalt", 2, "- Herstellung von Lösungen unterschiedlicher Konzentration", DATE_OF_IMPORT));
+		textCourseIds.add(new TextCourseId(100L, 999999992, "Unterrichtsmaterialien", 1, "Versuchsanleitungen,", DATE_OF_IMPORT));
+		textCourseIds.add(new TextCourseId(100L, 999999992, "Unterrichtsmaterialien", 2, "download von homepage (s. link)", DATE_OF_IMPORT));
+		textCourseIds.add(new TextCourseId(100L, 999999993, "Hinweise", 1, "Selbsttestfragen:", DATE_OF_IMPORT));
+		textCourseIds.add(new TextCourseId(100L, 999999993, "Hinweise", 2, "Zugriff über www.vetpharm.uzh.ch/cyberpharm", DATE_OF_IMPORT));
+		textCourseIds.add(new TextCourseId(200L, 999999991, "Veranstaltungsinhalt", 1, "- praktische Tätigkeiten im chemischen Labor2", DATE_OF_IMPORT));
+		textCourseIds.add(new TextCourseId(200L, 999999991, "Veranstaltungsinhalt", 2, "- Herstellung von Lösungen unterschiedlicher Konzentration2", DATE_OF_IMPORT));
+		textCourseIds.add(new TextCourseId(300L, 999999991, "Veranstaltungsinhalt", 1, "- praktische Tätigkeiten im chemischen Labor3", DATE_OF_IMPORT));
+		textCourseIds.add(new TextCourseId(300L, 999999991, "Veranstaltungsinhalt", 2, "- Herstellung von Lösungen unterschiedlicher Konzentration3", DATE_OF_IMPORT));
 		return textCourseIds;
 	}
 
 	public List<EventCourseId> createEventCourseIds() {
 		List<EventCourseId> eventCourseIds = new ArrayList<>();
-		eventCourseIds.add(new EventCourseId(new GregorianCalendar(2014, Calendar.OCTOBER, 13).getTime(), "10:00:00",  "11:30:00", DATE_OF_IMPORT, 100L));
-		eventCourseIds.add(new EventCourseId(new GregorianCalendar(2014, Calendar.OCTOBER, 13).getTime(), "16:00:00",  "17:30:00", DATE_OF_IMPORT, 100L));
-		eventCourseIds.add(new EventCourseId(new GregorianCalendar(2014, Calendar.OCTOBER, 16).getTime(), "09:00:00",  "10:30:00", DATE_OF_IMPORT, 200L));
-		eventCourseIds.add(new EventCourseId(new GregorianCalendar(2014, Calendar.OCTOBER, 16).getTime(), "14:00:00",  "15:30:00", DATE_OF_IMPORT, 200L));
+		eventCourseIds.add(new EventCourseId(100L, new GregorianCalendar(2014, Calendar.OCTOBER, 13).getTime(), "10:00:00",  "11:30:00", DATE_OF_IMPORT));
+		eventCourseIds.add(new EventCourseId(100L, new GregorianCalendar(2014, Calendar.OCTOBER, 13).getTime(), "16:00:00",  "17:30:00", DATE_OF_IMPORT));
+		eventCourseIds.add(new EventCourseId(200L, new GregorianCalendar(2014, Calendar.OCTOBER, 16).getTime(), "09:00:00",  "10:30:00", DATE_OF_IMPORT));
+		eventCourseIds.add(new EventCourseId(200L, new GregorianCalendar(2014, Calendar.OCTOBER, 16).getTime(), "14:00:00",  "15:30:00", DATE_OF_IMPORT));
+		eventCourseIds.add(new EventCourseId(300L, new GregorianCalendar(2014, Calendar.OCTOBER, 19).getTime(), "19:00:00",  "20:30:00", DATE_OF_IMPORT));
+		eventCourseIds.add(new EventCourseId(300L, new GregorianCalendar(2014, Calendar.OCTOBER, 19).getTime(), "21:00:00",  "23:30:00", DATE_OF_IMPORT));
 		return eventCourseIds;
 	}
 

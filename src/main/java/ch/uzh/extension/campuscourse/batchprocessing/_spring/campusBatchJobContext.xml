@@ -71,17 +71,15 @@
 					</batch:tasklet>
 				</batch:step>
 			</batch:flow>
-			<!-- DISABLED FOR NOW -->
-			<!--
-			<batch:flow>
-				<batch:step id="import_events" parent="sapImportStep">
-					<batch:tasklet>
-						<batch:chunk reader="eventReader" processor="eventProcessor" writer="eventWriter" commit-interval="50" skip-limit="100000" retry-limit="5">
-						</batch:chunk>
-					</batch:tasklet>
-				</batch:step>
-			</batch:flow>
-			 -->
+	        <!-- DISABLED FOR NOW -->
+            <!--batch:flow>
+                <batch:step id="importEvents" parent="sapImportStep">
+                    <batch:tasklet>
+                        <batch:chunk reader="eventReader" processor="eventProcessor" writer="eventWriter" commit-interval="20" skip-limit="100000" retry-limit="5">
+                        </batch:chunk>
+                    </batch:tasklet>
+                </batch:step>
+            </batch:flow-->
 		</batch:split>
 	</batch:job>
 

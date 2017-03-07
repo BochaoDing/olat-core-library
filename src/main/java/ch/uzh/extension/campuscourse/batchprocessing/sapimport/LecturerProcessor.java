@@ -46,13 +46,10 @@ public class LecturerProcessor implements ItemProcessor<Lecturer, Lecturer> {
      */
     @Override
     public Lecturer process(Lecturer lecturer) throws Exception {
-
-        lecturer.setDateOfImport(new Date());
-
+        lecturer.setDateOfLatestImport(new Date());
         if (StringUtils.isBlank(lecturer.getEmail())) {
             lecturer.setEmail(lecturer.getPrivateEmail());
         }
-
         return lecturer;
     }
 

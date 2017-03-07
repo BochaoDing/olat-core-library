@@ -52,7 +52,7 @@ public class TextProcessor implements ItemProcessor<TextCourseId, TextCourseId> 
     @Override
     public TextCourseId process(TextCourseId text) throws Exception {
         text.setLine(StringUtils.replace(text.getLine(), SEMICOLON_REPLACEMENT, SEMICOLON));
-        text.setDateOfImport(new Date());
+        text.setDateOfLatestImport(new Date());
         return text;
     }
 }

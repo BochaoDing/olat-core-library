@@ -51,15 +51,12 @@ public class OrgProcessor implements ItemProcessor<Org, Org> {
      */
     @Override
     public Org process(Org org) throws Exception {
-
+		org.setDateOfLatestImport(new Date());
         for (String identifier : identifiers) {
             if (org.getShortName() != null && org.getShortName().startsWith(identifier.trim())) {
                 org.setEnabled(true);
             }
         }
-
-        org.setDateOfImport(new Date());
-
         return org;
     }
 

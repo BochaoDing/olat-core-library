@@ -11,19 +11,20 @@ import java.util.Date;
 @IdClass(LecturerCourseId.class)
 @NamedQueries({
         @NamedQuery(name = LecturerCourse.GET_ALL_NOT_UPDATED_LC_BOOKING_OF_CURRENT_IMPORT_PROCESS, query = "select new ch.uzh.extension.campuscourse.model.LecturerIdCourseId(lc.lecturer.personalNr, lc.course.id) from LecturerCourse lc " +
-                "where lc.dateOfImport < :lastDateOfImport and lc.course.semester.id = :semesterIdOfCurrentImportProcess"),
+                "where lc.dateOfLatestImport < :lastDateOfImport and lc.course.semester.id = :semesterIdOfCurrentImportProcess"),
         @NamedQuery(name = LecturerCourse.DELETE_BY_LECTURER_IDS, query = "delete from LecturerCourse lc where lc.lecturer.personalNr in :lecturerIds"),
         @NamedQuery(name = LecturerCourse.DELETE_BY_COURSE_IDS, query = "delete from LecturerCourse lc where lc.course.id in :courseIds"),
         @NamedQuery(name = LecturerCourse.DELETE_BY_LECTURER_ID_COURSE_ID, query = "delete from LecturerCourse lc where lc.lecturer.personalNr = :lecturerId and lc.course.id = :courseId"),
-        @NamedQuery(name = LecturerCourse.DELETE_ALL_LC_BOOKING_TOO_FAR_IN_THE_PAST, query = "delete from LecturerCourse lc where lc.dateOfImport < :nYearsInThePast")
+        @NamedQuery(name = LecturerCourse.DELETE_ALL_LC_BOOKING_TOO_FAR_IN_THE_PAST, query = "delete from LecturerCourse lc where lc.dateOfLatestImport < :nYearsInThePast"),
+		@NamedQuery(name = LecturerCourse.DELETE_ALL_LC_BOOKING_TOO_FAR_IN_THE_PAST_EXCEPT_FOR_COURSES_TO_BE_EXCLUDED, query = "delete from LecturerCourse lc where lc.dateOfLatestImport < :nYearsInThePast and lc.course.id not in :courseIdsToBeExcluded")
 })
 public class LecturerCourse {
-
     public static final String GET_ALL_NOT_UPDATED_LC_BOOKING_OF_CURRENT_IMPORT_PROCESS = "getAllNotUpdatedLCBookingOfCurrentImportProcess";
     public static final String DELETE_BY_LECTURER_IDS = "deleteLecturerCourseByLecturerIds";
     public static final String DELETE_BY_COURSE_IDS = "deleteLecturerCourseByCourseIds";
     public static final String DELETE_BY_LECTURER_ID_COURSE_ID = "deleteLecturerCourseByLecturerIdCourseId";
     public static final String DELETE_ALL_LC_BOOKING_TOO_FAR_IN_THE_PAST = "deleteAllLCBookingTooFarInThePast";
+	public static final String DELETE_ALL_LC_BOOKING_TOO_FAR_IN_THE_PAST_EXCEPT_FOR_COURSES_TO_BE_EXCLUDED = "deleteAllLCBookingTooFarInThePastExceptForCoursesToBeExcluded";
 
     @Id
     @ManyToOne(optional = false)
@@ -35,17 +36,21 @@ public class LecturerCourse {
     @JoinColumn(name = "fk_course")
     private Course course;
 
+	@Temporal(TemporalType.TIMESTAMP)
+	@Column(name = "date_of_first_import", nullable = false)
+	private Date dateOfFirstImport;
+
     @Temporal(TemporalType.TIMESTAMP)
-    @Column(name = "date_of_import", nullable = false)
-    private Date dateOfImport;
+    @Column(name = "date_of_latest_import", nullable = false)
+    private Date dateOfLatestImport;
 
     public LecturerCourse() {
     }
 
-    public LecturerCourse(Lecturer lecturer, Course course, Date dateOfImport) {
+    public LecturerCourse(Lecturer lecturer, Course course, Date dateOfLatestImport) {
         this.lecturer = lecturer;
         this.course = course;
-        this.dateOfImport = dateOfImport;
+		this.dateOfLatestImport = dateOfLatestImport;
     }
 
     public Lecturer getLecturer() {
@@ -64,12 +69,20 @@ public class LecturerCourse {
         this.course = course;
     }
 
-    public Date getDateOfImport() {
-        return dateOfImport;
+	public Date getDateOfFirstImport() {
+		return dateOfFirstImport;
+	}
+
+	public void setDateOfFirstImport(Date dateOfFirstImport) {
+		this.dateOfFirstImport = dateOfFirstImport;
+	}
+
+	public Date getDateOfLatestImport() {
+        return dateOfLatestImport;
     }
 
-    public void setDateOfImport(Date dateOfImport) {
-        this.dateOfImport = dateOfImport;
+    public void setDateOfLatestImport(Date dateOfImport) {
+        this.dateOfLatestImport = dateOfImport;
     }
 
     @Override
@@ -90,4 +103,9 @@ public class LecturerCourse {
         result = 31 * result + course.hashCode();
         return result;
     }
+
+	public void mergeImportedAttributesInto(LecturerCourse lecturerCourseToBeUpdated) {
+		// all imported attributes, except ids
+		lecturerCourseToBeUpdated.setDateOfLatestImport(getDateOfLatestImport());
+	}
 }

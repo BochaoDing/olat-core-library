@@ -47,7 +47,7 @@ public class StudentProcessor implements ItemProcessor<Student, Student> {
      */
     @Override
     public Student process(Student student) throws Exception {
-        student.setDateOfImport(new Date());
+        student.setDateOfLatestImport(new Date());
         return student;
     }
 

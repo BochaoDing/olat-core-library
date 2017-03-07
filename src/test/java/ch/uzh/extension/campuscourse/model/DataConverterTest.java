@@ -187,11 +187,11 @@ public class DataConverterTest extends CampusCourseTestCase {
     }
 
     @Test
-    public void testGetDelegatees() {
+    public void testGetDelegateesAndCreationDateByDelegator() {
 
         Identity identityOfDelegator = insertTestUser("dataConverterTestDelegator", Identity.STATUS_ACTIV);
 
-        Assert.assertTrue(dataConverter.getDelegatees(identityOfDelegator).isEmpty());
+        Assert.assertTrue(dataConverter.getDelegateesAndCreationDateByDelegator(identityOfDelegator).isEmpty());
 
         // Create two delegations for the same delegator
         Identity identityOfDelegatee1 = insertTestUser("dataConverterTestDelegatee1", Identity.STATUS_ACTIV);
@@ -203,15 +203,42 @@ public class DataConverterTest extends CampusCourseTestCase {
         dbInstance.saveObject(delegation2);
         dbInstance.flush();
 
-        List<Object[]> delegateesAndModifiedDate = dataConverter.getDelegatees(identityOfDelegator);
+        List<IdentityDate> delegateesAndCreationDate = dataConverter.getDelegateesAndCreationDateByDelegator(identityOfDelegator);
 
-        Assert.assertEquals(2, delegateesAndModifiedDate.size());
+        Assert.assertEquals(2, delegateesAndCreationDate.size());
 
-        List<Identity> identitiesOfDelegatees = delegateesAndModifiedDate.stream().map(delegateeAndModifiedDate -> (Identity) delegateeAndModifiedDate[0]).collect(Collectors.toList());
+        List<Identity> identitiesOfDelegatees = delegateesAndCreationDate.stream().map(IdentityDate::getIdentity).collect(Collectors.toList());
 
         Assert.assertTrue(identitiesOfDelegatees.contains(identityOfDelegatee1));
         Assert.assertTrue(identitiesOfDelegatees.contains(identityOfDelegatee2));
     }
+
+	@Test
+	public void testGetDelegatorsAndCreationDateByDelegatee() {
+
+		Identity identityOfDelegatee = insertTestUser("dataConverterTestDelegatee", Identity.STATUS_ACTIV);
+
+		Assert.assertTrue(dataConverter.getDelegateesAndCreationDateByDelegator(identityOfDelegatee).isEmpty());
+
+		// Create two delegations for the same delegatee
+		Identity identityOfDelegator1 = insertTestUser("dataConverterTestDelegator1", Identity.STATUS_ACTIV);
+		Delegation delegation1 = new Delegation(identityOfDelegator1, identityOfDelegatee, new Date());
+		dbInstance.saveObject(delegation1);
+
+		Identity identityOfDelegator2 = insertTestUser("dataConverterTestDelegator2", Identity.STATUS_ACTIV);
+		Delegation delegation2 = new Delegation(identityOfDelegator2, identityOfDelegatee, new Date());
+		dbInstance.saveObject(delegation2);
+		dbInstance.flush();
+
+		List<IdentityDate> delegatorsAndCreationDate = dataConverter.getDelegatorsAndCreationDateByDelegatee(identityOfDelegatee);
+
+		Assert.assertEquals(2, delegatorsAndCreationDate.size());
+
+		List<Identity> identitiesOfDelegatees = delegatorsAndCreationDate.stream().map(IdentityDate::getIdentity).collect(Collectors.toList());
+
+		Assert.assertTrue(identitiesOfDelegatees.contains(identityOfDelegator1));
+		Assert.assertTrue(identitiesOfDelegatees.contains(identityOfDelegator2));
+	}
 
     private void insertTestData() throws CampusCourseException {
         // Insert some orgs
@@ -230,8 +257,8 @@ public class DataConverterTest extends CampusCourseTestCase {
         dbInstance.flush();
 
         // Add lecturers to courseOrgIds
-        List<LecturerIdCourseIdDateOfImport> lecturerIdCourseIdDateOfImports = campusCourseTestDataGenerator.createLecturerIdCourseIdDateOfImports();
-        lecturerCourseDao.save(lecturerIdCourseIdDateOfImports);
+        List<LecturerIdCourseIdDateOfLatestImport> lecturerIdCourseIdDateOfLatestImports = campusCourseTestDataGenerator.createLecturerIdCourseIdDateOfImports();
+        lecturerCourseDao.save(lecturerIdCourseIdDateOfLatestImports);
         dbInstance.flush();
 
         // Insert some students
@@ -240,8 +267,8 @@ public class DataConverterTest extends CampusCourseTestCase {
         dbInstance.flush();
 
         // Add students to courseOrgIds
-        List<StudentIdCourseIdDateOfImport> studentIdCourseIdDateOfImports = campusCourseTestDataGenerator.createStudentIdCourseIdDateOfImports();
-        studentCourseDao.save(studentIdCourseIdDateOfImports);
+        List<StudentIdCourseIdDateOfLatestImport> studentIdCourseIdDateOfLatestImports = campusCourseTestDataGenerator.createStudentIdCourseIdDateOfImports();
+        studentCourseDao.save(studentIdCourseIdDateOfLatestImports);
         dbInstance.flush();
     }
 

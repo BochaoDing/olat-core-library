@@ -6,6 +6,7 @@ import ch.uzh.extension.campuscourse.common.CampusCourseConfiguration;
 import ch.uzh.extension.campuscourse.common.CampusCourseException;
 import ch.uzh.extension.campuscourse.data.entity.*;
 import ch.uzh.extension.campuscourse.model.*;
+import ch.uzh.extension.campuscourse.util.DateUtil;
 import org.junit.Before;
 import org.junit.Test;
 import org.olat.group.BusinessGroup;
@@ -80,7 +81,7 @@ public class CourseDaoTest extends CampusCourseTestCase {
     @Before
     public void before() {
         campusCourseConfiguration.setMaxYearsToKeepCkData(1);
-        courseDao = new CourseDao(dbInstance, semesterDao, batchJobAndSapImportStatisticDao);
+        courseDao = new CourseDao(campusCourseConfiguration, dbInstance, semesterDao, batchJobAndSapImportStatisticDao);
     }
 
     @Test
@@ -225,24 +226,6 @@ public class CourseDaoTest extends CampusCourseTestCase {
     }
 
     @Test
-    public void testLatestCourseByRepositoryEntry() throws Exception {
-        insertTestData();
-
-        // Make course 400 to be the parent course of 300, 500 the parent of 400 and 600 the parent of 500 and set for courses 300, 400 and 500 the repository entry of course 600
-        courseDao.saveParentCourseId(300L, 400L);
-        courseDao.saveParentCourseId(400L, 500L);
-        courseDao.saveParentCourseId(500L, 600L);
-        Course course = courseDao.getCourseById(600L);
-        courseDao.saveRepositoryEntry(300L, course.getRepositoryEntry().getKey());
-        courseDao.saveRepositoryEntry(400L, course.getRepositoryEntry().getKey());
-        courseDao.saveRepositoryEntry(500L, course.getRepositoryEntry().getKey());
-
-        course = courseDao.getLatestCourseByRepositoryEntry(course.getRepositoryEntry().getKey());
-        assertNotNull(course);
-        assertEquals(300L, course.getId().longValue());
-    }
-
-    @Test
     public void testDelete() throws CampusCourseException {
         insertTestData();
         assertNotNull(courseDao.getCourseById(100L));
@@ -355,8 +338,8 @@ public class CourseDaoTest extends CampusCourseTestCase {
         assertNotNull(repositoryEntry1);
 
         Course course2 = courseDao.getCourseById(300L);
-        // Add the repository entry of course 1 to course 2
-        courseDao.saveRepositoryEntry(course2.getId(), repositoryEntry1.getKey());
+        // Make course 1 to be the parent course of course 2
+		courseDao.saveParentCourseIdAndDateOfOlatCourseCreation(course2.getId(), course1.getId());
         dbInstance.flush();
 
         // Add different campus groups
@@ -398,13 +381,14 @@ public class CourseDaoTest extends CampusCourseTestCase {
     }
 
     @Test
-    public void testSaveRepositoryEntry() throws CampusCourseException {
+    public void testSaveRepositoryEntryAndDateOfOlatCourseCreation() throws CampusCourseException {
         insertTestData();
         Course course = courseDao.getCourseById(300L);
         assertNull(course.getRepositoryEntry());
+		assertNull(course.getDateOfOlatCourseCreation());
 
         RepositoryEntry repositoryEntry3 = repositoryService.create("Rei Ayanami", "-", "Repository entry 3 CourseDaoTest", "", null);
-        courseDao.saveRepositoryEntry(course.getId(), repositoryEntry3.getKey());
+        courseDao.saveRepositoryEntryAndDateOfOlatCourseCreation(course.getId(), repositoryEntry3.getKey());
 
         assertEquals(repositoryEntry3, course.getRepositoryEntry());
 
@@ -413,6 +397,7 @@ public class CourseDaoTest extends CampusCourseTestCase {
 
         Course updatedCourse = courseDao.getCourseById(course.getId());
         assertEquals(repositoryEntry3, updatedCourse.getRepositoryEntry());
+        assertNotNull(updatedCourse.getDateOfOlatCourseCreation());
     }
 
     @Test
@@ -456,26 +441,34 @@ public class CourseDaoTest extends CampusCourseTestCase {
     }
 
     @Test
-    public void testResetRepositoryEntryAndParentCourse() throws CampusCourseException {
+    public void testResetRepositoryEntryAndParentCoursesAndDateOfOlatCourseCreation() throws CampusCourseException {
         insertTestData();
         Course courseWithoutParentCourse = courseDao.getCourseById(100L);
-        Course courseWithParentCourse = courseDao.getCourseById(200L);
+        Course course2 = courseDao.getCourseById(200L);
+		Course course4 = courseDao.getCourseById(400L);
         dbInstance.flush();
 
-        // Make course 400 to be the parent course of 200
-        courseDao.saveParentCourseId(200L, 400L);
-        assertEquals(repositoryEntry1, courseWithoutParentCourse.getRepositoryEntry());
-        assertNull(courseWithoutParentCourse.getParentCourse());
-        assertEquals(repositoryEntry2, courseWithParentCourse.getRepositoryEntry());
-        assertNotNull(courseWithParentCourse.getParentCourse());
+        // Make course 2 to be the parent course of 4
+        courseDao.saveParentCourseIdAndDateOfOlatCourseCreation(course4.getId(), course2.getId());
+        dbInstance.flush();
 
-        courseDao.resetRepositoryEntryAndParentCourse(repositoryEntry1.getKey());
-        courseDao.resetRepositoryEntryAndParentCourse(repositoryEntry2.getKey());
+		assertNull(courseWithoutParentCourse.getParentCourse());
+        assertEquals(repositoryEntry1, courseWithoutParentCourse.getRepositoryEntry());
+		assertEquals(course2.getId(), course4.getParentCourse().getId());
+        assertEquals(repositoryEntry2, course2.getRepositoryEntry());
+		assertNotNull(course4.getDateOfOlatCourseCreation());
+
+        courseDao.resetRepositoryEntryAndParentCoursesAndDateOfOlatCourseCreation(repositoryEntry1.getKey());
+        courseDao.resetRepositoryEntryAndParentCoursesAndDateOfOlatCourseCreation(repositoryEntry2.getKey());
 
         assertNull(courseWithoutParentCourse.getRepositoryEntry());
         assertNull(courseWithoutParentCourse.getParentCourse());
-        assertNull(courseWithParentCourse.getRepositoryEntry());
-        assertNull(courseWithParentCourse.getParentCourse());
+        assertNull(course2.getRepositoryEntry());
+        assertNull(course2.getParentCourse());
+        assertNull(course2.getDateOfOlatCourseCreation());
+		assertNull(course4.getRepositoryEntry());
+		assertNull(course4.getParentCourse());
+		assertNull(course4.getDateOfOlatCourseCreation());
 
         dbInstance.flush();
         dbInstance.clear();
@@ -483,9 +476,12 @@ public class CourseDaoTest extends CampusCourseTestCase {
         Course updatedCourseWithoutParentCourse = courseDao.getCourseById(100L);
         assertNull(updatedCourseWithoutParentCourse.getRepositoryEntry());
         assertNull(updatedCourseWithoutParentCourse.getParentCourse());
-        Course updatedCourseWithParentcourse = courseDao.getCourseById(200L);
-        assertNull(updatedCourseWithParentcourse.getRepositoryEntry());
-        assertNull(updatedCourseWithParentcourse.getParentCourse());
+        Course updatedCourse2 = courseDao.getCourseById(200L);
+        assertNull(updatedCourse2.getRepositoryEntry());
+        assertNull(updatedCourse2.getParentCourse());
+		Course updatedCourse4 = courseDao.getCourseById(400L);
+		assertNull(updatedCourse4.getRepositoryEntry());
+		assertNull(updatedCourse4.getParentCourse());
     }
 
     @Test
@@ -529,16 +525,17 @@ public class CourseDaoTest extends CampusCourseTestCase {
     }
 
     @Test
-    public void testSaveParentCourseId() throws CampusCourseException {
+    public void testSaveParentCourseIdAndDateOfOlatCourseCreation() throws CampusCourseException {
         insertTestData();
         Course parentCourse = courseDao.getCourseById(100L);
         Course course = courseDao.getCourseById(200L);
         assertNotNull(parentCourse);
         assertNotNull(course);
         assertNull(course.getParentCourse());
+		assertNull(course.getDateOfOlatCourseCreation());
         assertNull(parentCourse.getChildCourse());
 
-        courseDao.saveParentCourseId(200L, 100L);
+        courseDao.saveParentCourseIdAndDateOfOlatCourseCreation(200L, 100L);
 
         assertParentCourse(course, parentCourse);
 
@@ -548,6 +545,7 @@ public class CourseDaoTest extends CampusCourseTestCase {
         Course updatedParentCourse = courseDao.getCourseById(100L);
         Course updatedCourse = courseDao.getCourseById(200L);
         assertParentCourse(updatedCourse, updatedParentCourse);
+        assertNotNull(updatedCourse.getDateOfOlatCourseCreation());
     }
 
     private void assertParentCourse(Course course, Course parentCourse) {
@@ -556,6 +554,36 @@ public class CourseDaoTest extends CampusCourseTestCase {
         assertNotNull(parentCourse.getChildCourse());
         assertEquals(200L, parentCourse.getChildCourse().getId().longValue());
     }
+
+    @Test
+	public void testRemoveParentCourseAndResetDateOfOlatCourseCreation() throws CampusCourseException {
+		insertTestData();
+
+		Course course1 = courseDao.getCourseById(200L);
+		RepositoryEntry repositoryEntry1 = course1.getRepositoryEntry();
+		assertNotNull(repositoryEntry1);
+
+		Course course2 = courseDao.getCourseById(300L);
+		// Make course 1 to be the parent course of course 2
+		courseDao.saveParentCourseIdAndDateOfOlatCourseCreation(course2.getId(), course1.getId());
+		dbInstance.flush();
+		dbInstance.clear();
+
+		Course course2Reloaded = courseDao.getCourseById(300L);
+		assertNotNull(course2Reloaded.getParentCourse());
+		assertNotNull(course2Reloaded.getDateOfOlatCourseCreation());
+
+		courseDao.removeParentCourseAndResetDateOfOlatCourseCreation(300L);
+		assertNull(course2Reloaded.getParentCourse());
+		assertNull(course2Reloaded.getDateOfOlatCourseCreation());
+
+		dbInstance.flush();
+		dbInstance.clear();
+
+		course2Reloaded = courseDao.getCourseById(300L);
+		assertNull(course2Reloaded.getParentCourse());
+		assertNull(course2Reloaded.getDateOfOlatCourseCreation());
+	}
 
     @Test
     public void testGetRepositoryEntryKeysOfAllCreatedNotContinuedCoursesOfSpecificSemesters() throws CampusCourseException {
@@ -579,14 +607,13 @@ public class CourseDaoTest extends CampusCourseTestCase {
         assertTrue(repositoryEntryKeysOfAllCreatedNotContinuedCoursesOfSpecificSemesters.contains(repositoryEntry5.getKey()));
         assertTrue(repositoryEntryKeysOfAllCreatedNotContinuedCoursesOfSpecificSemesters.contains(repositoryEntry6.getKey()));
 
-        // Make course 400 to be the parent course of 300 and set set the same repository entry for courses 300 and 400
+        // Make course 400 to be the parent course of 300
         // -> Should not contain course 400 any more, because it is continued, i.e. it is the parent of course 300
         dbInstance.clear();
-        courseDao.saveParentCourseId(300L, 400L);
+        courseDao.saveParentCourseIdAndDateOfOlatCourseCreation(300L, 400L);
 
         RepositoryEntry repositoryEntry = repositoryService.create("Rei Ayanami", "-", "Repository entry CourseDaoTest", "", null);
-        courseDao.saveRepositoryEntry(300L, repositoryEntry.getKey());
-        courseDao.saveRepositoryEntry(400L, repositoryEntry.getKey());
+        courseDao.saveRepositoryEntryAndDateOfOlatCourseCreation(400L, repositoryEntry.getKey());
         dbInstance.flush();
 
         repositoryEntryKeysOfAllCreatedNotContinuedCoursesOfSpecificSemesters = courseDao.getRepositoryEntryKeysOfAllCreatedNotContinuedCoursesOfSpecificSemesters(semesterIds);
@@ -594,35 +621,51 @@ public class CourseDaoTest extends CampusCourseTestCase {
         assertTrue(repositoryEntryKeysOfAllCreatedNotContinuedCoursesOfSpecificSemesters.contains(repositoryEntry5.getKey()));
         assertTrue(repositoryEntryKeysOfAllCreatedNotContinuedCoursesOfSpecificSemesters.contains(repositoryEntry6.getKey()));
 
-        // If we look for courses in 99HS, we should get course 300, which has a parent, but is not continued itself
-        dbInstance.clear();
+        // Test with empty list
+		assertTrue(courseDao.getRepositoryEntryKeysOfAllCreatedNotContinuedCoursesOfSpecificSemesters(new ArrayList<>()).isEmpty());
+    }
 
+    @Test
+    public void testGetRepositoryEntryKeysOfAllCreatedContinuedCoursesWithoutChildOfSpecificSemesters() throws CampusCourseException {
+        insertTestData();
+
+        // Make course 400 to be the parent course of 300
+        // -> Should not contain course 400 any more, because it is continued, i.e. it is the parent of course 300
+        courseDao.saveParentCourseIdAndDateOfOlatCourseCreation(300L, 400L);
+
+        RepositoryEntry repositoryEntry = repositoryService.create("Rei Ayanami", "-", "Repository entry CourseDaoTest", "", null);
+        courseDao.saveRepositoryEntryAndDateOfOlatCourseCreation(400L, repositoryEntry.getKey());
+        dbInstance.flush();
+
+        // If we look for courses in 99HS, we should get the repository entry of course 400, since its child is not continued
         Semester semester4 = semesterDao.getSemesterBySemesterNameAndYear(SemesterName.HERBSTSEMESTER, 2099);
         assertNotNull(semester4);
 
-        semesterIds = new ArrayList<>();
+		List<Long>  semesterIds = new ArrayList<>();
         semesterIds.add(semester4.getId());
 
-        repositoryEntryKeysOfAllCreatedNotContinuedCoursesOfSpecificSemesters = courseDao.getRepositoryEntryKeysOfAllCreatedNotContinuedCoursesOfSpecificSemesters(semesterIds);
-        assertTrue(repositoryEntryKeysOfAllCreatedNotContinuedCoursesOfSpecificSemesters.contains(repositoryEntry.getKey()));
+		Set<Long> repositoryEntryKeysOfAllCreatedContinuedCoursesWithoutChildOfSpecificSemesters = courseDao.getRepositoryEntryKeysOfAllCreatedContinuedCoursesWithoutChildOfSpecificSemesters(semesterIds);
+        assertTrue(repositoryEntryKeysOfAllCreatedContinuedCoursesWithoutChildOfSpecificSemesters.contains(repositoryEntry.getKey()));
+
+        // Test with empty list
+        assertTrue(courseDao.getRepositoryEntryKeysOfAllCreatedContinuedCoursesWithoutChildOfSpecificSemesters(new ArrayList<>()).isEmpty());
     }
 
     @Test
     public void testGetRepositoryEntryKeysOfAllCreatedNotContinuedCoursesOfPreviousSemestersNotTooFarInThePast() throws CampusCourseException {
         insertTestData();
-        List<Long> repositoryEntryKeysOfAllCreatedNotContinuedCoursesOfOldSemestersNotTooFarInThePast = courseDao.getRepositoryEntryKeysOfAllCreatedNotContinuedCoursesOfPreviousSemestersNotTooFarInThePast();
+        Set<Long> repositoryEntryKeysOfAllCreatedNotContinuedCoursesOfOldSemestersNotTooFarInThePast = courseDao.getRepositoryEntryKeysOfAllCreatedNotContinuedCoursesOfPreviousSemestersNotTooFarInThePast();
         assertEquals(2, repositoryEntryKeysOfAllCreatedNotContinuedCoursesOfOldSemestersNotTooFarInThePast.size());
         assertTrue(repositoryEntryKeysOfAllCreatedNotContinuedCoursesOfOldSemestersNotTooFarInThePast.contains(repositoryEntry4.getKey()));
         assertTrue(repositoryEntryKeysOfAllCreatedNotContinuedCoursesOfOldSemestersNotTooFarInThePast.contains(repositoryEntry5.getKey()));
 
-        // Make course 400 to be the parent course of 300 and set set the same repository entry for courses 300 and 400
+        // Make course 400 to be the parent course of 300
         // -> Should not contain course 400 any more, because it is continued, i.e. it is the parent of course 300
         dbInstance.clear();
-        courseDao.saveParentCourseId(300L, 400L);
+        courseDao.saveParentCourseIdAndDateOfOlatCourseCreation(300L, 400L);
 
         RepositoryEntry repositoryEntry = repositoryService.create("Rei Ayanami", "-", "Repository entry CourseDaoTest", "", null);
-        courseDao.saveRepositoryEntry(300L, repositoryEntry.getKey());
-        courseDao.saveRepositoryEntry(400L, repositoryEntry.getKey());
+        courseDao.saveRepositoryEntryAndDateOfOlatCourseCreation(300L, repositoryEntry.getKey());
         dbInstance.flush();
 
         repositoryEntryKeysOfAllCreatedNotContinuedCoursesOfOldSemestersNotTooFarInThePast = courseDao.getRepositoryEntryKeysOfAllCreatedNotContinuedCoursesOfPreviousSemestersNotTooFarInThePast();
@@ -666,7 +709,7 @@ public class CourseDaoTest extends CampusCourseTestCase {
         insertTestData();
         assertEquals(2, courseDao.getAllCreatedCoursesOfCurrentSemester().size());
 
-        courseDao.deleteByCourseId(100L);
+        courseDao.deleteByCourseId(200L);
 
         dbInstance.flush();
         dbInstance.clear();
@@ -705,11 +748,75 @@ public class CourseDaoTest extends CampusCourseTestCase {
 
         Course course = courseDao.getCourseById(300L);
         assertNotNull(course);
-        courseDao.saveRepositoryEntry(course.getId(), repositoryEntry.getKey());
+        courseDao.saveRepositoryEntryAndDateOfOlatCourseCreation(course.getId(), repositoryEntry.getKey());
         dbInstance.flush();
 
         assertTrue(courseDao.existCoursesForRepositoryEntry(repositoryEntry.getKey()));
     }
+
+	@Test
+	public void testExistsContinuedCourseForRepositoryEntry() throws CampusCourseException {
+		insertTestData();
+
+		RepositoryEntry repositoryEntry = repositoryService.create("Rei Ayanami", "-", "Repository entry CourseDaoTest", "", null);
+
+		assertFalse(courseDao.existsContinuedCourseForRepositoryEntry(repositoryEntry.getKey()));
+
+		Course course1 = courseDao.getCourseById(300L);
+		Course course2 = courseDao.getCourseById(400L);
+		assertNotNull(course1);
+		assertNotNull(course2);
+		courseDao.saveRepositoryEntryAndDateOfOlatCourseCreation(course2.getId(), repositoryEntry.getKey());
+		dbInstance.flush();
+
+		assertFalse(courseDao.existsContinuedCourseForRepositoryEntry(repositoryEntry.getKey()));
+
+		// Make course 2 to be the parent of course 1
+		courseDao.saveParentCourseIdAndDateOfOlatCourseCreation(course1.getId(), course2.getId());
+		dbInstance.flush();
+
+		assertTrue(courseDao.existsContinuedCourseForRepositoryEntry(repositoryEntry.getKey()));
+	}
+
+	@Test
+	public void testGetCourseOrLastChildOfContinuedCourseByRepositoryEntryKey() throws CampusCourseException {
+		insertTestData();
+
+		Course course1 = courseDao.getCourseById(100L);
+		Course course2 = courseDao.getCourseById(200L);
+		Course course3 = courseDao.getCourseById(300L);
+		assertNotNull(course1);
+		assertNotNull(course2);
+		assertNotNull(course3);
+
+		// Make course 2 to be the child of course 1 and course 3 to be the child of course 2
+		courseDao.saveParentCourseIdAndDateOfOlatCourseCreation(course2.getId(), course1.getId());
+		courseDao.saveParentCourseIdAndDateOfOlatCourseCreation(course3.getId(), course2.getId());
+
+		// Create repository entry and make course 1 pointing to that repository entry
+		RepositoryEntry repositoryEntry1 = repositoryService.create("Rei Ayanami", "-", "Repository entry 1 CourseDaoLastChildTest", "", null);
+		courseDao.saveRepositoryEntryAndDateOfOlatCourseCreation(course1.getId(), repositoryEntry1.getKey());
+
+		dbInstance.flush();
+
+		Course lastChild = courseDao.getCourseOrLastChildOfContinuedCourseByRepositoryEntryKey(repositoryEntry1.getKey());
+		assertNotNull(lastChild);
+		assertEquals(course3.getId(), lastChild.getId());
+
+		dbInstance.flush();
+		dbInstance.clear();
+
+		// Ditto for a not continued course
+		Course course4 = courseDao.getCourseById(400L);
+		assertNotNull(course4);
+
+		RepositoryEntry repositoryEntry2 = repositoryService.create("Rei Ayanami", "-", "Repository entry 2 CourseDaoLastChildTest", "", null);
+		courseDao.saveRepositoryEntryAndDateOfOlatCourseCreation(course4.getId(), repositoryEntry2.getKey());
+
+		Course notContinuedCourse = courseDao.getCourseOrLastChildOfContinuedCourseByRepositoryEntryKey(repositoryEntry2.getKey());
+		assertNotNull(notContinuedCourse);
+		assertEquals(course4.getId(), notContinuedCourse.getId());
+	}
 
     @Test
     public void testGetCreatedCoursesOfCurrentSemesterByStudentId() throws CampusCourseException {
@@ -737,11 +844,10 @@ public class CourseDaoTest extends CampusCourseTestCase {
         Course course1 = courseDao.getCourseById(300L);
         Course course2 = courseDao.getCourseById(400L);
 
-        // Make course 2 to be the parent course of course 1 and set set the same repository entry for courses 1 and 2
-        courseDao.saveParentCourseId(course1.getId(), course2.getId());
+        // Make course 2 to be the parent course of course 1
+        courseDao.saveParentCourseIdAndDateOfOlatCourseCreation(course1.getId(), course2.getId());
 
         RepositoryEntry repositoryEntry = repositoryService.create("Rei Ayanami", "-", "Repository entry CourseDaoTest", "", null);
-        course1.setRepositoryEntry(repositoryEntry);
         course2.setRepositoryEntry(repositoryEntry);
         dbInstance.flush();
 
@@ -850,7 +956,7 @@ public class CourseDaoTest extends CampusCourseTestCase {
         Course course4 = courseDao.getCourseById(800L);
 
         // Make course 2 to be the parent course of course 1 (course 1 is creatable)
-        courseDao.saveParentCourseId(course1.getId(), course2.getId());
+        courseDao.saveParentCourseIdAndDateOfOlatCourseCreation(course1.getId(), course2.getId());
         dbInstance.flush();
 
         // Student 1 has only a booking for course course 1, but not for it's parent course
@@ -862,10 +968,9 @@ public class CourseDaoTest extends CampusCourseTestCase {
         List<Long> courseIds = coursesFound.stream().map(Course::getId).collect(Collectors.toList());
         assertTrue(courseIds.contains(course1.getId()));
 
-        // Add repository entry to courses 1 and 2, i.e. make it created
+        // Add repository entry to course 2, i.e. make it created
         RepositoryEntry repositoryEntry = repositoryService.create("Rei Ayanami", "-", "Repository entry CourseDaoTest", "", null);
-        courseDao.saveRepositoryEntry(course1.getId(), repositoryEntry.getKey());
-        courseDao.saveRepositoryEntry(course2.getId(), repositoryEntry.getKey());
+        courseDao.saveRepositoryEntryAndDateOfOlatCourseCreation(course2.getId(), repositoryEntry.getKey());
         dbInstance.flush();
 
         // Should behave as before
@@ -887,24 +992,56 @@ public class CourseDaoTest extends CampusCourseTestCase {
         dbInstance.flush();
 
         // Make course 2 to be the parent course of course 3 (course with disabled org)
-        courseDao.resetRepositoryEntryAndParentCourse(course1.getRepositoryEntry().getKey());
-        courseDao.saveParentCourseId(course3.getId(), course2.getId());
-        courseDao.saveRepositoryEntry(course3.getId(), repositoryEntry.getKey());
-        courseDao.saveRepositoryEntry(course2.getId(), repositoryEntry.getKey());
+        courseDao.resetRepositoryEntryAndParentCoursesAndDateOfOlatCourseCreation(course2.getRepositoryEntry().getKey());
+        courseDao.saveParentCourseIdAndDateOfOlatCourseCreation(course3.getId(), course2.getId());
+        courseDao.saveRepositoryEntryAndDateOfOlatCourseCreation(course2.getId(), repositoryEntry.getKey());
         dbInstance.flush();
 
         // Course 3 should not be found, since it has a disabled org
         assertTrue(courseDao.getCreatedAndNotCreatedCreatableCoursesOfCurrentSemesterByStudentIdBookedByStudentOnlyAsParentCourse(student2.getId()).isEmpty());
 
         // Make course 2 to be the parent course of course 4 (excluded course)
-        courseDao.resetRepositoryEntryAndParentCourse(course3.getRepositoryEntry().getKey());
-        courseDao.saveParentCourseId(course4.getId(), course2.getId());
-        courseDao.saveRepositoryEntry(course4.getId(), repositoryEntry.getKey());
-        courseDao.saveRepositoryEntry(course2.getId(), repositoryEntry.getKey());
+        courseDao.resetRepositoryEntryAndParentCoursesAndDateOfOlatCourseCreation(course2.getRepositoryEntry().getKey());
+        courseDao.saveParentCourseIdAndDateOfOlatCourseCreation(course4.getId(), course2.getId());
+        courseDao.saveRepositoryEntryAndDateOfOlatCourseCreation(course2.getId(), repositoryEntry.getKey());
         dbInstance.flush();
 
         // Course 4 should not be found, since it has a disabled org
         assertTrue(courseDao.getCreatedAndNotCreatedCreatableCoursesOfCurrentSemesterByStudentIdBookedByStudentOnlyAsParentCourse(student2.getId()).isEmpty());
+    }
+
+    @Test
+    public void testGetIdsOfContinuedCoursesTooFarInThePast() throws CampusCourseException {
+        insertTestData();
+
+		Course course1 = courseDao.getCourseById(100L);
+		Course course2 = courseDao.getCourseById(200L);
+		Course course3 = courseDao.getCourseById(300L);
+		Course course4 = courseDao.getCourseById(400L);
+		Course course5 = courseDao.getCourseById(500L);
+
+		// Make course 200 to be the parent course of 100
+		// and course 400 to be the parent course of 300 and
+		courseDao.saveParentCourseIdAndDateOfOlatCourseCreation(100L, 200L);
+		courseDao.saveParentCourseIdAndDateOfOlatCourseCreation(300L, 400L);
+
+		// Reference date of import far in the past such that we do not have problems with courses from OLAT live
+		Date referenceDateOfImport = new GregorianCalendar(1800, Calendar.JANUARY, 1).getTime();
+
+		// Courses 100, 200 and 300 should have a date of import not too far in the past;
+		// courses 400 and 500 should have a date of import too far in the past
+		course1.setDateOfLatestImport(DateUtil.addYearsToDate(referenceDateOfImport, -campusCourseConfiguration.getMaxYearsToKeepCkData() + 1));
+		course2.setDateOfLatestImport(DateUtil.addYearsToDate(referenceDateOfImport, -campusCourseConfiguration.getMaxYearsToKeepCkData() + 1));
+		course3.setDateOfLatestImport(DateUtil.addYearsToDate(referenceDateOfImport, -campusCourseConfiguration.getMaxYearsToKeepCkData() + 1));
+		course4.setDateOfLatestImport(DateUtil.addYearsToDate(referenceDateOfImport, -campusCourseConfiguration.getMaxYearsToKeepCkData() - 1));
+		course5.setDateOfLatestImport(DateUtil.addYearsToDate(referenceDateOfImport, -campusCourseConfiguration.getMaxYearsToKeepCkData() - 1));
+
+		dbInstance.flush();
+
+		List<Long> courseIds = courseDao.getIdsOfContinuedCoursesTooFarInThePast(referenceDateOfImport);
+
+		assertEquals(1, courseIds.size());
+		assertTrue(courseIds.contains(course4.getId()));
     }
 
 	@Test
@@ -933,8 +1070,8 @@ public class CourseDaoTest extends CampusCourseTestCase {
         dbInstance.flush();
 
         // Add lecturers to courseOrgIds
-        List<LecturerIdCourseIdDateOfImport> lecturerIdCourseIdDateOfImports = campusCourseTestDataGenerator.createLecturerIdCourseIdDateOfImports();
-        lecturerCourseDao.save(lecturerIdCourseIdDateOfImports);
+        List<LecturerIdCourseIdDateOfLatestImport> lecturerIdCourseIdDateOfLatestImports = campusCourseTestDataGenerator.createLecturerIdCourseIdDateOfImports();
+        lecturerCourseDao.save(lecturerIdCourseIdDateOfLatestImports);
         dbInstance.flush();
 
         // Insert some students
@@ -943,18 +1080,18 @@ public class CourseDaoTest extends CampusCourseTestCase {
         dbInstance.flush();
 
         // Add students to courseOrgIds
-        List<StudentIdCourseIdDateOfImport> studentIdCourseIdDateOfImports = campusCourseTestDataGenerator.createStudentIdCourseIdDateOfImports();
-        studentCourseDao.save(studentIdCourseIdDateOfImports);
+        List<StudentIdCourseIdDateOfLatestImport> studentIdCourseIdDateOfLatestImports = campusCourseTestDataGenerator.createStudentIdCourseIdDateOfImports();
+        studentCourseDao.save(studentIdCourseIdDateOfLatestImports);
         dbInstance.flush();
 
         // Add some texts
         List<TextCourseId> textCourseIds = campusCourseTestDataGenerator.createTextCourseIds();
-        textDao.addTextsToCourse(textCourseIds);
+        textDao.save(textCourseIds);
         dbInstance.flush();
 
         // Add some events
         List<EventCourseId> eventCourseIds = campusCourseTestDataGenerator.createEventCourseIds();
-        eventDao.addEventsToCourse(eventCourseIds);
+        eventDao.save(eventCourseIds);
         dbInstance.flush();
 
         // Add import statistic

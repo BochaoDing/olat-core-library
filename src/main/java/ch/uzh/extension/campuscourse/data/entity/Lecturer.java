@@ -27,11 +27,11 @@ import java.util.Set;
 @NamedQueries({
         @NamedQuery(name = Lecturer.GET_LECTURER_BY_EMAIL, query = "select l from Lecturer l where l.email = :email"),
         @NamedQuery(name = Lecturer.GET_ALL_LECTURERS_WITH_CREATED_OR_NOT_CREATED_CREATABLE_COURSES, query = "select distinct l from Lecturer l join l.lecturerCourses lc where " +
-                "lc.course.repositoryEntry is not null or " +
+                "lc.course.repositoryEntry is not null or lc.course.parentCourse is not null or " +
                 "(lc.course.exclude = false " +
                 "and exists (select c1 from Course c1 join c1.orgs o where c1.id = lc.course.id and o.enabled = true))"),
         @NamedQuery(name = Lecturer.GET_ALL_NOT_MANUALLY_MAPPED_OR_TOO_OLD_ORPHANED_LECTURERS, query = "select l.personalNr from Lecturer l where " +
-                "(l.kindOfMapping is null or l.kindOfMapping <> 'MANUAL' or l.dateOfImport < :nYearsInThePast) " +
+                "(l.kindOfMapping is null or l.kindOfMapping <> 'MANUAL' or l.dateOfLatestImport < :nYearsInThePast) " +
                 "and l.personalNr not in (select lc.lecturer.personalNr from LecturerCourse lc)"),
         @NamedQuery(name = Lecturer.GET_LECTURERS_BY_MAPPED_IDENTITY_KEY, query = "select l from Lecturer l where l.mappedIdentity.key = :mappedIdentityKey"),
         @NamedQuery(name = Lecturer.DELETE_BY_LECTURER_IDS, query = "delete from Lecturer l where l.personalNr in :lecturerIds")
@@ -63,16 +63,20 @@ public class Lecturer {
     @Transient
     private String privateEmail;
 
-    @Temporal(TemporalType.TIMESTAMP)
-    @Column(name = "date_of_import", nullable = false)
-    private Date dateOfImport;
-
     @Column(name = "kind_of_mapping")
     private String kindOfMapping;
 
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "date_of_mapping")
     private Date dateOfMapping;
+
+	@Temporal(TemporalType.TIMESTAMP)
+	@Column(name = "date_of_first_import", nullable = false)
+	private Date dateOfFirstImport;
+
+	@Temporal(TemporalType.TIMESTAMP)
+	@Column(name = "date_of_latest_import", nullable = false)
+	private Date dateOfLatestImport;
 
     @OneToMany(mappedBy = "lecturer")
     private Set<LecturerCourse> lecturerCourses = new HashSet<>();
@@ -89,12 +93,14 @@ public class Lecturer {
         this.personalNr = personalNr;
     }
 
-    public Lecturer(Long personalNr, String firstName, String lastName, String email, Date dateOfImport) {
+    public Lecturer(Long personalNr, String firstName, String lastName, String email, Date dateOfLatestImport) {
         this.personalNr = personalNr;
         this.firstName = firstName;
         this.lastName = lastName;
         this.email = email;
-        this.dateOfImport = dateOfImport;
+
+
+		this.dateOfLatestImport = dateOfLatestImport;
     }
 
     public Long getPersonalNr() {
@@ -137,14 +143,6 @@ public class Lecturer {
         this.privateEmail = privateEmail;
     }
 
-    public Date getDateOfImport() {
-        return dateOfImport;
-    }
-
-    public void setDateOfImport(Date dateOfImport) {
-        this.dateOfImport = dateOfImport;
-    }
-
     public String getAdditionalPersonalNrs() {
         return additionalPersonalNrs;
     }
@@ -168,6 +166,22 @@ public class Lecturer {
     public void setDateOfMapping(Date dateOfMapping) {
         this.dateOfMapping = dateOfMapping;
     }
+
+	public Date getDateOfFirstImport() {
+		return dateOfFirstImport;
+	}
+
+	public void setDateOfFirstImport(Date dateOfFirstImport) {
+		this.dateOfFirstImport = dateOfFirstImport;
+	}
+
+	public Date getDateOfLatestImport() {
+		return dateOfLatestImport;
+	}
+
+	public void setDateOfLatestImport(Date dateOfImport) {
+		this.dateOfLatestImport = dateOfImport;
+	}
 
     public Identity getMappedIdentity() {
         return mappedIdentity;
@@ -220,13 +234,13 @@ public class Lecturer {
         return builder.toHashCode();
     }
 
-    public void mergeAllExceptMappingAttributes(Lecturer lecturer) {
-        lecturer.setPersonalNr(getPersonalNr());
-        lecturer.setFirstName(getFirstName());
-        lecturer.setLastName(getLastName());
-        lecturer.setEmail(getEmail());
-        lecturer.setAdditionalPersonalNrs(getAdditionalPersonalNrs());
-        lecturer.setDateOfImport(getDateOfImport());
+    public void mergeImportedAttributesInto(Lecturer lecturerToBeUpdated) {
+		// all imported attributes, except id and date of first import
+        lecturerToBeUpdated.setFirstName(getFirstName());
+        lecturerToBeUpdated.setLastName(getLastName());
+        lecturerToBeUpdated.setEmail(getEmail());
+        lecturerToBeUpdated.setAdditionalPersonalNrs(getAdditionalPersonalNrs());
+		lecturerToBeUpdated.setDateOfLatestImport(getDateOfLatestImport());
     }
 
 }

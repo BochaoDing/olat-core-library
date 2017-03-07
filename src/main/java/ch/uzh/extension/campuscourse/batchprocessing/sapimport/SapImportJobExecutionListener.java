@@ -2,6 +2,7 @@ package ch.uzh.extension.campuscourse.batchprocessing.sapimport;
 
 import ch.uzh.extension.campuscourse.common.CampusCourseConfiguration;
 import ch.uzh.extension.campuscourse.data.entity.Semester;
+import ch.uzh.extension.campuscourse.model.CourseIdTextTypeIdLineNumber;
 import ch.uzh.extension.campuscourse.model.LecturerIdCourseId;
 import ch.uzh.extension.campuscourse.model.StudentIdCourseId;
 import ch.uzh.extension.campuscourse.service.dao.DaoManager;
@@ -97,21 +98,21 @@ public class SapImportJobExecutionListener implements JobExecutionListener {
 			return;
 		}
 
-		int lecturerCoursesToBeRemoved = daoManager.deleteAllLCBookingTooFarInThePast(jobExecution.getStartTime());
+		int numberOfLecturerCoursesToBeRemoved = daoManager.deleteAllLCBookingOfNotContinuedCoursesTooFarInThePast(jobExecution.getStartTime());
 		dbInstance.intermediateCommit();
 		List<LecturerIdCourseId> lecturerIdCourseIdsToBeRemoved = daoManager.getAllNotUpdatedLCBookingOfCurrentImportProcess(jobExecution.getStartTime(), semesterOfCurrentImportProcess);
-		lecturerCoursesToBeRemoved += lecturerIdCourseIdsToBeRemoved.size();
-		LOG.info("LECTURER_COURSES TO BE REMOVED ["  + lecturerCoursesToBeRemoved + "]");
+		numberOfLecturerCoursesToBeRemoved += lecturerIdCourseIdsToBeRemoved.size();
+		LOG.info("LECTURER_COURSES TO BE REMOVED ["  + numberOfLecturerCoursesToBeRemoved + "]");
 		if (!lecturerIdCourseIdsToBeRemoved.isEmpty()) {
 			daoManager.deleteLCBookingByLecturerIdCourseIds(lecturerIdCourseIdsToBeRemoved);
 			dbInstance.intermediateCommit();
 		}
 
-		int studentCoursesToBeRemoved = daoManager.deleteAllSCBookingTooFarInThePast(jobExecution.getStartTime());
+		int numberOfStudentCoursesToBeRemoved = daoManager.deleteAllSCBookingOfNotContinuedCoursesTooFarInThePast(jobExecution.getStartTime());
 		dbInstance.intermediateCommit();
 		List<StudentIdCourseId> studentIdCourseIdsToBeRemoved = daoManager.getAllNotUpdatedSCBookingOfCurrentImportProcess(jobExecution.getStartTime(), semesterOfCurrentImportProcess);
-		studentCoursesToBeRemoved += studentIdCourseIdsToBeRemoved.size();
-		LOG.info("STUDENT_COURSES TO BE REMOVED [" + studentCoursesToBeRemoved + "]");
+		numberOfStudentCoursesToBeRemoved += studentIdCourseIdsToBeRemoved.size();
+		LOG.info("STUDENT_COURSES TO BE REMOVED [" + numberOfStudentCoursesToBeRemoved + "]");
 		if (!studentIdCourseIdsToBeRemoved.isEmpty()) {
 			daoManager.deleteSCBookingByStudentIdCourseIds(studentIdCourseIdsToBeRemoved);
 			dbInstance.intermediateCommit();
@@ -144,6 +145,27 @@ public class SapImportJobExecutionListener implements JobExecutionListener {
 			daoManager.deleteOrgByIds(orgsToBeRemoved);
 			dbInstance.intermediateCommit();
 		}
+
+		int numberOfTextsToBeRemoved = daoManager.deleteAllTextsOfNotContinuedCoursesTooFarInThePast(jobExecution.getStartTime());
+		dbInstance.intermediateCommit();
+		List<CourseIdTextTypeIdLineNumber> courseIdTextTypeIdLineNumbersToBeRemoved = daoManager.getAllNotUpdatedTextsOfCurrentImportProcess(jobExecution.getStartTime(), semesterOfCurrentImportProcess);
+		numberOfTextsToBeRemoved += courseIdTextTypeIdLineNumbersToBeRemoved.size();
+		LOG.info("TEXTS TO BE REMOVED ["  + numberOfTextsToBeRemoved + "]");
+		if (!courseIdTextTypeIdLineNumbersToBeRemoved.isEmpty()) {
+			daoManager.deleteTextsByCourseIdTextTypeIdLineNumbers(courseIdTextTypeIdLineNumbersToBeRemoved);
+			dbInstance.intermediateCommit();
+		}
+
+		// DISABLED FOR NOW
+//		int numberOfEventsToBeRemoved = daoManager.deleteAllEventsOfNotContinuedCoursesTooFarInThePast(jobExecution.getStartTime());
+//		dbInstance.intermediateCommit();
+//		List<CourseIdDateStartEnd> courseIdDateStartEndsToBeRemoved = daoManager.getAllNotUpdatedEventsOfCurrentImportProcess(jobExecution.getStartTime(), semesterOfCurrentImportProcess);
+//		numberOfEventsToBeRemoved += courseIdDateStartEndsToBeRemoved.size();
+//		LOG.info("EVENTS TO BE REMOVED ["  + numberOfEventsToBeRemoved + "]");
+//		if (!courseIdDateStartEndsToBeRemoved.isEmpty()) {
+//			daoManager.deleteEventsByCourseIdDateStartEnds(courseIdDateStartEndsToBeRemoved);
+//			dbInstance.intermediateCommit();
+//		}
 
 		dbInstance.closeSession();
 	}

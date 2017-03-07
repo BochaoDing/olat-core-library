@@ -144,7 +144,8 @@ public class UserSearchFlexiController extends FlexiAutoCompleterController {
 			isAdministrativeUser = securityModule.isUserAllowedAdminProps(roles);
 			
 			// insert a autocompleter search
-			boolean autoCompleteAllowed = securityModule.isUserAllowedAutoComplete(roles);
+			// TODO: LMSUZH-225: Workaround to make autocomplete usersearch disappear
+			boolean autoCompleteAllowed = false; // boolean autoCompleteAllowed = securityModule.isUserAllowedAutoComplete(roles);
 			boolean ajax = Windows.getWindows(ureq).getWindowManager().isAjaxEnabled();
 			if (ajax && autoCompleteAllowed) {
 				//auto complete
