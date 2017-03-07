@@ -287,7 +287,6 @@ public class DaoManager {
     private List<CampusCourseWithoutListsTO> getCreatedCoursesByStudentId(Long studentId, String searchString) {
 
         List<Course> coursesOfStudent = courseDao.getCreatedCoursesOfCurrentSemesterByStudentId(studentId, searchString);
-        List<CampusCourseWithoutListsTO> campusCourseWithoutListsTOs = createListOfCampusCourseWithoutListsTOWithoutReload(coursesOfStudent);
 
         // We also have to look for courses the student booked as parent course
         List<Course> coursesBookedOnlyAsParentCourse = courseDao.getCreatedCoursesOfCurrentSemesterByStudentIdBookedByStudentOnlyAsParentCourse(studentId, searchString);
