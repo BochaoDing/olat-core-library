@@ -117,6 +117,10 @@ public class TransientIdentity implements Identity, User {
 	}
 
 	@Override
+	public void setStatus(Integer newStatus) {
+	}
+
+	@Override
 	public boolean equalsByPersistableKey(Persistable persistable) {
 		return super.equals(persistable);
 	}

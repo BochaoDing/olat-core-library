@@ -65,6 +65,13 @@ public class IdentityImpl implements Identity, IdentityRef, CreateInfo, Persista
 		//  
 	}
 
+	public IdentityImpl(String name, User user) {
+		this.name = name;
+		this.user = user;
+		status = Identity.STATUS_ACTIV;
+		this.setLastLogin(new Date());
+	}
+
 	@Override
 	public Long getKey() {
 		return key;
@@ -158,6 +165,7 @@ public class IdentityImpl implements Identity, IdentityRef, CreateInfo, Persista
 	/**
 	 * @param status The status to set.
 	 */
+	@Override
 	public void setStatus(Integer status) {
 		this.status = status == null ? 0 : status.intValue();
 	}

@@ -155,7 +155,11 @@ public final class PreviewIdentity implements Identity, User {
 	public Integer getStatus() {
 		return Identity.STATUS_ACTIV;
 	}
-	
+
+	@Override
+	public void setStatus(Integer newStatus) {
+	}
+
 	/**
 	 * @see org.olat.core.commons.persistence.Persistable#equalsByPersistableKey(org.olat.core.commons.persistence.Persistable)
 	 */

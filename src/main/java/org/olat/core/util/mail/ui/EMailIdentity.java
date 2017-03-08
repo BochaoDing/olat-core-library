@@ -80,6 +80,10 @@ public class EMailIdentity implements Identity {
 	}
 
 	@Override
+	public void setStatus(Integer newStatus) {
+	}
+
+	@Override
 	public Integer getStatus() {
 		return null;
 	}

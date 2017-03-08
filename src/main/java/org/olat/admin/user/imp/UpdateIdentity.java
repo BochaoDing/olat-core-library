@@ -117,7 +117,12 @@ public class UpdateIdentity implements Identity {
 	public Integer getStatus() {
 		return identity.getStatus();
 	}
-	
+
+	@Override
+	public void setStatus(Integer newStatus) {
+		identity.setStatus(newStatus);
+	}
+
 	@Override
 	public int hashCode() {
 		return identity.hashCode();
