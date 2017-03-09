@@ -1565,13 +1565,13 @@ function onTreeDrop(event, ui) {
 	}
 	var dragId = dragEl.attr('id')
 	var targetId = dragId.substring(2, dragId.length);
-	url += '%3Atnidle%3A' + targetId;
+	url += ':tnidle:' + targetId;
 
 	var droppableId = el.attr('id');
 	if(droppableId.indexOf('ds') == 0) {
-		url += '%3Asne%3Ayes';
+		url += ':sne:yes';
 	} else if(droppableId.indexOf('dt') == 0) {
-		url += '%3Asne%3Aend';
+		url += ':sne:end';
 	}
 	jQuery('.ui-droppable').each(function(index, el) {
 		jQuery(el).droppable( "disable" );
