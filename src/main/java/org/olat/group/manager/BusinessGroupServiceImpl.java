@@ -1378,7 +1378,7 @@ public class BusinessGroupServiceImpl implements BusinessGroupService, UserDataD
 	}
 	
 	@Override
-	public EnrollState enroll(Identity ureqIdentity, Roles ureqRoles, Identity identity, BusinessGroup group,
+	synchronized public EnrollState enroll(Identity ureqIdentity, Roles ureqRoles, Identity identity, BusinessGroup group,
 			MailPackage mailing) {
 		final BusinessGroup reloadedGroup = businessGroupDAO.loadForUpdate(group);
 		
