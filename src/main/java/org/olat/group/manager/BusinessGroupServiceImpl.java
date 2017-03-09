@@ -1171,7 +1171,9 @@ public class BusinessGroupServiceImpl implements BusinessGroupService, UserDataD
 		
 		//remove managed groups
 		for(Iterator<BusinessGroup> groupIt=groups.iterator(); groupIt.hasNext(); ) {
-			boolean managed = BusinessGroupManagedFlag.isManaged(groupIt.next(), BusinessGroupManagedFlag.membersmanagement);
+			BusinessGroup nextGroup = groupIt.next();
+			boolean managed = BusinessGroupManagedFlag.isManaged(nextGroup, BusinessGroupManagedFlag.membersmanagement)
+					&& !BusinessGroupManagedFlag.isManaged(nextGroup, BusinessGroupManagedFlag.excludeGroupCoachesFromMembersmanagement);
 			if(managed) {
 				groupIt.remove();
 			}

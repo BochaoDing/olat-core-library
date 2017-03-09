@@ -196,12 +196,13 @@ public class EditMembershipController extends FormBasicController {
 		
 		List<MemberOption> options = new ArrayList<MemberOption>();
 		for(StatisticsBusinessGroupRow group:groups) {
-			boolean managed = BusinessGroupManagedFlag.isManaged(group.getManagedFlags(), BusinessGroupManagedFlag.membersmanagement);
+			boolean membersManagementEnabled = BusinessGroupManagedFlag.isManaged(group.getManagedFlags(), BusinessGroupManagedFlag.membersmanagement);
+			boolean excludeGroupCoachesFromMembersManagementEnabled = BusinessGroupManagedFlag.isManaged(group.getManagedFlags(), BusinessGroupManagedFlag.excludeGroupCoachesFromMembersmanagement);
 			MemberOption option = new MemberOption(group);
 			BGPermission bgPermission = PermissionHelper.getPermission(group.getKey(), memberToLoad, groupMemberships);
-			option.setTutor(createSelection(bgPermission.isTutor(), !managed, GroupRoles.coach.name()));
-			option.setParticipant(createSelection(bgPermission.isParticipant() || defaultMembership, !managed, GroupRoles.participant.name()));
-			boolean waitingListEnable = !managed && group.isWaitingListEnabled();
+			option.setTutor(createSelection(bgPermission.isTutor() || (membersManagementEnabled && excludeGroupCoachesFromMembersManagementEnabled && !bgPermission.isParticipant()), !membersManagementEnabled || excludeGroupCoachesFromMembersManagementEnabled, GroupRoles.coach.name()));
+			option.setParticipant(createSelection(bgPermission.isParticipant() || defaultMembership, !membersManagementEnabled, GroupRoles.participant.name()));
+			boolean waitingListEnable = !membersManagementEnabled && group.isWaitingListEnabled();
 			option.setWaiting(createSelection(bgPermission.isWaitingList(), waitingListEnable, GroupRoles.waiting.name()));
 			options.add(option);
 		}
