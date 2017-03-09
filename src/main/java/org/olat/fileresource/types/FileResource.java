@@ -151,6 +151,9 @@ public class FileResource implements OLATResourceable {
 		} catch (IOException e) {
 			log.error("", e);
 			return false;
+		} catch (IllegalArgumentException e){
+			log.warn("something went wrong while copying the resource");
+			return false;
 		}
 	}
 
