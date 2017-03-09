@@ -185,12 +185,12 @@ public class URLBuilder {
 	public StringOutput buildHrefAndOnclick(StringOutput sb, String urlEnding, boolean ajaxEnabled, boolean dirtyCheck, boolean pushState, NameValuePair... commands) {
 		sb.append(" href=\"");
 		buildURI(sb, ajaxEnabled? AJAXFlags.MODE_TOBGIFRAME : AJAXFlags.MODE_NORMAL, commands);
-		sb.append("\" onclick=\"");
+		sb.append("\" onclick=\"return ");
 		if(ajaxEnabled) {
 			String escapedUrlEnding = StringHelper.escapeJavaScript(urlEnding);
-			buildXHREvent(sb, escapedUrlEnding, dirtyCheck, pushState, commands).append(" return false;");
+			buildXHREvent(sb, escapedUrlEnding, dirtyCheck, pushState, commands);
 		} else if(dirtyCheck) {
-			sb.append("return o2cl();");
+			sb.append("o2cl();");
 		}
 		sb.append("\" ");
 		return sb;
