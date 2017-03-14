@@ -1361,6 +1361,9 @@ function o_XHREvent(targetUrl, dirtyCheck, push) {
 	return false;
 }
 
+/*
+ * TODO Remove the duplicated code from the function right above.
+ */
 function o_XHREventWithEncodedUrl(targetUrl, dirtyCheck, push) {
 	if(dirtyCheck) {
 		if(!o2cl()) return false;
