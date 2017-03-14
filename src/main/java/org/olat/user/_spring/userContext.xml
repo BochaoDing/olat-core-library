@@ -201,7 +201,7 @@
         </constructor-arg>
 	</bean>
 
-	<bean id="loginBlacklist"class="java.util.ArrayList">
+	<bean id="loginBlacklist" class="java.util.ArrayList">
 		<constructor-arg index="0">
 		<list>
 			<!--
@@ -314,19 +314,6 @@
 		</property>
 	</bean>
 	-->
-
-    <bean id="triggerUserModuleInit" class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
-        <property name="targetObject" ref="userModule" />
-        <property name="targetMethod" value="init" />
-        <property name="arguments">
-            <value>
-                generateTestUsers=${user.generateTestUsers}
-                passwordChangeAllowed=${password.change.allowed}
-                passwordChangeAllowedLDAP=${ldap.propagatePasswordChangedOnLdapServer}
-                adminUserName=administrator
-            </value>
-        </property>
-    </bean>
 
 	<!-- Implementation to display "firstname lastname" -->
     <bean id="userDisplayName_firstname_lastname" class="org.olat.user.UserDisplayNameCreator" />

@@ -86,8 +86,9 @@ public class DBImpl implements DB, Destroyable {
 				emf = Persistence.createEntityManagerFactory("default", databaseProperties);
 			} catch (Exception e) {
 				// Our application is useless without DB, so fail fast and deliver a clear message
-				log.error("Could not create EntityManagerFactory with given database properties", e);
-				System.exit(0);
+				System.err.println("Could not create EntityManagerFactory with given database properties");
+				e.printStackTrace();
+				System.exit(-1);
 			}
 		}
 	}

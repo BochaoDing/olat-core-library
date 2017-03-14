@@ -144,7 +144,12 @@
 		<property name="group" value="institute" />
 		<property name="deletable" value="true" />
 	</bean>
-	
+
+	<bean id="userPropertyInstitutionalUserIdentifier" class="org.olat.user.propertyhandlers.Generic127CharTextPropertyHandler">
+		<property name="name" value="institutionalUserIdentifier" />
+		<property name="group" value="institute" />
+		<property name="deletable" value="true" />
+	</bean>
 
 	<bean id="userPropertyInstitutionalEmployeeNumber" class="org.olat.user.propertyhandlers.Generic127CharTextPropertyHandler">
 		<property name="name" value="institutionalEmployeeNumber" />
