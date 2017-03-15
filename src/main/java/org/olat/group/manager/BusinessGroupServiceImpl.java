@@ -1378,8 +1378,9 @@ public class BusinessGroupServiceImpl implements BusinessGroupService, UserDataD
 	}
 	
 	@Override
-	synchronized public EnrollState enroll(Identity ureqIdentity, Roles ureqRoles, Identity identity, BusinessGroup group,
+	public synchronized EnrollState enroll(Identity ureqIdentity, Roles ureqRoles, Identity identity, BusinessGroup group,
 			MailPackage mailing) {
+		dbInstance.commitAndCloseSession();
 		final BusinessGroup reloadedGroup = businessGroupDAO.loadForUpdate(group);
 		
 		log.info("doEnroll start: group=" + OresHelper.createStringRepresenting(group), identity.getName());
@@ -1399,7 +1400,6 @@ public class BusinessGroupServiceImpl implements BusinessGroupService, UserDataD
 		} else if (reloadedGroup.getMaxParticipants() != null) {
 			int participantsCounter = businessGroupRelationDAO.countEnrollment(reloadedGroup);
 			int reservations = reservationDao.countReservations(reloadedGroup.getResource());
-			
 			log.info("doEnroll - participantsCounter: " + participantsCounter + ", reservations: " + reservations + " maxParticipants: " + reloadedGroup.getMaxParticipants().intValue(), identity.getName());
 			if ((participantsCounter + reservations) >= reloadedGroup.getMaxParticipants().intValue()) {
 				// already full, show error and updated choose page again
