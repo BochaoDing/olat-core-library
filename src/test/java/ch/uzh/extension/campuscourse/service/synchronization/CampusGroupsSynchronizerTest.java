@@ -201,7 +201,7 @@ public class CampusGroupsSynchronizerTest extends CampusCourseTestCase {
     /**
      * 1. Setup campus group with two lecturers (firstLecturerIdentity, secondLecturerIdentity) <br>
      * 2. Synchronize Campus-Group, remove one coach (secondLecturerIdentity), add a new coach (thirdLecturerIdentity) <br>
-     * Coaches are only added, but never removed from the coache group.
+     * Coaches are only added, but never removed from the coach group.
      */
     @Test
     public void testSynchronizeCampusGroups_AddRemoveLectures_CheckRemovedStatisticAndMembers() throws CampusCourseException {

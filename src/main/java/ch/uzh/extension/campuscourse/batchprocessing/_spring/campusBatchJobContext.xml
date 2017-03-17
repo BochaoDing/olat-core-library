@@ -141,20 +141,29 @@
 		<batch:tasklet>
 			<batch:chunk commit-interval="500">
 				<batch:retryable-exception-classes>
-					<batch:include class="org.hibernate.StaleObjectStateException" />
-					<batch:include class="org.springframework.dao.OptimisticLockingFailureException" />
-					<batch:include class="org.hibernate.NonUniqueObjectException" />
-					<batch:include class="org.hibernate.StaleStateException" />
+					<batch:include class="javax.persistence.OptimisticLockException" />
+					<batch:include class="javax.persistence.PessimisticLockException" />
+					<batch:include class="javax.persistence.LockTimeoutException" />
 					<batch:include class="org.hibernate.exception.LockAcquisitionException" />
+					<batch:include class="org.hibernate.NonUniqueObjectException" />
+					<batch:include class="org.hibernate.StaleObjectStateException" />
+					<batch:include class="org.hibernate.StaleStateException" />
 				</batch:retryable-exception-classes>
 				<batch:skippable-exception-classes>
+					<batch:include class="javax.persistence.OptimisticLockException" />
+					<batch:include class="javax.persistence.PessimisticLockException" />
+					<batch:include class="javax.persistence.LockTimeoutException" />
+					<batch:include class="org.hibernate.exception.LockAcquisitionException" />
+					<batch:include class="org.hibernate.NonUniqueObjectException" />
+					<batch:include class="org.hibernate.StaleObjectStateException" />
+					<batch:include class="org.hibernate.StaleStateException" />
+					<batch:include class="javax.persistence.EntityNotFoundException" />
 					<batch:include class="org.springframework.batch.item.file.FlatFileParseException" />
 					<batch:include class="org.hibernate.exception.ConstraintViolationException" />
-					<batch:include class="ch.uzh.extension.campuscourse.common.CampusCourseException" />
 					<batch:include class="org.hibernate.LazyInitializationException" />
-					<batch:include class="java.lang.NullPointerException" />
+					<batch:include class="ch.uzh.extension.campuscourse.common.CampusCourseException" />
 					<batch:include class="org.olat.core.logging.AssertException" />
-					<batch:include class="javax.persistence.EntityNotFoundException" />
+					<batch:include class="java.lang.NullPointerException" />
 				</batch:skippable-exception-classes>
 			</batch:chunk>
 		</batch:tasklet>
