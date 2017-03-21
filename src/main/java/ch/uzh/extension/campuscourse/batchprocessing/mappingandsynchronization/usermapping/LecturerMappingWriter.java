@@ -87,10 +87,10 @@ public class LecturerMappingWriter implements ItemWriter<Lecturer> {
             // for each entry of the original lecturers separately enabling commits containing only one entry.
             // To avoid duplicated warnings we only log a warning in the latter case.
             if (lecturers.size() == 1) {
-                LOG.error(t.getMessage());
+                String msg = "Error when trying to map lecturer with personal number " + lecturers.get(0).getPersonalNr() + ": " + t.getMessage();
+                LOG.error(msg);
             } else {
-				String msg = "Error when trying to map lecturer with personal number " + lecturers.get(0).getPersonalNr() + ": " + t.getMessage();
-				LOG.debug(msg);
+				LOG.debug(t.getMessage());
             }
             throw t;
         }

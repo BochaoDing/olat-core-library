@@ -94,10 +94,10 @@ public class CampusCourseSynchronizationWriter implements ItemWriter<CampusCours
             // for each entry of the original sapCourses separately enabling commits containing only one entry.
             // To avoid duplicated warnings we only log a warning in the latter case.
             if (campusCourseTOs.size() == 1) {
-                LOG.error(t.getMessage());
+				String msg = "Could not synchronize campus course '" + campusCourseTOs.get(0).getTitleToBeDisplayed() + "': " + t.getMessage();
+                LOG.error(msg);
             } else {
-                String msg = "Could not synchronize campus course '" + campusCourseTOs.get(0).getTitleToBeDisplayed() + "': " + t.getMessage();
-                LOG.debug(msg);
+                LOG.debug(t.getMessage());
             }
             throw t;
         }

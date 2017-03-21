@@ -89,10 +89,10 @@ public class StudentMappingWriter implements ItemWriter<Student> {
             // for each entry of the original students separately enabling commits containing only one entry.
             // To avoid duplicated warnings we only log a warning in the latter case.
             if (students.size() == 1) {
-                LOG.error(t.getMessage());
+				String msg = "Error when trying to map student with sap id " + students.get(0).getId() + ": " + t.getMessage();
+                LOG.error(msg);
             } else {
-            	String msg = "Error when trying to map student with sap id " + students.get(0).getId() + ": " + t.getMessage();
-                LOG.debug(msg);
+                LOG.debug(t.getMessage());
             }
             throw t;
         }
