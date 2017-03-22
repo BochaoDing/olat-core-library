@@ -43,7 +43,8 @@ jsMath.Easy = {
   //  1 means use the autoload plug-in to decide if jsMath should be loaded
   //  0 means always load jsMath
   //
-  autoload: 1,
+  // issue OLAT-6528: disabled autoload to solve problem with Wiki (see issue)
+  autoload: 0,
 
   //
   //  Setting any of these will cause the tex2math plugin to be used
@@ -137,7 +138,9 @@ jsMath.Easy = {
   //
   //  Disable image fonts?  (In case you don't load them on your server.)
   //
-  noImageFonts: 1
+  // issue OLAT-6528 => enabled using of image fonts. need to consider possible performance problems
+  // http://bugs.olat.uzh.ch/browse/LMSUZH-297
+  noImageFonts: 0
   
 };
 
