@@ -219,11 +219,10 @@ public class ListRenderer {
 		  .append("<input type=\"checkbox\" name=\"")
 		  .append(FileSelection.FORM_ID)
 		  .append("\" value=\"");
+		// add escaped folder name
+		sb.append(StringHelper.escapeHtml(name));
 		if(xssErrors) {
-			sb.append(StringHelper.escapeHtml(name))
-			  .append(" disabled=\"disabled\"");
-		} else {
-			sb.append(name);
+			sb.append(" disabled=\"disabled\"");
 		}
 		sb.append("\" /> ");
 		// browse link pre
