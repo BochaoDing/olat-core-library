@@ -405,11 +405,7 @@ public class RichTextConfiguration implements Disposable {
 	private void setLanguage(Locale loc) {
 		// tiny does not support country or variant codes, only language code
 		String langKey = loc.getLanguage();
-		String path = "/static/js/tinymce4/tinymce/langs/" + langKey + ".js";
-		String realPath = WebappHelper.getContextRealPath(path);
-		if(realPath == null || !(new File(realPath).exists())) {
-			langKey = "en";
-		}
+		assert "en".equals(langKey) || "de".equals(langKey) || "fr".equals(langKey) || "it".equals(langKey);
 		setQuotedConfigValue(LANGUAGE, langKey);
 	}
 
