@@ -59,8 +59,8 @@ public class NodeAssessmentTableDataModel extends DefaultTableDataModel<Map<Stri
      * @see org.olat.core.gui.components.table.TableDataModel#getColumnCount()
      */
     public int getColumnCount() {
-    		// node, details, attempts, score, passed
-        return 6;
+    		// node, details, attempts, score, status, passed
+        return 7;
     }
 
     /**
@@ -94,6 +94,10 @@ public class NodeAssessmentTableDataModel extends DefaultTableDataModel<Map<Stri
 					//max score
 					Float maxScore = (Float)nodeData.get(AssessmentHelper.KEY_MAX);
 					return maxScore == null ? null : maxScore;
+				case 8:
+					// status
+					String status = (String) nodeData.get(AssessmentHelper.KEY_STATUS);
+					return status == null ? null : trans.translate("status." + status);
 				default:
 					return "error";
 			}
