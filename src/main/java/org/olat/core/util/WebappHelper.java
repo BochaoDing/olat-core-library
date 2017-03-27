@@ -75,8 +75,8 @@ public class WebappHelper implements Initializable, Destroyable, ServletContextA
 	private static boolean enforceUtf8Filesystem;
 	private static Map<String, String> mailConfig = new HashMap<String, String>(6);
 	private static long timeOfServerStartup = System.currentTimeMillis();
-	
-	
+
+	private static String mathJaxCdn;
 	private static String mobileContext;
 	
 	/** need to set this at least once before the actual request, since we cannot extract it from the servletContext, 
@@ -297,6 +297,14 @@ public class WebappHelper implements Initializable, Destroyable, ServletContextA
 		}
 		
 		WebappHelper.mobileContext = mobileContext;
+	}
+
+	public static String getMathJaxCdn() {
+		return mathJaxCdn;
+	}
+
+	public void setMathJaxCdn(String mathJaxCdn) {
+		WebappHelper.mathJaxCdn = mathJaxCdn;
 	}
 
 	public void setFullPathToSrc(String fullPathToSrc) {
