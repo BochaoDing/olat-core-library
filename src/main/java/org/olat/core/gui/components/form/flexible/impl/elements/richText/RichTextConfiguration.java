@@ -68,6 +68,31 @@ import org.olat.core.util.vfs.VFSManager;
  * @author gnaegi
  */
 public class RichTextConfiguration implements Disposable {
+
+	private static final String JS_LANG_PATH = "/static/js/tinymce4/tinymce/langs";
+
+	private static boolean requiredJsLangFilesAvailable() {
+		Set<String> availableLanguageFiles = CoreSpringFactory.servletContext.getResourcePaths(JS_LANG_PATH);
+		next : for (String enabledLanguageKey : I18nModule.getEnabledLanguageKeys()) {
+			if ("en".equals(enabledLanguageKey)) {
+				continue;
+			}
+			for (String availableLanguageFile : availableLanguageFiles) {
+				if (availableLanguageFile.regionMatches(
+						JS_LANG_PATH.length() + 1, enabledLanguageKey,
+						0, enabledLanguageKey.length())) {
+					continue next;
+				}
+			}
+			return false;
+		}
+		return true;
+	}
+
+	static {
+		assert requiredJsLangFilesAvailable();
+	}
+
 	private static final OLog log = Tracing.createLoggerFor(RichTextConfiguration.class); 
 	private static final String MODE = "mode";
 	private static final String MODE_VALUE_EXACT = "exact";
@@ -155,7 +180,6 @@ public class RichTextConfiguration implements Disposable {
 	private TinyConfig tinyConfig;
 	
 	public RichTextConfiguration(Locale locale) {
-		assert requiredJsLangFilesAvailable();
 		this.locale = locale;
 		tinyConfig = TinyConfig.minimalisticConfig; 
 	}
@@ -168,7 +192,6 @@ public class RichTextConfiguration implements Disposable {
 	 * @param rootFormDispatchId The dispatch ID of the root form that deals with the submit button
 	 */
 	public RichTextConfiguration(String domID, String rootFormDispatchId, Locale locale) {
-		assert requiredJsLangFilesAvailable();
 		this.domID = domID;
 		this.locale = locale;
 		// use exact mode that only applies to this DOM element
@@ -185,26 +208,6 @@ public class RichTextConfiguration implements Disposable {
 		// This check is initialized after the editor has fully loaded
 		addOnInitCallbackFunction(ONINIT_CALLBACK_VALUE_START_DIRTY_OBSERVER + "('" + rootFormDispatchId + "','" + domID + "')");
 		addOnInitCallbackFunction("tinyMCE.get('" + domID + "').focus()");
-	}
-
-	private static final String JS_LANG_PATH = "/static/js/tinymce4/tinymce/langs";
-
-	private boolean requiredJsLangFilesAvailable() {
-		Set<String> availableLanguageFiles = CoreSpringFactory.servletContext.getResourcePaths(JS_LANG_PATH);
-		next : for (String enabledLanguageKey : I18nModule.getEnabledLanguageKeys()) {
-			if ("en".equals(enabledLanguageKey)) {
-				continue;
-			}
-			for (String availableLanguageFile : availableLanguageFiles) {
-				if (availableLanguageFile.regionMatches(
-						JS_LANG_PATH.length() + 1, enabledLanguageKey,
-						0, enabledLanguageKey.length())) {
-					continue next;
-				}
-			}
-			return false;
-		}
-		return true;
 	}
 
 	/**
