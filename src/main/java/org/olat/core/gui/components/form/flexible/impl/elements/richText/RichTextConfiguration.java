@@ -19,7 +19,6 @@
  */
 package org.olat.core.gui.components.form.flexible.impl.elements.richText;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -27,6 +26,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import org.olat.core.CoreSpringFactory;
 import org.olat.core.commons.controllers.linkchooser.CustomLinkTreeModel;
@@ -47,8 +47,8 @@ import org.olat.core.util.CodeHelper;
 import org.olat.core.util.Formatter;
 import org.olat.core.util.UserSession;
 import org.olat.core.util.Util;
-import org.olat.core.util.WebappHelper;
 import org.olat.core.util.i18n.I18nManager;
+import org.olat.core.util.i18n.I18nModule;
 import org.olat.core.util.vfs.LocalFolderImpl;
 import org.olat.core.util.vfs.VFSContainer;
 import org.olat.core.util.vfs.VFSContainerMapper;
@@ -155,6 +155,7 @@ public class RichTextConfiguration implements Disposable {
 	private TinyConfig tinyConfig;
 	
 	public RichTextConfiguration(Locale locale) {
+		assert requiredJsLangFilesAvailable();
 		this.locale = locale;
 		tinyConfig = TinyConfig.minimalisticConfig; 
 	}
@@ -167,6 +168,7 @@ public class RichTextConfiguration implements Disposable {
 	 * @param rootFormDispatchId The dispatch ID of the root form that deals with the submit button
 	 */
 	public RichTextConfiguration(String domID, String rootFormDispatchId, Locale locale) {
+		assert requiredJsLangFilesAvailable();
 		this.domID = domID;
 		this.locale = locale;
 		// use exact mode that only applies to this DOM element
@@ -183,6 +185,26 @@ public class RichTextConfiguration implements Disposable {
 		// This check is initialized after the editor has fully loaded
 		addOnInitCallbackFunction(ONINIT_CALLBACK_VALUE_START_DIRTY_OBSERVER + "('" + rootFormDispatchId + "','" + domID + "')");
 		addOnInitCallbackFunction("tinyMCE.get('" + domID + "').focus()");
+	}
+
+	private static final String JS_LANG_PATH = "/static/js/tinymce4/tinymce/langs";
+
+	private boolean requiredJsLangFilesAvailable() {
+		Set<String> availableLanguageFiles = CoreSpringFactory.servletContext.getResourcePaths(JS_LANG_PATH);
+		next : for (String enabledLanguageKey : I18nModule.getEnabledLanguageKeys()) {
+			if ("en".equals(enabledLanguageKey)) {
+				continue;
+			}
+			for (String availableLanguageFile : availableLanguageFiles) {
+				if (availableLanguageFile.regionMatches(
+						JS_LANG_PATH.length() + 1, enabledLanguageKey,
+						0, enabledLanguageKey.length())) {
+					continue next;
+				}
+			}
+			return false;
+		}
+		return true;
 	}
 
 	/**
@@ -404,9 +426,7 @@ public class RichTextConfiguration implements Disposable {
 	 */
 	private void setLanguage(Locale loc) {
 		// tiny does not support country or variant codes, only language code
-		String langKey = loc.getLanguage();
-		assert "en".equals(langKey) || "de".equals(langKey) || "fr".equals(langKey) || "it".equals(langKey);
-		setQuotedConfigValue(LANGUAGE, langKey);
+		setQuotedConfigValue(LANGUAGE, loc.getLanguage());
 	}
 
 	/**
