@@ -221,10 +221,11 @@ public class ListRenderer {
 		  .append("\" value=\"");
 		// add escaped folder name
 		sb.append(StringHelper.escapeHtml(name));
+		sb.append("\"");
 		if(xssErrors) {
 			sb.append(" disabled=\"disabled\"");
 		}
-		sb.append("\" /> ");
+		sb.append("/>");
 		// browse link pre
 		if(xssErrors) {
 			sb.append("<i class='o_icon o_icon-fw o_icon_banned'> </i> ");
