@@ -233,6 +233,7 @@ public class IdentityAssessmentOverviewController extends BasicController {
 					ColumnDescriptor.ALIGNMENT_RIGHT, new ScoreCellRenderer()));
 			tableFilterCtr.addColumnDescriptor(new CustomRenderColumnDescriptor("table.header.max", 7, null, ureq.getLocale(),
 					ColumnDescriptor.ALIGNMENT_RIGHT, new ScoreCellRenderer()));
+			tableFilterCtr.addColumnDescriptor(new DefaultColumnDescriptor("table.header.status", 8, null, ureq.getLocale()));
 			tableFilterCtr.addColumnDescriptor(new BooleanColumnDescriptor("table.header.passed", 4, translate("passed.true"), translate("passed.false")));
 			// node selection only available if configured
 			if (nodesSelectable) {

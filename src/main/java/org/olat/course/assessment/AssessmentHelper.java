@@ -50,12 +50,15 @@ import org.olat.course.nodes.ProjectBrokerCourseNode;
 import org.olat.course.nodes.STCourseNode;
 import org.olat.course.nodes.ScormCourseNode;
 import org.olat.course.nodes.iq.IQEditController;
+import org.olat.course.nodes.ta.StatusManager;
+import org.olat.course.properties.CoursePropertyManager;
 import org.olat.course.run.scoring.ScoreEvaluation;
 import org.olat.course.run.userview.UserCourseEnvironment;
 import org.olat.course.run.userview.UserCourseEnvironmentImpl;
 import org.olat.course.tree.CourseEditorTreeModel;
 import org.olat.course.tree.CourseEditorTreeNode;
 import org.olat.modules.ModuleConfiguration;
+import org.olat.properties.Property;
 
 /**
  * Description:<br>
@@ -279,6 +282,7 @@ public class AssessmentHelper {
 
 	public static final String KEY_TITLE_SHORT = "short.title";
 	public static final String KEY_TITLE_LONG = "long.title";
+	public static final String KEY_STATUS = "status";
 	public static final String KEY_PASSED = "passed";
 	public static final String KEY_SCORE = "score";
 	public static final String KEY_SCORE_F = "fscore";
@@ -378,7 +382,18 @@ public class AssessmentHelper {
 						Float minScore = assessableCourseNode.getMinScoreConfiguration();
 						nodeData.put(KEY_MIN, minScore);
 					}
-					
+				}
+				// status
+				if (assessableCourseNode.hasStatusConfigured()) {
+					hasDisplayableValuesConfigured = true;
+					Property status = null;
+					Identity identity = userCourseEnv.getIdentityEnvironment().getIdentity();
+					CoursePropertyManager cpm = userCourseEnv.getCourseEnvironment().getCoursePropertyManager();
+					status = cpm.findCourseNodeProperty(assessableCourseNode, identity, null, StatusManager.PROPERTY_KEY_STATUS);
+					if (status != null) {
+						nodeData.put(KEY_STATUS, status.getStringValue());
+						hasDisplayableUserValues = true;
+					}
 				}
 				// passed
 				if (assessableCourseNode.hasPassedConfigured()) {
