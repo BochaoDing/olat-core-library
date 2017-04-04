@@ -29,6 +29,7 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 
+import org.checkerframework.checker.nullness.qual.Nullable;
 import org.olat.core.commons.persistence.PersistentObject;
 import org.olat.core.id.Preferences;
 import org.olat.core.id.User;
@@ -168,7 +169,7 @@ public class UserImpl extends PersistentObject implements User {
 	 * @see org.olat.core.id.User#getProperty(java.lang.String, java.util.Locale)
 	 */
 	@Override
-	public String getProperty(String propertyName, Locale locale) {
+	public String getProperty(String propertyName, @Nullable Locale locale) {
 		UserManager um = UserManager.getInstance();
 		UserPropertyHandler propertyHandler = um.getUserPropertiesConfig().getPropertyHandler(propertyName);
 		if (propertyHandler == null)
