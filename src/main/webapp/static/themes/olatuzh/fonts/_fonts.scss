@@ -65,3 +65,37 @@
     font-style: italic;
     font-weight: 500;
 }
+
+/*********************************************************************************************/
+/* LMSUZH-319: Include jsMath Fonts as a workaround for Firefox - but does not render reliably
+/*********************************************************************************************/
+
+@font-face {
+  font-family: "jsMath-cmbx10";
+  src: url('fonts/jsMath-cmbx10.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: "jsMath-cmex10";
+  src: url('fonts/jsMath-cmex10.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: "jsMath-cmmi10";
+  src: url('fonts/jsMath-cmmi10.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: "jsMath-cmr10";
+  src: url('fonts/jsMath-cmr10.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: "jsMath-cmsy10";
+  src: url('fonts/jsMath-cmsy10.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: "jsMath-cmti10";
+  src: url('fonts/jsMath-cmti10.ttf') format('truetype');
+}
