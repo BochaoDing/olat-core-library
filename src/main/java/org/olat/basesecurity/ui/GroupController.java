@@ -616,10 +616,12 @@ public class GroupController extends BasicController {
 	 * owner-list).
 	 */
 	protected void initGroupTable(TableController tableCtr, UserRequest ureq, boolean enableTablePreferences, boolean enableUserSelection) {
-		// LMSUZH-329
-		// global role isAuthor must not imply the right to see adminViewOnlyProperties (especially userPropertyInstitutionalEmployeeNumber, userPropertyInstitutionalMatriculationNumber)
-		// in context of group members overview if a user isAuthor but only groupParticipant and not groupCoach
-		// usersearch.adminProps.authors=enabled by default in olat.properties
+		/* LMSUZH-329
+		 * global role isAuthor MUST NOT imply the right to see adminViewOnlyProperties in context of group members overview
+		 * (but usersearch.adminProps.authors=enabled by default in olat.properties => isAdministrativeUser=true)
+		 * if a user isAuthor but only groupParticipant and not groupCoach in a certain group he attends as student
+		 * he does not have privileges to see userPropertyInstitutionalEmployeeNumber + userPropertyInstitutionalMatriculationNumber of all other users
+		 */
 		if (!groupDao.hasRole(group, ureq.getIdentity(), "coach") && !ureq.getUserSession().getRoles().isOLATAdmin()) {
 			isAdministrativeUser = false;
 		}
