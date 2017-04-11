@@ -35,6 +35,8 @@ import org.olat.repository.RepositoryEntryStatus;
 import org.olat.repository.model.RepositoryEntryLifecycle;
 import org.olat.repository.ui.PriceMethod;
 
+import javax.annotation.Nullable;
+
 /**
  * 
  * Initial date: 29.01.2014<br>
@@ -45,7 +47,7 @@ public class RepositoryEntryRow implements RepositoryEntryRef {
 	private boolean marked;
 	private boolean selected;
 	
-	private Long key;
+	protected Long key;
 	private String externalId;
 	private String externalRef;
 	private Date creationDate;
@@ -508,6 +510,7 @@ public class RepositoryEntryRow implements RepositoryEntryRef {
 		return false;
 	}
 
+	@Nullable
 	public Object getValueAt(int col) {
 		switch(Cols.values()[col]) {
 			case key: return getKey();

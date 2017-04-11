@@ -29,7 +29,6 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 
-import org.checkerframework.checker.nullness.qual.Nullable;
 import org.olat.core.commons.persistence.PersistentObject;
 import org.olat.core.id.Preferences;
 import org.olat.core.id.User;
@@ -37,6 +36,8 @@ import org.olat.core.id.UserConstants;
 import org.olat.core.logging.OLog;
 import org.olat.core.logging.Tracing;
 import org.olat.user.propertyhandlers.UserPropertyHandler;
+
+import javax.annotation.Nullable;
 
 /**
  * Desciption: 

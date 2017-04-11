@@ -26,8 +26,7 @@
 
 package org.olat.core.id;
 
-import org.checkerframework.checker.nullness.qual.Nullable;
-
+import javax.annotation.Nullable;
 import java.util.Locale;
 import java.util.Map;
 

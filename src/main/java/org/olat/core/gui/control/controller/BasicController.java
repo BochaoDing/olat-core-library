@@ -56,6 +56,8 @@ import org.olat.core.util.StringHelper;
 import org.olat.core.util.UserSession;
 import org.olat.core.util.Util;
 
+import javax.annotation.Nullable;
+
 /**
  * Description:<br>
  * BasicController is a controller which serves as convenient superclass for
@@ -140,7 +142,7 @@ public abstract class BasicController extends DefaultController {
 	 * @throws AssertException
 	 *             if the controller to be added is already contained.
 	 */
-	protected Controller listenTo(@UnderInitialization(BasicController.class) BasicController this, Controller controller) {
+	protected Controller listenTo(@UnknownInitialization BasicController this, Controller controller) {
 		controller.addControllerListener(this);
 		if (childControllers == null) {
 			childControllers = new ArrayList<Controller>(4);
@@ -299,7 +301,7 @@ public abstract class BasicController extends DefaultController {
 	 * @return
 	 */
 	protected DialogBoxController activateYesNoDialog(UserRequest ureq,
-			String title, String text, DialogBoxController dialogCtr) {
+			@Nullable String title, String text, @Nullable DialogBoxController dialogCtr) {
 		if (dialogCtr != null) {
 			removeAsListenerAndDispose(dialogCtr);
 		}
@@ -400,14 +402,14 @@ public abstract class BasicController extends DefaultController {
 	/**
 	 * @return Returns the identity.
 	 */
-	protected Identity getIdentity() {
+	protected Identity getIdentity(@UnknownInitialization BasicController this) {
 		return identity;
 	}
 
 	/**
 	 * @return Returns the translator.
 	 */
-	protected Translator getTranslator() {
+	protected Translator getTranslator(@UnknownInitialization BasicController this) {
 		return translator;
 	}
 
@@ -567,7 +569,7 @@ public abstract class BasicController extends DefaultController {
 	 *            the key to translate
 	 * @return the translated string
 	 */
-	protected String translate(String key) {
+	protected String translate(@UnknownInitialization BasicController this, String key) {
 		return getTranslator().translate(key);
 	}
 	

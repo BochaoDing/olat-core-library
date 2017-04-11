@@ -2291,6 +2291,11 @@
 		</dependency>
 		<dependency>
 			<groupId>org.checkerframework</groupId>
+			<artifactId>checker</artifactId>
+			<version>2.1.7</version>
+		</dependency>
+		<dependency>
+			<groupId>org.checkerframework</groupId>
 			<artifactId>checker-qual</artifactId>
 			<version>2.1.7</version>
 		</dependency>
