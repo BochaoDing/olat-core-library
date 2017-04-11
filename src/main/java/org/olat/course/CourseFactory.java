@@ -110,6 +110,7 @@ import org.olat.course.groupsandrights.PersistingCourseGroupManager;
 import org.olat.course.nodes.AssessableCourseNode;
 import org.olat.course.nodes.BCCourseNode;
 import org.olat.course.nodes.CourseNode;
+import org.olat.course.nodes.COCourseNode;
 import org.olat.course.nodes.STCourseNode;
 import org.olat.course.nodes.TACourseNode;
 import org.olat.course.nodes.gta.GTAManager;
@@ -508,6 +509,17 @@ public class CourseFactory {
 					qm.setCustomQuotaKB(targetQuota);
 				}
 			}
+
+			// reset recipients of course elements e-mail
+			CourseEditorTreeNode rootNode = (CourseEditorTreeNode) targetCourse.getEditorTreeModel().getRootNode();
+			for (int i = 0; i < rootNode.getChildCount(); i++) {
+				CourseNode currentNode = rootNode.getCourseEditorTreeNodeChildAt(i).getCourseNode();
+				if (currentNode.getClass() == COCourseNode.class) {
+					currentNode.updateModuleConfigDefaults(true);
+				}
+			}
+			targetCourse.saveRunStructure();
+			targetCourse.saveEditorTreeModel();
 		}
 		return targetRes;
 	}
