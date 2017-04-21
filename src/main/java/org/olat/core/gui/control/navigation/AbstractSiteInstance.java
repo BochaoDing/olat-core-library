@@ -29,6 +29,8 @@ import org.olat.core.gui.control.generic.layout.MainLayoutController;
 import org.olat.core.util.StringHelper;
 import org.olat.course.site.ui.ForbiddenCourseSiteController;
 
+import javax.annotation.Nullable;
+
 /**
  * The standard behavior for the site
  * 
@@ -46,6 +48,7 @@ public abstract class AbstractSiteInstance implements SiteInstance {
 	}
 	
 	@Override
+	@Nullable
 	public abstract NavElement getNavElement();
 
 	/**

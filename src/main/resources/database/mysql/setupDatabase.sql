@@ -2219,6 +2219,7 @@ create index log_gptarget_resid_idx on o_loggingtable(grandparentresid);
 create index log_ggptarget_resid_idx on o_loggingtable(greatgrandparentresid);
 create index log_creationdate_idx on o_loggingtable(creationdate);
 
+<<<<<<< local
 -- Tables for campus course
 create table if not exists ck_semester (
   id bigint not null,
@@ -2502,6 +2503,8 @@ or(sub.first_name=sub2.first_name and sub.last_name=sub2.last_name)
 group by sub.id;
 
 
+=======
+>>>>>>> other
 
 insert into hibernate_unique_key values ( 0 );
 SET FOREIGN_KEY_CHECKS = 1;

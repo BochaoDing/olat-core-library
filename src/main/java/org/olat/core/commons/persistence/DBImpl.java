@@ -91,6 +91,16 @@ public class DBImpl implements DB, Destroyable {
 			}
 		}
 	}
+
+	/**
+	 * Used by lmsuzh-extension-olatreplacement
+	 *
+	 * @param emf
+	 */
+	protected DBImpl(EntityManagerFactory emf) {
+        DBImpl.emf = emf;
+		INSTANCE = this;
+	}
 	
 	protected static DBImpl getInstance() {
 		return INSTANCE;

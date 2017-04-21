@@ -102,6 +102,7 @@ public class BusinessGroupDAO {
 				boolean showOwners, boolean showParticipants, boolean showWaitingList) {
 
 		BusinessGroupImpl businessgroup = new BusinessGroupImpl(name, description);
+		businessgroup.setCreationDate(new Date());
 		if(minParticipants != null && minParticipants.intValue() >= 0) {
 			businessgroup.setMinParticipants(minParticipants);
 		}
