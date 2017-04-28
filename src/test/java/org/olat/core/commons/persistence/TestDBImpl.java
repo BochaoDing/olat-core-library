@@ -1,11 +1,12 @@
 package org.olat.core.commons.persistence;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
 
+import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
+import javax.persistence.EntityTransaction;
 
 /**
  * DB implementation for tests, which does not commit.
@@ -45,5 +46,15 @@ public class TestDBImpl extends DBImpl {
     public void closeSession() {
         flush();  // Instead of commit()
         clear();  // Instead of closeSession()
+    }
+
+    @Override
+    public void rollbackAndCloseSession() {
+		EntityManager entityManager = getCurrentEntityManager();
+		EntityTransaction transaction = entityManager.getTransaction();
+		if (transaction != null && transaction.isActive()) {
+			transaction.rollback();
+		}
+		entityManager.close();
     }
 }
