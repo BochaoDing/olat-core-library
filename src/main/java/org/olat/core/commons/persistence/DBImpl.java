@@ -843,6 +843,31 @@ public class DBImpl implements DB, Destroyable {
 		}
 	}
 
+	private void closeEntityManagerAndRemoveThreadLocalData(EntityManager entityManager) {
+		getData().resetAccessCounter();
+		if (entityManager != null) {
+			entityManager.close();
+		}
+		data.remove();
+	}
+
+	@Override
+	public void commitTransactionAndCloseEntityManager() {
+		EntityManager entityManager = getCurrentEntityManager();
+		entityManager.getTransaction().commit();
+		closeEntityManagerAndRemoveThreadLocalData(entityManager);
+	}
+
+	@Override
+	public void rollbackTransactionAndCloseEntityManager() {
+		EntityManager entityManager = getCurrentEntityManager();
+		EntityTransaction transaction = entityManager.getTransaction();
+		if (transaction != null && transaction.isActive()) {
+			transaction.rollback();
+		}
+		closeEntityManagerAndRemoveThreadLocalData(entityManager);
+	}
+
 	@Override
 	public void flush() {
 		getCurrentEntityManager().flush();
