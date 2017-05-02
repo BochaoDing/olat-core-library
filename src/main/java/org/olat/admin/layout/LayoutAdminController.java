@@ -293,11 +293,12 @@ public class LayoutAdminController extends FormBasicController {
 
 		try {
 			for (StaticDirectory staticDirectory : staticDirectories) {
-				URL url = CoreSpringFactory.servletContext.getResource("/" + staticDirectory.getName() + "/themes");
-				if (url == null) {
-					continue;
-				}
-				String jarPath = url.getPath().substring(5, url.getPath().indexOf("!"));
+				String themesPath = "/" + staticDirectory.getName() + "/themes";
+				URL url = CoreSpringFactory.servletContext.getResource(themesPath);
+				assert url != null : "Themes path does not exist: " + themesPath;
+				int jarResourceDelimiter = url.getPath().indexOf("!");
+				assert jarResourceDelimiter >= 0 : "Not a path to a resource within a JAR: " + url.getPath();
+				String jarPath = url.getPath().substring(5, jarResourceDelimiter);
 				String jarInternalPath = url.getPath().substring(jarPath.length() + 5 + 1 + 1);
 				JarFile jarFile = new JarFile(URLDecoder.decode(jarPath, "UTF-8"));
 				Enumeration<JarEntry> entries = jarFile.entries();
