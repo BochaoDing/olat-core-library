@@ -1,7 +1,6 @@
 package org.olat.core.commons.persistence;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
 
@@ -46,4 +45,15 @@ public class TestDBImpl extends DBImpl {
         flush();  // Instead of commit()
         clear();  // Instead of closeSession()
     }
+
+    @Override
+	public void commitTransactionAndCloseEntityManager() {
+    	flush();  // Instead of commit()
+		clear();  // Instead of closeSession()
+	}
+
+	@Override
+	public void rollbackAndCloseSession() {
+		rollbackTransactionAndCloseEntityManager();
+	}
 }
