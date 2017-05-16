@@ -54,6 +54,4 @@
 	<import resource="classpath:/org/olat/upgrade/_spring/upgradeContext.xml"/>
 	
 	<import resource="classpath:/org/olat/user/_spring/userContext.xml"/>
-	
-	<import resource="classpath:/ch/uzh/extension/campuscourse/_spring/campusContext.xml"/>
 </beans>

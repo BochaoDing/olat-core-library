@@ -29,6 +29,7 @@ import java.util.List;
 import java.util.Locale;
 
 import org.checkerframework.checker.initialization.qual.UnderInitialization;
+import org.checkerframework.checker.initialization.qual.UnknownInitialization;
 import org.olat.core.CoreSpringFactory;
 import org.olat.core.commons.services.help.HelpModule;
 import org.olat.core.gui.UserRequest;
@@ -193,7 +194,7 @@ public abstract class FormItemImpl implements FormItem, InlineElement {
 		return rootForm;
 	}
 	
-	public void setRootForm(@UnderInitialization(FormItemImpl.class) FormItemImpl this, Form rootForm){
+	public void setRootForm(@UnknownInitialization(FormItemImpl.class) FormItemImpl this, Form rootForm){
 		this.rootForm = rootForm;
 		rootFormAvailable();
 	}

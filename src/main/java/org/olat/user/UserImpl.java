@@ -37,6 +37,8 @@ import org.olat.core.logging.OLog;
 import org.olat.core.logging.Tracing;
 import org.olat.user.propertyhandlers.UserPropertyHandler;
 
+import javax.annotation.Nullable;
+
 /**
  * Desciption: 
  * <p>
@@ -168,7 +170,7 @@ public class UserImpl extends PersistentObject implements User {
 	 * @see org.olat.core.id.User#getProperty(java.lang.String, java.util.Locale)
 	 */
 	@Override
-	public String getProperty(String propertyName, Locale locale) {
+	public String getProperty(String propertyName, @Nullable Locale locale) {
 		UserManager um = UserManager.getInstance();
 		UserPropertyHandler propertyHandler = um.getUserPropertiesConfig().getPropertyHandler(propertyName);
 		if (propertyHandler == null)
