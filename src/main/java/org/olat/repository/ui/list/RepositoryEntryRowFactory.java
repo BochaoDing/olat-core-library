@@ -11,7 +11,7 @@ import org.olat.repository.RepositoryModule;
  * Initial date: 2016-06-29<br />
  * @author sev26 (UZH)
  */
-public class RepositoryEntryRowFactory {
+public abstract class RepositoryEntryRowFactory {
 
 	private final RepositoryEntryDataSourceUIFactory uifactory;
 	private final RepositoryManager repositoryManager;
@@ -26,9 +26,8 @@ public class RepositoryEntryRowFactory {
 	}
 
 	public RepositoryEntryRow create(RepositoryEntryMyView entry) {
-		RepositoryEntryRow row = new RepositoryEntryRow(entry);
-
-		/**
+		RepositoryEntryRow row = createRepositoryEntryRow(entry);
+		/*
 		 * TODO sev26
 		 * The comment of
 		 * {@link RepositoryEntryDataSourceUIFactory#forgeLinks(RepositoryEntryRow)}
@@ -43,7 +42,9 @@ public class RepositoryEntryRowFactory {
 		return row;
 	}
 
-	public RepositoryEntryDataSourceUIFactory getUiFactory() {
+	protected abstract RepositoryEntryRow createRepositoryEntryRow(RepositoryEntryMyView entry);
+
+	RepositoryEntryDataSourceUIFactory getUiFactory() {
 		return uifactory;
 	}
 }

@@ -53,7 +53,7 @@ public class RepositoryEntryBeanFactory {
 	@Bean(name={"repositoryEntryRowFactory"})
 	@Scope(BeanDefinition.SCOPE_PROTOTYPE)
 	protected RepositoryEntryRowFactory createRepositoryEntryRowFactory(UserRequest userRequest) {
-		return new RepositoryEntryRowFactory(repositoryManager, repositoryModule, mapperService, userRequest);
+		return new RepositoryEntryRowFactoryImpl(repositoryManager, repositoryModule, mapperService, userRequest);
 	}
 
 	@Bean(name={"repositoryEntryLifeCycleChangeControllerFactory"})
