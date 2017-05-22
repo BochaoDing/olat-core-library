@@ -493,7 +493,7 @@ public abstract class BasicController extends DefaultController {
 	 *            controller)
 	 * @param arg
 	 */
-	protected void showWarning(String key, String arg) {
+	protected void showWarning(@UnknownInitialization BasicController this, String key, @Nullable String arg) {
 		getWindowControl().setWarning(
 				getTranslator().translate(key, new String[] { arg }));
 	}
