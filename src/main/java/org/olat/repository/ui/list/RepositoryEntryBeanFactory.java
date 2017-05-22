@@ -39,6 +39,7 @@ public class RepositoryEntryBeanFactory {
 
 	@Bean(name={"row_1"})
 	@Scope(BeanDefinition.SCOPE_PROTOTYPE)
+	@SuppressWarnings("SpringJavaAutowiringInspection")
 	protected VelocityContainer createRow1VelocityContainer(BasicController caller) {
 		VelocityContainer result = new VelocityContainer(null,
 				"vc_" + "row_1",
@@ -52,12 +53,14 @@ public class RepositoryEntryBeanFactory {
 
 	@Bean(name={"repositoryEntryRowFactory"})
 	@Scope(BeanDefinition.SCOPE_PROTOTYPE)
-	protected RepositoryEntryRowFactory createRepositoryEntryRowFactory(UserRequest userRequest) {
-		return new RepositoryEntryRowFactoryImpl(repositoryManager, repositoryModule, mapperService, userRequest);
+	@SuppressWarnings("SpringJavaAutowiringInspection")
+	protected RepositoryEntryRowsFactory createRepositoryEntryRowFactory(UserRequest userRequest) {
+		return new RepositoryEntryRowsFactoryImpl(repositoryManager, repositoryModule, mapperService, userRequest);
 	}
 
 	@Bean(name={"repositoryEntryLifeCycleChangeControllerFactory"})
 	@Scope(BeanDefinition.SCOPE_PROTOTYPE)
+	@SuppressWarnings("SpringJavaAutowiringInspection")
 	protected RepositoryEntryLifeCycleChangeControllerFactory repositoryEntryLifeCycleChangeControllerFactory(UserRequest userRequest,
 																											  WindowControl windowControl,
 																											  RepositoryEntrySecurity repositoryEntrySecurity,
