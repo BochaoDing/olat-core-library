@@ -65,6 +65,13 @@ public class IdentityImpl implements Identity, IdentityRef, CreateInfo, Persista
 		//  
 	}
 
+	public IdentityImpl(String name, User user) {
+		this.name = name;
+		this.user = user;
+		status = Identity.STATUS_ACTIV;
+		this.setLastLogin(new Date());
+	}
+
 	@Override
 	public Long getKey() {
 		return key;

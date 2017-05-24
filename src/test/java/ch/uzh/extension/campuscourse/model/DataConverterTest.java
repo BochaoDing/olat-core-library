@@ -84,7 +84,7 @@ public class DataConverterTest extends CampusCourseTestCase {
 
         // Add mapping for student 2
         String student1UserName = "dataConverterTestStudent1";
-        Identity mappedIdentityOfStudent1 = insertTestUser(student1UserName, Identity.STATUS_ACTIV);
+        IdentityImpl mappedIdentityOfStudent1 = insertTestUser(student1UserName, Identity.STATUS_ACTIV);
         studentDao.addMapping(student1.getId(), mappedIdentityOfStudent1);
 
         String student2UserName = "dataConverterTestStudent2";
@@ -128,7 +128,7 @@ public class DataConverterTest extends CampusCourseTestCase {
         Assert.assertTrue(dataConverter.convertLecturersToIdentities(course.getLecturerCourses()).isEmpty());
 
         // Add mapping for lecturer
-        Identity mappedIdentityOfLecturer = insertTestUser("dataConverterTestLecturer", Identity.STATUS_ACTIV);
+        IdentityImpl mappedIdentityOfLecturer = insertTestUser("dataConverterTestLecturer", Identity.STATUS_ACTIV);
         lecturerDao.addMapping(lecturer.getPersonalNr(), mappedIdentityOfLecturer);
         dbInstance.flush();
 
@@ -171,7 +171,7 @@ public class DataConverterTest extends CampusCourseTestCase {
         Assert.assertTrue(dataConverter.convertDelegateesToIdentities(course.getLecturerCourses()).isEmpty());
 
         // Create delegation (i.e. delegator + delegatee) with lecturer as delegator
-        Identity identityOfDelegatee = insertTestUser("dataConverterTestDelegateeOfLecturer", Identity.STATUS_ACTIV);
+        IdentityImpl identityOfDelegatee = insertTestUser("dataConverterTestDelegateeOfLecturer", Identity.STATUS_ACTIV);
         Delegation delegation = new Delegation(mappedIdentityOfLecturer, identityOfDelegatee, new Date());
         dbInstance.saveObject(delegation);
         dbInstance.flush();
@@ -272,10 +272,10 @@ public class DataConverterTest extends CampusCourseTestCase {
         dbInstance.flush();
     }
 
-    private Identity insertTestUser(String userName, Integer status) {
+    private IdentityImpl insertTestUser(String userName, Integer status) {
         User user = userManager.createUser("dataConverterTestFirstName" + userName, "dataConverterTestLastName" + userName, userName + "@uzh.ch");
         dbInstance.saveObject(user);
-        Identity identity = new IdentityImpl(userName, user);
+        IdentityImpl identity = new IdentityImpl(userName, user);
         identity.setStatus(status);
         dbInstance.saveObject(identity);
         dbInstance.flush();

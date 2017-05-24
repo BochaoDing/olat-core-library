@@ -48,6 +48,7 @@ import uk.ac.ed.ph.jqtiplus.node.AbstractNode;
 import uk.ac.ed.ph.jqtiplus.node.LoadingContext;
 import uk.ac.ed.ph.jqtiplus.node.content.basic.Block;
 import uk.ac.ed.ph.jqtiplus.node.content.basic.FlowStatic;
+import uk.ac.ed.ph.jqtiplus.node.content.basic.InlineStatic;
 import uk.ac.ed.ph.jqtiplus.serialization.QtiSerializer;
 import uk.ac.ed.ph.jqtiplus.xmlutils.SimpleDomBuilderHandler;
 
@@ -99,10 +100,23 @@ public class AssessmentHtmlBuilder {
 		return cleanUpNamespaces(sb);
 	}
 	
+	public String inlineStaticString(List<? extends InlineStatic> statics) {
+		StringOutput sb = new StringOutput();
+		if(statics != null && statics.size() > 0) {
+			for(InlineStatic inlineStatic:statics) {
+				qtiSerializer.serializeJqtiObject(inlineStatic, new StreamResult(sb));
+			}
+		}
+		return cleanUpNamespaces(sb);
+	}
+	
 	private String cleanUpNamespaces(StringOutput sb) {
 		String content = sb.toString();
+		content = content.replace(" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"", "");
 		content = content.replace("xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"", "");
+		content = content.replace("\n   xmlns=\"http://www.imsglobal.org/xsd/imsqti_v2p1\"", "");
 		content = content.replace("xmlns=\"http://www.imsglobal.org/xsd/imsqti_v2p1\"", "");
+		content = content.replace("\n   xsi:schemaLocation=\"http://www.imsglobal.org/xsd/imsqti_v2p1 http://www.imsglobal.org/xsd/imsqti_v2p1.xsd\"", "");
 		content = content.replace("xsi:schemaLocation=\"http://www.imsglobal.org/xsd/imsqti_v2p1 http://www.imsglobal.org/xsd/imsqti_v2p1.xsd\"", "");
 		return content.trim();
 	}
@@ -168,6 +182,8 @@ public class AssessmentHtmlBuilder {
 			return null;
 		}
 	}
+	
+
 	
 	/**
 	 * Convert:<br>

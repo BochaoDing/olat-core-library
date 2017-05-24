@@ -66,12 +66,14 @@ import uk.ac.ed.ph.jqtiplus.node.item.interaction.ChoiceInteraction;
 import uk.ac.ed.ph.jqtiplus.node.item.interaction.DrawingInteraction;
 import uk.ac.ed.ph.jqtiplus.node.item.interaction.ExtendedTextInteraction;
 import uk.ac.ed.ph.jqtiplus.node.item.interaction.HotspotInteraction;
+import uk.ac.ed.ph.jqtiplus.node.item.interaction.HottextInteraction;
 import uk.ac.ed.ph.jqtiplus.node.item.interaction.MatchInteraction;
 import uk.ac.ed.ph.jqtiplus.node.item.interaction.TextEntryInteraction;
 import uk.ac.ed.ph.jqtiplus.node.item.interaction.UploadInteraction;
 import uk.ac.ed.ph.jqtiplus.node.item.interaction.choice.SimpleAssociableChoice;
 import uk.ac.ed.ph.jqtiplus.node.item.interaction.choice.SimpleChoice;
 import uk.ac.ed.ph.jqtiplus.node.item.interaction.choice.SimpleMatchSet;
+import uk.ac.ed.ph.jqtiplus.node.item.interaction.content.Hottext;
 import uk.ac.ed.ph.jqtiplus.node.item.interaction.graphic.HotspotChoice;
 import uk.ac.ed.ph.jqtiplus.node.item.response.declaration.MapEntry;
 import uk.ac.ed.ph.jqtiplus.node.item.response.declaration.Mapping;
@@ -106,8 +108,8 @@ import uk.ac.ed.ph.jqtiplus.value.StringValue;
  */
 public class AssessmentItemFactory {
 	
-	public static AssessmentItem createSingleChoice() {
-		AssessmentItem assessmentItem = createAssessmentItem(QTI21QuestionType.sc, "Single choice");
+	public static AssessmentItem createSingleChoice(String title, String defaultAnswer) {
+		AssessmentItem assessmentItem = createAssessmentItem(QTI21QuestionType.sc, title);
 
 		//define correct answer
 		Identifier responseDeclarationId = Identifier.assumedLegal("RESPONSE_1");
@@ -121,7 +123,7 @@ public class AssessmentItemFactory {
 		//the single choice interaction
 		ItemBody itemBody = appendDefaultItemBody(assessmentItem);
 		ChoiceInteraction choiceInteraction = appendChoiceInteraction(itemBody, responseDeclarationId, 1, true);
-		appendSimpleChoice(choiceInteraction, "New answer", correctResponseId);
+		appendSimpleChoice(choiceInteraction, defaultAnswer, correctResponseId);
 
 		//response processing
 		ResponseProcessing responseProcessing = createResponseProcessing(assessmentItem, responseDeclarationId);
@@ -387,7 +389,7 @@ public class AssessmentItemFactory {
 		return responseDeclaration;
 	}
 	
-	public static MatchInteraction appendMatchInteractionForKPrim(ItemBody itemBody, Identifier responseDeclarationId) {
+	public static MatchInteraction appendMatchInteractionForKPrim(ItemBody itemBody, Identifier responseDeclarationId, String defaultAnswer) {
 		MatchInteraction matchInteraction = new MatchInteraction(itemBody);
 		matchInteraction.setResponseIdentifier(responseDeclarationId);
 		matchInteraction.setMaxAssociations(4);
@@ -406,7 +408,7 @@ public class AssessmentItemFactory {
 			correctChoice.setMatchMax(1);
 			correctChoice.setMatchMin(1);
 			correctChoice.setIdentifier(IdentifierGenerator.newNumberAsIdentifier(classic[i]));
-			P question = getParagraph(correctChoice, "New answer " + classic[i]);
+			P question = getParagraph(correctChoice, defaultAnswer + " " + classic[i]);
 			correctChoice.getFlowStatics().add(question);
 			questionMatchSet.getSimpleAssociableChoices().add(correctChoice);
 		}
@@ -492,13 +494,13 @@ public class AssessmentItemFactory {
 		SimpleMatchSet sourceMatchSet = new SimpleMatchSet(matchInteraction);
 		matchInteraction.getSimpleMatchSets().add(sourceMatchSet);
 		
-		String[] classic = new String[]{ "a", "b" };
+		String[] classic = new String[]{ "A", "B" };
 		for(int i=0; i<2; i++) {
 			SimpleAssociableChoice sourceChoice = new SimpleAssociableChoice(sourceMatchSet);
 			sourceChoice.setMatchMax(0);
 			sourceChoice.setMatchMin(0);
 			sourceChoice.setIdentifier(IdentifierGenerator.newNumberAsIdentifier(classic[i]));
-			P question = getParagraph(sourceChoice, "Source " + classic[i]);
+			P question = getParagraph(sourceChoice, classic[i]);
 			sourceChoice.getFlowStatics().add(question);
 			sourceMatchSet.getSimpleAssociableChoices().add(sourceChoice);
 		}
@@ -506,13 +508,13 @@ public class AssessmentItemFactory {
 		SimpleMatchSet targetMatchSet = new SimpleMatchSet(matchInteraction);
 		matchInteraction.getSimpleMatchSets().add(targetMatchSet);
 		
-		String[] target = new String[]{ "m", "n" };
+		String[] target = new String[]{ "M", "N" };
 		for(int i=0; i<2; i++) {
 			SimpleAssociableChoice targetChoice = new SimpleAssociableChoice(sourceMatchSet);
 			targetChoice.setMatchMax(0);
 			targetChoice.setMatchMin(0);
 			targetChoice.setIdentifier(IdentifierGenerator.newNumberAsIdentifier(target[i]));
-			P question = getParagraph(targetChoice, "Target " + target[i]);
+			P question = getParagraph(targetChoice, target[i]);
 			targetChoice.getFlowStatics().add(question);
 			targetMatchSet.getSimpleAssociableChoices().add(targetChoice);
 		}
@@ -612,6 +614,41 @@ public class AssessmentItemFactory {
 	}
 	
 	public static ResponseDeclaration createMultipleChoiceCorrectResponseDeclaration(AssessmentItem assessmentItem, Identifier declarationId, List<Identifier> correctResponseIds) {
+		ResponseDeclaration responseDeclaration = new ResponseDeclaration(assessmentItem);
+		responseDeclaration.setIdentifier(declarationId);
+		responseDeclaration.setCardinality(Cardinality.MULTIPLE);
+		responseDeclaration.setBaseType(BaseType.IDENTIFIER);
+
+		CorrectResponse correctResponse = new CorrectResponse(responseDeclaration);
+		responseDeclaration.setCorrectResponse(correctResponse);
+		
+		for(Identifier correctResponseId:correctResponseIds) {
+			appendIdentifierValue(correctResponse, correctResponseId);
+		}
+		return responseDeclaration;
+	}
+	
+	public static HottextInteraction appendHottextInteraction(ItemBody itemBody, Identifier responseDeclarationId, int maxChoices) {
+		HottextInteraction hottextInteraction = new HottextInteraction(itemBody);
+		hottextInteraction.setMaxChoices(maxChoices);
+		hottextInteraction.setResponseIdentifier(responseDeclarationId);
+		itemBody.getBlocks().add(hottextInteraction);
+		
+		PromptGroup prompts = new PromptGroup(hottextInteraction);
+		hottextInteraction.getNodeGroups().add(prompts);
+
+		return hottextInteraction;
+	}
+	
+	public static Hottext appendHottext(P parent, Identifier responseId, String text) {
+		Hottext hottext = new Hottext(parent);
+		hottext.setIdentifier(responseId);
+		hottext.getInlineStatics().add(new TextRun(hottext, text));
+		parent.getInlines().add(hottext);
+		return hottext;
+	}
+	
+	public static ResponseDeclaration createHottextCorrectResponseDeclaration(AssessmentItem assessmentItem, Identifier declarationId, List<Identifier> correctResponseIds) {
 		ResponseDeclaration responseDeclaration = new ResponseDeclaration(assessmentItem);
 		responseDeclaration.setIdentifier(declarationId);
 		responseDeclaration.setCardinality(Cardinality.MULTIPLE);

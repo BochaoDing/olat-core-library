@@ -31,6 +31,7 @@ import org.olat.core.gui.control.WindowControl;
 import org.olat.core.gui.control.controller.BasicController;
 import org.olat.core.gui.media.MediaResource;
 import org.olat.core.id.Identity;
+import org.olat.course.archiver.ScoreAccountingHelper;
 import org.olat.course.nodes.QTICourseNode;
 import org.olat.course.run.environment.CourseEnvironment;
 import org.olat.group.BusinessGroup;
@@ -62,6 +63,7 @@ public class QTI21ExportResultsReportController extends BasicController {
 		
 		statsButton = LinkFactory.createButton("button.export", null, this);
 		statsButton.setTranslator(getTranslator());
+		statsButton.setIconLeftCSS("o_icon o_icon-fw o_icon_export");
 		putInitialPanel(statsButton);
 		getInitialComponent().setSpanAsDomReplaceable(true); // override to wrap panel as span to not break link layout 
 	}
@@ -70,14 +72,16 @@ public class QTI21ExportResultsReportController extends BasicController {
 	@Override
 	protected void event(UserRequest ureq, Component source, Event event) {
 		// 1) calculate my assessed identities
-		List<Identity> identities;
+		List<Identity> identities = asOptions.getIdentities();
 		BusinessGroup group = asOptions.getGroup();
-		if (group == null) {
-			identities = asOptions.getIdentities();
-		} else {
+		if (group != null) {
 			identities = groupService.getMembers(group, GroupRoles.participant.toString());
+		} else if (identities != null) {
+			identities = asOptions.getIdentities();			
+		} else if (asOptions.isAdmin()){
+			identities = ScoreAccountingHelper.loadUsers(courseEnv);
 		}
-		if (identities.size() > 0) {
+		if (identities != null && identities.size() > 0) {
 			// 2) create export resource
 			MediaResource resource = new QTI21ResultsExportMediaResource(courseEnv, identities, courseNode, qtiService, ureq);
 			// 3) download

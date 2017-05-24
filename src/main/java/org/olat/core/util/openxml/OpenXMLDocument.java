@@ -418,6 +418,7 @@ public class OpenXMLDocument {
 	public void appendHtmlText(String html, Spacing spacing) {
 		if(!StringHelper.containsNonWhitespace(html)) return;
 		try {
+			html = cleanUpHTML(html);
 			SAXParser parser = new SAXParser();
 			parser.setContentHandler(new HTMLToOpenXMLHandler(this, spacing));
 			parser.parse(new InputSource(new StringReader(html)));
@@ -431,6 +432,7 @@ public class OpenXMLDocument {
 	public void appendHtmlText(String html, boolean newParagraph) {
 		if(!StringHelper.containsNonWhitespace(html)) return;
 		try {
+			html = cleanUpHTML(html);
 			SAXParser parser = new SAXParser();
 			Element paragraphEl = getParagraphToAppendTo(newParagraph);
 			parser.setContentHandler(new HTMLToOpenXMLHandler(this, paragraphEl, true));
@@ -445,6 +447,7 @@ public class OpenXMLDocument {
 	public void appendHtmlText(String html, boolean newParagraph, HTMLToOpenXMLHandler handler) {
 		if(!StringHelper.containsNonWhitespace(html)) return;
 		try {
+			html = cleanUpHTML(html);
 			SAXParser parser = new SAXParser();
 			Element paragraphEl = getParagraphToAppendTo(newParagraph);
 			handler.setInitialParagraph(paragraphEl);
@@ -455,6 +458,16 @@ public class OpenXMLDocument {
 		} catch (IOException e) {
 			log.error("", e);
 		}
+	}
+	
+	/**
+	 * The Neko HTMl parser has some issues with <p/>.
+	 * 
+	 * @param html The HTML to clean up
+	 * @return HTML code which Neko understands
+	 */
+	private String cleanUpHTML(String html) {
+		return html.replace("<p/>", "<p></p>");
 	}
 	
 	public Node appendTable(Integer... width) {
@@ -662,8 +675,17 @@ public class OpenXMLDocument {
 	}
 	
 	public Node createCheckbox(boolean checked) {
+		return createCheckbox(checked, true);
+	}
+	
+	public Node createCheckbox(boolean checked, boolean border) {
 		try {
-			String name = checked ? "image1.png" : "image2.png";
+			String name;
+			if(border) {
+				name = checked ? "image1.png" : "image2.png";
+			} else {
+				name = checked ? "image1_noborder.png" : "image2_noborder.png";
+			}
 			URL imgUrl = OpenXMLDocument.class.getResource("_resources/" + name);
 			File imgFile = new File(imgUrl.toURI());
 			return createImageEl(imgFile);
@@ -1098,7 +1120,7 @@ public class OpenXMLDocument {
 		//picture information
 		Node nvPicPrEl = picEl.appendChild(document.createElement("pic:nvPicPr"));
 		Element cNvPrEl = (Element)nvPicPrEl.appendChild(document.createElement("pic:cNvPr"));
-		cNvPrEl.setAttribute("id", "0");
+		cNvPrEl.setAttribute("id", generateSimpleId());
 		cNvPrEl.setAttribute("name", filename);
 		Node cNvPicPrEl = nvPicPrEl.appendChild(document.createElement("pic:cNvPicPr"));
 		Element picLocksEl = (Element)cNvPicPrEl.appendChild(document.createElement("a:picLocks"));
@@ -1174,7 +1196,7 @@ public class OpenXMLDocument {
 		//picture information
 		Node nvPicPrEl = picEl.appendChild(document.createElement("pic:nvPicPr"));
 		Element cNvPrEl = (Element)nvPicPrEl.appendChild(document.createElement("pic:cNvPr"));
-		cNvPrEl.setAttribute("id", "0");
+		cNvPrEl.setAttribute("id", generateSimpleId());
 		cNvPrEl.setAttribute("name", filename);
 		Node cNvPicPrEl = nvPicPrEl.appendChild(document.createElement("pic:cNvPicPr"));
 		Element picLocksEl = (Element)cNvPicPrEl.appendChild(document.createElement("a:picLocks"));
@@ -1271,8 +1293,11 @@ public class OpenXMLDocument {
 		DocReference backgroundImageRef = registerImage(backgroundImage);
 		OpenXMLSize emuSize = backgroundImageRef.getEmuSize();
 
-		Element drawingEl = document.createElement("w:drawing");
-		
+		Element alternateContentEl = document.createElement("mc:AlternateContent");
+		Element choiceEl = (Element)alternateContentEl.appendChild(document.createElement("mc:Choice"));
+		choiceEl.setAttribute("Requires", "wpg");
+		Element drawingEl = (Element)choiceEl.appendChild(document.createElement("w:drawing"));
+
 		//anchor
 		Element anchorEl = (Element)drawingEl.appendChild(document.createElement("wp:anchor"));
 		anchorEl.setAttribute("distT", "0");
@@ -1380,10 +1405,10 @@ public class OpenXMLDocument {
 		appendPicture(grpSpEl, backgroundImageRef);
 		
 		for(OpenXMLGraphic element:elements) {
-			appendGraphicElementEl(grpSpEl, backgroundImageRef.getEmuSize(), element);
+			appendGraphicElementEl(grpSpEl, emuSize, element);
 		}
 
-		return drawingEl;
+		return alternateContentEl;
 	}
 	
 	/*
@@ -1429,7 +1454,7 @@ public class OpenXMLDocument {
 		<wps:bodyPr />
 	</wps:wsp>
 	*/
-	private void appendGraphicElementEl(Element parentEl, OpenXMLSize size, OpenXMLGraphic element) {
+	private void appendGraphicElementEl(Element parentEl, OpenXMLSize backgroundSize, OpenXMLGraphic element) {
 		Element wspEl = (Element)parentEl.appendChild(document.createElement("wps:wsp"));
 		
 		String formId = generateSimpleId();
@@ -1442,9 +1467,9 @@ public class OpenXMLDocument {
 		
 		Element spPrEl = (Element)wspEl.appendChild(document.createElement("wps:spPr"));
 		if(element.type() == OpenXMLGraphic.Type.rectangle) {
-			appendGraphicRectangle(spPrEl, size, element);
+			appendGraphicRectangle(spPrEl, backgroundSize, element);
 		} else if(element.type() == OpenXMLGraphic.Type.circle) {
-			appendGraphicEllipse(spPrEl, size, element);
+			appendGraphicEllipse(spPrEl, backgroundSize, element);
 		}
 	
 		appendGraphicSolidFill_transparent(spPrEl, element.getStyle());
@@ -1480,7 +1505,7 @@ public class OpenXMLDocument {
 		alphaEl.setAttribute("val", "50000");
 	}
 	
-	private void appendGraphicRectangle(Element spPrEl, OpenXMLSize size, OpenXMLGraphic element) {
+	private void appendGraphicRectangle(Element spPrEl, OpenXMLSize backgroundSize, OpenXMLGraphic element) {
 		/*
 		<a:xfrm>
 			<a:off x="2028190" y="581660" />
@@ -1492,8 +1517,8 @@ public class OpenXMLDocument {
 		List<Integer> coords = element.getCoords();
 		int leftx = coords.get(0);
 		int topy = coords.get(1);
-		int leftxEmu = OpenXMLUtils.convertPixelToEMUs(leftx, DPI, size.getResizeRatio());
-		int topyEmu = OpenXMLUtils.convertPixelToEMUs(topy, DPI, size.getResizeRatio());	
+		int leftxEmu = OpenXMLUtils.convertPixelToEMUs(leftx, DPI, backgroundSize.getResizeRatio());
+		int topyEmu = OpenXMLUtils.convertPixelToEMUs(topy, DPI, backgroundSize.getResizeRatio());	
 		aOffEl.setAttribute("x", Integer.toString(leftxEmu));
 		aOffEl.setAttribute("y", Integer.toString(topyEmu));
 		
@@ -1501,9 +1526,9 @@ public class OpenXMLDocument {
 		int rightx = coords.get(2);
 		int bottomy = coords.get(3);
 		int width = rightx -leftx;
-		int cx = OpenXMLUtils.convertPixelToEMUs(width, DPI, size.getResizeRatio());	
+		int cx = OpenXMLUtils.convertPixelToEMUs(width, DPI, backgroundSize.getResizeRatio());	
 		int height = bottomy - topy;
-		int cy = OpenXMLUtils.convertPixelToEMUs(height, DPI, size.getResizeRatio());	
+		int cy = OpenXMLUtils.convertPixelToEMUs(height, DPI, backgroundSize.getResizeRatio());	
 		aExtEl.setAttribute("cx", Integer.toString(cx));
 		aExtEl.setAttribute("cy", Integer.toString(cy));
 		/*
@@ -1516,7 +1541,7 @@ public class OpenXMLDocument {
 		prstGeomEl.appendChild(document.createElement("a:avLst"));
 	}
 	
-	private void appendGraphicEllipse(Element spPrEl, OpenXMLSize size, OpenXMLGraphic element) {
+	private void appendGraphicEllipse(Element spPrEl, OpenXMLSize backgroundSize, OpenXMLGraphic element) {
 		/*
 		<a:xfrm>
 			<a:off x="2028190" y="581660" />
@@ -1532,8 +1557,8 @@ public class OpenXMLDocument {
 		
 		int topx = centerx - radius;
 		int lefty = centery - radius;
-		int topxEmu = OpenXMLUtils.convertPixelToEMUs(topx, DPI, size.getResizeRatio());
-		int leftyEmu = OpenXMLUtils.convertPixelToEMUs(lefty, DPI, size.getResizeRatio());
+		int topxEmu = OpenXMLUtils.convertPixelToEMUs(topx, DPI, backgroundSize.getResizeRatio());
+		int leftyEmu = OpenXMLUtils.convertPixelToEMUs(lefty, DPI, backgroundSize.getResizeRatio());
 		
 		aOffEl.setAttribute("x", Integer.toString(topxEmu));
 		aOffEl.setAttribute("y", Integer.toString(leftyEmu));
@@ -1541,7 +1566,7 @@ public class OpenXMLDocument {
 		Element aExtEl = (Element)aXfrmEl.appendChild(document.createElement("a:ext"));
 		
 		int width = (radius * 2);
-		int widthEmu = OpenXMLUtils.convertPixelToEMUs(width, DPI, size.getResizeRatio());
+		int widthEmu = OpenXMLUtils.convertPixelToEMUs(width, DPI, backgroundSize.getResizeRatio());
 		aExtEl.setAttribute("cx", Integer.toString(widthEmu));
 		aExtEl.setAttribute("cy", Integer.toString(widthEmu));
 		/*
@@ -1621,10 +1646,22 @@ public class OpenXMLDocument {
 		return filename;	
 	}
 	
+	/**
+	 * Generate an identifier in the form of rId7. The number
+	 * is unique.
+	 * 
+	 * @return
+	 */
 	protected String generateId() {
 		return "rId" + (++currentId);
 	}
 	
+	/**
+	 * Generate an identifier which is a number. The number is
+	 * unique.
+	 * 
+	 * @return
+	 */
 	protected String generateSimpleId() {
 		return Integer.toString(++currentId);
 	}

@@ -32,3 +32,13 @@ create table o_sms_message_log (
 alter table o_sms_message_log ENGINE = InnoDB;
 
 alter table o_sms_message_log add constraint sms_log_to_identity_idx foreign key (fk_identity) references o_bs_identity (id);
+
+
+alter table o_qti_assessmentitem_session modify q_itemidentifier varchar(255);
+alter table o_qti_assessmentitem_session modify q_sectionidentifier varchar(255);
+alter table o_qti_assessmentitem_session modify q_testpartidentifier varchar(255);
+alter table o_qti_assessmenttest_session modify q_subident varchar(255);
+
+
+alter table o_as_entry add column a_user_visibility bit default 1;
+

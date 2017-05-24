@@ -71,14 +71,17 @@ public class SMSPhoneController extends FormBasicController implements SupportsA
 	protected void initForm(FormItemContainer formLayout, Controller listener, UserRequest ureq) {
 		phoneEl = uifactory.addTextElement("sms.phone.number", "sms.phone.number", 32, "", formLayout);
 		phoneEl.setPlaceholderKey("sms.phone.number.hint", null);
+		phoneEl.setExampleKey("sms.phone.number.example", null);
+		phoneEl.setFocus(true);
 		
 		tokenEl = uifactory.addTextElement("sms.token.number", "sms.token.number", 16, "", formLayout);
 		tokenEl.setExampleKey("sms.token.number.explain", null);
+		tokenEl.setFocus(true);
 		tokenEl.setVisible(false);
 		
 		FormLayoutContainer buttonsCont = FormLayoutContainer.createButtonLayout("buttons", getTranslator());
 		formLayout.add(buttonsCont);
-		uifactory.addFormSubmitButton("save", buttonsCont);
+		uifactory.addFormSubmitButton("sms.send", buttonsCont);
 		dontActivateButton = uifactory.addFormLink("dont.activate", buttonsCont, Link.BUTTON);
 	}
 	
@@ -91,6 +94,7 @@ public class SMSPhoneController extends FormBasicController implements SupportsA
 	public boolean isUserInteractionRequired(UserRequest ureq) {
 		return messageModule.isEnabled() && messageModule.isResetPasswordEnabled()
 				&& !ureq.getUserSession().getRoles().isGuestOnly()
+				&& !ureq.getUserSession().getRoles().isInvitee()
 				&& !messageService.validate(ureq.getIdentity().getUser().getProperty(UserConstants.SMSTELMOBILE, getLocale()));
 	}
 

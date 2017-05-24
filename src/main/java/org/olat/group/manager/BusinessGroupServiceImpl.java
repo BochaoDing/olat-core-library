@@ -44,6 +44,7 @@ import org.olat.basesecurity.IdentityRef;
 import org.olat.basesecurity.SecurityGroup;
 import org.olat.collaboration.CollaborationTools;
 import org.olat.collaboration.CollaborationToolsFactory;
+import org.olat.commons.info.manager.InfoMessageFrontendManager;
 import org.olat.core.CoreSpringFactory;
 import org.olat.core.commons.persistence.DB;
 import org.olat.core.commons.services.notifications.NotificationsManager;
@@ -161,6 +162,8 @@ public class BusinessGroupServiceImpl implements BusinessGroupService, UserDataD
 	private RepositoryDeletionModule deletionManager;
 	@Autowired
 	private NotificationsManager notificationsManager;
+	@Autowired
+	private InfoMessageFrontendManager infoMessageManager;
 	@Autowired
 	private MailManager mailManager;
 	@Autowired
@@ -780,9 +783,11 @@ public class BusinessGroupServiceImpl implements BusinessGroupService, UserDataD
 			// 5) delete the publisher attached to this group (e.g. the forum and folder
 			// publisher)
 			notificationsManager.deletePublishersOf(group);
-			// 6) the group
+			// 6) delete info messages and subscription context associated with this group
+			infoMessageManager.removeInfoMessagesAndSubscriptionContext(group);
+			// 7) the group
 			businessGroupDAO.delete(group);
-			// 7) delete the associated security groups
+			// 8) delete the associated security groups
 			//TODO group
 			
 			dbInstance.commit();
@@ -1041,7 +1046,6 @@ public class BusinessGroupServiceImpl implements BusinessGroupService, UserDataD
 
 	private void removeParticipant(Identity ureqIdentity, Identity identity, BusinessGroup group, MailPackage mailing,
 			List<BusinessGroupModifiedEvent.Deferred> events) {
-
 		boolean removed = businessGroupRelationDAO.removeRole(identity, group, GroupRoles.participant.name());
 		if(removed) {
 			// notify currently active users of this business group

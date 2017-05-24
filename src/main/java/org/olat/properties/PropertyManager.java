@@ -35,6 +35,7 @@ import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 
 import org.olat.basesecurity.IdentityRef;
+import org.olat.core.commons.persistence.DBFactory;
 import org.olat.core.id.Identity;
 import org.olat.core.commons.persistence.DB;
 import org.olat.core.id.OLATResourceable;
@@ -713,6 +714,37 @@ public class PropertyManager extends BasicManager implements UserDataDeletable {
 
 		List<Property> props = dbQuery.getResultList();
 		return props;
+	}
+	
+	/**
+	 * Gets the property by long value.
+	 */
+	public Property getPropertyByLongValue (long longValue, String name) {
+		StringBuilder query = new StringBuilder();
+		query.append("select p from ")
+		.append(Property.class.getName())
+		.append(" as p")
+		.append(" where p.longValue=:longValue");
+		
+		if (name != null) {
+			query.append(" and p.name=:name");
+		}
+		
+		TypedQuery<Property> dbQuery = DBFactory.getInstance().getCurrentEntityManager()
+				.createQuery(query.toString(), Property.class)
+				.setParameter("longValue", longValue);
+		
+		if (name != null) {
+			dbQuery.setParameter("name", name);
+		}
+		
+		List<Property> properties = dbQuery.setMaxResults(1).getResultList();
+		
+		if (properties.size() > 0) {
+			return properties.get(0);
+		} else {
+			return null;
+		}				
 	}
 	
 	

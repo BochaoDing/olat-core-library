@@ -45,7 +45,10 @@ import org.olat.core.util.FileUtils;
 import org.olat.core.util.nodes.INode;
 import org.olat.core.util.tree.TreeVisitor;
 import org.olat.core.util.tree.Visitor;
-import org.olat.core.util.vfs.*;
+import org.olat.core.util.vfs.VFSContainer;
+import org.olat.core.util.vfs.VFSItem;
+import org.olat.core.util.vfs.VFSLeaf;
+import org.olat.core.util.vfs.callbacks.FullAccessWithLazyQuotaCallback;
 import org.olat.core.util.vfs.callbacks.FullAccessWithQuotaCallback;
 import org.olat.core.util.vfs.version.Versionable;
 import org.olat.core.util.vfs.version.VersionsFileManager;
@@ -100,7 +103,7 @@ public class PersistingCourseImpl implements ICourse, OLATResourceable, Serializ
 	private CourseConfig courseConfig;
 	private final CourseEnvironmentImpl courseEnvironment;
 	private OlatRootFolderImpl courseRootContainer;
-	private String courseTitle;
+	private String courseTitle = null;
 	/** courseTitleSyncObj is a final Object only used for synchronizing the courseTitle getter - see OLAT-5654 */
 	private final Object courseTitleSyncObj = new Object();
 	private static OLog log = Tracing.createLoggerFor(PersistingCourseImpl.class);
@@ -271,13 +274,7 @@ public class PersistingCourseImpl implements ICourse, OLATResourceable, Serializ
 					"could not create course's coursefolder path:" + fCourseFolder.getAbsolutePath(), null);
 		}
 		
-		QuotaManager qm = QuotaManager.getInstance();
-		Quota q = qm.getCustomQuota(isolatedCourseFolder.getRelPath());
-		if (q == null){
-			Quota defQuota = qm.getDefaultQuota(QuotaConstants.IDENTIFIER_DEFAULT_COURSE);
-			q = qm.createQuota(isolatedCourseFolder.getRelPath(), defQuota.getQuotaKB(), defQuota.getUlLimitKB());
-		}
-		FullAccessWithQuotaCallback secCallback = new FullAccessWithQuotaCallback(q);
+		FullAccessWithQuotaCallback secCallback = new FullAccessWithLazyQuotaCallback(isolatedCourseFolder.getRelPath(), QuotaConstants.IDENTIFIER_DEFAULT_COURSE);
 		isolatedCourseFolder.setLocalSecurityCallback(secCallback);
 		return isolatedCourseFolder;
 	}
@@ -419,12 +416,12 @@ public class PersistingCourseImpl implements ICourse, OLATResourceable, Serializ
 		importExport.exportDoExportProperties();
 		
 		//OLAT-5368: do intermediate commit to avoid transaction timeout
-		// discussion intermediate commit vs increased transaction timeout:
-		//  pro intermediate commit: not much
+		// discussion intermediatecommit vs increased transaction timeout:
+		//  pro intermediatecommit: not much
 		//  pro increased transaction timeout: would fix OLAT-5368 but only move the problem
 		//@TODO OLAT-2597: real solution is a long-running background-task concept...
 		DBFactory.getInstance().intermediateCommit();
-
+		
 		//export reminders
 		CoreSpringFactory.getImpl(ReminderService.class)
 			.exportReminders(myRE, fExportedDataDir);

@@ -113,7 +113,7 @@ public class VideoManagerImpl implements VideoManager {
 	private static final String DIRNAME_MASTER = "master";
 	public static final String TRACK = "track_";
 	public static final String DOT = "." ;
-
+	
 	private static final SimpleDateFormat displayDateFormat = new SimpleDateFormat("HH:mm:ss");
 	private static final SimpleDateFormat vttDateFormat = new SimpleDateFormat("HH:mm:ss.SSS");
 
@@ -132,7 +132,7 @@ public class VideoManagerImpl implements VideoManager {
 	private Scheduler scheduler;
 	@Autowired
 	private ImageService imageHelper;
-
+	
 	private static final OLog log = Tracing.createLoggerFor(VideoManagerImpl.class);
 
 	/**
@@ -160,7 +160,7 @@ public class VideoManagerImpl implements VideoManager {
 			repositoryManager.setImage(posterImage, repoEntry);
 		}
 	}
-
+	
 	/**
 	 * Sets the posterframe resize uploadfile. Tries to fit image to dimensions of video.
 	 *
@@ -171,10 +171,10 @@ public class VideoManagerImpl implements VideoManager {
 		VideoMeta videoMetadata = getVideoMetadata(videoResource);
 		Size posterRes = imageHelper.getSize(newPosterFile, FILETYPE_JPG);
 		// file size needs to be bigger than target resolution, otherwise use image as it comes
-		if (posterRes != null
-				&& posterRes.getHeight() != 0
+		if (posterRes != null 
+				&& posterRes.getHeight() != 0 
 				&& posterRes.getWidth() != 0
-				&& posterRes.getHeight() >= videoMetadata.getHeight()
+				&& posterRes.getHeight() >= videoMetadata.getHeight() 
 				&& posterRes.getWidth() >= videoMetadata.getWidth()) {
 			VFSLeaf oldPosterFile = getPosterframe(videoResource);
 			oldPosterFile.delete();
@@ -243,7 +243,7 @@ public class VideoManagerImpl implements VideoManager {
 //		}
 		return tracks;
 	}
-
+	
 	/**
 	 * return the chapter file as a VFSLeaf
 	 */
@@ -283,6 +283,61 @@ public class VideoManagerImpl implements VideoManager {
 			log.error("Could not get frame::" + frameNumber + " for video::" + videoFile.getAbsolutePath(), e);
 			return false;
 		} 
+	}
+
+	@Override
+	public boolean getFrameWithFilter(OLATResource videoResource, int frameNumber, long duration, VFSLeaf frame) {
+		File videoFile = ((LocalFileImpl) getMasterVideoFile(videoResource)).getBasefile();
+		BufferedImage bufImg = null;
+		boolean imgBlack = true;
+		int countBlack = 0;
+		try (RandomAccessFile randomAccessFile = new RandomAccessFile(videoFile, "r")) {
+			OutputStream frameOutputStream = frame.getOutputStream(false);
+
+			FileChannel ch = randomAccessFile.getChannel();
+			FileChannelWrapper in = new FileChannelWrapper(ch);
+			FrameGrab frameGrab = new FrameGrab(in).seekToFrameSloppy(frameNumber);
+
+			bufImg = frameGrab.getFrame();
+
+			int xmin = bufImg.getMinX();
+			int ymin = bufImg.getMinY();
+			int xmax = xmin + bufImg.getWidth();
+			int ymax = ymin + bufImg.getHeight();
+			int pixelCount = bufImg.getWidth() * bufImg.getHeight();
+
+			for (int x = xmin; x < xmax; x++) {
+				for (int y = ymin; y < ymax; y++) {
+					int rgb = bufImg.getRGB(x, y);
+//					int alpha = (0xff000000 & rgb) >>> 24;
+					int r = (0x00ff0000 & rgb) >> 16;
+					int g = (0x0000ff00 & rgb) >> 8;
+					int b = (0x000000ff & rgb);
+					if (r < 30 && g < 30 && b < 30) {
+						countBlack++;
+					}
+				}
+			}
+			if (countBlack > (int) (0.7F * pixelCount)) {
+				imgBlack = true;
+			} else {
+				imgBlack = false;
+				ImageIO.write(bufImg, "JPG", frameOutputStream);
+			}
+			// avoid endless loop
+			if (frameNumber > duration) {
+				imgBlack = false;
+			}
+			// close everything to prevent resource leaks
+			frameOutputStream.close();
+			in.close();
+			ch.close();
+
+			return imgBlack;
+		} catch (Exception | AssertionError e) {
+			log.error("Could not get frame::" + frameNumber + " for video::" + videoFile.getAbsolutePath(), e);
+			return false;
+		}
 	}
 
 	/**
@@ -354,14 +409,14 @@ public class VideoManagerImpl implements VideoManager {
 			return meta;
 		}
 	}
-
+	
 	@Override
 	public void startTranscodingProcessIfEnabled(OLATResource video) {
 		if (videoModule.isTranscodingEnabled()) {
 			startTranscodingProcess(video);
 		}
 	}
-
+	
 	@Override
 	public VideoTranscoding retranscodeFailedVideoTranscoding(VideoTranscoding videoTranscoding) {
 		return videoTranscodingDao.updateTranscodingStatus(videoTranscoding);
@@ -425,31 +480,31 @@ public class VideoManagerImpl implements VideoManager {
 		List<VideoTranscoding> videoTranscodings = videoTranscodingDao.getAllVideoTranscodings();
 		return videoTranscodings;
 	}
-
-	@Override
+	
+	@Override 
 	public List<TranscodingCount> getAllVideoTranscodingsCount() {
 		List<TranscodingCount> allVideoTranscodings = videoTranscodingDao.getAllVideoTranscodingsCount();
 		return allVideoTranscodings;
 	}
-
-	@Override
+	
+	@Override 
 	public List<TranscodingCount> getAllVideoTranscodingsCountSuccess(int errorcode) {
 		List<TranscodingCount> allVideoTranscodings = videoTranscodingDao.getAllVideoTranscodingsCountSuccess(errorcode);
 		return allVideoTranscodings;
 	}
-
-	@Override
+	
+	@Override 
 	public List<TranscodingCount> getAllVideoTranscodingsCountFails(int errorcode) {
 		List<TranscodingCount> allVideoTranscodings = videoTranscodingDao.getAllVideoTranscodingsCountFails(errorcode);
 		return allVideoTranscodings;
 	}
-
+	
 	@Override
 	public List<VideoTranscoding> getOneVideoResolution(int resolution) {
 		List<VideoTranscoding> oneResolution = videoTranscodingDao.getOneVideoResolution(resolution);
 		return oneResolution;
 	}
-
+	
 
 	@Override
 	public String getAspectRatio(int width, int height) {
@@ -525,9 +580,9 @@ public class VideoManagerImpl implements VideoManager {
 	public boolean hasMasterContainer (OLATResource videoResource) {
 		VFSContainer baseContainer =  FileResourceManager.getInstance().getFileResourceRootImpl(videoResource);
 		VFSContainer masterContainer = (VFSContainer) baseContainer.resolve(DIRNAME_MASTER);
-		return masterContainer != null & masterContainer.exists();
+		return masterContainer != null & masterContainer.exists();		
 	}
-
+	
 	@Override
 	public VFSContainer getMasterContainer(OLATResource videoResource) {
 		VFSContainer baseContainer =  FileResourceManager.getInstance().getFileResourceRootImpl(videoResource);
@@ -621,10 +676,10 @@ public class VideoManagerImpl implements VideoManager {
 		if (posterImage != null) {
 			repositoryManager.setImage(posterImage, repoEntry);
 		}
-
+				
 		return true;
 	}
-
+	
 	@Override
 	public Size getVideoResolutionFromOLATResource (OLATResource videoResource) {
 		VFSContainer masterContainer = getMasterContainer(videoResource);
@@ -635,7 +690,7 @@ public class VideoManagerImpl implements VideoManager {
 		}
 		return videoSize;
 	}
-
+	
 	@Override
 	public void exchangePoster (OLATResource videoResource) {
 		VFSContainer masterContainer = getMasterContainer(videoResource);
@@ -648,9 +703,9 @@ public class VideoManagerImpl implements VideoManager {
 			repositoryManager.setImage(posterImage, repoEntry);
 		}
 	}
-
+	
 	@Override
-	public void updateVideoMetadata (OLATResource videoResource,VFSLeaf uploadVideo) {
+	public void updateVideoMetadata (OLATResource videoResource,VFSLeaf uploadVideo) {	
 		VideoMeta meta = getVideoMetadata(videoResource);
 
 		Size dimensions = movieService.getSize(uploadVideo, VideoManagerImpl.FILETYPE_MP4);
@@ -717,7 +772,7 @@ public class VideoManagerImpl implements VideoManager {
 		VFSStatus deleteStatus = getTranscodingContainer(videoResource).delete();
 		return (deleteStatus == VFSConstants.YES ? true : false);
 	}
-
+	
 	@Override
 	public boolean deleteVideoMetadata(OLATResource videoResource) {
 		int deleted = videoMetadataDao.deleteVideoMetadata(videoResource);
@@ -728,12 +783,12 @@ public class VideoManagerImpl implements VideoManager {
 	public List<VideoTranscoding> getVideoTranscodingsPendingAndInProgress() {
 		return videoTranscodingDao.getVideoTranscodingsPendingAndInProgress();
 	}
-
+	
 	@Override
 	public List<VideoTranscoding> getFailedVideoTranscodings() {
 		return videoTranscodingDao.getFailedVideoTranscodings();
 	}
-
+	
 	@Override
 	public void deleteVideoTranscoding(VideoTranscoding videoTranscoding) {
 		videoTranscodingDao.deleteVideoTranscoding(videoTranscoding);
@@ -756,25 +811,25 @@ public class VideoManagerImpl implements VideoManager {
 			Integer resolution = videoTranscoding.getResolution();
 			configResList.remove(resolution);
 		}
-
+		
 		return configResList;
 	}
-
+	
 	@Override
 	public VideoTranscoding createTranscoding(OLATResource video, int resolution,String format) {
 		return videoTranscodingDao.createVideoTranscoding(video, resolution, format);
 	}
-
+	
 	@Override
 	public void saveChapters (List<VideoChapterTableRow> chapters, OLATResource videoResource){
 		displayDateFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
 		vttDateFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
-
+		
 		VFSContainer vfsContainer = getMasterContainer(videoResource);
-		VFSLeaf webvtt = (VFSLeaf) vfsContainer.resolve(FILENAME_CHAPTERS_VTT);
+		VFSLeaf webvtt = (VFSLeaf) vfsContainer.resolve(FILENAME_CHAPTERS_VTT);		
 		if (webvtt == null) {
 			webvtt = vfsContainer.createChildLeaf(FILENAME_CHAPTERS_VTT);
-		}
+		}		
 
 		if (chapters.size() == 0){
 			webvtt.delete();
@@ -790,7 +845,7 @@ public class VideoManagerImpl implements VideoManager {
 			vttString.append(chapters.get(i).getChapterName().replaceAll(CR, " "));
 			vttString.append(CR);
 			}
-
+		
 		final BufferedOutputStream bos = new BufferedOutputStream(webvtt.getOutputStream(false));
 		FileUtils.save(bos, vttString.toString(), ENCODING);
 		try {
@@ -799,7 +854,7 @@ public class VideoManagerImpl implements VideoManager {
 			log.error("chapter.vtt could not be saved for videoResource::" + videoResource, e);
 		}
 	}
-
+	
 	/**
 	 * reads an existing webvtt file to provide for display and to further process.
 	 *
@@ -810,7 +865,7 @@ public class VideoManagerImpl implements VideoManager {
 		chapters.clear();
 		displayDateFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
 		vttDateFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
-
+		
 		VFSContainer vfsContainer = getMasterContainer(videoResource);
 		VFSLeaf webvtt = (VFSLeaf) vfsContainer.resolve(FILENAME_CHAPTERS_VTT);
 
@@ -818,7 +873,7 @@ public class VideoManagerImpl implements VideoManager {
 			try {
 				BufferedReader webvttReader = new BufferedReader(new InputStreamReader(webvtt.getInputStream()));
 				String thisLine, regex = " --> ";
-
+				
 				while ((thisLine = webvttReader.readLine()) != null) {
 					if (thisLine.contains(regex)) {
 						String[] interval = thisLine.split(regex);
@@ -827,7 +882,7 @@ public class VideoManagerImpl implements VideoManager {
 
 						StringBuilder chapterTitle = new StringBuilder();
 						String title;
-
+						
 						while ((title = webvttReader.readLine()) != null) {
 							if (title.isEmpty() || title.contains(regex))
 								break;
@@ -838,38 +893,44 @@ public class VideoManagerImpl implements VideoManager {
 					}
 				}
 				webvttReader.close();
-
+				
 			} catch (Exception e) {
 				log.error("Unable to load WEBVTT File for resource::" + videoResource,e);
 			}
 		}
 	}
-
+	
 	@Override
 	public long getVideoDuration (OLATResource videoResource){
 		VFSContainer masterContainer = getMasterContainer(videoResource);
-		VFSLeaf video = (VFSLeaf) masterContainer.resolve(FILENAME_VIDEO_MP4);
+		VFSLeaf video = (VFSLeaf) masterContainer.resolve(FILENAME_VIDEO_MP4);	
 		long duration = movieService.getDuration(video, FILETYPE_MP4);
 		return duration;
 	}
-
+	
 	@Override
 	public List<VideoMetaImpl> getAllVideoResourcesMetadata() {
 		List<VideoMetaImpl> metadata = videoMetadataDao.getAllVideoResourcesMetadata();
 		return metadata;
 	}
-
+	@Override
+	public boolean hasVideoMetadata(OLATResource videoResource) {
+		return videoMetadataDao.getVideoMetadata(videoResource) != null;
+	}
 	@Override
 	public VideoMetaImpl getVideoMetadata(OLATResource videoResource) {
 		VideoMetaImpl meta = videoMetadataDao.getVideoMetadata(videoResource);
+		if (meta == null) {
+			return new VideoMetaImpl(800, 600, 5000);
+		}
 		return meta;
 	}
-
-	@Override
+	
+	@Override 
 	public VideoMeta createVideoMetadata(RepositoryEntry repoEntry, long size, String fileName) {
-		return videoMetadataDao.createVideoMetadata(repoEntry, size, fileName);
+		return videoMetadataDao.createVideoMetadata(repoEntry, size, fileName); 
 	}
-
+	
 	@Override
 	public List<RepositoryEntry> getAllVideoRepoEntries(String typename) {
 		return videoMetadataDao.getAllVideoRepoEntries(typename);
@@ -879,7 +940,7 @@ public class VideoManagerImpl implements VideoManager {
 	public boolean hasVideoFile(OLATResource videoResource) {
 		VFSContainer masterContainer = getMasterContainer(videoResource);
 		LocalFileImpl videoFile = (LocalFileImpl) masterContainer.resolve(FILENAME_VIDEO_MP4);
-		return videoFile != null & videoFile.exists();
+		return videoFile != null && videoFile.exists();
 	}
 
 }
