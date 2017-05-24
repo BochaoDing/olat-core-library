@@ -3,6 +3,7 @@ package ch.uzh.extension.campuscourse.data.entity;
 import ch.uzh.extension.campuscourse.batchprocessing.CampusBatchStepName;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.hibernate.annotations.GenericGenerator;
+import org.hibernate.annotations.Parameter;
 
 import javax.persistence.*;
 import java.util.Date;
@@ -20,7 +21,14 @@ public class BatchJobSkippedItem {
 
     @Id
     @GeneratedValue(generator = "system-uuid")
-    @GenericGenerator(name = "system-uuid", strategy = "hilo")
+    @GenericGenerator(name = "system-uuid", strategy = "enhanced-sequence", parameters={
+			@Parameter(name="sequence_name", value="hibernate_unique_key"),
+			@Parameter(name="force_table_use", value="true"),
+			@Parameter(name="optimizer", value="legacy-hilo"),
+			@Parameter(name="value_column", value="next_hi"),
+			@Parameter(name="increment_size", value="32767"),
+			@Parameter(name="initial_value", value="32767")
+	})
     private Long id;
 
 	@Column(name = "job_name", nullable = false)

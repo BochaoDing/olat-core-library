@@ -43,6 +43,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 
+import javax.inject.Provider;
 
 /**
  * 
@@ -61,7 +62,7 @@ public class DatabaseUpgradeManager extends UpgradeManagerImpl {
 	protected UpgradesDefinitions olatUpgradesDefinitions;
 
 	@Autowired
-	public DatabaseUpgradeManager(DB dbInstance) {
+	public DatabaseUpgradeManager(Provider<DB> dbInstance) {
         super(dbInstance);
         INSTALLED_UPGRADES_XML = "installed_database_upgrades.xml";
 	}

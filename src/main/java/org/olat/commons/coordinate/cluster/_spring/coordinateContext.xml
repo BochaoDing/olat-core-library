@@ -21,7 +21,7 @@
 		<property name="coordinator" ref="org.olat.core.util.coordinate.ClusterCoordinator"/>
 	</bean>
 
-	<bean id="org.olat.core.util.coordinate.ClusterCoordinator" 
+	<bean id="org.olat.core.util.coordinate.ClusterCoordinator"
 		class="org.olat.commons.coordinate.cluster.ClusterCoordinator" lazy-init="true">
 		<property name="locker" ref="clusterLocker" />
 		<property name="clusterConfig" ref="org.olat.commons.coordinate.cluster.ClusterConfig" />

@@ -37,6 +37,7 @@ import org.quartz.JobDetail;
 import org.quartz.Scheduler;
 import org.quartz.SchedulerException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -91,7 +92,7 @@ public class ViteroModule extends AbstractSpringModule implements ConfigOnOff {
 	private final Scheduler scheduler;
 	
 	@Autowired
-	public ViteroModule(CoordinatorManager coordinatorManager, Scheduler scheduler) {
+	public ViteroModule(CoordinatorManager coordinatorManager, @Qualifier("schedulerFactoryBean") Scheduler scheduler) {
 		super(coordinatorManager);
 		this.scheduler = scheduler;
 	}
