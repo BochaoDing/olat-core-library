@@ -37,16 +37,16 @@ import org.olat.core.logging.Tracing;
 import org.olat.core.util.FileUtils;
 
 /**
- * 
+ *
  * Initial date: 04.09.2013<br>
  * @author srosse, stephane.rosse@frentix.com, http://www.frentix.com
  *
  */
 public class ImageUtils {
-	
+
 	private static final OLog log = Tracing.createLoggerFor(ImageUtils.class);
-	
-	
+
+
 	public static Size getImageSize(File image) {
 		InputStream in = null;
 		try {
@@ -58,7 +58,7 @@ public class ImageUtils {
 			return null;
 		}
 	}
-	
+
 	public static Size getImageSize(String suffix, InputStream in) {
 		Size result = null;
 
@@ -68,7 +68,7 @@ public class ImageUtils {
 			try {
 				ImageInputStream stream = new MemoryCacheImageInputStream(in);
 				reader.setInput(stream);
-				
+
 				int imageIndex = reader.getMinIndex();
 				int width = reader.getWidth(imageIndex);
 				int height = reader.getHeight(imageIndex);

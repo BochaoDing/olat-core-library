@@ -1369,7 +1369,55 @@ function o_XHREvent(targetUrl, dirtyCheck, push) {
 	} else {
 		if(!o2cl_noDirtyCheck()) return false;
 	}
-	
+
+	var data = new Object();
+	if(arguments.length > 3) {
+		var argLength = arguments.length;
+		for(var i=3; i<argLength; i=i+2) {
+			if(argLength > i+1) {
+				data[arguments[i]] = arguments[i+1];
+			}
+		}
+	}
+
+	jQuery.ajax(targetUrl,{
+		type:'POST',
+		data: data,
+		cache: false,
+		dataType: 'json',
+		success: function(data, textStatus, jqXHR) {
+			try {
+				o_ainvoke(data);
+				if(push) {
+					var businessPath = data['businessPath'];
+					var documentTitle = data['documentTitle'];
+					var historyPointId = data['historyPointId'];
+					if(businessPath) {
+						o_pushState(historyPointId, documentTitle, businessPath);
+					}
+				}
+			} catch(e) {
+				if(window.console) console.log(e);
+			} finally {
+				o_afterserver();
+			}
+		},
+		error: o_onXHRError
+	});
+
+	return false;
+}
+
+/*
+ * TODO Remove the duplicated code from the function right above.
+ */
+function o_XHREventWithEncodedUrl(targetUrl, dirtyCheck, push) {
+	if(dirtyCheck) {
+		if(!o2cl()) return false;
+	} else {
+		if(!o2cl_noDirtyCheck()) return false;
+	}
+
 	var data = new Object();
 	if(arguments.length > 3) {
 		var argLength = arguments.length;
@@ -1403,8 +1451,8 @@ function o_XHREvent(targetUrl, dirtyCheck, push) {
 			}
 		},
 		error: o_onXHRError
-	})
-	
+	});
+
 	return false;
 }
 
@@ -1620,13 +1668,13 @@ function onTreeDrop(event, ui) {
 	}
 	var dragId = dragEl.attr('id')
 	var targetId = dragId.substring(2, dragId.length);
-	url += '%3Atnidle%3A' + targetId;
+	url += ':tnidle:' + targetId;
 
 	var droppableId = el.attr('id');
 	if(droppableId.indexOf('ds') == 0) {
-		url += '%3Asne%3Ayes';
+		url += ':sne:yes';
 	} else if(droppableId.indexOf('dt') == 0) {
-		url += '%3Asne%3Aend';
+		url += ':sne:end';
 	}
 	jQuery('.ui-droppable').each(function(index, el) {
 		jQuery(el).droppable( "disable" );

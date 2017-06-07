@@ -132,7 +132,9 @@ public abstract class AbstractMemberListController extends FormBasicController i
 	protected FlexiTableElement membersTable;
 	protected MemberListTableModel memberListModel;
 	protected final TooledStackedPanel toolbarPanel;
-	private FormLink editButton, mailButton, removeButton;
+	protected FormLink editButton;
+	private FormLink mailButton;
+	protected FormLink removeButton;
 	
 	private ToolsController toolsCtrl;
 	protected CloseableModalController cmc;
@@ -148,15 +150,15 @@ public abstract class AbstractMemberListController extends FormBasicController i
 
 	private final AtomicInteger counter = new AtomicInteger();
 	protected final RepositoryEntry repoEntry;
-	private final BusinessGroup businessGroup;
+	protected final BusinessGroup businessGroup;
 	private final boolean isLastVisitVisible;
 	private final boolean isAdministrativeUser;
 	private final boolean chatEnabled;
-	
+
 	private final boolean readOnly;
 	private boolean overrideManaged = false;
-	private final boolean globallyManaged;
-	
+	protected final boolean globallyManaged;
+
 	@Autowired
 	protected UserManager userManager;
 	@Autowired
@@ -224,7 +226,7 @@ public abstract class AbstractMemberListController extends FormBasicController i
 			flc.setDirty(true);
 		}
 	}
-	
+
 	@Override
 	protected void initForm(FormItemContainer formLayout, Controller listener, UserRequest ureq) {
 		FlexiTableColumnModel columnsModel = FlexiTableDataModelFactory.createFlexiTableColumnModel();
@@ -236,7 +238,7 @@ public abstract class AbstractMemberListController extends FormBasicController i
 		membersTable.setEmtpyTableMessageKey("nomembers");
 		membersTable.setAndLoadPersistedPreferences(ureq, this.getClass().getSimpleName());
 		membersTable.setSearchEnabled(true);
-		
+
 		membersTable.setExportEnabled(true);
 		membersTable.setSelectAllEnable(true);
 		membersTable.setElementCssClass("o_sel_member_list");
@@ -279,7 +281,7 @@ public abstract class AbstractMemberListController extends FormBasicController i
 	private SortKey initColumns(FlexiTableColumnModel columnsModel) {
 		SortKey defaultSortKey = null;
 		String editAction = readOnly ? null : TABLE_ACTION_EDIT;
-		
+
 		if(chatEnabled) {
 			DefaultFlexiColumnModel chatCol = new DefaultFlexiColumnModel(Cols.online.i18n(), Cols.online.ordinal());
 			chatCol.setExportable(false);
@@ -401,7 +403,7 @@ public abstract class AbstractMemberListController extends FormBasicController i
 		super.formInnerEvent(ureq, source, event);
 	}
 	
-	private List<MemberView> getMultiSelectedRows() {
+	protected List<MemberView> getMultiSelectedRows() {
 		Set<Integer> selections = membersTable.getMultiSelectedIndex();
 		List<MemberView> rows = new ArrayList<>(selections.size());
 		if(selections.isEmpty()) {
@@ -497,7 +499,8 @@ public abstract class AbstractMemberListController extends FormBasicController i
 			List<Long> identityKeys = new ArrayList<Long>();
 			for(MemberView member:members) {
 				identityKeys.add(member.getIdentityKey());
-				if(member.getMembership().isOwner()) {
+				if ((repoEntry != null && member.getMembership().isOwner())
+						|| (repoEntry == null && member.getMembership().isGroupTutor())) {
 					numOfRemovedOwner++;
 				}
 			}

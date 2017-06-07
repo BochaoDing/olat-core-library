@@ -52,7 +52,7 @@ public class InfoMessageManagerImpl extends InfoMessageManager {
 	/**
 	 * [used by Spring]
 	 */
-	private InfoMessageManagerImpl(DB dbInstance) {
+	public InfoMessageManagerImpl(DB dbInstance) {
         this.dbInstance = dbInstance;
 		INSTANCE = this;
 	}

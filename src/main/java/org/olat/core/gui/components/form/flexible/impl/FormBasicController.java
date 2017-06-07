@@ -31,6 +31,9 @@ import java.util.List;
 import java.util.function.Consumer;
 
 import org.checkerframework.checker.initialization.qual.UnderInitialization;
+import org.checkerframework.checker.initialization.qual.UnknownInitialization;
+import org.checkerframework.checker.nullness.qual.EnsuresNonNull;
+import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 import org.olat.core.gui.UserRequest;
 import org.olat.core.gui.components.Component;
 import org.olat.core.gui.components.form.flexible.FormItem;
@@ -243,7 +246,8 @@ public abstract class FormBasicController extends BasicController implements IFo
 	 * @param mainFormId Give a fix identifier to the main form for state-less behavior
 	 * @param pageName
 	 */
-	protected void constructorInit(String mainFormId, String pageName) {
+	@EnsuresNonNull("mainForm")
+	protected void constructorInit(@UnderInitialization FormBasicController this, String mainFormId, String pageName) {
 		String ffo_pagename = null;
 		if (pageName != null) {
 			if(pageName.endsWith(".html")) {
@@ -277,7 +281,7 @@ public abstract class FormBasicController extends BasicController implements IFo
 		initialPanel = putInitialPanel(mainForm.getInitialComponent());
 	}
 
-	protected void initForm(UserRequest ureq) {
+	protected void initForm(@UnderInitialization FormBasicController this, UserRequest ureq) {
 		initForm(this.flc, this, ureq);
 	}
 
@@ -298,7 +302,8 @@ public abstract class FormBasicController extends BasicController implements IFo
 	 * required member variables) and one can use the advantages of final
 	 * member variables (makes the context more trustworthy).
 	 */
-	abstract protected void initForm(FormItemContainer formLayout, Controller listener, UserRequest ureq);
+	@RequiresNonNull({"mainForm", "uifactory"})
+	abstract protected void initForm(@UnderInitialization FormBasicController this, FormItemContainer formLayout, @UnknownInitialization Controller listener, UserRequest ureq);
 
 	public FormItem getInitialFormItem() {
 		return flc;
@@ -613,7 +618,7 @@ public abstract class FormBasicController extends BasicController implements IFo
 	}
 
 	@Override
-	protected void setTranslator(Translator translator) {
+	protected void setTranslator(@UnknownInitialization FormBasicController this, Translator translator) {
 		super.setTranslator(translator);
 		flc.setTranslator(translator);
 	}

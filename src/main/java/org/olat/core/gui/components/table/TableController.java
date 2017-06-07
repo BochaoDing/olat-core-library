@@ -32,6 +32,7 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
+import org.checkerframework.checker.initialization.qual.UnknownInitialization;
 import org.olat.core.gui.ShortName;
 import org.olat.core.gui.UserRequest;
 import org.olat.core.gui.components.Component;
@@ -220,7 +221,7 @@ public class TableController extends BasicController {
 	 * @param wControl The window control
 	 * @param tableTrans The translator that is used to translate the table
 	 */
-	public TableController(final TableGuiConfiguration tableConfigP, final UserRequest ureq, final WindowControl wControl, final Translator tableTrans) {
+	public TableController(final TableGuiConfiguration tableConfigP, final UserRequest ureq, final WindowControl wControl, final @UnknownInitialization Translator tableTrans) {
 		super(ureq, wControl);
 		if (tableConfigP == null){
 			tableConfig = new TableGuiConfiguration();
@@ -509,7 +510,7 @@ public class TableController extends BasicController {
 	 * if the table data model has any values and show a message instead of the
 	 * table when the model has no rows.
 	 */
-	public void modelChanged(final boolean resetSearchString) {
+	public void modelChanged(@UnknownInitialization TableController this, final boolean resetSearchString) {
 		if (resetSearchString) {
 			table.setSearchString(null);
 		}
@@ -540,7 +541,7 @@ public class TableController extends BasicController {
 	 * 
 	 * @param tableDataModel The tableDataModel to set
 	 */
-	public void setTableDataModel(final TableDataModel tableDataModel) {
+	public void setTableDataModel(@UnknownInitialization TableController this, final TableDataModel tableDataModel) {
 		table.setTableDataModel(tableDataModel);
 		if (!tablePrefsInitialized) { // first time
 			if (prefs != null) {
@@ -563,7 +564,7 @@ public class TableController extends BasicController {
 	 * @param visible true: is visible; false: is not visible
 	 * @param cd column descriptor
 	 */
-	public void addColumnDescriptor(final boolean visible, final ColumnDescriptor cd) {
+	public void addColumnDescriptor(@UnknownInitialization TableController this, final boolean visible, final ColumnDescriptor cd) {
 		table.addColumnDescriptor(cd, -1, visible);
 	}
 
@@ -572,7 +573,7 @@ public class TableController extends BasicController {
 	 * 
 	 * @param cd column descriptor
 	 */
-	public void addColumnDescriptor(final ColumnDescriptor cd) {
+	public void addColumnDescriptor(@UnknownInitialization TableController this, final ColumnDescriptor cd) {
 		table.addColumnDescriptor(cd, -1, true);
 	}
 	
@@ -659,7 +660,7 @@ public class TableController extends BasicController {
 	 * @param sortColumn The sortColumn to set
 	 * @param isSortAscending true: sorting is ascending
 	 */
-	public void setSortColumn(final int sortColumn, final boolean isSortAscending) {
+	public void setSortColumn(@UnknownInitialization TableController this, final int sortColumn, final boolean isSortAscending) {
 		if ((table.getColumnCount() > sortColumn)
 				&& table.getColumnDescriptor(sortColumn).isSortingAllowed()) {
 			table.setSortColumn(sortColumn, isSortAscending);
@@ -683,7 +684,7 @@ public class TableController extends BasicController {
 	 * 
 	 * @param isMultiSelect
 	 */
-	public void setMultiSelect(final boolean isMultiSelect) {
+	public void setMultiSelect(@UnknownInitialization TableController this, final boolean isMultiSelect) {
 		table.setMultiSelect(isMultiSelect);
 	}
 	

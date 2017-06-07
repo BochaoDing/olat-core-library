@@ -36,9 +36,9 @@ import org.olat.core.gui.control.controller.BasicController;
 import org.olat.core.gui.control.generic.closablewrapper.CloseableModalController;
 import org.olat.core.gui.control.generic.modal.DialogBoxController;
 import org.olat.core.gui.control.generic.modal.DialogBoxUIFactory;
+import org.olat.core.gui.translator.Translator;
 import org.olat.core.logging.OLATSecurityException;
 import org.olat.core.util.Formatter;
-import org.olat.core.util.Util;
 import org.olat.repository.RepositoryEntry;
 import org.olat.repository.RepositoryEntryLifeCycleValue;
 import org.olat.repository.RepositoryEntryManagedFlag;
@@ -68,13 +68,13 @@ public class RepositoryEntryLifeCycleChangeController extends BasicController{
 	public static final Event closedEvent = new Event("closed");
 	public static final Event deletedEvent = new Event("deleted");
 	public static final Event unclosedEvent = new Event("unclosed");
-	
-	private Link closeLink, uncloseLink, deleteLink;
-	private VelocityContainer lifeCycleVC;
 
-	private RepositoryEntry re;
+	private Link closeLink, uncloseLink, deleteLink;
+	protected VelocityContainer lifeCycleVC;
+
+	protected RepositoryEntry re;
 	private final RepositoryEntrySecurity reSecurity;
-	
+
 	private CloseableModalController cmc;
 	private DialogBoxController confirmUncloseCtrl;
 	private ConfirmCloseController confirmCloseCtrl;
@@ -85,15 +85,16 @@ public class RepositoryEntryLifeCycleChangeController extends BasicController{
 	@Autowired
 	private RepositoryModule repositoryModule;
 	@Autowired
-	private RepositoryService repositoryService;
+	protected RepositoryService repositoryService;
 	@Autowired
 	private RepositoryManager repositoryManager;
-	
-	public RepositoryEntryLifeCycleChangeController(UserRequest ureq, WindowControl wControl, RepositoryEntry re, RepositoryEntrySecurity reSecurity, RepositoryHandler handler) {
+
+	public RepositoryEntryLifeCycleChangeController(UserRequest ureq, WindowControl wControl, RepositoryEntry re, RepositoryEntrySecurity reSecurity, RepositoryHandler handler, Translator translator) {
 		super(ureq, wControl);
-		setTranslator(Util.createPackageTranslator(RepositoryService.class, getLocale(), getTranslator()));
 		this.re = re;
-		this.reSecurity = reSecurity;		
+		this.reSecurity = reSecurity;
+
+		setTranslator(translator);
 		
 		lifeCycleVC = createVelocityContainer("lifecycle_change");
 		putInitialPanel(lifeCycleVC);
@@ -107,7 +108,7 @@ public class RepositoryEntryLifeCycleChangeController extends BasicController{
 			closeLink.setIconLeftCSS("o_icon o_icon-fw o_icon_close_resource");
 			closeLink.setElementCssClass("o_sel_repo_close");
 			closeLink.setVisible(!isClosed);
-			
+
 			uncloseLink = LinkFactory.createButton("unclose", lifeCycleVC, this);
 			uncloseLink.setCustomDisplayText(translate("details.unclose.resource"));
 			uncloseLink.setElementCssClass("o_sel_repo_unclose");
@@ -127,7 +128,7 @@ public class RepositoryEntryLifeCycleChangeController extends BasicController{
 			deleteLink.setCustomDisplayText(translate("details.delete.alt", new String[]{ type }));
 			deleteLink.setIconLeftCSS("o_icon o_icon-fw o_icon_delete_item");
 			deleteLink.setElementCssClass("o_sel_repo_close");
-			
+
 			RepositoryEntryLifeCycleValue autoDeleteVal = repositoryModule.getLifecycleAutoDeleteValue();
 			if(autoDeleteVal != null && re.getLifecycle() != null && re.getLifecycle().getValidTo() != null) {
 				Date autoDeleteDate = autoDeleteVal.toDate(re.getLifecycle().getValidTo());
@@ -203,7 +204,7 @@ public class RepositoryEntryLifeCycleChangeController extends BasicController{
 		List<RepositoryEntry> entryToClose = Collections.singletonList(re);
 		confirmCloseCtrl = new ConfirmCloseController(ureq, getWindowControl(), entryToClose);
 		listenTo(confirmCloseCtrl);
-		
+
 		String title = translate("read.only.header", re.getDisplayname());
 		cmc = new CloseableModalController(getWindowControl(), "close", confirmCloseCtrl.getInitialComponent(), true, title);
 		listenTo(cmc);
@@ -220,17 +221,17 @@ public class RepositoryEntryLifeCycleChangeController extends BasicController{
 		uncloseLink.setVisible(true);
 		lifeCycleVC.setDirty(true);
 	}
-	
+
 	private void doConfirmUncloseResource(UserRequest ureq) {
 		if (!reSecurity.isEntryAdmin()) {
 			throw new OLATSecurityException("Trying to reactivate, but not allowed: user = " + ureq.getIdentity());
 		}
-		
+
 		String title = translate("warning.unclose.title");
 		String text = translate("warning.unclose.text");
 		confirmUncloseCtrl = activateOkCancelDialog(ureq, title, text, confirmUncloseCtrl);
 	}
-	
+
 	/**
 	 * Remove close and edit tools, if in edit mode, pop-up-to root
 	 * @param ureq
@@ -242,7 +243,7 @@ public class RepositoryEntryLifeCycleChangeController extends BasicController{
 		lifeCycleVC.setDirty(true);
 	}
 
-	
+
 	private void doDelete(UserRequest ureq) {
 		if (!reSecurity.isEntryAdmin()) {
 			throw new OLATSecurityException("Trying to delete, but not allowed: user = " + ureq.getIdentity());
@@ -257,7 +258,7 @@ public class RepositoryEntryLifeCycleChangeController extends BasicController{
 		listenTo(cmc);
 		cmc.activate();
 	}
-	
+
 	@Override
 	protected void doDispose() {
 		// nothing to dispose

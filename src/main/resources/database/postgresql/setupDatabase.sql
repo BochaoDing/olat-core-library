@@ -51,7 +51,8 @@ create table o_bs_group_member (
    g_role varchar(50) not null,
    fk_group_id int8 not null,
    fk_identity_id int8 not null,
-   primary key (id)
+   primary key (id),
+   unique (g_role, fk_group_id, fk_identity_id)
 );
 
 create table o_bs_grant (
@@ -418,7 +419,8 @@ create table o_re_to_group (
    r_defgroup boolean not null,
    fk_group_id int8 not null,
    fk_entry_id int8 not null,
-   primary key (id)
+   primary key (id),
+   unique (r_defgroup, fk_group_id, fk_entry_id)
 );
 create table o_repositoryentry_cycle (
    id int8 not null,

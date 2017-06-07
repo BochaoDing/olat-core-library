@@ -36,13 +36,13 @@ public class TinyConfig {
 
 	//min profile
 	static {
-		String plugins = "lists,colorpicker,textcolor,hr,olatsmileys,paste,link,quotespliter,tabfocus,visualchars,noneditable";
-		String toolbar1 = "undo redo | bold italic underline | alignjustify alignright aligncenter alignleft | forecolor backcolor | bullist numlist | link unlink olatsmileys";
+		String plugins = "lists,colorpicker,textcolor,hr,olatsmileys,paste,link,quotespliter,tabfocus,visualchars,noneditable,code";
+		String toolbar1 = "undo redo | bold italic underline | alignjustify alignright aligncenter alignleft | forecolor backcolor | bullist numlist | link unlink olatsmileys | code";
 		minimalisticConfig = new TinyConfig(plugins, null, toolbar1);
 	}
 	//standard profile
 	static {
-		String plugins = "lists,contextmenu,colorpicker,textcolor,hr,olatsmileys,paste,link,charmap,quotespliter,olatmatheditor,tabfocus,visualchars,visualblocks,noneditable";
+		String plugins = "lists,contextmenu,colorpicker,textcolor,hr,olatsmileys,paste,link,charmap,quotespliter,olatmatheditor,tabfocus,visualchars,visualblocks,noneditable,code";
 		String[] menu = {
 				"edit: {title: 'Edit', items: 'undo redo | cut copy paste pastetext | selectall searchreplace'}",
 			  "insert: {title: 'Insert', items: 'olatmovieviewer media image link | olatmatheditor hr charmap insertdatetime olatsmileys'}",
@@ -71,10 +71,10 @@ public class TinyConfig {
 		String tools1 = "bold italic underline | image olatmatheditor";
 		veryMinimalisticConfig = new TinyConfig(plugins, null, tools1);
 	}
-	
+
 	//full profile
 	static {
-		String plugins = "advlist,lists,contextmenu,colorpicker,textcolor,hr,olatsmileys,paste,link,charmap,quotespliter,olatmatheditor,tabfocus,visualchars,visualblocks,noneditable,table";
+		String plugins = "advlist,lists,contextmenu,colorpicker,textcolor,hr,olatsmileys,paste,link,charmap,quotespliter,olatmatheditor,tabfocus,visualchars,visualblocks,noneditable,table,code";
 		String[] menu = {
 				"edit: {title: 'Edit', items: 'undo redo | cut copy paste pastetext | selectall searchreplace'}",
 				"insert: {title: 'Insert', items: 'olatmovieviewer media image link | olatmatheditor hr charmap insertdatetime olatsmileys'}",
@@ -129,7 +129,7 @@ public class TinyConfig {
 	public boolean isMathEnabled() {
 		return plugins != null && plugins.indexOf("olatmatheditor") >= 0;
 	}
-	
+
 	public TinyConfig enableCode() {
 		return enableFeature("code");
 	}
@@ -161,7 +161,7 @@ public class TinyConfig {
 		}
 		return config;
 	}
-	
+
 	/**
 	 * Disable image, media and movie plugins.
 	 * @return
@@ -175,11 +175,11 @@ public class TinyConfig {
 	public TinyConfig disableMenuAndMenuBar() {
 		return new TinyConfig(plugins, new String[0], null);
 	}
-	
+
 	public TinyConfig disableTinyMedia() {
 		return disableFeature("media");
 	}
-	
+
 	/**
 	 * Remove media + olatmovie
 	 * @return
@@ -200,7 +200,7 @@ public class TinyConfig {
 		}
 		return config;
 	}
-	
+
 	public TinyConfig enableFeature(String feature) {
 		if(plugins.contains(feature)) {
 			return this;

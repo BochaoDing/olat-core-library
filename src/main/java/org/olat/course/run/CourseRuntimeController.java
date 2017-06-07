@@ -152,7 +152,7 @@ public class CourseRuntimeController extends RepositoryEntryRuntimeController im
 	private static final String JOINED = "joined";
 	private static final String LEFT   = "left";
 	private static final String CMD_START_GROUP_PREFIX = "cmd.group.start.ident.";
-	
+
 	private Delayed delayedClose;
 
 	//tools
@@ -659,8 +659,8 @@ public class CourseRuntimeController extends RepositoryEntryRuntimeController im
 			// 2) add coached groups
 			if (uce.getCoachedGroups().size() > 0) {
 				for (BusinessGroup group:uce.getCoachedGroups()) {
-					Link link = LinkFactory.createToolLink(CMD_START_GROUP_PREFIX + group.getKey(), "group", StringHelper.escapeHtml(group.getName()), this);
-					link.setIconLeftCSS("o_icon o_icon-fw o_icon_group");
+					Link link = LinkFactory.createToolLink(CMD_START_GROUP_PREFIX + group.getKey(), "groupadmin", StringHelper.escapeHtml(group.getName()), this);
+					link.setIconLeftCSS("o_icon o_icon-fw o_icon_settings");
 					link.setUserObject(group);
 					link.setEnabled(!assessmentLock);
 					myCourse.addComponent(link);
@@ -888,9 +888,14 @@ public class CourseRuntimeController extends RepositoryEntryRuntimeController im
 			launchGlossary(ureq);
 		} else if(leaveLink == source) {
 			doConfirmLeave(ureq);
-		} else if(source instanceof Link && "group".equals(((Link)source).getCommand())) {
-			BusinessGroupRef ref = (BusinessGroupRef)((Link)source).getUserObject();
-			launchGroup(ureq, ref.getKey());
+		} else if(source instanceof Link) {
+			if ("group".equals(((Link)source).getCommand())) {
+				BusinessGroupRef ref = (BusinessGroupRef) ((Link) source).getUserObject();
+				launchGroup(ureq, ref.getKey(), "", "");
+			} else if(("groupadmin".equals(((Link)source).getCommand()))) {
+				BusinessGroupRef ref = (BusinessGroupRef) ((Link) source).getUserObject();
+				launchGroup(ureq, ref.getKey(), "tooladmin", "2");
+			}
 		} else if(source == toolbarPanel) {
 			if(event instanceof VetoPopEvent) {
 				delayedClose = Delayed.pop;
@@ -1247,7 +1252,7 @@ public class CourseRuntimeController extends RepositoryEntryRuntimeController im
 		if (lastCrumb == null || lastCrumb.getController() != lifeCycleChangeCtr) {
 			// only create and add to stack if not already there
 			lifeCycleChangeCtr = new RepositoryEntryLifeCycleChangeController(ureq, getWindowControl(),
-					getRepositoryEntry(), reSecurity, handler);
+					getRepositoryEntry(), reSecurity, handler, getTranslator());
 			listenTo(lifeCycleChangeCtr);
 			currentToolCtr = lifeCycleChangeCtr;
 			toolbarPanel.pushController(translate("details.lifecycle.change"), lifeCycleChangeCtr);
@@ -1602,7 +1607,7 @@ public class CourseRuntimeController extends RepositoryEntryRuntimeController im
 		pbw.open(ureq);
 	}
 	
-	private void launchGroup(UserRequest ureq, Long groupKey) {
+	private void launchGroup(UserRequest ureq, Long groupKey, String menuItem, String tabIndex) {
 		// launch the group in a new top nav tab
 		BusinessGroup group = businessGroupService.loadBusinessGroup(groupKey);
 		// check if the group still exists and the user is really in this group
@@ -1612,7 +1617,7 @@ public class CourseRuntimeController extends RepositoryEntryRuntimeController im
 			// coach. the flag is not needed here
 			// since the groups knows itself if the user is coach and the user sees
 			// only his own groups.
-			String bsuinessPath = "[BusinessGroup:" + group.getKey() + "]";
+			String bsuinessPath = "[BusinessGroup:" + group.getKey() + "][" + menuItem + ":0][tab:" + tabIndex + "]";
 			NewControllerFactory.getInstance().launch(bsuinessPath, ureq, getWindowControl());
 		} else {
 			// display error and do logging

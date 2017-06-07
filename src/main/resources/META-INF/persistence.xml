@@ -193,24 +193,7 @@
 		<class>org.olat.ims.lti.model.LTIOutcomeImpl</class>
 		<class>org.olat.portfolio.model.InvitationImpl</class>
 		<class>org.olat.portfolio.model.structel.EPStructureElementToGroupRelation</class>
-        <class>org.olat.user.UserImpl</class>
-
-		<!-- campuskurs hibernate entities -->
-		<class>ch.uzh.extension.campuscourse.data.entity.Org</class>
-		<class>ch.uzh.extension.campuscourse.data.entity.Text</class>
-		<class>ch.uzh.extension.campuscourse.data.entity.Course</class>
-		<class>ch.uzh.extension.campuscourse.data.entity.Semester</class>
-		<class>ch.uzh.extension.campuscourse.data.entity.Student</class>
-		<class>ch.uzh.extension.campuscourse.data.entity.StudentCourse</class>
-		<class>ch.uzh.extension.campuscourse.data.entity.Lecturer</class>
-		<class>ch.uzh.extension.campuscourse.data.entity.LecturerCourse</class>
-		<class>ch.uzh.extension.campuscourse.data.entity.Event</class>
-		<class>ch.uzh.extension.campuscourse.data.entity.Delegation</class>
-		<class>ch.uzh.extension.campuscourse.data.entity.BatchJobSkippedItem</class>
-		<class>ch.uzh.extension.campuscourse.data.entity.BatchJobStatistic</class>
-		<class>ch.uzh.extension.campuscourse.data.entity.BatchJobAndSapImportStatistic</class>
-		<class>ch.uzh.extension.campuscourse.data.entity.BatchJobAndUserMappingStatistic</class>
-		<class>ch.uzh.extension.campuscourse.data.entity.BatchJobAndCampusCourseSynchronizationStatistic</class>
+		<class>org.olat.user.UserImpl</class>
 
 		<properties>
 			<property name="hibernate.generate_statistics" value="true"/>

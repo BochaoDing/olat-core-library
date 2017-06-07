@@ -1,19 +1,26 @@
 package org.olat.core.commons.persistence;
 
-import java.util.Properties;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Primary;
+import org.springframework.stereotype.Component;
+
+import javax.persistence.EntityManagerFactory;
 
 /**
  * DB implementation for tests, which does not commit.
  *
  * @author Martin Schraner
  */
+@Component("database")
+@Primary
 public class TestDBImpl extends DBImpl {
 
     /**
      * [used by spring]
      */
-    public TestDBImpl(Properties databaseProperties) {
-        super(databaseProperties);
+    @Autowired
+    public TestDBImpl(EntityManagerFactory emf) {
+        super(emf);
     }
 
     @Override
@@ -38,4 +45,15 @@ public class TestDBImpl extends DBImpl {
         flush();  // Instead of commit()
         clear();  // Instead of closeSession()
     }
+
+    @Override
+	public void commitTransactionAndCloseEntityManager() {
+    	flush();  // Instead of commit()
+		clear();  // Instead of closeSession()
+	}
+
+	@Override
+	public void rollbackAndCloseSession() {
+		rollbackTransactionAndCloseEntityManager();
+	}
 }

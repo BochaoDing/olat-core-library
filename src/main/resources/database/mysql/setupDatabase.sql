@@ -53,7 +53,8 @@ create table if not exists o_bs_group_member (
    g_role varchar(50) not null,
    fk_group_id bigint not null,
    fk_identity_id bigint not null,
-   primary key (id)
+   primary key (id),
+   unique (g_role, fk_group_id, fk_identity_id)
 );
 
 create table if not exists o_bs_grant (
@@ -296,6 +297,10 @@ create table if not exists o_user (
    u_genericcheckboxproperty2 varchar(255),
    u_genericcheckboxproperty3 varchar(255),
 
+   u_institutionalEmployeeNumber varchar(255),
+   u_institutionalMatriculationNumber varchar(255),
+   u_matriculationNumber varchar(255),
+
    fk_identity bigint,
    primary key (user_id)
 );
@@ -423,7 +428,8 @@ create table if not exists o_re_to_group (
    r_defgroup boolean not null,
    fk_group_id bigint not null,
    fk_entry_id bigint not null,
-   primary key (id)
+   primary key (id),
+   unique (r_defgroup, fk_group_id, fk_entry_id)
 );
 create table if not exists o_repositoryentry_cycle (
    id bigint not null,
@@ -2715,271 +2721,6 @@ create index log_ptarget_resid_idx on o_loggingtable(parentresid);
 create index log_gptarget_resid_idx on o_loggingtable(grandparentresid);
 create index log_ggptarget_resid_idx on o_loggingtable(greatgrandparentresid);
 create index log_creationdate_idx on o_loggingtable(creationdate);
-
--- Tables for campus course
-create table if not exists ck_semester (
-  id bigint not null,
-  name varchar(255) not null,
-  year int(4) not null,
-  current_semester boolean not null,
-  primary key (id)
-)engine InnoDB;
-
-create table if not exists ck_course (
-	id bigint not null,
-	title varchar(255) not null,
-	lv_kuerzel varchar(255) not null,
-	e_learning_supported boolean not null,
-	language varchar(255) not null,
-	category varchar(255) not null,
-	lv_nr varchar(255) not null,
-	start_date date not null,
-	end_date date not null,
-	vvz_link varchar(255) not null,
-	exclude boolean not null,
-	synchronizable boolean not null default 1,
-  fk_semester bigint not null,
-  fk_repositoryentry bigint,
-  fk_campusgroup_a bigint,
-  fk_campusgroup_b bigint,
-  fk_parent_course bigint,
-	date_of_import datetime not null,
-	primary key (id)
-)engine InnoDB;
-
-create table if not exists ck_lecturer (
-	id bigint not null,
-	first_name varchar(255) not null,
-	last_name varchar(255) not null,
-	email varchar(255) not null,
-	additionalPersonalNrs varchar(255),
-	date_of_import datetime not null,
-  fk_mapped_identity BIGINT,
-  kind_of_mapping VARCHAR(6),
-  date_of_mapping DATETIME,
-	primary key (id)
-)engine InnoDB;
-
-create table if not exists ck_lecturer_course (
-	fk_lecturer bigint not null,
-  fk_course bigint not null,
-	date_of_import datetime not null,
-	primary key (fk_lecturer, fk_course)
-)engine InnoDB;
-
-create table if not exists ck_student (
-	id bigint not null,
-	registration_nr varchar(255) not null,
-	first_name varchar(255) not null,
-	last_name varchar(255) not null,
-	email varchar(255) not null,
-	date_of_import datetime not null,
-  fk_mapped_identity BIGINT,
-  kind_of_mapping VARCHAR(6),
-  date_of_mapping DATETIME,
-	primary key (id)
-)engine InnoDB;
-
-create table if not exists ck_student_course (
-	fk_student bigint not null,
-  fk_course bigint not null,
-	date_of_import datetime not null,
-	primary key (fk_student, fk_course)
-)engine InnoDB;
-
-create table if not exists ck_event (
-	id bigint not null,
-	date date not null,
-	start time not null,
-	end time not null,
-  fk_course bigint not null,
-	date_of_import datetime not null,
-	primary key (id)
-)engine InnoDB;
-
-create table if not exists ck_text (
-	id bigint not null,
-	type varchar(255) not null,
-	line_seq bigint not null,
-	line varchar(255) not null,
-  fk_course bigint not null,
-	date_of_import datetime not null,
-	primary key (id)
-)engine InnoDB;
-
-create table if not exists ck_org (
-	id bigint not null,
-	short_name varchar(50) not null,
-	name varchar(255) not null,
-  enabled boolean not null,
-	date_of_import datetime not null,
-	primary key (id)
-)engine InnoDB;
-
-create table if not exists ck_course_org (
-  fk_course bigint not null,
-  fk_org bigint not null,
-  primary key (fk_course, fk_org)
-)engine InnoDB;
-
-create table if not exists ck_batch_job_statistic (
-    id bigint not null,
-    type varchar(30) not null,
-    step_name varchar(255) not null,
-    status varchar(255) not null,
-    start_time datetime not null,
-    end_time datetime not null,
-    read_count int not null,
-    write_count int not null,
-    read_skip_count int not null,
-    write_skip_count int not null,
-    process_skip_count int not null,
-    commit_count int not null,
-    rollback_count int not null,
-    date_of_sync datetime,
-    next boolean,
-    already_mapped int,
-    new_mapping_by_email int,
-    new_mapping_by_matriculation_number int,
-    new_mapping_by_personal_number int,
-    new_mapping_by_additional_personal_number int,
-    could_be_mapped_manually int,
-    could_not_map int,
-    added_coaches int,
-    removed_coaches int,
-    added_participants int,
-    removed_participants int,
-    primary key (id)
-)engine InnoDB;
-
-create table if not exists ck_batch_job_skipped_item (
-    id bigint not null,
-    job_name VARCHAR(100) not null,
-    step_name VARCHAR(100) not null,
-    type VARCHAR(20) not null,
-    step_start_time datetime not null,
-    item VARCHAR(2000),
-    error_message VARCHAR(2000),
-    primary key (id)
-)engine InnoDB;
-
-create table if not exists ck_delegation (
-   fk_delegator_identity bigint not null,
-   fk_delegatee_identity bigint not null,
-	 creationdate datetime not null,
-	 primary key (fk_delegator_identity, fk_delegatee_identity)
-)engine InnoDB;
-
-alter table ck_semester add constraint ck_semester_f01 unique (name, year);
-alter table ck_course add constraint ck_course_f01 foreign key (fk_parent_course) references ck_course (id);
-alter table ck_course add constraint ck_course_f03 foreign key (fk_semester) references ck_semester (id);
-alter table ck_course add constraint ck_course_f04 foreign key (fk_campusgroup_a) references o_gp_business (group_id);
-alter table ck_course add constraint ck_course_f05 foreign key (fk_campusgroup_b) references o_gp_business (group_id);
-alter table ck_course add constraint ck_course_f06 foreign key (fk_repositoryentry) references o_repositoryentry (repositoryentry_id);
-alter table ck_lecturer add constraint ck_lecturer_f01 foreign key (fk_mapped_identity) references o_bs_identity(id);
-alter table ck_lecturer_course add constraint ck_lecturer_course_f01 foreign key (fk_course) references ck_course (id);
-alter table ck_lecturer_course add constraint ck_lecturer_course_f02 foreign key (fk_lecturer) references ck_lecturer (id);
-alter table ck_student add constraint ck_student_f01 foreign key (fk_mapped_identity) references o_bs_identity(id);
-alter table ck_student_course add constraint ck_student_course_f01 foreign key (fk_course) references ck_course (id);
-alter table ck_student_course add constraint ck_student_course_f02 foreign key (fk_student) references ck_student (id);
-alter table ck_course_org add constraint ck_course_org_f01 foreign key (fk_course) references ck_course (id);
-alter table ck_course_org add constraint ck_course_org_f02 foreign key (fk_org) references ck_org (id);
-alter table ck_event add constraint ck_event_f01 foreign key (fk_course) references ck_course (id);
-alter table ck_text add constraint ck_text_f01 foreign key (fk_course) references ck_course (id);
-alter table ck_delegation add constraint ck_delegation_f01 foreign key (fk_delegator_identity) references o_bs_identity(id);
-alter table ck_delegation add constraint ck_delegation_f02 foreign key (fk_delegatee_identity) references o_bs_identity(id);
-
-alter table ck_student_course add unique (fk_student, fk_course);
-alter table ck_lecturer_course add unique (fk_lecturer, fk_course);
-alter table ck_course_org add unique (fk_course, fk_org);
-alter table ck_delegation add unique (fk_delegator_identity, fk_delegatee_identity);
-
-create index ck_xx_parent_course_id_idx on ck_course (fk_parent_course);
-create index ck_xx_type_idx on ck_batch_job_statistic(type);
-create index ck_xx_step_name_idx on ck_batch_job_statistic(step_name);
-create index ck_xx_status_idx on ck_batch_job_statistic(status);
-create index ck_xx_start_time_idx on ck_batch_job_statistic(start_time);
-
-create or replace view ck_not_mapped_students as
-select * from ck_student s where s.id in
-(select sc.fk_student from ck_student_course sc, ck_course c
-where sc.fk_course = c.id and c.exclude = 0
-   and exists (select co.fk_course from ck_course_org co
-      inner join ck_course c1 on c1.id = co.fk_course
-      inner join ck_org o on o.id = co.fk_org
-      where c1.id = c.id and o.enabled = 1))
-and s.fk_mapped_identity is NULL;
-
-create or replace view ck_not_mapped_lecturers as
-select * from ck_lecturer l where l.id in
-(select lc.fk_lecturer from ck_lecturer_course lc, ck_course c
-where lc.fk_course = c.id and c.exclude = 0
-   and exists (select co.fk_course from ck_course_org co
-      inner join ck_course c1 on c1.id = co.fk_course
-      inner join ck_org o on o.id = co.fk_org
-      where c1.id = c.id and o.enabled = 1))
-and l.fk_mapped_identity is NULL;
-
--- TODO
--- create or replace view ck_horizontal_userproperty as
--- select u.fk_user_id, i.status,
---         max(case when u.propname = 'firstname' then u.propvalue end) as first_name,
---         max(case when u.propname = 'lastname'  then u.propvalue end) as last_name,
---         max(case when u.propname = 'email'     then u.propvalue end) as email,
---         max(case when u.propname = 'institutionaluseridentifier' then u.propvalue end) as useridentifier
---     from o_userproperty u, o_bs_identity i
---     where u.fk_user_id=i.fk_user_id
---     and i.status<>199
---     group by u.fk_user_id;
---
--- create or replace view ck_horizontal_student_userproperty as
--- select u.fk_user_id, i.status,
---         max(case when u.propname = 'firstname' then u.propvalue end) as first_name,
---         max(case when u.propname = 'lastname'  then u.propvalue end) as last_name,
---         max(case when u.propname = 'email'     then u.propvalue end) as email,
---         max(case when u.propname = 'institutionalMatriculationNumber' then u.propvalue end) as useridentifier
---     from o_userproperty u, o_bs_identity i
---     where u.fk_user_id=i.fk_user_id
---     and i.status<>199
---     group by u.fk_user_id;
---
--- create or replace view ck_horizontal_lecturer_userproperty as
--- select u.fk_user_id, i.status,
---         max(case when u.propname = 'firstname' then u.propvalue end) as first_name,
---         max(case when u.propname = 'lastname'  then u.propvalue end) as last_name,
---         max(case when u.propname = 'email'     then u.propvalue end) as email,
---         max(case when u.propname = 'institutionalEmployeeNumber' then u.propvalue end) as useridentifier
---     from o_userproperty u, o_bs_identity i
---     where u.fk_user_id=i.fk_user_id
---     and i.status<>199
---     group by u.fk_user_id;
---
--- create or replace view ck_students_to_be_mapped_manually as
--- select count(sub.id) as count,
---  sub.registration_nr as sap_matrikelnr, sub2.useridentifier as olat_matrikelnr,
---  sub.first_name as  sap_firstname, sub2.first_name as  olat_firstname,
---  sub.last_name as  sap_lastname, sub2.last_name as  olat_lastname,
---  sub.email as  sap_email, sub2.email as  olat_email
---  from ck_not_mapped_students sub,
---  ck_horizontal_student_userproperty sub2
---  where sub.registration_nr=sub2.useridentifier
--- or sub.email=sub2.email
--- or(sub.first_name=sub2.first_name and sub.last_name=sub2.last_name)
--- group by sub.id;
---
--- create or replace view ck_lecturers_to_be_mapped_manually as
--- select count(sub.id) as count,
---  sub.id as sap_personalnr, sub2.useridentifier as olat_personalnr,
---  sub.first_name as  sap_firstname, sub2.first_name as  olat_firstname,
---  sub.last_name as  sap_lastname, sub2.last_name as  olat_lastname,
---  sub.email as  sap_email, sub2.email as  olat_email
---  from ck_not_mapped_lecturers sub,
---  ck_horizontal_lecturer_userproperty sub2
---  where sub.id=sub2.useridentifier
--- or sub.email=sub2.email
--- or(sub.first_name=sub2.first_name and sub.last_name=sub2.last_name)
--- group by sub.id;
-
 
 
 insert into hibernate_unique_key values ( 0 );

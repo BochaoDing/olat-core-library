@@ -19,9 +19,6 @@
  */
 package org.olat.repository.ui.list;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.olat.NewControllerFactory;
 import org.olat.core.commons.persistence.SortKey;
 import org.olat.core.commons.services.commentAndRating.CommentAndRatingDefaultSecurityCallback;
@@ -33,11 +30,7 @@ import org.olat.core.gui.UserRequest;
 import org.olat.core.gui.components.Component;
 import org.olat.core.gui.components.form.flexible.FormItem;
 import org.olat.core.gui.components.form.flexible.FormItemContainer;
-import org.olat.core.gui.components.form.flexible.elements.FlexiTableElement;
-import org.olat.core.gui.components.form.flexible.elements.FlexiTableFilter;
-import org.olat.core.gui.components.form.flexible.elements.FlexiTableSort;
-import org.olat.core.gui.components.form.flexible.elements.FlexiTableSortOptions;
-import org.olat.core.gui.components.form.flexible.elements.FormLink;
+import org.olat.core.gui.components.form.flexible.elements.*;
 import org.olat.core.gui.components.form.flexible.impl.FormBasicController;
 import org.olat.core.gui.components.form.flexible.impl.FormEvent;
 import org.olat.core.gui.components.form.flexible.impl.elements.table.DateFlexiCellRenderer;
@@ -85,6 +78,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Scope;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * 
@@ -149,7 +145,7 @@ public class RepositoryEntryListController extends FormBasicController
 		this.stackPanel = stackPanel;
 		this.withSearch = withSearch;
 		repositoryEntryRowFactory = (RepositoryEntryRowFactory)
-				applicationContext.getBean("RepositoryEntryRowFactory", ureq);
+				applicationContext.getBean("repositoryEntryRowFactory", ureq);
 		guestOnly = ureq.getUserSession().getRoles().isGuestOnly();
 
 		OLATResourceable ores = OresHelper.createOLATResourceableType("MyCoursesSite");
@@ -422,7 +418,7 @@ public class RepositoryEntryListController extends FormBasicController
 						Long rowKey = new Long(rowKeyStr);
 						List<RepositoryEntryRow> rows = model.getObjects();
 						for(RepositoryEntryRow row:rows) {
-							if(row != null && row.getKey().equals(rowKey)) {
+							if(row != null && rowKey.equals(row.getKey())) {
 								if (row.isMember()) {
 									doOpen(ureq, row, null);					
 								} else {
