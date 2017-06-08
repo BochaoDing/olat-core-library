@@ -31,6 +31,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+import org.checkerframework.checker.nullness.qual.Nullable;
 import org.olat.core.commons.controllers.linkchooser.CustomLinkTreeModel;
 import org.olat.core.gui.UserRequest;
 import org.olat.core.gui.components.Component;
@@ -391,7 +392,7 @@ public class FormUIFactory {
 	 * @param theCssClasses the css classes to style the menu items or NULL to use no special styling
 	 * @return
 	 */
-	public SingleSelection addDropdownSingleselect(final String name, FormItemContainer formLayout, final String[] theKeys, final String[] theValues, final String[] theCssClasses) {
+	public SingleSelection addDropdownSingleselect(final String name, FormItemContainer formLayout, final String[] theKeys, final String[] theValues, final String @Nullable [] theCssClasses) {
 		return addDropdownSingleselect(name, name, name, formLayout, theKeys, theValues, theCssClasses);
 	}
 	
@@ -405,7 +406,7 @@ public class FormUIFactory {
 	 * @param theCssClasses
 	 * @return
 	 */
-	public SingleSelection addDropdownSingleselect(final String name, final String i18nLabel, FormItemContainer formLayout, final String[] theKeys, final String[] theValues, final String[] theCssClasses) {
+	public SingleSelection addDropdownSingleselect(final String name, final String i18nLabel, FormItemContainer formLayout, final String[] theKeys, final String[] theValues, final String @Nullable [] theCssClasses) {
 		return addDropdownSingleselect(name, name, i18nLabel, formLayout, theKeys, theValues, theCssClasses);
 	}
 	
@@ -420,7 +421,7 @@ public class FormUIFactory {
 	 * @param theCssClasses
 	 * @return
 	 */
-	public SingleSelection addDropdownSingleselect(final String id, final String name, final String i18nLabel, FormItemContainer formLayout, final String[] theKeys, final String[] theValues, final String[] theCssClasses) {
+	public SingleSelection addDropdownSingleselect(final String id, final String name, final String i18nLabel, FormItemContainer formLayout, final String[] theKeys, final String[] theValues, final String @Nullable [] theCssClasses) {
 		SingleSelection ss = new SelectboxSelectionImpl(id, name);
 		ss.setKeysAndValues(theKeys, theValues, theCssClasses);
 		setLabelIfNotNull(i18nLabel, ss);
@@ -490,7 +491,7 @@ public class FormUIFactory {
 	 * @param formLayout
 	 * @return
 	 */
-	public FormItem addStaticExampleText(String name, String text, FormItemContainer formLayout){
+	public FormItem addStaticExampleText(String name, String text, @Nullable FormItemContainer formLayout){
 		return addStaticExampleText(name, name, text, formLayout);
 	}
 	
@@ -502,7 +503,7 @@ public class FormUIFactory {
 	 * @param formLayout
 	 * @return
 	 */
-	public FormItem addStaticExampleText(String name, String i18nLabel, String text, FormItemContainer formLayout){
+	public FormItem addStaticExampleText(String name, String i18nLabel, String text, @Nullable FormItemContainer formLayout){
 		final SimpleExampleText set = new SimpleExampleText(name, text);
 		//wrap the SimpleExampleText Component within a FormItem
 		FormItem fiWrapper = new FormItemImpl("simpleExampleTextWrapper_"+name) {
@@ -931,7 +932,7 @@ public class FormUIFactory {
 	 * @param presentation See Link.BUTTON etc. 
 	 * @return
 	 */
-	public FormLink addFormLink(String name, String cmd, String i18nLink, String i18nLabel, FormItemContainer formLayout, int presentation){
+	public FormLink addFormLink(String name, String cmd, String i18nLink, @Nullable String i18nLabel, @Nullable FormItemContainer formLayout, int presentation){
 		FormLinkImpl fte = new FormLinkImpl(name, cmd, i18nLink, presentation);
 		fte.setI18nKey(i18nLink);
 		setLabelIfNotNull(i18nLabel, fte);

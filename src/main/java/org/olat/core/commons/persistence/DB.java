@@ -224,6 +224,10 @@ public interface DB {
 	 */
 	public EntityManager getCurrentEntityManager();
 
+	void commitTransactionAndCloseEntityManager();
+
+	void rollbackTransactionAndCloseEntityManager();
+
 	void flush();
 
 	void clear();
