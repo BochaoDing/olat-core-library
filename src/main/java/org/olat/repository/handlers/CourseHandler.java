@@ -410,8 +410,8 @@ public class CourseHandler implements RepositoryHandler {
 	public RepositoryEntry copy(Identity author, RepositoryEntry source, RepositoryEntry target) {
 		final OLATResource sourceResource = source.getOlatResource();
 		final OLATResource targetResource = target.getOlatResource();
-		
-		CourseFactory.copyCourse(sourceResource, targetResource);
+
+		copyCourse(sourceResource, targetResource);
 		 
 		//transaction copied
 		ICourse sourceCourse = CourseFactory.loadCourse(source);
@@ -434,6 +434,10 @@ public class CourseHandler implements RepositoryHandler {
 		cloneReminders(author, envMapper, source, target);
 		
 		return target;
+	}
+
+	protected void copyCourse(OLATResourceable sourceResource, OLATResource targetResource) {
+		CourseFactory.copyCourse(sourceResource, targetResource);
 	}
 	
 	private void cloneReminders(Identity author, CourseEnvironmentMapper envMapper, RepositoryEntry source, RepositoryEntry target) {
