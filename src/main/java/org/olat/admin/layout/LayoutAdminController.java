@@ -19,16 +19,16 @@
  */
 package org.olat.admin.layout;
 
-import java.io.File;
-import java.io.FilenameFilter;
+import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
+import java.net.URLDecoder;
+import java.util.*;
+import java.util.jar.JarInputStream;
+import java.util.zip.ZipEntry;
 
-import org.apache.commons.lang.ArrayUtils;
 import org.olat.admin.SystemAdminMainController;
+import org.olat.core.CoreSpringFactory;
 import org.olat.core.gui.UserRequest;
 import org.olat.core.gui.components.form.flexible.FormItem;
 import org.olat.core.gui.components.form.flexible.FormItemContainer;
@@ -80,6 +80,8 @@ public class LayoutAdminController extends FormBasicController {
 	private LayoutModule layoutModule;
 	@Autowired
 	private CoordinatorManager coordinatorManager;
+	@Autowired
+	private StaticDirectory[] staticDirectories;
 	
 	public LayoutAdminController(UserRequest ureq, WindowControl wControl) {
 		// use admin package fallback translator to display warn message about not
@@ -273,33 +275,82 @@ public class LayoutAdminController extends FormBasicController {
 	
 	private String[] getThemes(){
 		// get all themes from disc
+		List<String> themesStr = new ArrayList<>();
+
 		String staticAbsPath = WebappHelper.getContextRealPath("/static/themes");
-		File themesDir = new File(staticAbsPath);
-		if(!themesDir.exists()){
-			logWarn("Themes dir not found: "+staticAbsPath, null);
-			return new String[0];
+		if (staticAbsPath != null) {
+			File themesDir = new File(staticAbsPath);
+			if (!themesDir.exists()) {
+				logWarn("Themes dir not found: " + staticAbsPath, null);
+			} else {
+				File[] themes = themesDir.listFiles(new ThemesFileNameFilter());
+				for (int i = 0; i < themes.length; i++) {
+					File theme = themes[i];
+					themesStr.add(theme.getName());
+				}
+			}
 		}
-		File[] themes = themesDir.listFiles(new ThemesFileNameFilter());
-		String[] themesStr = new String[themes.length];
-		for (int i = 0; i < themes.length; i++) {
-			File theme = themes[i];
-			themesStr[i] = theme.getName();
+
+		try {
+			for (StaticDirectory staticDirectory : staticDirectories) {
+				String themesPath = "/" + staticDirectory.getName() + "/themes";
+				URL url = CoreSpringFactory.servletContext.getResource(themesPath);
+				assert url != null : "Themes path does not exist: " + themesPath;
+				String[] resources = url.getPath().split("!");
+				assert resources.length > 0 : "Not a path to a resource within a JAR: " + url.getPath();
+				InputStream inputStream = new FileInputStream(URLDecoder
+						.decode(url.getPath().substring(5,
+								resources[0].length()), "UTF-8"));
+				JarInputStream jarInputStream = new JarInputStream(inputStream);
+				outerLoop : for (int i = 1; i < resources.length - 1; i++) {
+					for (ZipEntry zipEntry; (zipEntry = jarInputStream
+							.getNextEntry()) != null;) {
+						if (zipEntry.getName().regionMatches(0,
+								resources[i], 1, resources[i].length() - 1)) {
+							jarInputStream = new JarInputStream(jarInputStream);
+							break outerLoop;
+						}
+					}
+					assert false : "JAR '" + resources[i] + "' not found inside of the JAR '" + resources[i - 1] + "'.";
+				}
+				String directoryPath = resources[resources.length - 1]
+						.substring(1);
+				/*
+				 * Jetty and Tomcat return a directory path string that
+				 * differs by the ending.
+				 */
+				if (directoryPath.endsWith("/") == false) {
+					directoryPath += "/";
+				}
+				for (ZipEntry zipEntry; (zipEntry = jarInputStream
+						.getNextEntry()) != null;) {
+					String name = zipEntry.getName();
+					if (name.startsWith(directoryPath)) {
+						if (name.indexOf('/', directoryPath.length()) == name.length() - 1) {
+							themesStr.add(name.substring(directoryPath.length(),
+									name.length() - 1));
+						}
+					}
+				}
+			}
+		} catch (MalformedURLException | UnsupportedEncodingException e) {
+			assert false : e;
+		} catch (IOException e) {
+			// TODO IO exceptions should be propagated.
+			e.printStackTrace();
 		}
-		
+
 		// add custom themes from configuration if available
 		File customThemesDir = Settings.getGuiCustomThemePath();
 		if (customThemesDir != null) {
 			File[] customThemes = customThemesDir.listFiles(new ThemesFileNameFilter());
-			String[] customThemesStr = new String[customThemes.length];
-			for (int i = 0; i < customThemes.length; i++) {
-				File theme = customThemes[i];
-				customThemesStr[i] = theme.getName();
+			for (File customTheme : customThemes) {
+				themesStr.add(customTheme.getName());
 			}
-			themesStr = (String[]) ArrayUtils.addAll(themesStr, customThemesStr);
-			Arrays.sort(themesStr);
 		}
-		
-		return themesStr;
+
+		Collections.sort(themesStr);
+		return themesStr.toArray(new String[themesStr.size()]);
 	}
 	
 	/**
