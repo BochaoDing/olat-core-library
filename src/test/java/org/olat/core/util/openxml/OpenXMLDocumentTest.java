@@ -46,7 +46,7 @@ public class OpenXMLDocumentTest {
 
 	@Test
 	public void writeDoc() throws Exception {
-		FileOutputStream fileOut = new FileOutputStream(new File("/HotCoffee/tmp/test_1_min.docx"));
+		FileOutputStream fileOut = new FileOutputStream(new File("/tmp/test_1_min.docx"));
 		ZipOutputStream out = new ZipOutputStream(fileOut);
 		
 		OpenXMLDocument document = new OpenXMLDocument();

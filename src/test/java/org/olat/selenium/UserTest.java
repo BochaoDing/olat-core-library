@@ -35,6 +35,7 @@ import org.jboss.arquillian.test.api.ArquillianResource;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
 import org.junit.Assert;
 import org.junit.Assume;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.olat.restapi.support.vo.CourseVO;
@@ -70,6 +71,7 @@ import org.openqa.selenium.firefox.FirefoxDriver;
  * @author srosse, stephane.rosse@frentix.com, http://www.frentix.com
  *
  */
+@Ignore
 @RunWith(Arquillian.class)
 public class UserTest {
 	
