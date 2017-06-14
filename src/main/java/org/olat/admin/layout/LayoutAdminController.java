@@ -303,10 +303,10 @@ public class LayoutAdminController extends FormBasicController {
 								resources[0].length()), "UTF-8"));
 				JarInputStream jarInputStream = new JarInputStream(inputStream);
 				outerLoop : for (int i = 1; i < resources.length - 1; i++) {
-					String jarPath = resources[i].substring(1);
 					for (ZipEntry zipEntry; (zipEntry = jarInputStream
 							.getNextEntry()) != null;) {
-						if (jarPath.equals(zipEntry.getName())) {
+						if (zipEntry.getName().regionMatches(0,
+								zipEntry.getName(), 1, resources[i].length())) {
 							jarInputStream = new JarInputStream(jarInputStream);
 							break outerLoop;
 						}
