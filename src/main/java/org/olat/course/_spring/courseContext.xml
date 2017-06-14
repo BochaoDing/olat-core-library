@@ -27,7 +27,7 @@
 
 
 	<bean id="courseModule" class="org.olat.course.CourseModule" 
-		depends-on="userModule, triggerUserModuleInit, org.olat.core.util.WebappHelper, metaInfoFactory, fileresourceManager">
+		depends-on="userModule, triggerUserModuleInit, org.olat.core.util.WebappHelper, metaInfoFactory, fileresourceManager, org.olat.core.util.event.FrameworkStartupEventChannel">
 		
 		<constructor-arg index="0" ref="coordinatorManager" />
 		<constructor-arg index="1" ref="propertyManager" />

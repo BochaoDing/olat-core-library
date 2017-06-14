@@ -233,6 +233,12 @@ public class RepositoryServiceImpl implements RepositoryService {
 
 	@Override
 	public RepositoryEntry copy(RepositoryEntry sourceEntry, Identity author, String displayname) {
+		RepositoryHandler handler = RepositoryHandlerFactory.getInstance().getRepositoryHandler(sourceEntry);
+		return copy(sourceEntry, author, displayname, handler);
+	}
+
+	@Override
+	public RepositoryEntry copy(RepositoryEntry sourceEntry, Identity author, String displayname, RepositoryHandler handler) {
 		OLATResource sourceResource = sourceEntry.getOlatResource();
 		OLATResource copyResource = resourceManager.createOLATResourceInstance(sourceResource.getResourceableTypeName());
 		RepositoryEntry copyEntry = create(author, null, sourceEntry.getResourcename(), displayname,
@@ -246,8 +252,7 @@ public class RepositoryServiceImpl implements RepositoryService {
 		copyEntry.setObjectives(sourceEntry.getObjectives());
 		copyEntry.setRequirements(sourceEntry.getRequirements());
 		copyEntry = dbInstance.getCurrentEntityManager().merge(copyEntry);
-	
-		RepositoryHandler handler = RepositoryHandlerFactory.getInstance().getRepositoryHandler(sourceEntry);
+
 		copyEntry = handler.copy(author, sourceEntry, copyEntry);
 
 		//copy the image

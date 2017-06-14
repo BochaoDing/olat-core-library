@@ -2,8 +2,6 @@ package org.olat.repository.listener;
 
 import org.olat.repository.RepositoryEntry;
 import org.olat.resource.OLATResource;
-import org.springframework.beans.factory.config.BeanDefinition;
-import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 /**
@@ -14,13 +12,11 @@ import org.springframework.stereotype.Component;
  * @author Martin Schraner
  */
 @Component
-@Scope(BeanDefinition.SCOPE_SINGLETON)
 public class BeforeRepositoryEntryDeletionListener {
 
 	/**
 	 * This method should never commit the running database transaction.
 	 */
-	public void onAction(RepositoryEntry repositoryEntry,
-						 OLATResource resource) {
+	public void onAction(RepositoryEntry repositoryEntry, OLATResource resource) {
 	}
 }

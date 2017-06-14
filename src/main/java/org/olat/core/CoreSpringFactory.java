@@ -123,7 +123,22 @@ public class CoreSpringFactory implements ServletContextAware {
 	 * @return The bean
 	 */
 	public static <T> T getImpl(Class<T> interfaceClass) {
-		ApplicationContext context = WebApplicationContextUtils.getWebApplicationContext(CoreSpringFactory.servletContext);
+
+		ApplicationContext context;
+		int i = 0;
+		do {
+			context = WebApplicationContextUtils.getWebApplicationContext(CoreSpringFactory.servletContext);
+			// Wait for max 30 sec until Web ApplicationContext has been started
+			if (context == null) {
+				try {
+					Thread.sleep(1000);
+				} catch (InterruptedException e) {
+					// ignore
+				}
+			}
+			i++;
+		} while (context == null && i < 30);
+
 		if(context == null) {
 			log.warn("Calling this bean before the Spring web application is started: " + interfaceClass.getName());
 			return null;

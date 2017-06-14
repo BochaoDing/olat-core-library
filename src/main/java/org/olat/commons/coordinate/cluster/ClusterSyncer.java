@@ -36,6 +36,7 @@ import org.olat.core.util.coordinate.SyncerExecutor;
 import org.olat.core.util.coordinate.util.DerivedStringSyncer;
 import org.olat.core.util.resource.OresHelper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 
 /**
  * Description:<br>
@@ -52,13 +53,15 @@ public class ClusterSyncer implements Syncer {
 	private final ThreadLocal<ThreadLocalClusterSyncer> data = new ThreadLocal<>();
 	private final PessimisticLockManager pessimisticLockManager;
 	private final DB dbInstance;
+	private final boolean isClusterEnabled;
 
 	private int executionTimeThreshold = 3000; // warn if the execution takes longer than three seconds
 
 	@Autowired
-	private ClusterSyncer(PessimisticLockManager pessimisticLockManager, DB dbInstance) {
+	private ClusterSyncer(PessimisticLockManager pessimisticLockManager, DB dbInstance, @Value("${cluster.mode}") String clusterMode) {
 		this.pessimisticLockManager = pessimisticLockManager;
 		this.dbInstance = dbInstance;
+		this.isClusterEnabled = "Cluster".equals(clusterMode);
 	}
 	
 	/**
@@ -82,12 +85,14 @@ public class ClusterSyncer implements Syncer {
  			                      // memory-flushing from registers correctly. without this synchronized you could have different
 			                      // states of (instance-/static-)fields in different cores
 			getData().incrementAndCheckNestedLevelCounter();
-			
-			// 2. sync on cluster
-			// acquire a db lock with select for update which blocks other db select for updates on the same record 
-			// until the transaction is committed or rollbacked
+
 			try {
-				getPessimisticLockManager().findOrPersistPLock(asset);
+				// 2. sync on cluster
+				// acquire a db lock with select for update which blocks other db select for updates on the same record
+				// until the transaction is committed or rollbacked
+				if (isClusterEnabled) {
+					getPessimisticLockManager().findOrPersistPLock(asset);
+				}
 	
 				// now execute the task, which may or may not contain further db queries.
 				res = callback.execute();
@@ -99,7 +104,7 @@ public class ClusterSyncer implements Syncer {
 			if(getData().getNestedLevel() == 0) {
 				data.remove();
 			}
-			
+
 			// we used to not do a commit here but delay that to the end of the dispatching-process. the comment
 			// was: "the lock will be released after calling commit at the end of dispatching-process
 			//       needed postcondition after the servlet has finished the request: a commit or rollback on the db to release the lock.
@@ -108,7 +113,9 @@ public class ClusterSyncer implements Syncer {
 			// we decided to do a commit here and work with its consequence which is that everything that happened
 			// prior to the doInSync call is also committed. This though corresponds to the OLAT 6.0.x model and
 			// was acceptable there as well.
-			dbInstance.commit();
+			if (isClusterEnabled) {
+				dbInstance.commit();
+			}
 		}
 		if (isDebug) {
 			long stop = System.currentTimeMillis();

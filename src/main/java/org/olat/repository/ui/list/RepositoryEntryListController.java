@@ -410,7 +410,7 @@ public class RepositoryEntryListController extends FormBasicController
 						Long rowKey = new Long(rowKeyStr);
 						List<RepositoryEntryRow> rows = model.getObjects();
 						for(RepositoryEntryRow row:rows) {
-							if(row != null && row.getKey().equals(rowKey)) {
+							if(row != null && rowKey.equals(row.getKey())) {
 								if (row.isMember()) {
 									doOpen(ureq, row, null);					
 								} else {
