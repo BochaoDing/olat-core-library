@@ -306,7 +306,7 @@ public class LayoutAdminController extends FormBasicController {
 					for (ZipEntry zipEntry; (zipEntry = jarInputStream
 							.getNextEntry()) != null;) {
 						if (zipEntry.getName().regionMatches(0,
-								zipEntry.getName(), 1, resources[i].length())) {
+								resources[i], 1, resources[i].length())) {
 							jarInputStream = new JarInputStream(jarInputStream);
 							break outerLoop;
 						}
