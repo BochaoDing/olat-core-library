@@ -19,9 +19,7 @@
  */
 package org.olat.repository.ui.list;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 import org.olat.core.CoreSpringFactory;
 import org.olat.core.commons.persistence.DefaultResultInfos;
@@ -29,9 +27,7 @@ import org.olat.core.commons.persistence.ResultInfos;
 import org.olat.core.commons.persistence.SortKey;
 import org.olat.core.gui.components.form.flexible.impl.elements.table.FlexiTableDataSourceDelegate;
 import org.olat.core.util.StringHelper;
-import org.olat.core.util.vfs.VFSLeaf;
 import org.olat.repository.RepositoryEntryMyView;
-import org.olat.repository.RepositoryManager;
 import org.olat.repository.RepositoryService;
 import org.olat.repository.model.SearchMyRepositoryEntryViewParams;
 import org.olat.repository.model.SearchMyRepositoryEntryViewParams.Filter;
@@ -53,7 +49,7 @@ import org.olat.resource.accesscontrol.ui.PriceFormat;
  */
 public class DefaultRepositoryEntryDataSource implements FlexiTableDataSourceDelegate<RepositoryEntryRow> {
 	
-	private final RepositoryEntryRowFactory repositoryEntryRowFactory;
+	private final RepositoryEntryRowsFactory repositoryEntryRowsFactory;
 	private final SearchMyRepositoryEntryViewParams searchParams;
 
 	private final ACService acService;
@@ -63,8 +59,8 @@ public class DefaultRepositoryEntryDataSource implements FlexiTableDataSourceDel
 	private Integer count;
 	
 	public DefaultRepositoryEntryDataSource(SearchMyRepositoryEntryViewParams searchParams,
-											RepositoryEntryRowFactory repositoryEntryRowFactory) {
-		this.repositoryEntryRowFactory = repositoryEntryRowFactory;
+											RepositoryEntryRowsFactory repositoryEntryRowsFactory) {
+		this.repositoryEntryRowsFactory = repositoryEntryRowsFactory;
 		this.searchParams = searchParams;
 
 		acService = CoreSpringFactory.getImpl(ACService.class);
@@ -146,9 +142,14 @@ public class DefaultRepositoryEntryDataSource implements FlexiTableDataSourceDel
 		List<OLATResourceAccess> resourcesWithOffer = acService.filterResourceWithAC(resourcesWithAC);
 		repositoryService.filterMembership(searchParams.getIdentity(), repoKeys);
 
-		List<RepositoryEntryRow> items = new ArrayList<RepositoryEntryRow>();
-		for(RepositoryEntryMyView entry:repoEntries) {
-			RepositoryEntryRow row = repositoryEntryRowFactory.create(entry);
+		Map<RepositoryEntryMyView, RepositoryEntryRow> mapOfRepositoryEntryViewsAndRepositoryEntryRows =
+				repositoryEntryRowsFactory.create(repoEntries);
+
+		List<RepositoryEntryRow> items = new ArrayList<>();
+		for (Map.Entry<RepositoryEntryMyView, RepositoryEntryRow> mapEntry : mapOfRepositoryEntryViewsAndRepositoryEntryRows.entrySet()) {
+
+			RepositoryEntryMyView entry = mapEntry.getKey();
+			RepositoryEntryRow row = mapEntry.getValue();
 
 			List<PriceMethod> types = new ArrayList<PriceMethod>();
 			if (entry.isMembersOnly()) {
@@ -160,7 +161,7 @@ public class DefaultRepositoryEntryDataSource implements FlexiTableDataSourceDel
 				 * class or better in the {@link RepositoryEntryRow} class.
 				 */
 				types.add(new PriceMethod("", "o_ac_membersonly_icon",
-						repositoryEntryRowFactory.getUiFactory()
+						repositoryEntryRowsFactory.getUiFactory()
 								.getTranslator()
 								.translate("cif.access.membersonly.short")));
 			} else {
@@ -173,7 +174,7 @@ public class DefaultRepositoryEntryDataSource implements FlexiTableDataSourceDel
 							String price = bundle.getPrice() == null || bundle.getPrice().isEmpty() ? "" : PriceFormat.fullFormat(bundle.getPrice());
 							AccessMethodHandler amh = acModule.getAccessMethodHandler(bundle.getMethod().getType());
 							String displayName = amh.getMethodName(
-									repositoryEntryRowFactory.getUiFactory()
+									repositoryEntryRowsFactory.getUiFactory()
 											.getTranslator().getLocale());
 							types.add(new PriceMethod(price, type, displayName));
 						}
