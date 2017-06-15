@@ -32,6 +32,7 @@ import org.olat.core.id.OLATResourceable;
 import org.olat.core.id.Roles;
 import org.olat.core.util.resource.OresHelper;
 import org.olat.core.util.vfs.VFSLeaf;
+import org.olat.repository.handlers.RepositoryHandler;
 import org.olat.repository.model.SearchAuthorRepositoryEntryViewParams;
 import org.olat.repository.model.SearchMyRepositoryEntryViewParams;
 import org.olat.resource.OLATResource;
@@ -56,6 +57,8 @@ public interface RepositoryService {
 	
 	public RepositoryEntry create(String initialAuthor, String resourceName,
 			String displayname, String description, OLATResource resource);
+
+	RepositoryEntry copy(RepositoryEntry sourceEntry, Identity author, String displayname, RepositoryHandler repositoryHandler);
 	
 	public RepositoryEntry copy(RepositoryEntry sourceEntry, Identity author, String displayname);
 	
@@ -80,8 +83,8 @@ public interface RepositoryService {
 	public VFSLeaf getIntroductionImage(RepositoryEntry re);
 
 	public VFSLeaf getIntroductionMovie(RepositoryEntry re);
-	
-	
+
+
 	public RepositoryEntry update(RepositoryEntry re);
 	
 	/**

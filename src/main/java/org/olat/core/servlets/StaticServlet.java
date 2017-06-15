@@ -19,6 +19,7 @@
  */
 package org.olat.core.servlets;
 
+import org.olat.admin.layout.StaticDirectory;
 import org.olat.admin.sysinfo.manager.CustomStaticFolderManager;
 import org.olat.core.CoreSpringFactory;
 import org.olat.core.gui.media.FileMediaResource;
@@ -29,6 +30,7 @@ import org.olat.core.logging.OLog;
 import org.olat.core.logging.Tracing;
 import org.olat.core.util.FileUtils;
 import org.olat.core.util.WebappHelper;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -56,6 +58,13 @@ public class StaticServlet extends HttpServlet {
 
 	private static final String STATIC_DIR_NAME = "/static";
 	private static final String NOVERSION = "_noversion_";
+
+	@Autowired
+	private StaticDirectory[] staticDirectories;
+
+	public StaticServlet() {
+		CoreSpringFactory.autowireObject(this);
+	}
 
 	@Override
 	protected void service(HttpServletRequest req, HttpServletResponse resp)
@@ -137,7 +146,14 @@ public class StaticServlet extends HttpServlet {
 			expiration &= true;
 		}
 
-		URL url = request.getServletContext().getResource(STATIC_DIR_NAME + normalizedRelPath);
+		URL url = null;
+
+		for (StaticDirectory staticDirectory : staticDirectories) {
+			url = CoreSpringFactory.servletContext.getResource("/" + staticDirectory.getName() + normalizedRelPath);
+			if (url != null) {
+				break;
+			}
+		}
 
 		if (url == null) {
 			// try loading themes from custom themes folder if configured
@@ -145,7 +161,7 @@ public class StaticServlet extends HttpServlet {
 				File customThemesDir = Settings.getGuiCustomThemePath();
 				String path = new File(staticAbsPath, normalizedRelPath).getAbsolutePath();
 				path = path.substring(path.indexOf("/static/themes/") + 15);
-				url = request.getServletContext().getResource(customThemesDir + path);
+				url = new File(customThemesDir + path).toURI().toURL();
 				expiration &= false;//themes can be update any time
 			} else if (normalizedRelPath.contains("/js/images/ui-")) {
 				normalizedRelPath = normalizedRelPath.replace("/js/images/ui-", "/js/jquery/ui/images/ui-");
