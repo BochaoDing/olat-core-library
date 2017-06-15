@@ -476,15 +476,26 @@ public class RepositoryEntryRelationDAO {
 	}
 	
 	public RepositoryEntryToGroupRelation createRelation(Group group, RepositoryEntry re) {
+		// Check if the relation to be added already exists. If so, return existing one.
+		// (If we tried to add a second (identical) relation, we would get a constraint violation.)
+		EntityManager em = dbInstance.getCurrentEntityManager();
+		List<RepositoryEntryToGroupRelation> relationsFound = em.createNamedQuery("relationByRepositoryEntryAndGroup", RepositoryEntryToGroupRelation.class)
+				.setParameter("repoKey", re.getKey())
+				.setParameter("groupKey", group.getKey())
+				.getResultList();
+		if (!relationsFound.isEmpty()) {
+			return relationsFound.get(0);
+		}
+
 		RepositoryEntryToGroupRelation rel = new RepositoryEntryToGroupRelation();
 		rel.setCreationDate(new Date());
 		rel.setDefaultGroup(false);
 		rel.setGroup(group);
 		rel.setEntry(re);
-		dbInstance.getCurrentEntityManager().persist(rel);
+		em.persist(rel);
 		return rel;
 	}
-	
+
 	public int removeRelation(Group group, RepositoryEntryRef re) {
 		EntityManager em = dbInstance.getCurrentEntityManager();
 		List<RepositoryEntryToGroupRelation> rels = em.createNamedQuery("relationByRepositoryEntryAndGroup", RepositoryEntryToGroupRelation.class)
