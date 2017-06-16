@@ -474,7 +474,7 @@ public class RepositoryEntryRelationDAO {
 		}
 		return true;
 	}
-	
+
 	public RepositoryEntryToGroupRelation createRelation(Group group, RepositoryEntry re) {
 		// Check if the relation to be added already exists. If so, return existing one.
 		// (If we tried to add a second (identical) relation, we would get a constraint violation.)
