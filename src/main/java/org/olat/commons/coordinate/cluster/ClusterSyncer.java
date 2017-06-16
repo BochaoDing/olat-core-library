@@ -113,9 +113,9 @@ public class ClusterSyncer implements Syncer {
 			// we decided to do a commit here and work with its consequence which is that everything that happened
 			// prior to the doInSync call is also committed. This though corresponds to the OLAT 6.0.x model and
 			// was acceptable there as well.
-			if (isClusterEnabled) {
-				dbInstance.commit();
-			}
+			//
+			// NB: Several services calling this method require a commit to avoid phantom reads!
+			dbInstance.commit();
 		}
 		if (isDebug) {
 			long stop = System.currentTimeMillis();
