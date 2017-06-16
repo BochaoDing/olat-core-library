@@ -39,6 +39,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 
@@ -129,6 +130,23 @@ public class StaticServlet extends HttpServlet {
 			}
 		}	
 	}
+
+	public static URL getStaticResource(StaticDirectory[] staticDirectories,
+										String subPath) {
+		URL result = null;
+		try {
+			for (StaticDirectory staticDirectory : staticDirectories) {
+				String path = "/" + staticDirectory.getName() + subPath;
+				result = CoreSpringFactory.servletContext.getResource(path);
+				if (result != null) {
+					break;
+				}
+			}
+		} catch (MalformedURLException e) {
+			assert false : e;
+		}
+		return result;
+	}
 	
 	private void deliverStatic(HttpServletRequest request, HttpServletResponse response,
 		String pathInfo, String normalizedRelPath, boolean expiration)
@@ -146,14 +164,7 @@ public class StaticServlet extends HttpServlet {
 			expiration &= true;
 		}
 
-		URL url = null;
-
-		for (StaticDirectory staticDirectory : staticDirectories) {
-			url = CoreSpringFactory.servletContext.getResource("/" + staticDirectory.getName() + normalizedRelPath);
-			if (url != null) {
-				break;
-			}
-		}
+		URL url = getStaticResource(staticDirectories, normalizedRelPath);
 
 		if (url == null) {
 			// try loading themes from custom themes folder if configured
