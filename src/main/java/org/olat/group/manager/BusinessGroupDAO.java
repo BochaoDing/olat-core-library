@@ -950,7 +950,7 @@ public class BusinessGroupDAO {
 		
 		//owner
 		if(StringHelper.containsNonWhitespace(params.getOwnerName())) {
-			query.setParameter("owner", PersistenceHelper.makeFuzzyQueryString(params.getOwnerName()));
+			query.setParameter("owner", PersistenceHelper.makeEndFuzzyQueryString(params.getOwnerName()));
 		}
 		
 		//id
@@ -968,19 +968,19 @@ public class BusinessGroupDAO {
 		
 		//name
 		if(StringHelper.containsNonWhitespace(params.getNameOrDesc())) {
-			query.setParameter("search", PersistenceHelper.makeFuzzyQueryString(params.getNameOrDesc()));
+			query.setParameter("search", PersistenceHelper.makeEndFuzzyQueryString(params.getNameOrDesc()));
 		} else {
 			if(StringHelper.containsNonWhitespace(params.getName())) {
-				query.setParameter("name", PersistenceHelper.makeFuzzyQueryString(params.getName()));
+				query.setParameter("name", PersistenceHelper.makeEndFuzzyQueryString(params.getName()));
 			}
 			if(StringHelper.containsNonWhitespace(params.getDescription())) {
-				query.setParameter("description", PersistenceHelper.makeFuzzyQueryString(params.getDescription()));
+				query.setParameter("description", PersistenceHelper.makeEndFuzzyQueryString(params.getDescription()));
 			}
 		}
 		
 		//course title
 		if(StringHelper.containsNonWhitespace(params.getCourseTitle())) {
-			query.setParameter("displayName", PersistenceHelper.makeFuzzyQueryString(params.getCourseTitle()));
+			query.setParameter("displayName", PersistenceHelper.makeEndFuzzyQueryString(params.getCourseTitle()));
 		}
 		
 		//public group
