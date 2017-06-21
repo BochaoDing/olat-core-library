@@ -840,7 +840,7 @@ public class FileUtils {
 		for (int i = 0; i<filename.length(); i++) {
 			char character = filename.charAt(i);
 			if (Arrays.binarySearch(FILE_NAME_ACCEPTED_CHARS, character) < 0) {
-				if (character < 33 || character > 255 || Arrays.binarySearch(FILE_NAME_FORBIDDEN_CHARS, character) >= 0) {
+				if (character < 33 || Arrays.binarySearch(FILE_NAME_FORBIDDEN_CHARS, character) >= 0) {
 					return false;
 				}
 			}
