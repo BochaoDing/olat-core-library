@@ -165,10 +165,28 @@ public class RepositoryEntryRelationDAO {
 		List<Long> first = query.getResultList();
 		return first != null && first.size() > 0 && first.get(0) != null && first.get(0).longValue() >= 0l;
 	}
-	
+
+	boolean hasRole(Identity identity, Group group, String role) {
+		@SuppressWarnings("JpaQlInspection")  // Required to suppress warnings in m.identity.key
+				TypedQuery<Long> query = dbInstance.getCurrentEntityManager().createQuery(
+				"select m.key from bgroupmember m where " +
+						"m.group.key = :groupKey " +
+						"and m.identity.key = :identityKey " +
+						"and m.role = :role", Long.class);
+
+		List<Long> memberIdsFound = query.setParameter("groupKey", group.getKey())
+				.setParameter("identityKey", identity.getKey())
+				.setParameter("role", role)
+				.getResultList();
+
+		return !memberIdsFound.isEmpty();
+	}
+
 	public void addRole(Identity identity, RepositoryEntryRef re, String role) {
 		Group group = getDefaultGroup(re);
-		groupDao.addMembershipOneWay(group, identity, role);
+		if (!hasRole(identity, group, role)) {
+			groupDao.addMembershipOneWay(group, identity, role);
+		}
 	}
 	
 	public int removeRole(IdentityRef identity, RepositoryEntryRef re, String role) {
