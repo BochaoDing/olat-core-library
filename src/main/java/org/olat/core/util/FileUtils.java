@@ -85,8 +85,8 @@ public class FileUtils {
 	 * Windows: invalid characters for a file name: \ / : * ? " < > | (true but such can be created via WebDAV or with the help of a ZIP archive)
 	 * Linux: invalid characters for a file or directory name: / (but you have to escape certain chars like ";$%&*")
 	 */
-	private static final char[] FILE_NAME_FORBIDDEN_CHARS = { '/', '\\', '\n', '\r', '\t', '\f' };
-	private static final char[] FILE_NAME_ACCEPTED_CHARS = { ' ' };
+	private static final int[] FILE_NAME_FORBIDDEN_CHARS = { '/', '\\', '\n', '\r', '\t', '\f' };
+	private static final int[] FILE_NAME_ACCEPTED_CHARS = { ' ' };
 
 	static {
 		Arrays.sort(FILE_NAME_FORBIDDEN_CHARS);
@@ -837,8 +837,9 @@ public class FileUtils {
 			return false;
 		}
 		
-		for (int i = 0; i<filename.length(); i++) {
-			char character = filename.charAt(i);
+		int length = filename.codePointCount(0, filename.length());
+		for (int i = 0; i < length; i++) {
+			int character = filename.codePointAt(i);
 			if (Arrays.binarySearch(FILE_NAME_ACCEPTED_CHARS, character) < 0) {
 				if (character < 33 || Arrays.binarySearch(FILE_NAME_FORBIDDEN_CHARS, character) >= 0) {
 					return false;
