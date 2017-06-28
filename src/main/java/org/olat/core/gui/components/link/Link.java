@@ -105,6 +105,7 @@ public class Link extends AbstractComponent {
 
 	private boolean hasTooltip;
 	private boolean suppressDirtyFormWarning = false;
+	private boolean forceFlexiDirtyFormWarning = false;
 
 	private Badge badge;
 	private LinkPopupSettings popup;
@@ -498,6 +499,21 @@ public class Link extends AbstractComponent {
 		return suppressDirtyFormWarning;
 	}
 	
+	/**
+	 * @return true if a flexi link must do an extra check of the dirtiness of its form.
+	 */
+	public boolean isForceFlexiDirtyFormWarning() {
+		return forceFlexiDirtyFormWarning;
+	}
+
+	/**
+	 * 
+	 * @param forceFlexiDirtyFormWarning true if the flexi link need to check if the form is dirty.
+	 */
+	public void setForceFlexiDirtyFormWarning(boolean forceFlexiDirtyFormWarning) {
+		this.forceFlexiDirtyFormWarning = forceFlexiDirtyFormWarning;
+	}
+
 	/**
 	 * The custom display text or null if not set
 	 */

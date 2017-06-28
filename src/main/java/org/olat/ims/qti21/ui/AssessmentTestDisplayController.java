@@ -252,7 +252,7 @@ public class AssessmentTestDisplayController extends BasicController implements 
 			
 			URI assessmentObjectUri = qtiService.createAssessmentTestUri(fUnzippedDirRoot);
 			File submissionDir = qtiService.getSubmissionDirectory(candidateSession);
-			mapperUri = registerCacheableMapper(null, "QTI21Resources::" + testEntry.getKey(),
+			mapperUri = registerCacheableMapper(ureq, "QTI21Resources::" + testEntry.getKey(),
 					new ResourcesMapper(assessmentObjectUri, submissionDir));
 	
 			/* Handle immediate end of test session */
@@ -312,14 +312,9 @@ public class AssessmentTestDisplayController extends BasicController implements 
 			outcomesListener = new AssessmentEntryOutcomesListener(assessmentEntry, manualCorrections, assessmentService, authorMode);
 		}
 
-		AssessmentTestSession lastSession = null;
-		if(deliveryOptions.isEnableSuspend()) {
-			lastSession = qtiService.getResumableAssessmentTestSession(assessedIdentity, anonymousIdentifier, entry, subIdent, testEntry, authorMode);
-		}
+		AssessmentTestSession lastSession = qtiService.getResumableAssessmentTestSession(assessedIdentity, anonymousIdentifier, entry, subIdent, testEntry, authorMode);
 		if(lastSession == null) {
-			candidateSession = qtiService.createAssessmentTestSession(assessedIdentity, anonymousIdentifier, assessmentEntry, entry, subIdent, testEntry, authorMode);
-			candidateAuditLogger = qtiService.getAssessmentSessionAuditLogger(candidateSession, authorMode);
-			testSessionController = enterSession(ureq);
+			initNewAssessmentTestSession(ureq, assessmentEntry, authorMode);
 		} else {
 			candidateSession = lastSession;
 			candidateAuditLogger = qtiService.getAssessmentSessionAuditLogger(candidateSession, authorMode);
@@ -327,7 +322,45 @@ public class AssessmentTestDisplayController extends BasicController implements 
 			lastEvent = new CandidateEvent(candidateSession, testEntry, entry);
 			lastEvent.setTestEventType(CandidateTestEventType.ITEM_EVENT);
 			
-			testSessionController = resumeSession();
+			if(authorMode) {
+				//check that the resumed session match the current test
+				try {
+					testSessionController = resumeSession(ureq);
+					if(!checkAuthorSession()) {
+						initNewAssessmentTestSession(ureq, assessmentEntry, authorMode);
+					}
+				} catch(Exception e) {
+					logError("Cannot resume session as author", e);
+					initNewAssessmentTestSession(ureq, assessmentEntry, authorMode);
+				}
+			} else {
+				testSessionController = resumeSession(ureq);
+			}
+		}
+	}
+	
+	private void initNewAssessmentTestSession(UserRequest ureq, AssessmentEntry assessmentEntry, boolean authorMode) {
+		candidateSession = qtiService.createAssessmentTestSession(assessedIdentity, anonymousIdentifier, assessmentEntry, entry, subIdent, testEntry, authorMode);
+		candidateAuditLogger = qtiService.getAssessmentSessionAuditLogger(candidateSession, authorMode);
+		testSessionController = enterSession(ureq);
+	}
+	
+	/**
+	 * If the session data doesn't match the current assessmentTest and assessmentItems, it will
+	 * return false.
+	 * @return
+	 */
+	private boolean checkAuthorSession() {
+		try {
+			//
+			TestSessionState testSessionState = testSessionController.getTestSessionState();
+			if(!isTerminated() && !testSessionState.isExited() && testSessionState.getCurrentTestPartKey() != null) {
+				testSessionController.mayEndCurrentTestPart();
+			}
+			return true;
+		} catch(Exception e) {
+			logError("Cannot resume session as author", e);
+			return false;
 		}
 	}
 	
@@ -447,9 +480,13 @@ public class AssessmentTestDisplayController extends BasicController implements 
 		if(!deliveryOptions.isEnableSuspend() || testSessionController == null
 				|| testSessionController.getTestSessionState() == null
 				|| testSessionController.getTestSessionState().isEnded()
-				|| testSessionController.getTestSessionState().isExited()) {
+				|| testSessionController.getTestSessionState().isExited()
+				|| testSessionController.getTestSessionState().isSuspended()) {
 			return false;
 		}
+		
+		testSessionController.touchDurations(currentRequestTimestamp);
+		testSessionController.suspendTestSession(requestTimestamp);
 		
 		TestSessionState testSessionState = testSessionController.getTestSessionState();
 		TestPlanNodeKey currentItemKey = testSessionState.getCurrentItemKey();
@@ -825,6 +862,11 @@ public class AssessmentTestDisplayController extends BasicController implements 
 	private void handleTemporaryResponse(UserRequest ureq, Map<Identifier, ResponseInput> stringResponseMap) {
 		NotificationRecorder notificationRecorder = new NotificationRecorder(NotificationLevel.INFO);
 		TestSessionState testSessionState = testSessionController.getTestSessionState();
+		TestPlanNodeKey currentItemKey = testSessionState.getCurrentItemKey();
+		if(currentItemKey == null) {
+			return;//
+		}
+		
 		final Date timestamp = ureq.getRequestTimestamp();
 		
 		final Map<Identifier, ResponseData> responseDataMap = new HashMap<>();
@@ -838,9 +880,7 @@ public class AssessmentTestDisplayController extends BasicController implements 
             }
 		}
 		
-		TestPlanNodeKey currentItemKey = testSessionState.getCurrentItemKey();
 		ParentPartItemRefs parentParts = getParentSection(currentItemKey);
-
 		String assessmentItemIdentifier = currentItemKey.getIdentifier().toString();
 		AssessmentItemSession itemSession = qtiService
 				.getOrCreateAssessmentItemSession(candidateSession, parentParts, assessmentItemIdentifier);
@@ -920,6 +960,12 @@ public class AssessmentTestDisplayController extends BasicController implements 
 
 		NotificationRecorder notificationRecorder = new NotificationRecorder(NotificationLevel.INFO);
 		TestSessionState testSessionState = testSessionController.getTestSessionState();
+
+		TestPlanNodeKey currentItemKey = testSessionState.getCurrentItemKey();
+		if(currentItemKey == null && getLastEvent() != null && getLastEvent().getTestEventType() == CandidateTestEventType.REVIEW_ITEM) {
+			//someone try to send the form in review with tab / return
+			return;
+		}
 		
 		final Map<Identifier,File> fileSubmissionMap = new HashMap<>();
 		final Map<Identifier, ResponseData> responseDataMap = new HashMap<>();
@@ -946,7 +992,6 @@ public class AssessmentTestDisplayController extends BasicController implements 
             }
 		}
 		
-		TestPlanNodeKey currentItemKey = testSessionState.getCurrentItemKey();
 		ParentPartItemRefs parentParts = getParentSection(currentItemKey);
 
 		String assessmentItemIdentifier = currentItemKey.getIdentifier().toString();
@@ -1409,9 +1454,12 @@ public class AssessmentTestDisplayController extends BasicController implements 
 		return result;
 	}
 	
-	private TestSessionController resumeSession() {
+	private TestSessionController resumeSession(UserRequest ureq) {
+		Date currentRequestTimestamp = ureq.getRequestTimestamp();
+		
         final NotificationRecorder notificationRecorder = new NotificationRecorder(NotificationLevel.INFO);
         TestSessionController controller =  createTestSessionController(notificationRecorder);
+        controller.unsuspendTestSession(currentRequestTimestamp);
        
         TestSessionState testSessionState = controller.getTestSessionState();
 		TestPlanNodeKey currentItemKey = testSessionState.getCurrentItemKey();
@@ -1422,7 +1470,7 @@ public class AssessmentTestDisplayController extends BasicController implements 
 			if(itemProcessingContext instanceof ItemSessionController
 					&& itemSessionState.isSuspended()) {
 				ItemSessionController itemSessionController = (ItemSessionController)itemProcessingContext;
-				itemSessionController.unsuspendItemSession(new Date());
+				itemSessionController.unsuspendItemSession(currentRequestTimestamp);
 			}
 		}
 		
@@ -1592,6 +1640,7 @@ public class AssessmentTestDisplayController extends BasicController implements 
 			String endName = qtiEl.getComponent().hasMultipleTestParts()
 					? "assessment.test.end.testPart" : "assessment.test.end.test";
 			endTestPartButton = uifactory.addFormLink("endTest", endName, null, formLayout, Link.BUTTON);
+			endTestPartButton.setForceOwnDirtyFormWarning(true);
 			endTestPartButton.setElementCssClass("o_sel_end_testpart");
 			endTestPartButton.setPrimary(true);
 			endTestPartButton.setIconLeftCSS("o_icon o_icon-fw o_icon_qti_end_testpart");
