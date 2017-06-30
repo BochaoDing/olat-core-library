@@ -2,8 +2,8 @@ package org.olat.repository.ui.list;
 
 import org.olat.repository.RepositoryEntryMyView;
 
+import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Initial date: 2016-06-29<br />
@@ -11,7 +11,8 @@ import java.util.Map;
  */
 public interface RepositoryEntryRowsFactory {
 
-	Map<RepositoryEntryMyView, RepositoryEntryRow> create(List<RepositoryEntryMyView> repositoryEntryViews);
+	// Must be LinkedHashMap to preserve insertion order of repositoryEntryViews (sorted)
+	LinkedHashMap<RepositoryEntryMyView, RepositoryEntryRow> create(List<RepositoryEntryMyView> repositoryEntryViews);
 
 	RepositoryEntryDataSourceUIFactory getUiFactory();
 }
