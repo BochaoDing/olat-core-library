@@ -34,7 +34,7 @@ public class RepositoryEntryRowsFactoryImpl implements RepositoryEntryRowsFactor
 
 		for (RepositoryEntryMyView repositoryEntryMyView : repositoryEntryMyViews) {
 
-			RepositoryEntryRow repositoryEntryRow = new RepositoryEntryRow();
+			RepositoryEntryRow repositoryEntryRow = new RepositoryEntryRow(repositoryEntryMyView);
 			/*
 			 * TODO sev26
 			 * The comment of
