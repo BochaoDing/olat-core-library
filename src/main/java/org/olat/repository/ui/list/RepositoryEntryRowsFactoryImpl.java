@@ -7,8 +7,9 @@ import org.olat.repository.RepositoryEntryMyView;
 import org.olat.repository.RepositoryManager;
 import org.olat.repository.RepositoryModule;
 
-import java.util.LinkedHashMap;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Initial date: 2016-06-29<br />
@@ -28,13 +29,13 @@ public class RepositoryEntryRowsFactoryImpl implements RepositoryEntryRowsFactor
 	}
 
 	@Override
-	public LinkedHashMap<RepositoryEntryMyView, RepositoryEntryRow> create(List<RepositoryEntryMyView> repositoryEntryMyViews) {
+	public Map<RepositoryEntryMyView, RepositoryEntryRow> create(List<RepositoryEntryMyView> repositoryEntryMyViews) {
 
-		LinkedHashMap<RepositoryEntryMyView, RepositoryEntryRow> mapOfRepositoryEntryMyViewsAndRepositoryEntryRows = new LinkedHashMap<>();
+		Map<RepositoryEntryMyView, RepositoryEntryRow> mapOfRepositoryEntryMyViewsAndRepositoryEntryRows = new HashMap<>();
 
 		for (RepositoryEntryMyView repositoryEntryMyView : repositoryEntryMyViews) {
 
-			RepositoryEntryRow repositoryEntryRow = new RepositoryEntryRow(repositoryEntryMyView);
+			RepositoryEntryRow repositoryEntryRow = new RepositoryEntryRow();
 			/*
 			 * TODO sev26
 			 * The comment of

@@ -42,22 +42,22 @@ import org.olat.resource.accesscontrol.model.PriceMethodBundle;
 import org.olat.resource.accesscontrol.ui.PriceFormat;
 
 /**
- * 
+ *
  * Initial date: 28.01.2014<br>
  * @author srosse, stephane.rosse@frentix.com, http://www.frentix.com
  *
  */
 public class DefaultRepositoryEntryDataSource implements FlexiTableDataSourceDelegate<RepositoryEntryRow> {
-	
+
 	private final RepositoryEntryRowsFactory repositoryEntryRowsFactory;
 	private final SearchMyRepositoryEntryViewParams searchParams;
 
 	private final ACService acService;
 	private final AccessControlModule acModule;
 	private final RepositoryService repositoryService;
-	
+
 	private Integer count;
-	
+
 	public DefaultRepositoryEntryDataSource(SearchMyRepositoryEntryViewParams searchParams,
 											RepositoryEntryRowsFactory repositoryEntryRowsFactory) {
 		this.repositoryEntryRowsFactory = repositoryEntryRowsFactory;
@@ -67,16 +67,16 @@ public class DefaultRepositoryEntryDataSource implements FlexiTableDataSourceDel
 		acModule = CoreSpringFactory.getImpl(AccessControlModule.class);
 		repositoryService = CoreSpringFactory.getImpl(RepositoryService.class);
 	}
-	
+
 	public void setFilters(List<Filter> filters) {
 		searchParams.setFilters(filters);
 		count = null;
 	}
-	
+
 	public void setOrderBy(OrderBy orderBy) {
 		searchParams.setOrderBy(orderBy);
 	}
-	
+
 	public void resetCount() {
 		count = null;
 	}
@@ -97,7 +97,7 @@ public class DefaultRepositoryEntryDataSource implements FlexiTableDataSourceDel
 	@Override
 	public final ResultInfos<RepositoryEntryRow> getRows(String query, List<String> condQueries,
 			int firstResult, int maxResults, SortKey... orderBy) {
-		
+
 		if(condQueries != null && condQueries.size() > 0) {
 			String filter = condQueries.get(0);
 			if(StringHelper.containsNonWhitespace(filter)) {
@@ -106,7 +106,7 @@ public class DefaultRepositoryEntryDataSource implements FlexiTableDataSourceDel
 				searchParams.setFilters(null);
 			}
 		}
-		
+
 		if(orderBy != null && orderBy.length > 0 && orderBy[0] != null) {
 			OrderBy o = OrderBy.valueOf(orderBy[0].getKey());
 			searchParams.setOrderBy(o);
@@ -118,7 +118,7 @@ public class DefaultRepositoryEntryDataSource implements FlexiTableDataSourceDel
 		} else {
 			searchParams.setIdRefsAndTitle(null);
 		}
-		
+
 		List<RepositoryEntryMyView> views = repositoryService.searchMyView(searchParams, firstResult, maxResults);
 		List<RepositoryEntryRow> rows = processViewModel(views);
 		ResultInfos<RepositoryEntryRow> results = new DefaultResultInfos<RepositoryEntryRow>(firstResult + rows.size(), -1, rows);
@@ -142,7 +142,7 @@ public class DefaultRepositoryEntryDataSource implements FlexiTableDataSourceDel
 		List<OLATResourceAccess> resourcesWithOffer = acService.filterResourceWithAC(resourcesWithAC);
 		repositoryService.filterMembership(searchParams.getIdentity(), repoKeys);
 
-		LinkedHashMap<RepositoryEntryMyView, RepositoryEntryRow> mapOfRepositoryEntryViewsAndRepositoryEntryRows =
+		Map<RepositoryEntryMyView, RepositoryEntryRow> mapOfRepositoryEntryViewsAndRepositoryEntryRows =
 				repositoryEntryRowsFactory.create(repoEntries);
 
 		List<RepositoryEntryRow> items = new ArrayList<>();
