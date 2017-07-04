@@ -297,9 +297,9 @@ create table if not exists o_user (
    u_genericcheckboxproperty2 varchar(255),
    u_genericcheckboxproperty3 varchar(255),
 
-   u_institutionalEmployeeNumber varchar(255),
-   u_institutionalMatriculationNumber varchar(255),
-   u_matriculationNumber varchar(255),
+   u_institutional_employee_number varchar(255),
+   u_institutional_matriculation_number varchar(255),
+   u_matriculation_number varchar(255),
 
    fk_identity bigint,
    primary key (user_id)
@@ -1322,8 +1322,8 @@ create table o_vid_transcoding (
 
 create table o_vid_metadata (
   id bigint not null auto_increment,
-  creationdate timestamp not null,
-  lastmodified timestamp not null,
+  creationdate datetime not null,
+  lastmodified datetime not null,
   vid_width bigint default null,
   vid_height bigint default null,
   vid_size bigint default null,

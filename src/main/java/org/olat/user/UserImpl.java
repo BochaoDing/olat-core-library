@@ -264,11 +264,11 @@ public class UserImpl implements Persistable, User {
 	@Column(name="u_swissedupersonstudybranch3", nullable=true, insertable=true, updatable=true)
 	private String swissEduPersonStudyBranch3;
 
-	@Column(name="u_institutionalEmployeeNumber", nullable=true, insertable=true, updatable=true)
+	@Column(name="u_institutional_employee_number", nullable=true, insertable=true, updatable=true)
 	private String institutionalEmployeeNumber;
-	@Column(name="u_institutionalMatriculationNumber")
+	@Column(name="u_institutional_matriculation_number", nullable=true, insertable=true, updatable=true)
 	private String institutionalMatriculationNumber;
-	@Column(name="u_matriculationNumber", nullable=true, insertable=true, updatable=true)
+	@Column(name="u_matriculation_number", nullable=true, insertable=true, updatable=true)
 	private String matriculationNumber;
 
 	@Embedded

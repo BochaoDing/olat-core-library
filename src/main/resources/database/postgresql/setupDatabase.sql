@@ -295,9 +295,9 @@ create table o_user (
    u_genericcheckboxproperty2 varchar(255),
    u_genericcheckboxproperty3 varchar(255),
 
-   u_institutionalEmployeeNumber varchar(255),
-   u_institutionalMatriculationNumber varchar(255),
-   u_matriculationNumber varchar(255),
+   u_institutional_employee_number varchar(255),
+   u_institutional_matriculation_number varchar(255),
+   u_matriculation_number varchar(255),
 
    fk_identity int8,
    primary key (user_id)
