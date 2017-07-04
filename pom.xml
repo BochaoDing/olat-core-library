@@ -726,6 +726,9 @@
 												${test.env.db.host.name}:${test.env.db.host.port}:3306
 											</port>
 										</ports>
+										<network>
+											<mode>host</mode>
+										</network>
 										<extraHosts>moby:127.0.0.1</extraHosts>
 										<env>
 											<MYSQL_ROOT_PASSWORD>
