@@ -53,6 +53,7 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.TypeReference;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.olat.collaboration.CollaborationTools;
 import org.olat.collaboration.CollaborationToolsFactory;
@@ -308,6 +309,7 @@ public class NotificationsTest extends OlatJerseyTestCase {
 	}
 	
 	@Test
+	//@Ignore
 	public void testGetBusinessGroupFolderNotifications() throws IOException, URISyntaxException {
 		//create a business group with folder notifications
 		Identity id = JunitTestHelper.createAndPersistIdentityAsUser("rest-not-5-" + UUID.randomUUID().toString());

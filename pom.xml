@@ -86,7 +86,6 @@
 	    <test.env.db.name>olattest</test.env.db.name>
 	    <test.env.db.user>olat</test.env.db.user>
 	    <test.env.db.pass>olat</test.env.db.pass>
-	    <test.env.db.host.port>3306</test.env.db.host.port>
 	    <test.env.db.postgresql.user>postgres</test.env.db.postgresql.user>
 	    <test.env.db.postgresql.pass>postgres</test.env.db.postgresql.pass>
 	    <test.env.db.postgresql.host.port>5432</test.env.db.postgresql.host.port>
@@ -669,7 +668,7 @@
 						<executions>
 							<execution>
 								<id>copy-resources-4-mysqlunittests</id>
-								<phase>generate-test-resources</phase>
+								<phase>process-test-resources</phase>
 								<goals>
 									<goal>copy-resources</goal>
 								</goals>
@@ -696,6 +695,62 @@
 								</configuration>
 							</execution>
 						</executions>
+					</plugin>
+					<plugin>
+						<groupId>io.fabric8</groupId>
+						<artifactId>docker-maven-plugin</artifactId>
+						<version>0.21.0</version>
+						<executions>
+							<execution>
+								<id>start-mysql-server</id>
+								<phase>process-test-resources</phase>
+								<goals>
+									<goal>start</goal>
+								</goals>
+							</execution>
+							<execution>
+								<id>stop-mysql-server</id>
+								<phase>verify</phase>
+								<goals>
+									<goal>stop</goal>
+								</goals>
+							</execution>
+						</executions>
+						<configuration>
+							<images>
+								<image>
+									<name>docker.io/mysql:5.6.35</name>
+									<run>
+										<ports>
+											<port>
+												${test.env.db.host.name}:${test.env.db.host.port}:3306
+											</port>
+										</ports>
+										<extraHosts>moby:127.0.0.1</extraHosts>
+										<env>
+											<MYSQL_ROOT_PASSWORD>
+												root
+											</MYSQL_ROOT_PASSWORD>
+											<MYSQL_DATABASE>
+												${test.env.db.name}
+											</MYSQL_DATABASE>
+											<MYSQL_USER>
+												${test.env.db.user}
+											</MYSQL_USER>
+											<MYSQL_PASSWORD>
+												${test.env.db.pass}
+											</MYSQL_PASSWORD>
+										</env>
+										<wait>
+											<time>60000</time>
+											<log>
+												MySQL init process done\. Ready for start up\.(?s).*\[Note\] mysqld: ready for connections\.
+											</log>
+										</wait>
+									</run>
+								</image>
+							</images>
+						</configuration>
 					</plugin>
 					<plugin>
 						<groupId>org.codehaus.mojo</groupId>
@@ -726,7 +781,7 @@
 								</goals>
 								<configuration>
 									<!-- need another database to drop the targeted one -->
-									<url>jdbc:mysql://${test.env.db.host.name}:${test.env.db.host.port}/olat</url>
+									<url>jdbc:mysql://${test.env.db.host.name}:${test.env.db.host.port}</url>
 									<autocommit>true</autocommit>
 									<sqlCommand>drop database if exists ${test.env.db.name}</sqlCommand>
 									<!-- ignore error when database is not avaiable -->
@@ -741,7 +796,7 @@
 									<goal>execute</goal>
 								</goals>
 								<configuration>
-									<url>jdbc:mysql://${test.env.db.host.name}:${test.env.db.host.port}/olat</url>
+									<url>jdbc:mysql://${test.env.db.host.name}:${test.env.db.host.port}</url>
 									<!-- no transaction -->
 									<autocommit>true</autocommit>
 									<sqlCommand>create database ${test.env.db.name} default character set utf8</sqlCommand>
@@ -787,7 +842,7 @@
 								</goals>
 								<configuration>
 									<!-- need another database to drop the targeted one -->
-									<url>jdbc:mysql://${test.env.db.host.name}:${test.env.db.host.port}/olat</url>
+									<url>jdbc:mysql://${test.env.db.host.name}:${test.env.db.host.port}</url>
 									<autocommit>true</autocommit>
 									<sqlCommand>drop database if exists ${test.env.db.name}</sqlCommand>
 									<!-- ignore error when database is not avaiable -->
@@ -801,7 +856,7 @@
 									<goal>execute</goal>
 								</goals>
 								<configuration>
-									<url>jdbc:mysql://${test.env.db.host.name}:${test.env.db.host.port}/olat</url>
+									<url>jdbc:mysql://${test.env.db.host.name}:${test.env.db.host.port}</url>
 									<!-- no transaction -->
 									<autocommit>true</autocommit>
 									<sqlCommand>create database ${test.env.db.name} default character set utf8</sqlCommand>
@@ -858,7 +913,7 @@
 						<executions>
 							<execution>
 								<id>copy-resources-4-postgresqlunittests</id>
-								<phase>generate-test-resources</phase>
+								<phase>process-test-resources</phase>
 								<goals>
 									<goal>copy-resources</goal>
 								</goals>
@@ -1063,7 +1118,7 @@
 						<executions>
 							<execution>
 								<id>copy-resources-4-oracleunittests</id>
-								<phase>generate-test-resources</phase>
+								<phase>process-test-resources</phase>
 								<goals>
 									<goal>copy-resources</goal>
 								</goals>
@@ -1245,6 +1300,24 @@
 				</configuration>
 			</plugin>
 			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>build-helper-maven-plugin</artifactId>
+				<version>3.0.0</version>
+				<executions>
+					<execution>
+						<phase>validate</phase>
+						<goals>
+							<goal>reserve-network-port</goal>
+						</goals>
+						<configuration>
+							<portNames>
+								<portName>test.env.db.host.port</portName>
+							</portNames>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-antrun-plugin</artifactId>
 				<version>1.7</version>
@@ -1264,19 +1337,19 @@
 						</configuration>                       
 					</execution>
 					<!-- Download tomcat for integration test -->
-					<execution>
-                        <phase>pre-integration-test</phase>
-                        <goals>
-                        	<goal>run</goal>
-                        </goals>
-                        <configuration>
-                            <tasks>
-                                <mkdir dir="${project.build.directory}/downloads" />
-                                <get src="http://nexus.openolat.org/nexus/content/repositories/openolat/org/apache/tomcat/apache-tomcat-arq/8.0.24/apache-tomcat-arq-8.0.24.zip" dest="${project.build.directory}/downloads" verbose="true" skipexisting="true" />
-                                <unzip src="${project.build.directory}/downloads/apache-tomcat-arq-8.0.24.zip" dest="${project.build.directory}/arq-apache-tomcat-8.0.24" />
-                            </tasks>
-                        </configuration>
-                    </execution> 
+					<!--<execution>-->
+                        <!--<phase>pre-integration-test</phase>-->
+                        <!--<goals>-->
+                        	<!--<goal>run</goal>-->
+                        <!--</goals>-->
+                        <!--<configuration>-->
+                            <!--<tasks>-->
+                                <!--<mkdir dir="${project.build.directory}/downloads" />-->
+                                <!--<get src="http://nexus.openolat.org/nexus/content/repositories/openolat/org/apache/tomcat/apache-tomcat-arq/8.0.24/apache-tomcat-arq-8.0.24.zip" dest="${project.build.directory}/downloads" verbose="true" skipexisting="true" />-->
+                                <!--<unzip src="${project.build.directory}/downloads/apache-tomcat-arq-8.0.24.zip" dest="${project.build.directory}/arq-apache-tomcat-8.0.24" />-->
+                            <!--</tasks>-->
+                        <!--</configuration>-->
+                    <!--</execution> -->
 				</executions>
 			</plugin>
             <!-- Unit tests -->
@@ -1290,6 +1363,7 @@
 					<argLine>-Xmx512m -Xms256m -Djava.awt.headless=true</argLine>
 					<systemPropertyVariables>
 						<java.io.tmpdir>${project.build.directory}/olatdata</java.io.tmpdir>
+						<test.env.db.host.port>${test.env.db.host.port}</test.env.db.host.port>
 					</systemPropertyVariables>
 					<testNGArtifactName>none:none</testNGArtifactName>
 					<includes>
