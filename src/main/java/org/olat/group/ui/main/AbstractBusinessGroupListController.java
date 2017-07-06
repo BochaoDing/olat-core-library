@@ -913,7 +913,7 @@ public abstract class AbstractBusinessGroupListController extends FormBasicContr
 	
 	protected void doSearch(FlexiTableSearchEvent event) {
 		BusinessGroupQueryParams params = getDefaultSearchParams();
-		params.setNameOrDesc(event.getSearch());
+		params.setNameOrDesc("*" + event.getSearch() + "*");
 		loadModel(params);
 	}
 

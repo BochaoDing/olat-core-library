@@ -89,11 +89,11 @@ public class FileUtils {
 	 * Windows: invalid characters for a file name: \ / : * ? " < > | (true but such can be created via WebDAV or with the help of a ZIP archive)
 	 * Linux: invalid characters for a file or directory name: / (but you have to escape certain chars like ";$%&*")
 	 */
-	private static final char[] FILE_NAME_FORBIDDEN_CHARS = { '/', '\\', '\n', '\r', '\t', '\f' };
-	private static final char[] FILE_NAME_ACCEPTED_CHARS = { ' ' };
-	private static final List<String> META_FILENAMES = Collections.emptyList();
+	private static final int[] FILE_NAME_FORBIDDEN_CHARS = { '/', '\\', '\n', '\r', '\t', '\f' };
+	private static final int[] FILE_NAME_ACCEPTED_CHARS = { ' ' };
+    private static final List<String> META_FILENAMES = Collections.emptyList();
 
-	static {
+    static {
 		Arrays.sort(FILE_NAME_FORBIDDEN_CHARS);
 		Arrays.sort(FILE_NAME_ACCEPTED_CHARS);
 	}
@@ -420,10 +420,10 @@ public class FileUtils {
 	
 	public static boolean copyToFile(InputStream in, File targetFile, String wt) {
 		if (targetFile.isDirectory()) return false;
-		
+
 		// create target directories
 		targetFile.getParentFile().mkdirs(); // don't check for success... would return false on
-		
+
 		BufferedInputStream  bis = new BufferedInputStream(in);
 		try (OutputStream dst = new FileOutputStream(targetFile);
 				BufferedOutputStream bos = getBos (dst)) {
@@ -437,7 +437,7 @@ public class FileUtils {
 			IOUtils.closeQuietly(in);
 		}
 	}
-	
+
 	/**
 	 * Copy method to copy a file to another file
 	 * @param sourceFile
@@ -858,27 +858,27 @@ public class FileUtils {
 	 * @return true if filename valid
 	 */
 	public static boolean validateFilename(String filename) {
-		if(filename==null) {
+		if (filename == null) {
 			return false;
 		}
-		Arrays.sort(FILE_NAME_FORBIDDEN_CHARS);
-		Arrays.sort(FILE_NAME_ACCEPTED_CHARS);
 		
-		for(int i=0; i<filename.length(); i++) {
-			char character = filename.charAt(i);
-			if(Arrays.binarySearch(FILE_NAME_ACCEPTED_CHARS, character)>=0) {
-				continue;
-			} else if(character<33 || character>255 || Arrays.binarySearch(FILE_NAME_FORBIDDEN_CHARS, character)>=0) {
-				return false;
+		int length = filename.codePointCount(0, filename.length());
+		for (int i = 0; i < length; i++) {
+			int character = filename.codePointAt(i);
+			if (Arrays.binarySearch(FILE_NAME_ACCEPTED_CHARS, character) < 0) {
+				if (character < 33 || Arrays.binarySearch(FILE_NAME_FORBIDDEN_CHARS, character) >= 0) {
+					return false;
+				}
 			}
 		}
 		//check if there are any unwanted path denominators in the name
-		if (filename.indexOf("..") > -1) {
+		if (".".equals(filename) || "..".equals(filename)) {
 			return false;
 		}
+
 		return true;
 	}
-	
+
 	public static String normalizeFilename(String name) {
 		String nameFirstPass = name.replace(" ", "_")
 				.replace("\u00C4", "Ae")
@@ -896,6 +896,8 @@ public class FileUtils {
 		String nameSanitized = nameNormalized.replaceAll("\\W+", "");
 		return nameSanitized;
 	}
+	
+	
 	
 	/**
 	 * Creates a new directory in the specified directory, using the given prefix and suffix strings to generate its name.

@@ -142,6 +142,10 @@
 		<servlet-class>org.olat.core.servlets.OpenOLATServlet</servlet-class>
 		<!-- Set the load order -->
 		<load-on-startup>1</load-on-startup>
+		<multipart-config>
+			<location>/tmp</location>
+			<file-size-threshold>10240</file-size-threshold>
+		</multipart-config>
 	</servlet>
 	<servlet>
 		<servlet-name>rawservlet</servlet-name>
