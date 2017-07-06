@@ -85,6 +85,7 @@ public class PortfolioHandler implements RepositoryHandler {
 	
 	@Override
 	public boolean isCreate() {
+		// TODO: Add again "Portfolio template" (v1) in tab authoring?!? => Are new deprecated portfolios welcome?
 		return false;
 	}
 	
