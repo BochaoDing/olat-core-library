@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component;
  * @author Martin Schraner
  */
 @Component
-public class BeforeRepositoryEntryDeletionListener {
+public class BeforeRepositoryEntryPermanentDeletionListener {
 
 	/**
 	 * This method should never commit the running database transaction.
