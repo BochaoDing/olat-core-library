@@ -77,9 +77,9 @@ import org.olat.repository.RepositoryService;
 import org.olat.repository.handlers.RepositoryHandler;
 import org.olat.repository.handlers.RepositoryHandlerFactory;
 import org.olat.repository.listener.AfterRepositoryEntryPermanentDeletionListener;
+import org.olat.repository.listener.AfterRepositoryEntryRestoreListener;
 import org.olat.repository.listener.AfterRepositoryEntrySoftDeletionListener;
 import org.olat.repository.listener.BeforeRepositoryEntryPermanentDeletionListener;
-import org.olat.repository.listener.BeforeRepositoryEntrySoftDeletionListener;
 import org.olat.repository.manager.coursequery.MyCourseRepositoryQuery;
 import org.olat.repository.model.RepositoryEntryLifecycle;
 import org.olat.repository.model.RepositoryEntryStatistics;
@@ -159,13 +159,13 @@ public class RepositoryServiceImpl implements RepositoryService {
     @Autowired
     private AssessmentEntryDAO assessmentEntryDao;
 	@Autowired
-	private BeforeRepositoryEntrySoftDeletionListener[] beforeRepositoryEntrySoftDeletionListeners;
-	@Autowired
 	private AfterRepositoryEntrySoftDeletionListener[] afterRepositoryEntrySoftDeletionListeners;
 	@Autowired
 	private BeforeRepositoryEntryPermanentDeletionListener[] beforeRepositoryEntryPermanentDeletionListeners;
 	@Autowired
 	private AfterRepositoryEntryPermanentDeletionListener[] afterRepositoryEntryPermanentDeletionListeners;
+	@Autowired
+	private AfterRepositoryEntryRestoreListener[] afterRepositoryEntryRestoreListeners;
 
 	@Autowired
 	private LifeFullIndexer lifeIndexer;
@@ -356,11 +356,6 @@ public class RepositoryServiceImpl implements RepositoryService {
 	@Override
 	public RepositoryEntry deleteSoftly(RepositoryEntry re, Identity deletedBy, boolean owners) {
 		RepositoryEntry reloadedRe = repositoryEntryDAO.loadForUpdate(re);
-
-		for (BeforeRepositoryEntrySoftDeletionListener beforeRepositoryEntrySoftDeletionListener : beforeRepositoryEntrySoftDeletionListeners) {
-			beforeRepositoryEntrySoftDeletionListener.onAction(reloadedRe);
-		}
-
 		reloadedRe.setAccess(RepositoryEntry.DELETED);
 		if(reloadedRe.getDeletionDate() == null) {
 			// don't write the name of an admin which make a restore -> delete operation
@@ -394,12 +389,15 @@ public class RepositoryServiceImpl implements RepositoryService {
 	}
 
 	@Override
-	public RepositoryEntry restoreRepositoryEntry(RepositoryEntry entry) {
+	public RepositoryEntry restoreRepositoryEntry(RepositoryEntry entry, Identity restoredBy) {
 		RepositoryEntry reloadedRe = repositoryEntryDAO.loadForUpdate(entry);
 		reloadedRe.setAccess(RepositoryEntry.ACC_OWNERS);
 		reloadedRe.setStatusCode(RepositoryEntryStatus.REPOSITORY_STATUS_CLOSED);
 		reloadedRe = dbInstance.getCurrentEntityManager().merge(reloadedRe);
 		dbInstance.commit();
+		for (AfterRepositoryEntryRestoreListener afterRepositoryEntryRestoreListener : afterRepositoryEntryRestoreListeners) {
+			afterRepositoryEntryRestoreListener.onAction(reloadedRe, restoredBy);
+		}
 		return reloadedRe;
 	}
 

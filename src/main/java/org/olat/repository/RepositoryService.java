@@ -102,7 +102,7 @@ public interface RepositoryService {
 	 * @param entry
 	 * @return
 	 */
-	public RepositoryEntry restoreRepositoryEntry(RepositoryEntry entry);
+	public RepositoryEntry restoreRepositoryEntry(RepositoryEntry entry, Identity restoredBy);
 	
 	
 	/**

@@ -1,5 +1,6 @@
 package org.olat.repository.listener;
 
+import org.olat.core.id.Identity;
 import org.olat.repository.RepositoryEntry;
 import org.springframework.stereotype.Component;
 
@@ -11,11 +12,11 @@ import org.springframework.stereotype.Component;
  * @author Martin Schraner
  */
 @Component
-public class BeforeRepositoryEntrySoftDeletionListener {
+public class AfterRepositoryEntryRestoreListener {
 
 	/**
 	 * This method should never commit the running database transaction.
 	 */
-	public void onAction(RepositoryEntry repositoryEntry) {
+	public void onAction(RepositoryEntry repositoryEntry, Identity restoredBy) {
 	}
 }
