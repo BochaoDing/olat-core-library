@@ -659,6 +659,7 @@
 				<testFailureIgnore>false</testFailureIgnore>
 				<test.env>mysql</test.env>
 				<skipTests>false</skipTests>
+				<openolat-mysql-server-link></openolat-mysql-server-link>
 			</properties>
 			<build>
 				<plugins>
@@ -719,13 +720,19 @@
 						<configuration>
 							<images>
 								<image>
+									<alias>openolat-mysql-server-${test.env.db.host.port}</alias>
 									<name>docker.io/mysql:5.6.35</name>
 									<run>
+										<namingStrategy>alias</namingStrategy>
+										<exposedPropertyKey>openolat-mysql-server</exposedPropertyKey>
 										<ports>
 											<port>
-												${test.env.db.host.name}:${test.env.db.host.port}:3306
+												127.0.0.1:${test.env.db.host.port}:3306
 											</port>
 										</ports>
+										<links>
+											<link>${openolat-mysql-server-link}</link>
+										</links>
 										<extraHosts>moby:127.0.0.1</extraHosts>
 										<env>
 											<MYSQL_ROOT_PASSWORD>
