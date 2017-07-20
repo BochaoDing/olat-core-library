@@ -26,6 +26,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.StringReader;
+import java.net.MalformedURLException;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -658,7 +659,13 @@ public class QTI21WordExport implements MediaResource {
 							elements.add(new OpenXMLGraphic(OpenXMLGraphic.Type.rectangle, style, choice.getCoords()));
 						}
 					}
-					startGraphic(backgroundImg, elements);
+
+					//TODO: toURL() is deprecated... in case of activation of qti21
+					try {
+						startGraphic(backgroundImg.toURL(), elements);
+					} catch (MalformedURLException e) {
+						log.error("", e);
+					}
 				}
 			}
 		}
@@ -834,9 +841,14 @@ public class QTI21WordExport implements MediaResource {
 			checkboxCell.appendChild(wrapEl);
 		}
 
+		//TODO: toURL() is deprecated... in case of activation of qti21
 		private void setObject(Object object) {
 			if(object != null && StringHelper.containsNonWhitespace(object.getData())) {
-				setImage(new File(itemFile.getParentFile(), object.getData()));
+				try {
+					setImage(new File(itemFile.getParentFile(), object.getData()).toURL());
+				} catch (MalformedURLException e) {
+					log.error("", e);
+				}
 			}
 		}
 

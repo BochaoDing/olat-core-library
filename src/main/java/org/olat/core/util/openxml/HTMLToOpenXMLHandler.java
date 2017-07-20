@@ -19,7 +19,7 @@
  */
 package org.olat.core.util.openxml;
 
-import java.io.File;
+import java.net.URL;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -336,7 +336,7 @@ public class HTMLToOpenXMLHandler extends DefaultHandler {
 		}
 	}
 
-	protected void setImage(File file) {
+	protected void setImage(URL file) {
 		Element imgEl = factory.createImageEl(file);
 		if(imgEl != null) {
 			PredefinedStyle style = getCurrentPredefinedStyle();
@@ -346,7 +346,7 @@ public class HTMLToOpenXMLHandler extends DefaultHandler {
 		}
 	}
 
-	protected void startGraphic(File backgroundImage, List<OpenXMLGraphic> elements) {
+	protected void startGraphic(URL backgroundImage, List<OpenXMLGraphic> elements) {
 		Element paragrapheEl = getCurrentParagraph(true);
 		Element graphicEl = factory.createGraphicEl(backgroundImage, elements);
 		Element runEl = factory.createRunEl();
