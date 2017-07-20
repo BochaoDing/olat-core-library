@@ -720,14 +720,14 @@
 						<configuration>
 							<images>
 								<image>
-									<alias>openolat-mysql-server-${test.env.db.host.port}</alias>
 									<name>docker.io/mysql:5.6.35</name>
 									<run>
-										<namingStrategy>alias</namingStrategy>
-										<exposedPropertyKey>openolat-mysql-server</exposedPropertyKey>
+										<exposedPropertyKey>
+											mysql-server
+										</exposedPropertyKey>
 										<ports>
 											<port>
-												127.0.0.1:${test.env.db.host.port}:3306
+												127.0.0.1:3307:3306
 											</port>
 										</ports>
 										<links>
@@ -1305,24 +1305,6 @@
 					<doCheck>true</doCheck>
 					<doUpdate>true</doUpdate>
 				</configuration>
-			</plugin>
-			<plugin>
-				<groupId>org.codehaus.mojo</groupId>
-				<artifactId>build-helper-maven-plugin</artifactId>
-				<version>3.0.0</version>
-				<executions>
-					<execution>
-						<phase>validate</phase>
-						<goals>
-							<goal>reserve-network-port</goal>
-						</goals>
-						<configuration>
-							<portNames>
-								<portName>test.env.db.host.port</portName>
-							</portNames>
-						</configuration>
-					</execution>
-				</executions>
 			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
