@@ -664,6 +664,24 @@
 			<build>
 				<plugins>
 					<plugin>
+						<groupId>org.codehaus.mojo</groupId>
+						<artifactId>build-helper-maven-plugin</artifactId>
+						<version>3.0.0</version>
+						<executions>
+							<execution>
+								<phase>validate</phase>
+								<goals>
+									<goal>reserve-network-port</goal>
+								</goals>
+								<configuration>
+									<portNames>
+										<portName>mysql-server.localhost.port</portName>
+									</portNames>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+					<plugin>
 						<artifactId>maven-resources-plugin</artifactId>
 						<version>2.4.3</version>
 						<executions>
@@ -727,7 +745,7 @@
 										</exposedPropertyKey>
 										<ports>
 											<port>
-												127.0.0.1:${test.env.db.host.port}:3306
+												127.0.0.1:${mysql-server.localhost.port}:3306
 											</port>
 										</ports>
 										<links>
@@ -1305,24 +1323,6 @@
 					<doCheck>true</doCheck>
 					<doUpdate>true</doUpdate>
 				</configuration>
-			</plugin>
-			<plugin>
-				<groupId>org.codehaus.mojo</groupId>
-				<artifactId>build-helper-maven-plugin</artifactId>
-				<version>3.0.0</version>
-				<executions>
-					<execution>
-						<phase>validate</phase>
-						<goals>
-							<goal>reserve-network-port</goal>
-						</goals>
-						<configuration>
-							<portNames>
-								<portName>test.env.db.host.port</portName>
-							</portNames>
-						</configuration>
-					</execution>
-				</executions>
 			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
