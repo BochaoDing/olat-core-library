@@ -1370,6 +1370,9 @@
 					<argLine>-Xmx512m -Xms256m -Djava.awt.headless=true</argLine>
 					<systemPropertyVariables>
 						<java.io.tmpdir>${project.build.directory}/olatdata</java.io.tmpdir>
+						<docker.container.mysql-server.ip>
+							${docker.container.mysql-server.ip}
+						</docker.container.mysql-server.ip>
 						<test.env.db.host.port>${test.env.db.host.port}</test.env.db.host.port>
 					</systemPropertyVariables>
 					<testNGArtifactName>none:none</testNGArtifactName>
