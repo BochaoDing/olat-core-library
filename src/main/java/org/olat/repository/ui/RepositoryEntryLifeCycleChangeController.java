@@ -80,17 +80,23 @@ public class RepositoryEntryLifeCycleChangeController extends BasicController{
 	private ConfirmCloseController confirmCloseCtrl;
 	private ConfirmDeleteSoftlyController confirmDeleteCtrl;
 
-	@Autowired
-	private DB dbInstance;
-	@Autowired
-	private RepositoryModule repositoryModule;
-	@Autowired
-	protected RepositoryService repositoryService;
-	@Autowired
-	private RepositoryManager repositoryManager;
+	private final DB dbInstance;
+	protected final RepositoryService repositoryService;
 
-	public RepositoryEntryLifeCycleChangeController(UserRequest ureq, WindowControl wControl, RepositoryEntry re, RepositoryEntrySecurity reSecurity, RepositoryHandler handler, Translator translator) {
+	public RepositoryEntryLifeCycleChangeController(DB dbInstance,
+													RepositoryService repositoryService,
+													RepositoryManager repositoryManager,
+													RepositoryModule repositoryModule,
+													UserRequest ureq,
+													WindowControl wControl,
+													RepositoryEntry re,
+													RepositoryEntrySecurity reSecurity,
+													RepositoryHandler handler,
+													Translator translator) {
+
 		super(ureq, wControl);
+		this.dbInstance = dbInstance;
+		this.repositoryService = repositoryService;
 		this.re = re;
 		this.reSecurity = reSecurity;
 
