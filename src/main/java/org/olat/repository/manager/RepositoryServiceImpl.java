@@ -76,8 +76,10 @@ import org.olat.repository.RepositoryModule;
 import org.olat.repository.RepositoryService;
 import org.olat.repository.handlers.RepositoryHandler;
 import org.olat.repository.handlers.RepositoryHandlerFactory;
-import org.olat.repository.listener.AfterRepositoryEntryDeletionListener;
-import org.olat.repository.listener.BeforeRepositoryEntryDeletionListener;
+import org.olat.repository.listener.AfterRepositoryEntryPermanentDeletionListener;
+import org.olat.repository.listener.AfterRepositoryEntryRestoreListener;
+import org.olat.repository.listener.AfterRepositoryEntrySoftDeletionListener;
+import org.olat.repository.listener.BeforeRepositoryEntryPermanentDeletionListener;
 import org.olat.repository.manager.coursequery.MyCourseRepositoryQuery;
 import org.olat.repository.model.RepositoryEntryLifecycle;
 import org.olat.repository.model.RepositoryEntryStatistics;
@@ -157,9 +159,13 @@ public class RepositoryServiceImpl implements RepositoryService {
     @Autowired
     private AssessmentEntryDAO assessmentEntryDao;
 	@Autowired
-	private BeforeRepositoryEntryDeletionListener[] beforeRepositoryEntryDeletionListeners;
+	private AfterRepositoryEntrySoftDeletionListener[] afterRepositoryEntrySoftDeletionListeners;
 	@Autowired
-	private AfterRepositoryEntryDeletionListener[] afterRepositoryEntryDeletionListeners;
+	private BeforeRepositoryEntryPermanentDeletionListener[] beforeRepositoryEntryPermanentDeletionListeners;
+	@Autowired
+	private AfterRepositoryEntryPermanentDeletionListener[] afterRepositoryEntryPermanentDeletionListeners;
+	@Autowired
+	private AfterRepositoryEntryRestoreListener[] afterRepositoryEntryRestoreListeners;
 
 	@Autowired
 	private LifeFullIndexer lifeIndexer;
@@ -374,16 +380,24 @@ public class RepositoryServiceImpl implements RepositoryService {
 			}
 		}
 		dbInstance.commit();
+
+		for (AfterRepositoryEntrySoftDeletionListener afterRepositoryEntrySoftDeletionListener : afterRepositoryEntrySoftDeletionListeners) {
+			afterRepositoryEntrySoftDeletionListener.onAction(reloadedRe);
+		}
+
 		return reloadedRe;
 	}
 
 	@Override
-	public RepositoryEntry restoreRepositoryEntry(RepositoryEntry entry) {
+	public RepositoryEntry restoreRepositoryEntry(RepositoryEntry entry, Identity restoredBy) {
 		RepositoryEntry reloadedRe = repositoryEntryDAO.loadForUpdate(entry);
 		reloadedRe.setAccess(RepositoryEntry.ACC_OWNERS);
 		reloadedRe.setStatusCode(RepositoryEntryStatus.REPOSITORY_STATUS_CLOSED);
 		reloadedRe = dbInstance.getCurrentEntityManager().merge(reloadedRe);
 		dbInstance.commit();
+		for (AfterRepositoryEntryRestoreListener afterRepositoryEntryRestoreListener : afterRepositoryEntryRestoreListeners) {
+			afterRepositoryEntryRestoreListener.onAction(reloadedRe, restoredBy);
+		}
 		return reloadedRe;
 	}
 
@@ -400,8 +414,8 @@ public class RepositoryServiceImpl implements RepositoryService {
 		RepositoryHandler handler = repositoryHandlerFactory.getRepositoryHandler(entry);
 		OLATResource resource = entry.getOlatResource();
 
-		for (BeforeRepositoryEntryDeletionListener beforeRepositoryEntryDeletionListener : beforeRepositoryEntryDeletionListeners) {
-			beforeRepositoryEntryDeletionListener.onAction(entry, resource);
+		for (BeforeRepositoryEntryPermanentDeletionListener beforeRepositoryEntryPermanentDeletionListener : beforeRepositoryEntryPermanentDeletionListeners) {
+			beforeRepositoryEntryPermanentDeletionListener.onAction(entry, resource);
 		}
 
 		//delete old context
@@ -438,8 +452,8 @@ public class RepositoryServiceImpl implements RepositoryService {
 		// referenced resourceable a swell.
 		handler.cleanupOnDelete(entry, resource);
 
-		for (AfterRepositoryEntryDeletionListener afterRepositoryEntryDeletionListener : afterRepositoryEntryDeletionListeners) {
-			afterRepositoryEntryDeletionListener.onAction(entry, resource);
+		for (AfterRepositoryEntryPermanentDeletionListener afterRepositoryEntryPermanentDeletionListener : afterRepositoryEntryPermanentDeletionListeners) {
+			afterRepositoryEntryPermanentDeletionListener.onAction(entry, resource);
 		}
 
 		//delete all test sessions
