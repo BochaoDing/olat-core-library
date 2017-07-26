@@ -51,10 +51,11 @@ function o_start() {
 	o_info.initialPageLoadFinished = true;
 }
 function o_mathjax(fct_success) {
-	jQuery.ajax("${r.mathJaxCdn()}MathJax.js?config=TeX-AMS-MML_HTMLorMML", {
+	jQuery.ajax("${r.mathJaxCdn()}/MathJax.js?config=TeX-AMS-MML_HTMLorMML", {
 		cache: true,
 		dataType: "script",
 		success: function() {
+			MathJax.Ajax.config.root = "${r.mathJaxCdn()}";
 	    	MathJax.Hub.Config({
 				extensions: ["jsMath2jax.js"],
 				messageStyle: 'none',

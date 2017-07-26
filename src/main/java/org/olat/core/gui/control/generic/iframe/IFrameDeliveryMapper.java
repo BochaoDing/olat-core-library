@@ -600,8 +600,9 @@ public class IFrameDeliveryMapper implements Mapper {
 		public void appendJsMath() {
 			append("<script type=\"text/javascript\" src=\"");
 			append(WebappHelper.getMathJaxCdn());
-			append("MathJax.js?config=TeX-AMS-MML_HTMLorMML\"></script>\n");
+			append("/MathJax.js?config=TeX-AMS-MML_HTMLorMML\"></script>\n");
 			append("<script type=\"text/javascript\">\n");
+			append("MathJax.Ajax.config.root = \"" + WebappHelper.getMathJaxCdn() + "\";\n");
 			append("MathJax.Hub.Config({\n");	
 			append(" extensions: [\"jsMath2jax.js\"],\n");
 			append(" showProcessingMessages: false,\n");
