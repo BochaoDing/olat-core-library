@@ -132,6 +132,7 @@ import org.olat.repository.RepositoryManager;
 import org.olat.repository.controllers.EntryChangedEvent;
 import org.olat.repository.model.RepositoryEntrySecurity;
 import org.olat.repository.ui.RepositoryEntryLifeCycleChangeController;
+import org.olat.repository.ui.RepositoryEntryLifeCycleChangeControllerFactory;
 import org.olat.repository.ui.RepositoryEntryRuntimeController;
 import org.olat.resource.OLATResource;
 import org.olat.search.SearchServiceUIFactory;
@@ -140,6 +141,7 @@ import org.olat.search.service.QuickSearchEvent;
 import org.olat.search.ui.SearchInputController;
 import org.olat.util.logging.activity.LoggingResourceable;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 
 /**
  * 
@@ -207,6 +209,8 @@ public class CourseRuntimeController extends RepositoryEntryRuntimeController im
 	private AssessmentModule assessmentModule;
 	@Autowired
 	private CourseDBManager courseDBManager;
+	@Autowired
+	private ApplicationContext applicationContext;
 	
 	public CourseRuntimeController(UserRequest ureq, WindowControl wControl,
 			RepositoryEntry re, RepositoryEntrySecurity reSecurity, RuntimeControllerCreator runtimeControllerCreator,
@@ -1251,8 +1255,14 @@ public class CourseRuntimeController extends RepositoryEntryRuntimeController im
 		}
 		if (lastCrumb == null || lastCrumb.getController() != lifeCycleChangeCtr) {
 			// only create and add to stack if not already there
-			lifeCycleChangeCtr = new RepositoryEntryLifeCycleChangeController(ureq, getWindowControl(),
-					getRepositoryEntry(), reSecurity, handler, getTranslator());
+			RepositoryEntryLifeCycleChangeControllerFactory repositoryEntryLifeCycleChangeControllerFactory =
+					(RepositoryEntryLifeCycleChangeControllerFactory) applicationContext.getBean(
+							"repositoryEntryLifeCycleChangeControllerFactory",
+							ureq,
+							getWindowControl(),
+							reSecurity,
+							handler);
+			lifeCycleChangeCtr = repositoryEntryLifeCycleChangeControllerFactory.create(re);
 			listenTo(lifeCycleChangeCtr);
 			currentToolCtr = lifeCycleChangeCtr;
 			toolbarPanel.pushController(translate("details.lifecycle.change"), lifeCycleChangeCtr);
