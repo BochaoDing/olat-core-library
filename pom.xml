@@ -1358,6 +1358,12 @@
 						<test.env.db.host.port>
 							${test.env.db.host.port}
 						</test.env.db.host.port>
+						<docker.container.mysql-server.ip>
+							${docker.container.mysql-server.ip}
+						</docker.container.mysql-server.ip>
+						<host.port>
+							${host.port}
+						</host.port>
 					</systemPropertyVariables>
 					<testNGArtifactName>none:none</testNGArtifactName>
 					<includes>
