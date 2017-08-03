@@ -24,6 +24,8 @@ import java.util.Collections;
 import java.util.List;
 
 import org.olat.basesecurity.GroupRoles;
+import org.olat.core.commons.persistence.DB;
+import org.olat.core.commons.services.mark.MarkManager;
 import org.olat.core.gui.UserRequest;
 import org.olat.core.gui.components.Component;
 import org.olat.core.gui.components.form.flexible.FormItem;
@@ -46,12 +48,13 @@ import org.olat.core.gui.control.generic.closablewrapper.CloseableModalControlle
 import org.olat.core.id.Identity;
 import org.olat.core.id.Roles;
 import org.olat.course.CourseModule;
-import org.olat.repository.RepositoryEntry;
-import org.olat.repository.RepositoryEntryManagedFlag;
+import org.olat.repository.*;
 import org.olat.repository.handlers.RepositoryHandler;
+import org.olat.repository.handlers.RepositoryHandlerFactory;
 import org.olat.repository.model.SearchAuthorRepositoryEntryViewParams;
 import org.olat.repository.model.SearchAuthorRepositoryEntryViewParams.OrderBy;
 import org.olat.repository.ui.author.AuthoringEntryDataModel.Cols;
+import org.olat.user.UserManager;
 
 /**
  * 
@@ -68,9 +71,31 @@ public class AuthorDeletedListController extends AuthorListController {
 	private ConfirmRestoreController confirmRestoreCtrl;
 	private ConfirmDeletePermanentlyController confirmDeletePermanentlyCtrl;
 	
-	public AuthorDeletedListController(UserRequest ureq, WindowControl wControl, String i18nName,
-			SearchAuthorRepositoryEntryViewParams searchParams, boolean withSearch) {
-		super(ureq, wControl, i18nName, searchParams, withSearch);
+	public AuthorDeletedListController(UserRequest ureq,
+									   WindowControl wControl,
+									   String i18nName,
+									   SearchAuthorRepositoryEntryViewParams searchParams,
+									   boolean withSearch,
+									   DB dbInstance,
+									   UserManager userManager,
+									   MarkManager markManager,
+									   RepositoryModule repositoryModule,
+									   RepositoryService repositoryService,
+									   RepositoryManager repositoryManager,
+									   RepositoryHandlerFactory repositoryHandlerFactory) {
+		super(
+				ureq,
+				wControl,
+				i18nName,
+				searchParams,
+				withSearch,
+				dbInstance,
+				userManager,
+				markManager,
+				repositoryModule,
+				repositoryService,
+				repositoryManager,
+				repositoryHandlerFactory);
 	}
 
 	@Override
