@@ -675,7 +675,7 @@
 								</goals>
 								<configuration>
 									<portNames>
-										<portName>mysql-server.localhost.port</portName>
+										<portName>test.env.db.host.port</portName>
 									</portNames>
 								</configuration>
 							</execution>
@@ -745,7 +745,7 @@
 										</exposedPropertyKey>
 										<ports>
 											<port>
-												127.0.0.1:${mysql-server.localhost.port}:3306
+												127.0.0.1:${test.env.db.host.port}:3306
 											</port>
 										</ports>
 										<links>
