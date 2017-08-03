@@ -45,10 +45,10 @@ public class ImageUtils {
 	private static final OLog log = Tracing.createLoggerFor(ImageUtils.class);
 
 
-	public static Size getImageSize(URL image) {
+	public static Size getImageSize(URL imageUrl) {
 		try {
-			String suffix = FileUtils.getFileSuffix(image.getFile());
-			InputStream in = image.openStream();
+			String suffix = FileUtils.getFileSuffix(imageUrl.getFile());
+			InputStream in = imageUrl.openStream();
 			return getImageSize(suffix, in);
 		} catch (IOException e) {
 			log.error("", e);

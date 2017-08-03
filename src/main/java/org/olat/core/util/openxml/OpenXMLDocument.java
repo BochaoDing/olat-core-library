@@ -88,7 +88,7 @@ public class OpenXMLDocument {
 	private int currentNumberingId = 0;
 	private String documentHeader;
 	private Set<String> imageFilenames = new HashSet<>();
-	private Map<URL, DocReference> fileToImagesMap = new HashMap<URL, DocReference>();
+	private Map<URL, DocReference> urlToImagesMap = new HashMap<URL, DocReference>();
 
 	private List<Node> cursorStack = new ArrayList<>();
 	private List<ListParagraph> numbering = new ArrayList<>();
@@ -132,7 +132,7 @@ public class OpenXMLDocument {
 	}
 
 	public Collection<DocReference> getImages() {
-		return fileToImagesMap.values();
+		return urlToImagesMap.values();
 	}
 
 	public Collection<HeaderReference> getHeaders() {
@@ -685,8 +685,7 @@ public class OpenXMLDocument {
 				name = checked ? "image1_noborder.png" : "image2_noborder.png";
 			}
 			URL imgUrl = OpenXMLDocument.class.getResource("_resources/" + name);
-			URL imgFile = imgUrl;
-			return createImageEl(imgFile);
+			return createImageEl(imgUrl);
 	}
 
 	public Element createBreakEl() {
@@ -992,8 +991,8 @@ public class OpenXMLDocument {
 		return mathEls;
 	}
 
-	public void appendImage(URL file) {
-		Element imgEl = createImageEl(file);
+	public void appendImage(URL url) {
+		Element imgEl = createImageEl(url);
 		if(imgEl != null) {
 			Element runEl = createRunEl(Collections.singletonList(imgEl));
 			Element paragraphEl = getParagraphToAppendTo(true);
@@ -1072,11 +1071,11 @@ public class OpenXMLDocument {
  */
 	/**
 	 * <a:blip r:embed="rId6">
-	 * @param image
+	 * @param imageUrl
 	 * @return
 	 */
-	public Element createImageEl(URL image) {
-		DocReference ref = registerImage(image);
+	public Element createImageEl(URL imageUrl) {
+		DocReference ref = registerImage(imageUrl);
 		String id = ref.getId();
 		OpenXMLSize emuSize = ref.getEmuSize();
 		String filename = ref.getFilename();
@@ -1168,17 +1167,17 @@ public class OpenXMLDocument {
 		return drawingEl;
 	}
 
-	private DocReference registerImage(URL image) {
+	private DocReference registerImage(URL url) {
 		DocReference ref;
-		if(fileToImagesMap.containsKey(image)) {
-			ref = fileToImagesMap.get(image);
+		if(urlToImagesMap.containsKey(url)) {
+			ref = urlToImagesMap.get(url);
 		} else {
 			String id = generateId();
-			Size size = ImageUtils.getImageSize(image);
+			Size size = ImageUtils.getImageSize(url);
 			OpenXMLSize emuSize = OpenXMLUtils.convertPixelToEMUs(size, DPI, 15.9/* cm */);
-			String filename = getUniqueFilename(image);
-			ref = new DocReference(id, filename, emuSize, image);
-			fileToImagesMap.put(image, ref);
+			String filename = getUniqueFilename(url);
+			ref = new DocReference(id, filename, emuSize, url);
+			urlToImagesMap.put(url, ref);
 		}
 		return ref;
 	}
@@ -1288,8 +1287,8 @@ public class OpenXMLDocument {
         </wp:anchor>
     </w:drawing>
     */
-	public Element createGraphicEl(URL backgroundImage, List<OpenXMLGraphic> elements) {
-		DocReference backgroundImageRef = registerImage(backgroundImage);
+	public Element createGraphicEl(URL backgroundImageUrl, List<OpenXMLGraphic> elements) {
+		DocReference backgroundImageRef = registerImage(backgroundImageUrl);
 		OpenXMLSize emuSize = backgroundImageRef.getEmuSize();
 
 		Element alternateContentEl = document.createElement("mc:AlternateContent");
@@ -1620,8 +1619,8 @@ public class OpenXMLDocument {
 		chExtEl.setAttribute("cy", cy);
 	}
 
-	private String getUniqueFilename(URL image) {
-		String filename = image.getFile();
+	private String getUniqueFilename(URL imageUrl) {
+		String filename = imageUrl.getFile();
 		int extensionIndex = filename.lastIndexOf('.');
 		if(extensionIndex > 0) {
 			String name = filename.substring(0, extensionIndex);

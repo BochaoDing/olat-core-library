@@ -31,6 +31,8 @@ import java.util.Set;
 
 import org.olat.core.id.Identity;
 import org.olat.core.id.UserConstants;
+import org.olat.core.logging.OLog;
+import org.olat.core.logging.Tracing;
 import org.olat.core.util.Formatter;
 import org.olat.core.util.StringHelper;
 import org.olat.core.util.nodes.INode;
@@ -51,6 +53,8 @@ import org.olat.modules.fo.archiver.MessageNode;
  *
  */
 public class ForumOpenXMLFormatter extends ForumFormatter {
+
+	private final static OLog LOG = Tracing.createLoggerFor(ForumOpenXMLFormatter.class);
 
 	private final VFSItemMetaFilter filter = new VFSItemMetaFilter();
 
@@ -184,7 +188,7 @@ public class ForumOpenXMLFormatter extends ForumFormatter {
 						try {
 							document.appendImage(file.toURI().toURL());
 						} catch (MalformedURLException e) {
-							assert false : e;
+							LOG.error(e.getMessage());
 						}
 
 						attach = false;
@@ -197,7 +201,7 @@ public class ForumOpenXMLFormatter extends ForumFormatter {
 					try {
 						fileToAttachmentsMap.put(file, new DocReference("", uniqueFilename, null, file.toURI().toURL()));
 					} catch (MalformedURLException e) {
-						assert false : e;
+						LOG.error(e.getMessage());
 					}
 					attachSb.append(filename).append(": /attachments/").append(uniqueFilename);
 					document.appendText(attachSb.toString(), true);

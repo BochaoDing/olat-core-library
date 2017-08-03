@@ -336,8 +336,8 @@ public class HTMLToOpenXMLHandler extends DefaultHandler {
 		}
 	}
 
-	protected void setImage(URL file) {
-		Element imgEl = factory.createImageEl(file);
+	protected void setImage(URL url) {
+		Element imgEl = factory.createImageEl(url);
 		if(imgEl != null) {
 			PredefinedStyle style = getCurrentPredefinedStyle();
 			Element runEl = factory.createRunEl(Collections.singletonList(imgEl), style);
@@ -346,9 +346,9 @@ public class HTMLToOpenXMLHandler extends DefaultHandler {
 		}
 	}
 
-	protected void startGraphic(URL backgroundImage, List<OpenXMLGraphic> elements) {
+	protected void startGraphic(URL backgroundImageUrl, List<OpenXMLGraphic> elements) {
 		Element paragrapheEl = getCurrentParagraph(true);
-		Element graphicEl = factory.createGraphicEl(backgroundImage, elements);
+		Element graphicEl = factory.createGraphicEl(backgroundImageUrl, elements);
 		Element runEl = factory.createRunEl();
 		runEl.appendChild(graphicEl);
 		paragrapheEl.appendChild(runEl);

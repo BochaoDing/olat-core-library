@@ -660,9 +660,8 @@ public class QTI21WordExport implements MediaResource {
 						}
 					}
 
-					//TODO: toURL() is deprecated... in case of activation of qti21
 					try {
-						startGraphic(backgroundImg.toURL(), elements);
+						startGraphic(backgroundImg.toURI().toURL(), elements);
 					} catch (MalformedURLException e) {
 						log.error("", e);
 					}
@@ -841,11 +840,10 @@ public class QTI21WordExport implements MediaResource {
 			checkboxCell.appendChild(wrapEl);
 		}
 
-		//TODO: toURL() is deprecated... in case of activation of qti21
 		private void setObject(Object object) {
 			if(object != null && StringHelper.containsNonWhitespace(object.getData())) {
 				try {
-					setImage(new File(itemFile.getParentFile(), object.getData()).toURL());
+					setImage(new File(itemFile.getParentFile(), object.getData()).toURI().toURL());
 				} catch (MalformedURLException e) {
 					log.error("", e);
 				}
