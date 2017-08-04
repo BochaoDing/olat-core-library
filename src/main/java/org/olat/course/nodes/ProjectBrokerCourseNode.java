@@ -103,6 +103,7 @@ import org.olat.course.properties.CoursePropertyManager;
 import org.olat.course.properties.PersistingCoursePropertyManager;
 import org.olat.course.run.environment.CourseEnvironment;
 import org.olat.course.run.navigation.NodeRunConstructionResult;
+import org.olat.course.run.scoring.AssessmentEvaluation;
 import org.olat.course.run.scoring.ScoreEvaluation;
 import org.olat.course.run.userview.NodeEvaluation;
 import org.olat.course.run.userview.UserCourseEnvironment;
@@ -110,6 +111,8 @@ import org.olat.group.BusinessGroup;
 import org.olat.group.BusinessGroupService;
 import org.olat.group.model.BusinessGroupReference;
 import org.olat.modules.ModuleConfiguration;
+import org.olat.modules.assessment.AssessmentEntry;
+import org.olat.modules.assessment.AssessmentToolOptions;
 import org.olat.properties.Property;
 import org.olat.repository.RepositoryEntry;
 import org.olat.resource.OLATResource;
@@ -121,7 +124,7 @@ import com.thoughtworks.xstream.XStream;
  *   @author Christian Guretzki
  */
 
-public class ProjectBrokerCourseNode extends GenericCourseNode implements AssessableCourseNode {
+public class ProjectBrokerCourseNode extends GenericCourseNode implements PersistentAssessableCourseNode {
 
 	private static final long serialVersionUID = -8177448874150049173L;
 	private static final OLog log = Tracing.createLoggerFor(ProjectBrokerCourseNode.class);
@@ -462,29 +465,33 @@ public class ProjectBrokerCourseNode extends GenericCourseNode implements Assess
 		condition.setConditionId("projectbroker");
 		this.conditionProjectBroker = condition;
 	}
+
+	@Override
+	public AssessmentEvaluation getUserScoreEvaluation(UserCourseEnvironment userCourseEnv) {
+		return getUserScoreEvaluation(getUserAssessmentEntry(userCourseEnv));
+	}
+
+	@Override
+	public AssessmentEvaluation getUserScoreEvaluation(AssessmentEntry entry) {
+		return AssessmentEvaluation.toAssessmentEvalutation(entry, this);
+	}
+
+	@Override
+	public AssessmentEntry getUserAssessmentEntry(UserCourseEnvironment userCourseEnv) {
+		AssessmentManager am = userCourseEnv.getCourseEnvironment().getAssessmentManager();
+		Identity mySelf = userCourseEnv.getIdentityEnvironment().getIdentity();
+		return am.getAssessmentEntry(this, mySelf);
+	}
 	
-	// //////////// assessable interface implementation
-
-	/**
-	 * @see org.olat.course.nodes.AssessableCourseNode#getUserScoreEvaluation(org.olat.course.run.userview.UserCourseEnvironment)
-	 */
-	public ScoreEvaluation getUserScoreEvaluation(UserCourseEnvironment userCourseEnvironment) {
-		// read score from properties
-		AssessmentManager am = userCourseEnvironment.getCourseEnvironment().getAssessmentManager();
-		Identity mySelf = userCourseEnvironment.getIdentityEnvironment().getIdentity();
-		Boolean passed = null;
-		Float score = null;
-		// only db lookup if configured, else return null
-		if (hasPassedConfigured()) passed = am.getNodePassed(this, mySelf);
-		if (hasScoreConfigured()) score = am.getNodeScore(this, mySelf);
-
-		ScoreEvaluation se = new ScoreEvaluation(score, passed);
-		return se;
+	@Override
+	public boolean isAssessedBusinessGroups() {
+		return false;
 	}
 
 	/**
 	 * @see org.olat.course.nodes.AssessableCourseNode#hasCommentConfigured()
 	 */
+	@Override
 	public boolean hasCommentConfigured() {
 		return false;
 	}
@@ -492,6 +499,7 @@ public class ProjectBrokerCourseNode extends GenericCourseNode implements Assess
 	/**
 	 * @see org.olat.course.nodes.AssessableCourseNode#hasPassedConfigured()
 	 */
+	@Override
 	public boolean hasPassedConfigured() {
 		return false;
 	}
@@ -499,6 +507,7 @@ public class ProjectBrokerCourseNode extends GenericCourseNode implements Assess
 	/**
 	 * @see org.olat.course.nodes.AssessableCourseNode#hasScoreConfigured()
 	 */
+	@Override
 	public boolean hasScoreConfigured() {
 		return false;
 	}
@@ -506,6 +515,7 @@ public class ProjectBrokerCourseNode extends GenericCourseNode implements Assess
 	/**
 	 * @see org.olat.course.nodes.AssessableCourseNode#hasStatusConfigured()
 	 */
+	@Override
 	public boolean hasStatusConfigured() {
 		return false; // Project broker Course node has no status-field
 	}
@@ -513,6 +523,7 @@ public class ProjectBrokerCourseNode extends GenericCourseNode implements Assess
 	/**
 	 * @see org.olat.course.nodes.AssessableCourseNode#getMaxScoreConfiguration()
 	 */
+	@Override
 	public Float getMaxScoreConfiguration() {
 		if (!hasScoreConfigured()) { throw new OLATRuntimeException(ProjectBrokerCourseNode.class, "getMaxScore not defined when hasScore set to false", null); }
 		ModuleConfiguration config = getModuleConfiguration();
@@ -523,6 +534,7 @@ public class ProjectBrokerCourseNode extends GenericCourseNode implements Assess
 	/**
 	 * @see org.olat.course.nodes.AssessableCourseNode#getMinScoreConfiguration()
 	 */
+	@Override
 	public Float getMinScoreConfiguration() {
 		if (!hasScoreConfigured()) { throw new OLATRuntimeException(ProjectBrokerCourseNode.class, "getMinScore not defined when hasScore set to false", null); }
 		ModuleConfiguration config = getModuleConfiguration();
@@ -533,6 +545,7 @@ public class ProjectBrokerCourseNode extends GenericCourseNode implements Assess
 	/**
 	 * @see org.olat.course.nodes.AssessableCourseNode#getCutValueConfiguration()
 	 */
+	@Override
 	public Float getCutValueConfiguration() {
 		if (!hasPassedConfigured()) { throw new OLATRuntimeException(ProjectBrokerCourseNode.class, "getCutValue not defined when hasPassed set to false", null); }
 		ModuleConfiguration config = getModuleConfiguration();
@@ -543,6 +556,7 @@ public class ProjectBrokerCourseNode extends GenericCourseNode implements Assess
 	/**
 	 * @see org.olat.course.nodes.AssessableCourseNode#getUserCoachComment(org.olat.course.run.userview.UserCourseEnvironment)
 	 */
+	@Override
 	public String getUserCoachComment(UserCourseEnvironment userCourseEnvironment) {
 		AssessmentManager am = userCourseEnvironment.getCourseEnvironment().getAssessmentManager();
 		String coachCommentValue = am.getNodeCoachComment(this, userCourseEnvironment.getIdentityEnvironment().getIdentity());
@@ -552,6 +566,7 @@ public class ProjectBrokerCourseNode extends GenericCourseNode implements Assess
 	/**
 	 * @see org.olat.course.nodes.AssessableCourseNode#getUserUserComment(org.olat.course.run.userview.UserCourseEnvironment)
 	 */
+	@Override
 	public String getUserUserComment(UserCourseEnvironment userCourseEnvironment) {
 		AssessmentManager am = userCourseEnvironment.getCourseEnvironment().getAssessmentManager();
 		String userCommentValue = am.getNodeComment(this, userCourseEnvironment.getIdentityEnvironment().getIdentity());
@@ -561,6 +576,7 @@ public class ProjectBrokerCourseNode extends GenericCourseNode implements Assess
 	/**
 	 * @see org.olat.course.nodes.AssessableCourseNode#getUserLog(org.olat.course.run.userview.UserCourseEnvironment)
 	 */
+	@Override
 	public String getUserLog(UserCourseEnvironment userCourseEnvironment) {
 		UserNodeAuditManager am = userCourseEnvironment.getCourseEnvironment().getAuditManager();
 		String logValue = am.getUserNodeLog(this, userCourseEnvironment.getIdentityEnvironment().getIdentity());
@@ -570,6 +586,7 @@ public class ProjectBrokerCourseNode extends GenericCourseNode implements Assess
 	/**
 	 * @see org.olat.course.nodes.AssessableCourseNode#isEditableConfigured()
 	 */
+	@Override
 	public boolean isEditableConfigured() {
 		// always true when assessable
 		return false;
@@ -579,6 +596,7 @@ public class ProjectBrokerCourseNode extends GenericCourseNode implements Assess
 	 * @see org.olat.course.nodes.AssessableCourseNode#updateUserCoachComment(java.lang.String,
 	 *      org.olat.course.run.userview.UserCourseEnvironment)
 	 */
+	@Override
 	public void updateUserCoachComment(String coachComment, UserCourseEnvironment userCourseEnvironment) {
 		AssessmentManager am = userCourseEnvironment.getCourseEnvironment().getAssessmentManager();
 		Identity mySelf = userCourseEnvironment.getIdentityEnvironment().getIdentity();
@@ -592,11 +610,12 @@ public class ProjectBrokerCourseNode extends GenericCourseNode implements Assess
 	 *      org.olat.course.run.userview.UserCourseEnvironment,
 	 *      org.olat.core.id.Identity)
 	 */
+	@Override
 	public void updateUserScoreEvaluation(ScoreEvaluation scoreEvaluation, UserCourseEnvironment userCourseEnvironment,
 			Identity coachingIdentity, boolean incrementAttempts) {
 		AssessmentManager am = userCourseEnvironment.getCourseEnvironment().getAssessmentManager();
 		Identity mySelf = userCourseEnvironment.getIdentityEnvironment().getIdentity();
-		am.saveScoreEvaluation(this, coachingIdentity, mySelf, new ScoreEvaluation(scoreEvaluation.getScore(), scoreEvaluation.getPassed()), userCourseEnvironment, incrementAttempts);		
+		am.saveScoreEvaluation(this, coachingIdentity, mySelf, new ScoreEvaluation(scoreEvaluation), userCourseEnvironment, incrementAttempts);		
 	}
 
 	/**
@@ -604,6 +623,7 @@ public class ProjectBrokerCourseNode extends GenericCourseNode implements Assess
 	 *      org.olat.course.run.userview.UserCourseEnvironment,
 	 *      org.olat.core.id.Identity)
 	 */
+	@Override
 	public void updateUserUserComment(String userComment, UserCourseEnvironment userCourseEnvironment, Identity coachingIdentity) {
 		AssessmentManager am = userCourseEnvironment.getCourseEnvironment().getAssessmentManager();
 		Identity mySelf = userCourseEnvironment.getIdentityEnvironment().getIdentity();
@@ -615,6 +635,7 @@ public class ProjectBrokerCourseNode extends GenericCourseNode implements Assess
 	/**
 	 * @see org.olat.course.nodes.AssessableCourseNode#getUserAttempts(org.olat.course.run.userview.UserCourseEnvironment)
 	 */
+	@Override
 	public Integer getUserAttempts(UserCourseEnvironment userCourseEnvironment) {
 		AssessmentManager am = userCourseEnvironment.getCourseEnvironment().getAssessmentManager();
 		Identity mySelf = userCourseEnvironment.getIdentityEnvironment().getIdentity();
@@ -626,6 +647,7 @@ public class ProjectBrokerCourseNode extends GenericCourseNode implements Assess
 	/**
 	 * @see org.olat.course.nodes.AssessableCourseNode#hasAttemptsConfigured()
 	 */
+	@Override
 	public boolean hasAttemptsConfigured() {
 		return false;
 	}
@@ -635,6 +657,7 @@ public class ProjectBrokerCourseNode extends GenericCourseNode implements Assess
 	 *      org.olat.course.run.userview.UserCourseEnvironment,
 	 *      org.olat.core.id.Identity)
 	 */
+	@Override
 	public void updateUserAttempts(Integer userAttempts, UserCourseEnvironment userCourseEnvironment, Identity coachingIdentity) {
 		if (userAttempts != null) {
 			AssessmentManager am = userCourseEnvironment.getCourseEnvironment().getAssessmentManager();
@@ -646,6 +669,7 @@ public class ProjectBrokerCourseNode extends GenericCourseNode implements Assess
 	/**
 	 * @see org.olat.course.nodes.AssessableCourseNode#incrementUserAttempts(org.olat.course.run.userview.UserCourseEnvironment)
 	 */
+	@Override
 	public void incrementUserAttempts(UserCourseEnvironment userCourseEnvironment) {
 		AssessmentManager am = userCourseEnvironment.getCourseEnvironment().getAssessmentManager();
 		Identity mySelf = userCourseEnvironment.getIdentityEnvironment().getIdentity();
@@ -657,7 +681,9 @@ public class ProjectBrokerCourseNode extends GenericCourseNode implements Assess
 	 *      org.olat.core.gui.control.WindowControl,
 	 *      org.olat.course.run.userview.UserCourseEnvironment)
 	 */
-	public Controller getDetailsEditController(UserRequest ureq, WindowControl wControl, BreadcrumbPanel stackPanel, UserCourseEnvironment userCourseEnvironment) {
+	@Override
+	public Controller getDetailsEditController(UserRequest ureq, WindowControl wControl, BreadcrumbPanel stackPanel,
+			UserCourseEnvironment coachCourseEnv, UserCourseEnvironment assessedUserCourseEnv) {
 		// prepare file component
 		throw new AssertException("ProjectBroker does not support AssessmentTool");
 	}
@@ -665,15 +691,19 @@ public class ProjectBrokerCourseNode extends GenericCourseNode implements Assess
 	/** Factory method to launch course element assessment tools. limitToGroup is optional to skip he the group choose step */
 	@Override
 	public List<Controller> createAssessmentTools(UserRequest ureq, WindowControl wControl, TooledStackedPanel stackPanel,
-			CourseEnvironment courseEnv, AssessmentToolOptions options) {
+			UserCourseEnvironment coachCourseEnv, AssessmentToolOptions options) {
 		List<Controller> tools = new ArrayList<>(1);
-		tools.add(new BulkAssessmentToolController(ureq, wControl, courseEnv, this));
+		if(!coachCourseEnv.isCourseReadOnly()) {
+			CourseEnvironment courseEnv = coachCourseEnv.getCourseEnvironment();
+			tools.add(new BulkAssessmentToolController(ureq, wControl, courseEnv, this));
+		}
 		return tools;
 	}
 
 	/**
 	 * @see org.olat.course.nodes.AssessableCourseNode#getDetailsListView(org.olat.course.run.userview.UserCourseEnvironment)
 	 */
+	@Override
 	public String getDetailsListView(UserCourseEnvironment userCourseEnvironment) {
 		Identity identity = userCourseEnvironment.getIdentityEnvironment().getIdentity();
 		CoursePropertyManager propMgr = userCourseEnvironment.getCourseEnvironment().getCoursePropertyManager();

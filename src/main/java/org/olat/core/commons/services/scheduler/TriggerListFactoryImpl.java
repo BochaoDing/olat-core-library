@@ -11,6 +11,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
+ * This factory creates the list of triggers to be considered by the Quartz scheduler.
+ * If a new trigger is created, it has to be added to this class.
+ *
  * @author Martin Schraner
  */
 @Component("triggerListFactoryImpl")
@@ -24,6 +27,7 @@ public class TriggerListFactoryImpl implements TriggerListFactory {
 	private final CronTriggerBean epDeadlineTrigger;
 	private final CronTriggerBean restTokenTrigger;
 	private final CronTriggerBean taskExecutorTrigger;
+	private final CronTriggerBean procSamplerTrigger;
 	private final CronTriggerBean systemSamplerTrigger;
 	private final CronTriggerBean updateQtiResultsTriggerOnyx;
 	private final SimpleTriggerBean acReservationCleanupJob;
@@ -31,6 +35,7 @@ public class TriggerListFactoryImpl implements TriggerListFactory {
 	private final CronTriggerBean assessmentNotificationsTrigger;
 	private final CronTriggerBean reminderTrigger;
 	private final CronTriggerBean videoTranscodingTrigger;
+	private final CronTriggerBean automaticLifecycleTrigger;
 	private final CronTriggerBean courseCleanupTrigger;
 
 	@Autowired
@@ -42,6 +47,7 @@ public class TriggerListFactoryImpl implements TriggerListFactory {
 								  @Qualifier("epDeadlineTrigger") CronTriggerBean epDeadlineTrigger,
 								  @Qualifier("restTokenTrigger") CronTriggerBean restTokenTrigger,
 								  @Qualifier("taskExecutorTrigger") CronTriggerBean taskExecutorTrigger,
+								  @Qualifier("procSamplerTrigger") CronTriggerBean procSamplerTrigger,
 								  @Qualifier("systemSamplerTrigger") CronTriggerBean systemSamplerTrigger,
 								  @Qualifier("updateQtiResultsTriggerOnyx") CronTriggerBean updateQtiResultsTriggerOnyx,
 								  @Qualifier("acReservationCleanupJob") SimpleTriggerBean acReservationCleanupJob,
@@ -49,6 +55,7 @@ public class TriggerListFactoryImpl implements TriggerListFactory {
 								  @Qualifier("assessmentNotificationsTrigger") CronTriggerBean assessmentNotificationsTrigger,
 								  @Qualifier("reminderTrigger") CronTriggerBean reminderTrigger,
 								  @Qualifier("videoTranscodingTrigger") CronTriggerBean videoTranscodingTrigger,
+								  @Qualifier("automaticLifecycleTrigger") CronTriggerBean automaticLifecycleTrigger,
 								  @Qualifier("courseCleanupTrigger") CronTriggerBean courseCleanupTrigger) {
 		this.notificationsEmailTrigger = notificationsEmailTrigger;
 		this.adobeCleanupJob = adobeCleanupJob;
@@ -58,6 +65,7 @@ public class TriggerListFactoryImpl implements TriggerListFactory {
 		this.epDeadlineTrigger = epDeadlineTrigger;
 		this.restTokenTrigger = restTokenTrigger;
 		this.taskExecutorTrigger = taskExecutorTrigger;
+		this.procSamplerTrigger = procSamplerTrigger;
 		this.systemSamplerTrigger = systemSamplerTrigger;
 		this.updateQtiResultsTriggerOnyx = updateQtiResultsTriggerOnyx;
 		this.acReservationCleanupJob = acReservationCleanupJob;
@@ -65,6 +73,7 @@ public class TriggerListFactoryImpl implements TriggerListFactory {
 		this.assessmentNotificationsTrigger = assessmentNotificationsTrigger;
 		this.reminderTrigger = reminderTrigger;
 		this.videoTranscodingTrigger = videoTranscodingTrigger;
+		this.automaticLifecycleTrigger = automaticLifecycleTrigger;
 		this.courseCleanupTrigger = courseCleanupTrigger;
 	}
 
@@ -80,6 +89,7 @@ public class TriggerListFactoryImpl implements TriggerListFactory {
 		triggerList.add(epDeadlineTrigger);
 		triggerList.add(restTokenTrigger);
 		triggerList.add(taskExecutorTrigger);
+		triggerList.add(procSamplerTrigger);
 		triggerList.add(systemSamplerTrigger);
 		triggerList.add(updateQtiResultsTriggerOnyx);
 		triggerList.add(acReservationCleanupJob);
@@ -88,6 +98,7 @@ public class TriggerListFactoryImpl implements TriggerListFactory {
 		triggerList.add(reminderTrigger);
 		triggerList.add(videoTranscodingTrigger);
 		triggerList.add(adobeCleanupJob);
+		triggerList.add(automaticLifecycleTrigger);
 		triggerList.add(courseCleanupTrigger);
 		return triggerList;
 	}

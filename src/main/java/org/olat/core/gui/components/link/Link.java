@@ -80,6 +80,7 @@ public class Link extends AbstractComponent {
 	private int presentation;
 	private int presentationBeforeCustomCSS;
 	private boolean primary;
+	private boolean focus;
 	private String i18n;
 	private String title;
 	private String elementId;
@@ -104,6 +105,7 @@ public class Link extends AbstractComponent {
 
 	private boolean hasTooltip;
 	private boolean suppressDirtyFormWarning = false;
+	private boolean forceFlexiDirtyFormWarning = false;
 
 	private Badge badge;
 	private LinkPopupSettings popup;
@@ -222,6 +224,24 @@ public class Link extends AbstractComponent {
 		primary = isPrimary;
 	}
 	
+	/**
+	 * Sets the focus in the DOM tree to this link element if possible. Note that only one
+	 * DOM element can have the focus, so this does not give any guarantee that the focus will
+	 * be on that element in call cases. 
+	 * 
+	 * @param focus true: element should have focus in DOM; false: no focused
+	 */
+	public void setFocus(boolean focus){
+		this.focus = focus;
+	}
+
+	/**
+	 * @return true: element should have focus in DOM; false: no focused
+	 */
+	public boolean isFocus(){
+		return focus;
+	}
+
 	public boolean isPopup() {
 		return popup != null;
 	}
@@ -479,6 +499,21 @@ public class Link extends AbstractComponent {
 		return suppressDirtyFormWarning;
 	}
 	
+	/**
+	 * @return true if a flexi link must do an extra check of the dirtiness of its form.
+	 */
+	public boolean isForceFlexiDirtyFormWarning() {
+		return forceFlexiDirtyFormWarning;
+	}
+
+	/**
+	 * 
+	 * @param forceFlexiDirtyFormWarning true if the flexi link need to check if the form is dirty.
+	 */
+	public void setForceFlexiDirtyFormWarning(boolean forceFlexiDirtyFormWarning) {
+		this.forceFlexiDirtyFormWarning = forceFlexiDirtyFormWarning;
+	}
+
 	/**
 	 * The custom display text or null if not set
 	 */

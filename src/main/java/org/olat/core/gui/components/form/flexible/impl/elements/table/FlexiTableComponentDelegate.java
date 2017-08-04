@@ -32,5 +32,6 @@ public interface FlexiTableComponentDelegate {
 
 	@Nullable
 	public Iterable<Component> getComponents(int row, Object rowObject);
+	
 
 }

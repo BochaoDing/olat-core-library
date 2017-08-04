@@ -19,9 +19,11 @@
  */
 package org.olat.core.commons.services.image;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URL;
 import java.util.Iterator;
 
 import javax.imageio.ImageIO;
@@ -35,27 +37,28 @@ import org.olat.core.logging.Tracing;
 import org.olat.core.util.FileUtils;
 
 /**
- * 
+ *
  * Initial date: 04.09.2013<br>
  * @author srosse, stephane.rosse@frentix.com, http://www.frentix.com
  *
  */
 public class ImageUtils {
-	
+
 	private static final OLog log = Tracing.createLoggerFor(ImageUtils.class);
-	
-	
-	public static Size getImageSize(URL image) {
+
+
+	public static Size getImageSize(File image) {
+		InputStream in = null;
 		try {
-			String suffix = FileUtils.getFileSuffix(image.getFile());
-			InputStream in = image.openStream();
+			String suffix = FileUtils.getFileSuffix(image.getName());
+			in = new FileInputStream(image);
 			return getImageSize(suffix, in);
-		} catch (IOException e) {
-			e.printStackTrace();
+		} catch (FileNotFoundException e) {
+			IOUtils.closeQuietly(in);
 			return null;
 		}
 	}
-	
+
 	public static Size getImageSize(String suffix, InputStream in) {
 		Size result = null;
 
@@ -65,7 +68,7 @@ public class ImageUtils {
 			try {
 				ImageInputStream stream = new MemoryCacheImageInputStream(in);
 				reader.setInput(stream);
-				
+
 				int imageIndex = reader.getMinIndex();
 				int width = reader.getWidth(imageIndex);
 				int height = reader.getHeight(imageIndex);

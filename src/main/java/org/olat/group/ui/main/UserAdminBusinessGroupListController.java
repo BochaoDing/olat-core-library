@@ -79,8 +79,8 @@ public class UserAdminBusinessGroupListController extends AbstractBusinessGroupL
 	protected FlexiTableColumnModel initColumnModel() {
 		FlexiTableColumnModel columnsModel = FlexiTableDataModelFactory.createFlexiTableColumnModel();
 		//group name
-		columnsModel.addFlexiColumnModel(new StaticFlexiColumnModel(BusinessGroupListFlexiTableModel.Cols.name.i18n(), BusinessGroupListFlexiTableModel.Cols.name.ordinal(), TABLE_ACTION_LAUNCH,
-				true, BusinessGroupListFlexiTableModel.Cols.name.name(), new StaticFlexiCellRenderer(TABLE_ACTION_LAUNCH, new BusinessGroupNameCellRenderer())));
+//		columnsModel.addFlexiColumnModel(new StaticFlexiColumnModel(BusinessGroupListFlexiTableModel.Cols.name.i18n(), BusinessGroupListFlexiTableModel.Cols.name.ordinal(), TABLE_ACTION_LAUNCH,
+//				true, BusinessGroupListFlexiTableModel.Cols.name.name(), new StaticFlexiCellRenderer(TABLE_ACTION_LAUNCH, new BusinessGroupNameCellRenderer())));
 		//id and reference
 		columnsModel.addFlexiColumnModel(new DefaultFlexiColumnModel(false, BusinessGroupListFlexiTableModel.Cols.key.i18n(), BusinessGroupListFlexiTableModel.Cols.key.ordinal(), true, BusinessGroupListFlexiTableModel.Cols.key.name()));
 		if(groupModule.isManagedBusinessGroups()) {
@@ -105,8 +105,8 @@ public class UserAdminBusinessGroupListController extends AbstractBusinessGroupL
 				true, BusinessGroupListFlexiTableModel.Cols.role.name(), FlexiColumnModel.ALIGNMENT_LEFT, new BGRoleCellRenderer(getLocale())));
 
 		//actions
-		columnsModel.addFlexiColumnModel(new StaticFlexiColumnModel(BusinessGroupListFlexiTableModel.Cols.allowLeave.i18n(), BusinessGroupListFlexiTableModel.Cols.allowLeave.ordinal(), TABLE_ACTION_LEAVE,
-				new BooleanCellRenderer(new StaticFlexiCellRenderer(translate("table.header.leave"), TABLE_ACTION_LEAVE), null)));
+//		columnsModel.addFlexiColumnModel(new StaticFlexiColumnModel(BusinessGroupListFlexiTableModel.Cols.allowLeave.i18n(), BusinessGroupListFlexiTableModel.Cols.allowLeave.ordinal(), TABLE_ACTION_LEAVE,
+//				new BooleanCellRenderer(new StaticFlexiCellRenderer(translate("table.header.leave"), TABLE_ACTION_LEAVE), null)));
 		return columnsModel;
 	}
 

@@ -69,7 +69,7 @@ public class OpenXMLUtils {
 
 	public static final int convertPixelToEMUs(int pixel, int dpi, double resizeRatio) {
 		double rezDpi = dpi * 1.0d;
-		return (int)(((pixel / rezDpi) * emusPerInch) / resizeRatio);
+		return (int)(((pixel / rezDpi) * emusPerInch) * resizeRatio);
 	}
 	
 	public static final OpenXMLSize convertPixelToEMUs2(Size img, int dpi) {
@@ -132,7 +132,7 @@ public class OpenXMLUtils {
 	
 	public static final XMLStreamWriter createStreamWriter(ZipOutputStream out) {
 		try {
-			return XMLOutputFactory.newInstance().createXMLStreamWriter(new ShieldOutputStream(out));
+			return XMLOutputFactory.newInstance().createXMLStreamWriter(new ShieldOutputStream(out), "UTF-8");
 		} catch (XMLStreamException | FactoryConfigurationError e) {
 			log.error("", e);
 			return null;

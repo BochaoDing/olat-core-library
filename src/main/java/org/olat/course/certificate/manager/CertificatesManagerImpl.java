@@ -54,13 +54,14 @@ import org.apache.velocity.runtime.RuntimeConstants;
 import org.olat.admin.user.imp.TransientIdentity;
 import org.olat.basesecurity.BaseSecurity;
 import org.olat.basesecurity.IdentityRef;
-import org.olat.core.commons.modules.bc.FolderConfig;
+import org.olat.core.commons.modules.bc.FolderModule;
 import org.olat.core.commons.modules.bc.vfs.OlatRootFolderImpl;
 import org.olat.core.commons.persistence.DB;
 import org.olat.core.commons.services.notifications.NotificationsManager;
 import org.olat.core.commons.services.notifications.PublisherData;
 import org.olat.core.commons.services.notifications.SubscriptionContext;
 import org.olat.core.gui.translator.Translator;
+import org.olat.core.helpers.Settings;
 import org.olat.core.id.Identity;
 import org.olat.core.id.Roles;
 import org.olat.core.id.UserConstants;
@@ -73,6 +74,7 @@ import org.olat.core.util.Util;
 import org.olat.core.util.WebappHelper;
 import org.olat.core.util.coordinate.CoordinatorManager;
 import org.olat.core.util.i18n.I18nManager;
+import org.olat.core.util.mail.ContactList;
 import org.olat.core.util.mail.MailBundle;
 import org.olat.core.util.mail.MailManager;
 import org.olat.core.util.mail.MailerResult;
@@ -91,6 +93,7 @@ import org.olat.course.certificate.CertificateLight;
 import org.olat.course.certificate.CertificateStatus;
 import org.olat.course.certificate.CertificateTemplate;
 import org.olat.course.certificate.CertificatesManager;
+import org.olat.course.certificate.CertificatesModule;
 import org.olat.course.certificate.EmailStatus;
 import org.olat.course.certificate.RecertificationTimeUnit;
 import org.olat.course.certificate.model.CertificateImpl;
@@ -157,6 +160,11 @@ public class CertificatesManagerImpl implements CertificatesManager, MessageList
 	private CoordinatorManager coordinatorManager;
 	@Autowired
 	private NotificationsManager notificationsManager;
+	@Autowired
+	private FolderModule folderModule;
+	@Autowired
+	private CertificatesModule certificatesModule;
+	
 
 	@Resource(name="certificateQueue")
 	private Queue jmsQueue;
@@ -192,9 +200,15 @@ public class CertificatesManagerImpl implements CertificatesManager, MessageList
 		//deploy script
 		try(InputStream inRasteriez = CertificatesManager.class.getResourceAsStream("rasterize.js")) {
 			Path rasterizePath = getRasterizePath();
-			Files.copy(inRasteriez, rasterizePath, StandardCopyOption.REPLACE_EXISTING);
+			Files.copy(inRasteriez, rasterizePath, StandardCopyOption.REPLACE_EXISTING);	
 		} catch(Exception e) {
-			log.error("", e);
+			log.error("Can not read rasterize.js library for PhantomJS PDF generation", e);
+		}
+		try(InputStream inQRCodeLib = CertificatesManager.class.getResourceAsStream("qrcode.min.js")) {
+			Path qrCodeLibPath = getQRCodeLibPath();
+			Files.copy(inQRCodeLib, qrCodeLibPath, StandardCopyOption.REPLACE_EXISTING);	
+		} catch(Exception e) {
+			log.error("Can not read qrcode.min.js for QR Code PDF generation", e);
 		}
 		
 		//start the queues
@@ -293,6 +307,16 @@ public class CertificatesManagerImpl implements CertificatesManager, MessageList
 	}
 
 	@Override
+	public List<OLATResource> getResourceWithCertificates() {
+		StringBuilder sb = new StringBuilder();
+		sb.append("select distinct resource from certificate cer")
+		  .append(" inner join cer.olatResource resource");
+		return dbInstance.getCurrentEntityManager()
+				.createQuery(sb.toString(), OLATResource.class)
+				.getResultList();
+	}
+
+	@Override
 	public VFSLeaf getCertificateLeaf(Certificate certificate) {
 		VFSContainer cerContainer = getCertificateRootContainer();
 		VFSItem cerItem = null;
@@ -314,6 +338,8 @@ public class CertificatesManagerImpl implements CertificatesManager, MessageList
 	public CertificateImpl getCertificateById(Long key) {
 		StringBuilder sb = new StringBuilder();
 		sb.append("select cer from certificate cer")
+		  .append(" inner join fetch cer.identity ident")
+		  .append(" inner join fetch ident.user identUser")
 		  .append(" where cer.key=:certificateKey");
 		List<CertificateImpl> certificates = dbInstance.getCurrentEntityManager()
 				.createQuery(sb.toString(), CertificateImpl.class)
@@ -349,16 +375,17 @@ public class CertificatesManagerImpl implements CertificatesManager, MessageList
 	@Override
 	public boolean hasCertificate(IdentityRef identity, Long resourceKey) {
 		StringBuilder sb = new StringBuilder();
-		sb.append("select count(cer) from certificate cer")
+		sb.append("select cer.key from certificate cer")
 		  .append(" where (cer.olatResource.key=:resourceKey or cer.archivedResourceKey=:resourceKey)")
 		  .append(" and cer.identity.key=:identityKey");
 		List<Number> certififcates = dbInstance.getCurrentEntityManager()
 				.createQuery(sb.toString(), Number.class)
 				.setParameter("resourceKey", resourceKey)
 				.setParameter("identityKey", identity.getKey())
+				.setFirstResult(0)
 				.setMaxResults(1)
 				.getResultList();
-		return certififcates.isEmpty() ? false : certififcates.get(0).intValue() > 0;
+		return certififcates != null && certififcates.size() > 0;
 	}
 
 	@Override
@@ -468,6 +495,17 @@ public class CertificatesManagerImpl implements CertificatesManager, MessageList
 		if(or) sb.append(" or ");
 		else sb.append(" ");
 		return true;
+	}
+	
+	@Override
+	public List<Certificate> getCertificates(OLATResource resource) {
+		StringBuilder sb = new StringBuilder();
+		sb.append("select cer from certificate cer")
+		  .append(" where cer.olatResource.key=:resourceKey");
+		return dbInstance.getCurrentEntityManager()
+				.createQuery(sb.toString(), Certificate.class)
+				.setParameter("resourceKey", resource.getKey())
+				.getResultList();
 	}
 
 	@Override
@@ -693,25 +731,29 @@ public class CertificatesManagerImpl implements CertificatesManager, MessageList
 		Identity identity = getPreviewIdentity();
 		
 		File certificateFile;
-		File dirFile = new File(WebappHelper.getTmpDir(), UUID.randomUUID().toString());	
+		File dirFile = new File(WebappHelper.getTmpDir(), UUID.randomUUID().toString());
+		StringBuilder sb = new StringBuilder();
+		sb.append(Settings.getServerContextPathURI()).append("/certificate/")
+		  .append(UUID.randomUUID()).append("/preview.pdf");
+		 String certUrl = sb.toString();
 		if(template == null) {
 			CertificatePDFFormWorker worker = new CertificatePDFFormWorker(identity, entry, 2.0f, true,
-					new Date(), new Date(), new Date(), locale, userManager, this);
+					new Date(), new Date(), new Date(), certUrl, locale, userManager, this);
 			certificateFile = worker.fill(null, dirFile, "Certificate.pdf");
 		} else if(template.getPath().toLowerCase().endsWith("pdf")) {
 			CertificatePDFFormWorker worker = new CertificatePDFFormWorker(identity, entry, 2.0f, true,
-					new Date(), new Date(), new Date(), locale, userManager, this);
+					new Date(), new Date(), new Date(), certUrl, locale, userManager, this);
 			certificateFile = worker.fill(template, dirFile, "Certificate.pdf");
 		} else {
 			CertificatePhantomWorker worker = new CertificatePhantomWorker(identity, entry, 2.0f, true,
-					new Date(), new Date(),new Date(),  locale, userManager, this);
+					new Date(), new Date(),new Date(),  certUrl, locale, userManager, this);
 			certificateFile = worker.fill(template, dirFile, "Certificate.pdf");
 		}
 		return certificateFile;
 	}
 	
 	private Identity getPreviewIdentity() {
-		Identity identity = new TransientIdentity();
+		TransientIdentity identity = new TransientIdentity();
 		identity.setName("username");
 		List<UserPropertyHandler> userPropertyHandlers = userManager.getAllUserPropertyHandlers();
 		for(UserPropertyHandler handler:userPropertyHandlers) {
@@ -751,6 +793,9 @@ public class CertificatesManagerImpl implements CertificatesManager, MessageList
 		certificate.setLast(true);
 		certificate.setCourseTitle(entry.getDisplayname());
 		certificate.setStatus(CertificateStatus.pending);
+		
+		Date nextCertification = getDateNextRecertification(certificate, entry);
+		certificate.setNextRecertificationDate(nextCertification);
 		
 		dbInstance.getCurrentEntityManager().persist(certificate);
 		dbInstance.commit();
@@ -833,18 +878,26 @@ public class CertificatesManagerImpl implements CertificatesManager, MessageList
 		Boolean passed = workUnit.getPassed();
 		Date dateCertification = certificate.getCreationDate();
 		Date dateFirstCertification = getDateFirstCertification(identity, resource.getKey());
-		Date dateNextRecertification = getDateNextRecertification(certificate, entry);
+		Date dateNextRecertification = certificate.getNextRecertificationDate();
 		
 		File certificateFile;
+		// File name with user name
 		StringBuilder sb = new StringBuilder();
 		sb.append(identity.getUser().getProperty(UserConstants.LASTNAME, locale)).append("_")
 		  .append(identity.getUser().getProperty(UserConstants.FIRSTNAME, locale)).append("_")
 		  .append(entry.getDisplayname()).append("_")
 		  .append(Formatter.formatShortDateFilesystem(dateCertification));
 		String filename = FileUtils.normalizeFilename(sb.toString()) + ".pdf";
+		// External URL to certificate as short as possible for QR-Code
+		sb = new StringBuilder();
+		sb.append(Settings.getServerContextPathURI()).append("/certificate/")
+		  .append(certificate.getUuid()).append("/certificate.pdf");
+		String certUrl = sb.toString();
+		
 		if(template == null || template.getPath().toLowerCase().endsWith("pdf")) {
 			CertificatePDFFormWorker worker = new CertificatePDFFormWorker(identity, entry, score, passed,
-					dateCertification, dateFirstCertification, dateNextRecertification, locale, userManager, this);
+					dateCertification, dateFirstCertification, dateNextRecertification, certUrl, locale,
+					userManager, this);
 			certificateFile = worker.fill(template, dirFile, filename);
 			if(certificateFile == null) {
 				certificate.setStatus(CertificateStatus.error);
@@ -853,7 +906,8 @@ public class CertificatesManagerImpl implements CertificatesManager, MessageList
 			}
 		} else {
 			CertificatePhantomWorker worker = new CertificatePhantomWorker(identity, entry, score, passed,
-					dateCertification, dateFirstCertification, dateNextRecertification, locale, userManager, this);
+					dateCertification, dateFirstCertification, dateNextRecertification, certUrl, locale,
+					userManager, this);
 			certificateFile = worker.fill(template, dirFile, filename);
 			if(certificateFile == null) {
 				certificate.setStatus(CertificateStatus.error);
@@ -885,6 +939,13 @@ public class CertificatesManagerImpl implements CertificatesManager, MessageList
 		bundle.setToId(to);
 		bundle.setFrom(WebappHelper.getMailConfig("mailReplyTo"));
 		
+		List<String> bccs = certificatesModule.getCertificatesBccEmails();
+		if(bccs.size() > 0) {
+			ContactList bcc = new ContactList();
+			bccs.forEach(email -> { bcc.add(email); });
+			bundle.setContactList(bcc);
+		}
+
 		String[] args = new String[] {
 			entry.getDisplayname(),
 			userManager.getUserDisplayName(to)
@@ -915,7 +976,7 @@ public class CertificatesManagerImpl implements CertificatesManager, MessageList
 	
 	private void removeLastFlag(Identity identity, Long resourceKey) {
 		StringBuilder sb = new StringBuilder();
-		sb.append("update certificate  cer set cer.last=false")
+		sb.append("update certificate cer set cer.last=false")
 		  .append(" where cer.olatResource.key=:resourceKey and cer.identity.key=:identityKey");
 		
 		dbInstance.getCurrentEntityManager().createQuery(sb.toString())
@@ -1076,7 +1137,7 @@ public class CertificatesManagerImpl implements CertificatesManager, MessageList
 	}
 	
 	public File getCertificateTemplatesRoot() {
-		Path path = Paths.get(FolderConfig.getCanonicalRoot(), "certificates", "templates");
+		Path path = Paths.get(folderModule.getCanonicalRoot(), "certificates", "templates");
 		File root = path.toFile();
 		if(!root.exists()) {
 			root.mkdirs();
@@ -1089,7 +1150,7 @@ public class CertificatesManagerImpl implements CertificatesManager, MessageList
 	}
 	
 	public File getCertificateRoot() {
-		Path path = Paths.get(FolderConfig.getCanonicalRoot(), "certificates", "users");
+		Path path = Paths.get(folderModule.getCanonicalRoot(), "certificates", "users");
 		File root = path.toFile();
 		if(!root.exists()) {
 			root.mkdirs();
@@ -1098,9 +1159,15 @@ public class CertificatesManagerImpl implements CertificatesManager, MessageList
 	}
 	
 	public Path getRasterizePath() {
-		Path path = Paths.get(FolderConfig.getCanonicalRoot(), "certificates", "rasterize.js");
+		Path path = Paths.get(folderModule.getCanonicalRoot(), "certificates", "rasterize.js");
 		return path;
 	}
+	
+	public Path getQRCodeLibPath() {
+		Path path = Paths.get(folderModule.getCanonicalRoot(), "certificates", "qrcode.min.js");
+		return path;
+	}
+	
 	
 	public VFSContainer getCertificateRootContainer() {
 		return new OlatRootFolderImpl(File.separator + "certificates" + File.separator + "users", null);

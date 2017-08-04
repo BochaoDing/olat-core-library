@@ -25,6 +25,7 @@ import org.olat.core.CoreSpringFactory;
 import org.olat.core.commons.persistence.DefaultResultInfos;
 import org.olat.core.commons.persistence.ResultInfos;
 import org.olat.core.commons.persistence.SortKey;
+import org.olat.core.gui.components.form.flexible.elements.FlexiTableFilter;
 import org.olat.core.gui.components.form.flexible.impl.elements.table.FlexiTableDataSourceDelegate;
 import org.olat.core.util.StringHelper;
 import org.olat.repository.RepositoryEntryMyView;
@@ -42,7 +43,7 @@ import org.olat.resource.accesscontrol.model.PriceMethodBundle;
 import org.olat.resource.accesscontrol.ui.PriceFormat;
 
 /**
- *
+ * 
  * Initial date: 28.01.2014<br>
  * @author srosse, stephane.rosse@frentix.com, http://www.frentix.com
  *
@@ -55,9 +56,9 @@ public class DefaultRepositoryEntryDataSource implements FlexiTableDataSourceDel
 	private final ACService acService;
 	private final AccessControlModule acModule;
 	private final RepositoryService repositoryService;
-
+	
 	private Integer count;
-
+	
 	public DefaultRepositoryEntryDataSource(SearchMyRepositoryEntryViewParams searchParams,
 											RepositoryEntryRowsFactory repositoryEntryRowsFactory) {
 		this.repositoryEntryRowsFactory = repositoryEntryRowsFactory;
@@ -67,16 +68,16 @@ public class DefaultRepositoryEntryDataSource implements FlexiTableDataSourceDel
 		acModule = CoreSpringFactory.getImpl(AccessControlModule.class);
 		repositoryService = CoreSpringFactory.getImpl(RepositoryService.class);
 	}
-
+	
 	public void setFilters(List<Filter> filters) {
 		searchParams.setFilters(filters);
 		count = null;
 	}
-
+	
 	public void setOrderBy(OrderBy orderBy) {
 		searchParams.setOrderBy(orderBy);
 	}
-
+	
 	public void resetCount() {
 		count = null;
 	}
@@ -95,18 +96,20 @@ public class DefaultRepositoryEntryDataSource implements FlexiTableDataSourceDel
 	}
 
 	@Override
-	public final ResultInfos<RepositoryEntryRow> getRows(String query, List<String> condQueries,
-			int firstResult, int maxResults, SortKey... orderBy) {
+    public final ResultInfos<RepositoryEntryRow> getRows(String query, List<FlexiTableFilter> filters,
+            List<String> condQueries, int firstResult, int maxResults, SortKey... orderBy) {
 
-		if(condQueries != null && condQueries.size() > 0) {
-			String filter = condQueries.get(0);
+        if(filters != null && filters.size() > 0 && filters.get(0) != null) {
+            String filter = filters.get(0).getFilter();
 			if(StringHelper.containsNonWhitespace(filter)) {
 				searchParams.setFilters(Collections.singletonList(Filter.valueOf(filter)));
 			} else {
 				searchParams.setFilters(null);
 			}
+		} else {
+			searchParams.setFilters(null);
 		}
-
+		
 		if(orderBy != null && orderBy.length > 0 && orderBy[0] != null) {
 			OrderBy o = OrderBy.valueOf(orderBy[0].getKey());
 			searchParams.setOrderBy(o);

@@ -43,7 +43,9 @@ import org.olat.core.gui.components.link.Link;
 import org.olat.core.gui.control.Controller;
 import org.olat.core.gui.control.Event;
 import org.olat.core.gui.control.WindowControl;
+import org.olat.core.helpers.GUISettings;
 import org.olat.core.helpers.Settings;
+import org.olat.core.util.FileUtils;
 import org.olat.core.util.StringHelper;
 import org.olat.core.util.Util;
 import org.olat.core.util.WebappHelper;
@@ -77,6 +79,8 @@ public class LayoutAdminController extends FormBasicController {
 	private static final String[] logoUrlTypeKeys = new String[]{ LogoURLType.landingpage.name(), LogoURLType.custom.name() };
 
 	@Autowired
+	private GUISettings guiSettings;
+	@Autowired
 	private LayoutModule layoutModule;
 	@Autowired
 	private CoordinatorManager coordinatorManager;
@@ -104,7 +108,7 @@ public class LayoutAdminController extends FormBasicController {
 		themeCont.setFormDescription(translate("layout.intro"));
 		
 		String[] keys = getThemes();
-		String enabledTheme = Settings.getGuiThemeIdentifyer();
+		String enabledTheme = guiSettings.getGuiThemeIdentifyer();
 		themeSelection = uifactory.addDropdownSingleselect("themeSelection", "form.theme", themeCont, keys, keys, null);
 		// select current theme if available but don't break on unavailable theme
 		for (String theme : keys) {
@@ -240,7 +244,7 @@ public class LayoutAdminController extends FormBasicController {
 		} else if(themeSelection == source) {
 			// set new theme in Settings
 			String newThemeIdentifyer = themeSelection.getSelectedKey();
-			Settings.setGuiThemeIdentifyerGlobally(newThemeIdentifyer);
+			guiSettings.setGuiThemeIdentifyer(newThemeIdentifyer);
 			// use new theme in current window
 			getWindowControl().getWindowBackOffice().getWindow().getGuiTheme().init(newThemeIdentifyer);
 			getWindowControl().getWindowBackOffice().getWindow().setDirty(true);
@@ -366,10 +370,9 @@ public class LayoutAdminController extends FormBasicController {
 					return false;
 				}
 				// remove unwanted meta-dirs
-				if (name.equalsIgnoreCase("CVS")) return false;
-				if (name.equalsIgnoreCase(".DS_Store")) return false;
-				if (name.equalsIgnoreCase(".sass-cache")) return false;
-				if (name.equalsIgnoreCase(".hg")) return false;
+				if (FileUtils.isMetaFilename(name)) {
+					return false;
+				}
 				return true;
 		}
 	}

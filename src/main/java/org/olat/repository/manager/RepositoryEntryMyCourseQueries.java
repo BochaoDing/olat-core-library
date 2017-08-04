@@ -38,9 +38,10 @@ import org.olat.core.id.Roles;
 import org.olat.core.logging.OLog;
 import org.olat.core.logging.Tracing;
 import org.olat.core.util.StringHelper;
-import org.olat.course.assessment.EfficiencyStatementManager;
+import org.olat.course.assessment.manager.EfficiencyStatementManager;
 import org.olat.course.assessment.model.UserEfficiencyStatementImpl;
 import org.olat.course.assessment.model.UserEfficiencyStatementLight;
+import org.olat.fileresource.types.VideoFileResource;
 import org.olat.repository.RepositoryEntry;
 import org.olat.repository.RepositoryEntryMyView;
 import org.olat.repository.RepositoryModule;
@@ -111,12 +112,16 @@ public class RepositoryEntryMyCourseQueries implements MyCourseRepositoryQuery {
 			query.setMaxResults(maxResults);
 		}
 
-		/**
+		/*
 		 * TODO sev26
 		 * Put this functionality into the {@link RepositoryModule} class.
 		 */
-		boolean neddStats = repositoryModule.isRatingEnabled() || repositoryModule.isCommentEnabled();
-		
+		// we don't need statistics when rating and comments are disabled unless
+		// were searching for videos, there we want to see the launch counter
+		// from the statistics
+		boolean needStats = repositoryModule.isRatingEnabled() || repositoryModule.isCommentEnabled() ||
+				(params.getResourceTypes() != null && params.getResourceTypes().contains(VideoFileResource.TYPE_NAME));
+
 		List<Long> effKeys = new ArrayList<>();
 		List<Object[]> objects = query.getResultList();
 		List<RepositoryEntryMyView> views = new ArrayList<>(objects.size());
@@ -135,7 +140,7 @@ public class RepositoryEntryMyCourseQueries implements MyCourseRepositoryQuery {
 			 * {@link RepositoryEntryMyCourseImpl} class constructor.
 			 */
 			RepositoryEntryStatistics stats;
-			if(neddStats) {
+			if (needStats) {
 				stats = re.getStatistics();
 			} else {
 				stats = null;
@@ -221,6 +226,14 @@ public class RepositoryEntryMyCourseQueries implements MyCourseRepositoryQuery {
 			sb.append(" and v.key in (:repoEntryKeys) ");
 		}
 		
+		if(params.getClosed() != null) {
+			if(params.getClosed().booleanValue()) {
+				sb.append(" and v.statusCode>0");
+			} else {
+				sb.append(" and v.statusCode=0");
+			}
+		}
+
 		if(params.getFilters() != null) {
 			for(Filter filter:params.getFilters()) {
 				needIdentityKey |= appendFiltersInWhereClause(filter, sb);
@@ -247,12 +260,12 @@ public class RepositoryEntryMyCourseQueries implements MyCourseRepositoryQuery {
 
 			sb.append(" and v.key in (select rel.entry.key from repoentrytogroup as rel, bgroupmember as membership, ")
 			     .append(IdentityImpl.class.getName()).append(" as identity, ").append(UserImpl.class.getName()).append(" as user")
-		         .append("    where rel.group.key=membership.group.key and membership.identity.key=identity.key and identity.user.key=user.key")
+		         .append("    where rel.group.key=membership.group.key and membership.identity.key=identity.key and user.identity.key=identity.key")
 		         .append("      and membership.role='").append(GroupRoles.owner.name()).append("'")
 		         .append("      and (");
-			PersistenceHelper.appendFuzzyLike(sb, "user.userProperties['firstName']", "author", dbInstance.getDbVendor());
+			PersistenceHelper.appendFuzzyLike(sb, "user.firstName", "author", dbInstance.getDbVendor());
 			sb.append(" or ");
-			PersistenceHelper.appendFuzzyLike(sb, "user.userProperties['lastName']", "author", dbInstance.getDbVendor());
+			PersistenceHelper.appendFuzzyLike(sb, "user.lastName", "author", dbInstance.getDbVendor());
 			sb.append(" or ");
 			PersistenceHelper.appendFuzzyLike(sb, "identity.name", "author", dbInstance.getDbVendor());
 			sb.append(" ))");

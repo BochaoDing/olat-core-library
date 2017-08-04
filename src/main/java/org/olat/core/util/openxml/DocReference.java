@@ -19,37 +19,37 @@
  */
 package org.olat.core.util.openxml;
 
-import java.net.URL;
+import java.io.File;
 
 /**
- * 
+ *
  * Initial date: 04.09.2013<br>
  * @author srosse, stephane.rosse@frentix.com, http://www.frentix.com
  *
  */
 public class DocReference {
-	
+
 	private final String id;
 	private final String filename;
-	private final URL file;
+	private final File file;
 	private final OpenXMLSize emuSize;
-	
-	public DocReference(String id, String filename, OpenXMLSize emuSize, URL file) {
+
+	public DocReference(String id, String filename, OpenXMLSize emuSize, File file) {
 		this.id = id;
 		this.file = file;
 		this.emuSize = emuSize;
 		this.filename = filename;
 	}
-	
+
 	public String getId() {
 		return id;
 	}
-	
+
 	public String getFilename() {
 		return filename;
 	}
 
-	public URL getFile() {
+	public File getFile() {
 		return file;
 	}
 
