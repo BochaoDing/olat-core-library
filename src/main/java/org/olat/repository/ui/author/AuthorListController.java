@@ -356,15 +356,21 @@ public class AuthorListController extends FormBasicController implements Activat
 		List<FlexiTableFilter> resources = new ArrayList<>(supportedHandlers.size() + 1);
 		int lastGroup = 0;
 		for(OrderedRepositoryHandler handler:supportedHandlers) {
-			// for each 10-group, crate a separator
-			int group = handler.getOrder() / 10;
-			if (group > lastGroup) {
-				resources.add(FlexiTableFilter.SPACER);
-				lastGroup = group;
+			if (!handler.getHandler().getSupportedType().startsWith("FileResource.IMSQTI21") &&
+				!handler.getHandler().getSupportedType().startsWith("FileResource.FORM") &&
+				!handler.getHandler().getSupportedType().startsWith("FileResource.VIDEO") &&
+				!handler.getHandler().getSupportedType().startsWith("BinderTemplate") &&
+				!handler.getHandler().getSupportedType().startsWith("EPStructuredMapTemplate")) {
+				// for each 10-group, crate a separator
+				int group = handler.getOrder() / 10;
+				if (group > lastGroup) {
+					resources.add(FlexiTableFilter.SPACER);
+					lastGroup = group;
+				}
+				String type = handler.getHandler().getSupportedType();
+				String inconLeftCss = RepositoyUIFactory.getIconCssClass(type);
+				resources.add(new FlexiTableFilter(translate(type), type, inconLeftCss));
 			}
-			String type = handler.getHandler().getSupportedType();
-			String inconLeftCss = RepositoyUIFactory.getIconCssClass(type);
-			resources.add(new FlexiTableFilter(translate(type), type, inconLeftCss));
 		}
 		return resources;
 	}
