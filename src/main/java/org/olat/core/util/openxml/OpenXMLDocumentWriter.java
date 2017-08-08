@@ -19,7 +19,6 @@
  */
 package org.olat.core.util.openxml;
 
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -142,7 +141,7 @@ public class OpenXMLDocumentWriter {
 	protected void appendMedias(ZipOutputStream out, OpenXMLDocument document)
 			throws IOException {
 		for(DocReference img:document.getImages()) {
-			try(FileInputStream in = new FileInputStream(img.getFile())) {
+			try(InputStream in = img.getUrl().openStream()) {
 				ZipEntry wordDocument = new ZipEntry("word/media/" + img.getFilename());
 				out.putNextEntry(wordDocument);
 
