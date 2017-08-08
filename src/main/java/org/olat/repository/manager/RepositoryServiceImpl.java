@@ -76,10 +76,7 @@ import org.olat.repository.RepositoryModule;
 import org.olat.repository.RepositoryService;
 import org.olat.repository.handlers.RepositoryHandler;
 import org.olat.repository.handlers.RepositoryHandlerFactory;
-import org.olat.repository.listener.AfterRepositoryEntryPermanentDeletionListener;
-import org.olat.repository.listener.AfterRepositoryEntryRestoreListener;
-import org.olat.repository.listener.AfterRepositoryEntrySoftDeletionListener;
-import org.olat.repository.listener.BeforeRepositoryEntryPermanentDeletionListener;
+import org.olat.repository.listener.*;
 import org.olat.repository.manager.coursequery.MyCourseRepositoryQuery;
 import org.olat.repository.model.RepositoryEntryLifecycle;
 import org.olat.repository.model.RepositoryEntryStatistics;
@@ -158,6 +155,8 @@ public class RepositoryServiceImpl implements RepositoryService {
 	private ReminderDAO reminderDao;
     @Autowired
     private AssessmentEntryDAO assessmentEntryDao;
+	@Autowired
+	private BeforeRepositoryEntrySoftDeletionListener[] beforeRepositoryEntrySoftDeletionListeners;
 	@Autowired
 	private AfterRepositoryEntrySoftDeletionListener[] afterRepositoryEntrySoftDeletionListeners;
 	@Autowired
@@ -354,8 +353,13 @@ public class RepositoryServiceImpl implements RepositoryService {
 	}
 	
 	@Override
-	public RepositoryEntry deleteSoftly(RepositoryEntry re, Identity deletedBy, boolean owners) {
+	public RepositoryEntry deleteSoftly(RepositoryEntry re, Identity deletedBy, boolean owners) throws RepositoryEntryDeletionException {
 		RepositoryEntry reloadedRe = repositoryEntryDAO.loadForUpdate(re);
+
+		for (BeforeRepositoryEntrySoftDeletionListener beforeRepositoryEntrySoftDeletionListener : beforeRepositoryEntrySoftDeletionListeners) {
+			beforeRepositoryEntrySoftDeletionListener.onAction(reloadedRe);
+		}
+
 		reloadedRe.setAccess(RepositoryEntry.DELETED);
 		if(reloadedRe.getDeletionDate() == null) {
 			// don't write the name of an admin which make a restore -> delete operation
@@ -402,7 +406,7 @@ public class RepositoryServiceImpl implements RepositoryService {
 	}
 
 	@Override
-	public ErrorList deletePermanently(RepositoryEntry entry, Identity identity, Roles roles, Locale locale) {
+	public ErrorList deletePermanently(RepositoryEntry entry, Identity identity, Roles roles, Locale locale) throws RepositoryEntryDeletionException {
 		ErrorList errors = new ErrorList();
 		
 		boolean debug = log.isDebug();
