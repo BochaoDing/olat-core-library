@@ -38,6 +38,10 @@ public class OlatServletResource {
 		return tmp.toArray(new Resource[tmp.size()]);
 	}
 
+	public static Resource[] getAll(String sourcePath) throws IOException {
+		return servletContextResourcePatternResolver.getResources(sourcePath + "/**");
+	}
+
 	public static List<String> getAllDirectoriesOfPaths(Object[] paths) throws IOException {
 		ArrayList<String> result = new ArrayList<>();
 
@@ -110,16 +114,20 @@ public class OlatServletResource {
 		}
 	}
 
+	public static String pathRelativeToSourcePath(URL url, String sourcePath) throws IOException {
+		String path = url.getPath();
+		int index = path.indexOf(sourcePath);
+		return path.substring(index + sourcePath.length());
+	}
+
 	public static void appendDirectory(ZipOutputStream zout, String sourcePath,
 									   String zipPath) throws IOException {
 		Resource[] resources = servletContextResourcePatternResolver.getResources(
 				sourcePath + "/**");
 		for (Resource resource : resources) {
-			String path = resource.getURL().getPath();
-			int index = path.indexOf(sourcePath);
-			String pathRelativeToSourcePath = path.substring(index + sourcePath.length());
-			zout.putNextEntry(new ZipEntry(zipPath + pathRelativeToSourcePath));
-			if (path.endsWith("/") == false) {
+			URL url = resource.getURL();
+			zout.putNextEntry(new ZipEntry(zipPath + pathRelativeToSourcePath(url, sourcePath)));
+			if (url.getPath().endsWith("/") == false) {
 				IOUtils.copy(resource.getInputStream(), zout);
 			}
 			zout.closeEntry();
