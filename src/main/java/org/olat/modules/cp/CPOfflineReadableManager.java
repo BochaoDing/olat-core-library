@@ -140,14 +140,9 @@ public class CPOfflineReadableManager {
 			IOUtils.write(startPage, exportStream);
 			exportStream.closeEntry();
 			
-			File cpOfflineMat = new File(WebappHelper.getContextRealPath("/static/"), DIRNAME_CPOFFLINEMENUMAT);
-			for(File content:cpOfflineMat.listFiles()) {
-				exportStream.putNextEntry(new ZipEntry(DIRNAME_CPOFFLINEMENUMAT + "/" + content.getName()));
-				InputStream in = new FileInputStream(content);
-				FileUtils.cpio(in, exportStream, "");
-				exportStream.closeEntry();
-				in.close();
-			}
+			OlatServletResource.appendDirectory(exportStream,
+					"/static/" + DIRNAME_CPOFFLINEMENUMAT,
+					DIRNAME_CPOFFLINEMENUMAT);
 		} catch (IOException e) {
 			log.error("", e);
 		}

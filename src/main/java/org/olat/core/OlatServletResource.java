@@ -126,7 +126,8 @@ public class OlatServletResource {
 				sourcePath + "/**");
 		for (Resource resource : resources) {
 			URL url = resource.getURL();
-			zout.putNextEntry(new ZipEntry(zipPath + pathRelativeToSourcePath(url, sourcePath)));
+			String zipFilePath = zipPath + pathRelativeToSourcePath(url, sourcePath);
+			zout.putNextEntry(new ZipEntry(zipFilePath));
 			if (url.getPath().endsWith("/") == false) {
 				IOUtils.copy(resource.getInputStream(), zout);
 			}
