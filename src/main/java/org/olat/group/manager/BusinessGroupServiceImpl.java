@@ -36,7 +36,6 @@ import java.util.UUID;
 
 import org.hibernate.ObjectNotFoundException;
 import org.hibernate.StaleObjectStateException;
-import org.olat.admin.user.delete.service.UserDeletionManager;
 import org.olat.basesecurity.BaseSecurity;
 import org.olat.basesecurity.Constants;
 import org.olat.basesecurity.Group;
@@ -45,6 +44,7 @@ import org.olat.basesecurity.IdentityRef;
 import org.olat.basesecurity.SecurityGroup;
 import org.olat.collaboration.CollaborationTools;
 import org.olat.collaboration.CollaborationToolsFactory;
+import org.olat.commons.info.manager.InfoMessageFrontendManager;
 import org.olat.core.CoreSpringFactory;
 import org.olat.core.commons.persistence.DB;
 import org.olat.core.commons.services.notifications.NotificationsManager;
@@ -106,6 +106,7 @@ import org.olat.group.ui.BGMailHelper;
 import org.olat.group.ui.edit.BusinessGroupModifiedEvent;
 import org.olat.properties.PropertyManager;
 import org.olat.repository.LeavingStatusList;
+import org.olat.repository.RepositoryDeletionModule;
 import org.olat.repository.RepositoryEntry;
 import org.olat.repository.RepositoryEntryRef;
 import org.olat.repository.RepositoryEntryRelationType;
@@ -158,9 +159,11 @@ public class BusinessGroupServiceImpl implements BusinessGroupService, UserDataD
 	@Autowired
 	private RepositoryEntryRelationDAO repositoryEntryRelationDao;
 	@Autowired
-	private UserDeletionManager userDeletionManager;
+	private RepositoryDeletionModule deletionManager;
 	@Autowired
 	private NotificationsManager notificationsManager;
+	@Autowired
+	private InfoMessageFrontendManager infoMessageManager;
 	@Autowired
 	private MailManager mailManager;
 	@Autowired
@@ -171,7 +174,7 @@ public class BusinessGroupServiceImpl implements BusinessGroupService, UserDataD
 	private BeforeBusinessGroupDeletionListener[] beforeBusinessGroupDeletionListeners;
 	
 	@Override
-	public void deleteUserData(Identity identity, String newDeletedUserName) {
+	public void deleteUserData(Identity identity, String newDeletedUserName, File archivePath) {
 		// remove as Participant 
 		List<BusinessGroup> attendedGroups = findBusinessGroupsAttendedBy(identity);
 		for (Iterator<BusinessGroup> iter = attendedGroups.iterator(); iter.hasNext();) {
@@ -191,7 +194,8 @@ public class BusinessGroupServiceImpl implements BusinessGroupService, UserDataD
 			BusinessGroup businessGroup = iter.next();
 			businessGroupRelationDAO.removeRole(identity, businessGroup, GroupRoles.coach.name());
 			if (businessGroupRelationDAO.countRoles(businessGroup, GroupRoles.coach.name()) == 0) {
-				businessGroupRelationDAO.addRole(userDeletionManager.getAdminIdentity(), businessGroup, GroupRoles.coach.name());
+				Identity admin = deletionManager.getAdminUserIdentity();
+				businessGroupRelationDAO.addRole(admin, businessGroup, GroupRoles.coach.name());
 				log.info("Delete user-data, add Administrator-identity as owner of businessGroup=" + businessGroup.getName());
 			}
 		}
@@ -779,9 +783,11 @@ public class BusinessGroupServiceImpl implements BusinessGroupService, UserDataD
 			// 5) delete the publisher attached to this group (e.g. the forum and folder
 			// publisher)
 			notificationsManager.deletePublishersOf(group);
-			// 6) the group
+			// 6) delete info messages and subscription context associated with this group
+			infoMessageManager.removeInfoMessagesAndSubscriptionContext(group);
+			// 7) the group
 			businessGroupDAO.delete(group);
-			// 7) delete the associated security groups
+			// 8) delete the associated security groups
 			//TODO group
 			
 			dbInstance.commit();
@@ -1040,7 +1046,6 @@ public class BusinessGroupServiceImpl implements BusinessGroupService, UserDataD
 
 	private void removeParticipant(Identity ureqIdentity, Identity identity, BusinessGroup group, MailPackage mailing,
 			List<BusinessGroupModifiedEvent.Deferred> events) {
-
 		boolean removed = businessGroupRelationDAO.removeRole(identity, group, GroupRoles.participant.name());
 		if(removed) {
 			// notify currently active users of this business group
@@ -1482,7 +1487,7 @@ public class BusinessGroupServiceImpl implements BusinessGroupService, UserDataD
 							mailing = new MailPackage(true);
 						}
 
-						BusinessGroupMailing.sendEmail(ureqIdentity, firstWaitingListIdentity, group, MailType.graduateFromWaitingListToParticpant, mailing);				
+						BusinessGroupMailing.sendEmail(null, firstWaitingListIdentity, group, MailType.graduateFromWaitingListToParticpant, mailing);				
 						counter++;
 				  }
 				}

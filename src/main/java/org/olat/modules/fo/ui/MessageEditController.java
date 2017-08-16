@@ -66,12 +66,13 @@ import org.olat.core.util.vfs.LocalFolderImpl;
 import org.olat.core.util.vfs.VFSContainer;
 import org.olat.core.util.vfs.VFSItem;
 import org.olat.core.util.vfs.VFSLeaf;
-import org.olat.core.util.vfs.filters.VFSItemExcludePrefixFilter;
+import org.olat.core.util.vfs.filters.VFSItemMetaFilter;
 import org.olat.modules.fo.Forum;
 import org.olat.modules.fo.ForumCallback;
 import org.olat.modules.fo.ForumChangedEvent;
 import org.olat.modules.fo.ForumLoggingAction;
 import org.olat.modules.fo.Message;
+import org.olat.modules.fo.Pseudonym;
 import org.olat.modules.fo.manager.ForumManager;
 import org.olat.modules.fo.ui.events.ErrorEditMessage;
 import org.olat.user.DisplayPortraitController;
@@ -98,11 +99,10 @@ public class MessageEditController extends FormBasicController {
 	// attached files anywhere at the time of deleting it
 	// likely to be resolved after user logs out, caches get cleared - and if not the server
 	// restart overnight definitely removes those .nfs files.
-	public static final String[] ATTACHMENT_EXCLUDE_PREFIXES = new String[]{".nfs", ".CVS", ".DS_Store"};
 	private static final String[] enableKeys = new String[]{ "on" };
 	
 	private RichTextElement bodyEl;
-	private TextElement titleEl, pseudonymEl;
+	private TextElement titleEl, pseudonymEl, passwordEl;
 	private MultipleSelectionElement usePseudonymEl;
 	private FileElement fileUpload;
 
@@ -113,7 +113,7 @@ public class MessageEditController extends FormBasicController {
 	private VFSContainer tempUploadFolder;
 	private boolean userIsMsgCreator;
 	private boolean msgHasChildren;
-	private VFSItemExcludePrefixFilter exclFilter;
+	private VFSItemMetaFilter exclFilter;
 
 	private final Forum forum;
 	private final EditMode editMode;
@@ -156,7 +156,7 @@ public class MessageEditController extends FormBasicController {
 		this.guestOnly = ureq.getUserSession().getRoles().isGuestOnly();
 
 		tempUploadFolder = new LocalFolderImpl(new File(WebappHelper.getTmpDir(), CodeHelper.getUniqueID()));
-		exclFilter = new VFSItemExcludePrefixFilter(ATTACHMENT_EXCLUDE_PREFIXES);
+		exclFilter = new VFSItemMetaFilter();
 		
 		initForm(ureq);
 	}
@@ -196,11 +196,16 @@ public class MessageEditController extends FormBasicController {
 		if(foCallback.mayUsePseudonym() || guestOnly) {
 			String[] enablePseudonymValues = new String[]{ translate("use.pseudonym.label") };
 			usePseudonymEl = uifactory.addCheckboxesHorizontal("use.pseudonym", formLayout, enableKeys, enablePseudonymValues);
-			if(StringHelper.containsNonWhitespace(message.getPseudonym()) || guestOnly) {
+			if(StringHelper.containsNonWhitespace(message.getPseudonym())
+					|| guestOnly || foCallback.pseudonymAsDefault()) {
 				usePseudonymEl.select(enableKeys[0], true);
 			}
 			pseudonymEl = uifactory.addTextElement("pseudonym", "pseudonym", 128, message.getPseudonym(), formLayout);
 			pseudonymEl.setElementCssClass("o_sel_forum_message_alias");
+			
+			passwordEl = uifactory.addPasswordElement("password", "password", 128, "", formLayout);
+			passwordEl.setElementCssClass("o_sel_forum_message_alias_pass");
+			passwordEl.setPlaceholderKey("password.placeholder", null);
 
 			if(guestOnly) {
 				usePseudonymEl.setVisible(false);
@@ -209,6 +214,10 @@ public class MessageEditController extends FormBasicController {
 				proposedPseudonym = (String)ureq.getUserSession().getEntry("FOPseudo" + forum.getKey());
 				if(StringHelper.containsNonWhitespace(proposedPseudonym)) {
 					pseudonymEl.setValue(proposedPseudonym);
+					String proposedPassword = (String)ureq.getUserSession().getEntry("FOPseudo-" + proposedPseudonym);
+					if(StringHelper.containsNonWhitespace(proposedPassword)) {
+						passwordEl.setValue(proposedPassword);
+					}
 				}
 			} else if(userIsMsgCreator) {
 				pseudonymEl.setLabel(null, null);
@@ -217,13 +226,19 @@ public class MessageEditController extends FormBasicController {
 				if(StringHelper.containsNonWhitespace(proposedPseudonym)) {
 					pseudonymEl.setValue(proposedPseudonym);
 					usePseudonymEl.select(enableKeys[0], true);
+					String proposedPassword = (String)ureq.getUserSession().getEntry("FOPseudo-" + proposedPseudonym);
+					if(StringHelper.containsNonWhitespace(proposedPassword)) {
+						passwordEl.setValue(proposedPassword);
+					}
 				}
 				usePseudonymEl.setMandatory(usePseudonymEl.isAtLeastSelected(1));
 				pseudonymEl.setVisible(usePseudonymEl.isAtLeastSelected(1));
+				passwordEl.setVisible(usePseudonymEl.isAtLeastSelected(1));
 			} else {
 				usePseudonymEl.setVisible(false);
 				pseudonymEl.setLabel("use.pseudonym", null);
 				pseudonymEl.setEnabled(false);
+				passwordEl.setVisible(false);
 			}
 		}
 
@@ -334,12 +349,18 @@ public class MessageEditController extends FormBasicController {
 		boolean allOk = true;
 		if(usePseudonymEl != null) {
 			pseudonymEl.clearError();
+			passwordEl.clearError();
 			if(guestOnly || usePseudonymEl.isAtLeastSelected(1)) {
-				if(!StringHelper.containsNonWhitespace(pseudonymEl.getValue())) {
+				String pseudonym = pseudonymEl.getValue();
+				String password = passwordEl.getValue();
+				
+				if(!StringHelper.containsNonWhitespace(pseudonym)) {
 					pseudonymEl.setErrorKey("form.legende.mandatory", null);
 					allOk &= false;
-				} else if(!validatePseudonym(pseudonymEl.getValue())) {
+				} else if(!validatePseudonym(pseudonym)) {
 					pseudonymEl.setErrorKey("error.pseudonym", null);
+					allOk &= false;
+				} else if(!validatePseudonymProtected(pseudonym, password)) {
 					allOk &= false;
 				}
 			}
@@ -359,6 +380,53 @@ public class MessageEditController extends FormBasicController {
 			}
 		}
 		
+		return allOk;
+	}
+	
+	/**
+	 * No password:
+	 * <ul>
+	 *  <li>exists pseudonym with password: error</li>
+	 *  <li>doesn't exist pseudonym with passwort -> can use the pseudonym</li>
+	 * </ul>
+	 * With password:
+	 * <ul>
+	 *  <li>exists pseudonym with password + password wrong: error</li>
+	 *  <li>exists pseudonym with password + password ok: ok</li>
+	 *  <li>exists pseudonym with password + password wrong: error</li>
+	 * </ul>
+	 * 
+	 * @param value
+	 * @param password
+	 * @return
+	 */
+	private boolean validatePseudonymProtected(String value, String password) {
+		boolean allOk = true;
+		
+		if(StringHelper.containsNonWhitespace(password)) {
+			List<Pseudonym> pseudonyms = fm.getPseudonyms(value);
+			if(pseudonyms.size() > 0) {
+				boolean authenticated = false;
+				for(Pseudonym pseudonym:pseudonyms) {
+					if(fm.authenticatePseudonym(pseudonym, password)) {
+						authenticated = true;
+						break;
+					}
+				}
+				
+				if(!authenticated) {
+					passwordEl.setErrorKey("error.pseudonym.authentication", null);
+					allOk &= false;
+				}
+			} else if(fm.isPseudonymInUseInForums(value)) {
+				pseudonymEl.setErrorKey("error.pseudonym", null);
+				allOk &= false;
+			}
+		} else if(fm.isPseudonymProtected(value)) {
+			pseudonymEl.setErrorKey("error.pseudonym.protected", null);
+			allOk &= false;
+		}
+
 		return allOk;
 	}
 
@@ -390,7 +458,31 @@ public class MessageEditController extends FormBasicController {
 
 		message.setBody(body.trim());
 		if(usePseudonymEl != null && (usePseudonymEl.isAtLeastSelected(1) || guestOnly)) {
-			message.setPseudonym(pseudonymEl.getValue());
+			String password = passwordEl.getValue();
+			String pseudonym = pseudonymEl.getValue();
+			if(StringHelper.containsNonWhitespace(password)) {
+				List<Pseudonym> protectedPseudonyms = fm.getPseudonyms(pseudonym);
+				if(protectedPseudonyms.isEmpty()) {
+					fm.createProtectedPseudonym(pseudonym, password);
+					ureq.getUserSession().putEntry("FOPseudo-" + pseudonym, password);
+				} else {
+					//we double check the password
+					boolean authenticated = false;
+					for(Pseudonym protectedPseudonym:protectedPseudonyms) {
+						if(fm.authenticatePseudonym(protectedPseudonym, password)) {
+							ureq.getUserSession().putEntry("FOPseudo-" + protectedPseudonym.getPseudonym(), password);
+							authenticated = true;
+							break;
+						}
+					}
+					
+					if(!authenticated) {
+						validateFormLogic(ureq);
+						return;
+					}
+				}
+			}
+			message.setPseudonym(pseudonym);
 			if(guestOnly) {
 				ureq.getUserSession().putEntry("FOPseudo" + forum.getKey(), message.getPseudonym());
 			}
@@ -467,6 +559,7 @@ public class MessageEditController extends FormBasicController {
 		if(usePseudonymEl == source) {
 			usePseudonymEl.setMandatory(usePseudonymEl.isAtLeastSelected(1));
 			pseudonymEl.setVisible(usePseudonymEl.isAtLeastSelected(1));
+			passwordEl.setVisible(usePseudonymEl.isAtLeastSelected(1));
 		} else if (source == fileUpload) {
 			if (fileUpload.isUploadSuccess()) {
 				String fileName = fileUpload.getUploadFileName();

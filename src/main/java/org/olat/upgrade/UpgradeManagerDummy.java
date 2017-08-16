@@ -27,6 +27,8 @@ package org.olat.upgrade;
 import org.olat.core.commons.persistence.DB;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import javax.inject.Provider;
+
 /**
  * Description:<br>
  * As the upgrade manager only runs on one node this dummy gets called on the other nodes
@@ -38,7 +40,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 public class UpgradeManagerDummy extends UpgradeManager {
 
 	@Autowired
-    public UpgradeManagerDummy(DB dbInstance) {
+    public UpgradeManagerDummy(Provider<DB> dbInstance) {
         super(dbInstance);
     }
 

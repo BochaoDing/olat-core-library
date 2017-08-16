@@ -25,9 +25,6 @@ import java.util.Date;
 import java.util.List;
 
 import org.apache.commons.lang.StringEscapeUtils;
-import org.apache.poi.ss.usermodel.CellStyle;
-import org.apache.poi.ss.usermodel.Font;
-import org.apache.poi.ss.usermodel.Workbook;
 import org.olat.core.gui.media.MediaResource;
 import org.olat.core.gui.render.EmptyURLBuilder;
 import org.olat.core.gui.render.StringOutput;
@@ -121,14 +118,5 @@ public class XlsFlexiTableExporter implements FlexiTableExporter {
 				}
 			}
 		}
-	}
-
-	//LMSUZH-363: juste here for cherrypick. remove when update to lmsuzh11!
-	public static CellStyle getHeaderCellStyle(final Workbook wb) {
-		CellStyle cellStyle = wb.createCellStyle();
-		Font boldFont = wb.createFont();
-		boldFont.setBoldweight(Font.BOLDWEIGHT_BOLD);
-		cellStyle.setFont(boldFont);
-		return cellStyle;
 	}
 }

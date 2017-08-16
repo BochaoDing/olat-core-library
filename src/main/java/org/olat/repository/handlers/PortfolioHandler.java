@@ -85,7 +85,7 @@ public class PortfolioHandler implements RepositoryHandler {
 	
 	@Override
 	public boolean isCreate() {
-		return true;
+		return false;
 	}
 	
 	@Override
@@ -130,12 +130,14 @@ public class PortfolioHandler implements RepositoryHandler {
 		EPFrontendManager ePFMgr = CoreSpringFactory.getImpl(EPFrontendManager.class);
 		EPStructureManager eSTMgr = CoreSpringFactory.getImpl(EPStructureManager.class);
 		
+		RepositoryEntry re = null;
 		PortfolioStructure structure = EPXStreamHandler.getAsObject(file, false);
-		OLATResource resource = eSTMgr.createPortfolioMapTemplateResource();
-		RepositoryEntry re = CoreSpringFactory.getImpl(RepositoryService.class)
-				.create(initialAuthor, null, "", displayname, description, resource, RepositoryEntry.ACC_OWNERS);
-		
-		ePFMgr.importPortfolioMapTemplate(structure, resource);
+		if(structure != null) {
+			OLATResource resource = eSTMgr.createPortfolioMapTemplateResource();
+			re = CoreSpringFactory.getImpl(RepositoryService.class)
+					.create(initialAuthor, null, "", displayname, description, resource, RepositoryEntry.ACC_OWNERS);
+			ePFMgr.importPortfolioMapTemplate(structure, resource);
+		}
 		return re;
 	}
 	
@@ -159,6 +161,11 @@ public class PortfolioHandler implements RepositoryHandler {
 	@Override
 	public EditionSupport supportsEdit(OLATResourceable resource) {
 		return EditionSupport.embedded;
+	}
+	
+	@Override
+	public boolean supportsAssessmentDetails() {
+		return false;
 	}
 	
 	@Override
@@ -215,7 +222,7 @@ public class PortfolioHandler implements RepositoryHandler {
 	}
 
 	@Override
-	public Controller createEditorController(RepositoryEntry re, UserRequest ureq, WindowControl control, TooledStackedPanel toolbar) {
+	public Controller createEditorController(RepositoryEntry re, UserRequest ureq, WindowControl wControl, TooledStackedPanel toolbar) {
 		return null;
 	}
 
@@ -235,6 +242,12 @@ public class PortfolioHandler implements RepositoryHandler {
 					return new EPMapViewController(uureq, wwControl, map, false, false, secCallback);
 				}
 			});
+	}
+
+	@Override
+	public Controller createAssessmentDetailsController(RepositoryEntry re, UserRequest ureq, WindowControl wControl,
+			TooledStackedPanel toolbar, Identity assessedIdentity) {
+		return null;
 	}
 
 	@Override

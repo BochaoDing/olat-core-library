@@ -22,6 +22,7 @@ package org.olat.selenium.page.repository;
 import java.io.File;
 
 import org.junit.Assert;
+import org.olat.selenium.page.course.CoursePageFragment;
 import org.olat.selenium.page.course.CourseWizardPage;
 import org.olat.selenium.page.graphene.OOGraphene;
 import org.openqa.selenium.By;
@@ -77,6 +78,20 @@ public class AuthoringEnvPage {
 	public RepositoryEditDescriptionPage createCourse(String title) {
 		return openCreateDropDown()
 			.clickCreate(ResourceType.course)
+			.fillCreateForm(title)
+			.assertOnGeneralTab();
+	}
+	
+	public RepositoryEditDescriptionPage createPortfolioBinder(String title) {
+		return openCreateDropDown()
+			.clickCreate(ResourceType.portfolio)
+			.fillCreateForm(title)
+			.assertOnGeneralTab();
+	}
+	
+	public RepositoryEditDescriptionPage createQTI21Test(String title) {
+		return openCreateDropDown()
+			.clickCreate(ResourceType.qti21Test)
 			.fillCreateForm(title)
 			.assertOnGeneralTab();
 	}
@@ -177,6 +192,12 @@ public class AuthoringEnvPage {
 		return this;
 	}
 	
+	public AuthoringEnvPage assertOnResourceType() {
+		By typeEl = By.cssSelector(".o_sel_author_type");
+		OOGraphene.waitElement(typeEl, 5, browser);
+		return this;
+	}
+	
 	public void selectResource(String title) {
 		By selectBy = By.xpath("//div[contains(@class,'o_coursetable')]//a[contains(text(),'" + title + "')]");
 		browser.findElement(selectBy).click();
@@ -189,10 +210,25 @@ public class AuthoringEnvPage {
 		OOGraphene.waitBusy(browser);
 	}
 	
+	/**
+	 * Click back from the editor
+	 * 
+	 * @return
+	 */
+	public CoursePageFragment clickToolbarRootCrumb() {
+		OOGraphene.closeBlueMessageWindow(browser);
+		By toolbarBackBy = By.xpath("//li[contains(@class,'o_breadcrumb_back')]/following-sibling::li/a");
+		browser.findElement(toolbarBackBy).click();
+		OOGraphene.waitBusy(browser);
+		return new CoursePageFragment(browser);
+	}
+	
 	public enum ResourceType {
 		course("CourseModule"),
 		cp("FileResource.IMSCP"),
-		wiki("FileResource.WIKI");
+		wiki("FileResource.WIKI"),
+		portfolio("BinderTemplate"),
+		qti21Test("FileResource.IMSQTI21");
 		
 		private final String type;
 		

@@ -20,9 +20,9 @@
 * <a href="http://www.openolat.org">
 * OpenOLAT - Online Learning and Training</a><br>
 * This file has been modified by the OpenOLAT community. Changes are licensed
-* under the Apache 2.0 license as the original file.
+* under the Apache 2.0 license as the original file.  
 * <p>
-*/
+*/ 
 package org.olat.core.commons.modules.bc;
 
 import static java.util.Arrays.asList;
@@ -30,16 +30,15 @@ import static java.util.Arrays.asList;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.regex.Pattern;
 
-import org.olat.core.CoreSpringFactory;
 import org.olat.core.commons.modules.bc.commands.FolderCommandStatus;
 import org.olat.core.commons.modules.bc.meta.MetaInfo;
 import org.olat.core.commons.modules.bc.meta.MetaInfoFactory;
@@ -59,6 +58,7 @@ import org.olat.core.gui.components.form.flexible.impl.Form;
 import org.olat.core.gui.components.form.flexible.impl.FormBasicController;
 import org.olat.core.gui.components.form.flexible.impl.FormEvent;
 import org.olat.core.gui.components.form.flexible.impl.FormLayoutContainer;
+import org.olat.core.gui.components.form.flexible.impl.elements.FileElementEvent;
 import org.olat.core.gui.control.Controller;
 import org.olat.core.gui.control.Event;
 import org.olat.core.gui.control.WindowControl;
@@ -92,7 +92,7 @@ import org.springframework.beans.factory.annotation.Autowired;
  * configured with an upload limit, a limitation to mime types as allowed upload
  * types and if the path to the target directory should be displayed in the
  * form.
- *
+ * 
  * <h3>Events fired by this controller</h3>
  * <ul>
  * <li>FolderEvent (whenever something like upload occures)</li>
@@ -101,9 +101,9 @@ import org.springframework.beans.factory.annotation.Autowired;
  * <li>Event.DONE_EVENT (fired after the folder upload event)</li>
  * </ul>
  * <p>
- *
+ * 
  * Initial Date: August 15, 2005
- *
+ * 
  * @author Alexander Schneider
  * @author Florian Gnägi
  */
@@ -124,6 +124,7 @@ public class FileUploadController extends FormBasicController {
 	private long uploadLimitKB;
 	private long remainingQuotKB;
 	private Set<String> mimeTypes;
+	private boolean uriValidation;
 	//
 	// Form elements
 	private FileElement fileEl;
@@ -134,16 +135,16 @@ public class FileUploadController extends FormBasicController {
 
 	private boolean fileOverwritten = false;
 	private boolean resizeImg;
-
+	
 	// Metadata subform
 	private MetaInfoFormController metaDataCtr;
 	private boolean showMetadata = false;
-	//
+	// 
 	// Cancel button
 	private boolean showCancel = true; // default is to show cancel button
-
+	
 	private static Pattern imageExtPattern = Pattern.compile("\\b.(jpg|jpeg|png)\\b");
-	private static final Pattern validSubPathPattern = Pattern.compile("[\\p{Alnum}-_\\./]*");
+	private static final Pattern validSubPathPattern = Pattern.compile("[\\p{Alnum}-_\\./]*");		
 
 	@Autowired
 	private ImageService imageHelper;
@@ -156,7 +157,7 @@ public class FileUploadController extends FormBasicController {
 
 	private String subfolderPath;
 	private TextElement targetSubPath ;
-
+	
 	/**
 	 * @param wControl
 	 * @param curContainer Path to the upload directory. Used to check for
@@ -175,23 +176,23 @@ public class FileUploadController extends FormBasicController {
 	 */
 	public FileUploadController(WindowControl wControl, VFSContainer curContainer, UserRequest ureq, long upLimitKB, long remainingQuotKB,
 			Set<String> mimeTypesRestriction, boolean showTargetPath) {
-		this(wControl, curContainer, ureq, upLimitKB, remainingQuotKB, mimeTypesRestriction, showTargetPath, false, true, true, true);
+		this(wControl, curContainer, ureq, upLimitKB, remainingQuotKB, mimeTypesRestriction, false, showTargetPath, false, true, true, true);
 	}
-
+	
 	public FileUploadController(WindowControl wControl, VFSContainer curContainer, UserRequest ureq, long upLimitKB, long remainingQuotKB,
-			Set<String> mimeTypesRestriction, boolean showTargetPath, boolean showMetadata, boolean resizeImg, boolean showCancel, boolean showTitle) {
+			Set<String> mimeTypesRestriction, boolean uriValidation, boolean showTargetPath, boolean showMetadata, boolean resizeImg, boolean showCancel, boolean showTitle) {
 		this(wControl,curContainer,  ureq,  upLimitKB,  remainingQuotKB,
-				mimeTypesRestriction,  showTargetPath,  showMetadata,  resizeImg,  showCancel,  showTitle,null);
+				mimeTypesRestriction, uriValidation, showTargetPath,  showMetadata,  resizeImg,  showCancel,  showTitle,null);
 	}
-
+	
 	public FileUploadController(WindowControl wControl, VFSContainer curContainer, UserRequest ureq, long upLimitKB, long remainingQuotKB,
-			Set<String> mimeTypesRestriction, boolean showTargetPath, boolean showMetadata, boolean resizeImg, boolean showCancel, boolean showTitle, String subfolderPath) {
+			Set<String> mimeTypesRestriction, boolean uriValidation, boolean showTargetPath, boolean showMetadata, boolean resizeImg, boolean showCancel, boolean showTitle, String subfolderPath) {
 		super(ureq, wControl, "file_upload");
-		setVariables(curContainer, upLimitKB, remainingQuotKB, mimeTypesRestriction, showTargetPath, showMetadata, resizeImg, showCancel, showTitle, subfolderPath);
+		setVariables(curContainer, upLimitKB, remainingQuotKB, mimeTypesRestriction, uriValidation, showTargetPath, showMetadata, resizeImg, showCancel, showTitle, subfolderPath);
 		initForm(ureq);
 	}
-
-	private void setVariables(VFSContainer curContainer, long upLimitKB, long remainingQuotKB, Set<String> mimeTypesRestriction, boolean showTargetPath,
+	
+	private void setVariables(VFSContainer curContainer, long upLimitKB, long remainingQuotKB, Set<String> mimeTypesRestriction, boolean uriValidation, boolean showTargetPath,
 			boolean showMetadata, boolean resizeImg, boolean showCancel, boolean showTitle, String subfolderPath) {
 		this.currentContainer = curContainer;
 		this.mimeTypes = mimeTypesRestriction;
@@ -199,6 +200,7 @@ public class FileUploadController extends FormBasicController {
 		this.showTargetPath = showTargetPath;
 		// set remaining quota and max upload size
 		this.uploadLimitKB = upLimitKB;
+		this.uriValidation = uriValidation;
 		this.remainingQuotKB = remainingQuotKB;
 		// use base container as upload dir
 		this.uploadRelPath = null;
@@ -208,14 +210,14 @@ public class FileUploadController extends FormBasicController {
 		this.showCancel = showCancel;
 		this.subfolderPath = subfolderPath;
 	}
-
+	
 	@Override
 	protected void initForm(FormItemContainer formLayout, Controller listener, UserRequest ureq) {
 		// Trigger fieldset and title
 		if(showTitle) {
 			setFormTitle("ul.header");
 		}
-
+		
 		flc.contextPut("showMetadata", showMetadata);
 		// Add file element
 		FormItemContainer fileUpload;
@@ -230,29 +232,29 @@ public class FileUploadController extends FormBasicController {
 		flc.contextPut("resizeImg", resizeImg);
 
 		// Add path element
-		if (showTargetPath) {
-			String path = "/ " + uploadVFSContainer.getName();
+		if (showTargetPath) {			
+			String path = "/ " + StringHelper.escapeHtml(uploadVFSContainer.getName());
 			VFSContainer container = uploadVFSContainer.getParentContainer();
 			while (container != null) {
-				path = "/ " + container.getName() + " " + path;
+				path = "/ " + StringHelper.escapeHtml(container.getName()) + " " + path;
 				container = container.getParentContainer();
 			}
-
+			
 			pathEl = uifactory.addStaticTextElement("ul.target", path,fileUpload);
-
+			
 			if (subfolderPath != null) {
-				targetSubPath = uifactory.addInlineTextElement("ul.target.child", subfolderPath, fileUpload, this);
+				targetSubPath = uifactory.addInlineTextElement("ul.target.child", subfolderPath, fileUpload, this);	
 				targetSubPath.setLabel("ul.target.child", null);
 			}
 		}
 
 		fileEl = uifactory.addFileElement(getWindowControl(), "fileEl", "ul.file", fileUpload);
 		fileEl.addActionListener(FormEvent.ONCHANGE);
-
+		
 		setMaxUploadSizeKB((uploadLimitKB < remainingQuotKB ? uploadLimitKB : remainingQuotKB));
 		fileEl.setMandatory(true, "NoFileChoosen");
 		if (mimeTypes != null && mimeTypes.size() > 0) {
-			fileEl.limitToMimeType(mimeTypes, "WrongMimeType", new String[]{mimeTypes.toString()});
+			fileEl.limitToMimeType(mimeTypes, "WrongMimeType", new String[]{mimeTypes.toString()});					
 		}
 
 		if(resizeImg) {
@@ -270,27 +272,27 @@ public class FileUploadController extends FormBasicController {
 			resizeEl.setLabel(null, null);
 			resizeEl.select("resize", true);
 		}
-
+		
 		// Check remaining quota
 		if (remainingQuotKB == 0) {
 			fileEl.setEnabled(false);
 			getWindowControl().setError(translate("QuotaExceeded"));
 		}
-
-
+		
+		
 		if (showMetadata) {
 			metaDataCtr = new MetaInfoFormController(ureq, getWindowControl(),
 					mainForm);
 			formLayout.add("metadata", metaDataCtr.getFormItem());
 			listenTo(metaDataCtr);
 		}
-
+		
 		// Add cancel and submit in button group layout
 		FormItemContainer buttons;
 		if (showMetadata) {
 			buttons = FormLayoutContainer.createDefaultFormLayout("buttons", getTranslator());
 		} else {
-			buttons = FormLayoutContainer.createVerticalFormLayout("buttons", getTranslator());
+			buttons = FormLayoutContainer.createVerticalFormLayout("buttons", getTranslator());			
 		}
 		formLayout.add(buttons);
 		FormLayoutContainer buttonGroupLayout = FormLayoutContainer.createButtonLayout("buttonGroupLayout", getTranslator());
@@ -298,16 +300,22 @@ public class FileUploadController extends FormBasicController {
 		buttonGroupLayout.setElementCssClass("o_sel_upload_buttons");
 		uifactory.addFormSubmitButton("ul.upload", buttonGroupLayout);
 		if (showCancel) {
-			uifactory.addFormCancelButton("cancel", buttonGroupLayout, ureq, getWindowControl());
+			uifactory.addFormCancelButton("cancel", buttonGroupLayout, ureq, getWindowControl());			
 		}
 	}
 
 	@Override
 	protected void formInnerEvent(UserRequest ureq, FormItem source, FormEvent event) {
 		if(fileEl == source) {
-			if(metaDataCtr != null) {
+			if(FileElementEvent.DELETE.equals(event.getCommand())) {
+				fileEl.reset();
+				fileEl.setDeleteEnabled(false);
+				fileEl.clearError();
+			} else if(metaDataCtr != null) {
 				String filename = fileEl.getUploadFileName();
-				if(!FileUtils.validateFilename(filename)) {
+				if(filename == null) {
+					metaDataCtr.getFilenameEl().setExampleKey("mf.filename.warning", null);
+				} else if(!FileUtils.validateFilename(filename)) {
 					String suffix = FileUtils.getFileSuffix(filename);
 					if(suffix != null && suffix.length() > 0) {
 						filename = filename.substring(0, filename.length() - suffix.length() - 1);
@@ -328,21 +336,21 @@ public class FileUploadController extends FormBasicController {
 			doUpload(ureq);
 		} else {
 			if (mainForm.getLastRequestError() == Form.REQUEST_ERROR_GENERAL ) {
-				showError("failed");
+				showError("failed");				
 			} else if (mainForm.getLastRequestError() == Form.REQUEST_ERROR_FILE_EMPTY ) {
-				showError("failed");
+				showError("failed");				
 			} else if (mainForm.getLastRequestError() == Form.REQUEST_ERROR_UPLOAD_LIMIT_EXCEEDED) {
-				showError("QuotaExceeded");
+				showError("QuotaExceeded");				
 			}
 			status = FolderCommandStatus.STATUS_FAILED;
-			fireEvent(ureq, Event.FAILED_EVENT);
+			fireEvent(ureq, Event.FAILED_EVENT);					
 		}
 	}
-
+	
 	/**
 	 * @see org.olat.core.gui.components.form.flexible.impl.FormBasicController#formCancelled(org.olat.core.gui.UserRequest)
 	 */
-	@Override
+	@Override	
 	protected void formCancelled(UserRequest ureq) {
 		status = FolderCommandStatus.STATUS_CANCELED;
 		fireEvent(ureq, Event.CANCELLED_EVENT);
@@ -390,12 +398,12 @@ public class FileUploadController extends FormBasicController {
 				vfsLockManager.unlock(existingVFSItem, getIdentity(), ureq.getUserSession().getRoles());
 			}
 			unlockDialogBox.deactivate();
-
+			
 			existingVFSItem.delete();
 			newFile.rename(fileName);
 			// ... and notify listeners.
 			finishUpload(ureq);
-
+			
 		} else if (source == revisionListDialogBox) {
 			removeAsListenerAndDispose(revisionListCtr);
 			revisionListCtr = null;
@@ -406,7 +414,7 @@ public class FileUploadController extends FormBasicController {
 			revisionListDialogBox.deactivate();
 			removeAsListenerAndDispose(revisionListDialogBox);
 			revisionListDialogBox = null;
-
+			
 			if(FolderCommandStatus.STATUS_CANCELED == revisionListCtr.getStatus()) {
 				//don't want to delete revisions, clean the temporary file
 				doCancel(ureq);
@@ -415,7 +423,7 @@ public class FileUploadController extends FormBasicController {
 			}
 		}
 	}
-
+	
 	/**
 	 * Delete the uploaded file and send cancel event
 	 * @param ureq
@@ -426,7 +434,7 @@ public class FileUploadController extends FormBasicController {
 		}
 		fireEvent(ureq, Event.CANCELLED_EVENT);
 	}
-
+	
 	private void doFinishOverwrite(UserRequest ureq) {
 		if (existingVFSItem instanceof Versionable && ((Versionable)existingVFSItem).getVersions().isVersioned()) {
 			//new version
@@ -437,7 +445,7 @@ public class FileUploadController extends FormBasicController {
 				String fileName = existingVFSItem.getName();
 				existingVFSItem.delete();
 				newFile.rename(fileName);
-
+				
 				// ... and notify listeners.
 				finishUpload(ureq);
 			} else {
@@ -447,33 +455,33 @@ public class FileUploadController extends FormBasicController {
 			//if the file is locked, ask for unlocking it
 			if(vfsLockManager.isLocked(existingVFSItem)) {
 				askForUnlock(ureq);
-
+				
 			} else {
 				// Overwrite...
 				String fileName = existingVFSItem.getName();
 				existingVFSItem.delete();
 				newFile.rename(fileName);
-
+				
 				// ... and notify listeners.
 				finishUpload(ureq);
 			}
 		}
 	}
-
+	
 	private void doFinishComment(UserRequest ureq) {
 		String comment = commentVersionCtr.getComment();
-
+		
 		Roles roles = ureq.getUserSession().getRoles();
 		boolean locked = vfsLockManager.isLocked(existingVFSItem);
 		if(locked && !commentVersionCtr.keepLocked()) {
 			vfsLockManager.unlock(existingVFSItem, getIdentity(), roles);
 		}
-
+		
 		commentVersionDialogBox.deactivate();
 		if(revisionListDialogBox != null) {
 			revisionListDialogBox.deactivate();
 		}
-
+		
 		//ok, new version of the file
 		Versionable existingVersionableItem = (Versionable)existingVFSItem;
 		boolean ok = existingVersionableItem.getVersions().addVersion(ureq.getIdentity(), comment, newFile.getInputStream());
@@ -486,12 +494,12 @@ public class FileUploadController extends FormBasicController {
 		}
 		finishUpload(ureq);
 	}
-
+	
 	private void doFinishRevisionList(UserRequest ureq) {
 		if(existingVFSItem.getParentContainer() != null) {
 			existingVFSItem = existingVFSItem.getParentContainer().resolve(existingVFSItem.getName());
 		}
-
+		
 		Versionable versionable = (Versionable)existingVFSItem;
 		Versions versions = versionable.getVersions();
 		int maxNumOfRevisions = getMaxNumOfRevisionsOfExistingVFSItem();
@@ -501,7 +509,7 @@ public class FileUploadController extends FormBasicController {
 			askToReduceRevisionList(ureq, versionable);
 		}
 	}
-
+	
 	private int getMaxNumOfRevisionsOfExistingVFSItem() {
 		String relPath = null;
 		if(existingVFSItem instanceof OlatRootFileImpl) {
@@ -509,29 +517,29 @@ public class FileUploadController extends FormBasicController {
 		}
 		return FolderConfig.versionsAllowed(relPath);
 	}
-
+	
 	private void askToReduceRevisionList(UserRequest ureq, Versionable versionable) {
 		removeAsListenerAndDispose(revisionListCtr);
 		removeAsListenerAndDispose(revisionListDialogBox);
-
+		
 		Versions versions = versionable.getVersions();
 		int maxNumOfRevisions = getMaxNumOfRevisionsOfExistingVFSItem();
 		String[] params = new String[]{ Integer.toString(maxNumOfRevisions), Integer.toString(versions.getRevisions().size()) };
 		String title = translate("ul.tooManyRevisions.title", params);
 		String description = translate("ul.tooManyRevisions.description", params);
-
+		
 		revisionListCtr = new RevisionListController(ureq, getWindowControl(), versionable, null, description, false);
 		listenTo(revisionListCtr);
-
+		
 		revisionListDialogBox = new CloseableModalController(getWindowControl(), translate("delete"), revisionListCtr.getInitialComponent(), true, title);
 		listenTo(revisionListDialogBox);
 		revisionListDialogBox.activate();
 	}
-
+	
 	private void askForUnlock(UserRequest ureq) {
 		removeAsListenerAndDispose(unlockCtr);
 		removeAsListenerAndDispose(unlockDialogBox);
-
+		
 		unlockCtr = new VersionCommentController(ureq,getWindowControl(), true, false);
 		listenTo(unlockCtr);
 		String title = unlockCtr.getAndRemoveFormTitle();
@@ -539,7 +547,7 @@ public class FileUploadController extends FormBasicController {
 		listenTo(unlockDialogBox);
 		unlockDialogBox.activate();
 	}
-
+	
 	private void askForComment(UserRequest ureq) {
 		removeAsListenerAndDispose(commentVersionCtr);
 		removeAsListenerAndDispose(commentVersionDialogBox);
@@ -552,20 +560,20 @@ public class FileUploadController extends FormBasicController {
 		listenTo(commentVersionDialogBox);
 		commentVersionDialogBox.activate();
 	}
-
+	
 	private void doUpload(UserRequest ureq) {
 		// check for available space
 		if (remainingQuotKB != -1 && (fileEl.getUploadFile().length() / 1024 > remainingQuotKB)) {
 			fileEl.setErrorKey("QuotaExceeded", null);
 			fileEl.getUploadFile().delete();
-			return;
+			return;			
 		}
-
+		
 		String fileName = fileEl.getUploadFileName();
 		if(metaDataCtr != null && StringHelper.containsNonWhitespace(metaDataCtr.getFilename())) {
 			fileName = metaDataCtr.getFilename();
 		}
-
+		
 		File uploadedFile = fileEl.getUploadFile();
 		if(resizeImg && fileName != null && imageExtPattern.matcher(fileName.toLowerCase()).find()
 				&& resizeEl.isSelected(0)) {
@@ -573,11 +581,11 @@ public class FileUploadController extends FormBasicController {
 			File imageScaled = new File(uploadedFile.getParentFile(), "scaled_" + uploadedFile.getName() + "." + extension);
 			if(imageHelper.scaleImage(uploadedFile, extension, imageScaled, 1280, 1280, false) != null) {
 				//problem happen, special GIF's (see bug http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6358674)
-				//don't try to scale if not all ok
+				//don't try to scale if not all ok 
 				uploadedFile = imageScaled;
 			}
 		}
-
+		
 		// check if such a filename does already exist
 		existingVFSItem = uploadVFSContainer.resolve(fileName);
 		if (existingVFSItem == null) {
@@ -597,12 +605,12 @@ public class FileUploadController extends FormBasicController {
 			boolean success = false;
 			try(InputStream in = new FileInputStream(uploadedFile);
 					BufferedOutputStream out = new BufferedOutputStream(newFile.getOutputStream(false)))  {
-				success = FileUtils.copy(in, out);
+				success = FileUtils.copy(in, out);					
 				uploadedFile.delete();
 			} catch (IOException e) {
 				success = false;
 			}
-
+			
 			if (success) {
 				boolean locked = vfsLockManager.isLockedForMe(existingVFSItem, getIdentity(), ureq.getUserSession().getRoles());
 				if (locked) {
@@ -616,11 +624,11 @@ public class FileUploadController extends FormBasicController {
 			} else {
 				showError("failed");
 				status = FolderCommandStatus.STATUS_FAILED;
-				fireEvent(ureq, Event.FAILED_EVENT);
+				fireEvent(ureq, Event.FAILED_EVENT);					
 			}
 		}
 	}
-
+	
 	private void lockedFileDialog(UserRequest ureq, String renamedFilename) {
 		removeAsListenerAndDispose(lockedFileDialog);
 		String title = translate("ul.lockedFile.title");
@@ -630,7 +638,7 @@ public class FileUploadController extends FormBasicController {
 		listenTo(lockedFileDialog);
 		lockedFileDialog.activate();
 	}
-
+	
 	private void uploadVersionedFile(UserRequest ureq, String renamedFilename) {
 		Versionable versionable = (Versionable)existingVFSItem;
 		Versions versions = versionable.getVersions();
@@ -647,7 +655,7 @@ public class FileUploadController extends FormBasicController {
 			askToReduceRevisionList(ureq, versionable);
 		}
 	}
-
+	
 	private void askOverwriteOrRename(UserRequest ureq, String renamedFilename) {
 		removeAsListenerAndDispose(overwriteDialog);
 		// let calling method decide what to do.
@@ -658,7 +666,7 @@ public class FileUploadController extends FormBasicController {
 		listenTo(overwriteDialog);
 		overwriteDialog.activate();
 	}
-
+	
 	private void askNewVersionOrRename(UserRequest ureq, String renamedFilename) {
 		removeAsListenerAndDispose(overwriteDialog);
 		overwriteDialog = DialogBoxUIFactory.createGenericDialog(ureq, getWindowControl(),
@@ -667,11 +675,11 @@ public class FileUploadController extends FormBasicController {
 		listenTo(overwriteDialog);
 		overwriteDialog.activate();
 	}
-
+	
 	private void uploadNewFile(UserRequest ureq, File uploadedFile, String filename) {
 		// save file and finish
 		newFile = uploadVFSContainer.createChildLeaf(filename);
-
+		
 		boolean success = true;
 		if(newFile == null) {
 			// FXOLAT-409 somehow "createChildLeaf" did not succeed...
@@ -686,19 +694,19 @@ public class FileUploadController extends FormBasicController {
 				success = false;
 			}
 		}
-
+		
 		if (success) {
 			String filePath = (uploadRelPath == null ? "" : uploadRelPath + "/") + newFile.getName();
 			finishSuccessfullUpload(filePath, newFile, ureq);
 			fileInfoMBean.logUpload(newFile.getSize());
-			fireEvent(ureq, Event.DONE_EVENT);
+			fireEvent(ureq, Event.DONE_EVENT);										
 		} else {
 			showError("failed");
 			status = FolderCommandStatus.STATUS_FAILED;
-			fireEvent(ureq, Event.FAILED_EVENT);
+			fireEvent(ureq, Event.FAILED_EVENT);					
 		}
 	}
-
+	
 	private void finishUpload(UserRequest ureq) {
 		// in both cases the upload must be finished and notified with a FolderEvent
 		String filePath = (uploadRelPath == null ? "" : uploadRelPath + "/") + newFile.getName();
@@ -727,7 +735,7 @@ public class FileUploadController extends FormBasicController {
 			meta.clearThumbnails();//if overwrite an older file
 			meta.write();
 		}
-
+		
 		if(item == null) {
 			logError("File cannot be uploaded: " + filePath, null);
 		} else {
@@ -742,7 +750,7 @@ public class FileUploadController extends FormBasicController {
 	 */
 	@Override
 	protected void doDispose() {
-		//
+		// 
 	}
 
 	/**
@@ -798,7 +806,7 @@ public class FileUploadController extends FormBasicController {
 	/**
 	 * Set the relative path within the rootDir where uploaded files should be put
 	 * into. If NULL, the root Dir is used
-	 *
+	 * 
 	 * @param uploadRelPath
 	 */
 	public void setUploadRelPath(String uploadRelPath) {
@@ -809,9 +817,9 @@ public class FileUploadController extends FormBasicController {
 			logError("Can not create upload rel path::" + uploadRelPath + ", fall back to current container", null);
 			uploadVFSContainer = currentContainer;
 		}
-
+		
 		// Update the destination path in the GUI
-		if (showTargetPath) {
+		if (showTargetPath) {			
 			String path = "/ " + currentContainer.getName() + (uploadRelPath == null ? "" : " / " + uploadRelPath);
 			VFSContainer container = currentContainer.getParentContainer();
 			while (container != null) {
@@ -823,7 +831,7 @@ public class FileUploadController extends FormBasicController {
 	}
 
 	public String getNewFileName() {
-		return (this.newFile != null) ? this.newFile.getName() : null;
+		return (this.newFile != null) ? this.newFile.getName() : null; 
 	}
 
 	@Override
@@ -850,7 +858,7 @@ public class FileUploadController extends FormBasicController {
 					// single slash means no sub-directory
 					if (subPath.length() == 1 && subPath.startsWith("/")) {
 						subPath = "";
-					}
+					}				
 					// fix missing slash at start
 					if (subPath.length() > 0 && !subPath.startsWith("/")) {
 						subPath = "/" + subPath;
@@ -878,36 +886,77 @@ public class FileUploadController extends FormBasicController {
 		if(metaDataCtr != null && StringHelper.containsNonWhitespace(metaDataCtr.getFilename())) {
 			return validateFilename(metaDataCtr.getFilename(), metaDataCtr.getFilenameEl());
 		}
-		String filename = fileEl.getUploadFileName();
 
-		boolean allOk = validateFilename(filename, fileEl);
-		List<ValidationStatus> status = new ArrayList<>();
-		fileEl.validate(status);//revalidate because we clear the errors
-		return allOk && status.isEmpty();
+		boolean allOk = validateFilename(fileEl);
+		return allOk;
 	}
 
+	private boolean validateFilename(FileElement itemEl) {
+		boolean allOk = true;
+		// validate clean the errors
+		List<ValidationStatus> fileStatus = new ArrayList<>();
+		// revalidate
+		itemEl.validate(fileStatus);
+
+		if(fileStatus.isEmpty()) {
+			String filename = itemEl.getUploadFileName();
+			if (!StringHelper.containsNonWhitespace(filename)) {
+				itemEl.setErrorKey("NoFileChosen", null);
+				allOk &= false;
+			}
+
+			if(uriValidation) {
+				try {
+					new URI(filename);
+				} catch(Exception e) {
+					itemEl.setErrorKey("cfile.name.notvalid.uri", null);
+					allOk &= false;
+				}
+			}
+			if(!FileUtils.validateFilename(filename)) {
+				itemEl.setErrorKey("cfile.name.notvalid", null);
+				allOk &= false;
+			}
+			allOk &= validateQuota(itemEl);
+		}
+
+		itemEl.setDeleteEnabled(!allOk);
+		return allOk;
+	}
+	
 	private boolean validateFilename(String filename, FormItem itemEl) {
 		itemEl.clearError();
-
+		
 		boolean allOk = true;
 		if (!StringHelper.containsNonWhitespace(filename)) {
 			itemEl.setErrorKey("NoFileChosen", null);
 			allOk &= false;
 		}
 
-		boolean isFilenameValid = FileUtils.validateFilename(filename);
-		if(!isFilenameValid) {
+		if(uriValidation) {
+			try {
+				new URI(filename);
+			} catch(Exception e) {
+				itemEl.setErrorKey("cfile.name.notvalid.uri", null);
+				allOk &= false;
+			}
+		}
+		if(!FileUtils.validateFilename(filename)) {
 			itemEl.setErrorKey("cfile.name.notvalid", null);
 			allOk &= false;
 		}
-		if (remainingQuotKB != -1  && fileEl.getUploadFile() != null
-				&& fileEl.getUploadFile().length() / 1024 > remainingQuotKB) {
-			fileEl.clearError();
+
+		allOk &= validateQuota(fileEl);
+		return allOk;
+	}
+
+	private boolean validateQuota(FileElement itemEl) {
+		if (remainingQuotKB != -1  && itemEl.getUploadFile() != null
+				&& itemEl.getUploadFile().length() / 1024 > remainingQuotKB) {
 			String supportAddr = WebappHelper.getMailConfig("mailQuota");
 			getWindowControl().setError(translate("ULLimitExceeded", new String[] { Formatter.roundToString((uploadLimitKB+0f) / 1000, 1), supportAddr }));
-			allOk &= false;
+			return false;
 		}
-
-		return allOk;
+		return true;
 	}
 }

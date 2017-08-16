@@ -27,9 +27,10 @@ import org.olat.selenium.page.core.CalendarPage;
 import org.olat.selenium.page.core.ContactPage;
 import org.olat.selenium.page.core.FolderPage;
 import org.olat.selenium.page.core.IMPage;
+import org.olat.selenium.page.course.InfoMessageCEPage;
 import org.olat.selenium.page.forum.ForumPage;
 import org.olat.selenium.page.graphene.OOGraphene;
-import org.olat.selenium.page.portfolio.PortfolioPage;
+import org.olat.selenium.page.portfolio.BinderPage;
 import org.olat.selenium.page.wiki.WikiPage;
 import org.olat.user.restapi.UserVO;
 import org.openqa.selenium.By;
@@ -135,7 +136,7 @@ public class GroupPage {
 	
 	public ContactPage openContact() {
 		openMenuItem(contactTool);
-		OOGraphene.waitElement(By.cssSelector("fieldset.o_sel_contact_form"), 2, browser);
+		OOGraphene.waitElement(By.cssSelector("fieldset.o_sel_contact_form"), 5, browser);
 		return new ContactPage(browser);
 	}
 	
@@ -144,34 +145,34 @@ public class GroupPage {
 		return this;
 	}
 	
-	public GroupPage openNews() {
+	public InfoMessageCEPage openNews() {
 		openMenuItem(newsTool);
-		OOGraphene.waitElement(By.id("o_msg_info"), 2, browser);
-		return this;
+		OOGraphene.waitElement(By.className("o_infomsg"), 5, browser);
+		return new InfoMessageCEPage(browser);
 	}
 	
 	public FolderPage openFolder() {
 		openMenuItem(folderTool);
-		OOGraphene.waitElement(FolderPage.folderBy, 2, browser);
+		OOGraphene.waitElement(FolderPage.folderBy, 5, browser);
 		return new FolderPage(browser);
 	}
 	
 	public ForumPage openForum() {
 		openMenuItem(forumTool);
-		OOGraphene.waitElement(ForumPage.threadTableBy, 2, browser);
+		OOGraphene.waitElement(ForumPage.threadTableBy, 5, browser);
 		return ForumPage.getGroupForumPage(browser);
 	}
 	
 	public WikiPage openWiki() {
 		openMenuItem(wikiTool);
-		OOGraphene.waitElement(WikiPage.wikiWrapperBy, 2, browser);
+		OOGraphene.waitElement(WikiPage.wikiWrapperBy, 5, browser);
 		return WikiPage.getGroupWiki(browser);
 	}
 	
-	public PortfolioPage openPortfolio() {
+	public BinderPage openPortfolio() {
 		openMenuItem(portfolioTool);
-		OOGraphene.waitElement(PortfolioPage.mapBy, 2, browser);
-		return new PortfolioPage(browser);
+		OOGraphene.waitElement(BinderPage.portfolioBy, 5, browser);
+		return new BinderPage(browser);
 	}
 	
 	private GroupPage openMenuItem(Tool tool) {
@@ -203,21 +204,21 @@ public class GroupPage {
 			By showOwnersBy = By.cssSelector(".o_sel_group_show_owners input[type='checkbox']");
 			browser.findElement(showOwnersBy).click();
 			OOGraphene.waitBusy(browser);
-			OOGraphene.waitElement(memberMenuItem, 2, browser);
+			OOGraphene.waitElement(memberMenuItem, 5, browser);
 		}
 		
 		if(participants) {
 			By showParticipants = By.cssSelector(".o_sel_group_show_participants input[type='checkbox']");
 			browser.findElement(showParticipants).click();
 			OOGraphene.waitBusy(browser);
-			OOGraphene.waitElement(memberMenuItem, 2, browser);
+			OOGraphene.waitElement(memberMenuItem, 5, browser);
 		}
 		
 		if(waitingList) {
 			By showWaitingListBy = By.cssSelector(".o_sel_group_show_waiting_list input[type='checkbox']");
 			browser.findElement(showWaitingListBy).click();
 			OOGraphene.waitBusy(browser);
-			OOGraphene.waitElement(memberMenuItem, 2, browser);
+			OOGraphene.waitElement(memberMenuItem, 5, browser);
 		}
 		return this;
 	}
@@ -258,21 +259,16 @@ public class GroupPage {
 				.enableTool(portfolioTool);
 	}
 	
+	public GroupPage enableCalendarTool() {
+		return enableTool(calendarTool);
+	}
+	
 	private GroupPage enableTool(Tool tool) {
 		By checkToolsBy = tool.getCheckboxBy();
 		WebElement checkToolEl = browser.findElement(checkToolsBy);
 		checkToolEl.click();
 		OOGraphene.waitBusy(browser);
 		OOGraphene.waitElement(tool.getMenuItemBy(), 2, browser);
-		return this;
-	}
-	
-	public GroupPage setMembersInfos(String text) {		
-		OOGraphene.tinymce(text, browser);
-		
-		By submitBy = By.cssSelector(".o_sel_collaboration_news_save button.btn-primary");
-		browser.findElement(submitBy).click();
-		OOGraphene.waitBusy(browser);
 		return this;
 	}
 	
@@ -330,22 +326,22 @@ public class GroupPage {
 	}
 	
 	public GroupPage assertParticipantList() {
-		By participantListBy = By.id("o_sel_group_participants");
+		By participantListBy = By.className("o_sel_participants");
 		List<WebElement> participantListEl = browser.findElements(participantListBy);
 		Assert.assertFalse(participantListEl.isEmpty());
 		return this;
 	}
 	
 	public GroupPage assertMembersInOwnerList(UserVO owner) {
-		return assertMembers(owner, "o_sel_group_coaches");
+		return assertMembers(owner, "o_sel_coaches");
 	}
 	
 	public GroupPage assertMembersInParticipantList(UserVO owner) {
-		return assertMembers(owner, "o_sel_group_participants");
+		return assertMembers(owner, "o_sel_participants");
 	}
 	
 	public GroupPage assertMembersInWaitingList(UserVO owner) {
-		return assertMembers(owner, "o_sel_group_waiting_list");
+		return assertMembers(owner, "o_sel_waiting_list");
 	}
 	
 	private GroupPage assertMembers(UserVO member, String cssClass) {
@@ -355,20 +351,20 @@ public class GroupPage {
 	}
 	
 	public boolean isInMembersOwnerList(UserVO owner) {
-		return isMembers(owner, "o_sel_group_coaches");
+		return isMembers(owner, "o_sel_coaches");
 	}
 	
 	public boolean isInMembersParticipantList(UserVO owner) {
-		return isMembers(owner, "o_sel_group_participants");
+		return isMembers(owner, "o_sel_participants");
 	}
 	
 	public boolean isInMembersInWaitingList(UserVO owner) {
-		return isMembers(owner, "o_sel_group_waiting_list");
+		return isMembers(owner, "o_sel_waiting_list");
 	}
 	
 	private boolean isMembers(UserVO member, String cssClass) {
 		String firstName = member.getFirstName();
-		By longBy = By.xpath("//div[@id='" + cssClass + "']//table//tr//td//a[contains(text(),'" + firstName + "')]");
+		By longBy = By.xpath("//div[contains(@class,'" + cssClass + "')]//div[contains(@class,'o_cmember_info_wrapper')]/a/span[contains(text(),'" + firstName + "')]");
 		List<WebElement> elements = browser.findElements(longBy);
 		return elements.size() > 0;
 	}

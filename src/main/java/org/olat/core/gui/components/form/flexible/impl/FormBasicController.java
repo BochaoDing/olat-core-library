@@ -86,7 +86,8 @@ public abstract class FormBasicController extends BasicController implements IFo
 	public static final int LAYOUT_BAREBONE = 4;
 	public static final int LAYOUT_PANEL = 5;
 	public static final int LAYOUT_DEFAULT_6_6 = 6;
-	public static final int LAYOUT_DEFAULT_9_3 = 6;
+	public static final int LAYOUT_DEFAULT_9_3 = 7;
+	public static final int LAYOUT_DEFAULT_2_10 = 8;
 
 	protected FormLayoutContainer flc;
 
@@ -178,6 +179,10 @@ public abstract class FormBasicController extends BasicController implements IFo
 			// init with panel layout
 			flc = FormLayoutContainer.createDefaultFormLayout_9_3("ffo_default_9_3", getTranslator());		
 			mainForm = Form.create(mainFormId, "ffo_main_default_9_3", flc, this);
+		} else if (layout == LAYOUT_DEFAULT_2_10) {
+			// init with panel layout
+			flc = FormLayoutContainer.createDefaultFormLayout_2_10("ffo_default_2_10", getTranslator());		
+			mainForm = Form.create(mainFormId, "ffo_main_default_2_10", flc, this);
 		} else if (layout == LAYOUT_CUSTOM) {
 			throw new AssertException("Use another constructor to work with a custom layout!");
 
@@ -214,6 +219,10 @@ public abstract class FormBasicController extends BasicController implements IFo
 		} else if (layout == LAYOUT_DEFAULT_9_3) {
 			// init with default layout
 			flc = FormLayoutContainer.createDefaultFormLayout_9_3("ffo_panel", getTranslator());
+		
+		}  else if (layout == LAYOUT_DEFAULT_2_10) {
+			// init with default layout
+			flc = FormLayoutContainer.createDefaultFormLayout_2_10("ffo_panel", getTranslator());
 		
 		} else if (layout == LAYOUT_CUSTOM && customLayoutPageName != null) {
 			// init with provided layout
@@ -429,7 +438,7 @@ public abstract class FormBasicController extends BasicController implements IFo
 				 * evaluate normal inner form events
 				 */
 				FormItem fiSrc = fe.getFormItemSource();
-				propagateDirtinessToContainer(fiSrc);
+				propagateDirtinessToContainer(fiSrc, fe);
 				//
 				formInnerEvent(ureq, fiSrc, fe);
 				// no need to set container dirty, up to controller code if something is dirty
@@ -437,7 +446,7 @@ public abstract class FormBasicController extends BasicController implements IFo
 		}
 	}
 	
-	protected void propagateDirtinessToContainer(FormItem fiSrc) {
+	protected void propagateDirtinessToContainer(FormItem fiSrc, @SuppressWarnings("unused") FormEvent fe) {
 		// check for InlineElments remove as the tag library has been replaced
 		if(fiSrc instanceof InlineElement){
 			if(!((InlineElement) fiSrc).isInlineEditingElement()){ //OO-137
@@ -577,12 +586,12 @@ public abstract class FormBasicController extends BasicController implements IFo
 	 * @see org.olat.core.gui.control.controller.BasicController#showInfo(java.lang.String)
 	 */
 	
-	protected void setFormInfo (String i18nKey, String args) {
+	protected void setFormInfo (String i18nKey, String[] args) {
 		flc.contextRemove("off_warn");
 		if (i18nKey == null) {
 			flc.contextRemove("off_info");
 		} else {
-			flc.contextPut("off_info", getTranslator().translate(i18nKey, new String[]{args}));
+			flc.contextPut("off_info", getTranslator().translate(i18nKey, args));
 		}
 	}
 	

@@ -49,7 +49,7 @@ import org.olat.core.util.Util;
 import org.olat.core.util.vfs.VFSContainer;
 import org.olat.core.util.vfs.VFSItem;
 import org.olat.core.util.vfs.callbacks.VFSSecurityCallback;
-import org.olat.core.util.vfs.restapi.SystemItemFilter;
+import org.olat.core.util.vfs.filters.SystemItemFilter;
 import org.olat.course.CourseModule;
 import org.olat.course.ICourse;
 import org.olat.course.condition.Condition;
@@ -122,7 +122,7 @@ public class BCCourseNode extends AbstractAccessableCourseNode {
 	public NodeRunConstructionResult createNodeRunConstructionResult(UserRequest ureq, WindowControl wControl,
 			UserCourseEnvironment userCourseEnv, NodeEvaluation ne, String nodecmd) {
 		updateModuleConfigDefaults(false);
-		BCCourseNodeRunController bcCtrl = new BCCourseNodeRunController(ureq, wControl, userCourseEnv.getCourseEnvironment(), this, ne);
+		BCCourseNodeRunController bcCtrl = new BCCourseNodeRunController(ureq, wControl, userCourseEnv, this, ne);
 		if (StringHelper.containsNonWhitespace(nodecmd)) {
 			bcCtrl.activatePath(ureq, nodecmd);
 		}
