@@ -96,9 +96,7 @@ public class XStreamHelper {
 
 	static {
 		XStream.setupDefaultSecurity(unconfiguredXStream);
-		//unconfiguredXStream.addPermission(NoTypePermission.NONE);
-		unconfiguredXStream.addPermission(AnyTypePermission.ANY);
-		//unconfiguredXStream.allowTypesByWildcard(ALLOWED_TYPES_WILDCARDS);
+		unconfiguredXStream.allowTypesByWildcard(ALLOWED_TYPES_WILDCARDS);
 	}
 
 	/**
@@ -245,9 +243,7 @@ public class XStreamHelper {
 	public static XStream createXStreamInstance() {
 		EnhancedXStream xstream = new EnhancedXStream(false);
 		XStream.setupDefaultSecurity(xstream);
-		xstream.addPermission(AnyTypePermission.ANY);
-		//xstream.addPermission(NoTypePermission.NONE);
-		//xstream.allowTypesByWildcard(ALLOWED_TYPES_WILDCARDS);
+		xstream.allowTypesByWildcard(ALLOWED_TYPES_WILDCARDS);
 		return xstream;
 	}
 	
@@ -260,9 +256,7 @@ public class XStreamHelper {
 	public static XStream createXStreamInstanceForDBObjects() {
 		EnhancedXStream xstream = new EnhancedXStream(true);
 		XStream.setupDefaultSecurity(xstream);
-		xstream.addPermission(AnyTypePermission.ANY);
-		//xstream.addPermission(NoTypePermission.NONE);
-		//xstream.allowTypesByWildcard(ALLOWED_TYPES_WILDCARDS);
+		xstream.allowTypesByWildcard(ALLOWED_TYPES_WILDCARDS);
 		return xstream;
 	}
 
