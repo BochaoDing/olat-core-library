@@ -157,7 +157,10 @@ public class LinkRenderer extends DefaultComponentRenderer {
 				Form theForm = (Form)link.getInternalAttachedObject();
 				sb.append("href=\"javascript:")
 				  .append(FormJSHelper.getJSFnCallFor(theForm, elementId, 1))
-				  .append("\" ");
+				  .append(";\" ");
+				if(link.isForceFlexiDirtyFormWarning()) {
+					sb.append("onclick=\"return o2cl_dirtyCheckOnly();\" ");
+				}
 			} else if(link.isPopup()) {
 				StringOutput href = new StringOutput();
 				LinkPopupSettings popup = link.getPopup();
@@ -235,11 +238,11 @@ public class LinkRenderer extends DefaultComponentRenderer {
 			
 			//on click() is part of prototype.js
 			if(link.isRegisterForMousePositionEvent()) {
-				jsSb.append("jQuery('#"+elementId+"').click(function(event) {")
-				       .append(" jQuery('#" + elementId + "').each(function(index, el) {;")
-				       .append("  var href = jQuery(el).attr('href');")
-				       .append(" 	if(href.indexOf('x') == -1) jQuery(el).attr('href',href+'x'+event.pageX+'y'+event.pageY+'');")
-				       .append(" });});");
+				jsSb.append(elementId).append(".click(function(event) {")
+			       .append(" jQuery('#").append(elementId).append("').each(function(index, el) {;")
+			       .append("  var href = jQuery(el).attr('href');")
+			       .append(" 	if(href.indexOf('x') == -1) jQuery(el).attr('href',href+'x'+event.pageX+'y'+event.pageY+'');")
+			       .append(" });});");
 			}
 			/**
 			 * TODO:gs:b may be usefull as well
@@ -247,8 +250,15 @@ public class LinkRenderer extends DefaultComponentRenderer {
 			 * Event.observe("id", "click", functionName.bindAsEventListener(this));
 			 */
 			if(link.getJavascriptHandlerFunction() != null) {
-				jsSb.append("  jQuery('#"+elementId+"').on('"+link.getMouseEvent()+"', "+link.getJavascriptHandlerFunction()+");");
+				jsSb.append(elementId).append(".on('").append(link.getMouseEvent()).append("', ").append(link.getJavascriptHandlerFunction()).append(");");
 			}	
+			
+			/**
+			 * Focus link so that it can be invoked using the enter key using a keyboard. 
+			 */
+			if(link.isFocus()) {								
+				jsSb.append(elementId).append(".focus();");
+			}
 		} else {
 			String text;
 			if (customDisplayText != null) {

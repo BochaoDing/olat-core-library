@@ -22,4 +22,9 @@ public class StaticDirectory {
 	public final String getName() {
 		return name;
 	}
+
+	@Override
+	public final String toString() {
+		return getName();
+	}
 }

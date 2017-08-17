@@ -54,9 +54,14 @@ import javax.annotation.Nullable;
 public interface UserPropertyHandler {
 
 	/**
-	 * @return The identifyer string of this UserPropertyHandler
+	 * @return The identifier string of this UserPropertyHandler
 	 */
 	public String getName();
+	
+	/**
+	 * @return The column name of the property in the database if mapped
+	 */
+	public String getDatabaseColumnName();
 
 	/**
 	 * Use the group identifyer to visually group user fields together when

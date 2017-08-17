@@ -24,9 +24,12 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import org.olat.core.CoreSpringFactory;
 import org.olat.core.commons.services.image.ImageService;
 import org.olat.core.gui.components.htmlheader.jscss.CustomCSS;
+import org.olat.core.helpers.GUISettings;
 import org.olat.core.helpers.Settings;
+import org.olat.core.util.FileUtils;
 import org.olat.core.util.StringHelper;
 import org.olat.core.util.UserSession;
 import org.olat.core.util.WebappHelper;
@@ -68,10 +71,7 @@ public class CourseLayoutHelper {
 		public boolean accept(VFSItem it) {
 			if (!(it instanceof VFSContainer)) return false;
 			// remove unwanted meta-dirs
-			else if (it.getName().equalsIgnoreCase("CVS")) return false;
-			else if (it.getName().equalsIgnoreCase(".DS_Store")) return false;
-			else if (it.getName().equalsIgnoreCase(".sass-cache")) return false;
-			else if (it.getName().equalsIgnoreCase(".hg")) return false;
+			else if (FileUtils.isMetaFilename(it.getName())) return false;
 			// last check is blacklist
 			return !(layoutBlacklist.contains(it.getName()));
 		}
@@ -168,11 +168,13 @@ public class CourseLayoutHelper {
 
 		// 1. add the system-defaults
 		String staticAbsPath = WebappHelper.getContextRealPath("/static");
-		File themesFile = new File(staticAbsPath);
-		VFSContainer cThemeCont = new LocalFolderImpl(themesFile);
-		cThemeCont = (VFSContainer) cThemeCont.resolve("/coursethemes");
-		if (cThemeCont != null) {
-			courseThemes = cThemeCont.getItems(themeNamesFilter);
+		if (staticAbsPath != null) {
+			File themesFile = new File(staticAbsPath);
+			VFSContainer cThemeCont = new LocalFolderImpl(themesFile);
+			cThemeCont = (VFSContainer) cThemeCont.resolve("/coursethemes");
+			if (cThemeCont != null) {
+				courseThemes = cThemeCont.getItems(themeNamesFilter);
+			}
 		}
 
 		// 2. now add the additional Templates from the current Theme
@@ -196,7 +198,7 @@ public class CourseLayoutHelper {
 		File themeDir = null;
 		// first attempt is to use custom theme path
 		if (Settings.getGuiCustomThemePath() != null) {
-			themeDir = new File(Settings.getGuiCustomThemePath(), Settings.getGuiThemeIdentifyer());
+			themeDir = new File(Settings.getGuiCustomThemePath(), CoreSpringFactory.getImpl(GUISettings.class).getGuiThemeIdentifyer());
 			if (themeDir.exists() && themeDir.isDirectory()) {
 				VFSContainer themeContainer = new LocalFolderImpl(themeDir);
 				courseLayoutFolder = (VFSContainer) themeContainer.resolve("/courselayouts");	
@@ -204,8 +206,11 @@ public class CourseLayoutHelper {
 		}
 		// fallback is to use the standards themes directory in the web app
 		if (themeDir == null || !themeDir.exists() || !themeDir.isDirectory()) {
-			File themesDir = new File(WebappHelper.getContextRealPath("/static/themes/"));
-			themeDir = new File(themesDir, Settings.getGuiThemeIdentifyer());
+			String staticAbsPath = WebappHelper.getContextRealPath("/static/themes/");
+			if (staticAbsPath != null) {
+				File themesDir = new File(staticAbsPath);
+				themeDir = new File(themesDir, CoreSpringFactory.getImpl(GUISettings.class).getGuiThemeIdentifyer());
+			}
 		}
 		// resolve now
 		if (themeDir != null && themeDir.exists() && themeDir.isDirectory()) {

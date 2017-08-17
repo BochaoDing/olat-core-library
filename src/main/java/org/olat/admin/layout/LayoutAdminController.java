@@ -22,13 +22,10 @@ package org.olat.admin.layout;
 import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.net.URLDecoder;
 import java.util.*;
-import java.util.jar.JarInputStream;
-import java.util.zip.ZipEntry;
 
 import org.olat.admin.SystemAdminMainController;
-import org.olat.core.CoreSpringFactory;
+import org.olat.core.OlatServletResource;
 import org.olat.core.gui.UserRequest;
 import org.olat.core.gui.components.form.flexible.FormItem;
 import org.olat.core.gui.components.form.flexible.FormItemContainer;
@@ -43,7 +40,9 @@ import org.olat.core.gui.components.link.Link;
 import org.olat.core.gui.control.Controller;
 import org.olat.core.gui.control.Event;
 import org.olat.core.gui.control.WindowControl;
+import org.olat.core.helpers.GUISettings;
 import org.olat.core.helpers.Settings;
+import org.olat.core.util.FileUtils;
 import org.olat.core.util.StringHelper;
 import org.olat.core.util.Util;
 import org.olat.core.util.WebappHelper;
@@ -77,6 +76,8 @@ public class LayoutAdminController extends FormBasicController {
 	private static final String[] logoUrlTypeKeys = new String[]{ LogoURLType.landingpage.name(), LogoURLType.custom.name() };
 
 	@Autowired
+	private GUISettings guiSettings;
+	@Autowired
 	private LayoutModule layoutModule;
 	@Autowired
 	private CoordinatorManager coordinatorManager;
@@ -104,7 +105,7 @@ public class LayoutAdminController extends FormBasicController {
 		themeCont.setFormDescription(translate("layout.intro"));
 		
 		String[] keys = getThemes();
-		String enabledTheme = Settings.getGuiThemeIdentifyer();
+		String enabledTheme = guiSettings.getGuiThemeIdentifyer();
 		themeSelection = uifactory.addDropdownSingleselect("themeSelection", "form.theme", themeCont, keys, keys, null);
 		// select current theme if available but don't break on unavailable theme
 		for (String theme : keys) {
@@ -240,7 +241,7 @@ public class LayoutAdminController extends FormBasicController {
 		} else if(themeSelection == source) {
 			// set new theme in Settings
 			String newThemeIdentifyer = themeSelection.getSelectedKey();
-			Settings.setGuiThemeIdentifyerGlobally(newThemeIdentifyer);
+			guiSettings.setGuiThemeIdentifyer(newThemeIdentifyer);
 			// use new theme in current window
 			getWindowControl().getWindowBackOffice().getWindow().getGuiTheme().init(newThemeIdentifyer);
 			getWindowControl().getWindowBackOffice().getWindow().setDirty(true);
@@ -292,49 +293,10 @@ public class LayoutAdminController extends FormBasicController {
 		}
 
 		try {
-			for (StaticDirectory staticDirectory : staticDirectories) {
-				String themesPath = "/" + staticDirectory.getName() + "/themes";
-				URL url = CoreSpringFactory.servletContext.getResource(themesPath);
-				assert url != null : "Themes path does not exist: " + themesPath;
-				String[] resources = url.getPath().split("!");
-				assert resources.length > 0 : "Not a path to a resource within a JAR: " + url.getPath();
-				InputStream inputStream = new FileInputStream(URLDecoder
-						.decode(url.getPath().substring(5,
-								resources[0].length()), "UTF-8"));
-				JarInputStream jarInputStream = new JarInputStream(inputStream);
-				outerLoop : for (int i = 1; i < resources.length - 1; i++) {
-					for (ZipEntry zipEntry; (zipEntry = jarInputStream
-							.getNextEntry()) != null;) {
-						if (zipEntry.getName().regionMatches(0,
-								resources[i], 1, resources[i].length() - 1)) {
-							jarInputStream = new JarInputStream(jarInputStream);
-							break outerLoop;
-						}
-					}
-					assert false : "JAR '" + resources[i] + "' not found inside of the JAR '" + resources[i - 1] + "'.";
-				}
-				String directoryPath = resources[resources.length - 1]
-						.substring(1);
-				/*
-				 * Jetty and Tomcat return a directory path string that
-				 * differs by the ending.
-				 */
-				if (directoryPath.endsWith("/") == false) {
-					directoryPath += "/";
-				}
-				for (ZipEntry zipEntry; (zipEntry = jarInputStream
-						.getNextEntry()) != null;) {
-					String name = zipEntry.getName();
-					if (name.startsWith(directoryPath)) {
-						if (name.indexOf('/', directoryPath.length()) == name.length() - 1) {
-							themesStr.add(name.substring(directoryPath.length(),
-									name.length() - 1));
-						}
-					}
-				}
-			}
-		} catch (MalformedURLException | UnsupportedEncodingException e) {
-			assert false : e;
+			themesStr.addAll(OlatServletResource.getAllDirectoriesOfPaths(Arrays
+					.stream(staticDirectories)
+					.map(s -> "/" + s.getName() + "/themes")
+					.toArray(String[]::new)));
 		} catch (IOException e) {
 			// TODO IO exceptions should be propagated.
 			e.printStackTrace();
@@ -366,10 +328,9 @@ public class LayoutAdminController extends FormBasicController {
 					return false;
 				}
 				// remove unwanted meta-dirs
-				if (name.equalsIgnoreCase("CVS")) return false;
-				if (name.equalsIgnoreCase(".DS_Store")) return false;
-				if (name.equalsIgnoreCase(".sass-cache")) return false;
-				if (name.equalsIgnoreCase(".hg")) return false;
+				if (FileUtils.isMetaFilename(name)) {
+					return false;
+				}
 				return true;
 		}
 	}

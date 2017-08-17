@@ -56,7 +56,6 @@ import org.olat.core.gui.components.form.flexible.impl.elements.table.FlexiTable
 import org.olat.core.gui.components.form.flexible.impl.elements.table.FlexiTableSearchEvent;
 import org.olat.core.gui.components.form.flexible.impl.elements.table.SelectionEvent;
 import org.olat.core.gui.components.form.flexible.impl.elements.table.StaticFlexiCellRenderer;
-import org.olat.core.gui.components.form.flexible.impl.elements.table.StaticFlexiColumnModel;
 import org.olat.core.gui.components.form.flexible.impl.elements.table.TextFlexiCellRenderer;
 import org.olat.core.gui.components.link.Link;
 import org.olat.core.gui.components.link.LinkFactory;
@@ -155,8 +154,11 @@ public abstract class AbstractMemberListController extends FormBasicController i
 	private final boolean isLastVisitVisible;
 	private final boolean isAdministrativeUser;
 	private final boolean chatEnabled;
+
+	private final boolean readOnly;
+	private boolean overrideManaged = false;
 	protected final boolean globallyManaged;
-	
+
 	@Autowired
 	protected UserManager userManager;
 	@Autowired
@@ -183,27 +185,28 @@ public abstract class AbstractMemberListController extends FormBasicController i
 	private UserSessionManager sessionManager;
 
 	public AbstractMemberListController(UserRequest ureq, WindowControl wControl, RepositoryEntry repoEntry,
-			String page, TooledStackedPanel stackPanel) {
-		this(ureq, wControl, repoEntry, null, page, stackPanel, Util.createPackageTranslator(AbstractMemberListController.class, ureq.getLocale()));
+			String page,boolean readOnly,  TooledStackedPanel stackPanel) {
+		this(ureq, wControl, repoEntry, null, page, readOnly, stackPanel, Util.createPackageTranslator(AbstractMemberListController.class, ureq.getLocale()));
 	}
 	
 	public AbstractMemberListController(UserRequest ureq, WindowControl wControl, BusinessGroup group,
-			String page, TooledStackedPanel stackPanel) {
-		this(ureq, wControl, null, group, page, stackPanel, Util.createPackageTranslator(AbstractMemberListController.class, ureq.getLocale()));
+			String page, boolean readOnly, TooledStackedPanel stackPanel) {
+		this(ureq, wControl, null, group, page, readOnly, stackPanel, Util.createPackageTranslator(AbstractMemberListController.class, ureq.getLocale()));
 	}
 	
 	protected AbstractMemberListController(UserRequest ureq, WindowControl wControl, RepositoryEntry repoEntry, BusinessGroup group,
-			String page, TooledStackedPanel stackPanel, Translator translator) {
+			String page, boolean readOnly, TooledStackedPanel stackPanel, Translator translator) {
 		super(ureq, wControl, page, Util.createPackageTranslator(UserPropertyHandler.class, ureq.getLocale(), translator));
 		
 		this.businessGroup = group;
 		this.repoEntry = repoEntry;
 		this.toolbarPanel = stackPanel;
+		this.readOnly = readOnly;
 
 		globallyManaged = calcGloballyManaged();
 		
 		Roles roles = ureq.getUserSession().getRoles();
-		chatEnabled = imModule.isEnabled() && imModule.isPrivateEnabled();
+		chatEnabled = imModule.isEnabled() && imModule.isPrivateEnabled() && !readOnly;
 		isAdministrativeUser = securityModule.isUserAllowedAdminProps(roles);
 		isLastVisitVisible = securityModule.isUserLastVisitVisible(roles);
 		userPropertyHandlers = userManager.getUserPropertyHandlersFor(USER_PROPS_ID, isAdministrativeUser);
@@ -215,6 +218,15 @@ public abstract class AbstractMemberListController extends FormBasicController i
 		initForm(ureq);
 	}
 	
+	public void overrideManaged(UserRequest ureq, boolean override) {
+		if(ureq.getUserSession().getRoles().isOLATAdmin()) {
+			overrideManaged = override;
+			editButton.setVisible((!globallyManaged || overrideManaged) && !readOnly);
+			removeButton.setVisible((!globallyManaged || overrideManaged) && !readOnly);
+			flc.setDirty(true);
+		}
+	}
+
 	@Override
 	protected void initForm(FormItemContainer formLayout, Controller listener, UserRequest ureq) {
 		FlexiTableColumnModel columnsModel = FlexiTableDataModelFactory.createFlexiTableColumnModel();
@@ -226,6 +238,7 @@ public abstract class AbstractMemberListController extends FormBasicController i
 		membersTable.setEmtpyTableMessageKey("nomembers");
 		membersTable.setAndLoadPersistedPreferences(ureq, this.getClass().getSimpleName());
 		membersTable.setSearchEnabled(true);
+
 		membersTable.setExportEnabled(true);
 		membersTable.setSelectAllEnable(true);
 		membersTable.setElementCssClass("o_sel_member_list");
@@ -236,13 +249,11 @@ public abstract class AbstractMemberListController extends FormBasicController i
 			membersTable.setSortSettings(options);
 		}
 
-		if(!globallyManaged) {
-			editButton = uifactory.addFormLink("edit.members", formLayout, Link.BUTTON);
-		}
+		editButton = uifactory.addFormLink("edit.members", formLayout, Link.BUTTON);
+		editButton.setVisible((!globallyManaged || overrideManaged) && !readOnly);
 		mailButton = uifactory.addFormLink("table.header.mail", formLayout, Link.BUTTON);
-		if(!globallyManaged) {
-			removeButton = uifactory.addFormLink("table.header.remove", formLayout, Link.BUTTON);
-		}
+		removeButton = uifactory.addFormLink("table.header.remove", formLayout, Link.BUTTON);
+		removeButton.setVisible((!globallyManaged || overrideManaged) && !readOnly);
 	}
 	
 	private boolean calcGloballyManaged() {
@@ -269,15 +280,16 @@ public abstract class AbstractMemberListController extends FormBasicController i
 	
 	private SortKey initColumns(FlexiTableColumnModel columnsModel) {
 		SortKey defaultSortKey = null;
-		
+		String editAction = readOnly ? null : TABLE_ACTION_EDIT;
+
 		if(chatEnabled) {
 			DefaultFlexiColumnModel chatCol = new DefaultFlexiColumnModel(Cols.online.i18n(), Cols.online.ordinal());
 			chatCol.setExportable(false);
 			columnsModel.addFlexiColumnModel(chatCol);
 		}
 		if(isAdministrativeUser) {
-			FlexiCellRenderer renderer = new StaticFlexiCellRenderer(TABLE_ACTION_EDIT, new TextFlexiCellRenderer());
-			columnsModel.addFlexiColumnModel(new StaticFlexiColumnModel(Cols.username.i18n(), Cols.username.ordinal(), TABLE_ACTION_EDIT,
+			FlexiCellRenderer renderer = new StaticFlexiCellRenderer(editAction, new TextFlexiCellRenderer());
+			columnsModel.addFlexiColumnModel(new DefaultFlexiColumnModel(Cols.username.i18n(), Cols.username.ordinal(), editAction,
 					true, Cols.username.name(), renderer));
 			defaultSortKey = new SortKey(Cols.username.name(), true);
 		}
@@ -291,8 +303,9 @@ public abstract class AbstractMemberListController extends FormBasicController i
 
 			FlexiColumnModel col;
 			if(UserConstants.FIRSTNAME.equals(propName) || UserConstants.LASTNAME.equals(propName)) {
-				col = new StaticFlexiColumnModel(userPropertyHandler.i18nColumnDescriptorLabelKey(), colPos, TABLE_ACTION_EDIT, true, propName,
-						new StaticFlexiCellRenderer(TABLE_ACTION_EDIT, new TextFlexiCellRenderer()));
+				col = new DefaultFlexiColumnModel(userPropertyHandler.i18nColumnDescriptorLabelKey(),
+						colPos, editAction, true, propName,
+						new StaticFlexiCellRenderer(editAction, new TextFlexiCellRenderer()));
 			} else {
 				col = new DefaultFlexiColumnModel(visible, userPropertyHandler.i18nColumnDescriptorLabelKey(), colPos, true, propName);
 			}
@@ -318,6 +331,7 @@ public abstract class AbstractMemberListController extends FormBasicController i
 		
 		DefaultFlexiColumnModel toolsCol = new DefaultFlexiColumnModel(Cols.tools.i18n(), Cols.tools.ordinal());
 		toolsCol.setExportable(false);
+		toolsCol.setAlwaysVisible(true);
 		columnsModel.addFlexiColumnModel(toolsCol);
 
 		// Column per group (for export only)
@@ -353,11 +367,16 @@ public abstract class AbstractMemberListController extends FormBasicController i
 					openEdit(ureq, row);
 				}
 			} else if(event instanceof FlexiTableSearchEvent) {
+				String cmd = event.getCommand();
 				if(FlexiTableSearchEvent.SEARCH.equals(event.getCommand())) {
 					FlexiTableSearchEvent se = (FlexiTableSearchEvent)event;
 					String search = se.getSearch();
 					doSearch(search);
-				} else if(FlexiTableSearchEvent.RESET.equals(event.getCommand())) {
+				} else if(FlexiTableSearchEvent.QUICK_SEARCH.equals(event.getCommand())) {
+					FlexiTableSearchEvent se = (FlexiTableSearchEvent)event;
+					String search = se.getSearch();
+					doSearch(search);
+				} else if(FlexiTableSearchEvent.RESET.getCommand().equals(cmd)) {
 					doResetSearch();
 				}
 			}
@@ -438,6 +457,8 @@ public abstract class AbstractMemberListController extends FormBasicController i
 		} else if (source == contactCtrl) {
 			if(cmc != null) {
 				cmc.deactivate();
+			} else {
+				toolbarPanel.popController(contactCtrl);
 			}
 			cleanUpPopups();
 		} else if(toolsCtrl == source) {
@@ -502,7 +523,7 @@ public abstract class AbstractMemberListController extends FormBasicController i
 		if(editSingleMemberCtrl != null) return;
 		
 		Identity identity = securityManager.loadIdentityByKey(member.getIdentityKey());
-		editSingleMemberCtrl = new EditSingleMembershipController(ureq, getWindowControl(), identity, repoEntry, businessGroup, false);
+		editSingleMemberCtrl = new EditSingleMembershipController(ureq, getWindowControl(), identity, repoEntry, businessGroup, false, overrideManaged);
 		listenTo(editSingleMemberCtrl);
 		cmc = new CloseableModalController(getWindowControl(), translate("close"), editSingleMemberCtrl.getInitialComponent(),
 				true, translate("edit.member"));
@@ -517,12 +538,12 @@ public abstract class AbstractMemberListController extends FormBasicController i
 			List<Long> identityKeys = getMemberKeys(members);
 			List<Identity> identities = securityManager.loadIdentityByKeys(identityKeys);
 			if(identities.size() == 1) {
-				editSingleMemberCtrl = new EditSingleMembershipController(ureq, getWindowControl(), identities.get(0), repoEntry, businessGroup, false);
+				editSingleMemberCtrl = new EditSingleMembershipController(ureq, getWindowControl(), identities.get(0), repoEntry, businessGroup, false, overrideManaged);
 				listenTo(editSingleMemberCtrl);
 				cmc = new CloseableModalController(getWindowControl(), translate("close"), editSingleMemberCtrl.getInitialComponent(),
 						true, translate("edit.member"));
 			} else {
-				editMembersCtrl = new EditMembershipController(ureq, getWindowControl(), identities, repoEntry, businessGroup);
+				editMembersCtrl = new EditMembershipController(ureq, getWindowControl(), identities, repoEntry, businessGroup, overrideManaged);
 				listenTo(editMembersCtrl);
 				cmc = new CloseableModalController(getWindowControl(), translate("close"), editMembersCtrl.getInitialComponent(),
 						true, translate("edit.member"));
@@ -1086,13 +1107,15 @@ public abstract class AbstractMemberListController extends FormBasicController i
 			
 			links.add("-");
 			
-			if(row.getMembership().isGroupWaiting()) {
+			if(row.getMembership().isGroupWaiting() && !readOnly) {
 				addLink("table.header.graduate", TABLE_ACTION_GRADUATE, "o_icon o_icon_graduate", links);
 			}
 
-			addLink("edit.member", TABLE_ACTION_EDIT, "o_icon o_icon_edit", links);
+			if(!readOnly) {
+				addLink("edit.member", TABLE_ACTION_EDIT, "o_icon o_icon_edit", links);
+			}
 			
-			if(!globallyManaged) {
+			if(!globallyManaged || overrideManaged) {
 				addLink("table.header.remove", TABLE_ACTION_REMOVE, "o_icon o_icon_remove", links);
 			}
 

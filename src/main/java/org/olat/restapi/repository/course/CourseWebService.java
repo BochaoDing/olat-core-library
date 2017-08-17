@@ -65,6 +65,9 @@ import org.olat.core.id.Identity;
 import org.olat.core.id.IdentityEnvironment;
 import org.olat.core.logging.OLog;
 import org.olat.core.logging.Tracing;
+import org.olat.core.logging.activity.LearningResourceLoggingAction;
+import org.olat.core.logging.activity.OlatResourceableType;
+import org.olat.core.logging.activity.ThreadLocalUserActivityLogger;
 import org.olat.core.util.StringHelper;
 import org.olat.core.util.coordinate.LockResult;
 import org.olat.core.util.mail.MailPackage;
@@ -84,6 +87,7 @@ import org.olat.repository.RepositoryManager;
 import org.olat.repository.RepositoryService;
 import org.olat.repository.handlers.RepositoryHandler;
 import org.olat.repository.handlers.RepositoryHandlerFactory;
+import org.olat.repository.manager.RepositoryEntryDeletionException;
 import org.olat.resource.OLATResource;
 import org.olat.resource.OLATResourceManager;
 import org.olat.resource.accesscontrol.ACService;
@@ -95,6 +99,7 @@ import org.olat.restapi.support.vo.CourseVO;
 import org.olat.restapi.support.vo.OlatResourceVO;
 import org.olat.user.restapi.UserVO;
 import org.olat.user.restapi.UserVOFactory;
+import org.olat.util.logging.activity.LoggingResourceable;
 
 import com.thoughtworks.xstream.XStream;
 
@@ -311,8 +316,9 @@ public class CourseWebService {
 	}
 
 	/**
-	 * Delete a course by id
-	 * @response.representation.200.doc The metadatas of the created course
+	 * Delete a course by id.
+	 * 
+	 * @response.representation.200.doc The metadatas of the deleted course
 	 * @response.representation.401.doc The roles of the authenticated user are not sufficient
 	 * @response.representation.404.doc The course not found
 	 * @param request The HTTP request
@@ -331,10 +337,81 @@ public class CourseWebService {
 		UserRequest ureq = getUserRequest(request);
 		RepositoryService rs = CoreSpringFactory.getImpl(RepositoryService.class);
 		RepositoryEntry re = course.getCourseEnvironment().getCourseGroupManager().getCourseEntry();
-		
-		ErrorList errors = rs.delete(re, ureq.getIdentity(), ureq.getUserSession().getRoles(), ureq.getLocale());
+
+		ErrorList errors;
+		try {
+			errors = rs.deletePermanently(re, ureq.getIdentity(), ureq.getUserSession().getRoles(), ureq.getLocale());
+		} catch (RepositoryEntryDeletionException e) {
+			return Response.serverError().status(500).build();
+		}
 		if(errors.hasErrors()) {
 			return Response.serverError().status(500).build();
+		}
+		ThreadLocalUserActivityLogger.log(LearningResourceLoggingAction.LEARNING_RESOURCE_DELETE, getClass(),
+				LoggingResourceable.wrap(re, OlatResourceableType.genRepoEntry));
+		return Response.ok().build();
+	}
+	
+	/**
+	 * Change the status of a course by id. The possible status are:
+	 * <ul>
+	 * 	<li>closed</li>
+	 * 	<li>unclosed</li>
+	 * 	<li>unpublished</li>
+	 * 	<li>deleted</li>
+	 * 	<li>restored</li>
+	 * </ul>
+	 * 
+	 * @response.representation.200.doc The metadatas of the deleted course
+	 * @response.representation.401.doc The roles of the authenticated user are not sufficient
+	 * @response.representation.404.doc The course not found
+	 * @param request The HTTP request
+	 * @return It returns the XML representation of the <code>Structure</code>
+	 *         object representing the course.
+	 */
+	@POST
+	@Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
+	@Path("status")
+	public Response deleteCoursePermanently(@FormParam("newStatus") String newStatus, @Context HttpServletRequest request) {
+		if(!isAuthor(request)) {
+			return Response.serverError().status(Status.UNAUTHORIZED).build();
+		} else if (!isAuthorEditor(course, request)) {
+			return Response.serverError().status(Status.UNAUTHORIZED).build();
+		}
+		
+		RepositoryService rs = CoreSpringFactory.getImpl(RepositoryService.class);
+		RepositoryEntry re = course.getCourseEnvironment().getCourseGroupManager().getCourseEntry();
+		if("closed".equals(newStatus)) {
+			rs.closeRepositoryEntry(re);
+			log.audit("REST closing course: " + re.getDisplayname() + " [" + re.getKey() + "]");
+			ThreadLocalUserActivityLogger.log(LearningResourceLoggingAction.LEARNING_RESOURCE_CLOSE, getClass(),
+					LoggingResourceable.wrap(re, OlatResourceableType.genRepoEntry));
+		} else if("unclosed".equals(newStatus)) {
+			rs.uncloseRepositoryEntry(re);
+			log.audit("REST unclosing course: " + re.getDisplayname() + " [" + re.getKey() + "]");
+			ThreadLocalUserActivityLogger.log(LearningResourceLoggingAction.LEARNING_RESOURCE_UPDATE, getClass(),
+					LoggingResourceable.wrap(re, OlatResourceableType.genRepoEntry));
+		} else if("unpublished".equals(newStatus)) {
+			rs.unpublishRepositoryEntry(re);
+			log.audit("REST unpublishing course: " + re.getDisplayname() + " [" + re.getKey() + "]");
+			ThreadLocalUserActivityLogger.log(LearningResourceLoggingAction.LEARNING_RESOURCE_DEACTIVATE, getClass(),
+					LoggingResourceable.wrap(re, OlatResourceableType.genRepoEntry));
+		} else if("deleted".equals(newStatus)) {
+			Identity identity = getIdentity(request);
+			try {
+				rs.deleteSoftly(re, identity, true);
+				log.audit("REST deleting (soft) course: " + re.getDisplayname() + " [" + re.getKey() + "]");
+				ThreadLocalUserActivityLogger.log(LearningResourceLoggingAction.LEARNING_RESOURCE_TRASH, getClass(),
+						LoggingResourceable.wrap(re, OlatResourceableType.genRepoEntry));
+			} catch (RepositoryEntryDeletionException e) {
+				log.audit(e.getMessage());
+			}
+		} else if("restored".equals(newStatus)) {
+			Identity identity = getIdentity(request);
+			rs.restoreRepositoryEntry(re, identity);
+			log.audit("REST restoring course: " + re.getDisplayname() + " [" + re.getKey() + "]");
+			ThreadLocalUserActivityLogger.log(LearningResourceLoggingAction.LEARNING_RESOURCE_RESTORE, getClass(),
+					LoggingResourceable.wrap(re, OlatResourceableType.genRepoEntry));
 		}
 		return Response.ok().build();
 	}

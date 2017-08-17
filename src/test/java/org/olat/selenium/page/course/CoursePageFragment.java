@@ -55,7 +55,7 @@ public class CoursePageFragment {
 	public static final By assessmentModeBy = By.className("o_sel_course_assessment_mode");
 	public static final By membersCourseBy = By.className("o_sel_course_members");
 	public static final By treeContainerBy = By.id("o_main_left_content");
-	public static final By efficiencyStatementsBy = By.className(" o_sel_course_options_certificates");
+	public static final By efficiencyStatementsBy = By.className("o_sel_course_options_certificates");
 	
 	private WebDriver browser;
 	
@@ -171,6 +171,17 @@ public class CoursePageFragment {
 		return new RemindersPage(browser);
 	}
 	
+	public CourseOptionsPage options() {
+		if(!browser.findElement(settingsMenu).isDisplayed()) {
+			openSettingsMenu();
+		}
+		
+		By reminderBy = By.cssSelector("a.o_sel_course_options");
+		browser.findElement(reminderBy).click();
+		OOGraphene.waitBusy(browser);
+		return new CourseOptionsPage(browser);
+	}
+	
 	/**
 	 * Click the editor link in the tools drop-down
 	 * @return
@@ -208,7 +219,7 @@ public class CoursePageFragment {
 		browser.findElement(assessmentToolBy).click();
 		OOGraphene.waitBusy(browser);
 
-		WebElement main = browser.findElement(By.id("o_main"));
+		WebElement main = browser.findElement(By.id("o_assessment_tool_main"));
 		Assert.assertTrue(main.isDisplayed());
 		return new AssessmentToolPage(browser);
 	}

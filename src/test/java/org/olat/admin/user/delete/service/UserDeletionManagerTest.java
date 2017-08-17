@@ -26,11 +26,22 @@
 
 package org.olat.admin.user.delete.service;
 
+import static org.junit.Assert.assertTrue;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+
 import org.junit.Assert;
 import org.junit.Test;
 import org.olat.basesecurity.BaseSecurity;
 import org.olat.core.commons.persistence.DBFactory;
 import org.olat.core.id.Identity;
+import org.olat.core.id.User;
+import org.olat.core.id.UserConstants;
+import org.olat.core.util.StringHelper;
 import org.olat.group.BusinessGroup;
 import org.olat.group.BusinessGroupService;
 import org.olat.portfolio.manager.EPFrontendManager;
@@ -43,14 +54,6 @@ import org.olat.test.JunitTestHelper;
 import org.olat.test.OlatTestCase;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
-
-import static org.junit.Assert.assertTrue;
 
 /**
  * Description: <br>
@@ -115,6 +118,15 @@ public class UserDeletionManagerTest extends OlatTestCase {
 		//check membership of group
 		boolean isMember = businessGroupService.isIdentityInBusinessGroup(deletedIdentity, group);
 		Assert.assertFalse(isMember);
+		
+		User deletedUser = deletedIdentity.getUser();
+		String institutionalName = deletedUser.getProperty(UserConstants.INSTITUTIONALNAME, null);
+		Assert.assertFalse(StringHelper.containsNonWhitespace(institutionalName));
+		String institutionalId = deletedUser.getProperty(UserConstants.INSTITUTIONALUSERIDENTIFIER, null);
+		Assert.assertFalse(StringHelper.containsNonWhitespace(institutionalId));
+		String deletedEmail = deletedUser.getProperty(UserConstants.EMAIL, null);
+		Assert.assertNotNull(deletedEmail);
+		Assert.assertFalse(identity.getUser().getEmail().equals(deletedEmail));
 	}
 
 	@Test

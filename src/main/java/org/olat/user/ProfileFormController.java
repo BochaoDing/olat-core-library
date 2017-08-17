@@ -64,7 +64,6 @@ import org.olat.core.util.resource.OresHelper;
 import org.olat.core.util.xml.XStreamHelper;
 import org.olat.registration.RegistrationManager;
 import org.olat.registration.TemporaryKey;
-import org.olat.registration.TemporaryKeyImpl;
 import org.olat.user.propertyhandlers.UserPropertyHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -102,6 +101,8 @@ public class ProfileFormController extends FormBasicController {
 	private String changedEmail;
 	private String currentEmail;
 	
+	@Autowired
+	private UserModule userModule;
 	@Autowired
 	private UserManager userManager;
 	@Autowired
@@ -141,7 +142,7 @@ public class ProfileFormController extends FormBasicController {
 		
 		this.identityToModify = identityToModify;
 		this.isAdministrativeUser = isAdministrativeUser;
-		this.logoEnabled = UserModule.isLogoByProfileEnabled();
+		this.logoEnabled = userModule.isLogoByProfileEnabled();
 		
 		userPropertyHandlers = userManager.getUserPropertyHandlersFor(usageIdentifier, isAdministrativeUser);
 		initForm(ureq);
@@ -210,7 +211,7 @@ public class ProfileFormController extends FormBasicController {
 			// special case for email field
 			if (userPropertyHandler.getName().equals("email")) {
 				String key = user.getProperty("emchangeKey", null);
-				TemporaryKeyImpl tempKey = rm.loadTemporaryKeyByRegistrationKey(key);
+				TemporaryKey tempKey = rm.loadTemporaryKeyByRegistrationKey(key);
 				if (tempKey != null) {
 					XStream xml = XStreamHelper.createXStreamInstance();
 					@SuppressWarnings("unchecked")
@@ -237,7 +238,7 @@ public class ProfileFormController extends FormBasicController {
 		groupContainer.setFormTitle(translate("ul.header"));
 		formLayout.add(groupContainer);
 
-		File portraitFile = dps.getBigPortrait(identityToModify.getName());
+		File portraitFile = dps.getLargestPortrait(identityToModify.getName());
 		// Init upload controller
 		Set<String> mimeTypes = new HashSet<String>();
 		mimeTypes.add("image/gif");
@@ -262,7 +263,7 @@ public class ProfileFormController extends FormBasicController {
 			groupContainer.setFormTitle(translate("logo.header"));
 			formLayout.add(groupContainer);
 
-			File logoFile = dps.getBigLogo(identityToModify.getName());
+			File logoFile = dps.getLargestLogo(identityToModify.getName());
 			logoUpload = uifactory.addFileElement(getWindowControl(), "logo.select", "logo.select", groupContainer);
 			logoUpload.setMaxUploadSizeKB(10000, null, null);
 			logoUpload.setPreview(ureq.getUserSession(), true);
@@ -376,7 +377,7 @@ public class ProfileFormController extends FormBasicController {
 		 if (source == portraitUpload) {
 			if(event instanceof FileElementEvent) {
 				if(FileElementEvent.DELETE.equals(event.getCommand())) {
-					File img = dps.getBigPortrait(identityToModify.getName());
+					File img = dps.getLargestPortrait(identityToModify.getName());
 					if(portraitUpload.getUploadFile() != null) {
 						portraitUpload.reset();
 						if(img != null) {
@@ -396,7 +397,7 @@ public class ProfileFormController extends FormBasicController {
 		} else if (source == logoUpload) {
 			if(event instanceof FileElementEvent) {
 				if(FileElementEvent.DELETE.equals(event.getCommand())) {
-					File img = dps.getBigLogo(identityToModify.getName());
+					File img = dps.getLargestLogo(identityToModify.getName());
 					if(logoUpload.getUploadFile() != null) {
 						logoUpload.reset();
 						if(img != null) {
@@ -481,7 +482,7 @@ public class ProfileFormController extends FormBasicController {
 						identityToModify.getUser().setProperty("email", currentEmail);
 					} else {
 						String key = identityToModify.getUser().getProperty("emchangeKey", null);
-						TemporaryKeyImpl tempKey = rm.loadTemporaryKeyByRegistrationKey(key);
+						TemporaryKey tempKey = rm.loadTemporaryKeyByRegistrationKey(key);
 						if (tempKey != null) {
 							rm.deleteTemporaryKey(tempKey);
 						}		

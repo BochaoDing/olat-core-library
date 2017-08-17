@@ -29,6 +29,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.inject.Provider;
 import javax.sql.DataSource;
 
 import org.olat.core.commons.persistence.DB;
@@ -60,7 +61,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 public abstract class UpgradeManager extends BasicManager implements Initializable, GenericEventListener {
 
-	private final DB dbInstance;
+	private final Provider<DB> dbInstance;
 	
 	protected String INSTALLED_UPGRADES_XML = "installed_upgrades.xml";
 	public static final String SYSTEM_DIR = "system";
@@ -72,7 +73,7 @@ public abstract class UpgradeManager extends BasicManager implements Initializab
 	protected boolean needsUpgrade = true;
 
 	@Autowired
-	protected UpgradeManager(DB dbInstance) {
+	protected UpgradeManager(Provider<DB> dbInstance) {
 		this.dbInstance = dbInstance;
 	}
 
@@ -122,7 +123,7 @@ public abstract class UpgradeManager extends BasicManager implements Initializab
 			doPreSystemInitUpgrades();
 			
 			//post system init task are triggered by an event
-			dbInstance.commitAndCloseSession();
+			dbInstance.get().commitAndCloseSession();
 		}
 	}
 

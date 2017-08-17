@@ -55,10 +55,9 @@ import org.olat.course.nodes.AssessableCourseNode;
 import org.olat.course.run.scoring.ScoreEvaluation;
 import org.olat.course.run.userview.UserCourseEnvironment;
 import org.olat.ims.qti.container.AssessmentContext;
-import org.olat.ims.qti.editor.QTIEditorPackage;
-import org.olat.ims.qti.editor.QTIEditorPackageImpl;
 import org.olat.ims.qti.editor.beecom.objects.Assessment;
 import org.olat.ims.qti.editor.beecom.objects.Item;
+import org.olat.ims.qti.editor.beecom.objects.QTIDocument;
 import org.olat.ims.qti.editor.beecom.objects.Section;
 import org.olat.ims.qti.fileresource.TestFileResource;
 import org.olat.ims.qti.process.AssessmentFactory;
@@ -84,6 +83,7 @@ public class QTI12ResultDetailsController extends BasicController {
 	private RepositoryEntry repositoryEntry;
 	private Persister qtiPersister;
 	private String type;
+	private UserCourseEnvironment coachCourseEnv;
 
 	private final IQManager iqm;
 	private final QTIResultManager qrm;
@@ -104,12 +104,13 @@ public class QTI12ResultDetailsController extends BasicController {
 	 * @param wControl
 	 */
 	public QTI12ResultDetailsController(UserRequest ureq, WindowControl wControl, Long courseResourceableId, String nodeIdent,
-			Identity assessedIdentity, RepositoryEntry re, String type) {
+			UserCourseEnvironment coachCourseEnv, Identity assessedIdentity, RepositoryEntry re, String type) {
 		super(ureq, wControl);
 		this.courseResourceableId = courseResourceableId;
 		this.nodeIdent = nodeIdent;
 		this.assessedIdentity = assessedIdentity;
 		this.repositoryEntry = re;
+		this.coachCourseEnv = coachCourseEnv;
 		this.type = type;
 		iqm = CoreSpringFactory.getImpl(IQManager.class);
 		qrm = QTIResultManager.getInstance();
@@ -119,14 +120,12 @@ public class QTI12ResultDetailsController extends BasicController {
 
 		init(ureq);
 	}
-
+	
 	private boolean checkEssay() {
-		TestFileResource fr = new TestFileResource();
-		fr.overrideResourceableId(repositoryEntry.getOlatResource().getResourceableId());
-		QTIEditorPackage qtiPackage = new QTIEditorPackageImpl(getIdentity(), fr, null, getTranslator());
-		if (qtiPackage.getQTIDocument() != null && qtiPackage.getQTIDocument().getAssessment() != null) {
-			Assessment ass = qtiPackage.getQTIDocument().getAssessment();
-
+		QTIDocument doc = TestFileResource.getQTIDocument(repositoryEntry.getOlatResource());
+		if(doc != null && doc.getAssessment() != null) {
+			Assessment ass = doc.getAssessment();
+	
 			//Sections with their Items
 			List<Section> sections = ass.getSections();
 			for (Section section:sections) {
@@ -157,7 +156,7 @@ public class QTI12ResultDetailsController extends BasicController {
 		DefaultColumnDescriptor pointCol = new DefaultColumnDescriptor("column.header.assesspoints", 2, null, ureq.getLocale());
 		pointCol.setEscapeHtml(EscapeMode.none);
 		tableCtr.addColumnDescriptor(pointCol);
-		tableCtr.addColumnDescriptor(new QTISelectColumnDescriptor("column.header.action", 3, ureq.getLocale(), getTranslator()));
+		tableCtr.addColumnDescriptor(new QTISelectColumnDescriptor("column.header.action", 3, coachCourseEnv.isCourseReadOnly(), getLocale(), getTranslator()));
 
 		List<QTIResultSet> resultSets = qrm.getResultSets(courseResourceableId, nodeIdent, repositoryEntry.getKey(), assessedIdentity);
 		tableModel = new QTIResultTableModel(resultSets, qtiPersister, getTranslator());
@@ -237,8 +236,9 @@ public class QTI12ResultDetailsController extends BasicController {
 	}
 	
 	/**
-	 * Retrieve the test: load the course, close the assessment instance, persist the QTI
+	 * Retrieve the test: load the course, close the assessment instamce, persist the QTI
 	 * result set, pass the score to the course node.
+	 * @param ureq
 	 */
 	private void doRetrieveTest() {
 		ICourse course = CourseFactory.loadCourse(courseResourceableId);

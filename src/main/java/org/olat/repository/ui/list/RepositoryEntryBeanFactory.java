@@ -1,5 +1,6 @@
 package org.olat.repository.ui.list;
 
+import org.olat.core.commons.persistence.DB;
 import org.olat.core.dispatcher.mapper.MapperService;
 import org.olat.core.gui.UserRequest;
 import org.olat.core.gui.components.velocity.VelocityContainer;
@@ -24,6 +25,9 @@ import org.springframework.context.annotation.Scope;
  */
 @Configuration
 public class RepositoryEntryBeanFactory {
+
+	@Autowired
+	private DB dbInstance;
 
 	@Autowired
 	private RepositoryManager repositoryManager;
@@ -65,8 +69,8 @@ public class RepositoryEntryBeanFactory {
 																											  WindowControl windowControl,
 																											  RepositoryEntrySecurity repositoryEntrySecurity,
 																											  RepositoryHandler repositoryHandler) {
-		return new RepositoryEntryLifeCycleChangeControllerFactory(repositoryService, repositoryManager, userRequest,
-				windowControl, repositoryEntrySecurity, repositoryHandler);
+		return new RepositoryEntryLifeCycleChangeControllerFactory(dbInstance, repositoryService, repositoryManager,
+				repositoryModule, userRequest, windowControl, repositoryEntrySecurity, repositoryHandler);
 	}
 
 }

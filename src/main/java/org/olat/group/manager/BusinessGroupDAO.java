@@ -170,6 +170,17 @@ public class BusinessGroupDAO {
 		return groups == null || groups.isEmpty() ? null : groups.get(0);
 	}
 	
+	public String loadDescription(Long key) {
+		StringBuilder sb = new StringBuilder();
+		sb.append("select bgi.description from businessgroup bgi where bgi.key=:key");
+		List<String> descriptions = dbInstance.getCurrentEntityManager()
+				.createQuery(sb.toString(), String.class)
+				.setParameter("key", key)
+				.setHint("org.hibernate.cacheable", Boolean.TRUE)
+				.getResultList();
+		return descriptions == null || descriptions.isEmpty() ? null : descriptions.get(0);
+	}
+	
 	public List<BusinessGroupShort> loadShort(Collection<Long> ids) {
 		if(ids == null || ids.isEmpty()) {
 			return Collections.emptyList();
@@ -950,7 +961,7 @@ public class BusinessGroupDAO {
 		
 		//owner
 		if(StringHelper.containsNonWhitespace(params.getOwnerName())) {
-			query.setParameter("owner", PersistenceHelper.makeFuzzyQueryString(params.getOwnerName()));
+			query.setParameter("owner", PersistenceHelper.makeEndFuzzyQueryString(params.getOwnerName()));
 		}
 		
 		//id
@@ -968,19 +979,19 @@ public class BusinessGroupDAO {
 		
 		//name
 		if(StringHelper.containsNonWhitespace(params.getNameOrDesc())) {
-			query.setParameter("search", PersistenceHelper.makeFuzzyQueryString(params.getNameOrDesc()));
+			query.setParameter("search", PersistenceHelper.makeEndFuzzyQueryString(params.getNameOrDesc()));
 		} else {
 			if(StringHelper.containsNonWhitespace(params.getName())) {
-				query.setParameter("name", PersistenceHelper.makeFuzzyQueryString(params.getName()));
+				query.setParameter("name", PersistenceHelper.makeEndFuzzyQueryString(params.getName()));
 			}
 			if(StringHelper.containsNonWhitespace(params.getDescription())) {
-				query.setParameter("description", PersistenceHelper.makeFuzzyQueryString(params.getDescription()));
+				query.setParameter("description", PersistenceHelper.makeEndFuzzyQueryString(params.getDescription()));
 			}
 		}
 		
 		//course title
 		if(StringHelper.containsNonWhitespace(params.getCourseTitle())) {
-			query.setParameter("displayName", PersistenceHelper.makeFuzzyQueryString(params.getCourseTitle()));
+			query.setParameter("displayName", PersistenceHelper.makeEndFuzzyQueryString(params.getCourseTitle()));
 		}
 		
 		//public group
@@ -1268,9 +1279,9 @@ public class BusinessGroupDAO {
 	
 	private StringBuilder searchLikeOwnerUserProperty(StringBuilder sb, String key, String var) {
 		if(dbInstance.getDbVendor().equals("mysql")) {
-			sb.append(" ownerUser.userProperties['").append(key).append("'] like :").append(var);
+			sb.append(" ownerUser.").append(key).append(" like :").append(var);
 		} else {
-			sb.append(" lower(ownerUser.userProperties['").append(key).append("']) like :").append(var);
+			sb.append(" lower(ownerUser.").append(key).append(") like :").append(var);
 			if(dbInstance.getDbVendor().equals("oracle")) {
 	 	 		sb.append(" escape '\\'");
 	 	 	}

@@ -28,6 +28,7 @@ import javax.persistence.NamedQuery;
 import javax.persistence.Table;
 
 import org.hibernate.annotations.GenericGenerator;
+import org.hibernate.annotations.Parameter;
 import org.olat.core.id.Persistable;
 import org.olat.core.util.resource.OresHelper;
 import org.olat.group.BusinessGroup;
@@ -45,7 +46,7 @@ import org.olat.group.BusinessGroupShort;
 @Entity(name="businessgroupshort")
 @Table(name="o_gp_business")
 @NamedQueries({
-	@NamedQuery(name="loadBusinessGroupShortByIds",query="select bgi from businessgroupshort bgi  where bgi.key in (:ids)")
+	@NamedQuery(name="loadBusinessGroupShortByIds",query="select bgi from businessgroupshort bgi where bgi.key in (:ids)")
 })
 public class BusinessGroupShortImpl implements Persistable, BusinessGroupShort {
 
@@ -53,7 +54,14 @@ public class BusinessGroupShortImpl implements Persistable, BusinessGroupShort {
 	
 	@Id
 	@GeneratedValue(generator = "system-uuid")
-	@GenericGenerator(name = "system-uuid", strategy = "hilo")
+	@GenericGenerator(name = "system-uuid", strategy = "enhanced-sequence", parameters={
+		@Parameter(name="sequence_name", value="hibernate_unique_key"),
+		@Parameter(name="force_table_use", value="true"),
+		@Parameter(name="optimizer", value="legacy-hilo"),
+		@Parameter(name="value_column", value="next_hi"),
+		@Parameter(name="increment_size", value="32767"),
+		@Parameter(name="initial_value", value="32767")
+	})
 	@Column(name="group_id", nullable=false, unique=true, insertable=true, updatable=false)
 	private Long key;
 

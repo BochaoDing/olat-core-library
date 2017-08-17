@@ -94,7 +94,7 @@ public interface RepositoryHandler {
 	/**
 	 * 
 	 * @param initialAuthor
-	 * @param initialAuthorAlt TODO
+	 * @param initialAuthorAlt 
 	 * @param displayname
 	 * @param description
 	 * @param withReferences if true import references
@@ -110,11 +110,9 @@ public interface RepositoryHandler {
 	 * 
 	 * @param source
 	 * @param target
-	 * @return
+	 * @return The target repository entry
 	 */
 	public RepositoryEntry copy(Identity author, RepositoryEntry source, RepositoryEntry target);
-	
-	
 	
 	/**
 	 * @return true if this handler supports donwloading Resourceables of its type.
@@ -127,6 +125,13 @@ public interface RepositoryHandler {
 	public EditionSupport supportsEdit(OLATResourceable resource);
 	
 	/**
+	 * If the resource handler can deliver an assessment details controller,
+	 * it returns true.
+	 * @return
+	 */
+	public boolean supportsAssessmentDetails();
+	
+	/**
 	 * Return the container where image and files can be saved for the description field.
 	 * the folder MUST be under the root folder has its name "media".
 	 * @param repoEntry
@@ -136,7 +141,7 @@ public interface RepositoryHandler {
 
 	/**
 	 * Called if a user launches a Resourceable that this handler can handle.
-	 * @param reSecurity TODO
+	 * @param reSecurity The permissions wrapper
 	 * @param ureq
 	 * @param wControl
 	 * @param res
@@ -151,7 +156,7 @@ public interface RepositoryHandler {
 	 * can only be called when the current user is either olat admin or in the owning group of this resource
 	 * @param ureq
 	 * @param wControl
-	 * @param toolbar TODO
+	 * @param toolbar
 	 * @param res
 	 * @return Controler able to edit resourceable.
 	 */
@@ -175,6 +180,18 @@ public interface RepositoryHandler {
 	default CreateEntryController createCreateRepositoryEntryController(UserRequest ureq, WindowControl wControl) {
 		return new CreateRepositoryEntryController(ureq, wControl, this);
 	}
+	
+	/**
+	 * Return the details controller for the assessed identity.
+	 * 
+	 * @param re
+	 * @param ureq
+	 * @param wControl
+	 * @param toolbar
+	 * @param assessedIdentity
+	 * @return
+	 */
+	public Controller createAssessmentDetailsController(RepositoryEntry re, UserRequest ureq, WindowControl wControl, TooledStackedPanel toolbar, Identity assessedIdentity);
 	
 	/**
 	 * Called if a user downloads a Resourceable that this handler can handle.

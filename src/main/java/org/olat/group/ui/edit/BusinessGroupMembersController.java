@@ -203,7 +203,7 @@ public class BusinessGroupMembersController extends BasicController {
 	private void doChooseMembers(UserRequest ureq) {
 		removeAsListenerAndDispose(importMembersWizard);
 
-		Step start = new ImportMember_1b_ChooseMemberStep(ureq, null, businessGroup);
+		Step start = new ImportMember_1b_ChooseMemberStep(ureq, null, businessGroup, false);
 		StepRunnerCallback finish = new StepRunnerCallback() {
 			@Override
 			public Step execute(UserRequest uureq, WindowControl wControl, StepsRunContext runContext) {
@@ -221,7 +221,7 @@ public class BusinessGroupMembersController extends BasicController {
 	private void doImportMembers(UserRequest ureq) {
 		removeAsListenerAndDispose(importMembersWizard);
 
-		Step start = new ImportMember_1a_LoginListStep(ureq, null, businessGroup);
+		Step start = new ImportMember_1a_LoginListStep(ureq, null, businessGroup, false);
 		StepRunnerCallback finish = new StepRunnerCallback() {
 			@Override
 			public Step execute(UserRequest uureq, WindowControl wControl, StepsRunContext runContext) {

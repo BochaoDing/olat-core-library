@@ -28,6 +28,7 @@ package org.olat.core.gui.components.form.flexible.impl;
 import org.olat.core.gui.components.form.flexible.FormItem;
 import org.olat.core.gui.components.form.flexible.FormItemContainer;
 import org.olat.core.gui.components.form.flexible.elements.SpacerElement;
+import org.olat.core.gui.render.StringOutput;
 import org.olat.core.util.StringHelper;
 
 /**
@@ -146,6 +147,24 @@ public class FormDecorator {
 		return FormJSHelper.getXHRFnCallFor(theForm, elementId, 1, true, true, new NameValuePair(key, value));
 	}
 	
+	public String appendFlexiFormDirty(String id) {
+		StringOutput sb = new StringOutput(256);
+		FormJSHelper.appendFlexiFormDirty(sb, container.getRootForm(), id);
+		return sb.toString();
+	}
+	
+	public String appendFlexiFormDirtyForCheckbox(String id) {
+		StringOutput sb = new StringOutput(256);
+		FormJSHelper.appendFlexiFormDirtyForCheckbox(sb, container.getRootForm(), id);
+		return sb.toString();
+	}
+	
+	public String appendFlexiFormDirtyForClick(String id) {
+		StringOutput sb = new StringOutput(256);
+		FormJSHelper.appendFlexiFormDirtyForClick(sb, container.getRootForm(), id);
+		return sb.toString();
+	}
+	
 	public String getContainerCssClass() {
 		if (container != null && StringHelper.containsNonWhitespace(container.getElementCssClass())) {
 			return " " + container.getElementCssClass();
@@ -160,6 +179,10 @@ public class FormDecorator {
 		}
 		return "";
 	}
+	
+	public Form getForm() {
+		return container.getRootForm();
+	}
 
 	/**
 	 * Internal helper to get a form item for the given name
@@ -167,7 +190,7 @@ public class FormDecorator {
 	 * @param formItemName
 	 * @return
 	 */
-	private FormItem getFormItem(String formItemName) {
+	public FormItem getFormItem(String formItemName) {
 		return container.getFormComponent(formItemName);
 	}
 

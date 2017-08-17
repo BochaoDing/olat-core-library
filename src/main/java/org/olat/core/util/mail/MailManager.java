@@ -27,6 +27,7 @@ import java.util.List;
 import javax.mail.Address;
 import javax.mail.internet.MimeMessage;
 
+import org.olat.basesecurity.IdentityRef;
 import org.olat.core.commons.services.notifications.PublisherData;
 import org.olat.core.commons.services.notifications.Subscriber;
 import org.olat.core.commons.services.notifications.SubscriptionContext;
@@ -128,7 +129,7 @@ public interface MailManager {
 	 * @param maxResults
 	 * @return
 	 */
-	public List<DBMailLight> getInbox(Identity identity, Boolean unreadOnly, Boolean fetchRecipients, Date from, int firstResult, int maxResults);
+	public List<DBMailLight> getInbox(IdentityRef identity, Boolean unreadOnly, Boolean fetchRecipients, Date from, int firstResult, int maxResults);
 	
 	/**
 	 * Forward an E-Mail from the OpenOLAt mail box to the real one
@@ -178,6 +179,15 @@ public interface MailManager {
 	 * @return
 	 */
 	public MailerResult sendMessage(MailBundle... bundles);
+	
+	/**
+	 * Send the mail bundle asynchronous. The queue is in memory (for the moment)
+	 * and a shut down of the queue will mean looses.
+	 * 
+	 * @param bundles
+	 * @return
+	 */
+	public void sendMessageAsync(MailBundle... bundles);
 	
 	public MailerResult sendExternMessage(MailBundle bundle, MailerResult result, boolean useTemplate);
 	
