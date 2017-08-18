@@ -81,6 +81,7 @@ import org.olat.core.util.tree.TreeVisitor;
 import org.olat.core.util.tree.Visitor;
 import org.olat.core.util.vfs.NamedContainerImpl;
 import org.olat.core.util.vfs.VFSContainer;
+import org.olat.course.CorruptedCourseException;
 import org.olat.course.CourseFactory;
 import org.olat.course.CourseModule;
 import org.olat.course.ICourse;
@@ -850,69 +851,73 @@ public class CourseRuntimeController extends RepositoryEntryRuntimeController im
 
 	@Override
 	protected void event(UserRequest ureq, Component source, Event event) {
-		if(layoutLink == source) {
-			doLayout(ureq);
-		} else if(optionsLink == source) {
-			doOptions(ureq);
-		} else if(assessmentModeLink == source) {
-			doAssessmentMode(ureq);
-		} else if(certificatesOptionsLink == source) {
-			doCertificatesOptions(ureq);
-		} else if (lifeCycleChangeLink == source) {
-			doLifeCycleChange(ureq);
-		} else if(reminderLink == source) {
-			doReminders(ureq);
-		} else if(archiverLink == source) {
-			doArchive(ureq);
-		} else if(folderLink == source) {
-			doCourseFolder(ureq);
-		} else if(areaLink == source) {
-			doCourseAreas(ureq);
-		} else if(dbLink == source) {
-			doDatabases(ureq);
-		} else if(courseStatisticLink == source) {
-			doCourseStatistics(ureq);
-		} else if(testStatisticLink == source) {
-			doAssessmentTestStatistics(ureq);
-		} else if(surveyStatisticLink == source) {
-			doAssessmentSurveyStatistics(ureq);
-		} else if(assessmentLink == source) {
-			doAssessmentTool(ureq);
-		} else if(calendarLink == source) {
-			launchCalendar(ureq);
-		} else if(chatLink == source) {
-			launchChat(ureq);
-		} else if(searchLink == source) {
-			launchCourseSearch(ureq);
-		} else if(efficiencyStatementsLink == source) {
-			doEfficiencyStatements(ureq);
-		} else if(noteLink == source) {
-			launchPersonalNotes(ureq);
-		} else if(openGlossaryLink == source) {
-			launchGlossary(ureq);
-		} else if(leaveLink == source) {
-			doConfirmLeave(ureq);
-		} else if(source instanceof Link) {
-			if ("group".equals(((Link)source).getCommand())) {
-				BusinessGroupRef ref = (BusinessGroupRef) ((Link) source).getUserObject();
-				launchGroup(ureq, ref.getKey(), "", "");
-			} else if(("groupadmin".equals(((Link)source).getCommand()))) {
-				BusinessGroupRef ref = (BusinessGroupRef) ((Link) source).getUserObject();
-				launchGroup(ureq, ref.getKey(), "tooladmin", "2");
-			}
-		} else if(source == toolbarPanel) {
-			if(event instanceof VetoPopEvent) {
-				delayedClose = Delayed.pop;
-			} else if(event instanceof PopEvent) {
-				PopEvent pop = (PopEvent)event;
-				if(pop.getController() != getRunMainController()) {
-					toolControllerDone(ureq);
+		try {
+			if(layoutLink == source) {
+				doLayout(ureq);
+			} else if(optionsLink == source) {
+				doOptions(ureq);
+			} else if(assessmentModeLink == source) {
+				doAssessmentMode(ureq);
+			} else if(certificatesOptionsLink == source) {
+				doCertificatesOptions(ureq);
+			} else if (lifeCycleChangeLink == source) {
+				doLifeCycleChange(ureq);
+			} else if(reminderLink == source) {
+				doReminders(ureq);
+			} else if(archiverLink == source) {
+				doArchive(ureq);
+			} else if(folderLink == source) {
+				doCourseFolder(ureq);
+			} else if(areaLink == source) {
+				doCourseAreas(ureq);
+			} else if(dbLink == source) {
+				doDatabases(ureq);
+			} else if(courseStatisticLink == source) {
+				doCourseStatistics(ureq);
+			} else if(testStatisticLink == source) {
+				doAssessmentTestStatistics(ureq);
+			} else if(surveyStatisticLink == source) {
+				doAssessmentSurveyStatistics(ureq);
+			} else if(assessmentLink == source) {
+				doAssessmentTool(ureq);
+			} else if(calendarLink == source) {
+				launchCalendar(ureq);
+			} else if(chatLink == source) {
+				launchChat(ureq);
+			} else if(searchLink == source) {
+				launchCourseSearch(ureq);
+			} else if(efficiencyStatementsLink == source) {
+				doEfficiencyStatements(ureq);
+			} else if(noteLink == source) {
+				launchPersonalNotes(ureq);
+			} else if(openGlossaryLink == source) {
+				launchGlossary(ureq);
+			} else if(leaveLink == source) {
+				doConfirmLeave(ureq);
+			} else if(source instanceof Link) {
+				if ("group".equals(((Link)source).getCommand())) {
+					BusinessGroupRef ref = (BusinessGroupRef) ((Link) source).getUserObject();
+					launchGroup(ureq, ref.getKey(), "", "");
+				} else if(("groupadmin".equals(((Link)source).getCommand()))) {
+					BusinessGroupRef ref = (BusinessGroupRef) ((Link) source).getUserObject();
+					launchGroup(ureq, ref.getKey(), "tooladmin", "2");
 				}
+			} else if(source == toolbarPanel) {
+				if(event instanceof VetoPopEvent) {
+					delayedClose = Delayed.pop;
+				} else if(event instanceof PopEvent) {
+					PopEvent pop = (PopEvent)event;
+					if(pop.getController() != getRunMainController()) {
+						toolControllerDone(ureq);
+					}
+				}
+			} else if(enableGlossaryLink == source) {
+				toggleGlossary(ureq);
 			}
-		} else if(enableGlossaryLink == source) {
-			toggleGlossary(ureq);
+			super.event(ureq, source, event);
+		} catch (CorruptedCourseException e) {
+			showError("error.course.corrupted.or.does.not.exist.anymore");
 		}
-		super.event(ureq, source, event);
 	}
 
 	@Override
