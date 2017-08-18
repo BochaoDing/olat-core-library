@@ -86,17 +86,18 @@ import com.thoughtworks.xstream.XStream;
 public class XStreamHelper {
 	private static final String ENCODING = "UTF-8";
 
-	private static final String[] ALLOWED_TYPES_WILDCARDS = {
+	// TODO: use specfic types by xstream.allowTypesByWildcard(ALLOWED_TYPES_WILDCARDS); instead of xstream.addPermission(AnyTypePermission.ANY);
+	/*private static final String[] ALLOWED_TYPES_WILDCARDS = {
 			"org.olat.**",
 			"de.bps.**",
 			"de.tuchemnitz.**",
 			"ch.uzh.extension.**"
-	};
+	};*/
 	private static XStream unconfiguredXStream = new XStream();
 
 	static {
 		XStream.setupDefaultSecurity(unconfiguredXStream);
-		unconfiguredXStream.allowTypesByWildcard(ALLOWED_TYPES_WILDCARDS);
+		unconfiguredXStream.addPermission(AnyTypePermission.ANY);
 	}
 
 	/**
@@ -243,7 +244,7 @@ public class XStreamHelper {
 	public static XStream createXStreamInstance() {
 		EnhancedXStream xstream = new EnhancedXStream(false);
 		XStream.setupDefaultSecurity(xstream);
-		xstream.allowTypesByWildcard(ALLOWED_TYPES_WILDCARDS);
+		xstream.addPermission(AnyTypePermission.ANY);
 		return xstream;
 	}
 	
@@ -256,7 +257,7 @@ public class XStreamHelper {
 	public static XStream createXStreamInstanceForDBObjects() {
 		EnhancedXStream xstream = new EnhancedXStream(true);
 		XStream.setupDefaultSecurity(xstream);
-		xstream.allowTypesByWildcard(ALLOWED_TYPES_WILDCARDS);
+		xstream.addPermission(AnyTypePermission.ANY);
 		return xstream;
 	}
 
