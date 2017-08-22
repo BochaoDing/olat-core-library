@@ -303,29 +303,6 @@ public class AuthorDeletedListController extends AuthorListController {
 			mainVC = createVelocityContainer("tools");
 			List<String> links = new ArrayList<>();
 
-			
-			boolean copyManaged = RepositoryEntryManagedFlag.isManaged(entry, RepositoryEntryManagedFlag.copy);
-			boolean canCopy = (isAuthor || isOwner) && (entry.getCanCopy() || isOwner) && !copyManaged;
-			
-			boolean canDownload = entry.getCanDownload() && handler.supportsDownload();
-			// disable download for courses if not author or owner
-			if (entry.getOlatResource().getResourceableTypeName().equals(CourseModule.getCourseTypeName()) && !(isOwner || isAuthor)) {
-				canDownload = false;
-			}
-			// always enable download for owners
-			if (isOwner && handler.supportsDownload()) {
-				canDownload = true;
-			}
-			
-			if(canCopy || canDownload) {
-				if (canCopy) {
-					addLink("details.copy", "copy", "o_icon o_icon-fw o_icon_copy", links);
-				}
-				if(canDownload) {
-					addLink("details.download", "download", "o_icon o_icon-fw o_icon_download", links);
-				}
-			}
-			
 			if(isOwner) {
 				addLink("tools.restore", "restore", "o_icon o_icon-fw o_icon_restore", links);
 			}
@@ -353,11 +330,7 @@ public class AuthorDeletedListController extends AuthorListController {
 			if(source instanceof Link) {
 				Link link = (Link)source;
 				String cmd = link.getCommand();
-				if("copy".equals(cmd)) {
-					doCopy(ureq, row);
-				} else if("download".equals(cmd)) {
-					doDownload(ureq, row);
-				} else if("restore".equals(cmd)) {
+				if("restore".equals(cmd)) {
 					doRestore(ureq, Collections.singletonList(row));
 				} else if("delete".equals(cmd)) {
 					doDeletePermanently(ureq, Collections.singletonList(row));
