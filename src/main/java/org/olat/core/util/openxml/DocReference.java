@@ -19,7 +19,7 @@
  */
 package org.olat.core.util.openxml;
 
-import java.io.File;
+import java.net.URL;
 
 /**
  *
@@ -31,12 +31,12 @@ public class DocReference {
 
 	private final String id;
 	private final String filename;
-	private final File file;
+	private final URL url;
 	private final OpenXMLSize emuSize;
 
-	public DocReference(String id, String filename, OpenXMLSize emuSize, File file) {
+	public DocReference(String id, String filename, OpenXMLSize emuSize, URL url) {
 		this.id = id;
-		this.file = file;
+		this.url = url;
 		this.emuSize = emuSize;
 		this.filename = filename;
 	}
@@ -49,8 +49,8 @@ public class DocReference {
 		return filename;
 	}
 
-	public File getFile() {
-		return file;
+	public URL getUrl() {
+		return url;
 	}
 
 	public OpenXMLSize getEmuSize() {

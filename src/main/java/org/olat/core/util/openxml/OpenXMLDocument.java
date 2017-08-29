@@ -21,11 +21,10 @@ package org.olat.core.util.openxml;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringReader;
-import java.net.URISyntaxException;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -89,7 +88,7 @@ public class OpenXMLDocument {
 	private int currentNumberingId = 0;
 	private String documentHeader;
 	private Set<String> imageFilenames = new HashSet<>();
-	private Map<File, DocReference> fileToImagesMap = new HashMap<File, DocReference>();
+	private Map<URL, DocReference> urlToImagesMap = new HashMap<URL, DocReference>();
 
 	private List<Node> cursorStack = new ArrayList<>();
 	private List<ListParagraph> numbering = new ArrayList<>();
@@ -133,7 +132,7 @@ public class OpenXMLDocument {
 	}
 
 	public Collection<DocReference> getImages() {
-		return fileToImagesMap.values();
+		return urlToImagesMap.values();
 	}
 
 	public Collection<HeaderReference> getHeaders() {
@@ -679,7 +678,6 @@ public class OpenXMLDocument {
 	}
 
 	public Node createCheckbox(boolean checked, boolean border) {
-		try {
 			String name;
 			if(border) {
 				name = checked ? "image1.png" : "image2.png";
@@ -687,12 +685,7 @@ public class OpenXMLDocument {
 				name = checked ? "image1_noborder.png" : "image2_noborder.png";
 			}
 			URL imgUrl = OpenXMLDocument.class.getResource("_resources/" + name);
-			File imgFile = new File(imgUrl.toURI());
-			return createImageEl(imgFile);
-		} catch (URISyntaxException e) {
-			log.error("", e);
-			return null;
-		}
+			return createImageEl(imgUrl);
 	}
 
 	public Element createBreakEl() {
@@ -998,8 +991,8 @@ public class OpenXMLDocument {
 		return mathEls;
 	}
 
-	public void appendImage(File file) {
-		Element imgEl = createImageEl(file);
+	public void appendImage(URL url) {
+		Element imgEl = createImageEl(url);
 		if(imgEl != null) {
 			Element runEl = createRunEl(Collections.singletonList(imgEl));
 			Element paragraphEl = getParagraphToAppendTo(true);
@@ -1014,7 +1007,12 @@ public class OpenXMLDocument {
 		VFSItem media = mediaContainer.resolve(path);
 		if(media instanceof LocalFileImpl) {
 			LocalFileImpl file = (LocalFileImpl)media;
-			return createImageEl(file.getBasefile());
+			try {
+				return createImageEl(file.getBasefile().toURI().toURL());
+			} catch (MalformedURLException e) {
+				log.error("",e);
+				return null;
+			}
 		}
 		return null;
 	}
@@ -1073,11 +1071,11 @@ public class OpenXMLDocument {
  */
 	/**
 	 * <a:blip r:embed="rId6">
-	 * @param image
+	 * @param imageUrl
 	 * @return
 	 */
-	public Element createImageEl(File image) {
-		DocReference ref = registerImage(image);
+	public Element createImageEl(URL imageUrl) {
+		DocReference ref = registerImage(imageUrl);
 		String id = ref.getId();
 		OpenXMLSize emuSize = ref.getEmuSize();
 		String filename = ref.getFilename();
@@ -1169,17 +1167,17 @@ public class OpenXMLDocument {
 		return drawingEl;
 	}
 
-	private DocReference registerImage(File image) {
+	private DocReference registerImage(URL url) {
 		DocReference ref;
-		if(fileToImagesMap.containsKey(image)) {
-			ref = fileToImagesMap.get(image);
+		if(urlToImagesMap.containsKey(url)) {
+			ref = urlToImagesMap.get(url);
 		} else {
 			String id = generateId();
-			Size size = ImageUtils.getImageSize(image);
+			Size size = ImageUtils.getImageSize(url);
 			OpenXMLSize emuSize = OpenXMLUtils.convertPixelToEMUs(size, DPI, 15.9/* cm */);
-			String filename = getUniqueFilename(image);
-			ref = new DocReference(id, filename, emuSize, image);
-			fileToImagesMap.put(image, ref);
+			String filename = getUniqueFilename(url);
+			ref = new DocReference(id, filename, emuSize, url);
+			urlToImagesMap.put(url, ref);
 		}
 		return ref;
 	}
@@ -1289,8 +1287,8 @@ public class OpenXMLDocument {
         </wp:anchor>
     </w:drawing>
     */
-	public Element createGraphicEl(File backgroundImage, List<OpenXMLGraphic> elements) {
-		DocReference backgroundImageRef = registerImage(backgroundImage);
+	public Element createGraphicEl(URL backgroundImageUrl, List<OpenXMLGraphic> elements) {
+		DocReference backgroundImageRef = registerImage(backgroundImageUrl);
 		OpenXMLSize emuSize = backgroundImageRef.getEmuSize();
 
 		Element alternateContentEl = document.createElement("mc:AlternateContent");
@@ -1621,8 +1619,8 @@ public class OpenXMLDocument {
 		chExtEl.setAttribute("cy", cy);
 	}
 
-	private String getUniqueFilename(File image) {
-		String filename = image.getName().toLowerCase();
+	private String getUniqueFilename(URL imageUrl) {
+		String filename = imageUrl.getFile();
 		int extensionIndex = filename.lastIndexOf('.');
 		if(extensionIndex > 0) {
 			String name = filename.substring(0, extensionIndex);
