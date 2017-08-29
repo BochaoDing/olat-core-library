@@ -47,6 +47,7 @@ import org.olat.core.gui.UserRequest;
 import org.olat.core.gui.Windows;
 import org.olat.core.gui.components.form.flexible.impl.InvalidRequestParameterException;
 import org.olat.core.gui.components.htmlheader.jscss.CustomCSS;
+import org.olat.core.gui.components.htmlheader.jscss.CustomCSSDelegate;
 import org.olat.core.gui.components.panel.Panel;
 import org.olat.core.gui.control.ChiefController;
 import org.olat.core.gui.control.Controller;
@@ -76,6 +77,7 @@ import org.olat.core.gui.render.ValidationResult;
 import org.olat.core.gui.render.intercept.InterceptHandler;
 import org.olat.core.gui.render.intercept.InterceptHandlerInstance;
 import org.olat.core.gui.themes.Theme;
+import org.olat.core.helpers.GUISettings;
 import org.olat.core.helpers.Settings;
 import org.olat.core.id.context.BusinessControl;
 import org.olat.core.id.context.BusinessControlFactory;
@@ -94,7 +96,7 @@ import org.olat.core.util.component.ComponentVisitor;
  * 
  * @author Felix Jost
  */
-public class Window extends AbstractComponent {
+public class Window extends AbstractComponent implements CustomCSSDelegate {
 	
 	private static final OLog log = Tracing.createLoggerFor(Window.class);
 	private static final DispatchResult NO_DISPATCHRESULT = new DispatchResult(false, false, false);
@@ -183,7 +185,7 @@ public class Window extends AbstractComponent {
 		this.wbackofficeImpl = wbackoffice;
 		jsAndCssAdder = wbackoffice.createJSAndCSSAdder();
 		// set default theme
-		Theme myTheme = new Theme(Settings.getGuiThemeIdentifyer());
+		Theme myTheme = new Theme(CoreSpringFactory.getImpl(GUISettings.class).getGuiThemeIdentifyer());
 		setGuiTheme(myTheme);
 	}
 	
@@ -842,6 +844,7 @@ public class Window extends AbstractComponent {
 		this.dTabs = dTabs;
 	}
 
+	@Override
 	public CustomCSS getCustomCSS() {
 		return customCSS;
 	}

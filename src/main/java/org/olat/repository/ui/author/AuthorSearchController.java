@@ -261,7 +261,11 @@ public class AuthorSearchController extends FormBasicController implements Exten
 		List<String> resources = new ArrayList<String>();
 		resources.add("");
 		for(OrderedRepositoryHandler handler:repositoryHandlerFactory.getOrderRepositoryHandlers()) {
-			resources.add(handler.getHandler().getSupportedType());
+			// filter out disabled types in advanced search
+			// TODO: generalize by using a specific (new) handler-method
+			if (handler.getHandler().isCreate() || handler.getOrder() > 10000 || handler.getOrder() == 42 || handler.getOrder() == 20) {
+				resources.add(handler.getHandler().getSupportedType());
+			}
 		}
 		return resources;
 	}

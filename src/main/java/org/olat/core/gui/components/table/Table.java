@@ -130,6 +130,7 @@ public class Table extends AbstractComponent {
 
 	// config
 	private boolean multiSelect = false;
+	private boolean multiSelectDisabled = false;
 	private boolean selectedRowUnselectable = false;
 	private boolean sortingEnabled = true;
 	private boolean displayTableHeader = true;
@@ -138,6 +139,7 @@ public class Table extends AbstractComponent {
 	private Integer currentPageId;
 	private int resultsPerPage;
 	private boolean isShowAllSelected;
+	private boolean suppressDirtyFormWarning;
 
 	private List<TableMultiSelect> multiSelectActions = new ArrayList<TableMultiSelect>();
 	private BitSet multiSelectSelectedRows = new BitSet();
@@ -800,6 +802,14 @@ public class Table extends AbstractComponent {
 		// only update after state change checks (see above) are through
 		this.multiSelect = multiSelect;
 	}
+	
+	public boolean isMultiSelectAsDisabled() {
+		return multiSelectDisabled;
+	}
+	
+	public void setMultiSelectAsDisabled(boolean disabled) {
+		multiSelectDisabled = disabled;
+	}
 
 	protected void addMultiSelectAction(String label, String actionKeyi18n, String actionIdentifier) {
 		multiSelectActions.add(new TableMultiSelect(label, actionKeyi18n, actionIdentifier));
@@ -821,7 +831,7 @@ public class Table extends AbstractComponent {
 		this.isShowAllSelected = isShowAllSelected;
 	}
 	
-	public void enableShowAllLink(final boolean enableShowAllLinkValue) {
+	public void setEnableShowAllLink(final boolean enableShowAllLinkValue) {
 		this.enableShowAllLinkValue  = enableShowAllLinkValue;
 	}
 	
@@ -840,6 +850,27 @@ public class Table extends AbstractComponent {
 	protected BitSet getMultiSelectReadonlyRows() {
 		return multiSelectReadonlyRows;
 	}
+    
+	/**
+	 * @return true: don't check for dirt forms; false: check for dirty forms
+	 *         (default)
+	 */
+	public boolean isSuppressDirtyFormWarning() {
+		return suppressDirtyFormWarning;
+	}
+	
+	/**
+	 * When pressing an action of the table, the dirty form check is or is not
+	 * check based on the specified setting.
+	 * 
+	 * @param suppressDirtyFormWarning true: don't check for dirt forms; false:
+	 *          check for dirty forms (default)
+	 */
+	public void setSuppressDirtyFormWarning(boolean suppressDirtyFormWarning) {
+		this.suppressDirtyFormWarning = suppressDirtyFormWarning;
+	}
+
+
 	
 	protected int getSortColumn() {
 		return sortColumn;

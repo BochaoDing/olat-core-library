@@ -36,7 +36,6 @@ import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.arquillian.test.api.ArquillianResource;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
 import org.junit.Assert;
-import org.junit.Assume;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -70,7 +69,6 @@ import org.olat.user.restapi.UserVO;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
-import org.openqa.selenium.firefox.FirefoxDriver;
 
 /**
  * 
@@ -107,9 +105,6 @@ public class AssessmentTest {
 	public void qti12Test(@InitialPage LoginPage authorLoginPage)
 	throws IOException, URISyntaxException {
 		
-		//File upload only work with Firefox
-		Assume.assumeTrue(browser instanceof FirefoxDriver);
-				
 		UserVO author = new UserRestClient(deploymentUrl).createAuthor();
 		authorLoginPage.loginAs(author.getLogin(), author.getPassword());
 		
@@ -157,16 +152,16 @@ public class AssessmentTest {
 		QTI12Page testPage = QTI12Page.getQTI12Page(browser);
 		testPage
 			.start()
-			.selectItem(0)
-			.answerSingleChoice(0)
+			.selectItem("Single choice")
+			.answerSingleChoice("Correct answer")
 			.saveAnswer()
-			.selectItem(1)
-			.answerMultipleChoice(0, 2)
+			.selectItem("Multiple choice")
+			.answerMultipleChoice("Correct answer", "The answer is correct")
 			.saveAnswer()
-			.selectItem(2)
+			.selectItem("Kprim")
 			.answerKPrim(true, false, true, false)
 			.saveAnswer()
-			.selectItem(3)
+			.selectItem("Fill-in")
 			.answerFillin("not")
 			.saveAnswer();
 		testPage
@@ -202,9 +197,7 @@ public class AssessmentTest {
 	public void qti12CourseWithAssessment(@InitialPage LoginPage authorLoginPage,
 			@Drone @User WebDriver ryomouBrowser)
 	throws IOException, URISyntaxException {
-		//File upload only work with Firefox
-		Assume.assumeTrue(browser instanceof FirefoxDriver);
-		
+
 		UserVO author = new UserRestClient(deploymentUrl).createAuthor();
 		authorLoginPage.loginAs(author.getLogin(), author.getPassword());
 		UserVO ryomou = new UserRestClient(deploymentUrl).createRandomUser("Ryomou");
@@ -279,16 +272,16 @@ public class AssessmentTest {
 		QTI12Page testPage = QTI12Page.getQTI12Page(ryomouBrowser);
 		testPage
 			.start()
-			.selectItem(0)
-			.answerSingleChoice(0)
+			.selectItem("Single choice")
+			.answerSingleChoice("Correct answer")
 			.saveAnswer()
-			.selectItem(1)
-			.answerMultipleChoice(0, 2)
+			.selectItem("Multiple choice")
+			.answerMultipleChoice("Correct answer", "The answer is correct")
 			.saveAnswer()
-			.selectItem(2)
+			.selectItem("Kprim")
 			.answerKPrim(true, false, true, false)
 			.saveAnswer()
-			.selectItem(3)
+			.selectItem("Fill-in")
 			.answerFillin("not")
 			.saveAnswer();
 		testPage
@@ -344,9 +337,7 @@ public class AssessmentTest {
 	public void scormCourseWithAssessment(@InitialPage LoginPage authorLoginPage,
 			@Drone @User WebDriver ryomouBrowser)
 	throws IOException, URISyntaxException {
-		//File upload only work with Firefox
-		Assume.assumeTrue(browser instanceof FirefoxDriver);
-				
+		
 		UserVO author = new UserRestClient(deploymentUrl).createAuthor();
 		authorLoginPage.loginAs(author.getLogin(), author.getPassword());
 		UserVO ryomou = new UserRestClient(deploymentUrl).createRandomUser("Ryomou");
@@ -464,9 +455,7 @@ public class AssessmentTest {
 	public void assessmentMode_manual(@InitialPage LoginPage authorLoginPage,
 			@Drone @Student WebDriver ryomouBrowser, @Drone @Participant WebDriver kanuBrowser)
 	throws IOException, URISyntaxException {
-		//File upload only work with Firefox
-		Assume.assumeTrue(browser instanceof FirefoxDriver);
-		
+
 		UserVO author = new UserRestClient(deploymentUrl).createAuthor();
 		authorLoginPage.loginAs(author.getLogin(), author.getPassword());
 		UserVO ryomou = new UserRestClient(deploymentUrl).createRandomUser("Ryomou");
@@ -760,7 +749,8 @@ public class AssessmentTest {
 			.openMyEfficiencyStatement()
 			.assertOnEfficiencyStatmentPage()
 			.assertOnCertificateAndStatements(courseTitle)
-			.selectStatement(courseTitle).selectStatementSegment()
+			.selectStatement(courseTitle)
+			.selectStatementSegment()
 			.assertOnCourseDetails(testNodeTitle, true);
 	}
 	
@@ -864,7 +854,7 @@ public class AssessmentTest {
 	 * The author reviews the documents, use the assessment tool
 	 * for group within the course element to set passed to the
 	 * group.</br>
-	 * The 2 participants check if they sucessfully passed the task.
+	 * The 2 participants check if they successfully passed the task.
 	 * 
 	 * 
 	 * @param authorLoginPage
@@ -879,9 +869,7 @@ public class AssessmentTest {
 			@Drone @User WebDriver ryomouBrowser,
 			@Drone @Participant WebDriver kanuBrowser)
 	throws IOException, URISyntaxException {
-		//File upload only work with Firefox
-		Assume.assumeTrue(browser instanceof FirefoxDriver);
-						
+			
 		UserVO author = new UserRestClient(deploymentUrl).createAuthor();
 		UserVO kanu = new UserRestClient(deploymentUrl).createRandomUser("Kanu");
 		UserVO ryomou = new UserRestClient(deploymentUrl).createRandomUser("Ryomou");
@@ -1067,8 +1055,6 @@ public class AssessmentTest {
 	public void taskWithIndividuScoreAndRevision(@InitialPage LoginPage authorLoginPage,
 			@Drone @User WebDriver ryomouBrowser)
 	throws IOException, URISyntaxException {
-		//File upload only work with Firefox
-		Assume.assumeTrue(browser instanceof FirefoxDriver);
 						
 		UserVO author = new UserRestClient(deploymentUrl).createAuthor();
 		UserVO kanu = new UserRestClient(deploymentUrl).createRandomUser("kanu");

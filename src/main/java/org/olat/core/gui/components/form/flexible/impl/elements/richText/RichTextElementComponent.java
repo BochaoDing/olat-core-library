@@ -27,12 +27,14 @@ import org.olat.core.gui.UserRequest;
 import org.olat.core.gui.Windows;
 import org.olat.core.gui.components.ComponentRenderer;
 import org.olat.core.gui.components.form.flexible.impl.FormBaseComponentImpl;
+import org.olat.core.gui.components.form.flexible.impl.FormEvent;
 import org.olat.core.gui.control.Controller;
 import org.olat.core.gui.control.JSAndCSSAdder;
 import org.olat.core.gui.control.WindowControl;
 import org.olat.core.gui.control.creator.ControllerCreator;
 import org.olat.core.gui.control.generic.popup.PopupBrowserWindow;
 import org.olat.core.gui.render.ValidationResult;
+import org.olat.core.util.StringHelper;
 import org.olat.core.util.vfs.VFSContainer;
 
 /**
@@ -116,18 +118,25 @@ class RichTextElementComponent extends FormBaseComponentImpl {
 		// element we make an exception since we have the media and link chooser
 		// events that must be dispatched by this code.		
 		String moduleUri = ureq.getModuleURI();
-		if (moduleUri != null) {
+		if (moduleUri != null && (moduleUri.startsWith(CMD_FILEBROWSER) || moduleUri.startsWith(CMD_IMAGEBROWSER) || moduleUri.startsWith(CMD_FLASHPLAYERBROWSER))) {
 			// Get currently edited relative file path
 			String fileName = getRichTextElementImpl().getEditorConfiguration().getLinkBrowserRelativeFilePath();
 			createFileSelectorPopupWindow(ureq, moduleUri, fileName);
+			setDirty(false);
+		} else {
+			String cmd = ureq.getParameter("cmd");
+			if(StringHelper.containsNonWhitespace(cmd)) {
+				element.getRootForm().fireFormEvent(ureq, new FormEvent(cmd, element, FormEvent.ONCLICK));
+			}
+			setDirty(false);
 		}
-		setDirty(false);
 	}
 	
 	private void createFileSelectorPopupWindow(final UserRequest ureq, final String type, final String fileName) {
 		// Get allowed suffixes from configuration and requested media browser type from event
 		final RichTextConfiguration config = element.getEditorConfiguration();
 		final boolean allowCustomMediaFactory = config.isAllowCustomMediaFactory();
+		final boolean uriValidation = config.isFilenameUriValidation();
 		final String[] suffixes;
 		if(type.startsWith(CMD_FILEBROWSER)) {
 			suffixes = null;
@@ -154,10 +163,10 @@ class RichTextElementComponent extends FormBaseComponentImpl {
 				CustomLinkTreeModel linkBrowserCustomTreeModel = config.getLinkBrowserCustomLinkTreeModel();
 				if (type.startsWith(CMD_FILEBROWSER)) {
 					// when in file mode we include the internal links to the selection
-					myLinkChooserController = new LinkChooserController(lureq, lwControl, baseContainer, uploadRelPath, absolutePath, suffixes, fileName, linkBrowserCustomTreeModel, allowCustomMediaFactory);			
+					myLinkChooserController = new LinkChooserController(lureq, lwControl, baseContainer, uploadRelPath, absolutePath, suffixes, uriValidation, fileName, linkBrowserCustomTreeModel, allowCustomMediaFactory);			
 				} else {
 					// in media or image mode, internal links make no sense here
-					myLinkChooserController = new LinkChooserController(lureq, lwControl, baseContainer, uploadRelPath, absolutePath, suffixes, fileName, null, allowCustomMediaFactory);						
+					myLinkChooserController = new LinkChooserController(lureq, lwControl, baseContainer, uploadRelPath, absolutePath, suffixes, uriValidation, fileName, null, allowCustomMediaFactory);						
 				}
 				return new LayoutMain3ColsController(lureq, lwControl, myLinkChooserController);
 			}

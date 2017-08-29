@@ -12,7 +12,9 @@
 		<property name="mailManager" ref="mailManager"/>
 	</bean>
 
-	<bean id="infoMessageManager" class="org.olat.commons.info.manager.InfoMessageManagerImpl" />
+	<bean id="infoMessageManager" class="org.olat.commons.info.manager.InfoMessageManagerImpl">
+	  <constructor-arg ref="database"/>
+	</bean>
 	
 	<bean id="infoSubscriptionManager" class="org.olat.commons.info.notification.InfoSubscriptionManagerImpl">
 	  <property name="notificationsManager" ref="notificationsManager"/>

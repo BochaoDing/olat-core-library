@@ -25,6 +25,7 @@ import org.olat.core.CoreSpringFactory;
 import org.olat.core.commons.persistence.DefaultResultInfos;
 import org.olat.core.commons.persistence.ResultInfos;
 import org.olat.core.commons.persistence.SortKey;
+import org.olat.core.gui.components.form.flexible.elements.FlexiTableFilter;
 import org.olat.core.gui.components.form.flexible.impl.elements.table.FlexiTableDataSourceDelegate;
 import org.olat.core.util.StringHelper;
 import org.olat.repository.RepositoryEntryMyView;
@@ -48,7 +49,7 @@ import org.olat.resource.accesscontrol.ui.PriceFormat;
  *
  */
 public class DefaultRepositoryEntryDataSource implements FlexiTableDataSourceDelegate<RepositoryEntryRow> {
-	
+
 	private final RepositoryEntryRowsFactory repositoryEntryRowsFactory;
 	private final SearchMyRepositoryEntryViewParams searchParams;
 
@@ -95,16 +96,18 @@ public class DefaultRepositoryEntryDataSource implements FlexiTableDataSourceDel
 	}
 
 	@Override
-	public final ResultInfos<RepositoryEntryRow> getRows(String query, List<String> condQueries,
-			int firstResult, int maxResults, SortKey... orderBy) {
-		
-		if(condQueries != null && condQueries.size() > 0) {
-			String filter = condQueries.get(0);
+    public final ResultInfos<RepositoryEntryRow> getRows(String query, List<FlexiTableFilter> filters,
+            List<String> condQueries, int firstResult, int maxResults, SortKey... orderBy) {
+
+        if(filters != null && filters.size() > 0 && filters.get(0) != null) {
+            String filter = filters.get(0).getFilter();
 			if(StringHelper.containsNonWhitespace(filter)) {
 				searchParams.setFilters(Collections.singletonList(Filter.valueOf(filter)));
 			} else {
 				searchParams.setFilters(null);
 			}
+		} else {
+			searchParams.setFilters(null);
 		}
 		
 		if(orderBy != null && orderBy.length > 0 && orderBy[0] != null) {
@@ -118,7 +121,7 @@ public class DefaultRepositoryEntryDataSource implements FlexiTableDataSourceDel
 		} else {
 			searchParams.setIdRefsAndTitle(null);
 		}
-		
+
 		List<RepositoryEntryMyView> views = repositoryService.searchMyView(searchParams, firstResult, maxResults);
 		List<RepositoryEntryRow> rows = processViewModel(views);
 		ResultInfos<RepositoryEntryRow> results = new DefaultResultInfos<RepositoryEntryRow>(firstResult + rows.size(), -1, rows);
@@ -142,7 +145,7 @@ public class DefaultRepositoryEntryDataSource implements FlexiTableDataSourceDel
 		List<OLATResourceAccess> resourcesWithOffer = acService.filterResourceWithAC(resourcesWithAC);
 		repositoryService.filterMembership(searchParams.getIdentity(), repoKeys);
 
-		Map<RepositoryEntryMyView, RepositoryEntryRow> mapOfRepositoryEntryViewsAndRepositoryEntryRows =
+		LinkedHashMap<RepositoryEntryMyView, RepositoryEntryRow> mapOfRepositoryEntryViewsAndRepositoryEntryRows =
 				repositoryEntryRowsFactory.create(repoEntries);
 
 		List<RepositoryEntryRow> items = new ArrayList<>();

@@ -35,6 +35,7 @@ import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.interactions.Actions;
 
 /**
  * 
@@ -55,31 +56,103 @@ public class OOGraphene {
 		waitElement(modalBy, 5, browser);
 	}
 	
+	public static void waitCallout(WebDriver browser) {
+		By calloutBy = By.cssSelector("div.popover-content div.o_callout_content");
+		waitElement(calloutBy, 5, browser);
+	}
+	
 	public static void waitBusy(WebDriver browser) {
 		Graphene.waitModel(browser).pollingEvery(poolingDuration, TimeUnit.MILLISECONDS).until(new BusyPredicate());
 	}
 	
 	public static void waitBusy(WebDriver browser, int timeoutInSeconds) {
 		Graphene.waitModel(browser).withTimeout(timeoutInSeconds, TimeUnit.SECONDS)
-		.pollingEvery(poolingDuration, TimeUnit.MILLISECONDS).until(new BusyPredicate());
+			.pollingEvery(poolingDuration, TimeUnit.MILLISECONDS).until(new BusyPredicate());
 	}
 	
 	public static void waitElement(By element, WebDriver browser) {
-		Graphene.waitModel(browser).pollingEvery(poolingDuration, TimeUnit.MILLISECONDS).until().element(element).is().visible();
+		Graphene.waitModel(browser)
+			.pollingEvery(poolingDuration, TimeUnit.MILLISECONDS).until().element(element).is().visible();
 	}
 	
+	/**
+	 * Wait until the element is visible.
+	 * 
+	 * @param element The selector for the element
+	 * @param timeoutInSeconds The timeout in seconds
+	 * @param browser The web driver
+	 */
 	public static void waitElement(By element, int timeoutInSeconds, WebDriver browser) {
 		Graphene.waitModel(browser).withTimeout(timeoutInSeconds, TimeUnit.SECONDS)
 			.pollingEvery(poolingDuration, TimeUnit.MILLISECONDS).until().element(element).is().visible();
 	}
 	
+	/**
+	 * Wait until the element is present.
+	 * 
+	 * @param element The selector of the element
+	 * @param timeoutInSeconds The timeout in seconds
+	 * @param browser The web driver
+	 */
 	public static void waitElementDisappears(By element, int timeoutInSeconds, WebDriver browser) {
 		Graphene.waitModel(browser).withTimeout(timeoutInSeconds, TimeUnit.SECONDS)
 			.pollingEvery(poolingDuration, TimeUnit.MILLISECONDS).until().element(element).is().not().present();
 	}
 	
+	/**
+	 * Wait until the element is visible.
+	 * 
+	 * @param element The element to be visible
+	 * @param browser The web driver
+	 */
 	public static void waitElement(WebElement element, WebDriver browser) {
-		Graphene.waitModel(browser).pollingEvery(poolingDuration, TimeUnit.MILLISECONDS).until().element(element).is().visible();
+		Graphene.waitModel(browser)
+			.pollingEvery(poolingDuration, TimeUnit.MILLISECONDS).until().element(element).is().visible();
+	}
+	
+	/**
+	 * Wait until the element is visible.
+	 * 
+	 * @param element The element
+	 * @param timeoutInSeconds The timeout in seconds
+	 * @param browser The web driver
+	 */
+	public static void waitElement(WebElement element, int timeoutInSeconds, WebDriver browser) {
+		Graphene.waitModel(browser).withTimeout(timeoutInSeconds, TimeUnit.SECONDS)
+			.pollingEvery(poolingDuration, TimeUnit.MILLISECONDS).until().element(element).is().visible();
+	}
+	
+	/**
+	 * Wait until the element is present.
+	 * 
+	 * @param element The selector of the element
+	 * @param browser The web driver
+	 */
+	public static void waitElementPresent(By element, WebDriver browser) {
+		Graphene.waitModel(browser)
+			.pollingEvery(poolingDuration, TimeUnit.MILLISECONDS).until().element(element).is().present();
+	}
+	
+	/**
+	 * Wait until the element is present.
+	 * 
+	 * @param element The selector of the element
+	 * @param timeoutInSeconds The timeout in seconds
+	 * @param browser The web driver
+	 */
+	public static void waitElementPresent(By element, int timeoutInSeconds, WebDriver browser) {
+		Graphene.waitModel(browser).withTimeout(timeoutInSeconds, TimeUnit.SECONDS)
+			.pollingEvery(poolingDuration, TimeUnit.MILLISECONDS).until().element(element).is().present();
+	}
+	
+	public static void waitGui(WebDriver browser) {
+		Graphene.waitGui(browser);
+	}
+	
+	public static WebElement moveTo(WebElement element, WebDriver browser) {
+		Actions actions = new Actions(browser);
+		actions.moveToElement(element).perform();
+		return element;
 	}
 	
 	// top.tinymce.get('o_fi1000000416').setContent('<p>Hacked</p>');
@@ -88,6 +161,17 @@ public class OOGraphene {
 		Graphene.waitModel(browser).withTimeout(waitTinyDuration, TimeUnit.SECONDS)
 			.pollingEvery(poolingDuration, TimeUnit.MILLISECONDS).until(new TinyMCELoadedPredicate());
 		((JavascriptExecutor)browser).executeScript("top.tinymce.activeEditor.setContent('" + content + "')");
+	}
+	
+	public static final void tinymce(String content, String containerCssSelector, WebDriver browser) {
+		By tinyIdBy = By.cssSelector(containerCssSelector + " div.o_richtext_mce");
+		waitElement(tinyIdBy, 5, browser);
+		WebElement tinyIdEl = browser.findElement(tinyIdBy);
+		String tinyId = tinyIdEl.getAttribute("id").replace("_diw", "");
+
+		Graphene.waitModel(browser).withTimeout(waitTinyDuration, TimeUnit.SECONDS)
+			.pollingEvery(poolingDuration, TimeUnit.MILLISECONDS).until(new TinyMCELoadedByIdPredicate(tinyId));
+		((JavascriptExecutor)browser).executeScript("top.tinymce.editors['" + tinyId + "'].setContent('" + content + "')");
 	}
 	
 	/**

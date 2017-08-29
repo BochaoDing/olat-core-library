@@ -41,6 +41,7 @@ import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.olat.commons.calendar.model.KalendarEvent;
 import org.olat.selenium.page.Administrator;
 import org.olat.selenium.page.Author;
 import org.olat.selenium.page.LoginPage;
@@ -50,8 +51,10 @@ import org.olat.selenium.page.Student;
 import org.olat.selenium.page.User;
 import org.olat.selenium.page.core.AdministrationPage;
 import org.olat.selenium.page.core.BookingPage;
+import org.olat.selenium.page.core.CalendarPage;
 import org.olat.selenium.page.core.MenuTreePageFragment;
 import org.olat.selenium.page.course.AssessmentCEConfigurationPage;
+import org.olat.selenium.page.course.AssessmentToolPage;
 import org.olat.selenium.page.course.CourseEditorPageFragment;
 import org.olat.selenium.page.course.CoursePageFragment;
 import org.olat.selenium.page.course.CourseWizardPage;
@@ -69,7 +72,9 @@ import org.olat.selenium.page.repository.CPPage;
 import org.olat.selenium.page.repository.FeedPage;
 import org.olat.selenium.page.repository.RepositoryAccessPage;
 import org.olat.selenium.page.repository.RepositoryAccessPage.UserAccess;
+import org.olat.selenium.page.user.UserToolsPage;
 import org.olat.selenium.page.repository.RepositoryEditDescriptionPage;
+import org.olat.selenium.page.repository.ScormPage;
 import org.olat.test.ArquillianDeployments;
 import org.olat.test.JunitTestHelper;
 import org.olat.test.rest.UserRestClient;
@@ -591,6 +596,55 @@ public class CourseTest {
 		browser.findElement(By.xpath("//h2[text()='Lorem Ipsum']"));
 	}
 	
+	/**
+	 * This test an edge case where a course start automatically its first
+	 *  course element, which is a structure node which start itself its first
+	 *  element, which is a SCORM which launch itself automatically.
+	 * 
+	 * @param loginPage
+	 */
+	@Test
+	@RunAsClient
+	public void courseWithSCORM_fullAuto(@InitialPage LoginPage loginPage)
+	throws IOException, URISyntaxException {
+		
+		UserVO author = new UserRestClient(deploymentUrl).createAuthor();
+		loginPage.loginAs(author.getLogin(), author.getPassword());
+		
+		URL zipUrl = JunitTestHelper.class.getResource("file_resources/scorm/SCORM_course_full_auto.zip");
+		File zipFile = new File(zipUrl.toURI());
+		//go the authoring environment to import our course
+		String zipTitle = "SCORM - " + UUID.randomUUID();
+		navBar
+			.openAuthoringEnvironment()
+			.uploadResource(zipTitle, zipFile);
+		
+		// publish the course
+		new RepositoryEditDescriptionPage(browser)
+			.clickToolbarBack();
+		CoursePageFragment.getCourse(browser)
+				.edit()
+				.autoPublish();
+		
+		//scorm is auto started -> back
+		ScormPage.getScormPage(browser)
+			.back();
+		
+		//log out
+		new UserToolsPage(browser)
+			.logout();
+				
+		//log in and resume test
+		loginPage
+			.loginAs(author.getLogin(), author.getPassword())
+			.resume();
+		// direct jump in SCORM content
+		ScormPage.getScormPage(browser)
+			.passVerySimpleScorm()
+			.back()
+			.assertOnScormPassed()
+			.assertOnScormScore(33);
+	}
 	
 	/**
 	 * Create a course, create a wiki, go the the course editor,
@@ -860,7 +914,7 @@ public class CourseTest {
 		Assert.assertEquals(blogTitle, podcastH2.getText().trim());
 		
 		FeedPage feed = FeedPage.getFeedPage(browser);
-		feed.newExternalBlog("http://www.openolat.com/feed/");
+		feed.newExternalBlog("https://www.openolat.com/feed/");
 
 		//check only that the subscription link is visible
 		By subscriptionBy = By.cssSelector("div.o_subscription>a");
@@ -1152,6 +1206,189 @@ public class CourseTest {
 		
 		int numOfSurvivingMessages = infoMsgConfig.countMessages();
 		Assert.assertEquals(3, numOfSurvivingMessages);
+	}
+	
+
+	/**
+	 * Create a course with a calendar element, add a recurring event
+	 * all day, modify an occurence to an event between 13h and 15h.
+	 * Remove an other single occurence and at the end, remove all remaining
+	 * events by removing the original event and confirm that
+	 * all must be deleted.
+	 * 
+	 * @param loginPage
+	 * @throws IOException
+	 * @throws URISyntaxException
+	 */
+	@Test
+	@RunAsClient
+	public void createCourseWithCalendar(@InitialPage LoginPage loginPage)
+	throws IOException, URISyntaxException {
+		
+		UserVO author = new UserRestClient(deploymentUrl).createAuthor();
+		loginPage.loginAs(author.getLogin(), author.getPassword());
+		
+		//create a course
+		String courseTitle = "Course-With-iCal-" + UUID.randomUUID();
+		navBar
+			.openAuthoringEnvironment()
+			.createCourse(courseTitle)
+			.clickToolbarBack();
+		
+		navBar.openCourse(courseTitle);
+		
+		String calendarNodeTitle = "iCal-1";
+		//create a course element of type calendar
+		CourseEditorPageFragment courseEditor = CoursePageFragment.getCourse(browser)
+			.edit();
+		courseEditor
+			.createNode("cal")
+			.nodeTitle(calendarNodeTitle);
+		
+		//publish the course
+		courseEditor
+			.publish()
+			.quickPublish();
+		
+		//open the course and see the calendar
+		CoursePageFragment course = courseEditor
+			.clickToolbarBack();
+		course
+			.clickTree()
+			.selectWithTitle(calendarNodeTitle);
+		// create a recurring event
+		CalendarPage calendar = new CalendarPage(browser);
+		calendar
+			.addEvent(3)
+			.setDescription("Eventhor", "Hammer", "Asgard")
+			.setAllDay(true)
+			.setRecurringEvent(KalendarEvent.WEEKLY, 28)
+			.save();
+		// modify an occurence
+		calendar
+			.openDetailsOccurence("Eventhor", 17)
+			.edit()
+			.setAllDay(false)
+			.setBeginEnd(13, 15)
+			.save()
+			.confirmModifyOneOccurence();
+		
+		// check
+		calendar
+			.assertOnEvents("Eventhor", 4)
+			.assertOnEventsAt("Eventhor", 1, 13);
+		
+		// modify all events
+		calendar
+			.openDetailsOccurence("Eventhor", 3)
+			.edit()
+			.setDescription("Eventoki", null, null)
+			.save()
+			.confirmModifyAllOccurences();
+		// check
+		calendar
+			.assertOnEvents("Eventoki", 3)
+			.assertOnEventsAt("Eventhor", 1, 13);
+		
+		// delete an occurence
+		calendar
+			.openDetailsOccurence("Eventoki", 10)
+			.edit()
+			.delete()
+			.confirmDeleteOneOccurence();
+		// check
+		calendar
+			.assertOnEvents("Eventoki", 2)
+			.assertOnEventsAt("Eventhor", 1, 13);
+		
+		// delete all
+		calendar
+			.openDetailsOccurence("Eventoki", 3)
+			.edit()
+			.delete()
+			.confirmDeleteAllOccurences();
+		
+		OOGraphene.waitingALittleBit();
+		calendar
+			.assertZeroEvent();
+	}
+	
+	/**
+	 * This is a variant of the test above based on the
+	 * feedback of our beta-testerin.
+	 * 
+	 * @param loginPage
+	 * @throws IOException
+	 * @throws URISyntaxException
+	 */
+	@Test
+	@RunAsClient
+	public void courseWithCalendar_alt(@InitialPage LoginPage loginPage)
+	throws IOException, URISyntaxException {
+		
+		UserVO author = new UserRestClient(deploymentUrl).createAuthor();
+		loginPage.loginAs(author.getLogin(), author.getPassword());
+		
+		//create a course
+		String courseTitle = "Course-iCal-" + UUID.randomUUID();
+		navBar
+			.openAuthoringEnvironment()
+			.createCourse(courseTitle)
+			.clickToolbarBack();
+		
+		navBar.openCourse(courseTitle);
+		
+		// activate the calendar options
+		CoursePageFragment course = CoursePageFragment.getCourse(browser);
+		course
+			.options()
+			.calendar(Boolean.TRUE)
+			.save()
+			.clickToolbarBack();
+		
+		String calendarNodeTitle = "iCal-2";
+		//create a course element of type calendar
+		CourseEditorPageFragment courseEditor = CoursePageFragment.getCourse(browser)
+			.edit();
+		courseEditor
+			.createNode("cal")
+			.nodeTitle(calendarNodeTitle);
+		
+		//publish the course
+		course = courseEditor
+			.autoPublish();
+		//open the course and see the CP
+		course
+			.clickTree()
+			.selectWithTitle(calendarNodeTitle);
+		
+		// create a recurring event
+		CalendarPage calendar = new CalendarPage(browser);
+		calendar
+			.addEvent(2)
+			.setDescription("Repeat", "Loop", "Foreach")
+			.setAllDay(false)
+			.setBeginEnd(14, 18)
+			.setRecurringEvent(KalendarEvent.WEEKLY, 28)
+			.save()
+			.assertOnEvents("Repeat", 4);
+		
+		//pick an occurence which is not the first and modify it
+		calendar
+			.openDetailsOccurence("Repeat", 16)
+			.edit()
+			.setBeginEnd(15, 18)
+			.save()
+			.confirmModifyAllOccurences()
+			.assertOnEventsAt("Repeat", 4, 15);
+		
+		// delete futur event of the same event as above
+		calendar
+			.openDetailsOccurence("Repeat", 16)
+			.edit()
+			.delete()
+			.confirmDeleteFuturOccurences()
+			.assertOnEventsAt("Repeat", 2, 15);
 	}
 	
 	/**
@@ -1815,9 +2052,10 @@ public class CourseTest {
 			.assertTitleNotExists(infoTitle.substring(0, 20));
 		
 		//author set assessment to passed
-		members
+		AssessmentToolPage assessmentTool = members
 			.clickToolbarBack()
-			.assessmentTool()
+			.assessmentTool();
+		assessmentTool
 			.users()
 			.assertOnUsers(rei)
 			.selectUser(rei)
@@ -1834,8 +2072,8 @@ public class CourseTest {
 			.assertWithTitle(infoTitle.substring(0, 20));
 		
 		//author can see all
-		members
-			.clickToolbarBack()
+		assessmentTool
+			.clickToolbarRootCrumb()
 			.clickTree()
 			.assertWithTitle(bcTitle.substring(0, 20))
 			.assertWithTitle(msTitle.substring(0, 20))
@@ -2052,5 +2290,29 @@ public class CourseTest {
 			.selectPage(secondPage)
 			.selectPage(firstPage)
 			.assertInIFrame(By.xpath("//h2[text()[contains(.,'Lorem Ipsum')]]"));
+	}
+	
+	/**
+	 * Try to import a typical Windows zip with encoding issues. The goal
+	 * is to check that no ugly red screen are produced.
+	 * 
+	 * @param loginPage
+	 */
+	@Test
+	@RunAsClient
+	public void tryImportOfWindowsZip(@InitialPage LoginPage loginPage)
+	throws IOException, URISyntaxException {
+		
+		UserVO author = new UserRestClient(deploymentUrl).createAuthor();
+		loginPage.loginAs(author.getLogin(), author.getPassword());
+		
+		URL zipUrl = JunitTestHelper.class.getResource("file_resources/windows_zip.zip");
+		File zipFile = new File(zipUrl.toURI());
+		//go the authoring environment to create a CP
+		String zipTitle = "ZIP - " + UUID.randomUUID();
+		navBar
+			.openAuthoringEnvironment()
+			.uploadResource(zipTitle, zipFile)
+			.assertOnResourceType();
 	}
 }

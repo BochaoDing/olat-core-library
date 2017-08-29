@@ -170,6 +170,17 @@ public class BusinessGroupDAO {
 		return groups == null || groups.isEmpty() ? null : groups.get(0);
 	}
 	
+	public String loadDescription(Long key) {
+		StringBuilder sb = new StringBuilder();
+		sb.append("select bgi.description from businessgroup bgi where bgi.key=:key");
+		List<String> descriptions = dbInstance.getCurrentEntityManager()
+				.createQuery(sb.toString(), String.class)
+				.setParameter("key", key)
+				.setHint("org.hibernate.cacheable", Boolean.TRUE)
+				.getResultList();
+		return descriptions == null || descriptions.isEmpty() ? null : descriptions.get(0);
+	}
+	
 	public List<BusinessGroupShort> loadShort(Collection<Long> ids) {
 		if(ids == null || ids.isEmpty()) {
 			return Collections.emptyList();
@@ -1268,9 +1279,9 @@ public class BusinessGroupDAO {
 	
 	private StringBuilder searchLikeOwnerUserProperty(StringBuilder sb, String key, String var) {
 		if(dbInstance.getDbVendor().equals("mysql")) {
-			sb.append(" ownerUser.userProperties['").append(key).append("'] like :").append(var);
+			sb.append(" ownerUser.").append(key).append(" like :").append(var);
 		} else {
-			sb.append(" lower(ownerUser.userProperties['").append(key).append("']) like :").append(var);
+			sb.append(" lower(ownerUser.").append(key).append(") like :").append(var);
 			if(dbInstance.getDbVendor().equals("oracle")) {
 	 	 		sb.append(" escape '\\'");
 	 	 	}

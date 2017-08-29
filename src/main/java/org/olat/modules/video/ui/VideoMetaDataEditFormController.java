@@ -27,7 +27,8 @@ import org.olat.core.gui.control.WindowControl;
 import org.olat.core.util.Formatter;
 import org.olat.core.util.StringHelper;
 import org.olat.modules.video.VideoManager;
-import org.olat.modules.video.VideoMetadata;
+import org.olat.modules.video.VideoMeta;
+import org.olat.repository.RepositoryEntry;
 import org.olat.resource.OLATResource;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -40,11 +41,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 public class VideoMetaDataEditFormController extends FormBasicController {
 	@Autowired
 	private VideoManager videoManager;
-	private OLATResource videoResource;
+	private RepositoryEntry repoEntry;
 
-	public VideoMetaDataEditFormController(UserRequest ureq, WindowControl wControl, OLATResource re) {
+	public VideoMetaDataEditFormController(UserRequest ureq, WindowControl wControl, RepositoryEntry repoEntry) {
 		super(ureq, wControl);
-		videoResource = re;
+		this.repoEntry = repoEntry;
 		initForm(ureq);
 	}
 
@@ -53,7 +54,11 @@ public class VideoMetaDataEditFormController extends FormBasicController {
 			UserRequest ureq) {
 		setFormTitle("tab.video.metaDataConfig");
 		
-		VideoMetadata videoMetadata = videoManager.readVideoMetadataFile(videoResource);
+		OLATResource videoResource = repoEntry.getOlatResource();
+		
+		VideoMeta videoMetadata = videoManager.getVideoMetadata(videoResource);
+		uifactory.addStaticTextElement("video.config.duration", repoEntry.getExpenditureOfWork(), formLayout);
+
 		uifactory.addStaticTextElement("video.config.width", String.valueOf(videoMetadata.getWidth()) + "px", formLayout);
 		uifactory.addStaticTextElement("video.config.height", String.valueOf(videoMetadata.getHeight()) + "px", formLayout);
 

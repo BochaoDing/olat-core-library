@@ -31,9 +31,7 @@ import java.util.List;
 
 import org.olat.NewControllerFactory;
 import org.olat.basesecurity.BaseSecurityModule;
-import org.olat.basesecurity.Group;
 import org.olat.basesecurity.GroupRoles;
-import org.olat.basesecurity.ui.GroupController;
 import org.olat.collaboration.CollaborationTools;
 import org.olat.collaboration.CollaborationToolsFactory;
 import org.olat.commons.calendar.CalendarModule;
@@ -43,6 +41,7 @@ import org.olat.core.commons.services.notifications.SubscriptionContext;
 import org.olat.core.gui.UserRequest;
 import org.olat.core.gui.components.Component;
 import org.olat.core.gui.components.panel.Panel;
+import org.olat.core.gui.components.stack.PopEvent;
 import org.olat.core.gui.components.stack.TooledStackedPanel;
 import org.olat.core.gui.components.table.Table;
 import org.olat.core.gui.components.table.TableController;
@@ -91,6 +90,7 @@ import org.olat.instantMessaging.InstantMessagingModule;
 import org.olat.instantMessaging.InstantMessagingService;
 import org.olat.modules.co.ContactFormController;
 import org.olat.modules.openmeetings.OpenMeetingsModule;
+import org.olat.modules.portfolio.PortfolioV2Module;
 import org.olat.modules.wiki.WikiManager;
 import org.olat.portfolio.PortfolioModule;
 import org.olat.repository.RepositoryEntry;
@@ -184,12 +184,9 @@ public class BusinessGroupMainRunController extends MainLayoutBasicController im
 	private BusinessGroupEditController bgEditCntrllr;
 	private Controller bgACHistoryCtrl;
 	private TableController resourcesCtr;
+	private GroupMembersRunController groupMembersToggleViewController;
 
 	private BusinessGroupSendToChooserForm sendToChooserForm;
-	
-	private GroupController gownersC;
-	private GroupController gparticipantsC;
-	private GroupController waitingListController;
 
 	/**
 	 * Business group administrator
@@ -223,6 +220,10 @@ public class BusinessGroupMainRunController extends MainLayoutBasicController im
 	@Autowired
 	private InstantMessagingModule imModule;
 	@Autowired
+	private PortfolioModule portfolioModule;
+	@Autowired
+	private PortfolioV2Module portfolioV2Module;
+	@Autowired
 	private BusinessGroupService businessGroupService;
 
 	/**
@@ -240,9 +241,9 @@ public class BusinessGroupMainRunController extends MainLayoutBasicController im
 		assessmentEventOres = OresHelper.createOLATResourceableType(AssessmentEvent.class);
 		nodeIdPrefix = "bgmr".concat(Long.toString(CodeHelper.getRAMUniqueID()));
 		
-		toolbarPanel = new TooledStackedPanel("courseStackPanel", getTranslator(), this);
+		toolbarPanel = new TooledStackedPanel("groupStackPanel", getTranslator(), this);
 		toolbarPanel.setInvisibleCrumb(0); // show root (course) level
-		toolbarPanel.setToolbarEnabled(false);
+		toolbarPanel.setToolbarAutoEnabled(true);
 		toolbarPanel.setShowCloseLink(true, true);
 
 		UserSession session = ureq.getUserSession();
@@ -428,6 +429,13 @@ public class BusinessGroupMainRunController extends MainLayoutBasicController im
 		} else if(source == toolbarPanel) {
 			if (event == Event.CLOSE_EVENT) {
 				doClose(ureq);
+			} else if(event instanceof PopEvent) {
+				PopEvent pe = (PopEvent)event;
+				Controller popedCtrl = pe.getController();
+				if(popedCtrl == collabToolCtr) {
+					handleTreeActions(ureq, ACTIVITY_MENUSELECT_OVERVIEW);
+					bgTree.setSelectedNode(bgTree.getTreeModel().getRootNode());
+				}
 			}
 		}
 	}
@@ -729,7 +737,7 @@ public class BusinessGroupMainRunController extends MainLayoutBasicController im
 		addToHistory(ureq, bwControl);
 		
 		CollaborationTools collabTools = CollaborationToolsFactory.getInstance().getOrCreateCollaborationTools(businessGroup);
-		collabToolCtr = collabTools.createNewsController(ureq, bwControl);
+		collabToolCtr = collabTools.createInfoMessageController(ureq, bwControl, isAdmin);
 		listenTo(collabToolCtr);
 		mainPanel.setContent(collabToolCtr.getInitialComponent());
 	}
@@ -775,10 +783,14 @@ public class BusinessGroupMainRunController extends MainLayoutBasicController im
 		addToHistory(ureq, bwControl);
 		
 		CollaborationTools collabTools = CollaborationToolsFactory.getInstance().getOrCreateCollaborationTools(businessGroup);
-		Controller collaborationToolCtr = collabTools.createPortfolioController(ureq, bwControl, businessGroup);
-		listenTo(collaborationToolCtr);
-		mainPanel.setContent(collaborationToolCtr.getInitialComponent());
-		return (Activateable2)collaborationToolCtr;
+		collabToolCtr = collabTools.createPortfolioController(ureq, bwControl, toolbarPanel, businessGroup);
+		listenTo(collabToolCtr);
+		toolbarPanel.popUpToRootController(ureq);
+		toolbarPanel.pushController("Portfolio", collabToolCtr);
+		
+		List<ContextEntry> entries = BusinessControlFactory.getInstance().createCEListFromResourceType("Toc");
+		((Activateable2)collabToolCtr).activate(ureq, entries, null);
+		return (Activateable2)collabToolCtr;
 	}
 	
 	private void doOpenMeetings(UserRequest ureq) {
@@ -815,7 +827,7 @@ public class BusinessGroupMainRunController extends MainLayoutBasicController im
 		addToHistory(ureq, bwControl);
 		
 		OLATResource resource = businessGroup.getResource();
-		bgACHistoryCtrl = new OrdersAdminController(ureq, bwControl, resource);
+		bgACHistoryCtrl = new OrdersAdminController(ureq, bwControl, toolbarPanel, resource);
 		listenTo(bgACHistoryCtrl);
 		mainPanel.setContent(bgACHistoryCtrl.getInitialComponent());
 		return (Activateable2)bgACHistoryCtrl;
@@ -835,42 +847,11 @@ public class BusinessGroupMainRunController extends MainLayoutBasicController im
 	}
 
 	private void doShowMembers(UserRequest ureq) {
-		VelocityContainer membersVc = createVelocityContainer("ownersandmembers");
-		// 1. show owners if configured with Owners
-		boolean downloadAllowed = businessGroup.isDownloadMembersLists();
-		Group group = businessGroupService.getGroup(businessGroup);
-		if (businessGroup.isOwnersVisibleIntern()) {
-			removeAsListenerAndDispose(gownersC);
-			gownersC = new GroupController(ureq, getWindowControl(), false, true, true, false, downloadAllowed, false, group, GroupRoles.coach.name());
-			listenTo(gownersC);
-			membersVc.put("owners", gownersC.getInitialComponent());
-			membersVc.contextPut("showOwnerGroups", Boolean.TRUE);
-		} else {
-			membersVc.contextPut("showOwnerGroups", Boolean.FALSE);
-		}
-		// 2. show participants if configured with Participants
-		if (businessGroup.isParticipantsVisibleIntern()) {
-			removeAsListenerAndDispose(gparticipantsC);
-			gparticipantsC = new GroupController(ureq, getWindowControl(), false, true, true, false, downloadAllowed, false, group, GroupRoles.participant.name());
-			listenTo(gparticipantsC);
-			
-			membersVc.put("participants", gparticipantsC.getInitialComponent());
-			membersVc.contextPut("showPartipsGroups", Boolean.TRUE);
-		} else {
-			membersVc.contextPut("showPartipsGroups", Boolean.FALSE);
-		}
-		// 3. show waiting-list if configured 
-		membersVc.contextPut("hasWaitingList", new Boolean(businessGroup.getWaitingListEnabled()) );
-		if (businessGroup.isWaitingListVisibleIntern()) {
-			removeAsListenerAndDispose(waitingListController);
-			waitingListController = new GroupController(ureq, getWindowControl(), false, true, true, false, downloadAllowed, false, group, GroupRoles.waiting.name());
-			listenTo(waitingListController);
-			membersVc.put("waitingList", waitingListController.getInitialComponent());
-			membersVc.contextPut("showWaitingList", Boolean.TRUE);
-		} else {
-			membersVc.contextPut("showWaitingList", Boolean.FALSE);
-		}
-		mainPanel.setContent(membersVc);
+		CollaborationTools collabTools = CollaborationToolsFactory.getInstance().getOrCreateCollaborationTools(this.businessGroup);
+		boolean canEmail = collabTools.isToolEnabled(CollaborationTools.TOOL_CONTACT);
+		groupMembersToggleViewController = new GroupMembersRunController(ureq, getWindowControl(), businessGroup, canEmail);
+		listenTo(groupMembersToggleViewController);
+		mainPanel.setContent(groupMembersToggleViewController.getInitialComponent());
 		collabToolCtr = null;
 		addToHistory(ureq, ORES_TOOLMEMBERS, null);
 	}
@@ -1201,9 +1182,9 @@ public class BusinessGroupMainRunController extends MainLayoutBasicController im
 			root.addChild(gtnChild);
 			nodeWiki = gtnChild;
 		}
-		
-		PortfolioModule portfolioModule = (PortfolioModule) CoreSpringFactory.getBean("portfolioModule");		
-		if (collabTools.isToolEnabled(CollaborationTools.TOOL_PORTFOLIO) && portfolioModule.isEnabled()) {
+			
+		if (collabTools.isToolEnabled(CollaborationTools.TOOL_PORTFOLIO) &&
+				(portfolioModule.isEnabled() || portfolioV2Module.isEnabled())) {
 			gtnChild = new GenericTreeNode(nodeIdPrefix.concat("eportfolio"));
 			gtnChild.setTitle(translate("menutree.portfolio"));
 			gtnChild.setUserObject(ACTIVITY_MENUSELECT_PORTFOLIO);

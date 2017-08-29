@@ -31,29 +31,37 @@ import org.olat.core.gui.components.form.flexible.elements.FormLink;
  */
 public class QualityTableRow {
 
-	private String resolution;
+	private FormLink resolution;
 	private String dimension;
-	private String size;
+	private Object[] size;
 	private String format;
-	private FormLink viewLink;
+	private FormLink deleteLink;
 
 	protected FormUIFactory uifactory = FormUIFactory.getInstance();
 
-	public QualityTableRow(String resolution, String dimension, String size, String format, FormLink viewLink) {
+	/**
+	 * 
+	 * @param resolution
+	 * @param dimension
+	 * @param size
+	 * @param format
+	 * @param viewLink
+	 * @param deleteLink FormLink for delete row and corresponding Videodata or null if no deleteLink should be shown
+	 */
+	public QualityTableRow(FormLink resolution, String dimension, Object[] size, String format, FormLink deleteLink) {
 		this.resolution = resolution;
+		this.resolution.setIconLeftCSS("o_icon o_icon-fw o_icon_preview");
 		this.dimension = dimension;
 		this.size = size;
 		this.format = format;
-		this.viewLink = viewLink;
-		this.viewLink.setIconLeftCSS("o_icon o_icon-fw o_icon_preview");
-
+		if(deleteLink != null) this.deleteLink = deleteLink;
 	}
-
-	public String getResolution() {
+	
+	public FormLink getResolution() {
 		return resolution;
 	}
 
-	public void setType(String type) {
+	public void setType(FormLink type) {
 		this.resolution = type;
 	}
 
@@ -65,11 +73,11 @@ public class QualityTableRow {
 		this.dimension = dimension;
 	}
 
-	public String getSize() {
+	public Object[] getSize() {
 		return size;
 	}
 
-	public void setSize(String size) {
+	public void setSize(Object[] size) {
 		this.size = size;
 	}
 
@@ -80,12 +88,12 @@ public class QualityTableRow {
 	public void setFormat(String format) {
 		this.format = format;
 	}
-
-	public FormLink getViewLink() {
-		return viewLink;
+	
+	public FormLink getDeleteLink() {
+		return deleteLink;
 	}
-
-	public void setViewLink(FormLink viewLink) {
-		this.viewLink = viewLink;
+	
+	public void setDeleteLink(FormLink deleteLink) {
+		this.deleteLink = deleteLink;
 	}
 }
