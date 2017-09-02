@@ -149,11 +149,9 @@ public class TUConfigForm extends FormBasicController {
 
 		fullURI = getFullURL(proto, host, port, uri, query, ref).toString();
 		
-		selectableValues = new String[] { OPTION_TUNNEL_THROUGH_OLAT_IFRAME, OPTION_SHOW_IN_OLAT_IN_AN_IFRAME,
-				OPTION_SHOW_IN_NEW_BROWSER_WINDOW, OPTION_TUNNEL_THROUGH_OLAT_INLINE };
+		selectableValues = new String[] { OPTION_SHOW_IN_NEW_BROWSER_WINDOW, OPTION_SHOW_IN_OLAT_IN_AN_IFRAME, OPTION_TUNNEL_THROUGH_OLAT_IFRAME, OPTION_TUNNEL_THROUGH_OLAT_INLINE };
 
-		selectableLabels = new String[] { translate(NLS_OPTION_TUNNEL_IFRAME_LABEL), translate(NLS_OPTION_OLAT_IFRAME_LABEL),
-				translate(NLS_OPTION_EXTERN_PAGE_LABEL), translate(NLS_OPTION_TUNNEL_INLINE_LABEL) };
+		selectableLabels = new String[] { translate(NLS_OPTION_EXTERN_PAGE_LABEL), translate(NLS_OPTION_OLAT_IFRAME_LABEL), translate(NLS_OPTION_TUNNEL_IFRAME_LABEL), translate(NLS_OPTION_TUNNEL_INLINE_LABEL) };
 		
 		initForm (ureq);
 	}
