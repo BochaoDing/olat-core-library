@@ -97,11 +97,12 @@ public class CollaborationToolsFactory {
 		if (securityModule.isWikiEnabled()) {
 			toolArr.add(CollaborationTools.TOOL_WIKI);			
 		}
-		PortfolioModule portfolioModule = CoreSpringFactory.getImpl(PortfolioModule.class);
+		//TODO just commented that one out to hide ePortfolio in the group collab tools even if the module is activated
+/*		PortfolioModule portfolioModule = CoreSpringFactory.getImpl(PortfolioModule.class);
 		PortfolioV2Module portfolioV2Module = CoreSpringFactory.getImpl(PortfolioV2Module.class);
 		if (portfolioModule.isEnabled() || portfolioV2Module.isEnabled()) {
 			toolArr.add(CollaborationTools.TOOL_PORTFOLIO);
-		}	
+		}*/
 		OpenMeetingsModule openMeetingsModule = CoreSpringFactory.getImpl(OpenMeetingsModule.class);
 		if(openMeetingsModule.isEnabled()) {
 			toolArr.add(CollaborationTools.TOOL_OPENMEETINGS);
