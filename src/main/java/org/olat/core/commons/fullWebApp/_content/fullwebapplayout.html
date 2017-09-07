@@ -51,23 +51,25 @@ function o_start() {
 	o_info.initialPageLoadFinished = true;
 }
 function o_mathjax(fct_success) {
-    MathJax.Ajax.config.root = "${r.mathJaxCdn()}";
-    MathJax.Hub.Config({
-        extensions: ["jsMath2jax.js"],
-        messageStyle: 'none',
-        showProcessingMessages: false,
-        jsMath2jax: {
-            preview: "none"
-        },
-        tex2jax: {
-            ignoreClass: "math"
-        }
-    });
     if(!(typeof fct_success === "undefined")) {
         fct_success();
     }
 }
 /* ]]> */
+</script>
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+    root: "${r.mathJaxCdn()}",
+    extensions: ["jsMath2jax.js"],
+    messageStyle: "none",
+    showProcessingMessages: false,
+    jsMath2jax: {
+        preview: "none"
+    },
+    tex2jax: {
+        ignoreClass: "math"
+    }
+});
 </script>
 <script type="text/javascript" src="${r.mathJaxCdn()}/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
 ## jQuery libraries

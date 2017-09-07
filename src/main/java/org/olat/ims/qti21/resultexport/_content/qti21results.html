@@ -29,8 +29,8 @@ function o_mathjax() {
 		cache: true,
 		dataType: "script",
 		success: function() {
-			MathJax.Ajax.config.root = "${r.mathJaxCdnFullUrl()}";
 	    	MathJax.Hub.Config({
+				root: "${r.mathJaxCdnFullUrl()}",
 				extensions: ["jsMath2jax.js"],
 				messageStyle: 'none',
 				showProcessingMessages: false,
