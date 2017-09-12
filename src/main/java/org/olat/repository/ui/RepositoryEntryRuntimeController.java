@@ -140,7 +140,7 @@ public class RepositoryEntryRuntimeController extends MainLayoutBasicController 
 	
 	protected boolean corrupted;
 	protected boolean overrideReadOnly = false;
-	private RepositoryEntry re;
+	protected RepositoryEntry re;
 	private LockResult lockResult;
 	private boolean assessmentLock;// by Assessment mode
 	private AssessmentMode assessmentMode;

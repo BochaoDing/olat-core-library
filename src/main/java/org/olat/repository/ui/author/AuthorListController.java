@@ -107,7 +107,6 @@ import org.olat.repository.ui.RepositoyUIFactory;
 import org.olat.repository.ui.author.AuthoringEntryDataModel.Cols;
 import org.olat.user.UserManager;
 import org.olat.util.logging.activity.LoggingResourceable;
-import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * 
@@ -151,30 +150,40 @@ public class AuthorListController extends FormBasicController implements Activat
 	private final AtomicInteger counter = new AtomicInteger();
 	//only used as marker for dirty, model cannot load specific rows
 	private final List<Long> dirtyRows = new ArrayList<>();
-	
-	@Autowired
-	private DB dbInstance;
-	@Autowired
-	private UserManager userManager;
-	@Autowired
-	private MarkManager markManager;
-	@Autowired
-	protected RepositoryModule repositoryModule;
-	@Autowired
-	protected RepositoryService repositoryService;
-	@Autowired
-	protected RepositoryManager repositoryManager;
-	@Autowired
-	protected RepositoryHandlerFactory repositoryHandlerFactory;
-	
-	public AuthorListController(UserRequest ureq, WindowControl wControl, String i18nName,
-			SearchAuthorRepositoryEntryViewParams searchParams, boolean withSearch) {
-		super(ureq, wControl, "entries");
-		setTranslator(Util.createPackageTranslator(RepositoryService.class, getLocale(), getTranslator()));
 
+	private final DB dbInstance;
+	private final UserManager userManager;
+	private final MarkManager markManager;
+	protected final RepositoryModule repositoryModule;
+	protected final RepositoryService repositoryService;
+	protected final RepositoryManager repositoryManager;
+	protected final RepositoryHandlerFactory repositoryHandlerFactory;
+	
+	public AuthorListController(UserRequest ureq,
+								WindowControl wControl,
+								String i18nName,
+								SearchAuthorRepositoryEntryViewParams searchParams,
+								boolean withSearch,
+								DB dbInstance,
+								UserManager userManager,
+								MarkManager markManager,
+								RepositoryModule repositoryModule,
+								RepositoryService repositoryService,
+								RepositoryManager repositoryManager,
+								RepositoryHandlerFactory repositoryHandlerFactory) {
+		super(ureq, wControl, "entries");
 		this.i18nName = i18nName;
 		this.withSearch = withSearch;
 		this.searchParams = searchParams;
+		this.dbInstance = dbInstance;
+		this.userManager = userManager;
+		this.markManager = markManager;
+		this.repositoryModule = repositoryModule;
+		this.repositoryService = repositoryService;
+		this.repositoryManager = repositoryManager;
+		this.repositoryHandlerFactory = repositoryHandlerFactory;
+
+		setTranslator(Util.createPackageTranslator(RepositoryService.class, getLocale(), getTranslator()));
 
 		OLATResourceable ores = OresHelper.createOLATResourceableType("RepositorySite");
 		ThreadLocalUserActivityLogger.addLoggingResourceInfo(LoggingResourceable.wrapBusinessPath(ores));
@@ -645,7 +654,7 @@ public class AuthorListController extends FormBasicController implements Activat
 			tableEl.reloadData();
 			showWarning("repositoryentry.not.existing");
 		} else {
-			toolsCtrl = new ToolsController(ureq, getWindowControl(), row, entry);
+			toolsCtrl = createToolsController(ureq, row, entry);
 			listenTo(toolsCtrl);
 	
 			toolsCalloutCtrl = new CloseableCalloutWindowController(ureq, getWindowControl(),
@@ -653,6 +662,10 @@ public class AuthorListController extends FormBasicController implements Activat
 			listenTo(toolsCalloutCtrl);
 			toolsCalloutCtrl.activate();
 		}
+	}
+
+	protected ToolsController createToolsController(UserRequest ureq, AuthoringEntryRow row, RepositoryEntry entry) {
+		return new ToolsController(ureq, getWindowControl(), row, entry);
 	}
 	
 	private void doImport(UserRequest ureq) {
@@ -909,10 +922,7 @@ public class AuthorListController extends FormBasicController implements Activat
 		Roles roles = ureq.getUserSession().getRoles();
 		List<Long> deleteableRowKeys = new ArrayList<>(rows.size());
 		for(AuthoringEntryRow row:rows) {
-			boolean managed = RepositoryEntryManagedFlag.isManaged(row.getManagedFlags(), RepositoryEntryManagedFlag.delete);
-			boolean canDelete = roles.isOLATAdmin() || repositoryService.hasRole(ureq.getIdentity(), row, GroupRoles.owner.name())
-					|| repositoryManager.isInstitutionalRessourceManagerFor(getIdentity(), roles, row);
-			if(canDelete && !managed) {
+			if (isDeletable(row, ureq, roles)) {
 				deleteableRowKeys.add(row.getKey());
 			}
 		}
@@ -932,6 +942,13 @@ public class AuthorListController extends FormBasicController implements Activat
 			listenTo(cmc);
 			cmc.activate();
 		}
+	}
+
+	protected boolean isDeletable(AuthoringEntryRow row, UserRequest ureq, Roles roles) {
+		boolean managed = RepositoryEntryManagedFlag.isManaged(row.getManagedFlags(), RepositoryEntryManagedFlag.delete);
+		boolean canDelete = roles.isOLATAdmin() || repositoryService.hasRole(ureq.getIdentity(), row, GroupRoles.owner.name())
+				|| repositoryManager.isInstitutionalRessourceManagerFor(getIdentity(), roles, row);
+		return canDelete && !managed;
 	}
 
 	protected void doDownload(UserRequest ureq, AuthoringEntryRow row) {
@@ -1071,9 +1088,10 @@ public class AuthorListController extends FormBasicController implements Activat
 		row.setToolsLink(toolsLink);
 	}
 	
-	private class ToolsController extends BasicController {
+	protected class ToolsController extends BasicController {
 		
-		private final AuthoringEntryRow row;
+		protected final AuthoringEntryRow row;
+		protected final RepositoryEntry entry;
 
 		private final VelocityContainer mainVC;
 		
@@ -1084,6 +1102,7 @@ public class AuthorListController extends FormBasicController implements Activat
 			super(ureq, wControl);
 			setTranslator(AuthorListController.this.getTranslator());
 			this.row = row;
+			this.entry = entry;
 			
 			Identity identity = getIdentity();
 			Roles roles = ureq.getUserSession().getRoles();
@@ -1147,15 +1166,19 @@ public class AuthorListController extends FormBasicController implements Activat
 					addLink("details.close.ressoure", "close", "o_icon o_icon-fw o_icon_close_resource", links);
 				}
 				if(!deleteManaged) {
-					addLink("details.delete", "delete", "o_icon o_icon-fw o_icon_delete_item", links);
+					addDeleteLink(links);
 				}
 			}
 
 			mainVC.contextPut("links", links);
 			putInitialPanel(mainVC);
 		}
+
+		protected void addDeleteLink(List<String> links) {
+			addLink("details.delete", "delete", "o_icon o_icon-fw o_icon_delete_item", links);
+		}
 		
-		private void addLink(String name, String cmd, String iconCSS, List<String> links) {
+		protected void addLink(String name, String cmd, String iconCSS, List<String> links) {
 			Link link = LinkFactory.createLink(name, cmd, getTranslator(), mainVC, this, Link.LINK);
 			if(iconCSS != null) {
 				link.setIconLeftCSS(iconCSS);

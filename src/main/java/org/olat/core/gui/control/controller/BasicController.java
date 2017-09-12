@@ -424,7 +424,7 @@ public abstract class BasicController extends DefaultController {
 	 *            the key to use (in the LocalStrings_curlanguage file of your
 	 *            controller)
 	 */
-	protected void showInfo(String key) {
+	protected void showInfo(@UnknownInitialization BasicController this, String key) {
 		getWindowControl().setInfo(getTranslator().translate(key));
 	}
 
@@ -441,7 +441,7 @@ public abstract class BasicController extends DefaultController {
 	 *            controller)
 	 * @param arg
 	 */
-	protected void showInfo(String key, String arg) {
+	protected void showInfo(@UnknownInitialization BasicController this, String key, String arg) {
 		getWindowControl().setInfo(
 				getTranslator().translate(key, new String[] { arg }));
 	}
@@ -458,7 +458,7 @@ public abstract class BasicController extends DefaultController {
 	 *            controller)
 	 * @param args
 	 */
-	protected void showInfo(String key, String[] args) {
+	public void showInfo(@UnknownInitialization BasicController this, String key, String[] args) {
 		getWindowControl().setInfo(getTranslator().translate(key, args));
 	}
 
@@ -475,7 +475,7 @@ public abstract class BasicController extends DefaultController {
 	 *            the key to use (in the LocalStrings_curlanguage file of your
 	 *            controller)
 	 */
-	protected void showWarning(String key) {
+	protected void showWarning(@UnknownInitialization BasicController this, String key) {
 		getWindowControl().setWarning(getTranslator().translate(key));
 	}
 
@@ -498,7 +498,7 @@ public abstract class BasicController extends DefaultController {
 				getTranslator().translate(key, new String[] { arg }));
 	}
 	
-	protected void showWarning(String key, String[] args) {
+	protected void showWarning(@UnknownInitialization BasicController this, String key, String[] args) {
 		getWindowControl().setWarning(
 				getTranslator().translate(key, args));
 	}
@@ -514,7 +514,7 @@ public abstract class BasicController extends DefaultController {
 	 *            the key to use (in the LocalStrings_curlanguage file of your
 	 *            controller)
 	 */
-	protected void showError(String key) {
+	public void showError(@UnknownInitialization BasicController this, String key) {
 		getWindowControl().setError(getTranslator().translate(key));
 	}
 
@@ -536,7 +536,7 @@ public abstract class BasicController extends DefaultController {
 				getTranslator().translate(key, new String[] { arg }));
 	}
 
-	protected void showError(String key, String[] args) {
+	protected void showError(@UnknownInitialization BasicController this, String key, String[] args) {
 		if (args != null) {
 			// escape args
 			for (int i = 0; i < args.length; i++) {
@@ -592,7 +592,7 @@ public abstract class BasicController extends DefaultController {
 	 * 
 	 * @param translator
 	 */
-	protected void setTranslator(Translator translator) {
+	protected void setTranslator(@UnderInitialization(BasicController.class) BasicController this, Translator translator) {
 		this.translator = translator;
 	}
 

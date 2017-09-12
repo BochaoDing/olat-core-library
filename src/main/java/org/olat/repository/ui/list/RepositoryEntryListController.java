@@ -133,7 +133,7 @@ public class RepositoryEntryListController extends FormBasicController
 	@Autowired
 	private RepositoryEntryListControllerFormInnerEventListener[] formInnerEventListerners;
 
-	private final RepositoryEntryRowFactory repositoryEntryRowFactory;
+	private final RepositoryEntryRowsFactory repositoryEntryRowsFactory;
 	private final boolean guestOnly;
 	
 	public RepositoryEntryListController(UserRequest ureq, WindowControl wControl,
@@ -144,7 +144,7 @@ public class RepositoryEntryListController extends FormBasicController
 		this.name = name;
 		this.stackPanel = stackPanel;
 		this.withSearch = withSearch;
-		repositoryEntryRowFactory = (RepositoryEntryRowFactory)
+		repositoryEntryRowsFactory = (RepositoryEntryRowsFactory)
 				applicationContext.getBean("repositoryEntryRowFactory", ureq);
 		guestOnly = ureq.getUserSession().getRoles().isGuestOnly();
 
@@ -156,7 +156,7 @@ public class RepositoryEntryListController extends FormBasicController
 		 * SEV:
 		 * Why "this"? A inner class would be more readable!
 		 */
-		dataSource = new DefaultRepositoryEntryDataSource(searchParams, repositoryEntryRowFactory);
+		dataSource = new DefaultRepositoryEntryDataSource(searchParams, repositoryEntryRowsFactory);
 		initForm(ureq);
 
 		/**

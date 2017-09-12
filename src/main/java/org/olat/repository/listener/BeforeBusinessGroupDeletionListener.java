@@ -1,8 +1,6 @@
 package org.olat.repository.listener;
 
 import org.olat.group.BusinessGroup;
-import org.springframework.beans.factory.config.BeanDefinition;
-import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 /**
@@ -13,7 +11,6 @@ import org.springframework.stereotype.Component;
  * @author Martin Schraner
  */
 @Component
-@Scope(BeanDefinition.SCOPE_SINGLETON)
 public class BeforeBusinessGroupDeletionListener {
 
 	/**

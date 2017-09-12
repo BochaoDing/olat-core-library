@@ -1,5 +1,6 @@
 package org.olat.repository.ui.list;
 
+import org.olat.core.commons.persistence.DB;
 import org.olat.core.dispatcher.mapper.MapperService;
 import org.olat.core.gui.UserRequest;
 import org.olat.core.gui.components.velocity.VelocityContainer;
@@ -26,6 +27,9 @@ import org.springframework.context.annotation.Scope;
 public class RepositoryEntryBeanFactory {
 
 	@Autowired
+	private DB dbInstance;
+
+	@Autowired
 	private RepositoryManager repositoryManager;
 
 	@Autowired
@@ -39,6 +43,7 @@ public class RepositoryEntryBeanFactory {
 
 	@Bean(name={"row_1"})
 	@Scope(BeanDefinition.SCOPE_PROTOTYPE)
+	@SuppressWarnings("SpringJavaAutowiringInspection")
 	protected VelocityContainer createRow1VelocityContainer(BasicController caller) {
 		VelocityContainer result = new VelocityContainer(null,
 				"vc_" + "row_1",
@@ -52,18 +57,20 @@ public class RepositoryEntryBeanFactory {
 
 	@Bean(name={"repositoryEntryRowFactory"})
 	@Scope(BeanDefinition.SCOPE_PROTOTYPE)
-	protected RepositoryEntryRowFactory createRepositoryEntryRowFactory(UserRequest userRequest) {
-		return new RepositoryEntryRowFactory(repositoryManager, repositoryModule, mapperService, userRequest);
+	@SuppressWarnings("SpringJavaAutowiringInspection")
+	protected RepositoryEntryRowsFactory createRepositoryEntryRowFactory(UserRequest userRequest) {
+		return new RepositoryEntryRowsFactoryImpl(repositoryManager, repositoryModule, mapperService, userRequest);
 	}
 
 	@Bean(name={"repositoryEntryLifeCycleChangeControllerFactory"})
 	@Scope(BeanDefinition.SCOPE_PROTOTYPE)
+	@SuppressWarnings("SpringJavaAutowiringInspection")
 	protected RepositoryEntryLifeCycleChangeControllerFactory repositoryEntryLifeCycleChangeControllerFactory(UserRequest userRequest,
 																											  WindowControl windowControl,
 																											  RepositoryEntrySecurity repositoryEntrySecurity,
 																											  RepositoryHandler repositoryHandler) {
-		return new RepositoryEntryLifeCycleChangeControllerFactory(repositoryService, repositoryManager, userRequest,
-				windowControl, repositoryEntrySecurity, repositoryHandler);
+		return new RepositoryEntryLifeCycleChangeControllerFactory(dbInstance, repositoryService, repositoryManager,
+				repositoryModule, userRequest, windowControl, repositoryEntrySecurity, repositoryHandler);
 	}
 
 }

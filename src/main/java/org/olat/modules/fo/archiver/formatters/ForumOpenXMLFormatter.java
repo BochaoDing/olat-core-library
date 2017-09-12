@@ -20,6 +20,7 @@
 package org.olat.modules.fo.archiver.formatters;
 
 import java.io.File;
+import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -30,6 +31,8 @@ import java.util.Set;
 
 import org.olat.core.id.Identity;
 import org.olat.core.id.UserConstants;
+import org.olat.core.logging.OLog;
+import org.olat.core.logging.Tracing;
 import org.olat.core.util.Formatter;
 import org.olat.core.util.StringHelper;
 import org.olat.core.util.nodes.INode;
@@ -50,6 +53,8 @@ import org.olat.modules.fo.archiver.MessageNode;
  *
  */
 public class ForumOpenXMLFormatter extends ForumFormatter {
+
+	private final static OLog LOG = Tracing.createLoggerFor(ForumOpenXMLFormatter.class);
 
 	private final VFSItemMetaFilter filter = new VFSItemMetaFilter();
 
@@ -180,7 +185,12 @@ public class ForumOpenXMLFormatter extends ForumFormatter {
 				if (lastDot > 0) {
 					String extension = filename.substring(lastDot + 1).toLowerCase();
 					if("jpeg".equals(extension) || "jpg".equals(extension) || "gif".equals(extension) || "png".equals(extension)) {
-						document.appendImage(file);
+						try {
+							document.appendImage(file.toURI().toURL());
+						} catch (MalformedURLException e) {
+							LOG.error(e.getMessage());
+						}
+
 						attach = false;
 					}
 				}
@@ -188,7 +198,11 @@ public class ForumOpenXMLFormatter extends ForumFormatter {
 				if(attach) {
 					StringBuilder attachSb = new StringBuilder(64);
 					String uniqueFilename = getUniqueFilename(file);
-					fileToAttachmentsMap.put(file, new DocReference("", uniqueFilename, null, file));
+					try {
+						fileToAttachmentsMap.put(file, new DocReference("", uniqueFilename, null, file.toURI().toURL()));
+					} catch (MalformedURLException e) {
+						LOG.error(e.getMessage());
+					}
 					attachSb.append(filename).append(": /attachments/").append(uniqueFilename);
 					document.appendText(attachSb.toString(), true);
 				}

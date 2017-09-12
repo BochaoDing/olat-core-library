@@ -81,6 +81,7 @@ import org.olat.core.util.tree.TreeVisitor;
 import org.olat.core.util.tree.Visitor;
 import org.olat.core.util.vfs.NamedContainerImpl;
 import org.olat.core.util.vfs.VFSContainer;
+import org.olat.course.CorruptedCourseException;
 import org.olat.course.CourseFactory;
 import org.olat.course.CourseModule;
 import org.olat.course.ICourse;
@@ -132,6 +133,7 @@ import org.olat.repository.RepositoryManager;
 import org.olat.repository.controllers.EntryChangedEvent;
 import org.olat.repository.model.RepositoryEntrySecurity;
 import org.olat.repository.ui.RepositoryEntryLifeCycleChangeController;
+import org.olat.repository.ui.RepositoryEntryLifeCycleChangeControllerFactory;
 import org.olat.repository.ui.RepositoryEntryRuntimeController;
 import org.olat.resource.OLATResource;
 import org.olat.search.SearchServiceUIFactory;
@@ -140,6 +142,7 @@ import org.olat.search.service.QuickSearchEvent;
 import org.olat.search.ui.SearchInputController;
 import org.olat.util.logging.activity.LoggingResourceable;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 
 /**
  * 
@@ -207,6 +210,8 @@ public class CourseRuntimeController extends RepositoryEntryRuntimeController im
 	private AssessmentModule assessmentModule;
 	@Autowired
 	private CourseDBManager courseDBManager;
+	@Autowired
+	private ApplicationContext applicationContext;
 	
 	public CourseRuntimeController(UserRequest ureq, WindowControl wControl,
 			RepositoryEntry re, RepositoryEntrySecurity reSecurity, RuntimeControllerCreator runtimeControllerCreator,
@@ -846,69 +851,73 @@ public class CourseRuntimeController extends RepositoryEntryRuntimeController im
 
 	@Override
 	protected void event(UserRequest ureq, Component source, Event event) {
-		if(layoutLink == source) {
-			doLayout(ureq);
-		} else if(optionsLink == source) {
-			doOptions(ureq);
-		} else if(assessmentModeLink == source) {
-			doAssessmentMode(ureq);
-		} else if(certificatesOptionsLink == source) {
-			doCertificatesOptions(ureq);
-		} else if (lifeCycleChangeLink == source) {
-			doLifeCycleChange(ureq);
-		} else if(reminderLink == source) {
-			doReminders(ureq);
-		} else if(archiverLink == source) {
-			doArchive(ureq);
-		} else if(folderLink == source) {
-			doCourseFolder(ureq);
-		} else if(areaLink == source) {
-			doCourseAreas(ureq);
-		} else if(dbLink == source) {
-			doDatabases(ureq);
-		} else if(courseStatisticLink == source) {
-			doCourseStatistics(ureq);
-		} else if(testStatisticLink == source) {
-			doAssessmentTestStatistics(ureq);
-		} else if(surveyStatisticLink == source) {
-			doAssessmentSurveyStatistics(ureq);
-		} else if(assessmentLink == source) {
-			doAssessmentTool(ureq);
-		} else if(calendarLink == source) {
-			launchCalendar(ureq);
-		} else if(chatLink == source) {
-			launchChat(ureq);
-		} else if(searchLink == source) {
-			launchCourseSearch(ureq);
-		} else if(efficiencyStatementsLink == source) {
-			doEfficiencyStatements(ureq);
-		} else if(noteLink == source) {
-			launchPersonalNotes(ureq);
-		} else if(openGlossaryLink == source) {
-			launchGlossary(ureq);
-		} else if(leaveLink == source) {
-			doConfirmLeave(ureq);
-		} else if(source instanceof Link) {
-			if ("group".equals(((Link)source).getCommand())) {
-				BusinessGroupRef ref = (BusinessGroupRef) ((Link) source).getUserObject();
-				launchGroup(ureq, ref.getKey(), "", "");
-			} else if(("groupadmin".equals(((Link)source).getCommand()))) {
-				BusinessGroupRef ref = (BusinessGroupRef) ((Link) source).getUserObject();
-				launchGroup(ureq, ref.getKey(), "tooladmin", "2");
-			}
-		} else if(source == toolbarPanel) {
-			if(event instanceof VetoPopEvent) {
-				delayedClose = Delayed.pop;
-			} else if(event instanceof PopEvent) {
-				PopEvent pop = (PopEvent)event;
-				if(pop.getController() != getRunMainController()) {
-					toolControllerDone(ureq);
+		try {
+			if(layoutLink == source) {
+				doLayout(ureq);
+			} else if(optionsLink == source) {
+				doOptions(ureq);
+			} else if(assessmentModeLink == source) {
+				doAssessmentMode(ureq);
+			} else if(certificatesOptionsLink == source) {
+				doCertificatesOptions(ureq);
+			} else if (lifeCycleChangeLink == source) {
+				doLifeCycleChange(ureq);
+			} else if(reminderLink == source) {
+				doReminders(ureq);
+			} else if(archiverLink == source) {
+				doArchive(ureq);
+			} else if(folderLink == source) {
+				doCourseFolder(ureq);
+			} else if(areaLink == source) {
+				doCourseAreas(ureq);
+			} else if(dbLink == source) {
+				doDatabases(ureq);
+			} else if(courseStatisticLink == source) {
+				doCourseStatistics(ureq);
+			} else if(testStatisticLink == source) {
+				doAssessmentTestStatistics(ureq);
+			} else if(surveyStatisticLink == source) {
+				doAssessmentSurveyStatistics(ureq);
+			} else if(assessmentLink == source) {
+				doAssessmentTool(ureq);
+			} else if(calendarLink == source) {
+				launchCalendar(ureq);
+			} else if(chatLink == source) {
+				launchChat(ureq);
+			} else if(searchLink == source) {
+				launchCourseSearch(ureq);
+			} else if(efficiencyStatementsLink == source) {
+				doEfficiencyStatements(ureq);
+			} else if(noteLink == source) {
+				launchPersonalNotes(ureq);
+			} else if(openGlossaryLink == source) {
+				launchGlossary(ureq);
+			} else if(leaveLink == source) {
+				doConfirmLeave(ureq);
+			} else if(source instanceof Link) {
+				if ("group".equals(((Link)source).getCommand())) {
+					BusinessGroupRef ref = (BusinessGroupRef) ((Link) source).getUserObject();
+					launchGroup(ureq, ref.getKey(), "", "");
+				} else if(("groupadmin".equals(((Link)source).getCommand()))) {
+					BusinessGroupRef ref = (BusinessGroupRef) ((Link) source).getUserObject();
+					launchGroup(ureq, ref.getKey(), "tooladmin", "2");
 				}
+			} else if(source == toolbarPanel) {
+				if(event instanceof VetoPopEvent) {
+					delayedClose = Delayed.pop;
+				} else if(event instanceof PopEvent) {
+					PopEvent pop = (PopEvent)event;
+					if(pop.getController() != getRunMainController()) {
+						toolControllerDone(ureq);
+					}
+				}
+			} else if(enableGlossaryLink == source) {
+				toggleGlossary(ureq);
 			}
-		} else if(enableGlossaryLink == source) {
-			toggleGlossary(ureq);
+			super.event(ureq, source, event);
+		} catch (CorruptedCourseException e) {
+			showError("error.course.corrupted.or.does.not.exist.anymore");
 		}
-		super.event(ureq, source, event);
 	}
 
 	@Override
@@ -1251,8 +1260,14 @@ public class CourseRuntimeController extends RepositoryEntryRuntimeController im
 		}
 		if (lastCrumb == null || lastCrumb.getController() != lifeCycleChangeCtr) {
 			// only create and add to stack if not already there
-			lifeCycleChangeCtr = new RepositoryEntryLifeCycleChangeController(ureq, getWindowControl(),
-					getRepositoryEntry(), reSecurity, handler, getTranslator());
+			RepositoryEntryLifeCycleChangeControllerFactory repositoryEntryLifeCycleChangeControllerFactory =
+					(RepositoryEntryLifeCycleChangeControllerFactory) applicationContext.getBean(
+							"repositoryEntryLifeCycleChangeControllerFactory",
+							ureq,
+							getWindowControl(),
+							reSecurity,
+							handler);
+			lifeCycleChangeCtr = repositoryEntryLifeCycleChangeControllerFactory.create(re);
 			listenTo(lifeCycleChangeCtr);
 			currentToolCtr = lifeCycleChangeCtr;
 			toolbarPanel.pushController(translate("details.lifecycle.change"), lifeCycleChangeCtr);

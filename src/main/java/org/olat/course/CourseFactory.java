@@ -47,8 +47,6 @@ import org.olat.admin.quota.QuotaConstants;
 import org.olat.commons.calendar.CalendarManager;
 import org.olat.commons.calendar.CalendarNotificationManager;
 import org.olat.commons.calendar.ui.components.KalendarRenderWrapper;
-import org.olat.commons.fileutil.CourseConfigUtil;
-import org.olat.commons.fileutil.FileSizeLimitExceededException;
 import org.olat.core.CoreSpringFactory;
 import org.olat.core.commons.fullWebApp.LayoutMain3ColsController;
 import org.olat.core.commons.modules.bc.FolderConfig;
@@ -448,6 +446,10 @@ public class CourseFactory {
 		}
 	}
 
+	public static OLATResourceable copyCourse(OLATResourceable sourceRes, OLATResource targetRes) {
+		return copyCourse(sourceRes, targetRes, true);
+	}
+
 	/**
 	 * Copies a course. More specifically, the run and editor structures and the
 	 * course folder will be copied to create a new course.
@@ -455,9 +457,10 @@ public class CourseFactory {
 	 *
 	 * @param sourceRes OLATResourceable
 	 * @param targetRes OLATResource
+	 * @param isResetEmailNodes Reset email nodes?
 	 * @return copy of the course.
 	 */
-	public static OLATResourceable copyCourse(OLATResourceable sourceRes, OLATResource targetRes) {
+	public static OLATResourceable copyCourse(OLATResourceable sourceRes, OLATResource targetRes, boolean isResetEmailNodes) {
 		PersistingCourseImpl sourceCourse = (PersistingCourseImpl)loadCourse(sourceRes);
 		PersistingCourseImpl targetCourse = new PersistingCourseImpl(targetRes);
 		File fTargetCourseBasePath = targetCourse.getCourseBaseContainer().getBasefile();
@@ -512,18 +515,42 @@ public class CourseFactory {
 				}
 			}
 
-			// reset recipients of course elements e-mail
-			CourseEditorTreeNode rootNode = (CourseEditorTreeNode) targetCourse.getEditorTreeModel().getRootNode();
-			for (int i = 0; i < rootNode.getChildCount(); i++) {
-				CourseNode currentNode = rootNode.getCourseEditorTreeNodeChildAt(i).getCourseNode();
-				if (currentNode.getClass() == COCourseNode.class) {
-					currentNode.updateModuleConfigDefaults(true);
-				}
+			// Reset e-mail nodes
+			if (isResetEmailNodes) {
+				// Run structure
+				CourseNode runStructureRootNode = targetCourse.getRunStructure().getRootNode();
+				resetEmailNodesForRunStructure(runStructureRootNode);
+				targetCourse.saveRunStructure();
+
+				// Editor tree model
+				CourseEditorTreeNode editorTreeModelRootNode = (CourseEditorTreeNode) targetCourse.getEditorTreeModel().getRootNode();
+				resetEmailNodesForEditorTreeModel(editorTreeModelRootNode);
+				targetCourse.saveEditorTreeModel();
 			}
-			targetCourse.saveRunStructure();
-			targetCourse.saveEditorTreeModel();
 		}
 		return targetRes;
+	}
+
+	private static void resetEmailNodesForRunStructure(CourseNode rootNode) {
+		for (int i = 0; i < rootNode.getChildCount(); i++) {
+			CourseNode currentNode = (CourseNode) rootNode.getChildAt(i);
+			if (currentNode.getChildCount() > 0) {
+				resetEmailNodesForRunStructure(currentNode);
+			} else if (currentNode instanceof COCourseNode) {
+				currentNode.updateModuleConfigDefaults(true);
+			}
+		}
+	}
+
+	private static void resetEmailNodesForEditorTreeModel(CourseEditorTreeNode rootNode) {
+		for (int i = 0; i < rootNode.getChildCount(); i++) {
+			CourseEditorTreeNode currentNode = (CourseEditorTreeNode) rootNode.getChildAt(i);
+			if (currentNode.getChildCount() > 0) {
+				resetEmailNodesForEditorTreeModel(currentNode);
+			} else if (currentNode.getCourseNode() instanceof COCourseNode) {
+				currentNode.getCourseNode().updateModuleConfigDefaults(true);
+			}
+		}
 	}
 
 	/**
