@@ -3,7 +3,6 @@ package org.olat.repository.ui;
 import org.olat.core.commons.persistence.DB;
 import org.olat.core.gui.UserRequest;
 import org.olat.core.gui.control.WindowControl;
-import org.olat.core.util.Util;
 import org.olat.repository.RepositoryEntry;
 import org.olat.repository.RepositoryManager;
 import org.olat.repository.RepositoryModule;
@@ -54,7 +53,6 @@ public class RepositoryEntryLifeCycleChangeControllerFactory {
 				windowControl,
 				repositoryEntry,
 				repositoryEntrySecurity,
-				repositoryHandler,
-				Util.createPackageTranslator(RepositoryService.class, userRequest.getLocale(), null));
+				repositoryHandler);
 	}
 }
