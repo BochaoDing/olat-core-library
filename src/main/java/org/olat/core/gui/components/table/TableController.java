@@ -214,19 +214,19 @@ public class TableController extends BasicController {
 		}
 	}
 
-	public TableController(final TableGuiConfiguration tableConfigP, final UserRequest ureq, final WindowControl wControl, final @UnknownInitialization Translator tableTrans) {
-		this(tableConfigP, ureq, wControl, tableTrans, TABLE_VELOCITY_PAGE_DEFAULT_NAME);
-	}
-
 	/**
 	 * Constructor for the table controller
-	 * 
-	 * @param tableConfig The table gui configuration determines the tables
+	 *
+	 * @param tableConfigP The table gui configuration determines the tables
 	 *          behaviour, may be <code>null</code> to use default table config.
 	 * @param ureq The user request
 	 * @param wControl The window control
 	 * @param tableTrans The translator that is used to translate the table
 	 */
+	public TableController(final TableGuiConfiguration tableConfigP, final UserRequest ureq, final WindowControl wControl, final @UnknownInitialization Translator tableTrans) {
+		this(tableConfigP, ureq, wControl, tableTrans, TABLE_VELOCITY_PAGE_DEFAULT_NAME);
+	}
+
 	public TableController(final TableGuiConfiguration tableConfigP, final UserRequest ureq, final WindowControl wControl, final @UnknownInitialization Translator tableTrans, String tableVelocityPageName) {
 		super(ureq, wControl);
 		if (tableConfigP == null){
