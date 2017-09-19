@@ -142,6 +142,9 @@ public class StaticServlet extends HttpServlet {
 					break;
 				}
 			}
+			if (result == null) {
+				result = CoreSpringFactory.servletContext.getResource(subPath);
+			}
 		} catch (MalformedURLException e) {
 			assert false : e;
 		}

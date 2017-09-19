@@ -25,11 +25,12 @@ function setFlexiFormDirtyByListener(e){
 	//
 }
 function o_mathjax() {
-	jQuery.ajax("${r.mathJaxCdnFullUrl()}MathJax.js?config=TeX-AMS-MML_HTMLorMML", {
+	jQuery.ajax("${r.mathJaxCdnFullUrl()}/MathJax.js?config=TeX-AMS-MML_HTMLorMML", {
 		cache: true,
 		dataType: "script",
 		success: function() {
 	    	MathJax.Hub.Config({
+				root: "${r.mathJaxCdnFullUrl()}",
 				extensions: ["jsMath2jax.js"],
 				messageStyle: 'none',
 				showProcessingMessages: false,

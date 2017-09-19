@@ -149,11 +149,9 @@ public class TUConfigForm extends FormBasicController {
 
 		fullURI = getFullURL(proto, host, port, uri, query, ref).toString();
 		
-		selectableValues = new String[] { OPTION_TUNNEL_THROUGH_OLAT_IFRAME, OPTION_SHOW_IN_OLAT_IN_AN_IFRAME,
-				OPTION_SHOW_IN_NEW_BROWSER_WINDOW, OPTION_TUNNEL_THROUGH_OLAT_INLINE };
+		selectableValues = new String[] { OPTION_SHOW_IN_NEW_BROWSER_WINDOW, OPTION_SHOW_IN_OLAT_IN_AN_IFRAME, OPTION_TUNNEL_THROUGH_OLAT_IFRAME, OPTION_TUNNEL_THROUGH_OLAT_INLINE };
 
-		selectableLabels = new String[] { translate(NLS_OPTION_TUNNEL_IFRAME_LABEL), translate(NLS_OPTION_OLAT_IFRAME_LABEL),
-				translate(NLS_OPTION_EXTERN_PAGE_LABEL), translate(NLS_OPTION_TUNNEL_INLINE_LABEL) };
+		selectableLabels = new String[] { translate(NLS_OPTION_EXTERN_PAGE_LABEL), translate(NLS_OPTION_OLAT_IFRAME_LABEL), translate(NLS_OPTION_TUNNEL_IFRAME_LABEL), translate(NLS_OPTION_TUNNEL_INLINE_LABEL) };
 		
 		initForm (ureq);
 	}
@@ -222,7 +220,7 @@ public class TUConfigForm extends FormBasicController {
 		Boolean iframe = cfg.getBooleanEntry(CONFIG_IFRAME);
 		Boolean extern = cfg.getBooleanEntry(CONFIG_EXTERN);
 		if (tunnel == null && iframe == null && extern == null) {				// nothing saved yet
-			return OPTION_TUNNEL_THROUGH_OLAT_IFRAME;
+			return OPTION_SHOW_IN_NEW_BROWSER_WINDOW;
 		} else {																												// something is saved ...
 			if (extern != null && extern.booleanValue()) {								// ... it was extern...
 				return OPTION_SHOW_IN_NEW_BROWSER_WINDOW;
@@ -300,7 +298,7 @@ public class TUConfigForm extends FormBasicController {
 		selectables = uifactory.addRadiosVertical("selectables", NLS_DISPLAY_CONFIG_EXTERN, formLayout, selectableValues, selectableLabels);
 		selectables.select(loadedConfig, true);
 		selectables.addActionListener(FormEvent.ONCLICK);
-		
+
 		checkboxPagePasswordProtected = uifactory.addCheckboxesHorizontal("checkbox", "TUConfigForm.protected", formLayout, new String[] { "ison" }, new String[] { "" });
 		
 		checkboxPagePasswordProtected.select("ison", (user != null) && !user.equals(""));
@@ -309,7 +307,11 @@ public class TUConfigForm extends FormBasicController {
 		
 		tuser = uifactory.addTextElement("user", "TUConfigForm.user", 255, user == null ? "" : user, formLayout);
 		tpass = uifactory.addPasswordElement("pass", "TUConfigForm.pass", 255, pass == null ? "" : pass, formLayout);
-		
+
+		checkboxPagePasswordProtected.setVisible(false);
+		tuser.setVisible(false);
+		tpass.setVisible(false);
+
 		uifactory.addFormSubmitButton("submit", formLayout);
 		
 		update();
@@ -332,6 +334,9 @@ public class TUConfigForm extends FormBasicController {
 			tpass.setValue("");
 			tpass.setVisible(false);
 		}
+		checkboxPagePasswordProtected.setVisible(false);
+		tuser.setVisible(false);
+		tpass.setVisible(false);
 	}
 	
 	@Override
