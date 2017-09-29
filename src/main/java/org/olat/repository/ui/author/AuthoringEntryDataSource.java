@@ -62,11 +62,14 @@ public class AuthoringEntryDataSource implements FlexiTableDataSourceDelegate<Au
 	private final UserManager userManager;
 	private final RepositoryService repositoryService;
 	private final AuthoringEntryDataSourceUIFactory uifactory;
+	private final AuthoringEntryRowFactory authoringEntryRowFactory;
 	private Integer count;
 	
 	public AuthoringEntryDataSource(SearchAuthorRepositoryEntryViewParams searchParams,
-			AuthoringEntryDataSourceUIFactory uifactory) {
+									AuthoringEntryRowFactory authoringEntryRowFactory,
+									AuthoringEntryDataSourceUIFactory uifactory) {
 		this.searchParams = searchParams;
+		this.authoringEntryRowFactory = authoringEntryRowFactory;
 		this.uifactory = uifactory;
 		
 		acService = CoreSpringFactory.getImpl(ACService.class);
@@ -148,7 +151,7 @@ public class AuthoringEntryDataSource implements FlexiTableDataSourceDelegate<Au
 			if(fullname == null) {
 				fullname = entry.getAuthor();
 			}
-			AuthoringEntryRow row = new AuthoringEntryRow(entry, fullname);
+			AuthoringEntryRow row = authoringEntryRowFactory.create(entry, fullname);
 			//bookmark
 			row.setMarked(entry.isMarked());
 

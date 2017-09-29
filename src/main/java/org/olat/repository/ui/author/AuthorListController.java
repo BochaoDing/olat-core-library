@@ -170,7 +170,8 @@ public class AuthorListController extends FormBasicController implements Activat
 								RepositoryModule repositoryModule,
 								RepositoryService repositoryService,
 								RepositoryManager repositoryManager,
-								RepositoryHandlerFactory repositoryHandlerFactory) {
+								RepositoryHandlerFactory repositoryHandlerFactory,
+								AuthoringEntryRowFactory authoringEntryRowFactory) {
 		super(ureq, wControl, "entries");
 		this.i18nName = i18nName;
 		this.withSearch = withSearch;
@@ -192,7 +193,7 @@ public class AuthorListController extends FormBasicController implements Activat
 		isOlatAdmin = roles.isOLATAdmin() || roles.isInstitutionalResourceManager();
 		hasAuthorRight = roles.isAuthor() || roles.isInstitutionalResourceManager() || roles.isOLATAdmin();
 
-		dataSource = new AuthoringEntryDataSource(searchParams, this);
+		dataSource = new AuthoringEntryDataSource(searchParams, authoringEntryRowFactory, this);
 		initForm(ureq);
 
 		/**
