@@ -525,7 +525,7 @@ public class RepositoryEntryRelationDAO {
 		em.persist(rel);
 		return rel;
 	}
-	
+
 	public int removeRelation(Group group, RepositoryEntryRef re) {
 		EntityManager em = dbInstance.getCurrentEntityManager();
 		List<RepositoryEntryToGroupRelation> rels = em.createNamedQuery("relationByRepositoryEntryAndGroup", RepositoryEntryToGroupRelation.class)
