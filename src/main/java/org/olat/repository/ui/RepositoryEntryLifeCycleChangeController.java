@@ -36,9 +36,9 @@ import org.olat.core.gui.control.controller.BasicController;
 import org.olat.core.gui.control.generic.closablewrapper.CloseableModalController;
 import org.olat.core.gui.control.generic.modal.DialogBoxController;
 import org.olat.core.gui.control.generic.modal.DialogBoxUIFactory;
-import org.olat.core.gui.translator.Translator;
 import org.olat.core.logging.OLATSecurityException;
 import org.olat.core.util.Formatter;
+import org.olat.core.util.Util;
 import org.olat.repository.RepositoryEntry;
 import org.olat.repository.RepositoryEntryLifeCycleValue;
 import org.olat.repository.RepositoryEntryManagedFlag;
@@ -52,7 +52,6 @@ import org.olat.repository.handlers.RepositoryHandler;
 import org.olat.repository.model.RepositoryEntrySecurity;
 import org.olat.repository.ui.author.ConfirmCloseController;
 import org.olat.repository.ui.author.ConfirmDeleteSoftlyController;
-import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * Offers a way to change the repo entry life cycle / status: close and delete a
@@ -91,8 +90,7 @@ public class RepositoryEntryLifeCycleChangeController extends BasicController{
 													WindowControl wControl,
 													RepositoryEntry re,
 													RepositoryEntrySecurity reSecurity,
-													RepositoryHandler handler,
-													Translator translator) {
+													RepositoryHandler handler) {
 
 		super(ureq, wControl);
 		this.dbInstance = dbInstance;
@@ -100,7 +98,7 @@ public class RepositoryEntryLifeCycleChangeController extends BasicController{
 		this.re = re;
 		this.reSecurity = reSecurity;
 
-		setTranslator(translator);
+		setTranslator(Util.createPackageTranslator(RepositoryService.class, ureq.getLocale(), null));
 		
 		lifeCycleVC = createVelocityContainer("lifecycle_change");
 		putInitialPanel(lifeCycleVC);
@@ -219,7 +217,6 @@ public class RepositoryEntryLifeCycleChangeController extends BasicController{
 	
 	/**
 	 * Remove close and edit tools, if in edit mode, pop-up-to root
-	 * @param ureq
 	 */
 	private void doCloseResource() {
 		re = repositoryService.loadByKey(re.getKey());
@@ -240,7 +237,6 @@ public class RepositoryEntryLifeCycleChangeController extends BasicController{
 
 	/**
 	 * Remove close and edit tools, if in edit mode, pop-up-to root
-	 * @param ureq
 	 */
 	private void doUncloseResource() {
 		re = repositoryService.uncloseRepositoryEntry(re);

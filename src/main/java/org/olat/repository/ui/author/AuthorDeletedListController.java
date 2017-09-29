@@ -47,7 +47,6 @@ import org.olat.core.gui.control.generic.closablewrapper.CloseableCalloutWindowC
 import org.olat.core.gui.control.generic.closablewrapper.CloseableModalController;
 import org.olat.core.id.Identity;
 import org.olat.core.id.Roles;
-import org.olat.course.CourseModule;
 import org.olat.repository.*;
 import org.olat.repository.handlers.RepositoryHandler;
 import org.olat.repository.handlers.RepositoryHandlerFactory;
@@ -82,7 +81,8 @@ public class AuthorDeletedListController extends AuthorListController {
 									   RepositoryModule repositoryModule,
 									   RepositoryService repositoryService,
 									   RepositoryManager repositoryManager,
-									   RepositoryHandlerFactory repositoryHandlerFactory) {
+									   RepositoryHandlerFactory repositoryHandlerFactory,
+									   AuthoringEntryRowFactory authoringEntryRowFactory) {
 		super(
 				ureq,
 				wControl,
@@ -95,7 +95,8 @@ public class AuthorDeletedListController extends AuthorListController {
 				repositoryModule,
 				repositoryService,
 				repositoryManager,
-				repositoryHandlerFactory);
+				repositoryHandlerFactory,
+				authoringEntryRowFactory);
 	}
 
 	@Override
