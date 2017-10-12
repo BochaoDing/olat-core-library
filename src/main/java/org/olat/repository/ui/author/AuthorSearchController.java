@@ -206,7 +206,7 @@ public class AuthorSearchController extends FormBasicController implements Exten
 	protected boolean validateFormLogic(UserRequest ureq) {
 		if(!enabled) return true;
 		
-		if (displayName.isEmpty() && author.isEmpty() && description.isEmpty() && (id != null && id.isEmpty()))	{
+		if (displayName.getValue().length()<3 && author.getValue().length()<3 && description.getValue().length()<3 && (id != null && id.getValue().length()<3))	{
 			showWarning("cif.error.allempty");
 			return false;
 		}
@@ -229,6 +229,7 @@ public class AuthorSearchController extends FormBasicController implements Exten
 	protected void formInnerEvent (UserRequest ureq, FormItem source, FormEvent event) {
 		if(enabled) {
 			if (source == searchButton) {
+				validateFormLogic(ureq);
 				fireSearchEvent(ureq);
 			}
 		}

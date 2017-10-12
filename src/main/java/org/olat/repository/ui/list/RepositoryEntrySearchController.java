@@ -156,7 +156,7 @@ public class RepositoryEntrySearchController extends FormBasicController impleme
 	protected boolean validateFormLogic(UserRequest ureq) {
 		if(!enabled) return true;
 		
-		if (text.isEmpty() && author.isEmpty() && (id != null && id.isEmpty()))	{
+		if (text.getValue().length()<3 && author.getValue().length()<3 && (id != null && id.getValue().length()<3))	{
 			showWarning("cif.error.allempty");
 			return false;
 		}
@@ -179,6 +179,7 @@ public class RepositoryEntrySearchController extends FormBasicController impleme
 	protected void formInnerEvent (UserRequest ureq, FormItem source, FormEvent event) {
 		if(enabled) {
 			if (source == searchButton) {
+				validateFormLogic(ureq);
 				fireSearchEvent(ureq);
 			}
 		}
