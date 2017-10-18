@@ -220,6 +220,11 @@ public class RepositoryEntryMyCourseQueries implements MyCourseRepositoryQuery {
 		//user course informations
 		//efficiency statements
 
+		// join seems to be quicker
+		if(params.getMarked() != null && params.getMarked()) {
+			sb.append(" inner join ").append(MarkImpl.class.getName()).append(" as mark2 on (mark2.creator.key=:identityKey and mark2.resId=v.key and mark2.resName='RepositoryEntry')");
+		}
+
 		sb.append(" where ");
 		needIdentityKey |= appendMyViewAccessSubSelect(sb, roles, params.getFilters(), params.isMembershipMandatory());
 		if(params.getRepoEntryKeys() != null && params.getRepoEntryKeys().size() > 0) {
@@ -247,11 +252,6 @@ public class RepositoryEntryMyCourseQueries implements MyCourseRepositoryQuery {
 		}
 		if (params.isResourceTypesDefined()) {
 			sb.append(" and res.resName in (:resourcetypes)");
-		}
-		if(params.getMarked() != null && params.getMarked().booleanValue()) {
-			sb.append(" and exists (select mark2.key from ").append(MarkImpl.class.getName()).append(" as mark2 ")
-			  .append("   where mark2.creator.key=:identityKey and mark2.resId=v.key and mark2.resName='RepositoryEntry'")
-			  .append(" )");
 		}
 		
 		String author = params.getAuthor();
