@@ -149,8 +149,6 @@ public class FileUploadController extends FormBasicController {
 	@Autowired
 	private ImageService imageHelper;
 	@Autowired
-	private FilesInfoMBean fileInfoMBean;
-	@Autowired
 	private VFSLockManager vfsLockManager;
 	@Autowired
 	private MetaInfoFactory metaInfoFactory;
@@ -698,7 +696,6 @@ public class FileUploadController extends FormBasicController {
 		if (success) {
 			String filePath = (uploadRelPath == null ? "" : uploadRelPath + "/") + newFile.getName();
 			finishSuccessfullUpload(filePath, newFile, ureq);
-			fileInfoMBean.logUpload(newFile.getSize());
 			fireEvent(ureq, Event.DONE_EVENT);										
 		} else {
 			showError("failed");
@@ -713,7 +710,6 @@ public class FileUploadController extends FormBasicController {
 		VFSItem item = currentContainer.resolve(filePath);
 		if(item != null) {
 			finishSuccessfullUpload(filePath, item, ureq);
-			fileInfoMBean.logUpload(newFile.getSize());
 		} else {
 			logWarn("Upload with error:" + filePath, null);
 		}
