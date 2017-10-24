@@ -204,7 +204,7 @@ public class UserSearchFlexiController extends FlexiAutoCompleterController {
 			FlexiTableColumnModel tableColumnModel = FlexiTableDataModelFactory.createFlexiTableColumnModel();
 			int colPos = 0;
 			if(isAdministrativeUser) {
-				tableColumnModel.addFlexiColumnModel(new DefaultFlexiColumnModel("table.user.login", colPos++));
+				tableColumnModel.addFlexiColumnModel(new DefaultFlexiColumnModel("table.user.login", colPos++, true, "login"));
 			}
 			List<UserPropertyHandler> userPropertyHandlers = userManager.getUserPropertyHandlersFor(usageIdentifyer, isAdministrativeUser);
 			List<UserPropertyHandler> resultingPropertyHandlers = new ArrayList<UserPropertyHandler>();
