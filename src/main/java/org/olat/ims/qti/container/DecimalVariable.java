@@ -103,6 +103,10 @@ public class DecimalVariable extends Variable {
 	public void setValue(String value) {
 		floatValue= parseFloat(value);
 	}
+
+	public void setFloatValue(float floatValue) {
+		this.floatValue = floatValue;
+	}
 	/**
 	 * Returns the cutValue.
 	 * @return float

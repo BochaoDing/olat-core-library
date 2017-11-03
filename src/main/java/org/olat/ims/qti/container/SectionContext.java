@@ -385,7 +385,11 @@ public class SectionContext implements Serializable {
 		if (scoremodel == null || scoremodel.equalsIgnoreCase("SumOfScores")) { // sumofScores
 			for (Iterator<ItemContext> iter = itemContexts.iterator(); iter.hasNext();) {
 				ItemContext ict = iter.next();
-				totalScore += ict.getScore();
+				float itemScore = ict.getScore();
+				// Ignore NaN values when calculating the total
+				if (!Float.isNaN(itemScore)) {
+					totalScore += itemScore;
+				}
 			}
 		} else if (scoremodel.equalsIgnoreCase("NumberCorrect")) {
 			totalScore = 0;
@@ -416,6 +420,16 @@ public class SectionContext implements Serializable {
 	public float getScore() {
 		calcScore();
 		return (float) totalScore;
+	}
+
+	public int getNumberOfItemsWithNanValueScore() {
+		int numberOfItemsWithNanValueScore = 0;
+		for (ItemContext itemContext : itemContexts) {
+			if (Float.isNaN(itemContext.getScore())) {
+				numberOfItemsWithNanValueScore++;
+			}
+		}
+		return numberOfItemsWithNanValueScore;
 	}
 
 	/**

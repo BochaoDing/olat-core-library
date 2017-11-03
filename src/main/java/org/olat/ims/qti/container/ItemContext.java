@@ -411,7 +411,7 @@ public class ItemContext implements Serializable {
 		Variable var = getVariables().getSCOREVariable();
 		if (var == null) {
 			if(ident.startsWith("QTIEDIT:ESSAY")) {
-				return 0.0f;
+				return Float.NaN;
 			}
 			
 			// we demand that a SCORE variable must always exist

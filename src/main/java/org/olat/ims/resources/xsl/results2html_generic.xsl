@@ -16,6 +16,8 @@
 <!ENTITY score_min "$t.translate('score.min')">
 <!ENTITY score_max "$t.translate('score.max')">
 <!ENTITY score_cut "$t.translate('score.cut')">
+<!ENTITY answer_not_rated "$t.translate('answer.not.rated')">
+<!ENTITY answers_not_rated "$t.translate('answers.not.rated')">
 <!ENTITY ans_min "$t.translate('ans.min')">
 <!ENTITY ans_max "$t.translate('ans.max')">
 <!ENTITY ans_correct "$t.translate('ans.correct')">
@@ -38,11 +40,11 @@
 		<style type="text/css"><![CDATA[
 <!--
 .o_disabled_input {
-padding: 0px;
-border-spacing: 0px;
-border: 1px solid silver;
-margin: 0px;
-border-collapse: collapse;
+	padding: 0px;
+	border-spacing: 0px;
+	border: 1px solid silver;
+	margin: 0px;
+	border-collapse: collapse;
 }
 
 .o_essay_solution_table {
@@ -151,44 +153,82 @@ border-collapse: collapse;
 	
 	<!-- render scores -->
 	<xsl:template match="score">
-		<table border="0"><tbody><tr>
-			<td width="160">
-		<table border="0" cellpadding="0" cellspacing="0" height="12" width="150">
+		<table border="0">
 			<tbody>
 				<tr>
+					<td width="160">
+						<table border="0" cellpadding="0" cellspacing="0" height="12" width="150">
+							<tbody>
+								<tr>
+									<td>
+										<div class="progress" style="width:150px;">
+											<div class="progress-bar">
+												<xsl:choose>
+													<xsl:when test="score_value = 'N/A'">
+														<xsl:attribute name="style">width:150px;background-color:#ffe102</xsl:attribute>
+														<xsl:attribute name="title">N/A</xsl:attribute>
+													</xsl:when>
+													<xsl:when test="(number(score_max) &gt; 0) and (number(score_value) &lt;= number(score_max))">
+														<xsl:attribute name="style">width:<xsl:value-of select="number(score_value) div number(score_max) * 150"/>px</xsl:attribute>
+														<xsl:attribute name="title"><xsl:value-of select="number(score_value) div number(score_max) * 100"/>%</xsl:attribute>
+													</xsl:when>
+													<xsl:otherwise>
+														<xsl:attribute name="style">width:150px</xsl:attribute>
+														<xsl:attribute name="title">100%</xsl:attribute>
+													</xsl:otherwise>
+												</xsl:choose>
+											</div>
+										</div>
+									</td>
+								</tr>
+							</tbody>
+						</table>
+					</td>
 					<td>
-						<div class="progress" style="width:150px;">
-							<div class="progress-bar">
+						<xsl:choose>
+							<xsl:when test="score_value = 'N/A'">N/A</xsl:when>
+							<xsl:when test="(number(score_max) &gt; 0) and (number(score_value) &lt;= number(score_max))">
+								<xsl:value-of select="round(number(score_value) div number(score_max) * 100)"/>&#37;
+							</xsl:when>
+							<xsl:otherwise>0&#37;</xsl:otherwise>
+						</xsl:choose>
+						<xsl:choose>
+							<xsl:when test="number(num_nan_score_items) &gt;= 1">
+								&nbsp;&nbsp;&#40;<xsl:value-of select="num_nan_score_items"/>&nbsp;
 								<xsl:choose>
-									<xsl:when test="(number(score_max) &gt; 0) and (number(score_value) &lt;= number(score_max))">
-										<xsl:attribute name="style">width:<xsl:value-of select="number(score_value) div number(score_max) * 150"/>px</xsl:attribute>
-										<xsl:attribute name="title"><xsl:value-of select="number(score_value) div number(score_max) * 100"/>%</xsl:attribute>
-									</xsl:when>
-									<xsl:otherwise>
-										<xsl:attribute name="style">width:150px</xsl:attribute>
-										<xsl:attribute name="title">100%</xsl:attribute>
-									</xsl:otherwise>
-								</xsl:choose>
-							</div>
-						</div>
+									<xsl:when test="number(num_nan_score_items) = 1">&answer_not_rated;</xsl:when>
+									<xsl:otherwise>&answers_not_rated;</xsl:otherwise>
+								</xsl:choose>&#41;
+							</xsl:when>
+							<xsl:when test="score_value = 'N/A'">
+								&nbsp;&nbsp;&#40;&answer_not_rated;&#41;
+							</xsl:when>
+						</xsl:choose>
 					</td>
 				</tr>
 			</tbody>
 		</table>
-		</td>
-		<td>
-			<xsl:choose>
-					<xsl:when test="(number(score_max) &gt; 0) and (number(score_value) &lt;= number(score_max))">
-						<xsl:value-of select="round(number(score_value) div number(score_max) * 100)"/>
-					</xsl:when>
-					<xsl:otherwise>0</xsl:otherwise>
-			</xsl:choose>
-			&#37;
-		</td>
-		</tr></tbody></table>
 		<table border="0" cellpadding="0" cellspacing="0">
 			<tbody>
-				<tr><td>&score_val;</td><td width="10"/><td><xsl:value-of select="score_value"/></td></tr>
+				<tr>
+					<td>&score_val;</td>
+					<td width="10"/>
+					<td>
+						<xsl:value-of select="score_value"/>
+						<xsl:choose>
+							<xsl:when test="number(num_nan_score_items) &gt;= 1">
+								&nbsp;&nbsp;&#40;<xsl:value-of select="num_nan_score_items"/>&nbsp;
+								<xsl:choose>
+									<xsl:when test="number(num_nan_score_items) = 1">&answer_not_rated;</xsl:when>
+									<xsl:otherwise>&answers_not_rated;</xsl:otherwise>
+								</xsl:choose>&#41;
+							</xsl:when>
+							<xsl:when test="score_value = 'N/A'">
+								&nbsp;&nbsp;&#40;&answer_not_rated;&#41;
+							</xsl:when>
+						</xsl:choose>
+					</td>
+				</tr>
 				<xsl:if test="score_min"><tr><td>&score_min;</td><td width="10"/><td><xsl:value-of select="score_min"/></td></tr></xsl:if>
 				<xsl:if test="score_max"><tr><td>&score_max;</td><td width="10"/><td><xsl:value-of select="score_max"/></td></tr></xsl:if>
 				<xsl:if test="score_cut"><tr><td>&score_cut;</td><td width="10"/><td><xsl:value-of select="score_cut"/></td></tr></xsl:if>

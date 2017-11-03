@@ -75,7 +75,7 @@ public abstract class Variable implements Serializable{
 	public abstract float getValue();
 	public abstract float getTruncatedValue();
 	public abstract void setValue(String value);
-
+	public abstract void setFloatValue(float value);
 
 	public abstract boolean hasCutValue();
 	public abstract boolean hasDefaultValue();

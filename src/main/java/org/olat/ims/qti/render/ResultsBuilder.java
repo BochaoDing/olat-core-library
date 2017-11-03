@@ -161,6 +161,8 @@ public class ResultsBuilder {
 		strVal = ac.getCutvalue() == -1.0f ? "N/A" : StringHelper.formatFloat(ac.getCutvalue(), 2);
 		a_score.addElement("score_cut").addText(strVal);
 
+		a_score.addElement("num_nan_score_items").addText(Integer.toString(ac.getNumberOfItemsWithNanValueScore()));
+
 		addElementText(ares, "duration", QTIHelper.getISODuration(ac.getDuration()));
 		addElementText(ares, "num_sections", "" + ac.getSectionContextCount());
 		addElementText(ares, "num_sections_presented", "0");
@@ -191,6 +193,7 @@ public class ResultsBuilder {
 			sec_score.addElement("score_max").addText(strVal);
 			strVal = secc.getCutValue() == -1 ? "N/A" : "" + secc.getCutValue();
 			sec_score.addElement("score_cut").addText(strVal);
+			sec_score.addElement("num_nan_score_items").addText(Integer.toString(secc.getNumberOfItemsWithNanValueScore()));
 
 			// iterate over all items in this section context
 			List<ItemContext> itemsc = secc.getSectionItemContexts();
