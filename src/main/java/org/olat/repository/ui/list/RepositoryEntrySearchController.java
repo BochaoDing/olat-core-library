@@ -179,8 +179,9 @@ public class RepositoryEntrySearchController extends FormBasicController impleme
 	protected void formInnerEvent (UserRequest ureq, FormItem source, FormEvent event) {
 		if(enabled) {
 			if (source == searchButton) {
-				validateFormLogic(ureq);
-				fireSearchEvent(ureq);
+				if(validateFormLogic(ureq)) {
+					fireSearchEvent(ureq);
+				}
 			}
 		}
 	}

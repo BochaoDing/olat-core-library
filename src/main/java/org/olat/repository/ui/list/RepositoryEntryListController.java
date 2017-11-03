@@ -243,7 +243,8 @@ public class RepositoryEntryListController extends FormBasicController
 		tableEl.setEmtpyTableMessageKey("table.sEmptyTable");
 		VelocityContainer row1 = (VelocityContainer)applicationContext.getBean("row_1", this);
 		tableEl.setRowRenderer(row1, this);
-		
+		tableEl.setMinSearchLength(3);
+
 		initFilters(tableEl);
 		initSorters(tableEl);
 
