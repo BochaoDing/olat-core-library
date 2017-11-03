@@ -316,7 +316,7 @@ public class AuthorListController extends FormBasicController implements Activat
 		initActionsColumns(columnsModel);
 		
 		model = new AuthoringEntryDataModel(dataSource, columnsModel);
-		tableEl = uifactory.addTableElement(getWindowControl(), "table", model, 20, false, getTranslator(), formLayout, 3);
+		tableEl = uifactory.addTableElement(getWindowControl(), "table", model, 20, false, getTranslator(), formLayout, AuthorSearchController.MINIMAL_CHAR_LENGTH_SEARCH_FIELD);
 		tableEl.setSearchEnabled(withSearch);
 		tableEl.setCssDelegate(this);
 		tableEl.setExportEnabled(true);

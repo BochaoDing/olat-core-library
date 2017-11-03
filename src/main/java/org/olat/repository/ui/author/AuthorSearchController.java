@@ -55,7 +55,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 public class AuthorSearchController extends FormBasicController implements ExtendedFlexiTableSearchController {
 
 	private static final String[] keys = new String[]{ "my" };
-	private static final int MINIMAL_CHAR_LENGTH_SEARCH_FIELD = 3;
+	static final int MINIMAL_CHAR_LENGTH_SEARCH_FIELD = 3;
 	private static final int MINIMAL_CHAR_LENGTH_AUTHOR_SEARCH_FIELD = 2;
 	
 	private TextElement id; // only for admins

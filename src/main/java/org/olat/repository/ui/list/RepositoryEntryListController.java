@@ -233,7 +233,7 @@ public class RepositoryEntryListController extends FormBasicController
 		 * model already here?
 		 */
 		model = new RepositoryEntryDataModel(dataSource, columnsModel);
-		tableEl = uifactory.addTableElement(getWindowControl(), "table", model, 20, false, getTranslator(), formLayout, 3);
+		tableEl = uifactory.addTableElement(getWindowControl(), "table", model, 20, false, getTranslator(), formLayout, RepositoryEntrySearchController.MINIMAL_CHAR_LENGTH_SEARCH_FIELD);
 		tableEl.setAvailableRendererTypes(FlexiTableRendererType.custom, FlexiTableRendererType.classic);
 		tableEl.setRendererType(FlexiTableRendererType.custom);
 		tableEl.setSearchEnabled(withSearch);
