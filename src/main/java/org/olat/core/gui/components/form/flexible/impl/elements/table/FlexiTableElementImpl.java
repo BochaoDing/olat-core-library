@@ -112,7 +112,7 @@ public class FlexiTableElementImpl extends FormItemImpl implements FlexiTableEle
 	private int columnLabelForDragAndDrop;
 	private String emptyTableMessageKey = null;
 
-	private int minSearchLength;
+	private final int minSearchLength;
 	
 	private VelocityContainer rowRenderer;
 	private VelocityContainer detailsRenderer;
@@ -150,12 +150,17 @@ public class FlexiTableElementImpl extends FormItemImpl implements FlexiTableEle
 	
 	private Map<String,FormItem> components = new HashMap<>();
 
+	public FlexiTableElementImpl(WindowControl wControl, String name, Translator translator, FlexiTableDataModel<?> tableModel) {
+		this(wControl, name, translator, tableModel, -1, true, 0);
+	}
+
 	public FlexiTableElementImpl(WindowControl wControl, String name, Translator translator, FlexiTableDataModel<?> tableModel, int minSearchLength) {
 		this(wControl, name, translator, tableModel, -1, true, minSearchLength);
 	}
 
-	public FlexiTableElementImpl(WindowControl wControl, String name, Translator translator, FlexiTableDataModel<?> tableModel) {
-		this(wControl, name, translator, tableModel, -1, true,0);
+	public FlexiTableElementImpl(WindowControl wControl, String name, Translator translator,
+								 FlexiTableDataModel<?> tableModel, int pageSize, boolean loadOnStart) {
+		this(wControl, name, translator, tableModel, pageSize, loadOnStart, 0);
 	}
 	
 	public FlexiTableElementImpl(WindowControl wControl, String name, Translator translator,
@@ -190,6 +195,8 @@ public class FlexiTableElementImpl extends FormItemImpl implements FlexiTableEle
 			//preload it
 			dataSource.load(null, null, null, 0, pageSize);
 		}
+
+		this.minSearchLength = minSearchLength;
 	}
 
 	@Override
@@ -431,14 +438,6 @@ public class FlexiTableElementImpl extends FormItemImpl implements FlexiTableEle
 	public void setFilters(String name, List<FlexiTableFilter> filters, boolean multiSelection) {
 		this.filters = new ArrayList<>(filters);
 		multiFilterSelection = multiSelection;
-	}
-
-	public int getMinSearchLength() {
-		return minSearchLength;
-	}
-
-	public void setMinSearchLength(int minSearchLength) {
-		this.minSearchLength = minSearchLength;
 	}
 	
 	public boolean isSortEnabled() {
@@ -1384,8 +1383,12 @@ public class FlexiTableElementImpl extends FormItemImpl implements FlexiTableEle
 		if(key != null) {
 			doSearch(ureq, FlexiTableSearchEvent.QUICK_SEARCH_KEY_SELECTION, key, null);
 		} else if(StringHelper.containsNonWhitespace(search) || search.equals("")) {
-			if(search.length() < minSearchLength) {
-				wControl.setWarning(getTranslator().translate("cif.error.allempty"));
+			if (search.length() < minSearchLength) {
+				if (minSearchLength == 1) {
+					wControl.setWarning(getTranslator().translate("cif.error.search.empty"));
+				} else {
+					wControl.setWarning(getTranslator().translate("cif.error.search.not.enough.chars", new String[]{Integer.toString(minSearchLength)}));
+				}
 			} else {
 				doSearch(ureq, FlexiTableSearchEvent.QUICK_SEARCH, search, null);
 			}

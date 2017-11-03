@@ -316,7 +316,7 @@ public class AuthorListController extends FormBasicController implements Activat
 		initActionsColumns(columnsModel);
 		
 		model = new AuthoringEntryDataModel(dataSource, columnsModel);
-		tableEl = uifactory.addTableElement(getWindowControl(), "table", model, 20, false, getTranslator(), formLayout);
+		tableEl = uifactory.addTableElement(getWindowControl(), "table", model, 20, false, getTranslator(), formLayout, 3);
 		tableEl.setSearchEnabled(withSearch);
 		tableEl.setCssDelegate(this);
 		tableEl.setExportEnabled(true);
@@ -329,7 +329,6 @@ public class AuthorListController extends FormBasicController implements Activat
 		tableEl.setEmtpyTableMessageKey("table.sEmptyTable");
 		tableEl.setSortSettings(new FlexiTableSortOptions(true, new SortKey(OrderBy.creationDate.name(), false)));
 		tableEl.setAndLoadPersistedPreferences(ureq, "authors-list-" + i18nName);
-		tableEl.setMinSearchLength(3);
 
 		if(!withSearch) {
 			tableEl.reloadData();
@@ -620,24 +619,12 @@ public class AuthorListController extends FormBasicController implements Activat
 					launch(ureq, row);
 				}
 			} else if(event instanceof FlexiTableSearchEvent) {
-				if(validateFormLogic(ureq)) {
-					AuthorListState stateEntry = new AuthorListState();
-					stateEntry.setTableState(tableEl.getStateEntry());
-					addToHistory(ureq, stateEntry);
-				}
+				AuthorListState stateEntry = new AuthorListState();
+				stateEntry.setTableState(tableEl.getStateEntry());
+				addToHistory(ureq, stateEntry);
 			}
 		}
 		super.formInnerEvent(ureq, source, event);
-	}
-
-	@Override
-	protected boolean validateFormLogic(UserRequest ureq) {
-		String search = searchParams.getIdRefsAndTitle();
-		if (search == null || search.length()<3)	{
-			showWarning("cif.error.allempty");
-			return false;
-		}
-		return true;
 	}
 
 	@Override
