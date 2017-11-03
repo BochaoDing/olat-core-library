@@ -429,4 +429,8 @@ public interface FlexiTableElement extends FormItem {
 	 * @return The i18n key for the message to be displayed when the table is empty or NULL when no message should be displayed.
 	 */
 	public String getEmtpyTableMessageKey();
+
+	public int getMinSearchLength();
+
+	public void setMinSearchLength(int minSearchLength);
 }

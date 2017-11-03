@@ -933,7 +933,7 @@ public class FormUIFactory {
 	
 	public FlexiTableElement addTableElement(WindowControl wControl, String name, FlexiTableDataModel<?> tableModel,
 			int pageSize, boolean loadOnInit, Translator translator, FormItemContainer formLayout) {
-		FlexiTableElementImpl fte = new FlexiTableElementImpl(wControl, name, translator, tableModel, pageSize, loadOnInit);
+		FlexiTableElementImpl fte = new FlexiTableElementImpl(wControl, name, translator, tableModel, pageSize, loadOnInit,0);
 		formLayout.add(fte);
 		return fte;
 	}

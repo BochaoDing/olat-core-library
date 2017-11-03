@@ -111,6 +111,8 @@ public class FlexiTableElementImpl extends FormItemImpl implements FlexiTableEle
 	private boolean extendedSearchExpanded = false;
 	private int columnLabelForDragAndDrop;
 	private String emptyTableMessageKey = null;
+
+	private int minSearchLength;
 	
 	private VelocityContainer rowRenderer;
 	private VelocityContainer detailsRenderer;
@@ -147,13 +149,17 @@ public class FlexiTableElementImpl extends FormItemImpl implements FlexiTableEle
 	private Set<Integer> enabledColumnIndex = new HashSet<>();
 	
 	private Map<String,FormItem> components = new HashMap<>();
-	
+
+	public FlexiTableElementImpl(WindowControl wControl, String name, Translator translator, FlexiTableDataModel<?> tableModel, int minSearchLength) {
+		this(wControl, name, translator, tableModel, -1, true, minSearchLength);
+	}
+
 	public FlexiTableElementImpl(WindowControl wControl, String name, Translator translator, FlexiTableDataModel<?> tableModel) {
-		this(wControl, name, translator, tableModel, -1, true);
+		this(wControl, name, translator, tableModel, -1, true,0);
 	}
 	
 	public FlexiTableElementImpl(WindowControl wControl, String name, Translator translator,
-			FlexiTableDataModel<?> tableModel, int pageSize, boolean loadOnStart) {
+			FlexiTableDataModel<?> tableModel, int pageSize, boolean loadOnStart, int minSearchLength) {
 		super(name);
 		this.wControl = wControl;
 		this.dataModel = tableModel;
@@ -425,6 +431,14 @@ public class FlexiTableElementImpl extends FormItemImpl implements FlexiTableEle
 	public void setFilters(String name, List<FlexiTableFilter> filters, boolean multiSelection) {
 		this.filters = new ArrayList<>(filters);
 		multiFilterSelection = multiSelection;
+	}
+
+	public int getMinSearchLength() {
+		return minSearchLength;
+	}
+
+	public void setMinSearchLength(int minSearchLength) {
+		this.minSearchLength = minSearchLength;
 	}
 	
 	public boolean isSortEnabled() {
@@ -1369,8 +1383,12 @@ public class FlexiTableElementImpl extends FormItemImpl implements FlexiTableEle
 
 		if(key != null) {
 			doSearch(ureq, FlexiTableSearchEvent.QUICK_SEARCH_KEY_SELECTION, key, null);
-		} else if(StringHelper.containsNonWhitespace(search)) {
-			doSearch(ureq, FlexiTableSearchEvent.QUICK_SEARCH, search, null);
+		} else if(StringHelper.containsNonWhitespace(search) || search.equals("")) {
+			if(search.length() < minSearchLength) {
+				wControl.setWarning(getTranslator().translate("cif.error.allempty"));
+			} else {
+				doSearch(ureq, FlexiTableSearchEvent.QUICK_SEARCH, search, null);
+			}
 		} else {
 			resetSearch(ureq);
 		}

@@ -121,7 +121,7 @@ public class AuthorListController extends FormBasicController implements Activat
 	private final TooledStackedPanel stackPanel;
 	
 	private boolean withSearch;
-	
+
 	private AuthoringEntryDataModel model;
 	private AuthoringEntryDataSource dataSource;
 	private final SearchAuthorRepositoryEntryViewParams searchParams;
@@ -158,7 +158,7 @@ public class AuthorListController extends FormBasicController implements Activat
 	protected final RepositoryService repositoryService;
 	protected final RepositoryManager repositoryManager;
 	protected final RepositoryHandlerFactory repositoryHandlerFactory;
-	
+
 	public AuthorListController(UserRequest ureq,
 								WindowControl wControl,
 								String i18nName,
@@ -329,6 +329,8 @@ public class AuthorListController extends FormBasicController implements Activat
 		tableEl.setEmtpyTableMessageKey("table.sEmptyTable");
 		tableEl.setSortSettings(new FlexiTableSortOptions(true, new SortKey(OrderBy.creationDate.name(), false)));
 		tableEl.setAndLoadPersistedPreferences(ureq, "authors-list-" + i18nName);
+		tableEl.setMinSearchLength(3);
+
 		if(!withSearch) {
 			tableEl.reloadData();
 			tableEl.setFilters(null, getFilters(), false);
@@ -618,12 +620,24 @@ public class AuthorListController extends FormBasicController implements Activat
 					launch(ureq, row);
 				}
 			} else if(event instanceof FlexiTableSearchEvent) {
-				AuthorListState stateEntry = new AuthorListState();
-				stateEntry.setTableState(tableEl.getStateEntry());
-				addToHistory(ureq, stateEntry);
+				if(validateFormLogic(ureq)) {
+					AuthorListState stateEntry = new AuthorListState();
+					stateEntry.setTableState(tableEl.getStateEntry());
+					addToHistory(ureq, stateEntry);
+				}
 			}
 		}
 		super.formInnerEvent(ureq, source, event);
+	}
+
+	@Override
+	protected boolean validateFormLogic(UserRequest ureq) {
+		String search = searchParams.getIdRefsAndTitle();
+		if (search == null || search.length()<3)	{
+			showWarning("cif.error.allempty");
+			return false;
+		}
+		return true;
 	}
 
 	@Override
