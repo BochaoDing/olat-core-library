@@ -340,8 +340,12 @@ public class IQManager implements UserDataDeletable {
 				qtiResult.setResultSet(qtiResultSet);
 				qtiResult.setItemIdent(ic.getIdent());
 				qtiResult.setDuration(new Long(ic.getTimeSpent()));
-				if (ai.isSurvey()) qtiResult.setScore(0);
-				else qtiResult.setScore(ic.getScore());
+				if (ai.isSurvey()) {
+					qtiResult.setScore(0);
+				} else {
+					// NaN values (for not rated answers) are not QTI standard -> use zero instead
+					qtiResult.setScore(ic.getScore(true));
+				}
 				qtiResult.setTstamp(new Date(ic.getLatestAnswerTime()));
 				qtiResult.setLastModified(new Date(System.currentTimeMillis()));
 				qtiResult.setIp(ai.getRemoteAddr());

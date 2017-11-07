@@ -72,8 +72,8 @@ public abstract class Variable implements Serializable{
 	public abstract float getMaxValue();
 	public abstract float getMinValue();
 	
-	public abstract float getValue();
-	public abstract float getTruncatedValue();
+	public abstract float getValue(boolean nanAsZero);
+	public abstract float getTruncatedValue(boolean nanAsZero);
 	public abstract void setValue(String value);
 	public abstract void setFloatValue(float value);
 

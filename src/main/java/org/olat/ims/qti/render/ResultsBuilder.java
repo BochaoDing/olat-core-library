@@ -209,7 +209,7 @@ public class ResultsBuilder {
 				DecimalVariable scoreVar = (DecimalVariable) (itemc.getVariables().getSCOREVariable());
 				Element it_score = itres.addElement("outcomes").addElement("score");
 				it_score.addAttribute("varname", "SCORE");
-				it_score.addElement("score_value").addText(StringHelper.formatFloat(scoreVar.getTruncatedValue(), 2));
+				it_score.addElement("score_value").addText(StringHelper.formatFloat(scoreVar.getTruncatedValue(false), 2));
 				strVal = scoreVar.hasMinValue() ? "" + scoreVar.getMinValue() : "0.0";
 				it_score.addElement("score_min").addText(strVal);
 				strVal = scoreVar.hasMaxValue() ? "" + scoreVar.getMaxValue() : "N/A";
