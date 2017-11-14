@@ -121,7 +121,7 @@ public class AuthorListController extends FormBasicController implements Activat
 	private final TooledStackedPanel stackPanel;
 	
 	private boolean withSearch;
-	
+
 	private AuthoringEntryDataModel model;
 	private AuthoringEntryDataSource dataSource;
 	private final SearchAuthorRepositoryEntryViewParams searchParams;
@@ -158,7 +158,7 @@ public class AuthorListController extends FormBasicController implements Activat
 	protected final RepositoryService repositoryService;
 	protected final RepositoryManager repositoryManager;
 	protected final RepositoryHandlerFactory repositoryHandlerFactory;
-	
+
 	public AuthorListController(UserRequest ureq,
 								WindowControl wControl,
 								String i18nName,
@@ -316,7 +316,7 @@ public class AuthorListController extends FormBasicController implements Activat
 		initActionsColumns(columnsModel);
 		
 		model = new AuthoringEntryDataModel(dataSource, columnsModel);
-		tableEl = uifactory.addTableElement(getWindowControl(), "table", model, 20, false, getTranslator(), formLayout);
+		tableEl = uifactory.addTableElement(getWindowControl(), "table", model, 20, false, getTranslator(), formLayout, AuthorSearchController.MINIMAL_CHAR_LENGTH_SEARCH_FIELD);
 		tableEl.setSearchEnabled(withSearch);
 		tableEl.setCssDelegate(this);
 		tableEl.setExportEnabled(true);
@@ -329,6 +329,7 @@ public class AuthorListController extends FormBasicController implements Activat
 		tableEl.setEmtpyTableMessageKey("table.sEmptyTable");
 		tableEl.setSortSettings(new FlexiTableSortOptions(true, new SortKey(OrderBy.creationDate.name(), false)));
 		tableEl.setAndLoadPersistedPreferences(ureq, "authors-list-" + i18nName);
+
 		if(!withSearch) {
 			tableEl.reloadData();
 			tableEl.setFilters(null, getFilters(), false);
