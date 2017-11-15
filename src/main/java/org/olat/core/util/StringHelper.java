@@ -198,6 +198,9 @@ public class StringHelper {
 	 * @return formatted float
 	 */
 	public static String formatFloat(float f, int fractionDigits) {
+		if (Float.isNaN(f)) {
+			return "N/A";
+		}
 		numFormatter.setMaximumFractionDigits(fractionDigits);
 		return numFormatter.format(f);
 	}

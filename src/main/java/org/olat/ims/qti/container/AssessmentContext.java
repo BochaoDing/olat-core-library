@@ -551,6 +551,14 @@ public class AssessmentContext implements Serializable {
 
 	}
 
+	public int getNumberOfItemsWithNanValueScore() {
+		int numberOfItemsWithNanValueScore = 0;
+		for (SectionContext sectionContext : sectionContexts) {
+			numberOfItemsWithNanValueScore += sectionContext.getNumberOfItemsWithNanValueScore();
+		}
+		return numberOfItemsWithNanValueScore;
+	}
+
 	/**
 	 * @return
 	 */
