@@ -46,6 +46,8 @@
 				<value>org.olat.commons.calendar.restapi.UserCalendarWebService</value>
 				<value>org.olat.restapi.system.LogWebService</value>
 				<value>org.olat.restapi.system.SystemWebService</value>
+
+				<value>ch.uzh.extension.adobeconnect.restapi.SwitchInteractWebService</value>
 			</list>
 		</property>
 	</bean>
