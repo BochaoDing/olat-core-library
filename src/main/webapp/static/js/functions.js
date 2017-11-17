@@ -1401,6 +1401,7 @@ function o_XHREvent(targetUrl, dirtyCheck, push) {
 		cache: false,
 		dataType: 'json',
 		success: function(data, textStatus, jqXHR) {
+			console.log('o_XHREvent.ajax.success', data)
 			try {
 				o_ainvoke(data);
 				if(push) {

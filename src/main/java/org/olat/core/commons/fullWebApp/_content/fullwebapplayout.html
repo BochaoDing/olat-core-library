@@ -116,13 +116,11 @@ MathJax.Hub.Config({
 #if ($r.available("guidebug"))
 	<script type='text/javascript' src='$r.staticLink("react/react.development.js")'></script>
 	<script type='text/javascript' src='$r.staticLink("react/react-dom.development.js")'></script>
-	<script type='text/javascript' src='$r.staticLink("react/babel.min.js")'></script>
-	<script type='text/babel' src='$r.staticLink("react/components/olat.js")'></script>
+	<script type='text/javascript' src='$r.staticLink("react/components/olat.js")'></script>
 #else
 	<script type='text/javascript' src='$r.staticLink("react/react.production.min.js")'></script>
 	<script type='text/javascript' src='$r.staticLink("react/react-dom.production.min.js")'></script>
-	<script type='text/javascript' src='$r.staticLink("react/babel.min.js")'></script>
-	<script type='text/babel' src='$r.staticLink("react/components/olat.js")'></script>
+	<script type='text/javascript' src='$r.staticLink("react/components/olat.js")'></script>
 #end
 
 #if($r.available("guidebug"))
