@@ -26,6 +26,7 @@ public class AuthorDeletedListControllerFactoryImpl implements AuthorDeletedList
 	private final RepositoryService repositoryService;
 	private final RepositoryManager repositoryManager;
 	private final RepositoryHandlerFactory repositoryHandlerFactory;
+	private final AuthoringEntryRowFactory authoringEntryRowFactory;
 
 	@Autowired
 	public AuthorDeletedListControllerFactoryImpl(DB dbInstance,
@@ -34,7 +35,8 @@ public class AuthorDeletedListControllerFactoryImpl implements AuthorDeletedList
 												  RepositoryModule repositoryModule,
 												  RepositoryService repositoryService,
 												  RepositoryManager repositoryManager,
-												  RepositoryHandlerFactory repositoryHandlerFactory) {
+												  RepositoryHandlerFactory repositoryHandlerFactory,
+												  AuthoringEntryRowFactory authoringEntryRowFactory) {
 		this.dbInstance = dbInstance;
 		this.userManager = userManager;
 		this.markManager = markManager;
@@ -42,6 +44,7 @@ public class AuthorDeletedListControllerFactoryImpl implements AuthorDeletedList
 		this.repositoryService = repositoryService;
 		this.repositoryManager = repositoryManager;
 		this.repositoryHandlerFactory = repositoryHandlerFactory;
+		this.authoringEntryRowFactory = authoringEntryRowFactory;
 	}
 
 	@Override
@@ -62,6 +65,7 @@ public class AuthorDeletedListControllerFactoryImpl implements AuthorDeletedList
 				repositoryModule,
 				repositoryService,
 				repositoryManager,
-				repositoryHandlerFactory);
+				repositoryHandlerFactory,
+				authoringEntryRowFactory);
 	}
 }
