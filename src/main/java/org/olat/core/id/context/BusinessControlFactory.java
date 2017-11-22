@@ -381,7 +381,7 @@ public class BusinessControlFactory {
 					ces = ces.replace("~~", "/");
 				}
 
-				int pos = ces.indexOf(':');
+				int pos = ces.lastIndexOf(':');
 				if (pos == -1) {
 					ores = OresHelper.createOLATResourceableTypeWithoutCheck(ces);
 				} else {
@@ -514,7 +514,6 @@ public class BusinessControlFactory {
 
 	public String getPath(ContextEntry entry) {
 		String path = entry.getOLATResourceable().getResourceableTypeName();
-		path = path.endsWith(":0") ? path.substring(0, path.length() - 2) : path;
 		path = path.startsWith("path=") ? path.substring(5, path.length()) : path;
 		return path;
 	}

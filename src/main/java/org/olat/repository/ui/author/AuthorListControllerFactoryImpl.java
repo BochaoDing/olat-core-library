@@ -26,6 +26,7 @@ public class AuthorListControllerFactoryImpl implements AuthorListControllerFact
 	private final RepositoryService repositoryService;
 	private final RepositoryManager repositoryManager;
 	private final RepositoryHandlerFactory repositoryHandlerFactory;
+	private final AuthoringEntryRowFactory authoringEntryRowFactory;
 
 	@Autowired
 	public AuthorListControllerFactoryImpl(DB dbInstance,
@@ -34,7 +35,8 @@ public class AuthorListControllerFactoryImpl implements AuthorListControllerFact
 										   RepositoryModule repositoryModule,
 										   RepositoryService repositoryService,
 										   RepositoryManager repositoryManager,
-										   RepositoryHandlerFactory repositoryHandlerFactory) {
+										   RepositoryHandlerFactory repositoryHandlerFactory,
+										   AuthoringEntryRowFactory authoringEntryRowFactory) {
 		this.dbInstance = dbInstance;
 		this.userManager = userManager;
 		this.markManager = markManager;
@@ -42,6 +44,7 @@ public class AuthorListControllerFactoryImpl implements AuthorListControllerFact
 		this.repositoryService = repositoryService;
 		this.repositoryManager = repositoryManager;
 		this.repositoryHandlerFactory = repositoryHandlerFactory;
+		this.authoringEntryRowFactory = authoringEntryRowFactory;
 	}
 
 	@Override
@@ -63,6 +66,7 @@ public class AuthorListControllerFactoryImpl implements AuthorListControllerFact
 				repositoryModule,
 				repositoryService,
 				repositoryManager,
-				repositoryHandlerFactory);
+				repositoryHandlerFactory,
+				authoringEntryRowFactory);
 	}
 }

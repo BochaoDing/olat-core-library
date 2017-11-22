@@ -142,6 +142,9 @@ public class StaticServlet extends HttpServlet {
 					break;
 				}
 			}
+			if (result == null) {
+				result = CoreSpringFactory.servletContext.getResource(subPath);
+			}
 		} catch (MalformedURLException e) {
 			assert false : e;
 		}
@@ -193,7 +196,7 @@ public class StaticServlet extends HttpServlet {
 					}
 				}
 				// log as error, file exists but wrongly mapped
-				log.warn("File exists but not mapped using version - use StaticMediaDispatch methods to create URL of static files! invalid URI::" + request.getRequestURI(), null);
+				log.warn("File exists but not mapped using version - use StaticMediaDispatch methods to create URL of static files! invalid request URI " + request.getRequestURI() + " initiated by " + request.getHeader("referer"), null);
 			}
 		}
 

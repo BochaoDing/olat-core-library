@@ -385,7 +385,8 @@ public class SectionContext implements Serializable {
 		if (scoremodel == null || scoremodel.equalsIgnoreCase("SumOfScores")) { // sumofScores
 			for (Iterator<ItemContext> iter = itemContexts.iterator(); iter.hasNext();) {
 				ItemContext ict = iter.next();
-				totalScore += ict.getScore();
+				// Ignore NaN values when calculating the total
+				totalScore += ict.getScore(true);
 			}
 		} else if (scoremodel.equalsIgnoreCase("NumberCorrect")) {
 			totalScore = 0;
@@ -399,7 +400,8 @@ public class SectionContext implements Serializable {
 					// we demand that a SCORE variable must always exist
 					throw new RuntimeException("no SCORE def for " + ict.getIdent());
 				} else {
-					float itemscore = var.getTruncatedValue();
+					// Ignore NaN values when calculating the total
+					float itemscore = var.getTruncatedValue(true);
 					float itemcutval = var.getCutValue();
 					if (itemscore >= itemcutval) tmpscore++; // count items correct
 				}
@@ -416,6 +418,16 @@ public class SectionContext implements Serializable {
 	public float getScore() {
 		calcScore();
 		return (float) totalScore;
+	}
+
+	public int getNumberOfItemsWithNanValueScore() {
+		int numberOfItemsWithNanValueScore = 0;
+		for (ItemContext itemContext : itemContexts) {
+			if (Float.isNaN(itemContext.getScore(false))) {
+				numberOfItemsWithNanValueScore++;
+			}
+		}
+		return numberOfItemsWithNanValueScore;
 	}
 
 	/**
