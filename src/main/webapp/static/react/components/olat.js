@@ -60,11 +60,9 @@ class OLATComponent extends React.Component {
     }
 
     onEvent(cmd, params) {
-        console.log('OLATComponent.onEvent()', cmd, params);
         sendMessage(cmd, params);
     }
     sendMessage(cmd, params) {
-        console.log('OLATComponent.sendMessage()', cmd, params);
         // return o_XHREvent('/auth/1:1:1000000436:1:1/',true,true,'cid','create.new.meeting');
     }
     getTranslations(language) {
@@ -303,7 +301,6 @@ class FutureMeetings extends SwitchMeetings {
 
 class SwitchInteractSelectMeeting extends OLATComponent {
     constructor(props) {
-        console.log('SwitchInteractSelectMeeting.constructor()', props);
         super(props);
         jQuery.extend(this.state, {
             loading: true,
@@ -321,7 +318,6 @@ class SwitchInteractSelectMeeting extends OLATComponent {
         });
     }
     render() {
-        console.log('SwitchInteractSelectMeeting.render', this.props, this.state);
         let pastMeetingsList = [];
         let futureMeetingsList = [];
         let meetings = this.state.meetings || [];
