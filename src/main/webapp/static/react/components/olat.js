@@ -162,16 +162,15 @@ class OLATSortableTable extends OLATComponent {
         let list = this.props.list || [];
         console.log('OLATSortableTable.sort(' + columnName + ')');
         list.sort(function (a, b) {
-            return ascending ? vm.compare(a, b, columnName) : !vm.compare(a, b, columnName);
+            return ascending ? vm.compare(a, b, columnName) : vm.compare(b, a, columnName);
         });
         this.setState({ list: list, sortColumn: columnName, sortAsc: ascending });
     }
     compare(a, b, columnName) {
-        console.log('compare', a, b, columnName);
         if (columnName in a && columnName in b) {
-            return a.columnName < b.columnName;
+            return a[columnName] < b[columnName] ? -1 : (a[columnName] === b[columnName] ? 0 : 1);
         } else {
-            return true; // when no comparison possible, keep current order
+            return 0; // when no comparison possible, keep current order
         }
     }
 }
