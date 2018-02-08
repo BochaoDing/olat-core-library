@@ -75,12 +75,7 @@ import org.olat.repository.handlers.EditionSupport;
 import org.olat.repository.handlers.RepositoryHandler;
 import org.olat.repository.handlers.RepositoryHandlerFactory;
 import org.olat.repository.model.RepositoryEntrySecurity;
-import org.olat.repository.ui.author.AuthoringEditAccessController;
-import org.olat.repository.ui.author.CatalogSettingsController;
-import org.olat.repository.ui.author.ConfirmDeleteSoftlyController;
-import org.olat.repository.ui.author.CopyRepositoryEntryController;
-import org.olat.repository.ui.author.RepositoryEditDescriptionController;
-import org.olat.repository.ui.author.RepositoryMembersController;
+import org.olat.repository.ui.author.*;
 import org.olat.repository.ui.list.LeavingEvent;
 import org.olat.repository.ui.list.RepositoryEntryDetailsController;
 import org.olat.resource.OLATResource;
@@ -170,6 +165,8 @@ public class RepositoryEntryRuntimeController extends MainLayoutBasicController 
 	private AssessmentModeManager assessmentModeMgr;
 	@Autowired
 	private UserCourseInformationsManager userCourseInfoMgr;
+	@Autowired
+	private RepositoryEditDescriptionControllerFactory repositoryEditDescriptionControllerFactory;
 
 	public RepositoryEntryRuntimeController(UserRequest ureq, WindowControl wControl, RepositoryEntry re,
 			RepositoryEntrySecurity reSecurity, RuntimeControllerCreator runtimeControllerCreator) {
@@ -725,7 +722,7 @@ public class RepositoryEntryRuntimeController extends MainLayoutBasicController 
 		WindowControl bwControl = getSubWindowControl("Settings");
 		RepositoryEntry refreshedEntry = loadRepositoryEntry();
 		RepositoryEditDescriptionController ctrl
-			= new RepositoryEditDescriptionController(ureq, addToHistory(ureq, bwControl), refreshedEntry);
+				= repositoryEditDescriptionControllerFactory.create(ureq, addToHistory(ureq, bwControl), refreshedEntry);
 		listenTo(ctrl);
 		descriptionCtrl = pushController(ureq, translate("settings.editor"), ctrl);
 		currentToolCtr = descriptionCtrl;
