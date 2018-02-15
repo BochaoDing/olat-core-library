@@ -142,7 +142,7 @@ public abstract class BasicController extends DefaultController {
 	 * @throws AssertException
 	 *             if the controller to be added is already contained.
 	 */
-	protected Controller listenTo(@UnknownInitialization BasicController this, Controller controller) {
+	public Controller listenTo(@UnknownInitialization BasicController this, Controller controller) {
 		controller.addControllerListener(this);
 		if (childControllers == null) {
 			childControllers = new ArrayList<Controller>(4);
@@ -409,7 +409,7 @@ public abstract class BasicController extends DefaultController {
 	/**
 	 * @return Returns the translator.
 	 */
-	protected Translator getTranslator(@UnknownInitialization BasicController this) {
+	public Translator getTranslator(@UnknownInitialization BasicController this) {
 		return translator;
 	}
 
@@ -475,7 +475,7 @@ public abstract class BasicController extends DefaultController {
 	 *            the key to use (in the LocalStrings_curlanguage file of your
 	 *            controller)
 	 */
-	protected void showWarning(@UnknownInitialization BasicController this, String key) {
+	public void showWarning(@UnknownInitialization BasicController this, String key) {
 		getWindowControl().setWarning(getTranslator().translate(key));
 	}
 

@@ -727,7 +727,7 @@ public abstract class FormBasicController extends BasicController implements IFo
 	// Redefinition of a the super method to provide access with the same
 	// package (this is required for the Form Fragments)
 	@Override
-	protected Controller listenTo(Controller controller) {
+	public Controller listenTo(Controller controller) {
 		return super.listenTo(controller);
 	}
 	

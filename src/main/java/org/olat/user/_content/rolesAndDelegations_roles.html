@@ -1,0 +1,24 @@
+<legend>$r.translate("roles")</legend>
+<ul>
+    #if($isOLATAdmin)
+    <li>$r.translate("roles.OLATAdmin")</li>
+    #end
+    #if($isAuthor)
+    <li>$r.translate("roles.author")</li>
+    #end
+    #if($isGroupManager)
+    <li>$r.translate("roles.groupmanager")</li>
+    #end
+    #if($isUserManager)
+    <li>$r.translate("roles.usermanager")</li>
+    #end
+    #if($isInstitutionalResourceManager)
+    <li>$r.translate("roles.institutionalResourceManager")</li>
+    #end
+    #if($isPoolAdmin)
+    <li>$r.translate("roles.poolmanager")</li>
+    #end
+</ul>
+<br/>
+<br/>
+<br/>
