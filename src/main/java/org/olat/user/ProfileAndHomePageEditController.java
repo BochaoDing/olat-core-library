@@ -109,7 +109,7 @@ public class ProfileAndHomePageEditController extends BasicController implements
 
 		// Roles and delegations tab
 		rolesAndDelegationsLink = LinkFactory.createLink("tab.roles.and.delegations", myContent, this);
-		rolesAndDelegationsLink.setElementCssClass("o_sel_usersettings_homepage");
+		rolesAndDelegationsLink.setElementCssClass("o_sel_usersettings_rolesAndDelegations");
 
 		// Display roles and delegations tab only in case the user has some roles (except for invitee and guestOnly)
 		if (userRoles.isOLATAdmin() || userRoles.isAuthor() || userRoles.isGroupManager()
