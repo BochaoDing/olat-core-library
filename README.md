@@ -7,4 +7,4 @@ OLAT is hosted by the Department of Information Technology and is available to a
 To learn more about OLAT, visit [olat.org](http://olat.systems)
 
 ## License
-The OLAT open source code is licensed under the terms of the Apache license.
+The OLAT open source code is licensed under the terms of the [Apache license](http://www.apache.org/licenses/LICENSE-2.0).
