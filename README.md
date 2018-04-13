@@ -24,6 +24,34 @@ To learn more about OLAT, visit [olat.org](http://olat.systems)
 * Improved context help using [help.olat.uzh.ch](https://help.olat.uzh.ch)
 * Improved usability in member list course element
 
+## Overview
+
+### Feature modules
+
+* ``lmsuzh-extension-campuskurs`` Synchronized course management
+* ``lmsuzh-extension-opencast`` Lectures online
+* ``lmsuzh-extension-adobeconnect`` Live teamwork
+* ``lmsuzh-extension-epis`` Digital assistance for exams
+
+### Infrastructure modules
+
+* ``lmsuzh-extension-continuousintegration`` Maven/Jenkins/Rancher park
+* ``lmsuzh-extension-docker`` Container technology integration
+* ``lmsuzh-extension-database`` Persistence containers
+* ``lmsuzh-extension-embedded`` Jetty runtime
+* ``lmsuzh-extension-restclient`` REST connector
+* ``lmsuzh-extension-functionaltest`` Automated testing
+* ``lmsuzh-extension-loadtest`` Performance testing
+
+### Core modules
+
+* ``lmsuzh-extension-core`` Extensions core
+* ``lmsuzh-extension-tool`` Module utilities
+* ``lmsuzh-extension-war`` Web application archive
+* ``lmsuzh-extension-buildtools`` Building helpers
+* ``lmsuzh-extension-olatreplacement`` Bridging helpers
+* ``openolat-lms`` OpenOLAT project
+
 ## License
 
 The OLAT open source code is licensed under the terms of the [Apache license](http://www.apache.org/licenses/LICENSE-2.0).
