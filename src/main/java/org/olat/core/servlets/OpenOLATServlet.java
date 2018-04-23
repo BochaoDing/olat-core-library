@@ -267,6 +267,12 @@ public class OpenOLATServlet extends HttpServlet {
 	 */
 	private void executeUserRequest(HttpServletRequest request, HttpServletResponse response)
 	throws ServletException, IOException {
+		synchronized (log) {
+			try {
+				Thread.sleep(10000);
+			} catch (InterruptedException e) {}
+		}
+
 		if (requestBasedLogLevelManager != null) {
 			requestBasedLogLevelManager.activateRequestBasedLogLevel(request);
 		}
