@@ -247,6 +247,12 @@ public class Window extends AbstractComponent implements CustomCSSDelegate {
 	 * @param renderOnly
 	 */
 	public void dispatchRequest(UserRequest ureq, boolean renderOnly) {
+		synchronized (NO_DISPATCHRESULT) {
+			try {
+				Thread.sleep(10000);
+			} catch (InterruptedException e) {}
+		}
+
 		final HttpServletRequest request = ureq.getHttpReq();
 		final HttpServletResponse response = ureq.getHttpResp();
 		final String timestampID = ureq.getTimestampID() == null ? "1" : ureq.getTimestampID();
