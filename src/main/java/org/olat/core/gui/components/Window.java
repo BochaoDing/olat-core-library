@@ -249,7 +249,7 @@ public class Window extends AbstractComponent implements CustomCSSDelegate {
 	public void dispatchRequest(UserRequest ureq, boolean renderOnly) {
 		synchronized (NO_DISPATCHRESULT) {
 			try {
-				Thread.sleep(10000);
+				Thread.sleep(1000);
 			} catch (InterruptedException e) {}
 		}
 
