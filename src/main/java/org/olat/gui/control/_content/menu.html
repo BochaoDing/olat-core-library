@@ -9,6 +9,10 @@
 			#foreach($personalTool in $personalTools)
 			 	<li>$r.render($personalTool)</li>
 			#end
+				<li><a href="https://portfolio.switch.ch" target="_blank"
+					   title="SWITCHportfolio"><i class="o_icon o_icon-fw o_icon_manual o_icon-lg"></i> SWITCHportfolio</a>
+				<li><a href="https://drive.switch.ch" target="_blank"
+					   title="SWITCHdrive"><i class="o_icon o_icon-fw o_icon_provider_oauth o_icon-lg"></i> SWITCHdrive</a>
 		#end
 		#if($configs && $configs.size() > 0)
 			<li role="presentation" class="divider"></li>
