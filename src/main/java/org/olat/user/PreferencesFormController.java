@@ -33,6 +33,7 @@ import org.olat.core.gui.UserRequest;
 import org.olat.core.gui.WindowManager;
 import org.olat.core.gui.components.form.flexible.FormItem;
 import org.olat.core.gui.components.form.flexible.FormItemContainer;
+import org.olat.core.gui.components.form.flexible.elements.MultipleSelectionElement;
 import org.olat.core.gui.components.form.flexible.elements.SingleSelection;
 import org.olat.core.gui.components.form.flexible.elements.StaticTextElement;
 import org.olat.core.gui.components.form.flexible.impl.FormBasicController;
@@ -69,6 +70,7 @@ public class PreferencesFormController extends FormBasicController {
 	private static final String[] cssFontsizeKeys = new String[] { "80", "90", "100", "110", "120", "140" };
 	private Identity tobeChangedIdentity;
 	private SingleSelection language, fontsize, charset, notificationInterval, mailSystem;
+	private MultipleSelectionElement checkboxShowHiddenFiles;
 	private static final String[] mailIntern = new String[]{"intern.only","send.copy"};
 
 	/**
@@ -123,6 +125,10 @@ public class PreferencesFormController extends FormBasicController {
 		}
 
 		um.setUserCharset(tobeChangedIdentity, charset.getSelectedKey());
+
+		boolean on = !checkboxShowHiddenFiles.getSelectedKeys().isEmpty();
+		um.setShowHiddenFiles(tobeChangedIdentity, on);
+
 		fireEvent(ureq, Event.DONE_EVENT);
 	}
 
@@ -266,6 +272,13 @@ public class PreferencesFormController extends FormBasicController {
 		if(!charset.isOneSelected() && charsets.containsKey("UTF-8")) {
 			charset.select("UTF-8", true);
 		}
+
+		// Show hidden files in folders - LMSUZH-616
+		String[] keys = { "on" };
+		String[] values = new String[] { translate("form.hiddenfiles.on") };
+		boolean currentShowHiddenFiles = UserManager.getInstance().getShowHiddenFiles(tobeChangedIdentity);
+		checkboxShowHiddenFiles = uifactory.addCheckboxesHorizontal("form.hiddenfiles", formLayout, keys, values);
+		checkboxShowHiddenFiles.select("on", currentShowHiddenFiles);
 
 		// Submit and cancel buttons
 		final FormLayoutContainer buttonLayout = FormLayoutContainer.createButtonLayout("button_layout", getTranslator());
