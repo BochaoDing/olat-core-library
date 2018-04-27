@@ -69,8 +69,7 @@ import org.olat.core.util.mail.MailModule;
 public class PreferencesFormController extends FormBasicController {
 	private static final String[] cssFontsizeKeys = new String[] { "80", "90", "100", "110", "120", "140" };
 	private Identity tobeChangedIdentity;
-	private SingleSelection language, fontsize, charset, notificationInterval, mailSystem;
-	private MultipleSelectionElement checkboxShowHiddenFiles;
+	private SingleSelection language, fontsize, notificationInterval, mailSystem;
 	private static final String[] mailIntern = new String[]{"intern.only","send.copy"};
 
 	/**
@@ -123,11 +122,6 @@ public class PreferencesFormController extends FormBasicController {
 		} else {
 			showInfo("preferences.unsuccessful");
 		}
-
-		um.setUserCharset(tobeChangedIdentity, charset.getSelectedKey());
-
-		boolean on = !checkboxShowHiddenFiles.getSelectedKeys().isEmpty();
-		um.setShowHiddenFiles(tobeChangedIdentity, on);
 
 		fireEvent(ureq, Event.DONE_EVENT);
 	}
@@ -255,30 +249,6 @@ public class PreferencesFormController extends FormBasicController {
 				mailSystem.select(mailIntern[0], true);
 			}
 		}
-
-		// Text encoding
-		Map<String, Charset> charsets = Charset.availableCharsets();
-		String currentCharset = UserManager.getInstance().getUserCharset(tobeChangedIdentity);
-		String[] csKeys = StringHelper.getMapKeysAsStringArray(charsets);
-		charset = uifactory.addDropdownSingleselect("form.charset", formLayout, csKeys, csKeys, null);
-		charset.setElementCssClass("o_sel_home_settings_charset");
-		if(currentCharset != null) {
-			for(String csKey:csKeys) {
-				if(csKey.equals(currentCharset)) {
-					charset.select(currentCharset, true);
-				}
-			}
-		}
-		if(!charset.isOneSelected() && charsets.containsKey("UTF-8")) {
-			charset.select("UTF-8", true);
-		}
-
-		// Show hidden files in folders - LMSUZH-616
-		String[] keys = { "on" };
-		String[] values = new String[] { translate("form.hiddenfiles.on") };
-		boolean currentShowHiddenFiles = UserManager.getInstance().getShowHiddenFiles(tobeChangedIdentity);
-		checkboxShowHiddenFiles = uifactory.addCheckboxesHorizontal("form.hiddenfiles", formLayout, keys, values);
-		checkboxShowHiddenFiles.select("on", currentShowHiddenFiles);
 
 		// Submit and cancel buttons
 		final FormLayoutContainer buttonLayout = FormLayoutContainer.createButtonLayout("button_layout", getTranslator());
