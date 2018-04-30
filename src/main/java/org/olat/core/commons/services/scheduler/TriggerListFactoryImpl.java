@@ -1,10 +1,11 @@
 package org.olat.core.commons.services.scheduler;
 
 import org.quartz.Trigger;
+import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.scheduling.quartz.CronTriggerBean;
-import org.springframework.scheduling.quartz.SimpleTriggerBean;
+import org.springframework.scheduling.quartz.CronTriggerFactoryBean;
+import org.springframework.scheduling.quartz.SimpleTriggerFactoryBean;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -19,44 +20,44 @@ import java.util.List;
 @Component("triggerListFactoryImpl")
 public class TriggerListFactoryImpl implements TriggerListFactory {
 
-	private final CronTriggerBean notificationsEmailTrigger;
-	private final CronTriggerBean adobeCleanupJob;
-	private final CronTriggerBean updateStatisticsTrigger;
-	private final CronTriggerBean searchIndexingTrigger;
-	private final CronTriggerBean invitationCleanupTrigger;
-	private final CronTriggerBean epDeadlineTrigger;
-	private final CronTriggerBean restTokenTrigger;
-	private final CronTriggerBean taskExecutorTrigger;
-	private final CronTriggerBean procSamplerTrigger;
-	private final CronTriggerBean systemSamplerTrigger;
-	private final CronTriggerBean updateQtiResultsTriggerOnyx;
-	private final SimpleTriggerBean acReservationCleanupJob;
-	private final CronTriggerBean mapperSlayerTrigger;
-	private final CronTriggerBean assessmentNotificationsTrigger;
-	private final CronTriggerBean reminderTrigger;
-	private final CronTriggerBean videoTranscodingTrigger;
-	private final CronTriggerBean automaticLifecycleTrigger;
-	private final CronTriggerBean courseCleanupTrigger;
+	private final CronTriggerFactoryBean notificationsEmailTrigger;
+	private final CronTriggerFactoryBean adobeCleanupJob;
+	private final CronTriggerFactoryBean updateStatisticsTrigger;
+	private final CronTriggerFactoryBean searchIndexingTrigger;
+	private final CronTriggerFactoryBean invitationCleanupTrigger;
+	private final CronTriggerFactoryBean epDeadlineTrigger;
+	private final CronTriggerFactoryBean restTokenTrigger;
+	private final CronTriggerFactoryBean taskExecutorTrigger;
+	private final CronTriggerFactoryBean procSamplerTrigger;
+	private final CronTriggerFactoryBean systemSamplerTrigger;
+	private final CronTriggerFactoryBean updateQtiResultsTriggerOnyx;
+	private final SimpleTriggerFactoryBean acReservationCleanupJob;
+	private final CronTriggerFactoryBean mapperSlayerTrigger;
+	private final CronTriggerFactoryBean assessmentNotificationsTrigger;
+	private final CronTriggerFactoryBean reminderTrigger;
+	private final CronTriggerFactoryBean videoTranscodingTrigger;
+	private final CronTriggerFactoryBean automaticLifecycleTrigger;
+	private final CronTriggerFactoryBean courseCleanupTrigger;
 
 	@Autowired
-	public TriggerListFactoryImpl(@Qualifier("sendNotificationsEmailTrigger") CronTriggerBean notificationsEmailTrigger,
-								  @Qualifier("adobeCleanupJob") CronTriggerBean adobeCleanupJob,
-								  @Qualifier("updateStatisticsTrigger") CronTriggerBean updateStatisticsTrigger,
-								  @Qualifier("searchIndexingTrigger") CronTriggerBean searchIndexingTrigger,
-								  @Qualifier("invitationCleanupTrigger") CronTriggerBean invitationCleanupTrigger,
-								  @Qualifier("epDeadlineTrigger") CronTriggerBean epDeadlineTrigger,
-								  @Qualifier("restTokenTrigger") CronTriggerBean restTokenTrigger,
-								  @Qualifier("taskExecutorTrigger") CronTriggerBean taskExecutorTrigger,
-								  @Qualifier("procSamplerTrigger") CronTriggerBean procSamplerTrigger,
-								  @Qualifier("systemSamplerTrigger") CronTriggerBean systemSamplerTrigger,
-								  @Qualifier("updateQtiResultsTriggerOnyx") CronTriggerBean updateQtiResultsTriggerOnyx,
-								  @Qualifier("acReservationCleanupJob") SimpleTriggerBean acReservationCleanupJob,
-								  @Qualifier("mapperSlayerTrigger") CronTriggerBean mapperSlayerTrigger,
-								  @Qualifier("assessmentNotificationsTrigger") CronTriggerBean assessmentNotificationsTrigger,
-								  @Qualifier("reminderTrigger") CronTriggerBean reminderTrigger,
-								  @Qualifier("videoTranscodingTrigger") CronTriggerBean videoTranscodingTrigger,
-								  @Qualifier("automaticLifecycleTrigger") CronTriggerBean automaticLifecycleTrigger,
-								  @Qualifier("courseCleanupTrigger") CronTriggerBean courseCleanupTrigger) {
+	public TriggerListFactoryImpl(@Qualifier("sendNotificationsEmailTrigger") CronTriggerFactoryBean notificationsEmailTrigger,
+								  @Qualifier("adobeCleanupJob") CronTriggerFactoryBean adobeCleanupJob,
+								  @Qualifier("updateStatisticsTrigger") CronTriggerFactoryBean updateStatisticsTrigger,
+								  @Qualifier("searchIndexingTrigger") CronTriggerFactoryBean searchIndexingTrigger,
+								  @Qualifier("invitationCleanupTrigger") CronTriggerFactoryBean invitationCleanupTrigger,
+								  @Qualifier("epDeadlineTrigger") CronTriggerFactoryBean epDeadlineTrigger,
+								  @Qualifier("restTokenTrigger") CronTriggerFactoryBean restTokenTrigger,
+								  @Qualifier("taskExecutorTrigger") CronTriggerFactoryBean taskExecutorTrigger,
+								  @Qualifier("procSamplerTrigger") CronTriggerFactoryBean procSamplerTrigger,
+								  @Qualifier("systemSamplerTrigger") CronTriggerFactoryBean systemSamplerTrigger,
+								  @Qualifier("updateQtiResultsTriggerOnyx") CronTriggerFactoryBean updateQtiResultsTriggerOnyx,
+								  @Qualifier("acReservationCleanupJob") SimpleTriggerFactoryBean acReservationCleanupJob,
+								  @Qualifier("mapperSlayerTrigger") CronTriggerFactoryBean mapperSlayerTrigger,
+								  @Qualifier("assessmentNotificationsTrigger") CronTriggerFactoryBean assessmentNotificationsTrigger,
+								  @Qualifier("reminderTrigger") CronTriggerFactoryBean reminderTrigger,
+								  @Qualifier("videoTranscodingTrigger") CronTriggerFactoryBean videoTranscodingTrigger,
+								  @Qualifier("automaticLifecycleTrigger") CronTriggerFactoryBean automaticLifecycleTrigger,
+								  @Qualifier("courseCleanupTrigger") CronTriggerFactoryBean courseCleanupTrigger) {
 		this.notificationsEmailTrigger = notificationsEmailTrigger;
 		this.adobeCleanupJob = adobeCleanupJob;
 		this.updateStatisticsTrigger = updateStatisticsTrigger;
@@ -78,8 +79,8 @@ public class TriggerListFactoryImpl implements TriggerListFactory {
 	}
 
 	@Override
-	public List<Trigger> create() {
-		List<Trigger> triggerList = new ArrayList<>();
+	public List<FactoryBean<? extends Trigger>> create() {
+		List<FactoryBean<? extends Trigger>> triggerList = new ArrayList<>();
 		// Include every bean that should be triggered
 		triggerList.add(notificationsEmailTrigger);
 		triggerList.add(adobeCleanupJob);

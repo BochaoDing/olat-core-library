@@ -41,11 +41,12 @@ import org.olat.core.gui.control.generic.modal.DialogBoxUIFactory;
 import org.olat.core.logging.OLog;
 import org.olat.core.logging.Tracing;
 import org.olat.course.statistic.StatisticUpdateManager;
-import org.quartz.JobDetail;
+import org.quartz.CronTrigger;
 import org.quartz.Scheduler;
 import org.quartz.SchedulerException;
 import org.quartz.Trigger;
-import org.springframework.scheduling.quartz.CronTriggerBean;
+import org.quartz.TriggerKey;
+import org.springframework.scheduling.quartz.CronTriggerFactoryBean;
 
 /**
  * Admin Controller for statistics - similar to the notifications controller.
@@ -89,20 +90,20 @@ public class StatisticsAdminController extends BasicController {
 			Object schedulerFactoryBean = CoreSpringFactory.getBean("schedulerFactoryBean");
 			if (schedulerFactoryBean!=null && schedulerFactoryBean instanceof Scheduler) {
 				Scheduler schedulerBean = (Scheduler) schedulerFactoryBean;
-				int triggerState;
 				try {
-					triggerState = schedulerBean.getTriggerState("updateStatisticsTrigger", null/*trigger group*/);
-					enabled = (triggerState!=Trigger.STATE_NONE) && (triggerState!=Trigger.STATE_ERROR);
+					TriggerKey triggerKey = new TriggerKey("updateStatisticsTrigger", null/*trigger group*/);
+					Trigger.TriggerState triggerState = schedulerBean.getTriggerState(triggerKey);
+					enabled = (triggerState!=Trigger.TriggerState.NONE) && (triggerState!=Trigger.TriggerState.ERROR);
 					log_.info("refreshUIState: updateStatisticsTrigger state was "+triggerState+", enabled now: "+enabled);
 				} catch (SchedulerException e) {
 					log_.warn("refreshUIState: Got a SchedulerException while asking for the updateStatisticsTrigger's state", e);
 				}
 			}
-			CronTriggerBean triggerBean = (CronTriggerBean) CoreSpringFactory.getBean("updateStatisticsTrigger");
-			JobDetail jobDetail = triggerBean.getJobDetail();
-			enabled &= jobDetail.getName().equals("org.olat.statistics.job.enabled");
+			CronTriggerFactoryBean triggerBean = (CronTriggerFactoryBean) CoreSpringFactory.getBean("updateStatisticsTrigger");
+			CronTrigger cronTrigger = triggerBean.getObject();
+			enabled &= cronTrigger.getJobKey().getName().equals("org.olat.statistics.job.enabled");
 			log_.info("refreshUIState: org.olat.statistics.job.enabled check, enabled now: "+enabled);
-			cronExpression = triggerBean.getCronExpression();
+			cronExpression = cronTrigger.getCronExpression();
 			StatisticUpdateManager statisticUpdateManager = getStatisticUpdateManager();
 			if (statisticUpdateManager==null) {
 				log_.info("refreshUIState: statisticUpdateManager not configured");

@@ -5,7 +5,7 @@
   http://www.springframework.org/schema/beans
   http://www.springframework.org/schema/beans/spring-beans.xsd">
 
-    <bean id="courseCleanupTrigger" class="org.springframework.scheduling.quartz.CronTriggerBean">
+    <bean id="courseCleanupTrigger" class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
         <property name="jobDetail" ref="courseCleanupJobDetail" />
         <property name="cronExpression" value="0 0 3 * * ?" />
     </bean>
@@ -17,7 +17,7 @@
         <!--<property name="repeatInterval" value="1" />-->
     <!--</bean>-->
 
-    <bean id="courseCleanupJobDetail" class="org.springframework.scheduling.quartz.JobDetailBean" lazy-init="true">
+    <bean id="courseCleanupJobDetail" class="org.springframework.scheduling.quartz.JobDetailFactoryBean" lazy-init="true">
         <property name="jobClass" value="org.olat.course.cleanup.CourseCleanupJob"/>
     </bean>
 
