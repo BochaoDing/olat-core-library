@@ -62,13 +62,6 @@ public class FilesPrefsForm extends FormBasicController {
         boolean on = !checkboxShowHiddenFiles.getSelectedKeys().isEmpty();
         um.setShowHiddenFiles(tobeChangedIdentity, on);
 
-        if (um.updateUserFromIdentity(tobeChangedIdentity)) {
-            // Language change needs logout / login
-            showInfo("preferences.successful");
-        } else {
-            showInfo("preferences.unsuccessful");
-        }
-
         fireEvent(ureq, Event.DONE_EVENT);
     }
 
@@ -85,7 +78,7 @@ public class FilesPrefsForm extends FormBasicController {
      */
     protected void initForm(FormItemContainer formLayout, Controller listener, UserRequest ureq) {
         setFormTitle("title.prefs.files");
-        setFormContextHelp("Configuration#_einstellungen");
+        //setFormContextHelp("Configuration#_einstellungen"); // TODO point to correct Help article whenever it gets written
 
         // load preferences
         Preferences prefs = tobeChangedIdentity.getUser().getPreferences();
