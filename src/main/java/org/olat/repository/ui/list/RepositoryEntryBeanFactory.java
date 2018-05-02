@@ -26,20 +26,28 @@ import org.springframework.context.annotation.Scope;
 @Configuration
 public class RepositoryEntryBeanFactory {
 
-	@Autowired
-	private DB dbInstance;
+	private final DB dbInstance;
+
+	private final RepositoryManager repositoryManager;
+
+	private final RepositoryModule repositoryModule;
+
+	protected final RepositoryService repositoryService;
+
+	private final MapperService mapperService;
 
 	@Autowired
-	private RepositoryManager repositoryManager;
-
-	@Autowired
-	private RepositoryModule repositoryModule;
-
-	@Autowired
-	protected RepositoryService repositoryService;
-
-	@Autowired
-	private MapperService mapperService;
+	public RepositoryEntryBeanFactory(DB dbInstance,
+									  RepositoryManager repositoryManager,
+									  RepositoryModule repositoryModule,
+									  RepositoryService repositoryService,
+									  MapperService mapperService) {
+		this.dbInstance = dbInstance;
+		this.repositoryManager = repositoryManager;
+		this.repositoryModule = repositoryModule;
+		this.repositoryService = repositoryService;
+		this.mapperService = mapperService;
+	}
 
 	@Bean(name={"row_1"})
 	@Scope(BeanDefinition.SCOPE_PROTOTYPE)
@@ -72,5 +80,4 @@ public class RepositoryEntryBeanFactory {
 		return new RepositoryEntryLifeCycleChangeControllerFactory(dbInstance, repositoryService, repositoryManager,
 				repositoryModule, userRequest, windowControl, repositoryEntrySecurity, repositoryHandler);
 	}
-
 }

@@ -17,8 +17,12 @@ import java.util.Properties;
 @Configuration
 public class SchedulerBeanFactory {
 
+	private final TriggerListFactory triggerListFactory;
+
 	@Autowired
-	private TriggerListFactory triggerListFactory;
+	public SchedulerBeanFactory(TriggerListFactory triggerListFactory) {
+		this.triggerListFactory = triggerListFactory;
+	}
 
 	/**
 	 * This tells spring to create the quartz scheduler

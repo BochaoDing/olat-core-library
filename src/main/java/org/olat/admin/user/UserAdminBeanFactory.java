@@ -22,5 +22,4 @@ public class UserAdminBeanFactory {
 		// Return empty list, i.e. no additional tabs
 		return new UserAdminControllerAdditionalTabs(new ArrayList<>());
 	}
-
 }
