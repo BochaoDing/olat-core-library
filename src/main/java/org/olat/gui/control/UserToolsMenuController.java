@@ -121,6 +121,7 @@ public class UserToolsMenuController extends BasicController implements Lockable
 		menuVC.contextPut("systems", systemLinksName);
 		menuVC.contextPut("searchs", searchLinksName);
 		menuVC.contextPut("locked", Boolean.FALSE);
+		menuVC.contextPut("isAdmin", ureq.getUserSession().getRoles().isOLATAdmin());
 	}
 	
 	@Override
