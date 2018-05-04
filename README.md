@@ -2,11 +2,19 @@
 
 **OLAT (Online Learning and Training)** is a mature Learning Management System (LMS) with a nearly twenty-year track record. It has been developed since 1999 at [University of Zurich (UZH)](https://www.uzh.ch).
 
-OLAT is hosted by the Department of Information Technology and is available to all faculties and institutes at University of Zurich as well as to other Swiss universities and higher education institutions. OLAT supports strongly the Open Educational Resources approach in cooperation with [SWITCH edu-ID](https://www.switch.ch/edu-id/).
+OLAT is hosted by the Department of Information Technology and is available to all faculties and institutes at University of Zurich as well as to other Swiss universities and higher education institutions. OLAT supports strongly the Open Educational Resources (OER) approach in cooperation with [SWITCH edu-ID](https://www.switch.ch/edu-id/).
 
 To learn more about OLAT, visit [olat.org](http://olat.systems)
 
 ## Changelog
+
+**2018/05/09**
+* Added SWITCHdrive & SWITCHportfolio as personal tools
+* Added option to personal settings to show/stash hidden files
+* Improved Campuskurs creation upfront of a semester
+* Fixed issues with mail forwarding to external addresses
+* Fixed an issue with SWITCHcast for more than 100 videos per series
+* Corrected spelling and punctuation
 
 **2018/04/11**
 * Improved SWITCHcast module to support multiple tenants
@@ -32,6 +40,7 @@ To learn more about OLAT, visit [olat.org](http://olat.systems)
 * ``lmsuzh-extension-opencast`` Lectures online
 * ``lmsuzh-extension-adobeconnect`` Live teamwork
 * ``lmsuzh-extension-epis`` Digital assistance for exams
+* ``lmsuzh-extension-myscript`` Proof-of-concept: [Convert handwritten formulas, texts and shapes](http://olat.systems/handwriting-poc)
 
 ### Infrastructure modules
 
@@ -47,6 +56,7 @@ To learn more about OLAT, visit [olat.org](http://olat.systems)
 
 * ``lmsuzh-extension-core`` Extensions core
 * ``lmsuzh-extension-tool`` Module utilities
+* ``lmsuzh-extension-config`` Settings and themes
 * ``lmsuzh-extension-war`` Web application archive
 * ``lmsuzh-extension-buildtools`` Building helpers
 * ``lmsuzh-extension-olatreplacement`` Bridging helpers
