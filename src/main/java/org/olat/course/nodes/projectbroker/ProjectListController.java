@@ -25,12 +25,14 @@
 
 package org.olat.course.nodes.projectbroker;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
 import org.olat.NewControllerFactory;
 import org.olat.core.CoreSpringFactory;
+import org.olat.core.commons.modules.bc.vfs.OlatRootFolderImpl;
 import org.olat.core.gui.UserRequest;
 import org.olat.core.gui.components.Component;
 import org.olat.core.gui.components.link.Link;
@@ -61,6 +63,7 @@ import org.olat.core.id.context.BusinessControl;
 import org.olat.core.id.context.ContextEntry;
 import org.olat.core.util.coordinate.CoordinatorManager;
 import org.olat.core.util.event.GenericEventListener;
+import org.olat.core.util.vfs.VFSStatus;
 import org.olat.course.nodes.CourseNode;
 import org.olat.course.nodes.projectbroker.datamodel.CustomField;
 import org.olat.course.nodes.projectbroker.datamodel.Project;
@@ -69,6 +72,7 @@ import org.olat.course.nodes.projectbroker.service.ProjectBrokerMailer;
 import org.olat.course.nodes.projectbroker.service.ProjectBrokerManager;
 import org.olat.course.nodes.projectbroker.service.ProjectBrokerModuleConfiguration;
 import org.olat.course.nodes.projectbroker.service.ProjectGroupManager;
+import org.olat.course.nodes.ta.DropboxController;
 import org.olat.course.properties.CoursePropertyManager;
 import org.olat.course.run.userview.UserCourseEnvironment;
 import org.olat.group.BusinessGroup;
@@ -314,6 +318,15 @@ public class ProjectListController extends BasicController implements GenericEve
 				projectBrokerMailer.sendCancelEnrollmentEmailToManager(urequest.getIdentity(), selectedProject, this.getTranslator());
 			}
 			projectGroupManager.sendGroupChangeEvent(selectedProject, courseId, urequest.getIdentity());
+
+			// Delete user's dropbox
+			String s = ProjectBrokerDropboxController.getDropboxBasePathForProject(selectedProject, userCourseEnv.getCourseEnvironment(), courseNode);
+			s += File.separator + urequest.getIdentity().getName();
+			OlatRootFolderImpl dropBox = new OlatRootFolderImpl(s, null);
+			if (dropBox.getBasefile().exists()) {
+				dropBox.getBasefile().delete();
+			}
+
 		} else {
 			showInfo("info.msg.could.not.cancel.enrollment");
 		}
