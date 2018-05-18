@@ -53,7 +53,6 @@ import org.olat.core.gui.control.LocaleChangedEvent;
 import org.olat.core.gui.control.WindowControl;
 import org.olat.core.gui.translator.Translator;
 import org.olat.core.id.Identity;
-import org.olat.core.id.Preferences;
 import org.olat.core.id.User;
 import org.olat.core.id.UserConstants;
 import org.olat.core.logging.AssertException;
@@ -357,12 +356,6 @@ public class ShibbolethRegistrationController extends DefaultController implemen
 					String firstName = shibbolethAttributesMap.get(shibbolethModule.getFirstName());
 					String lastName = shibbolethAttributesMap.get(shibbolethModule.getLastName());
 					user = UserManager.getInstance().createUser(firstName, lastName, email);
-
-					// Set user configured language
-					Preferences preferences = user.getPreferences();
-					preferences.setLanguage(translator.getLocale().getLanguage());
-					user.setPreferences(preferences);
-
 					user.setProperty(UserConstants.INSTITUTIONALNAME, shibbolethAttributesMap.get(shibbolethModule.getInstitutionalName()));
 					if(hasEmailInShibAttr){
 						String institutionalEmail = ShibbolethHelper.getFirstValueOf(shibbolethModule.getInstitutionalEMail(), shibbolethAttributesMap);
