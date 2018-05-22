@@ -1480,7 +1480,6 @@ public class FlexiTableElementImpl extends FormItemImpl implements FlexiTableEle
 		if(dataSource != null) {
 			resetInternComponents();
 			dataSource.clear();
-			dataSource.load(null, null, null, 0, getPageSize());
 		} else {
 			getRootForm().fireFormEvent(ureq, new FlexiTableSearchEvent(this, FormEvent.ONCLICK));
 		}
