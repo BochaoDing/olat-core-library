@@ -270,10 +270,8 @@ public class MembersTableController extends FormBasicController {
 			FlexiColumnModel col;
 			if(UserConstants.FIRSTNAME.equals(propName) || UserConstants.LASTNAME.equals(propName) || UserConstants.EMAIL.equals(propName)) {
 				if (UserConstants.EMAIL.equals(propName)) {
-					myEditAction = "email";
-					if (!canEmail) {
-						continue;
-					}
+					// LMSUZH-566: Do not show email addresses even if email functionality is enabled in course element
+					continue;
 				}
 				col = new DefaultFlexiColumnModel(userPropertyHandler.i18nColumnDescriptorLabelKey(),
 						colPos, myEditAction, true, propName,

@@ -29,6 +29,7 @@ import org.olat.admin.landingpages.ui.RulesDataModel;
 import org.olat.core.gui.media.MediaResource;
 import org.olat.core.gui.translator.Translator;
 import org.olat.core.id.Identity;
+import org.olat.core.id.UserConstants;
 import org.olat.core.logging.OLog;
 import org.olat.core.logging.Tracing;
 import org.olat.core.util.Formatter;
@@ -68,13 +69,16 @@ public class XlsMembersExport {
 		};
 	}
 
-	private void createHeader(List<UserPropertyHandler> userPropertyHandlers, Translator translator, 
+	private void createHeader(List<UserPropertyHandler> userPropertyHandlers, Translator translator,
 			OpenXMLWorksheet sheet,	OpenXMLWorkbook workbook) {
 		Row headerRow = sheet.newRow();
 		for (int c = 0; c < userPropertyHandlers.size(); c++) {
-			UserPropertyHandler handler = userPropertyHandlers.get(c);
-			String header = translator.translate("form.name." + handler.getName());
-			headerRow.addCell(c, header, workbook.getStyles().getHeaderStyle());
+			// LMSUZH-566: Do not export email addresses even if email functionality is enabled in course element
+			if (!UserConstants.EMAIL.equals(userPropertyHandlers.get(c).getName())) {
+				UserPropertyHandler handler = userPropertyHandlers.get(c);
+				String header = translator.translate("form.name." + handler.getName());
+				headerRow.addCell(c, header, workbook.getStyles().getHeaderStyle());
+			}
 		}
 		Translator roleTranslator = Util.createPackageTranslator(RulesDataModel.class, translator.getLocale());
 		headerRow.addCell(userPropertyHandlers.size(), roleTranslator.translate("rules.role"));
@@ -85,11 +89,14 @@ public class XlsMembersExport {
 		for (int r = 0; r < rows.size(); r++) {
 			Row dataRow = sheet.newRow();
 			for (int c = 0; c < userPropertyHandlers.size(); c++) {
-				String value = userPropertyHandlers.get(c).getUserProperty(rows.get(r).getUser(), null);
-				dataRow.addCell(c, value, null);
+				// LMSUZH-566: Do not export email addresses even if email functionality is enabled in course element
+				if (!UserConstants.EMAIL.equals(userPropertyHandlers.get(c).getName())) {
+					String value = userPropertyHandlers.get(c).getUserProperty(rows.get(r).getUser(), null);
+					dataRow.addCell(c, value, null);
+				}
 			}
 			dataRow.addCell(userPropertyHandlers.size(), members.get(rows.get(r)).toString());
 		}
 	}
-	
+
 }
