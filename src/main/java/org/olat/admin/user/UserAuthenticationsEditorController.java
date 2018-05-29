@@ -147,7 +147,7 @@ public class UserAuthenticationsEditorController extends BasicController{
 					int rowid = te.getRowId();
 					Authentication auth = authTableModel.getObject(rowid);
 					moveAuthenticationCtrl.setAuth(auth);
-					cmc = new CloseableModalController(getWindowControl(), translate("close"), moveAuthenticationCtrl.getInitialComponent(), true, "TODO title", true);
+					cmc = new CloseableModalController(getWindowControl(), translate("close"), moveAuthenticationCtrl.getInitialComponent(), true, translate("authedit.move.title"), true);
 					listenTo(cmc);
 					cmc.activate();
 				}
