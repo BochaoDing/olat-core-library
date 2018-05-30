@@ -60,7 +60,7 @@ public class UserAuthenticationsMoveController extends FormBasicController {
 			btnSearch = uifactory.addFormLink("search.search", searchFlc, "btn btn-default");
 			btnSearch.setI18nKey("moveidentity.search.lookup");
 			flc.contextPut("identityFound", false);
-			submit = uifactory.addFormSubmitButton("save", formLayout);
+			submit = uifactory.addFormSubmitButton("submit.save", formLayout);
 			submit.setEnabled(false);
 
 			FormLayoutContainer moveFlc = FormLayoutContainer.createDefaultFormLayout("flc_move", getTranslator());
