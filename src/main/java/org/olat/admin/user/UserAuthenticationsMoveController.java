@@ -99,12 +99,14 @@ public class UserAuthenticationsMoveController extends FormBasicController {
 
 				if (targetIdentity != null) {
 					flc.contextPut("identityFound", true);
+					flc.contextPut("errorMessage", "");
 					targetLastName.setValue(targetIdentity.getUser().getLastName());
 					targetFirstName.setValue(targetIdentity.getUser().getFirstName());
 					targetUsername.setValue(targetIdentity.getName());
 					btnMove.setEnabled(true);
 				} else {
 					flc.contextPut("identityFound", false);
+					flc.contextPut("errorMessage", translate("error.no.user.found"));
 					btnMove.setEnabled(false);
 				}
 			} else if(fl.getCmd().equals("move.move")) {
