@@ -407,18 +407,17 @@ public class ItemContext implements Serializable {
 	 * 
 	 * @return
 	 */
-	public float getScore() {
+	public float getScore(boolean nanAsZero) {
 		Variable var = getVariables().getSCOREVariable();
 		if (var == null) {
-			if(ident.startsWith("QTIEDIT:ESSAY")) {
-				return 0.0f;
+			if (ident.startsWith("QTIEDIT:ESSAY")) {
+				return (nanAsZero ? 0.0f : Float.NaN);
 			}
 			
 			// we demand that a SCORE variable must always exist
 			throw new RuntimeException("no SCORE def for " + getIdent());
 		} else {
-			float sc = var.getTruncatedValue();
-			return sc;
+			return var.getTruncatedValue(nanAsZero);
 		}
 	}
 

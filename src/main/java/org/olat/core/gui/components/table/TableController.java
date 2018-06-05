@@ -128,6 +128,8 @@ public class TableController extends BasicController {
 	 */
 	public static final Event EVENT_FILTER_SELECTED = new Event("filter.selected");
 
+	private static final String TABLE_VELOCITY_PAGE_DEFAULT_NAME = "tablelayout";
+
 
 	private VelocityContainer contentVc;
 
@@ -214,14 +216,18 @@ public class TableController extends BasicController {
 
 	/**
 	 * Constructor for the table controller
-	 * 
-	 * @param tableConfig The table gui configuration determines the tables
+	 *
+	 * @param tableConfigP The table gui configuration determines the tables
 	 *          behaviour, may be <code>null</code> to use default table config.
 	 * @param ureq The user request
 	 * @param wControl The window control
 	 * @param tableTrans The translator that is used to translate the table
 	 */
 	public TableController(final TableGuiConfiguration tableConfigP, final UserRequest ureq, final WindowControl wControl, final @UnknownInitialization Translator tableTrans) {
+		this(tableConfigP, ureq, wControl, tableTrans, TABLE_VELOCITY_PAGE_DEFAULT_NAME);
+	}
+
+	public TableController(final TableGuiConfiguration tableConfigP, final UserRequest ureq, final WindowControl wControl, final @UnknownInitialization Translator tableTrans, String tableVelocityPageName) {
 		super(ureq, wControl);
 		if (tableConfigP == null){
 			tableConfig = new TableGuiConfiguration();
@@ -250,7 +256,7 @@ public class TableController extends BasicController {
 
 
 		// table is embedded in a velocity page that renders the surrounding layout
-		contentVc = createVelocityContainer("tablelayout");
+		contentVc = createVelocityContainer(tableVelocityPageName);
 		contentVc.put(COMPONENT_TABLE_NAME, table);
 
 		// fetch prefs (which were loaded at login time
@@ -289,8 +295,13 @@ public class TableController extends BasicController {
 	}
 
 	public TableController(final TableGuiConfiguration tableConfig, final UserRequest ureq, final WindowControl wControl, final Translator tableTrans,
-			final boolean enableTableSearch ) {
-		this(tableConfig, ureq, wControl, tableTrans);
+						   final boolean enableTableSearch ) {
+		this(tableConfig, ureq, wControl, tableTrans, enableTableSearch, TABLE_VELOCITY_PAGE_DEFAULT_NAME);
+	}
+
+	public TableController(final TableGuiConfiguration tableConfig, final UserRequest ureq, final WindowControl wControl, final Translator tableTrans,
+			final boolean enableTableSearch, String tableVelocityPageName) {
+		this(tableConfig, ureq, wControl, tableTrans, tableVelocityPageName);
 		if (enableTableSearch) {
 			tableSearchController = createTableSearchController(ureq, wControl);
 			contentVc.put("tableSearch", tableSearchController.getInitialComponent());
