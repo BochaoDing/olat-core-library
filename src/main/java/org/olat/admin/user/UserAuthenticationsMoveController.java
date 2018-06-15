@@ -81,20 +81,24 @@ public class UserAuthenticationsMoveController extends FormBasicController {
 			if (fl.getCmd().equals("search.search")) {
 				String username = textUsername.getValue();
 				String identityKey = textIdentityId.getValue();
+				String errorCode = "";
+				targetIdentity = null;
 				if (!textIdentityId.getValue().equals("")) {
-					targetIdentity = BaseSecurityManager.getInstance().loadIdentityByKey(Long.parseLong(identityKey));
+					try {
+						targetIdentity = BaseSecurityManager.getInstance().loadIdentityByKey(Long.parseLong(identityKey));
+					} catch (NumberFormatException nfe) {
+						errorCode = "error.move.identity.not.number";
+					}
 				} else if (!textUsername.getValue().equals("")) {
 					targetIdentity = BaseSecurityManager.getInstance().findIdentityByName(username);
+				} else {
+					errorCode = "error.move.empty.search.fields";
 				}
 
 				// detect targetIdentity to match sourceIdentity
 				if (targetIdentity != null && targetIdentity.getName().equals(sourceIdentity.getName())) {
 					targetIdentity = null;
-					flc.contextPut("hasError", true);
-					flc.contextPut("errorMessage", translate("error.move.same.identity"));
-					flc.contextPut("identityFound", false);
-					btnMove.setEnabled(false);
-
+					errorCode = "error.move.same.identity";
 				}
 
 				if (targetIdentity != null) {
@@ -105,8 +109,12 @@ public class UserAuthenticationsMoveController extends FormBasicController {
 					targetUsername.setValue(targetIdentity.getName());
 					btnMove.setEnabled(true);
 				} else {
+					if ("".equals(errorCode)) {
+						errorCode = "error.no.user.found";
+					}
+					flc.contextPut("hasError", true);
 					flc.contextPut("identityFound", false);
-					flc.contextPut("errorMessage", translate("error.no.user.found"));
+					flc.contextPut("errorMessage", translate(errorCode));
 					btnMove.setEnabled(false);
 				}
 			} else if(fl.getCmd().equals("move.move")) {
