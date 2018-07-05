@@ -1,8 +1,10 @@
 package org.olat.core.commons.services.scheduler;
 
 /**
- * Marker interface. If a CronTriggerBean or a SimpleTriggerBean implements this interface, the TriggerListFactory
- * will insert the trigger to the trigger list.
+ * Marker interface.
+ *
+ * Triggers should implement this interface such that they are added to the list of active triggers by the
+ * @see org.olat.core.commons.services.scheduler.TriggerListFactory .
  *
  * @author Martin Schraner
  */
