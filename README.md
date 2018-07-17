@@ -4,9 +4,20 @@
 
 OLAT is hosted by the Department of Information Technology and is available to all faculties and institutes at University of Zurich as well as to other Swiss universities and higher education institutions. OLAT supports strongly the Open Educational Resources (OER) approach in cooperation with [SWITCH edu-ID](https://www.switch.ch/edu-id/).
 
-To learn more about OLAT, visit [olat.org](http://olat.systems)
+To learn more about OLAT, visit [olat.org](https://olat.org)
 
 ## Changelog
+
+**2018/07/14**
+* Moved from MySQL to PostgreSQL database system
+
+**~~2018/06/06~~**
+**2018/07/04**
+* Fixed an issue with session timeout for some legacy courses
+* Fixed an issue with empty search strings
+* Fixed an issue with language setting on sign up
+* Fixed an issue with question pool usage info
+* Fixed an issue with cleanup handling
 
 **2018/05/09**
 * Added SWITCHdrive & SWITCHportfolio as personal tools
@@ -40,7 +51,12 @@ To learn more about OLAT, visit [olat.org](http://olat.systems)
 * ``lmsuzh-extension-opencast`` Lectures online
 * ``lmsuzh-extension-adobeconnect`` Live teamwork
 * ``lmsuzh-extension-epis`` Digital assistance for exams
-* ``lmsuzh-extension-myscript`` Proof-of-concept: [Convert handwritten formulas, texts and shapes](http://olat.systems/handwriting-poc)
+* ``lmsuzh-extension-registration`` Group registration processes for large installations
+* ``lmsuzh-extension-teachingaward`` Survey on the awarding of the teaching prize
+* ``lmsuzh-extension-assessment`` SELMA: [Self and mass assessments in a university context](http://olat.systems/whitepaper)
+* ``lmsuzh-extension-mindmaps`` Proof-of-concept: [Take notes, visualize and outline ideas](http://olat.systems/mindmaps)
+* ``lmsuzh-extension-flashcards`` Proof-of-concept: [Recall the solution written on a flash card](http://olat.systems/flashcards)
+* ``lmsuzh-extension-myscript`` Proof-of-concept: [Convert handwritten formulas, texts and shapes](http://olat.systems/handwriting)
 
 ### Infrastructure modules
 

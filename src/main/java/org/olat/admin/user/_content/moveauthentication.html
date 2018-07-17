@@ -1,0 +1,16 @@
+<fieldset>
+    <legend>$r.translate("moveidentity.search.form.title")</legend>
+    $r.render("flc_search")
+</fieldset>
+
+#if ($hasError)
+    <div class="error">$errorMessage</div>
+#end
+
+#if ($identityFound)
+<fieldset>
+    <legend>$r.translate("moveidentity.search.results")</legend>
+    $r.render("flc_move")
+</fieldset>
+#end
+
