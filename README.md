@@ -8,7 +8,12 @@ To learn more about OLAT, visit [olat.org](https://olat.org)
 
 ## Changelog
 
-**2018/06/06**
+**2018/07/14**
+* Moved from MySQL to PostgreSQL database system
+
+**~~2018/06/06~~**
+**2018/07/04**
+* Fixed an issue with session timeout for some legacy courses
 * Fixed an issue with empty search strings
 * Fixed an issue with language setting on sign up
 * Fixed an issue with question pool usage info
