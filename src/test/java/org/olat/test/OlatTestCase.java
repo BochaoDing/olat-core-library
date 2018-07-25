@@ -104,6 +104,8 @@ public abstract class OlatTestCase extends AbstractJUnit4SpringContextTests {
 		System.out.println("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
 
 		started = true;
+
+		throw new AssertionError();
 	}
 	
 	@After
