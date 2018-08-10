@@ -12,7 +12,6 @@ import org.olat.core.util.Util;
 import org.olat.core.util.openxml.OpenXMLWorkbook;
 import org.olat.core.util.openxml.OpenXMLWorkbookResource;
 import org.olat.core.util.openxml.OpenXMLWorksheet;
-import org.olat.group.BusinessGroup;
 import org.olat.user.propertyhandlers.UserPropertyHandler;
 
 import java.io.IOException;
@@ -24,11 +23,6 @@ import java.util.Map;
 public class XlsGroupMembersExport {
 
 	private static final OLog log = Tracing.createLoggerFor(XlsGroupMembersExport.class);
-	private String groupName;
-
-	public void setGroupName(String groupName) {
-		this.groupName = groupName;
-	}
 
 	public MediaResource export(Map<String, GroupData> groups, Translator translator, List<UserPropertyHandler> userPropertyHandlers) {
 
@@ -44,7 +38,7 @@ public class XlsGroupMembersExport {
 					createHeader(userPropertyHandlers, translator, sheet, workbook);
 					for (String groupName : groups.keySet()) {
 						GroupData groupData = groups.get((String) groupName);
-						createData(groupData.getMembers(), groupData.getRows(), userPropertyHandlers, sheet);
+						createData(groupName, groupData.getMembers(), groupData.getRows(), userPropertyHandlers, sheet);
 					}
 				} catch (IOException e) {
 					log.error("Unable to export xlsx", e);
@@ -69,7 +63,7 @@ public class XlsGroupMembersExport {
 		sheet.setHeaderRows(1);
 	}
 
-	protected void createData(Map<Identity, StringBuilder> members, List<Identity> rows,
+	protected void createData(String groupName, Map<Identity, StringBuilder> members, List<Identity> rows,
 							  List<UserPropertyHandler> userPropertyHandlers, OpenXMLWorksheet sheet) {
 		for (int r = 0; r < rows.size(); r++) {
 			OpenXMLWorksheet.Row dataRow = sheet.newRow();
