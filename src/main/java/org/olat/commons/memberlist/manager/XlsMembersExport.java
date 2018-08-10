@@ -24,6 +24,7 @@ import java.io.OutputStream;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.olat.admin.landingpages.ui.RulesDataModel;
 import org.olat.core.gui.media.MediaResource;
@@ -59,8 +60,13 @@ public class XlsMembersExport {
 			protected void generate(OutputStream out) {
 				try (OpenXMLWorkbook workbook = new OpenXMLWorkbook(out, 1)) {
 					OpenXMLWorksheet sheet = workbook.nextWorksheet();
-					createHeader(userPropertyHandlers, translator, sheet, workbook);
-					createData(members, rows, userPropertyHandlers, sheet);
+					// LMSUZH-566: Do not export email addresses even if email functionality is enabled in course element
+					List<UserPropertyHandler> allowedPropertyHandlers = userPropertyHandlers
+							.stream()
+							.filter(userPropertyHandler -> !UserConstants.EMAIL.equals(userPropertyHandler.getName()))
+							.collect(Collectors.toList());
+					createHeader(allowedPropertyHandlers, translator, sheet, workbook);
+					createData(members, rows, allowedPropertyHandlers, sheet);
 				} catch (IOException e) {
 					log.error("Unable to export xlsx", e);
 				}
@@ -72,12 +78,9 @@ public class XlsMembersExport {
 			OpenXMLWorksheet sheet,	OpenXMLWorkbook workbook) {
 		Row headerRow = sheet.newRow();
 		for (int c = 0; c < userPropertyHandlers.size(); c++) {
-			// LMSUZH-566: Do not export email addresses even if email functionality is enabled in course element
-			if (!UserConstants.EMAIL.equals(userPropertyHandlers.get(c).getName())) {
-				UserPropertyHandler handler = userPropertyHandlers.get(c);
-				String header = translator.translate("form.name." + handler.getName());
-				headerRow.addCell(c, header, workbook.getStyles().getHeaderStyle());
-			}
+			UserPropertyHandler handler = userPropertyHandlers.get(c);
+			String header = translator.translate("form.name." + handler.getName());
+			headerRow.addCell(c, header, workbook.getStyles().getHeaderStyle());
 		}
 		Translator roleTranslator = Util.createPackageTranslator(RulesDataModel.class, translator.getLocale());
 		headerRow.addCell(userPropertyHandlers.size(), roleTranslator.translate("rules.role"));
@@ -88,11 +91,8 @@ public class XlsMembersExport {
 		for (int r = 0; r < rows.size(); r++) {
 			Row dataRow = sheet.newRow();
 			for (int c = 0; c < userPropertyHandlers.size(); c++) {
-				// LMSUZH-566: Do not export email addresses even if email functionality is enabled in course element
-				if (!UserConstants.EMAIL.equals(userPropertyHandlers.get(c).getName())) {
-					String value = userPropertyHandlers.get(c).getUserProperty(rows.get(r).getUser(), null);
-					dataRow.addCell(c, value, null);
-				}
+				String value = userPropertyHandlers.get(c).getUserProperty(rows.get(r).getUser(), null);
+				dataRow.addCell(c, value, null);
 			}
 			dataRow.addCell(userPropertyHandlers.size(), members.get(rows.get(r)).toString());
 		}

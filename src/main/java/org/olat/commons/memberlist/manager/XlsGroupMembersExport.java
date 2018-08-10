@@ -19,6 +19,7 @@ import java.io.OutputStream;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class XlsGroupMembersExport {
 
@@ -35,10 +36,15 @@ public class XlsGroupMembersExport {
 			protected void generate(OutputStream out) {
 				try (OpenXMLWorkbook workbook = new OpenXMLWorkbook(out, 1)) {
 					OpenXMLWorksheet sheet = workbook.nextWorksheet();
-					createHeader(userPropertyHandlers, translator, sheet, workbook);
+					// LMSUZH-566: Do not export email addresses even if email functionality is enabled in course element
+					List<UserPropertyHandler> allowedPropertyHandlers = userPropertyHandlers
+							.stream()
+							.filter(userPropertyHandler -> !UserConstants.EMAIL.equals(userPropertyHandler.getName()))
+							.collect(Collectors.toList());
+					createHeader(allowedPropertyHandlers, translator, sheet, workbook);
 					for (String groupName : groups.keySet()) {
 						GroupData groupData = groups.get((String) groupName);
-						createData(groupName, groupData.getMembers(), groupData.getRows(), userPropertyHandlers, sheet);
+						createData(groupName, groupData.getMembers(), groupData.getRows(), allowedPropertyHandlers, sheet);
 					}
 				} catch (IOException e) {
 					log.error("Unable to export xlsx", e);
@@ -52,14 +58,12 @@ public class XlsGroupMembersExport {
 		OpenXMLWorksheet.Row headerRow = sheet.newRow();
 		headerRow.addCell(0, translator.translate("form.name.group"), workbook.getStyles().getHeaderStyle());
 		for (int c = 0; c < userPropertyHandlers.size(); c++) {
-			if (!UserConstants.EMAIL.equals(userPropertyHandlers.get(c).getName())) {
-				UserPropertyHandler handler = userPropertyHandlers.get(c);
-				String header = translator.translate("form.name." + handler.getName());
-				headerRow.addCell(c + 1, header, workbook.getStyles().getHeaderStyle());
-			}
+			UserPropertyHandler handler = userPropertyHandlers.get(c);
+			String header = translator.translate("form.name." + handler.getName());
+			headerRow.addCell(c + 1, header, workbook.getStyles().getHeaderStyle());
 		}
 		Translator roleTranslator = Util.createPackageTranslator(RulesDataModel.class, translator.getLocale());
-		headerRow.addCell(userPropertyHandlers.size(), roleTranslator.translate("rules.role"));
+		headerRow.addCell(userPropertyHandlers.size() + 1, roleTranslator.translate("rules.role"));
 		sheet.setHeaderRows(1);
 	}
 
@@ -69,13 +73,10 @@ public class XlsGroupMembersExport {
 			OpenXMLWorksheet.Row dataRow = sheet.newRow();
 			dataRow.addCell(0, groupName, null);
 			for (int c = 0; c < userPropertyHandlers.size(); c++) {
-				// LMSUZH-566: Do not export email addresses even if email functionality is enabled in course element
-				if (!UserConstants.EMAIL.equals(userPropertyHandlers.get(c).getName())) {
-					String value = userPropertyHandlers.get(c).getUserProperty(rows.get(r).getUser(), null);
-					dataRow.addCell(c + 1, value, null);
-				}
+				String value = userPropertyHandlers.get(c).getUserProperty(rows.get(r).getUser(), null);
+				dataRow.addCell(c + 1, value, null);
 			}
-			dataRow.addCell(userPropertyHandlers.size(), members.get(rows.get(r)).toString());
+			dataRow.addCell(userPropertyHandlers.size() + 1, members.get(rows.get(r)).toString());
 		}
 	}
 
