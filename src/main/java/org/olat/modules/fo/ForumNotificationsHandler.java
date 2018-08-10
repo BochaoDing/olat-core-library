@@ -48,6 +48,11 @@ import org.olat.core.logging.Tracing;
 import org.olat.core.util.StringHelper;
 import org.olat.core.util.Util;
 import org.olat.core.util.resource.OresHelper;
+import org.olat.course.CourseFactory;
+import org.olat.course.ICourse;
+import org.olat.course.groupsandrights.CourseGroupManager;
+import org.olat.course.nodes.CourseNode;
+import org.olat.course.run.environment.CourseEnvironment;
 import org.olat.group.BusinessGroup;
 import org.olat.group.BusinessGroupService;
 import org.olat.modules.fo.manager.ForumManager;
@@ -181,20 +186,21 @@ public class ForumNotificationsHandler extends LogDelegator implements Notificat
 				title = translator.translate("notifications.header.group", new String[]{bg.getName()});
 			} else if ("CourseModule".equals(type)) {
 				String displayName = RepositoryManager.getInstance().lookupDisplayNameByOLATResourceableId(resId);
-				title = translator.translate("notifications.header.course", new String[]{displayName});
-			} else {
-				title = translator.translate("notifications.header");
-			}
+				CourseNode node = CourseFactory.loadCourse(p.getResId()).getRunStructure().getNode(p.getSubidentifier());
+				title = translator.translate("notifications.header.course", new String[]{displayName, node.getShortName()});
+		} else {
+		title = translator.translate("notifications.header");
+		}
 		} catch (Exception e) {
-			log.error("Error while creating assessment notifications for publisher: " + p.getKey(), e);
-			checkPublisher(p);
-			title = translator.translate("notifications.header");
+		log.error("Error while creating assessment notifications for publisher: " + p.getKey(), e);
+		checkPublisher(p);
+		title = translator.translate("notifications.header");
 		}
 		return new TitleItem(title, ForumHelper.CSS_ICON_CLASS_FORUM);
-	}
+		}
 
-	@Override
-	public String getType() {
+@Override
+public String getType() {
 		return "Forum";
-	}
-}
+		}
+		}
