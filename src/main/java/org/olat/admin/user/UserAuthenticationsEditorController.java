@@ -128,6 +128,8 @@ public class UserAuthenticationsEditorController extends BasicController{
 			}
 		} else if (source == moveAuthenticationCtrl) {
 			if (event == Event.DONE_EVENT) {
+				authTableModel.setObjects(securityManager.getAuthentications(changeableIdentity));
+				tableCtr.modelChanged();
 				cmc.deactivate();
 			} else if (event == Event.CANCELLED_EVENT) {
 				cmc.deactivate();
