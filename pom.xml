@@ -728,6 +728,13 @@
 						<version>0.21.0</version>
 						<executions>
 							<execution>
+								<id>clean-mysql-server</id>
+								<phase>clean</phase>
+								<goals>
+									<goal>stop</goal>
+								</goals>
+							</execution>
+							<execution>
 								<id>start-mysql-server</id>
 								<phase>process-test-resources</phase>
 								<goals>
@@ -745,8 +752,10 @@
 						<configuration>
 							<images>
 								<image>
+									<alias>mysql_${project.version}</alias>
 									<name>mysql:5.6.35</name>
 									<run>
+										<namingStrategy>alias</namingStrategy>
 										<exposedPropertyKey>
 											mysql-server
 										</exposedPropertyKey>
