@@ -55,10 +55,10 @@ import org.olat.course.assessment.AssessmentHelper;
 import org.olat.course.assessment.AssessmentManager;
 import org.olat.course.assessment.manager.UserCourseInformationsManager;
 import org.olat.course.groupsandrights.CourseGroupManager;
-import org.olat.course.nodes.ArchiveOptions;
-import org.olat.course.nodes.AssessableCourseNode;
-import org.olat.course.nodes.CourseNode;
-import org.olat.course.nodes.STCourseNode;
+import org.olat.course.nodes.*;
+import org.olat.course.nodes.gta.GTAManager;
+import org.olat.course.nodes.gta.Task;
+import org.olat.course.nodes.gta.TaskList;
 import org.olat.course.run.environment.CourseEnvironment;
 import org.olat.course.run.scoring.ScoreAccounting;
 import org.olat.course.run.scoring.ScoreEvaluation;
@@ -71,13 +71,14 @@ import org.olat.repository.RepositoryService;
 import org.olat.resource.OLATResource;
 import org.olat.user.UserManager;
 import org.olat.user.propertyhandlers.UserPropertyHandler;
+import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * @author schneider
  * Comment: Provides functionality to get a course results overview.
  */
 public class ScoreAccountingHelper {
-	
+
 	/**
 	 * The results from assessable nodes are written to one row per user into an excel-sheet. An
      * assessable node will only appear if it is producing at least one of the
@@ -112,6 +113,7 @@ public class ScoreAccountingHelper {
 		String yes = t.translate("column.field.yes");
 		String no = t.translate("column.field.no");
 		String submitted = t.translate("column.field.submitted");
+		String taskName = t.translate("column.field.taskName");
 
 		Row headerRow1 = sheet.newRow();
 		headerRow1.addCell(headerColCnt++, sequentialNumber);
@@ -151,6 +153,7 @@ public class ScoreAccountingHelper {
 		Row headerRow2 = sheet.newRow();
 		for(AssessableCourseNode acNode:myNodes) {
 			if (acNode.getType().equals("ita")) {
+				headerRow2.addCell(header2ColCnt++, taskName);
 				headerRow2.addCell(header2ColCnt++, submitted);
 			}
 			
@@ -215,6 +218,8 @@ public class ScoreAccountingHelper {
 			scoreAccount.evaluateAll();
 			AssessmentManager am = course.getCourseEnvironment().getAssessmentManager();
 
+			final GTAManager gtaManager = CoreSpringFactory.getImpl(GTAManager.class);
+
 			for (AssessableCourseNode acnode:myNodes) {
 				boolean scoreOk = acnode.hasScoreConfigured();
 				boolean passedOk = acnode.hasPassedConfigured();
@@ -222,6 +227,10 @@ public class ScoreAccountingHelper {
 				boolean commentOk = acnode.hasCommentConfigured();
 
 				if (acnode.getType().equals("ita")) {
+					TaskList taskList = gtaManager.getTaskList(course.getCourseEnvironment().getCourseGroupManager().getCourseEntry(), (GTACourseNode) acnode);
+					Task task = gtaManager.getTask(identity, taskList);
+					dataRow.addCell(dataColCnt++, task != null ? task.getTaskName() : "-");
+
 					String log = acnode.getUserLog(uce);
 					String date = null;
 					Date lastUploaded = null;
