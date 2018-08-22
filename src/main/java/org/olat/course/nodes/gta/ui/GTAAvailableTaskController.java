@@ -57,10 +57,7 @@ import org.olat.core.util.mail.MailContextImpl;
 import org.olat.core.util.mail.MailManager;
 import org.olat.core.util.vfs.VFSContainer;
 import org.olat.course.nodes.GTACourseNode;
-import org.olat.course.nodes.gta.AssignmentResponse;
-import org.olat.course.nodes.gta.GTAManager;
-import org.olat.course.nodes.gta.GTAType;
-import org.olat.course.nodes.gta.TaskList;
+import org.olat.course.nodes.gta.*;
 import org.olat.course.nodes.gta.model.TaskDefinition;
 import org.olat.course.run.environment.CourseEnvironment;
 import org.olat.group.BusinessGroup;
@@ -77,6 +74,7 @@ public class GTAAvailableTaskController extends FormBasicController {
 
 	private FlexiTableElement tableEl;
 	private AvailableTaskTableModel taskModel;
+	private Task selectedTask;
 
 	private CloseableModalController cmc;
 	private SinglePageController previewCtrl;
@@ -236,7 +234,11 @@ public class GTAAvailableTaskController extends FormBasicController {
 		cmc = null;
 		previewCtrl = null;
 	}
-	
+
+	public Task getSelectedTask() {
+		return selectedTask;
+	}
+
 	private void doPreview(UserRequest ureq, String filename) {
 		if(filename != null && filename.endsWith(".html")) {
 			VFSContainer tasksContainer = gtaManager.getTasksContainer(courseEnv, gtaNode);
@@ -260,15 +262,16 @@ public class GTAAvailableTaskController extends FormBasicController {
 		} else {
 			response = gtaManager.selectTask(assessedIdentity, taskList, gtaNode, task);
 		}
-		
-		if(response == null || response.getStatus() == AssignmentResponse.Status.error) {
+
+		if (response == null || response.getStatus() == AssignmentResponse.Status.error) {
 			showError("task.assignment.error");
-		} else if(response.getStatus() == AssignmentResponse.Status.alreadyAssigned) {
+		} else if (response.getStatus() == AssignmentResponse.Status.alreadyAssigned) {
 			showWarning("task.alreadyChosen");
-		} else if(response == null || response.getStatus() == AssignmentResponse.Status.ok) {
+		} else if (response.getStatus() == AssignmentResponse.Status.ok) {
 			showInfo("task.successfully.assigned");
 			fireEvent(ureq, Event.DONE_EVENT);
-			gtaManager.log("Assignment", "task assigned", response.getTask(), getIdentity(), assessedIdentity, assessedGroup, courseEnv, gtaNode);
+			selectedTask = response.getTask();
+			gtaManager.log("Assignment", "task assigned", selectedTask, getIdentity(), assessedIdentity, assessedGroup, courseEnv, gtaNode);
 			doSendConfirmationEmail();
 		}
 	}

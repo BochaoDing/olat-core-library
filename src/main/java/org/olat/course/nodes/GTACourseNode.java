@@ -133,7 +133,10 @@ public class GTACourseNode extends AbstractAccessableCourseNode implements Persi
 	public static final String GTASK_TASKS = "grouptask.tasks";
 	
 	public static final String GTASK_RELATIVE_DATES = "grouptask.rel.dates";
-	
+
+	public static final String GTASK_ASSIGNMENT_TEXT = "grouptask.assignment.text";
+	public static final String GTASK_ASSIGNMENT_MAIL_CONFIRMATION = "grouptask.assignment.mail.confirmation";
+
 	public static final String GTASK_ASSIGNEMENT_TYPE = "grouptask.assignement.type";
 	public static final String GTASK_ASSIGNEMENT_TYPE_AUTO = "auto";
 	public static final String GTASK_ASSIGNEMENT_TYPE_MANUAL = "manual";
@@ -151,7 +154,7 @@ public class GTACourseNode extends AbstractAccessableCourseNode implements Persi
 	
 	public static final String GTASK_SUBMISSION_TEXT = "grouptask.submission.text";
 	public static final String GTASK_SUBMISSION_MAIL_CONFIRMATION = "grouptask.submission.mail.confirmation";
-	
+
 	public static final String GTASK_SOLUTIONS = "grouptask.solutions";
 	
 

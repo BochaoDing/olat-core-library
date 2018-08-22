@@ -84,7 +84,7 @@ public class GTASubmissionEditController extends FormBasicController {
 		
 		//confirmation
 		FormLayoutContainer confirmationCont = FormLayoutContainer.createDefaultFormLayout("confirmation", getTranslator());
-		confirmationCont.setFormTitle(translate("confirmation.title"));
+		confirmationCont.setFormTitle(translate("submission.confirmation.title"));
 		confirmationCont.setRootForm(mainForm);
 		formLayout.add(confirmationCont);
 		
