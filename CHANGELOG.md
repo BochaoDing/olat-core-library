@@ -1,6 +1,6 @@
 # OLAT | Online Learning and Training
 
-OLAT is a mature [Learning Management System](https://en.wikipedia.org/wiki/Learning_management_system) (LMS) with a nearly twenty-year track record. It has been developed since 1999 at [University of Zurich](https://www.uzh.ch) (UZH). OLAT is hosted by the central service unit Information Technology and is available to all faculties and institutes at UZH as well as to other [Swiss universities](https://www.swissuniversities.ch/en) and higher education institutions.
+OLAT is a mature [Learning Management System](https://en.wikipedia.org/wiki/Learning_management_system) (LMS) with a nearly twenty-year track record. It has been developed since 1999 at [University of Zurich](https://www.uzh.ch) (UZH). OLAT is hosted by the Department of Information Technology of UZH and is available to all faculties and institutes as well as to other Swiss universities and higher education institutions.
 
 To learn more, visit [olat.org](https://olat.org)
 
