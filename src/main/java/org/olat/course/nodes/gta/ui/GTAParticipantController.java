@@ -365,7 +365,7 @@ public class GTAParticipantController extends GTAAbstractController {
 				submitDirectory = gtaManager.getSubmitDirectory(courseEnv, gtaNode, assessedIdentity);
 			}
 			
-			String subject = translate("assignment.mail.subject");
+			String subject = translate("submission.email.subject");
 			File[] files = TaskHelper.getDocuments(submitDirectory);
 			MailTemplate template = new GTASubmissionMailTemplate(subject, body, files, getIdentity(), getTranslator());
 			
@@ -386,8 +386,8 @@ public class GTAParticipantController extends GTAAbstractController {
 				recipientsTO = Collections.singletonList(assessedIdentity);
 			}
 
-			Date deadline = new Date(); // TODO set read deadline date here!!!
-			String subject = translate("assignment.mail.subject");
+			Date deadline = new Date(); // TODO set right deadline date here!!!
+			String subject = translate("assignment.email.subject");
 			MailTemplate template = new GTAAssignmentMailTemplate(subject, body, deadline, assignedTask.getTaskName(), getIdentity(), getTranslator());
 
 			MailerResult result = new MailerResult();

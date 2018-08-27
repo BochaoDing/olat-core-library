@@ -48,7 +48,7 @@ public class GTAAssignmentEditController extends AbstractAssignmentEditControlle
 	private static final String[] samplingKeys = new String[] { GTACourseNode.GTASK_SAMPLING_UNIQUE, GTACourseNode.GTASK_SAMPLING_REUSE };
 	private static final String[] enableKeys = new String[] { "on" };
 
-	private RichTextElement textEl;
+	private RichTextElement textEl, emailTextEl;
 	private SingleSelection typeEl, previewEl, samplingEl;
 	private MultipleSelectionElement coachAllowedTasksEl, emailConfirmationEl;
 
@@ -114,7 +114,15 @@ public class GTAAssignmentEditController extends AbstractAssignmentEditControlle
 		} else {
 			samplingEl.select(GTACourseNode.GTASK_SAMPLING_UNIQUE, true);
 		}
-		
+
+		//message for users
+		String text = config.getStringValue(GTACourseNode.GTASK_USERS_TEXT);
+		if (!StringHelper.containsNonWhitespace(text)) {
+			text = translate("assignment.text.template");
+		}
+		textEl = uifactory.addRichTextElementForStringDataMinimalistic("task.text", "assignment.text.label", text, 10, -1, configCont, getWindowControl());
+		textEl.setMandatory(true);
+
 		//confirmation
 		FormLayoutContainer confirmationCont = FormLayoutContainer.createDefaultFormLayout("confirmation", getTranslator());
 		confirmationCont.setFormTitle(translate("assignment.confirmation.title"));
@@ -122,16 +130,16 @@ public class GTAAssignmentEditController extends AbstractAssignmentEditControlle
 		formLayout.add(confirmationCont);
 
 		//message for users
-		String text = config.getStringValue(GTACourseNode.GTASK_USERS_TEXT);
-		if(!StringHelper.containsNonWhitespace(text)) {
-			text = translate("assignment.confirmation");
+		String mailText = config.getStringValue(GTACourseNode.GTASK_ASSIGNMENT_TEXT);
+		if(!StringHelper.containsNonWhitespace(mailText)) {
+			mailText = translate("assignment.email.template");
 		}
-		textEl = uifactory.addRichTextElementForStringDataMinimalistic("task.text", "task.text", text, 10, -1, confirmationCont, getWindowControl());
-		textEl.setMandatory(true);
+		emailTextEl = uifactory.addRichTextElementForStringDataMinimalistic("task.mail.text", "assignment.email.label", mailText, 10, -1, confirmationCont, getWindowControl());
+		emailTextEl.setMandatory(true);
 
 		String[] enableValues = new String[]{ translate("enabled") };
-		emailConfirmationEl = uifactory.addCheckboxesHorizontal("confirmation", "submission.email.confirmation", confirmationCont, enableKeys, enableValues);
-		boolean confirm = config.getBooleanSafe(GTACourseNode.GTASK_SUBMISSION_MAIL_CONFIRMATION);
+		emailConfirmationEl = uifactory.addCheckboxesHorizontal("confirmation", "assignment.email.confirmation", confirmationCont, enableKeys, enableValues);
+		boolean confirm = config.getBooleanSafe(GTACourseNode.GTASK_ASSIGNMENT_MAIL_CONFIRMATION);
 		emailConfirmationEl.select(enableKeys[0], confirm);
 
 		//save
@@ -157,31 +165,33 @@ public class GTAAssignmentEditController extends AbstractAssignmentEditControlle
 		boolean coachUploadAllowed = coachAllowedTasksEl.isAtLeastSelected(1);
 		config.setBooleanEntry(GTACourseNode.GTASK_COACH_ALLOWED_UPLOAD_TASKS, coachUploadAllowed);
 		
-		//assignment type
+		// assignment type
 		String type = typeEl.isSelected(0) ? GTACourseNode.GTASK_ASSIGNEMENT_TYPE_MANUAL : GTACourseNode.GTASK_ASSIGNEMENT_TYPE_AUTO;
 		config.setStringValue(GTACourseNode.GTASK_ASSIGNEMENT_TYPE, type);
-		//preview
+		// preview
 		if(previewEl.isVisible()) {
 			config.setBooleanEntry(GTACourseNode.GTASK_PREVIEW, previewEl.isSelected(0));
 		} else {
 			config.setBooleanEntry(GTACourseNode.GTASK_PREVIEW, Boolean.FALSE);
 		}
-		//sampling
+		// sampling
 		String sampling = samplingEl.isSelected(0) ? GTACourseNode.GTASK_SAMPLING_UNIQUE : GTACourseNode.GTASK_SAMPLING_REUSE;
 		config.setStringValue(GTACourseNode.GTASK_SAMPLING, sampling);
 
-		//text
+		// messagetext
 		String text = textEl.getValue();
-		config.setStringValue(GTACourseNode.GTASK_ASSIGNMENT_TEXT, text);
-		boolean emailConfirmation = emailConfirmationEl.isAtLeastSelected(1);
-		config.setBooleanEntry(GTACourseNode.GTASK_ASSIGNMENT_MAIL_CONFIRMATION, emailConfirmation);
-
 		if(StringHelper.containsNonWhitespace(text)) {
 			config.setStringValue(GTACourseNode.GTASK_USERS_TEXT, text);
 		} else {
 			config.remove(GTACourseNode.GTASK_USERS_TEXT);
 		}
-		
+
+		// email confirmation text
+		String emailText = textEl.getValue();
+		config.setStringValue(GTACourseNode.GTASK_ASSIGNMENT_TEXT, emailText);
+		boolean emailConfirmation = emailConfirmationEl.isAtLeastSelected(1);
+		config.setBooleanEntry(GTACourseNode.GTASK_ASSIGNMENT_MAIL_CONFIRMATION, emailConfirmation);
+
 		fireEvent(ureq, Event.DONE_EVENT);
 	}
 }
