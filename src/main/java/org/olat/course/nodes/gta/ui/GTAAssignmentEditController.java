@@ -187,7 +187,7 @@ public class GTAAssignmentEditController extends AbstractAssignmentEditControlle
 		}
 
 		// email confirmation text
-		String emailText = textEl.getValue();
+		String emailText = emailTextEl.getValue();
 		config.setStringValue(GTACourseNode.GTASK_ASSIGNMENT_TEXT, emailText);
 		boolean emailConfirmation = emailConfirmationEl.isAtLeastSelected(1);
 		config.setBooleanEntry(GTACourseNode.GTASK_ASSIGNMENT_MAIL_CONFIRMATION, emailConfirmation);
