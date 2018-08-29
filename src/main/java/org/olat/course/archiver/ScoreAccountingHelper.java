@@ -28,14 +28,7 @@ package org.olat.course.archiver;
 import java.io.OutputStream;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import org.apache.commons.io.IOUtils;
 import org.olat.basesecurity.GroupRoles;
@@ -71,7 +64,6 @@ import org.olat.repository.RepositoryService;
 import org.olat.resource.OLATResource;
 import org.olat.user.UserManager;
 import org.olat.user.propertyhandlers.UserPropertyHandler;
-import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * @author schneider
@@ -112,8 +104,9 @@ public class ScoreAccountingHelper {
 		String mi = t.translate("column.field.missing");
 		String yes = t.translate("column.field.yes");
 		String no = t.translate("column.field.no");
-		String submitted = t.translate("column.field.submitted");
-		String taskName = t.translate("column.field.taskName");
+		String sbm = t.translate("column.field.submitted");
+		String tn = t.translate("column.field.taskName");
+		String dl = t.translate("column.field.deadline");
 
 		Row headerRow1 = sheet.newRow();
 		headerRow1.addCell(headerColCnt++, sequentialNumber);
@@ -153,8 +146,9 @@ public class ScoreAccountingHelper {
 		Row headerRow2 = sheet.newRow();
 		for(AssessableCourseNode acNode:myNodes) {
 			if (acNode.getType().equals("ita")) {
-				headerRow2.addCell(header2ColCnt++, taskName);
-				headerRow2.addCell(header2ColCnt++, submitted);
+				headerRow2.addCell(header2ColCnt++, tn);
+				headerRow2.addCell(header2ColCnt++, dl);
+				headerRow2.addCell(header2ColCnt++, sbm);
 			}
 			
 			boolean scoreOk = acNode.hasScoreConfigured();
@@ -213,23 +207,33 @@ public class ScoreAccountingHelper {
 			// create a identenv with no roles, no attributes, no locale
 			IdentityEnvironment ienv = new IdentityEnvironment();
 			ienv.setIdentity(identity);
-			UserCourseEnvironment uce = new UserCourseEnvironmentImpl(ienv, course.getCourseEnvironment());
+			UserCourseEnvironment uce = new UserCourseEnvironmentImpl(ienv, courseEnvironment);
 			ScoreAccounting scoreAccount = uce.getScoreAccounting();
 			scoreAccount.evaluateAll();
 			AssessmentManager am = course.getCourseEnvironment().getAssessmentManager();
 
 			final GTAManager gtaManager = CoreSpringFactory.getImpl(GTAManager.class);
 
-			for (AssessableCourseNode acnode:myNodes) {
+			for (AssessableCourseNode acnode : myNodes) {
 				boolean scoreOk = acnode.hasScoreConfigured();
 				boolean passedOk = acnode.hasPassedConfigured();
 				boolean attemptsOk = acnode.hasAttemptsConfigured();
 				boolean commentOk = acnode.hasCommentConfigured();
 
 				if (acnode.getType().equals("ita")) {
-					TaskList taskList = gtaManager.getTaskList(course.getCourseEnvironment().getCourseGroupManager().getCourseEntry(), (GTACourseNode) acnode);
+
+					GTACourseNode gtaNode = (GTACourseNode) acnode;
+					TaskList taskList = gtaManager.getTaskList(courseEnvironment.getCourseGroupManager().getCourseEntry(), gtaNode);
 					Task task = gtaManager.getTask(identity, taskList);
 					dataRow.addCell(dataColCnt++, task != null ? task.getTaskName() : "-");
+
+					Date deadline = getAssignmentDeadline(task, gtaNode);
+					if (deadline != null) {
+						dataRow.addCell(dataColCnt++, deadline, workbook.getStyles().getDateStyle());
+					} else { // date == null
+						dataRow.addCell(dataColCnt++, mi);
+					}
+
 
 					String log = acnode.getUserLog(uce);
 					String date = null;
@@ -428,6 +432,22 @@ public class ScoreAccountingHelper {
 			collectAssessableCourseNodes(cn, nodeList);
 		}
 	}
-	
+
+	private static Date getAssignmentDeadline(Task task, GTACourseNode gtaNode) {
+		Date dueDate = gtaNode.getModuleConfiguration().getDateValue(GTACourseNode.GTASK_ASSIGNMENT_DEADLINE);
+		boolean relativeDate = gtaNode.getModuleConfiguration().getBooleanSafe(GTACourseNode.GTASK_RELATIVE_DATES);
+		if (relativeDate) {
+			int numOfDays = gtaNode.getModuleConfiguration().getIntegerSafe(GTACourseNode.GTASK_ASSIGNMENT_DEADLINE_RELATIVE, -1);
+			if (numOfDays >= 0) {
+				Calendar cal = Calendar.getInstance();
+				cal.setTime(task.getAssignmentDate());
+				cal.add(Calendar.DATE, numOfDays);
+				return cal.getTime();
+			}
+		} else if (dueDate != null) {
+			return dueDate;
+		}
+		return null;
+	}
 
 }

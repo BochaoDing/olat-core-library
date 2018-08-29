@@ -175,7 +175,7 @@ public class GTAParticipantController extends GTAAbstractController {
 						}
 						showInfo("task.successfully.assigned");
 						showAssignedTask(ureq, assignedTask);
-						//do send e-mail
+						// send e-mail
 						if (config.getBooleanSafe(GTACourseNode.GTASK_ASSIGNMENT_MAIL_CONFIRMATION)) {
 							doAssignmentEmail(assignedTask);
 						}
@@ -196,6 +196,7 @@ public class GTAParticipantController extends GTAAbstractController {
 	
 	private void showAssignedTask(UserRequest ureq, Task assignedTask) {
 		String message = gtaNode.getModuleConfiguration().getStringValue(GTACourseNode.GTASK_USERS_TEXT);
+		// TODO merge data into placeholders using the same logic as in GTAAssignmentMailTemplate ?
 		TaskDefinition taskDef = getTaskDefinition(assignedTask);
 		assignedTaskCtrl = new GTAAssignedTaskController(ureq, getWindowControl(), assignedTask,
 				taskDef, courseEnv, gtaNode,
@@ -386,9 +387,9 @@ public class GTAParticipantController extends GTAAbstractController {
 				recipientsTO = Collections.singletonList(assessedIdentity);
 			}
 
-			Date deadline = new Date(); // TODO set right deadline date here!!!
+			DueDate dueDate = getAssignementDueDate(assignedTask);
 			String subject = translate("assignment.email.subject");
-			MailTemplate template = new GTAAssignmentMailTemplate(subject, body, deadline, assignedTask.getTaskName(), getIdentity(), getTranslator());
+			MailTemplate template = new GTAAssignmentMailTemplate(subject, body, dueDate.getDueDate(), assignedTask.getTaskName(), getIdentity(), getTranslator());
 
 			MailerResult result = new MailerResult();
 			MailBundle[] bundles = mailManager.makeMailBundles(context, recipientsTO, template, null, UUID.randomUUID().toString(), result);
@@ -682,7 +683,7 @@ public class GTAParticipantController extends GTAAbstractController {
 				resetDueDates();
 				process(ureq);
 
-				//do send e-mail
+				// send e-mail
 				if (config.getBooleanSafe(GTACourseNode.GTASK_ASSIGNMENT_MAIL_CONFIRMATION)) {
 					Task assignedTask = availableTaskCtrl.getSelectedTask();
 					doAssignmentEmail(assignedTask);
