@@ -286,7 +286,12 @@ public class CourseHandler implements RepositoryHandler {
 			// prepare cleanup folder
 			String courseId = fImportBaseDirectory.getParentFile().getName();
 			File bcRoot = fImportBaseDirectory.getParentFile().getParentFile().getParentFile();
-			File dir = new File(bcRoot.getPath() + File.separator + CourseCleanupJob.CLEANUP_ROOT_DIR_NAME + File.separator + courseId);
+			// LMSUZH-436: make sure that cleanup root folder exists before making any subfolders
+			File cleanupRoot = new File(bcRoot.getPath() + File.separator + CourseCleanupJob.CLEANUP_ROOT_DIR_NAME);
+			if (!cleanupRoot.exists() && !cleanupRoot.mkdir()) {
+				throw new IOException("Could not create cleanup folder");
+			}
+			File dir = new File(cleanupRoot.getPath() + File.separator + courseId);
 			if (!dir.mkdir()) {
 				throw new IOException("Could not move export to cleanup");
 			}
