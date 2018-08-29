@@ -77,6 +77,6 @@ public class SchedulerTest extends OlatTestCase {
 		cal.add(Calendar.SECOND, 5);
 		cal.add(Calendar.MILLISECOND, 011);
 		Date end = cal.getTime();
-		Assert.assertEquals(5, TriggerUtils.computeFireTimesBetween((OperableTrigger)trigger.getObject(), quartzCal, start, end).size());
+		Assert.assertEquals(6, TriggerUtils.computeFireTimesBetween((OperableTrigger)trigger.getObject(), quartzCal, start, end).size());
 	}
 }
