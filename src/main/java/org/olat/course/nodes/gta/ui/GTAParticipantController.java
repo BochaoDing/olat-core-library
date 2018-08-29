@@ -679,14 +679,17 @@ public class GTAParticipantController extends GTAAbstractController {
 	protected void event(UserRequest ureq, Controller source, Event event) {
 		if(availableTaskCtrl == source) {
 			if(event == Event.DONE_EVENT) {
+				Task assignedTask = availableTaskCtrl.getSelectedTask();
+
 				cleanUpProcess();
 				resetDueDates();
 				process(ureq);
 
 				// send e-mail
 				if (config.getBooleanSafe(GTACourseNode.GTASK_ASSIGNMENT_MAIL_CONFIRMATION)) {
-					Task assignedTask = availableTaskCtrl.getSelectedTask();
-					doAssignmentEmail(assignedTask);
+					if (assignedTask != null) {
+						doAssignmentEmail(assignedTask);
+					}
 				}
 			}
 		} else if(revisionDocumentsCtrl == source) {
