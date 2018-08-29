@@ -8,6 +8,7 @@ import org.springframework.scheduling.quartz.CronTriggerFactoryBean;
 import org.springframework.scheduling.quartz.SimpleTriggerFactoryBean;
 import org.springframework.stereotype.Component;
 
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -38,6 +39,7 @@ public class TriggerListFactoryImpl implements TriggerListFactory {
 	private final CronTriggerFactoryBean videoTranscodingTrigger;
 	private final CronTriggerFactoryBean automaticLifecycleTrigger;
 	private final CronTriggerFactoryBean courseCleanupTrigger;
+	private final ActiveTrigger[] activeTriggers;
 
 	@Autowired
 	public TriggerListFactoryImpl(@Qualifier("sendNotificationsEmailTrigger") CronTriggerFactoryBean notificationsEmailTrigger,
@@ -57,7 +59,8 @@ public class TriggerListFactoryImpl implements TriggerListFactory {
 								  @Qualifier("reminderTrigger") CronTriggerFactoryBean reminderTrigger,
 								  @Qualifier("videoTranscodingTrigger") CronTriggerFactoryBean videoTranscodingTrigger,
 								  @Qualifier("automaticLifecycleTrigger") CronTriggerFactoryBean automaticLifecycleTrigger,
-								  @Qualifier("courseCleanupTrigger") CronTriggerFactoryBean courseCleanupTrigger) {
+								  @Qualifier("courseCleanupTrigger") CronTriggerFactoryBean courseCleanupTrigger,
+								  ActiveTrigger[] activeTriggers) {
 		this.notificationsEmailTrigger = notificationsEmailTrigger;
 		this.adobeCleanupJob = adobeCleanupJob;
 		this.updateStatisticsTrigger = updateStatisticsTrigger;
@@ -76,6 +79,7 @@ public class TriggerListFactoryImpl implements TriggerListFactory {
 		this.videoTranscodingTrigger = videoTranscodingTrigger;
 		this.automaticLifecycleTrigger = automaticLifecycleTrigger;
 		this.courseCleanupTrigger = courseCleanupTrigger;
+		this.activeTriggers = activeTriggers;
 	}
 
 	@Override
@@ -101,6 +105,26 @@ public class TriggerListFactoryImpl implements TriggerListFactory {
 		triggerList.add(adobeCleanupJob);
 		triggerList.add(automaticLifecycleTrigger);
 		triggerList.add(courseCleanupTrigger);
+
+		// Add triggers implementing ActiveTrigger marker interface
+		for (ActiveTrigger activeTrigger : activeTriggers) {
+			if (activeTrigger instanceof Trigger) {
+				triggerList.add(activeTrigger);
+			}
+		}
+
 		return triggerList;
+	}
+
+	/**
+	 * In order the event listener array is never null, one listener must
+	 * exists. Therefore this listener is implemented as class.
+	 */
+	@Component
+	public static class ActiveTriggerDummy extends ActiveTrigger {
+
+		@Override
+		public void afterPropertiesSet() throws ParseException {
+		}
 	}
 }

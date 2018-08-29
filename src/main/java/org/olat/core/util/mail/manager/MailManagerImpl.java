@@ -810,8 +810,9 @@ public class MailManagerImpl implements MailManager, InitializingBean  {
 		List<DBMailAttachment> attachments = getAttachments(mail);
 
 		Address to = createAddress(identity, result, true);
-		MimeMessage message = createForwardMimeMessage(to, to, mail.getSubject(), mail.getBody(), attachments, result);
-		if(message != null) {
+		Address from = createAddress(mail.getFrom().getRecipient(), result, true);
+		MimeMessage message = createForwardMimeMessage(from, to, mail.getSubject(), mail.getBody(), attachments, result);
+		if (message != null) {
 			sendMessage(message, result);
 		}
 
@@ -1456,10 +1457,9 @@ public class MailManagerImpl implements MailManager, InitializingBean  {
 				// with attachment use multipart message
 				Multipart multipart = new MimeMultipart();
 				// 1) add body part
-				BodyPart messageBodyPart = new MimeBodyPart();
-				messageBodyPart.setText(body);
-				multipart.addBodyPart(messageBodyPart);
+				addBodyPart(body, multipart);
 				// 2) add attachments
+				BodyPart messageBodyPart;
 				for (DBMailAttachment attachment : attachments) {
 					// abort if attachment does not exist
 					if (attachment == null || attachment.getSize()  <= 0) {
@@ -1480,7 +1480,11 @@ public class MailManagerImpl implements MailManager, InitializingBean  {
 				msg.setContent(multipart);
 			} else {
 				// without attachment everything is easy, just set as text
-				msg.setText(body, "utf-8");
+				if(StringHelper.isHtml(body)) {
+					msg.setContent(createMultipartAlternative(body));
+				} else {
+					msg.setText(body, "utf-8");
+				}
 			}
 			msg.setSentDate(new Date());
 			msg.saveChanges();
@@ -1490,7 +1494,20 @@ public class MailManagerImpl implements MailManager, InitializingBean  {
 			return null;
 		}
 	}
-	
+
+	private void addBodyPart(String body, Multipart multipart) throws MessagingException {
+		if(StringHelper.isHtml(body)) {
+			Multipart alternativePart = createMultipartAlternative(body);
+			MimeBodyPart wrap = new MimeBodyPart();
+			wrap.setContent(alternativePart);
+			multipart.addBodyPart(wrap);
+		} else {
+			BodyPart messageBodyPart = new MimeBodyPart();
+			messageBodyPart.setText(body);
+			multipart.addBodyPart(messageBodyPart);
+		}
+	}
+
 	/**
 	 * Only legal way to create a MimeMessage!
 	 * 
@@ -1594,17 +1611,8 @@ public class MailManagerImpl implements MailManager, InitializingBean  {
 				// with attachment use multipart message
 				Multipart multipart = new MimeMultipart("mixed");
 				// 1) add body part
-				if(StringHelper.isHtml(body)) {
-					Multipart alternativePart = createMultipartAlternative(body);
-					MimeBodyPart wrap = new MimeBodyPart();
-					wrap.setContent(alternativePart);
-					multipart.addBodyPart(wrap);
-				} else {
-					BodyPart messageBodyPart = new MimeBodyPart();
-					messageBodyPart.setText(body);
-					multipart.addBodyPart(messageBodyPart);
-				}
-				
+				addBodyPart(body, multipart);
+
 				// 2) add attachments
 				for (File attachmentFile : attachments) {
 					// abort if attachment does not exist

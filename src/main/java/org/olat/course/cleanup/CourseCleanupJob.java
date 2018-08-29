@@ -21,12 +21,15 @@ public class CourseCleanupJob extends QuartzJobBean {
     protected void executeInternal(JobExecutionContext context) throws JobExecutionException {
         String relPath = File.separator + CLEANUP_ROOT_DIR_NAME;
         OlatRootFolderImpl rootFolder = new OlatRootFolderImpl(relPath, null);
-        File cleanupBaseDirectory = rootFolder.getBasefile();
-        if (cleanupBaseDirectory.exists()) {
-            try {
-                FileUtils.deleteDirsAndFiles(cleanupBaseDirectory, true, false);
-            } catch (Exception e) {
-                log.error("Failed to empty olatdata/cleanup folder");
+        // LMSUZH-436: make sure that rootFoler is not null before calling getBasefile()
+        if (rootFolder.exists()) {
+            File cleanupBaseDirectory = rootFolder.getBasefile();
+            if (cleanupBaseDirectory.exists()) {
+                try {
+                    FileUtils.deleteDirsAndFiles(cleanupBaseDirectory, true, false);
+                } catch (Exception e) {
+                    log.error("Failed to empty olatdata/cleanup folder");
+                }
             }
         }
     }

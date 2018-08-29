@@ -30,7 +30,6 @@ public class SchedulerBeanFactory {
 	@Bean
 	@DependsOn("database")
 	public SchedulerFactoryBean schedulerFactoryBean() throws Exception {
-
 		SchedulerFactoryBean schedulerFactoryBean = new SchedulerFactoryBean();
 
 		schedulerFactoryBean.setWaitForJobsToCompleteOnShutdown(true);

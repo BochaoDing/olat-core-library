@@ -308,10 +308,6 @@ public class TUConfigForm extends FormBasicController {
 		tuser = uifactory.addTextElement("user", "TUConfigForm.user", 255, user == null ? "" : user, formLayout);
 		tpass = uifactory.addPasswordElement("pass", "TUConfigForm.pass", 255, pass == null ? "" : pass, formLayout);
 
-		checkboxPagePasswordProtected.setVisible(false);
-		tuser.setVisible(false);
-		tpass.setVisible(false);
-
 		uifactory.addFormSubmitButton("submit", formLayout);
 		
 		update();
@@ -334,9 +330,6 @@ public class TUConfigForm extends FormBasicController {
 			tpass.setValue("");
 			tpass.setVisible(false);
 		}
-		checkboxPagePasswordProtected.setVisible(false);
-		tuser.setVisible(false);
-		tpass.setVisible(false);
 	}
 	
 	@Override
