@@ -28,14 +28,7 @@ package org.olat.course.archiver;
 import java.io.OutputStream;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import org.apache.commons.io.IOUtils;
 import org.olat.basesecurity.GroupRoles;
@@ -55,10 +48,10 @@ import org.olat.course.assessment.AssessmentHelper;
 import org.olat.course.assessment.AssessmentManager;
 import org.olat.course.assessment.manager.UserCourseInformationsManager;
 import org.olat.course.groupsandrights.CourseGroupManager;
-import org.olat.course.nodes.ArchiveOptions;
-import org.olat.course.nodes.AssessableCourseNode;
-import org.olat.course.nodes.CourseNode;
-import org.olat.course.nodes.STCourseNode;
+import org.olat.course.nodes.*;
+import org.olat.course.nodes.gta.GTAManager;
+import org.olat.course.nodes.gta.Task;
+import org.olat.course.nodes.gta.TaskList;
 import org.olat.course.run.environment.CourseEnvironment;
 import org.olat.course.run.scoring.ScoreAccounting;
 import org.olat.course.run.scoring.ScoreEvaluation;
@@ -77,7 +70,7 @@ import org.olat.user.propertyhandlers.UserPropertyHandler;
  * Comment: Provides functionality to get a course results overview.
  */
 public class ScoreAccountingHelper {
-	
+
 	/**
 	 * The results from assessable nodes are written to one row per user into an excel-sheet. An
      * assessable node will only appear if it is producing at least one of the
@@ -111,7 +104,9 @@ public class ScoreAccountingHelper {
 		String mi = t.translate("column.field.missing");
 		String yes = t.translate("column.field.yes");
 		String no = t.translate("column.field.no");
-		String submitted = t.translate("column.field.submitted");
+		String sbm = t.translate("column.field.submitted");
+		String tn = t.translate("column.field.taskName");
+		String dl = t.translate("column.field.deadline");
 
 		Row headerRow1 = sheet.newRow();
 		headerRow1.addCell(headerColCnt++, sequentialNumber);
@@ -151,7 +146,9 @@ public class ScoreAccountingHelper {
 		Row headerRow2 = sheet.newRow();
 		for(AssessableCourseNode acNode:myNodes) {
 			if (acNode.getType().equals("ita")) {
-				headerRow2.addCell(header2ColCnt++, submitted);
+				headerRow2.addCell(header2ColCnt++, tn);
+				headerRow2.addCell(header2ColCnt++, dl);
+				headerRow2.addCell(header2ColCnt++, sbm);
 			}
 			
 			boolean scoreOk = acNode.hasScoreConfigured();
@@ -210,18 +207,34 @@ public class ScoreAccountingHelper {
 			// create a identenv with no roles, no attributes, no locale
 			IdentityEnvironment ienv = new IdentityEnvironment();
 			ienv.setIdentity(identity);
-			UserCourseEnvironment uce = new UserCourseEnvironmentImpl(ienv, course.getCourseEnvironment());
+			UserCourseEnvironment uce = new UserCourseEnvironmentImpl(ienv, courseEnvironment);
 			ScoreAccounting scoreAccount = uce.getScoreAccounting();
 			scoreAccount.evaluateAll();
 			AssessmentManager am = course.getCourseEnvironment().getAssessmentManager();
 
-			for (AssessableCourseNode acnode:myNodes) {
+			final GTAManager gtaManager = CoreSpringFactory.getImpl(GTAManager.class);
+
+			for (AssessableCourseNode acnode : myNodes) {
 				boolean scoreOk = acnode.hasScoreConfigured();
 				boolean passedOk = acnode.hasPassedConfigured();
 				boolean attemptsOk = acnode.hasAttemptsConfigured();
 				boolean commentOk = acnode.hasCommentConfigured();
 
 				if (acnode.getType().equals("ita")) {
+
+					GTACourseNode gtaNode = (GTACourseNode) acnode;
+					TaskList taskList = gtaManager.getTaskList(courseEnvironment.getCourseGroupManager().getCourseEntry(), gtaNode);
+					Task task = gtaManager.getTask(identity, taskList);
+					dataRow.addCell(dataColCnt++, task != null ? task.getTaskName() : "-");
+
+					Date deadline = getAssignmentDeadline(task, gtaNode);
+					if (deadline != null) {
+						dataRow.addCell(dataColCnt++, deadline, workbook.getStyles().getDateStyle());
+					} else { // date == null
+						dataRow.addCell(dataColCnt++, mi);
+					}
+
+
 					String log = acnode.getUserLog(uce);
 					String date = null;
 					Date lastUploaded = null;
@@ -419,6 +432,22 @@ public class ScoreAccountingHelper {
 			collectAssessableCourseNodes(cn, nodeList);
 		}
 	}
-	
+
+	private static Date getAssignmentDeadline(Task task, GTACourseNode gtaNode) {
+		Date dueDate = gtaNode.getModuleConfiguration().getDateValue(GTACourseNode.GTASK_ASSIGNMENT_DEADLINE);
+		boolean relativeDate = gtaNode.getModuleConfiguration().getBooleanSafe(GTACourseNode.GTASK_RELATIVE_DATES);
+		if (relativeDate) {
+			int numOfDays = gtaNode.getModuleConfiguration().getIntegerSafe(GTACourseNode.GTASK_ASSIGNMENT_DEADLINE_RELATIVE, -1);
+			if (numOfDays >= 0) {
+				Calendar cal = Calendar.getInstance();
+				cal.setTime(task.getAssignmentDate());
+				cal.add(Calendar.DATE, numOfDays);
+				return cal.getTime();
+			}
+		} else if (dueDate != null) {
+			return dueDate;
+		}
+		return null;
+	}
 
 }
