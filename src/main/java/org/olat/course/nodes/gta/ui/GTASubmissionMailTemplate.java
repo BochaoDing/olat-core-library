@@ -36,13 +36,13 @@ import org.olat.core.util.mail.MailTemplate;
  * @author srosse, stephane.rosse@frentix.com, http://www.frentix.com
  *
  */
-public class GTAMailTemplate extends MailTemplate {
+public class GTASubmissionMailTemplate extends MailTemplate {
 	
 	private final Identity identity;
 	private final File[] files;
 	private final Translator translator;
 	
-	public GTAMailTemplate(String subject, String body, File[] files, Identity identity, Translator translator) {
+	public GTASubmissionMailTemplate(String subject, String body, File[] files, Identity identity, Translator translator) {
 		super(subject, body, null);
 		this.translator = translator;
 		this.identity = identity;
