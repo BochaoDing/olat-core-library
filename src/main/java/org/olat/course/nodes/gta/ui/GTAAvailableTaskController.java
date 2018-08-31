@@ -269,9 +269,9 @@ public class GTAAvailableTaskController extends FormBasicController {
 			showWarning("task.alreadyChosen");
 		} else if (response == null || response.getStatus() == AssignmentResponse.Status.ok) {
 			showInfo("task.successfully.assigned");
+			selectedTask = response.getTask();
 			fireEvent(ureq, Event.DONE_EVENT);
 			gtaManager.log("Assignment", "task assigned", response.getTask(), getIdentity(), assessedIdentity, assessedGroup, courseEnv, gtaNode);
-			selectedTask = response.getTask();
 			//doSendConfirmationEmail();
 		}
 	}
