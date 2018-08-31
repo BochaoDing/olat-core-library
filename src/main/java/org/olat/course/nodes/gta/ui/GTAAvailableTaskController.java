@@ -276,28 +276,28 @@ public class GTAAvailableTaskController extends FormBasicController {
 		}
 	}
 	
-	private void doSendConfirmationEmail() {
-		MailContext context = new MailContextImpl(getWindowControl().getBusinessControl().getAsString());
-		
-		MailBundle bundle = new MailBundle();
-		bundle.setContext(context);
-		ContactList contacts = new ContactList("participants");
-		if(GTAType.group.name().equals(gtaNode.getModuleConfiguration().getStringValue(GTACourseNode.GTASK_TYPE))) {
-			List<Identity> participants = businessGroupService.getMembers(assessedGroup, GroupRoles.participant.name());
-			contacts.addAllIdentites(participants);
-			bundle.setMetaId(UUID.randomUUID().toString());
-		} else {
-			contacts.add(assessedIdentity);
-		}
-		bundle.setContactList(contacts);
+//	private void doSendConfirmationEmail() {
+//		MailContext context = new MailContextImpl(getWindowControl().getBusinessControl().getAsString());
+//
+//		MailBundle bundle = new MailBundle();
+//		bundle.setContext(context);
+//		ContactList contacts = new ContactList("participants");
+//		if(GTAType.group.name().equals(gtaNode.getModuleConfiguration().getStringValue(GTACourseNode.GTASK_TYPE))) {
+//			List<Identity> participants = businessGroupService.getMembers(assessedGroup, GroupRoles.participant.name());
+//			contacts.addAllIdentites(participants);
+//			bundle.setMetaId(UUID.randomUUID().toString());
+//		} else {
+//			contacts.add(assessedIdentity);
+//		}
+//		bundle.setContactList(contacts);
+//
+//		String subject = translate("mail.confirm.assignment.subject");
+//		String body = translate("mail.confirm.assignment.body");
+//		bundle.setContent(subject, body);
+//
+//		mailManager.sendMessage(bundle);
+//	}
 
-		String subject = translate("mail.confirm.assignment.subject");
-		String body = translate("mail.confirm.assignment.body");
-		bundle.setContent(subject, body);
-
-		mailManager.sendMessage(bundle);
-	}
-	
 	private void doDescription(UserRequest ureq, AvailableTask row) {
 		removeAsListenerAndDispose(descriptionCalloutCtrl);
 		
