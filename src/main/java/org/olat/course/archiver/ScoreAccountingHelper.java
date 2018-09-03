@@ -52,6 +52,7 @@ import org.olat.course.nodes.*;
 import org.olat.course.nodes.gta.GTAManager;
 import org.olat.course.nodes.gta.Task;
 import org.olat.course.nodes.gta.TaskList;
+import org.olat.course.nodes.gta.model.TaskDefinition;
 import org.olat.course.run.environment.CourseEnvironment;
 import org.olat.course.run.scoring.ScoreAccounting;
 import org.olat.course.run.scoring.ScoreEvaluation;
@@ -121,9 +122,25 @@ public class ScoreAccountingHelper {
 		for (UserPropertyHandler propertyHandler : userPropertyHandlers) {
 			headerRow1.addCell(headerColCnt++, t.translate(propertyHandler.i18nColumnDescriptorLabelKey()));
 		}
-		
+
+		final GTAManager gtaManager = CoreSpringFactory.getImpl(GTAManager.class);
+		HashMap<String, HashMap<String, String>> nodeTaskTitles = new HashMap<>();
+		for (AssessableCourseNode acNode : myNodes) {
+			GTACourseNode gtaNode = (GTACourseNode) acNode;
+			String nodeId = gtaNode.getIdent();
+			List<TaskDefinition> taskDefinitionList = gtaManager.getTaskDefinitions(course.getCourseEnvironment(), gtaNode);
+			if (taskDefinitionList != null && taskDefinitionList.size() > 0) {
+				for (TaskDefinition taskDefinition : taskDefinitionList) {
+					if (!nodeTaskTitles.containsKey(nodeId)) {
+						nodeTaskTitles.put(nodeId, new HashMap<String, String>());
+					}
+					nodeTaskTitles.get(nodeId).put(taskDefinition.getFilename(), taskDefinition.getTitle());
+				}
+			}
+		}
+
 		int header1ColCnt = headerColCnt;
-		for(AssessableCourseNode acNode:myNodes) {
+		for (AssessableCourseNode acNode : myNodes) {
 			headerRow1.addCell(header1ColCnt++, acNode.getShortTitle());
 			header1ColCnt += acNode.getType().equals("ita") ? 1 : 0;
 			
@@ -212,8 +229,6 @@ public class ScoreAccountingHelper {
 			scoreAccount.evaluateAll();
 			AssessmentManager am = course.getCourseEnvironment().getAssessmentManager();
 
-			final GTAManager gtaManager = CoreSpringFactory.getImpl(GTAManager.class);
-
 			for (AssessableCourseNode acnode : myNodes) {
 				boolean scoreOk = acnode.hasScoreConfigured();
 				boolean passedOk = acnode.hasPassedConfigured();
@@ -224,16 +239,21 @@ public class ScoreAccountingHelper {
 
 					GTACourseNode gtaNode = (GTACourseNode) acnode;
 					TaskList taskList = gtaManager.getTaskList(courseEnvironment.getCourseGroupManager().getCourseEntry(), gtaNode);
+					HashMap<String, String> fileNameTaskNameMap = nodeTaskTitles.getOrDefault(acnode.getIdent(), new HashMap<>());
 					Task task = gtaManager.getTask(identity, taskList);
-					dataRow.addCell(dataColCnt++, task != null ? task.getTaskName() : "-");
-
-					Date deadline = getAssignmentDeadline(task, gtaNode);
-					if (deadline != null) {
-						dataRow.addCell(dataColCnt++, deadline, workbook.getStyles().getDateStyle());
-					} else { // date == null
-						dataRow.addCell(dataColCnt++, mi);
+					if (task != null) {
+						String fileName = task.getTaskName();
+						dataRow.addCell(dataColCnt++, fileNameTaskNameMap.getOrDefault(fileName, fileName));
+						Date deadline = getAssignmentDeadline(task, gtaNode);
+						if (deadline != null) {
+							dataRow.addCell(dataColCnt++, deadline, workbook.getStyles().getDateStyle());
+						} else { // date == null
+							dataRow.addCell(dataColCnt++, "-");
+						}
+					} else {
+						dataRow.addCell(dataColCnt++, "");
+						dataRow.addCell(dataColCnt++, "-");
 					}
-
 
 					String log = acnode.getUserLog(uce);
 					String date = null;
