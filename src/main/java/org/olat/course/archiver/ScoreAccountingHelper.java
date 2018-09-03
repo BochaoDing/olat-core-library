@@ -50,6 +50,7 @@ import org.olat.course.assessment.manager.UserCourseInformationsManager;
 import org.olat.course.groupsandrights.CourseGroupManager;
 import org.olat.course.nodes.*;
 import org.olat.course.nodes.gta.GTAManager;
+import org.olat.course.nodes.gta.GTARelativeToDates;
 import org.olat.course.nodes.gta.Task;
 import org.olat.course.nodes.gta.TaskList;
 import org.olat.course.nodes.gta.model.TaskDefinition;
@@ -60,8 +61,10 @@ import org.olat.course.run.userview.UserCourseEnvironment;
 import org.olat.course.run.userview.UserCourseEnvironmentImpl;
 import org.olat.group.BusinessGroup;
 import org.olat.group.BusinessGroupService;
+import org.olat.modules.ModuleConfiguration;
 import org.olat.repository.RepositoryEntry;
 import org.olat.repository.RepositoryService;
+import org.olat.repository.model.RepositoryEntryLifecycle;
 import org.olat.resource.OLATResource;
 import org.olat.user.UserManager;
 import org.olat.user.propertyhandlers.UserPropertyHandler;
@@ -250,7 +253,7 @@ public class ScoreAccountingHelper {
 						String fileName = task.getTaskName();
 						HashMap<String, String> fileNameTaskNameMap = nodeTaskTitles.getOrDefault(acnode.getIdent(), new HashMap<>());
 						dataRow.addCell(dataColCnt++, fileNameTaskNameMap.getOrDefault(fileName, fileName));
-						Date deadline = getAssignmentDeadline(task, gtaNode);
+						Date deadline = getAssignmentDeadline(task, gtaNode, courseEnvironment, identity);
 						if (deadline != null) {
 							dataRow.addCell(dataColCnt++, deadline, workbook.getStyles().getDateStyle());
 						} else { // date == null
@@ -459,19 +462,48 @@ public class ScoreAccountingHelper {
 		}
 	}
 
-	private static Date getAssignmentDeadline(Task task, GTACourseNode gtaNode) {
-		Date dueDate = gtaNode.getModuleConfiguration().getDateValue(GTACourseNode.GTASK_ASSIGNMENT_DEADLINE);
-		boolean relativeDate = gtaNode.getModuleConfiguration().getBooleanSafe(GTACourseNode.GTASK_RELATIVE_DATES);
-		if (relativeDate) {
-			int numOfDays = gtaNode.getModuleConfiguration().getIntegerSafe(GTACourseNode.GTASK_ASSIGNMENT_DEADLINE_RELATIVE, -1);
-			if (numOfDays >= 0) {
-				Calendar cal = Calendar.getInstance();
-				cal.setTime(task.getAssignmentDate());
-				cal.add(Calendar.DATE, numOfDays);
-				return cal.getTime();
+	private static Date getAssignmentDeadline(Task task, GTACourseNode gtaNode, CourseEnvironment courseEnv, Identity identity) {
+		ModuleConfiguration moduleConfiguration = gtaNode.getModuleConfiguration();
+		if (moduleConfiguration.getBooleanSafe(GTACourseNode.GTASK_RELATIVE_DATES)) {
+			int numOfDays = moduleConfiguration.getIntegerSafe(GTACourseNode.GTASK_ASSIGNMENT_DEADLINE_RELATIVE, -1);
+			String relativeTo = moduleConfiguration.getStringValue(GTACourseNode.GTASK_SUBMIT_DEADLINE_RELATIVE_TO);
+			// both number of days and type of reference date should be given!
+			if (numOfDays >= 0 && StringHelper.containsNonWhitespace(relativeTo)) {
+				GTARelativeToDates rel = GTARelativeToDates.valueOf(relativeTo);
+				Date referenceDate = null;
+				switch (rel) {
+					case courseStart:
+						RepositoryEntryLifecycle lifecycle = gtaNode.getReferencedRepositoryEntry().getLifecycle();
+						if (lifecycle != null && lifecycle.getValidFrom() != null) {
+							referenceDate = lifecycle.getValidFrom();
+						}
+						break;
+					case courseLaunch:
+						final UserCourseInformationsManager userCourseInformationsManager = CoreSpringFactory.getImpl(UserCourseInformationsManager.class);
+						referenceDate = userCourseInformationsManager.getInitialLaunchDate(courseEnv.getCourseGroupManager().getCourseResource(), identity);
+						break;
+					case enrollment:
+						final RepositoryService repositoryService = CoreSpringFactory.getImpl(RepositoryService.class);
+						referenceDate = repositoryService.getEnrollmentDate(courseEnv.getCourseGroupManager().getCourseEntry(), identity);
+						break;
+					case assignment:
+						if (task != null) {
+							referenceDate = task.getAssignmentDate();
+						}
+						break;
+				}
+				// only calculate time when reference date is found
+				if (referenceDate != null) {
+					Calendar cal = Calendar.getInstance();
+					cal.setTime(referenceDate);
+					cal.add(Calendar.DATE, numOfDays);
+					return cal.getTime();
+				} else {
+					return null;
+				}
 			}
-		} else if (dueDate != null) {
-			return dueDate;
+		} else {
+			return moduleConfiguration.getDateValue(GTACourseNode.GTASK_ASSIGNMENT_DEADLINE);
 		}
 		return null;
 	}
