@@ -126,15 +126,17 @@ public class ScoreAccountingHelper {
 		final GTAManager gtaManager = CoreSpringFactory.getImpl(GTAManager.class);
 		HashMap<String, HashMap<String, String>> nodeTaskTitles = new HashMap<>();
 		for (AssessableCourseNode acNode : myNodes) {
-			GTACourseNode gtaNode = (GTACourseNode) acNode;
-			String nodeId = gtaNode.getIdent();
-			List<TaskDefinition> taskDefinitionList = gtaManager.getTaskDefinitions(course.getCourseEnvironment(), gtaNode);
-			if (taskDefinitionList != null && taskDefinitionList.size() > 0) {
-				for (TaskDefinition taskDefinition : taskDefinitionList) {
-					if (!nodeTaskTitles.containsKey(nodeId)) {
-						nodeTaskTitles.put(nodeId, new HashMap<String, String>());
+			if (acNode instanceof GTACourseNode) {
+				GTACourseNode gtaNode = (GTACourseNode) acNode;
+				String nodeId = gtaNode.getIdent();
+				List<TaskDefinition> taskDefinitionList = gtaManager.getTaskDefinitions(course.getCourseEnvironment(), gtaNode);
+				if (taskDefinitionList != null && taskDefinitionList.size() > 0) {
+					for (TaskDefinition taskDefinition : taskDefinitionList) {
+						if (!nodeTaskTitles.containsKey(nodeId)) {
+							nodeTaskTitles.put(nodeId, new HashMap<String, String>());
+						}
+						nodeTaskTitles.get(nodeId).put(taskDefinition.getFilename(), taskDefinition.getTitle());
 					}
-					nodeTaskTitles.get(nodeId).put(taskDefinition.getFilename(), taskDefinition.getTitle());
 				}
 			}
 		}
@@ -237,12 +239,16 @@ public class ScoreAccountingHelper {
 
 				if (acnode.getType().equals("ita")) {
 
-					GTACourseNode gtaNode = (GTACourseNode) acnode;
-					TaskList taskList = gtaManager.getTaskList(courseEnvironment.getCourseGroupManager().getCourseEntry(), gtaNode);
-					HashMap<String, String> fileNameTaskNameMap = nodeTaskTitles.getOrDefault(acnode.getIdent(), new HashMap<>());
-					Task task = gtaManager.getTask(identity, taskList);
+					Task task = null;
+					GTACourseNode gtaNode = null;
+					if (acnode instanceof GTACourseNode) {
+						gtaNode = (GTACourseNode) acnode;
+						TaskList taskList = gtaManager.getTaskList(courseEnvironment.getCourseGroupManager().getCourseEntry(), gtaNode);
+						task = gtaManager.getTask(identity, taskList);
+					}
 					if (task != null) {
 						String fileName = task.getTaskName();
+						HashMap<String, String> fileNameTaskNameMap = nodeTaskTitles.getOrDefault(acnode.getIdent(), new HashMap<>());
 						dataRow.addCell(dataColCnt++, fileNameTaskNameMap.getOrDefault(fileName, fileName));
 						Date deadline = getAssignmentDeadline(task, gtaNode);
 						if (deadline != null) {
