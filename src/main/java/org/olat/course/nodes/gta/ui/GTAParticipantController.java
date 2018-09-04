@@ -305,7 +305,7 @@ public class GTAParticipantController extends GTAAbstractController {
 			documentsContainer = gtaManager.getSubmitContainer(courseEnv, gtaNode, assessedGroup);
 			File documentsDir = gtaManager.getSubmitDirectory(courseEnv, gtaNode, assessedGroup);
 			submittedDocuments = documentsDir.listFiles(new SystemFilenameFilter(true, false));
-			if(submittedDocuments.length == 0) {
+			if (submittedDocuments.length == 0) {
 				text = "<div class='o_warning'>" + translate("run.submit.confirm.warning.group", new String[]{ StringHelper.escapeHtml(assessedGroup.getName()) }) + "</div>";
 			} else {
 				text = translate("run.submit.confirm.group", new String[]{ StringHelper.escapeHtml(assessedGroup.getName()) });
@@ -314,7 +314,7 @@ public class GTAParticipantController extends GTAAbstractController {
 			documentsContainer = gtaManager.getSubmitContainer(courseEnv, gtaNode, getIdentity());
 			File documentsDir = gtaManager.getSubmitDirectory(courseEnv, gtaNode, getIdentity());
 			submittedDocuments = documentsDir.listFiles(new SystemFilenameFilter(true, false));
-			if(submittedDocuments.length == 0) {
+			if (submittedDocuments.length == 0) {
 				text = "<div class='o_warning'>" + translate("run.submit.confirm.warning") + "</div>";
 			} else {
 				text = translate("run.submit.confirm");
@@ -354,7 +354,7 @@ public class GTAParticipantController extends GTAAbstractController {
 	
 	private void doSubmissionEmail() {
 		String body = config.getStringValue(GTACourseNode.GTASK_SUBMISSION_TEXT);
-		if(StringHelper.containsNonWhitespace(body)) {
+		if (StringHelper.containsNonWhitespace(body)) {
 			MailContext context = new MailContextImpl(getWindowControl().getBusinessControl().getAsString());
 			List<Identity> recipientsTO;
 			File submitDirectory;
