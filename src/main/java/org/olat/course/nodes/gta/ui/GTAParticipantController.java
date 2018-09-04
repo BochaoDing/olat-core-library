@@ -381,20 +381,18 @@ public class GTAParticipantController extends GTAAbstractController {
 			MailTemplate template = new GTAAssignmentMailTemplate(subject, body, dueDate.getDueDate(), assignedTask.getTaskName(), getIdentity(), getTranslator());
 
 			MailerResult result = new MailerResult();
-			if (config.getBooleanSafe(GTACourseNode.GTASK_ASSIGNMENT_MAIL_CONFIRMATION_OWNER)) {
-				List<Identity> recipientsOwner = new ArrayList<>();
-				if (recipientsOwner.size() > 0) {
+			List<Identity> recipients = new ArrayList<>();
+			boolean sendToOwners = config.getBooleanSafe(GTACourseNode.GTASK_ASSIGNMENT_MAIL_CONFIRMATION_OWNER);
+			boolean sendToCoaches = config.getBooleanSafe(GTACourseNode.GTASK_ASSIGNMENT_MAIL_CONFIRMATION_COACH);
+			if (sendToCoaches || sendToOwners) {
+				// TODO use courseEntry, courseEnv to find out owners/coaches
+				if (sendToOwners) {
 					// TODO find out the list of owners
-					MailBundle[] bundles = mailManager.makeMailBundles(context, recipientsOwner, template, null, UUID.randomUUID().toString(), result);
-					mailManager.sendMessage(bundles);
+					// recipients.addAll(???);
 				}
-			}
-			if (config.getBooleanSafe(GTACourseNode.GTASK_ASSIGNMENT_MAIL_CONFIRMATION_COACH)) {
-				List<Identity> recipientsCoach = new ArrayList<>();
-				if (recipientsCoach.size() > 0) {
+				if (sendToCoaches) {
 					// TODO find out the list of coaches
-					MailBundle[] bundles = mailManager.makeMailBundles(context, recipientsCoach, template, null, UUID.randomUUID().toString(), result);
-					mailManager.sendMessage(bundles);
+					// recipients.addAll(???);
 				}
 			}
 			if (config.getBooleanSafe(GTACourseNode.GTASK_ASSIGNMENT_MAIL_CONFIRMATION_PARTICIPANT)) {
@@ -404,7 +402,11 @@ public class GTAParticipantController extends GTAAbstractController {
 				} else {
 					recipientsParticipant = Collections.singletonList(assessedIdentity);
 				}
-				MailBundle[] bundles = mailManager.makeMailBundles(context, recipientsParticipant, template, null, UUID.randomUUID().toString(), result);
+				recipients.addAll(recipientsParticipant);
+			}
+			// send message to all found recipients
+			if (recipients.size() > 0) {
+				MailBundle[] bundles = mailManager.makeMailBundles(context, recipients, template, null, UUID.randomUUID().toString(), result);
 				mailManager.sendMessage(bundles);
 			}
 		}
