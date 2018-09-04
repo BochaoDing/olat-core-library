@@ -47,10 +47,15 @@ public class GTAAssignmentEditController extends AbstractAssignmentEditControlle
 	private static final String[] previewKeys = new String[] { "enabled", "disabled" };
 	private static final String[] samplingKeys = new String[] { GTACourseNode.GTASK_SAMPLING_UNIQUE, GTACourseNode.GTASK_SAMPLING_REUSE };
 	private static final String[] enableKeys = new String[] { "on" };
+	private static final String[] emailRecipientKeys = new String[] {
+			GTACourseNode.GTASK_ASSIGNMENT_MAIL_CONFIRMATION_OWNER,
+			GTACourseNode.GTASK_ASSIGNMENT_MAIL_CONFIRMATION_COACH,
+			GTACourseNode.GTASK_ASSIGNMENT_MAIL_CONFIRMATION_PARTICIPANT
+	};
 
 	private RichTextElement textEl, emailTextEl;
 	private SingleSelection typeEl, previewEl, samplingEl;
-	private MultipleSelectionElement coachAllowedTasksEl, emailConfirmationEl;
+	private MultipleSelectionElement coachAllowedTasksEl, emailRecipientEl;
 
 	public GTAAssignmentEditController(UserRequest ureq, WindowControl wControl,
 			GTACourseNode gtaNode, ModuleConfiguration config, CourseEnvironment courseEnv, boolean readOnly) {
@@ -70,8 +75,8 @@ public class GTAAssignmentEditController extends AbstractAssignmentEditControlle
 		formLayout.add(configCont);
 		
 		//coach allowed to upload tasks
-		String[] onValues = new String[]{ "" };
-		coachAllowedTasksEl = uifactory.addCheckboxesVertical("coachTasks", "task.coach.allowed.upload", configCont, enableKeys, onValues, 1);
+		String[] enableValues = new String[]{ "" };
+		coachAllowedTasksEl = uifactory.addCheckboxesVertical("coachTasks", "task.coach.allowed.upload", configCont, enableKeys, enableValues, 1);
 		coachAllowedTasksEl.addActionListener(FormEvent.ONCHANGE);
 		boolean coachUpload = config.getBooleanSafe(GTACourseNode.GTASK_COACH_ALLOWED_UPLOAD_TASKS, false);
 		if(coachUpload) {
@@ -131,16 +136,21 @@ public class GTAAssignmentEditController extends AbstractAssignmentEditControlle
 
 		//message for users
 		String mailText = config.getStringValue(GTACourseNode.GTASK_ASSIGNMENT_TEXT);
-		if(!StringHelper.containsNonWhitespace(mailText)) {
+		if (!StringHelper.containsNonWhitespace(mailText)) {
 			mailText = translate("assignment.email.template");
 		}
 		emailTextEl = uifactory.addRichTextElementForStringDataMinimalistic("task.mail.text", "assignment.email.label", mailText, 10, -1, confirmationCont, getWindowControl());
 		emailTextEl.setMandatory(true);
 
-		String[] enableValues = new String[]{ translate("enabled") };
-		emailConfirmationEl = uifactory.addCheckboxesHorizontal("confirmation", "assignment.email.confirmation", confirmationCont, enableKeys, enableValues);
-		boolean confirm = config.getBooleanSafe(GTACourseNode.GTASK_ASSIGNMENT_MAIL_CONFIRMATION);
-		emailConfirmationEl.select(enableKeys[0], confirm);
+		String[] emailRecipientValues = new String[] {
+				translate("email.recipient.owner"),
+				translate("email.recipient.coach"),
+				translate("email.recipient.participant")
+		};
+		emailRecipientEl = uifactory.addCheckboxesHorizontal("email.recipient.roles", "assignment.email.confirmation.roles", confirmationCont, emailRecipientKeys, emailRecipientValues);
+		emailRecipientEl.select(emailRecipientKeys[0], config.getBooleanSafe(GTACourseNode.GTASK_ASSIGNMENT_MAIL_CONFIRMATION_OWNER));
+		emailRecipientEl.select(emailRecipientKeys[1], config.getBooleanSafe(GTACourseNode.GTASK_ASSIGNMENT_MAIL_CONFIRMATION_COACH));
+		emailRecipientEl.select(emailRecipientKeys[2], config.getBooleanSafe(GTACourseNode.GTASK_ASSIGNMENT_MAIL_CONFIRMATION_PARTICIPANT));
 
 		//save
 		FormLayoutContainer buttonsCont = FormLayoutContainer.createButtonLayout("buttons", getTranslator());
@@ -189,8 +199,14 @@ public class GTAAssignmentEditController extends AbstractAssignmentEditControlle
 		// email confirmation text
 		String emailText = emailTextEl.getValue();
 		config.setStringValue(GTACourseNode.GTASK_ASSIGNMENT_TEXT, emailText);
-		boolean emailConfirmation = emailConfirmationEl.isAtLeastSelected(1);
-		config.setBooleanEntry(GTACourseNode.GTASK_ASSIGNMENT_MAIL_CONFIRMATION, emailConfirmation);
+
+		// email confirmations
+		boolean emailConfirmationOwner = emailRecipientEl.isSelected(0);
+		config.setBooleanEntry(GTACourseNode.GTASK_ASSIGNMENT_MAIL_CONFIRMATION_OWNER, emailConfirmationOwner);
+		boolean emailConfirmationCoach = emailRecipientEl.isSelected(1);
+		config.setBooleanEntry(GTACourseNode.GTASK_ASSIGNMENT_MAIL_CONFIRMATION_COACH, emailConfirmationCoach);
+		boolean emailConfirmationParticipant = emailRecipientEl.isSelected(2);
+		config.setBooleanEntry(GTACourseNode.GTASK_ASSIGNMENT_MAIL_CONFIRMATION_PARTICIPANT, emailConfirmationParticipant);
 
 		fireEvent(ureq, Event.DONE_EVENT);
 	}
