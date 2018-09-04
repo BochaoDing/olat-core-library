@@ -13,15 +13,15 @@ import java.util.Locale;
 public class GTAAssignmentMailTemplate extends MailTemplate {
 
 	private final Identity identity;
-	private final Date deadline;
+	private final Date dueDate;
 	private final Translator translator;
 	private final String taskName;
 
-	public GTAAssignmentMailTemplate(String subject, String body, Date deadline, String taskName, Identity identity, Translator translator) {
+	public GTAAssignmentMailTemplate(String subject, String body, Date dueDate, String taskName, Identity identity, Translator translator) {
 		super(subject, body, null);
 		this.translator = translator;
 		this.identity = identity;
-		this.deadline = deadline;
+		this.dueDate = dueDate;
 		this.taskName = taskName;
 	}
 
@@ -41,6 +41,7 @@ public class GTAAssignmentMailTemplate extends MailTemplate {
 		Formatter f = Formatter.getInstance(locale);
 		context.put("date", f.formatDate(now));
 		context.put("time", f.formatTime(now));
-		context.put("deadline", deadline == null ? "" : f.formatDateLong(deadline));
+		context.put("due", dueDate == null ? "" : f.formatDateLong(dueDate));
+		context.put("dueDate", dueDate == null ? "" : f.formatDateLong(dueDate));
 	}
 }
