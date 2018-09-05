@@ -82,6 +82,7 @@ import org.olat.modules.assessment.AssessmentService;
 import org.olat.modules.assessment.model.AssessmentEntryStatus;
 import org.olat.repository.RepositoryEntry;
 import org.olat.repository.RepositoryEntryRef;
+import org.olat.repository.RepositoryEntryRelationType;
 import org.olat.repository.manager.RepositoryEntryRelationDAO;
 import org.olat.resource.OLATResource;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -786,6 +787,18 @@ public class GTAManagerImpl implements GTAManager, DeletableGroupData {
 				.setParameter("entryKey", entry.getKey())
 				.setParameter("courseNodeIdent", gtaNode.getIdent())
 				.getResultList();
+	}
+
+	@Override
+	public List<Identity> getCourseOwners(RepositoryEntry repositoryEntry) {
+		return repositoryEntryRelationDao.getMembers(repositoryEntry, RepositoryEntryRelationType.defaultGroup,
+				GroupRoles.owner.name());
+	}
+
+	@Override
+	public List<Identity> getCourseCoaches(RepositoryEntry repositoryEntry) {
+		return repositoryEntryRelationDao.getMembers(repositoryEntry, RepositoryEntryRelationType.defaultGroup,
+				GroupRoles.coach.name());
 	}
 
 	@Override
