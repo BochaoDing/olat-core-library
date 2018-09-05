@@ -191,7 +191,7 @@ public class GTAParticipantController extends GTAAbstractController {
 	
 	private void showAssignedTask(UserRequest ureq, Task assignedTask) {
 		String message = gtaNode.getModuleConfiguration().getStringValue(GTACourseNode.GTASK_USERS_TEXT);
-		// TODO merge data into placeholders using the same logic as in GTAAssignmentMailTemplate ?
+		// TODO ??? possible improvement: merge data into placeholders using the same logic as in GTAAssignmentMailTemplate ???
 		TaskDefinition taskDef = getTaskDefinition(assignedTask);
 		assignedTaskCtrl = new GTAAssignedTaskController(ureq, getWindowControl(), assignedTask,
 				taskDef, courseEnv, gtaNode,
@@ -341,10 +341,8 @@ public class GTAParticipantController extends GTAAbstractController {
 		process(ureq);
 		doUpdateAttempts();
 
-		//do send e-mail
-		if (config.getBooleanSafe(GTACourseNode.GTASK_SUBMISSION_MAIL_CONFIRMATION)) {
-			doSubmissionEmail();
-		}
+		// send e-mails according to config
+		doSubmissionEmail();
 	}
 	
 	private void doSubmissionEmail() {
@@ -356,7 +354,7 @@ public class GTAParticipantController extends GTAAbstractController {
 			boolean sendToCoaches = config.getBooleanSafe(GTACourseNode.GTASK_SUBMISSION_MAIL_CONFIRMATION_COACH);
 			// Backwards compatibility to allow old setting that did not consider different roles
 			boolean sendToParticipants = config.getBooleanSafe(GTACourseNode.GTASK_SUBMISSION_MAIL_CONFIRMATION_PARTICIPANT)
-					||  config.getBooleanSafe(GTACourseNode.GTASK_SUBMISSION_MAIL_CONFIRMATION);
+					|| config.getBooleanSafe(GTACourseNode.GTASK_SUBMISSION_MAIL_CONFIRMATION);
 			List<Identity> recipients = addRecipients(sendToOwners, sendToCoaches, sendToParticipants);
 
 			// Prepare mail template
@@ -398,16 +396,11 @@ public class GTAParticipantController extends GTAAbstractController {
 
 	private List<Identity> addRecipients(boolean addOwners, boolean addCoaches, boolean addParticipants) {
 		List<Identity> recipients = new ArrayList<>();
-		if (addOwners || addCoaches) {
-			// TODO use courseEntry, courseEnv to find out owners/coaches
-			if (addOwners) {
-				// TODO find out the list of owners
-				// recipients.addAll(???);
-			}
-			if (addCoaches) {
-				// TODO find out the list of coaches
-				// recipients.addAll(???);
-			}
+		if (addOwners) {
+			recipients.addAll(gtaManager.getCourseOwners(courseEntry));
+		}
+		if (addCoaches) {
+			recipients.addAll(gtaManager.getCourseCoaches(courseEntry));
 		}
 		if (addParticipants) {
 			List<Identity> recipientsParticipant;
