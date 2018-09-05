@@ -472,7 +472,7 @@ public abstract class FormBasicController extends BasicController implements IFo
 	 * 
 	 * @param i18nKey
 	 */
-	protected void setFormTitle(@UnderInitialization(FormBasicController.class) FormBasicController this, String i18nKey) {
+	protected void setFormTitle(@UnderInitialization FormBasicController this, String i18nKey) {
 		if (i18nKey == null) {
 			flc.contextRemove("off_title");
 		} else {
