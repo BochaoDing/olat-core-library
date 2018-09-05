@@ -72,11 +72,12 @@ public class SchedulerTest extends OlatTestCase {
 
 		//check next time
 		org.quartz.Calendar quartzCal = scheduler.getCalendar(trigger.getObject().getCalendarName());
+		sleep(1);
 		Calendar cal = Calendar.getInstance();
 		Date start = cal.getTime();
 		cal.add(Calendar.SECOND, 5);
 		cal.add(Calendar.MILLISECOND, 011);
 		Date end = cal.getTime();
-		Assert.assertEquals(6, TriggerUtils.computeFireTimesBetween((OperableTrigger)trigger.getObject(), quartzCal, start, end).size());
+		Assert.assertEquals(5, TriggerUtils.computeFireTimesBetween((OperableTrigger)trigger.getObject(), quartzCal, start, end).size());
 	}
 }
