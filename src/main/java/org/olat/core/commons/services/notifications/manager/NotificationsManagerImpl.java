@@ -219,7 +219,7 @@ public class NotificationsManagerImpl extends NotificationsManager implements Us
 		sb.append("select sub from notisub as sub ")
 		  .append("inner join fetch sub.publisher as publisher ")
 		  .append("where sub.identity.key = :identityKey")
-		  .append(" and publisher.resId = :resId)");
+		  .append(" and publisher.resId = :resId");
 		return dbInstance.getCurrentEntityManager()
 			.createQuery(sb.toString(), Subscriber.class)
 			.setParameter("identityKey", identity.getKey())
