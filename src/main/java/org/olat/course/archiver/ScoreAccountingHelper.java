@@ -253,7 +253,7 @@ public class ScoreAccountingHelper {
 						String fileName = task.getTaskName();
 						HashMap<String, String> fileNameTaskNameMap = nodeTaskTitles.getOrDefault(acnode.getIdent(), new HashMap<>());
 						dataRow.addCell(dataColCnt++, fileNameTaskNameMap.getOrDefault(fileName, fileName));
-						Date deadline = getAssignmentDeadline(task, gtaNode, courseEnvironment, identity);
+						Date deadline = getSubmissionDeadline(task, gtaNode, courseEnvironment, identity);
 						if (deadline != null) {
 							dataRow.addCell(dataColCnt++, deadline, workbook.getStyles().getDateStyle());
 						} else { // date == null
@@ -462,10 +462,10 @@ public class ScoreAccountingHelper {
 		}
 	}
 
-	private static Date getAssignmentDeadline(Task task, GTACourseNode gtaNode, CourseEnvironment courseEnv, Identity identity) {
+	private static Date getSubmissionDeadline(Task task, GTACourseNode gtaNode, CourseEnvironment courseEnv, Identity identity) {
 		ModuleConfiguration moduleConfiguration = gtaNode.getModuleConfiguration();
 		if (moduleConfiguration.getBooleanSafe(GTACourseNode.GTASK_RELATIVE_DATES)) {
-			int numOfDays = moduleConfiguration.getIntegerSafe(GTACourseNode.GTASK_ASSIGNMENT_DEADLINE_RELATIVE, -1);
+			int numOfDays = moduleConfiguration.getIntegerSafe(GTACourseNode.GTASK_SUBMIT_DEADLINE_RELATIVE, -1);
 			String relativeTo = moduleConfiguration.getStringValue(GTACourseNode.GTASK_SUBMIT_DEADLINE_RELATIVE_TO);
 			// both number of days and type of reference date should be given!
 			if (numOfDays >= 0 && StringHelper.containsNonWhitespace(relativeTo)) {
@@ -503,7 +503,7 @@ public class ScoreAccountingHelper {
 				}
 			}
 		} else {
-			return moduleConfiguration.getDateValue(GTACourseNode.GTASK_ASSIGNMENT_DEADLINE);
+			return moduleConfiguration.getDateValue(GTACourseNode.GTASK_SUBMIT_DEADLINE);
 		}
 		return null;
 	}
