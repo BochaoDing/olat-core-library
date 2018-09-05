@@ -42,10 +42,15 @@ import org.olat.modules.ModuleConfiguration;
 public class GTASubmissionEditController extends FormBasicController {
 	
 	private static final String[] enableKeys = new String[] { "on" };
+	private static final String[] emailRecipientKeys = new String[] {
+			GTACourseNode.GTASK_ASSIGNMENT_MAIL_CONFIRMATION_OWNER,
+			GTACourseNode.GTASK_ASSIGNMENT_MAIL_CONFIRMATION_COACH,
+			GTACourseNode.GTASK_ASSIGNMENT_MAIL_CONFIRMATION_PARTICIPANT
+	};
 	
 	private RichTextElement textEl;
 	private TextElement maxNumberOfDocsEl;
-	private MultipleSelectionElement externalEditorEl, embeddedEditorEl, emailConfirmationEl;
+	private MultipleSelectionElement externalEditorEl, embeddedEditorEl, emailRecipientEl;
 	
 	private final ModuleConfiguration config;
 	
@@ -95,10 +100,18 @@ public class GTASubmissionEditController extends FormBasicController {
 		textEl = uifactory.addRichTextElementForStringDataMinimalistic("text", "submission.text", text, 10, -1, confirmationCont, getWindowControl());
 		textEl.setMandatory(true);
 		
-		emailConfirmationEl = uifactory.addCheckboxesHorizontal("confirmation", "submission.email.confirmation", confirmationCont, enableKeys, enableValues);
-		boolean confirm = config.getBooleanSafe(GTACourseNode.GTASK_SUBMISSION_MAIL_CONFIRMATION);
-		emailConfirmationEl.select(enableKeys[0], confirm);
-		
+		String[] emailRecipientValues = new String[] {
+				translate("email.recipient.owner"),
+				translate("email.recipient.coach"),
+				translate("email.recipient.participant")
+		};
+		emailRecipientEl = uifactory.addCheckboxesHorizontal("email.recipient.roles", "assignment.email.confirmation.roles", confirmationCont, emailRecipientKeys, emailRecipientValues);
+		emailRecipientEl.select(emailRecipientKeys[0], config.getBooleanSafe(GTACourseNode.GTASK_SUBMISSION_MAIL_CONFIRMATION_OWNER));
+		emailRecipientEl.select(emailRecipientKeys[1], config.getBooleanSafe(GTACourseNode.GTASK_SUBMISSION_MAIL_CONFIRMATION_COACH));
+		// when getting config setting for participant, also consider existing value for the "old" schema [that did not consider roles):
+		emailRecipientEl.select(emailRecipientKeys[2], config.getBooleanSafe(GTACourseNode.GTASK_SUBMISSION_MAIL_CONFIRMATION_PARTICIPANT) || config.getBooleanSafe(GTACourseNode.GTASK_SUBMISSION_MAIL_CONFIRMATION));
+
+
 		//save
 		FormLayoutContainer buttonsCont = FormLayoutContainer.createButtonLayout("buttons", getTranslator());
 		buttonsCont.setRootForm(mainForm);
@@ -164,9 +177,17 @@ public class GTASubmissionEditController extends FormBasicController {
 		
 		String text = textEl.getValue();
 		config.setStringValue(GTACourseNode.GTASK_SUBMISSION_TEXT, text);
-		boolean emailConfirmation = emailConfirmationEl.isAtLeastSelected(1);
-		config.setBooleanEntry(GTACourseNode.GTASK_SUBMISSION_MAIL_CONFIRMATION, emailConfirmation);
-		
+
+		// email confirmation
+		boolean emailConfirmationOwner = emailRecipientEl.isSelected(0);
+		config.setBooleanEntry(GTACourseNode.GTASK_SUBMISSION_MAIL_CONFIRMATION_OWNER, emailConfirmationOwner);
+		boolean emailConfirmationCoach = emailRecipientEl.isSelected(1);
+		config.setBooleanEntry(GTACourseNode.GTASK_SUBMISSION_MAIL_CONFIRMATION_COACH, emailConfirmationCoach);
+		boolean emailConfirmationParticipant = emailRecipientEl.isSelected(2);
+		config.setBooleanEntry(GTACourseNode.GTASK_SUBMISSION_MAIL_CONFIRMATION_PARTICIPANT, emailConfirmationParticipant);
+		// explicitly remove old setting to not interfere with role-based approach:
+		config.remove(GTACourseNode.GTASK_SUBMISSION_MAIL_CONFIRMATION);
+
 		fireEvent(ureq, Event.DONE_EVENT);
 	}
 }
