@@ -350,66 +350,82 @@ public class GTAParticipantController extends GTAAbstractController {
 	private void doSubmissionEmail() {
 		String body = config.getStringValue(GTACourseNode.GTASK_SUBMISSION_TEXT);
 		if (StringHelper.containsNonWhitespace(body)) {
-			MailContext context = new MailContextImpl(getWindowControl().getBusinessControl().getAsString());
-			List<Identity> recipientsTO;
-			File submitDirectory;
-			if(GTAType.group.name().equals(config.getStringValue(GTACourseNode.GTASK_TYPE))) {
-				recipientsTO = businessGroupService.getMembers(assessedGroup, GroupRoles.participant.name());
-				submitDirectory = gtaManager.getSubmitDirectory(courseEnv, gtaNode, assessedGroup);
-			} else {
-				recipientsTO = Collections.singletonList(assessedIdentity);
-				submitDirectory = gtaManager.getSubmitDirectory(courseEnv, gtaNode, assessedIdentity);
-			}
-			
+
+			// Build the list of recipients for the message according to configuration of the course element
+			boolean sendToOwners = config.getBooleanSafe(GTACourseNode.GTASK_SUBMISSION_MAIL_CONFIRMATION_OWNER);
+			boolean sendToCoaches = config.getBooleanSafe(GTACourseNode.GTASK_SUBMISSION_MAIL_CONFIRMATION_COACH);
+			// Backwards compatibility to allow old setting that did not consider different roles
+			boolean sendToParticipants = config.getBooleanSafe(GTACourseNode.GTASK_SUBMISSION_MAIL_CONFIRMATION_PARTICIPANT)
+					||  config.getBooleanSafe(GTACourseNode.GTASK_SUBMISSION_MAIL_CONFIRMATION);
+			List<Identity> recipients = addRecipients(sendToOwners, sendToCoaches, sendToParticipants);
+
+			// Prepare mail template
 			String subject = translate("submission.email.subject");
+			File submitDirectory = (GTAType.group.name().equals(config.getStringValue(GTACourseNode.GTASK_TYPE)))
+					? gtaManager.getSubmitDirectory(courseEnv, gtaNode, assessedGroup)
+					: gtaManager.getSubmitDirectory(courseEnv, gtaNode, assessedIdentity);
 			File[] files = TaskHelper.getDocuments(submitDirectory);
 			MailTemplate template = new GTASubmissionMailTemplate(subject, body, files, getIdentity(), getTranslator());
-			
-			MailerResult result = new MailerResult();
-			MailBundle[] bundles = mailManager.makeMailBundles(context, recipientsTO, template, null, UUID.randomUUID().toString(), result);
-			mailManager.sendMessage(bundles);
+
+			// send message to all found recipients
+			if (recipients.size() > 0) {
+				sendMail(template, recipients);
+			}
 		}
 	}
 
 	private void doAssignmentEmail(Task assignedTask) {
 		String body = config.getStringValue(GTACourseNode.GTASK_ASSIGNMENT_TEXT);
 		if (StringHelper.containsNonWhitespace(body)) {
-			MailContext context = new MailContextImpl(getWindowControl().getBusinessControl().getAsString());
 
-			DueDate dueDate = getAssignementDueDate(assignedTask);
-			String subject = translate("assignment.email.subject");
-			MailTemplate template = new GTAAssignmentMailTemplate(subject, body, dueDate.getDueDate(), assignedTask.getTaskName(), getIdentity(), getTranslator());
-
-			MailerResult result = new MailerResult();
-			List<Identity> recipients = new ArrayList<>();
+			// Build the list of recipients for the message according to configuration of the course element
 			boolean sendToOwners = config.getBooleanSafe(GTACourseNode.GTASK_ASSIGNMENT_MAIL_CONFIRMATION_OWNER);
 			boolean sendToCoaches = config.getBooleanSafe(GTACourseNode.GTASK_ASSIGNMENT_MAIL_CONFIRMATION_COACH);
-			if (sendToCoaches || sendToOwners) {
-				// TODO use courseEntry, courseEnv to find out owners/coaches
-				if (sendToOwners) {
-					// TODO find out the list of owners
-					// recipients.addAll(???);
-				}
-				if (sendToCoaches) {
-					// TODO find out the list of coaches
-					// recipients.addAll(???);
-				}
-			}
-			if (config.getBooleanSafe(GTACourseNode.GTASK_ASSIGNMENT_MAIL_CONFIRMATION_PARTICIPANT)) {
-				List<Identity> recipientsParticipant;
-				if(GTAType.group.name().equals(config.getStringValue(GTACourseNode.GTASK_TYPE))) {
-					recipientsParticipant = businessGroupService.getMembers(assessedGroup, GroupRoles.participant.name());
-				} else {
-					recipientsParticipant = Collections.singletonList(assessedIdentity);
-				}
-				recipients.addAll(recipientsParticipant);
-			}
+			boolean sendToParticipants = config.getBooleanSafe(GTACourseNode.GTASK_ASSIGNMENT_MAIL_CONFIRMATION_PARTICIPANT);
+			List<Identity> recipients = addRecipients(sendToOwners, sendToCoaches, sendToParticipants);
+
+			// Prepare mail template
+			String subject = translate("assignment.email.subject");
+			DueDate dueDate = getAssignementDueDate(assignedTask);
+			MailTemplate template = new GTAAssignmentMailTemplate(subject, body, dueDate.getDueDate(), assignedTask.getTaskName(), getIdentity(), getTranslator());
+
 			// send message to all found recipients
 			if (recipients.size() > 0) {
-				MailBundle[] bundles = mailManager.makeMailBundles(context, recipients, template, null, UUID.randomUUID().toString(), result);
-				mailManager.sendMessage(bundles);
+				sendMail(template, recipients);
 			}
 		}
+	}
+
+	private List<Identity> addRecipients(boolean addOwners, boolean addCoaches, boolean addParticipants) {
+		List<Identity> recipients = new ArrayList<>();
+		if (addOwners || addCoaches) {
+			// TODO use courseEntry, courseEnv to find out owners/coaches
+			if (addOwners) {
+				// TODO find out the list of owners
+				// recipients.addAll(???);
+			}
+			if (addCoaches) {
+				// TODO find out the list of coaches
+				// recipients.addAll(???);
+			}
+		}
+		if (addParticipants) {
+			List<Identity> recipientsParticipant;
+			if(GTAType.group.name().equals(config.getStringValue(GTACourseNode.GTASK_TYPE))) {
+				recipientsParticipant = businessGroupService.getMembers(assessedGroup, GroupRoles.participant.name());
+			} else {
+				recipientsParticipant = Collections.singletonList(assessedIdentity);
+			}
+			recipients.addAll(recipientsParticipant);
+		}
+		return recipients;
+	}
+
+	private void sendMail(MailTemplate template, List<Identity> recipients) {
+		MailContext context = new MailContextImpl(getWindowControl().getBusinessControl().getAsString());
+		MailerResult result = new MailerResult();
+		MailBundle[] bundles = mailManager.makeMailBundles(context, recipients, template, null, UUID.randomUUID().toString(), result);
+		mailManager.sendMessage(bundles);
 	}
 	
 	@Override
