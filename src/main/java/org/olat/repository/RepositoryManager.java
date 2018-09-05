@@ -2021,8 +2021,6 @@ public class RepositoryManager {
 		  .append(" where exists (select rel from repoentrytogroup as rel, bgroup as baseGroup, bgroupmember as membership  ")
 		  .append("    where rel.entry=v and rel.group=baseGroup and membership.group=baseGroup and membership.identity.key=:identityKey ")
 		  .append("      and membership.role='").append(GroupRoles.participant.name()).append("')")
-		  .append("  )")
-		  .append(" )")
 		  .append(" and (v.access>=3 or (v.access=").append(RepositoryEntry.ACC_OWNERS).append(" and v.membersOnly=true))");
 		appendOrderBy(sb, "v", orderby);
 		
@@ -2042,8 +2040,6 @@ public class RepositoryManager {
 		  .append(" where exists (select rel from repoentrytogroup as rel, bgroup as baseGroup, bgroupmember as membership  ")
 		  .append("    where rel.entry=v and rel.group=baseGroup and membership.group=baseGroup and membership.identity.key=:identityKey ")
 		  .append("      and membership.role='").append(GroupRoles.coach.name()).append("')")
-		  .append("  )")
-		  .append(" )")
 		  .append("  and (v.access>=3 or (v.access=").append(RepositoryEntry.ACC_OWNERS).append(" and v.membersOnly=true))");
 		appendOrderBy(sb, "v", orderby);
 		
