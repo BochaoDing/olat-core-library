@@ -1189,6 +1189,31 @@
 				</dependency>
 			</dependencies>
 		</profile>
+		<profile>
+			<id>git</id>
+			<build>
+				<plugins>
+					<!-- Set the build number from git -->
+					<plugin>
+						<groupId>pl.project13.maven</groupId>
+						<artifactId>git-commit-id-plugin</artifactId>
+						<version>2.2.5</version>
+						<executions>
+							<execution>
+								<id>get-the-git-infos</id>
+								<goals>
+									<goal>revision</goal>
+								</goals>
+								<phase>validate</phase>
+							</execution>
+						</executions>
+						<configuration>
+							<dotGitDirectory>${project.basedir}/.git</dotGitDirectory>
+						</configuration>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
 	</profiles>
 	<repositories>
 		<repository>
@@ -1323,20 +1348,23 @@
 			</testResource>
 		</testResources>
 		<plugins>
-			<!-- Set the build number from git -->
+			<!-- Set the build number from mercurial -->
 			<plugin>
-				<groupId>pl.project13.maven</groupId>
-				<artifactId>git-commit-id-plugin</artifactId>
-				<version>2.2.5</version>
+				<groupId>org.openolat.mojo</groupId>
+				<artifactId>buildnumber-maven-plugin</artifactId>
+				<version>1.2.0</version>
 				<executions>
 					<execution>
-						<id>get-the-git-infos</id>
-						<goals>
-							<goal>revision</goal>
-						</goals>
 						<phase>validate</phase>
+						<goals>
+							<goal>hgchangeset</goal>
+						</goals>
 					</execution>
 				</executions>
+				<configuration>
+					<doCheck>true</doCheck>
+					<doUpdate>true</doUpdate>
+				</configuration>
 			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
