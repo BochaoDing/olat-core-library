@@ -1323,22 +1323,22 @@
 			</testResource>
 		</testResources>
 		<plugins>
-			<!-- Set the build number from mercurial -->
+			<!-- Set the build number from git -->
 			<plugin>
-				<groupId>org.openolat.mojo</groupId>
-				<artifactId>buildnumber-maven-plugin</artifactId>
-				<version>1.2.0</version>
+				<groupId>pl.project13.maven</groupId>
+				<artifactId>git-commit-id-plugin</artifactId>
+				<version>2.2.5</version>
 				<executions>
 					<execution>
-						<phase>validate</phase>
+						<id>get-the-git-infos</id>
 						<goals>
-							<goal>hgchangeset</goal>
+							<goal>revision</goal>
 						</goals>
+						<phase>validate</phase>
 					</execution>
 				</executions>
 				<configuration>
-					<doCheck>true</doCheck>
-					<doUpdate>true</doUpdate>
+					<dotGitDirectory>${project.basedir}/.git</dotGitDirectory>
 				</configuration>
 			</plugin>
 			<plugin>
