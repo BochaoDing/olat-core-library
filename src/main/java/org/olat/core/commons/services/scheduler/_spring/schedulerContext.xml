@@ -18,7 +18,7 @@ How to add a new job:
 2. Create a file called "olatextconfig.xml" with your own beans and place it in the same directory as this file. It will be loaded automatically.
 3. Add a bean definition where your job is created like ="<bean id="changePresenceJob" class="org.springframework.scheduling.quartz.JobDetailFactoryBean">"
 4. Create a scheduler for your defined bean: Either an SimpleTriggerBean or an CronTriggerBean
-5. Add your trigger to TriggerListFactoryImpl.
+5. Add your trigger to FactoryOfTriggerFactoryBeansImpl.
 -->
 
 <!-- add referenced schedulers here -->

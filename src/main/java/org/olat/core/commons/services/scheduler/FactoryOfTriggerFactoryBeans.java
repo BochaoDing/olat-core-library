@@ -8,7 +8,7 @@ import java.util.List;
 /**
  * @author Martin Schraner
  */
-public interface TriggerListFactory {
+public interface FactoryOfTriggerFactoryBeans {
 
 	List<FactoryBean<? extends Trigger>> create();
 }

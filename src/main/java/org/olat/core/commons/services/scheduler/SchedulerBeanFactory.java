@@ -17,11 +17,11 @@ import java.util.Properties;
 @Configuration
 public class SchedulerBeanFactory {
 
-	private final TriggerListFactory triggerListFactory;
+	private final FactoryOfTriggerFactoryBeans factoryOfTriggerFactoryBeans;
 
 	@Autowired
-	public SchedulerBeanFactory(TriggerListFactory triggerListFactory) {
-		this.triggerListFactory = triggerListFactory;
+	public SchedulerBeanFactory(FactoryOfTriggerFactoryBeans factoryOfTriggerFactoryBeans) {
+		this.factoryOfTriggerFactoryBeans = factoryOfTriggerFactoryBeans;
 	}
 
 	/**
@@ -40,7 +40,7 @@ public class SchedulerBeanFactory {
 		schedulerFactoryBean.setQuartzProperties(quartzProperties);
 
 		// Add triggers
-		List<FactoryBean<? extends Trigger>> triggerFactoryBeans = triggerListFactory.create();
+		List<FactoryBean<? extends Trigger>> triggerFactoryBeans = factoryOfTriggerFactoryBeans.create();
 		Trigger[] triggers = new Trigger[triggerFactoryBeans.size()];
 		for (int i = 0; i < triggerFactoryBeans.size(); i++) {
 			triggers[i] = triggerFactoryBeans.get(i).getObject();
