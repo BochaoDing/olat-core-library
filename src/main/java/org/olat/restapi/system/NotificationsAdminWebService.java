@@ -78,8 +78,7 @@ public class NotificationsAdminWebService {
 	
 	private String getJobStatus() {
 		try {
-			Scheduler scheduler = CoreSpringFactory.getImpl(Scheduler.class);
-			@SuppressWarnings("unchecked")
+			Scheduler scheduler = (Scheduler) CoreSpringFactory.getBean(Scheduler.class);
 			List<JobExecutionContext> jobs = scheduler.getCurrentlyExecutingJobs();
 			for(JobExecutionContext job:jobs) {
 				if("org.olat.notifications.job.enabled".equals(job.getJobDetail().getKey().getName())) {
@@ -105,7 +104,8 @@ public class NotificationsAdminWebService {
 	public Response setStatus(@FormParam("status") String status) {
 		if ("running".equals(status)) {
 			try {
-				CoreSpringFactory.getImpl(Scheduler.class).triggerJob(notificationsJobKey);
+				Scheduler scheduler = (Scheduler) CoreSpringFactory.getBean(Scheduler.class);
+				scheduler.triggerJob(notificationsJobKey);
 			} catch (SchedulerException e) {
 				log.error("", e);
 			}

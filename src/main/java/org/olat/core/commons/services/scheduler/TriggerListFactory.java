@@ -1,7 +1,6 @@
 package org.olat.core.commons.services.scheduler;
 
 import org.quartz.Trigger;
-import org.springframework.beans.factory.FactoryBean;
 
 import java.util.List;
 
@@ -10,5 +9,5 @@ import java.util.List;
  */
 public interface TriggerListFactory {
 
-	List<FactoryBean<? extends Trigger>> create();
+	List<Trigger> create();
 }

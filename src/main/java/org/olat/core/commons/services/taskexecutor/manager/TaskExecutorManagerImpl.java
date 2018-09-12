@@ -78,7 +78,7 @@ public class TaskExecutorManagerImpl extends BasicManager implements TaskExecuto
 									@Qualifier("searchExecutor") ExecutorService sequentialTaskExecutor,
 									DB dbInstance,
 									PersistentTaskDAO persistentTaskDao,
-									@Qualifier("schedulerFactoryBean") Scheduler scheduler) {
+									Scheduler scheduler) {
 		this.taskExecutor = mpTaskExecutor;
 		this.sequentialTaskExecutor = sequentialTaskExecutor;
 		this.dbInstance = dbInstance;

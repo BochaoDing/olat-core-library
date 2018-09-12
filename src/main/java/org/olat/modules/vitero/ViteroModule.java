@@ -95,7 +95,7 @@ public class ViteroModule extends AbstractSpringModule implements ConfigOnOff {
 	private final Scheduler scheduler;
 	
 	@Autowired
-	public ViteroModule(CoordinatorManager coordinatorManager, @Qualifier("schedulerFactoryBean") Scheduler scheduler) {
+	public ViteroModule(CoordinatorManager coordinatorManager, Scheduler scheduler) {
 		super(coordinatorManager);
 		this.scheduler = scheduler;
 	}

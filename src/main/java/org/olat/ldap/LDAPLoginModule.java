@@ -156,7 +156,6 @@ public class LDAPLoginModule extends AbstractSpringModule {
 	private LDAPSyncConfiguration syncConfiguration;
 	
 	@Autowired
-	@Qualifier("schedulerFactoryBean")
 	private Scheduler scheduler;
 	
 	@Autowired

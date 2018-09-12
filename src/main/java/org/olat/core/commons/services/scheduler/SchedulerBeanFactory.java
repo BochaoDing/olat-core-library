@@ -1,7 +1,6 @@
 package org.olat.core.commons.services.scheduler;
 
 import org.quartz.Trigger;
-import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -29,7 +28,8 @@ public class SchedulerBeanFactory {
 	 */
 	@Bean
 	@DependsOn("database")
-	public SchedulerFactoryBean schedulerFactoryBean() throws Exception {
+	public SchedulerFactoryBean scheduler() {
+
 		SchedulerFactoryBean schedulerFactoryBean = new SchedulerFactoryBean();
 
 		schedulerFactoryBean.setWaitForJobsToCompleteOnShutdown(true);
@@ -40,11 +40,8 @@ public class SchedulerBeanFactory {
 		schedulerFactoryBean.setQuartzProperties(quartzProperties);
 
 		// Add triggers
-		List<FactoryBean<? extends Trigger>> triggerFactoryBeans = triggerListFactory.create();
-		Trigger[] triggers = new Trigger[triggerFactoryBeans.size()];
-		for (int i = 0; i < triggerFactoryBeans.size(); i++) {
-			triggers[i] = triggerFactoryBeans.get(i).getObject();
-		}
+		List<Trigger> triggerList = triggerListFactory.create();
+		Trigger[] triggers = triggerList.toArray(new Trigger[0]);
 		schedulerFactoryBean.setTriggers(triggers);
 
 		return schedulerFactoryBean;

@@ -130,7 +130,6 @@ public class VideoManagerImpl implements VideoManager {
 	@Autowired
 	private VideoMetadataDAO videoMetadataDao;
 	@Autowired
-	@Qualifier("schedulerFactoryBean")
 	private Scheduler scheduler;
 	@Autowired
 	private ImageService imageHelper;

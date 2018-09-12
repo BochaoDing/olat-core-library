@@ -76,7 +76,6 @@ public class ReminderModule extends AbstractSpringModule {
 	private List<RuleSPI> ruleSpies;
 	
 	@Autowired
-	@Qualifier("schedulerFactoryBean")
 	private Scheduler scheduler;
 	
 	@Autowired

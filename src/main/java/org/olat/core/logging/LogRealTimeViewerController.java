@@ -126,7 +126,7 @@ public class LogRealTimeViewerController extends BasicController implements JobL
 					.build();
 
 			// Schedule job now
-			Scheduler scheduler = (Scheduler) CoreSpringFactory.getBean("schedulerFactoryBean");
+			Scheduler scheduler = (Scheduler) CoreSpringFactory.getBean(Scheduler.class);
 			scheduler.getListenerManager().addJobListener(this, keyEquals(jobKey));
 			scheduler.scheduleJob(jobDetail, trigger);
 		} catch (SchedulerException e) {
@@ -150,7 +150,7 @@ public class LogRealTimeViewerController extends BasicController implements JobL
 	protected void doDispose() {
 		
 		if (logViewerVC != null) { // don't clean up twice
-			Scheduler scheduler = (Scheduler) CoreSpringFactory.getBean("schedulerFactoryBean");
+			Scheduler scheduler = (Scheduler) CoreSpringFactory.getBean(Scheduler.class);
 			// remove scheduler job first
 			try {
 				scheduler.deleteJob(jobKey);
@@ -213,7 +213,7 @@ public class LogRealTimeViewerController extends BasicController implements JobL
 			log4JLogger.removeAppender(writerAppender);
 			// pause log update trigger job
 			try {
-				Scheduler scheduler = (Scheduler) CoreSpringFactory.getBean("schedulerFactoryBean");
+				Scheduler scheduler = (Scheduler) CoreSpringFactory.getBean(Scheduler.class);
 				scheduler.pauseJob(jobKey);
 			} catch (SchedulerException e) {
 				logError("Can not pause log viewer job", e);
@@ -228,7 +228,7 @@ public class LogRealTimeViewerController extends BasicController implements JobL
 			log4JLogger.addAppender(writerAppender);
 			// resume trigger job
 			try {
-				Scheduler scheduler = (Scheduler) CoreSpringFactory.getBean("schedulerFactoryBean");
+				Scheduler scheduler = (Scheduler) CoreSpringFactory.getBean(Scheduler.class);
 				scheduler.resumeJob(jobKey);
 			} catch (SchedulerException e) {
 				logError("Can not resume log viewer job", e);

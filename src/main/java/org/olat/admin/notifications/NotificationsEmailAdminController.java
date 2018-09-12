@@ -83,7 +83,8 @@ public class NotificationsEmailAdminController extends BasicController {
 		if (source == startNotifyButton) {
 			//trigger the cron job
 			try {
-				CoreSpringFactory.getImpl(Scheduler.class).triggerJob(notificationsJobKey);
+				Scheduler scheduler = (Scheduler) CoreSpringFactory.getBean(Scheduler.class);
+				scheduler.triggerJob(notificationsJobKey);
 			} catch (SchedulerException e) {
 				logError("", e);
 			}

@@ -85,20 +85,18 @@ public class StatisticsAdminController extends BasicController {
 	private void refreshUIState() {
 		boolean enabled = false;
 		String cronExpression = "";
-		if (CoreSpringFactory.containsBean("schedulerFactoryBean")) {
-			log_.info("refreshUIState: schedulerFactoryBean found");
-			Object schedulerFactoryBean = CoreSpringFactory.getBean("schedulerFactoryBean");
-			if (schedulerFactoryBean!=null && schedulerFactoryBean instanceof Scheduler) {
-				Scheduler schedulerBean = (Scheduler) schedulerFactoryBean;
-				try {
-					TriggerKey triggerKey = new TriggerKey("updateStatisticsTrigger", null/*trigger group*/);
-					Trigger.TriggerState triggerState = schedulerBean.getTriggerState(triggerKey);
-					enabled = (triggerState!=Trigger.TriggerState.NONE) && (triggerState!=Trigger.TriggerState.ERROR);
-					log_.info("refreshUIState: updateStatisticsTrigger state was "+triggerState+", enabled now: "+enabled);
-				} catch (SchedulerException e) {
-					log_.warn("refreshUIState: Got a SchedulerException while asking for the updateStatisticsTrigger's state", e);
-				}
+		if (CoreSpringFactory.containsBean(Scheduler.class)) {
+			log_.info("refreshUIState: scheduler found");
+			Scheduler scheduler = (Scheduler) CoreSpringFactory.getBean(Scheduler.class);
+			try {
+				TriggerKey triggerKey = new TriggerKey("updateStatisticsTrigger", null/*trigger group*/);
+				Trigger.TriggerState triggerState = scheduler.getTriggerState(triggerKey);
+				enabled = (triggerState!=Trigger.TriggerState.NONE) && (triggerState!=Trigger.TriggerState.ERROR);
+				log_.info("refreshUIState: updateStatisticsTrigger state was "+triggerState+", enabled now: "+enabled);
+			} catch (SchedulerException e) {
+				log_.warn("refreshUIState: Got a SchedulerException while asking for the updateStatisticsTrigger's state", e);
 			}
+
 			CronTriggerFactoryBean triggerBean = (CronTriggerFactoryBean) CoreSpringFactory.getBean("updateStatisticsTrigger");
 			CronTrigger cronTrigger = triggerBean.getObject();
 			enabled &= cronTrigger.getJobKey().getName().equals("org.olat.statistics.job.enabled");
@@ -113,7 +111,7 @@ public class StatisticsAdminController extends BasicController {
 				log_.info("refreshUIState: statisticUpdateManager configured, enabled now: "+enabled);
 			}
 		} else {
-			log_.info("refreshUIState: schedulerFactoryBean not found");
+			log_.info("refreshUIState: scheduler not found");
 		}
 		if (enabled) {
 			content.contextPut("status", getTranslator().translate("statistics.status.enabled", new String[]{ cronExpression }));

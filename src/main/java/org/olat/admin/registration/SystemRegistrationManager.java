@@ -113,7 +113,7 @@ public class SystemRegistrationManager implements InitializingBean {
 	 * Use getInstance(), this is a singleton
 	 */
 	@Autowired
-	private SystemRegistrationManager(@Qualifier("schedulerFactoryBean") Scheduler scheduler,
+	private SystemRegistrationManager(Scheduler scheduler,
 									  @Value("${cluster.mode}") String clusterMode,
 									  DB database,
 									  SystemRegistrationModule registrationModule,
