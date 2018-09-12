@@ -15,8 +15,7 @@ To learn more, visit [olat.org](https://olat.org)
 * ``lmsuzh-extension-myscript`` [Convert handwritten formulas, texts and shapes](http://olat.systems/handwriting) (Proof-of-concept)
 
 #### OLAT Infrastructure Modules
-* ``lmsuzh-extension-continuousintegration`` CI/CD pipeline based on [Maven](https://maven.apache.org), [Jenkins](https://jenkins.io) and [Rancher](https://rancher.com)
-* ``lmsuzh-extension-codemanagement`` Source code and configuration management based on [Mercurial](https://www.mercurial-scm.org) and [Git](https://www.git-scm.com)
+* ``lmsuzh-extension-continuousintegration`` CI/CD pipeline based on [Mercurial](https://www.mercurial-scm.org), [Git](https://www.git-scm.com), [Maven](https://maven.apache.org), [Jenkins](https://jenkins.io) and [Rancher](https://rancher.com)
 * ``lmsuzh-extension-docker`` Container technology integration based on [Docker](https://www.docker.com)
 * ``lmsuzh-extension-database`` Persistence containers based on [PostgreSQL](https://www.postgresql.org) (deprecated since 7/2018: [MySQL](https://www.mysql.com))
 * ``lmsuzh-extension-embedded`` HTTP server and Servlet container based on [Jetty](https://www.eclipse.org/jetty)

@@ -8,6 +8,12 @@ To learn more, visit [olat.org](https://olat.org)
 
 ### OLAT 18HS
 
+##### 2018/09/12 (v1.2.9)
+* Improved course element External page regarding configuration of credentials
+* Improved continuous integration pipeline
+* Improved search indexing
+* Updated Tomcat to 8.5.32
+
 ##### 2018/08/22 (v1.2.8)
 * Integrated EPIS 2.0beta2 (closed beta phase for exam preparation, implementation and support)
 * Adjusted course element for SWITCHcast 5.0 based on [Opencast](https://opencast.org)
